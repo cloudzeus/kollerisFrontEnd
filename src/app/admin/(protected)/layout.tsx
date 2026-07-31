@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { auth, signOut } from "@/auth";
 import { capabilitiesOf, type Capability } from "@/lib/rbac";
 import { upGreek } from "@/lib/greek";
+import { Toaster } from "sonner";
 
 /**
  * /admin is Greek-only staff UI and deliberately sits OUTSIDE the [locale]
@@ -79,6 +80,7 @@ export default async function AdminLayout({
       </aside>
 
       <main id="main" className="flex-1 bg-k-surface-2">{children}</main>
-    </div>
+      <Toaster position="bottom-right" richColors closeButton />
+      </div>
   );
 }

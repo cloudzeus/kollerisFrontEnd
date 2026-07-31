@@ -63,6 +63,87 @@
   --radius-pill: 9999px;
 }
 
+/* ─────────────────────────────────────────────────────────────────────────
+   shadcn/ui token bridge
+   ─────────────────────────────────────────────────────────────────────────
+   The ui/ primitives are shadcn components, which reference --primary,
+   --muted, --border and friends. Rather than carry a second palette, each one
+   is mapped onto the Kolleris token it should mean, so a colour is changed in
+   exactly one place above and every component follows.
+
+   --radius is 0. Kolleris has no rounded corners anywhere; shadcn defaults to
+   0.625rem, and leaving that would put soft edges on the admin that exist
+   nowhere else on the site.
+   ───────────────────────────────────────────────────────────────────────── */
+:root {
+  --radius: 0px;
+
+  --background: #ffffff;
+  --foreground: var(--color-k-ink);
+
+  --card: #ffffff;
+  --card-foreground: var(--color-k-ink);
+  --popover: #ffffff;
+  --popover-foreground: var(--color-k-ink);
+
+  /* Kolleris red. Used for the one primary action per screen, nothing else. */
+  --primary: var(--color-k-red);
+  --primary-foreground: #ffffff;
+
+  --secondary: var(--color-k-surface-3);
+  --secondary-foreground: var(--color-k-ink);
+
+  --muted: var(--color-k-surface-2);
+  --muted-foreground: var(--color-k-text-3);
+
+  --accent: var(--color-k-surface-3);
+  --accent-foreground: var(--color-k-ink);
+
+  --destructive: var(--color-k-red-hover);
+  --destructive-foreground: #ffffff;
+
+  --border: var(--color-k-line);
+  --input: var(--color-k-line-2);
+  /* Focus ring: ink rather than red, so the focus state is never mistaken for
+     a destructive one. */
+  --ring: var(--color-k-ink);
+}
+
+@theme inline {
+  /* The whole radius scale collapses to zero. shadcn components reach for
+     rounded-sm/md/lg/xl by default; without this they would keep Tailwind's
+     defaults and put soft edges on the admin that exist nowhere else on the
+     site. rounded-full is left alone — it is what makes a switch a switch. */
+  --radius-xs: 0px;
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+  --radius-xl: 0px;
+  --radius-2xl: 0px;
+  --radius-3xl: 0px;
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+}
+
+
 @layer base {
   /*
    * Kill Tailwind's default rounding globally rather than remembering to write

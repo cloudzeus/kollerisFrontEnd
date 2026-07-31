@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-07-31T14:41:04.547Z",
+  "timestamp": "2026-07-31T17:37:51.844Z",
   "source": "auto-postool",
   "partial": false,
   "phase": null,
@@ -17,78 +17,94 @@
   "decisions": [],
   "uncommitted_files": [
     {
-      "status": "??",
-      "path": ".claude/"
+      "status": "M",
+      "path": ".planning/HANDOFF.json"
     },
     {
-      "status": "??",
-      "path": ".gitignore"
-    },
-    {
-      "status": "??",
-      "path": ".planning/"
-    },
-    {
-      "status": "??",
-      "path": "AGENTS.md"
-    },
-    {
-      "status": "??",
-      "path": "BACKEND_ALIGNMENT.md"
-    },
-    {
-      "status": "??",
-      "path": "CLAUDE.md"
-    },
-    {
-      "status": "??",
-      "path": "eslint.config.mjs"
-    },
-    {
-      "status": "??",
-      "path": "next.config.ts"
-    },
-    {
-      "status": "??",
+      "status": "M",
       "path": "package-lock.json"
     },
     {
-      "status": "??",
+      "status": "M",
       "path": "package.json"
     },
     {
-      "status": "??",
-      "path": "postcss.config.mjs"
+      "status": "M",
+      "path": "src/app/globals.css"
     },
     {
       "status": "??",
-      "path": "prisma.config.ts"
+      "path": "src/app/admin/(protected)/settings/"
     },
     {
       "status": "??",
-      "path": "prisma/"
+      "path": "src/components/ui/badge.tsx"
     },
     {
       "status": "??",
-      "path": "public/"
+      "path": "src/components/ui/button.tsx"
     },
     {
       "status": "??",
-      "path": "scripts/"
+      "path": "src/components/ui/card.tsx"
     },
     {
       "status": "??",
-      "path": "src/"
+      "path": "src/components/ui/checkbox.tsx"
     },
     {
       "status": "??",
-      "path": "tsconfig.json"
+      "path": "src/components/ui/data-table.tsx"
     },
     {
       "status": "??",
-      "path": "vitest.config.ts"
+      "path": "src/components/ui/dialog.tsx"
+    },
+    {
+      "status": "??",
+      "path": "src/components/ui/dropdown-menu.tsx"
+    },
+    {
+      "status": "??",
+      "path": "src/components/ui/input.tsx"
+    },
+    {
+      "status": "??",
+      "path": "src/components/ui/label.tsx"
+    },
+    {
+      "status": "??",
+      "path": "src/components/ui/select.tsx"
+    },
+    {
+      "status": "??",
+      "path": "src/components/ui/separator.tsx"
+    },
+    {
+      "status": "??",
+      "path": "src/components/ui/skeleton.tsx"
+    },
+    {
+      "status": "??",
+      "path": "src/components/ui/switch.tsx"
+    },
+    {
+      "status": "??",
+      "path": "src/components/ui/table.tsx"
+    },
+    {
+      "status": "??",
+      "path": "src/components/ui/tabs.tsx"
+    },
+    {
+      "status": "??",
+      "path": "src/components/ui/tooltip.tsx"
+    },
+    {
+      "status": "??",
+      "path": "src/lib/utils.ts"
     }
   ],
   "next_action": null,
-  "context_notes": "Recent commits:\n47273d0 first commit"
+  "context_notes": "Recent commits:\n02653af feat(admin): encrypted settings store for the mini admin\n9c37dd9 feat(shipping): price postage from ACS, and correct the fallback table\n6ee3ab4 fix(checkout): stop offering cash on delivery\n892b728 feat(account): wire B2B approval to HDCtool H5, and correct the identity comments\n306709b feat: Kolleris storefront — catalogue, checkout, accounts, editorial"
 }
