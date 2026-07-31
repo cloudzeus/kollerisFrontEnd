@@ -905,3 +905,42 @@ model ContentBlock {
   @@index([locale])
   @@map("content_blocks")
 }
+
+/// A widget placed in a zone on a page.
+///
+/// Zones are declared in code (`src/lib/zones/registry.ts`) because a zone is a
+/// hole in a layout — it cannot exist unless a component renders it. Widgets are
+/// data: which type sits in which zone, in what order, with what props.
+///
+/// `props` is JSON validated against the widget type's field list on write, so
+/// the admin form and the component agree without a migration every time a
+/// widget gains an option. The registry is the schema.
+///
+/// Deliberately no per-locale row. A widget's TEXT is localised through its
+/// props (each text field holds a per-locale map); duplicating the whole
+/// placement per language would mean the Greek and English homepages could
+/// silently drift into different layouts.
+model ZoneWidget {
+  id String @id @default(cuid())
+
+  /// Registry zone id, e.g. "home.aside".
+  zone String @db.VarChar(64)
+  /// Registry widget type, e.g. "promo-tile".
+  type String @db.VarChar(48)
+
+  /// Position within the zone. Gaps are fine; only the order matters.
+  order Int @default(0)
+
+  /// Set false to take a widget off the page without losing its settings.
+  enabled Boolean @default(true)
+
+  /// Widget props. Shape is decided by the type's field list in the registry.
+  props Json
+
+  updatedBy String?  @db.VarChar(120)
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+
+  @@index([zone, order])
+  @@map("zone_widgets")
+}
