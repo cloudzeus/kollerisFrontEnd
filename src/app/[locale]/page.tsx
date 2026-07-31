@@ -12,6 +12,7 @@ import { ReviewsBand } from "@/components/home/ReviewsBand";
 import { StatStrip } from "@/components/home/StatStrip";
 import type { Locale } from "@/i18n/routing";
 import { getMiniCart } from "@/lib/cart/cart";
+import { getSection } from "@/lib/content/content";
 import {
   getCatalogueStats,
   getFeaturedProducts,
@@ -47,14 +48,20 @@ export default async function HomePage({
   const { locale } = await params;
   setRequestLocale(locale);
 
-  const [categories, menuTree, brands, products, stats, miniCart] = await Promise.all([
-    getRootCategories(locale),
-    getMenuTree(locale),
-    getTopBrands(locale, 16),
-    getFeaturedProducts(locale, 8),
-    getCatalogueStats(),
-    getMiniCart(locale),
-  ]);
+  const [categories, menuTree, brands, products, stats, miniCart, heroCopy, aboutCopy, reviewsCopy] =
+    await Promise.all([
+      getRootCategories(locale),
+      getMenuTree(locale),
+      getTopBrands(locale, 16),
+      getFeaturedProducts(locale, 8),
+      getCatalogueStats(),
+      getMiniCart(locale),
+      // Editable copy. In the same batch as everything else — a separate await
+      // would put the homepage on an extra round-trip for four short strings.
+      getSection("hero", locale),
+      getSection("about", locale),
+      getSection("reviews", locale),
+    ]);
 
   // Promo tiles: CMS-bound in Phase 3. The images are real catalogue products
   // so the tiles are not placeholder art.
@@ -145,6 +152,7 @@ export default async function HomePage({
           productCount={stats.products}
           brandCount={stats.brands}
           featuredTiles={promoTiles}
+          copy={heroCopy}
         />
         <StatStrip stats={statCards} />
         <CategoryGrid
@@ -153,8 +161,8 @@ export default async function HomePage({
         />
         <FeaturedProducts products={products} />
         <BrandWall brands={brands} totalBrands={stats.brands} />
-        <ReviewsBand rating="4,9" reviewCount={214} reviews={reviews} />
-        <AboutSplit usps={usps} />
+        <ReviewsBand rating="4,9" reviewCount={214} reviews={reviews} copy={reviewsCopy} />
+        <AboutSplit usps={usps} copy={aboutCopy} />
         <NewsletterBand />
       </main>
 

@@ -11,8 +11,10 @@ import { upGreek } from "@/lib/greek";
  */
 export function AboutSplit({
   usps,
+  copy
 }: {
   usps: Array<{ n: string; title: string; body: string }>;
+  copy: Record<string, string>
 }) {
   return (
     <section className="shell-w grid bg-white lg:grid-cols-2">
@@ -45,11 +47,11 @@ export function AboutSplit({
       </div>
 
       <div className="flex flex-col justify-center gap-4 px-4 py-7 lg:gap-[22px] lg:px-14 lg:py-16">
-        <p className="t-eyebrow text-k-red">{upGreek("Η εταιρεία")}</p>
+        <p className="t-eyebrow text-k-red">{upGreek(copy.eyebrow)}</p>
         <h2 className="t-h2-about text-k-ink">
-          {upGreek("Γιατί οι επαγγελματίες")}
+          {upGreek(copy.title)}
           <br />
-          {upGreek("εμπιστεύονται την Kolleris")}
+          {upGreek(copy.titleSecond)}
         </h2>
         <p className="t-body text-k-text-2">
           Για 46 χρόνια, η Kolleris είναι ο προμηθευτής που καλούν ναυτιλιακές
@@ -73,7 +75,7 @@ export function AboutSplit({
           href="/etaireia"
           className="t-btn-sm mt-2 self-start bg-k-ink px-[30px] py-[15px] text-white transition-colors hover:bg-k-red"
         >
-          {upGreek("Γνωρίστε μας")} →
+          {upGreek(copy.cta)} →
         </Link>
       </div>
     </section>

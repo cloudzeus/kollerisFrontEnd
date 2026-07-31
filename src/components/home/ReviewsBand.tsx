@@ -21,10 +21,12 @@ export function ReviewsBand({
   rating,
   reviewCount,
   reviews,
+  copy
 }: {
   rating: string;
   reviewCount: number;
   reviews: SiteReview[];
+  copy: Record<string, string>
 }) {
   if (reviews.length === 0) return null;
 
@@ -35,7 +37,7 @@ export function ReviewsBand({
       <div className="grid gap-6 lg:grid-cols-[340px_1fr] lg:gap-14">
         <div>
           <p className="t-eyebrow mb-3 text-k-red lg:mb-3.5">
-            {upGreek("Αξιολογήσεις Google")}
+            {upGreek(copy.title)}
           </p>
           <div className="flex items-baseline gap-2.5 lg:gap-3">
             <span className="t-review-rating text-white">{rating}</span>

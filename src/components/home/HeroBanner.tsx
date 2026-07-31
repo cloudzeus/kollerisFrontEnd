@@ -10,16 +10,23 @@ import { upGreek } from "@/lib/greek";
  * entirely. Desktop 1440 is 520px with a left-to-right gradient and the two
  * tiles in a 400px column.
  *
- * Copy and media stay hardcoded until the CMS zones exist (Phase 3, admin
- * screen 1). Everything numeric is live from the projection.
+ * Copy comes from the CMS via `copy`, which the page resolves. The component
+ * stays pure: it renders what it is given, and the fallback to the original
+ * wording lives in the content registry rather than here, so there is one place
+ * that knows what the site said before anyone edited it.
+ *
+ * Everything numeric is live from the projection, never editable — a count that
+ * marketing could type would drift from the catalogue within a day.
  */
 export function HeroBanner({
   productCount,
   brandCount,
   featuredTiles,
+  copy,
 }: {
   productCount: number;
   brandCount: number;
+  copy: Record<string, string>;
   featuredTiles: Array<{
     eyebrow: string;
     title: string;
@@ -30,6 +37,12 @@ export function HeroBanner({
   }>;
 }) {
   const formatted = productCount.toLocaleString("el-GR");
+
+  // The mobile lead is the one line marketing can write with live figures in
+  // it. Anything else would mean either a stale number or no number at all.
+  const leadMobile = (copy.leadMobile ?? "")
+    .replace("{products}", formatted)
+    .replace("{brands}", String(brandCount));
 
   return (
     <section className="shell-w grid gap-0.5 bg-k-line lg:grid-cols-[1fr_400px]">
@@ -48,23 +61,18 @@ export function HeroBanner({
         <div className="relative flex h-full flex-col justify-end gap-4 px-5 py-[26px] lg:justify-center lg:gap-[26px] lg:px-16 lg:py-15">
           <p className="t-eyebrow flex items-center gap-[11px] text-k-red">
             <span className="hidden h-[1.5px] w-[26px] bg-k-red lg:block" />
-            {upGreek("Βιομηχανικά εργαλεία")} · SINCE 1978
+            {upGreek(copy.eyebrow)} · {copy.since}
           </p>
 
           <h1 className="t-h1 max-w-[640px] text-balance text-white">
-            {upGreek("Εργαλεία που δουλεύουν.")}
+            {upGreek(copy.title)}
             <br />
-            <span className="text-k-red">{upGreek("Χωρίς δικαιολογίες.")}</span>
+            <span className="text-k-red">{upGreek(copy.titleSecond)}</span>
           </h1>
 
           <p className="t-lead max-w-[460px] text-white/74">
-            <span className="lg:hidden">
-              {formatted}+ κωδικοί, {brandCount} brands, παράδοση 24-48 ώρες.
-            </span>
-            <span className="hidden lg:inline">
-              46 χρόνια προμηθεύουμε ναυτιλιακές εταιρείες, εργοστάσια και συνεργεία.
-              Τώρα με πλήρες απόθεμα online — τιμές, διαθεσιμότητα, παράδοση 24-48 ώρες.
-            </span>
+            <span className="lg:hidden">{leadMobile}</span>
+            <span className="hidden lg:inline">{copy.lead}</span>
           </p>
 
           <div className="flex flex-col gap-3.5 lg:mt-1.5 lg:flex-row lg:items-center">
@@ -72,13 +80,13 @@ export function HeroBanner({
               href="/katalogos"
               className="t-btn bg-k-red py-[15px] text-center text-white transition-colors hover:bg-k-red-hover lg:px-[30px] lg:py-4"
             >
-              {upGreek("Αγοράστε τώρα")} →
+              {upGreek(copy.ctaPrimary)} →
             </Link>
             <Link
               href="/katalogos"
               className="t-btn-outline hidden border-[1.5px] border-white/34 px-7 py-[15px] text-white transition-colors hover:border-white lg:block"
             >
-              {upGreek("Κατάλογος")} {formatted}+ {upGreek("κωδικών")}
+              {upGreek(copy.ctaSecondary)} {formatted}+ {upGreek("κωδικών")}
             </Link>
           </div>
         </div>
