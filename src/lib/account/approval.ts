@@ -26,11 +26,26 @@ export type ApprovalResult =
   | { ok: true; trdr: number | null; partnerFactor: number | null }
   | { ok: false; error: "not_found" | "already_active" | "erp_failed"; detail?: string };
 
-/** HDCtool H5 — ΑΦΜ in, SoftOne customer ensured, TRDR out. */
+/**
+ * HDCtool H5 — ΑΦΜ in, SoftOne customer ensured, TRDR out.
+ *
+ * `outcome` distinguishes a company that was already known to the ERP from one
+ * we just created, and `source` says which layer answered: the HDCtool customer
+ * table, SoftOne itself, or the AADE registry. Both are recorded rather than
+ * used for control flow — when an approval is questioned months later, "found
+ * in SoftOne" and "created by us" are very different stories.
+ *
+ * No `discountPercent`: there is no per-customer discount anywhere in HDCtool
+ * or SoftOne today. The field stays in the type because the endpoint is where
+ * it will appear if customer price lists are ever exposed, and until then
+ * `partnerFactor` stays null rather than guessed.
+ */
 type EnsureCustomerResponse = {
   success: boolean;
-  trdr?: number;
-  /** Discount percentage the ERP holds for this customer, when it has one. */
+  found?: boolean;
+  outcome?: "found" | "created";
+  source?: "database" | "softone" | "wwa";
+  trdr?: number | null;
   discountPercent?: number;
   error?: string;
 };
@@ -55,9 +70,13 @@ export async function approveCompany(
       city: company.billCity,
       zip: company.billPostcode,
       phone: company.phone,
-      // Already known when the ΑΦΜ lookup at registration matched an existing
-      // customer — passing it lets HDCtool update rather than create.
-      trdr: company.erpTrdr,
+      // Approval is the moment the ERP customer should exist. The endpoint
+      // defaults this to false so that a lookup at registration or checkout
+      // never leaves a phantom TRDR behind for someone who abandoned a basket —
+      // but an approved partner is a real business relationship, and the
+      // company cannot be invoiced without a customer record.
+      createIfMissing: true,
+      orderRef: `eshop-approval:${company.id}`,
     });
   } catch (error) {
     const detail =
@@ -73,6 +92,15 @@ export async function approveCompany(
   }
 
   const trdr = ensured.trdr ?? company.erpTrdr ?? null;
+
+  // Kept as a record of HOW this company reached the ERP. When an approval is
+  // questioned later, "already existed in SoftOne" and "created by this
+  // approval" are the two answers worth being able to give.
+  console.info(
+    `[approval] ${company.afm} → ${ensured.outcome ?? "?"}` +
+      `${ensured.source ? ` (${ensured.source})` : ""} trdr=${trdr ?? "—"}`,
+  );
+
   const partnerFactor =
     typeof ensured.discountPercent === "number" &&
     ensured.discountPercent > 0 &&

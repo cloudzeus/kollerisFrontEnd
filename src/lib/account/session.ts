@@ -12,9 +12,15 @@ import { companyCan, type CompanyCapability } from "@/lib/account/contract";
  * `/admin`. Staff and customers must never share an identity: one cookie that
  * could hold either is one bug away from a customer landing in the CMS.
  *
- * The cookie holds only HDCtool's token. Identity is resolved by asking
- * HDCtool, cached per request — so a suspended account stops working on its
- * next page load rather than whenever a JWT happens to expire.
+ * Shopper identity lives in THIS database, not in HDCtool. HDCtool is the single
+ * point of truth for the catalogue and for everything the ERP owns; a shopper is
+ * neither until they buy something, at which point they become a SoftOne customer
+ * and we hold the TRDR as the mapping. Profile, marketing and account
+ * administration stay here, where the mini admin can reach them.
+ *
+ * The cookie holds an opaque session token. Identity is resolved from the session
+ * row, cached per request — so a suspended account stops working on its next page
+ * load rather than whenever a JWT happens to expire.
  */
 
 export const CUSTOMER_COOKIE = "KOLLERIS_SESSION";
@@ -45,8 +51,8 @@ export type CustomerSession =
 /**
  * Who is browsing.
  *
- * `cache` keeps it to one HDCtool round-trip per request even though the
- * header, the page and the price formatter all ask independently.
+ * `cache` keeps it to one lookup per request even though the header, the page
+ * and the price formatter all ask independently.
  */
 export const getCustomerSession = cache(async (): Promise<CustomerSession> => {
   const token = await getCustomerToken();
@@ -73,9 +79,10 @@ export async function getCurrentUser(): Promise<AccountUser | null> {
 /**
  * The multiplier applied to net prices for this visitor.
  *
- * 1 for guests and individuals. For an approved company it is whatever HDCtool
- * says — never a number this app decides, because the discount is an ERP fact
- * and the two must not be able to disagree at checkout.
+ * 1 for guests and individuals. For an approved company it is the factor written
+ * at approval from what the ERP returned — never a number this app decides,
+ * because the discount is an ERP fact and the two must not be able to disagree
+ * at checkout. Stored here, but owned there.
  *
  * A `pending` company gets 1: registering is not the same as being approved.
  */
