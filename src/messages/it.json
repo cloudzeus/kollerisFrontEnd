@@ -1,0 +1,20 @@
+{
+  "common": {
+    "brand": "KOLLERIS",
+    "search": "Cerca",
+    "cart": "Carrello",
+    "account": "Account",
+    "menu": "Menu",
+    "close": "Chiudi",
+    "loading": "Caricamento…",
+    "vatIncluded": "IVA inclusa"
+  },
+  "nav": {
+    "catalogue": "CATALOGO",
+    "brands": "BRAND",
+    "offers": "OFFERTE",
+    "newArrivals": "NOVITÀ",
+    "about": "AZIENDA",
+    "contact": "CONTATTI"
+  }
+}

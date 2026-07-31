@@ -1,0 +1,20 @@
+{
+  "common": {
+    "brand": "KOLLERIS",
+    "search": "Search",
+    "cart": "Cart",
+    "account": "Account",
+    "menu": "Menu",
+    "close": "Close",
+    "loading": "Loading…",
+    "vatIncluded": "incl. VAT"
+  },
+  "nav": {
+    "catalogue": "CATALOGUE",
+    "brands": "BRANDS",
+    "offers": "OFFERS",
+    "newArrivals": "NEW ARRIVALS",
+    "about": "ABOUT",
+    "contact": "CONTACT"
+  }
+}

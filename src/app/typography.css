@@ -1,0 +1,558 @@
+/*
+ * Kolleris type scale — transcribed 1:1 from the design handoff.
+ *
+ * The handoff specifies two breakpoints only: Mobile 390 and Desktop 1440.
+ * Each class below carries the mobile values, with the desktop values applied
+ * at `min-width: 1024px`. Where the handoff gives one value it applies to both.
+ *
+ * Every rule sets family + weight + size + line-height + letter-spacing
+ * together. Splitting them across Tailwind utilities is how the first pass
+ * drifted: the sizes were right but the weights defaulted to 400, which is what
+ * made the page read differently from the mockup.
+ *
+ * Source: "Kolleris Eshop Homepage.dc.html" — desktop option 1a, mobile 1c.
+ */
+
+@layer components {
+  /* ── Utility bar ───────────────────────────────────────────────── */
+  .t-util {
+    font-family: var(--font-mono-face), ui-monospace, monospace;
+    font-weight: 500;
+    font-size: 9.5px;
+    line-height: 1;
+    letter-spacing: 0.08em;
+  }
+  @media (min-width: 1024px) {
+    .t-util {
+      font-size: 10.5px;
+      letter-spacing: 0.09em;
+    }
+  }
+
+  .t-lang {
+    font-family: var(--font-mono-face), ui-monospace, monospace;
+    font-weight: 600;
+    font-size: 10px;
+    line-height: 1;
+    letter-spacing: 0.07em;
+  }
+
+  /* ── Header ────────────────────────────────────────────────────── */
+  .t-search-cat {
+    font-family: var(--font-mono-face), ui-monospace, monospace;
+    font-weight: 500;
+    font-size: 11px;
+    letter-spacing: 0.06em;
+  }
+
+  .t-input {
+    font-family: var(--font-sans-face), system-ui, sans-serif;
+    font-weight: 400;
+    font-size: 13px;
+  }
+  @media (min-width: 1024px) {
+    .t-input {
+      font-size: 14px;
+    }
+  }
+
+  .t-account-label {
+    font-family: var(--font-mono-face), ui-monospace, monospace;
+    font-weight: 500;
+    font-size: 9.5px;
+    line-height: 1;
+    letter-spacing: 0.1em;
+  }
+
+  .t-account-value {
+    font-family: var(--font-sans-face), system-ui, sans-serif;
+    font-weight: 600;
+    font-size: 12.5px;
+    line-height: 1;
+  }
+
+  /* ── Navigation ────────────────────────────────────────────────── */
+  .t-nav {
+    font-family: var(--font-sans-face), system-ui, sans-serif;
+    font-weight: 600;
+    font-size: 11.5px;
+    letter-spacing: 0.07em;
+  }
+
+  .t-nav-strong {
+    font-family: var(--font-sans-face), system-ui, sans-serif;
+    font-weight: 700;
+    font-size: 11.5px;
+    letter-spacing: 0.07em;
+  }
+
+  .t-nav-sub {
+    font-family: var(--font-mono-face), ui-monospace, monospace;
+    font-weight: 500;
+    font-size: 10.5px;
+    letter-spacing: 0.07em;
+  }
+
+  /* ── Headings ──────────────────────────────────────────────────── */
+  .t-eyebrow {
+    font-family: var(--font-mono-face), ui-monospace, monospace;
+    font-weight: 500;
+    font-size: 9.5px;
+    line-height: 1;
+    letter-spacing: 0.14em;
+  }
+  @media (min-width: 1024px) {
+    .t-eyebrow {
+      font-size: 10.5px;
+    }
+  }
+
+  .t-h1 {
+    font-family: var(--font-artegra-face), var(--font-sans-face), sans-serif;
+    font-weight: 500;
+    font-size: 25px;
+    line-height: 1.14;
+    letter-spacing: 0;
+  }
+  @media (min-width: 1024px) {
+    .t-h1 {
+      font-size: 44px;
+      line-height: 1.06;
+    }
+  }
+
+  .t-h2 {
+    font-family: var(--font-artegra-face), var(--font-sans-face), sans-serif;
+    font-weight: 500;
+    font-size: 18px;
+    line-height: 1.18;
+    letter-spacing: 0;
+  }
+  @media (min-width: 1024px) {
+    .t-h2 {
+      font-size: 29px;
+      line-height: 1.12;
+    }
+  }
+
+  /* About section heading — 26px on desktop, not 29px. */
+  .t-h2-about {
+    font-family: var(--font-artegra-face), var(--font-sans-face), sans-serif;
+    font-weight: 500;
+    font-size: 18px;
+    line-height: 1.18;
+  }
+  @media (min-width: 1024px) {
+    .t-h2-about {
+      font-size: 26px;
+      line-height: 1.16;
+    }
+  }
+
+  .t-tile-title {
+    font-family: var(--font-artegra-face), var(--font-sans-face), sans-serif;
+    font-weight: 500;
+    font-size: 15px;
+    line-height: 1.2;
+  }
+  @media (min-width: 1024px) {
+    .t-tile-title {
+      font-size: 18px;
+    }
+  }
+
+  /* ── Body copy ─────────────────────────────────────────────────── */
+  .t-lead {
+    font-family: var(--font-sans-face), system-ui, sans-serif;
+    font-weight: 400;
+    font-size: 13.5px;
+    line-height: 1.55;
+  }
+  @media (min-width: 1024px) {
+    .t-lead {
+      font-size: 16px;
+      line-height: 1.6;
+    }
+  }
+
+  .t-body {
+    font-family: var(--font-sans-face), system-ui, sans-serif;
+    font-weight: 400;
+    font-size: 13px;
+    line-height: 1.6;
+  }
+  @media (min-width: 1024px) {
+    .t-body {
+      font-size: 15px;
+      line-height: 1.68;
+    }
+  }
+
+  .t-body-sm {
+    font-family: var(--font-sans-face), system-ui, sans-serif;
+    font-weight: 400;
+    font-size: 12.5px;
+    line-height: 1.5;
+  }
+
+  /* ── Links & buttons ───────────────────────────────────────────── */
+  .t-link-mono {
+    font-family: var(--font-mono-face), ui-monospace, monospace;
+    font-weight: 600;
+    font-size: 10.5px;
+    letter-spacing: 0.08em;
+  }
+  @media (min-width: 1024px) {
+    .t-link-mono {
+      font-size: 11px;
+    }
+  }
+
+  .t-btn {
+    font-family: var(--font-sans-face), system-ui, sans-serif;
+    font-weight: 700;
+    font-size: 12px;
+    letter-spacing: 0.09em;
+  }
+
+  .t-btn-outline {
+    font-family: var(--font-sans-face), system-ui, sans-serif;
+    font-weight: 600;
+    font-size: 12px;
+    letter-spacing: 0.09em;
+  }
+
+  .t-btn-sm {
+    font-family: var(--font-sans-face), system-ui, sans-serif;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.09em;
+  }
+  @media (min-width: 1024px) {
+    .t-btn-sm {
+      font-size: 11.5px;
+    }
+  }
+
+  /* ── Badges ────────────────────────────────────────────────────── */
+  .t-badge {
+    font-family: var(--font-mono-face), ui-monospace, monospace;
+    font-weight: 700;
+    font-size: 8.5px;
+    line-height: 1;
+    letter-spacing: 0.07em;
+  }
+  @media (min-width: 1024px) {
+    .t-badge {
+      font-size: 9.5px;
+      letter-spacing: 0.1em;
+    }
+  }
+
+  /* ── Stat strip ────────────────────────────────────────────────── */
+  .t-stat-num {
+    font-family: var(--font-mono-face), ui-monospace, monospace;
+    font-weight: 600;
+    font-size: 24px;
+    line-height: 1;
+    letter-spacing: -0.02em;
+  }
+  @media (min-width: 1024px) {
+    .t-stat-num {
+      font-size: 34px;
+    }
+  }
+
+  .t-stat-label {
+    font-family: var(--font-mono-face), ui-monospace, monospace;
+    font-weight: 500;
+    font-size: 9px;
+    line-height: 1.4;
+    letter-spacing: 0.07em;
+  }
+  @media (min-width: 1024px) {
+    .t-stat-label {
+      font-size: 10.5px;
+      line-height: 1.45;
+      letter-spacing: 0.08em;
+    }
+  }
+
+  /* ── Category tile ─────────────────────────────────────────────── */
+  .t-cat-num {
+    font-family: var(--font-mono-face), ui-monospace, monospace;
+    font-weight: 600;
+    font-size: 9.5px;
+    letter-spacing: 0.08em;
+  }
+  @media (min-width: 1024px) {
+    .t-cat-num {
+      font-size: 10.5px;
+    }
+  }
+
+  .t-cat-count {
+    font-family: var(--font-mono-face), ui-monospace, monospace;
+    font-weight: 500;
+    font-size: 9.5px;
+  }
+  @media (min-width: 1024px) {
+    .t-cat-count {
+      font-size: 10.5px;
+    }
+  }
+
+  .t-cat-name {
+    font-family: var(--font-sans-face), system-ui, sans-serif;
+    font-weight: 700;
+    font-size: 11px;
+    line-height: 1.3;
+    letter-spacing: 0.03em;
+  }
+  @media (min-width: 1024px) {
+    .t-cat-name {
+      font-size: 13px;
+    }
+  }
+
+  .t-cat-subs {
+    font-family: var(--font-sans-face), system-ui, sans-serif;
+    font-weight: 400;
+    font-size: 11.5px;
+  }
+
+  /* ── Product card ──────────────────────────────────────────────── */
+  .t-card-brand {
+    font-family: var(--font-mono-face), ui-monospace, monospace;
+    font-weight: 700;
+    font-size: 9px;
+    letter-spacing: 0.1em;
+  }
+  @media (min-width: 1024px) {
+    .t-card-brand {
+      font-size: 10px;
+    }
+  }
+
+  .t-card-sku {
+    font-family: var(--font-mono-face), ui-monospace, monospace;
+    font-weight: 400;
+    font-size: 10px;
+  }
+
+  .t-card-name {
+    font-family: var(--font-sans-face), system-ui, sans-serif;
+    font-weight: 600;
+    font-size: 11.5px;
+    line-height: 1.35;
+  }
+  @media (min-width: 1024px) {
+    .t-card-name {
+      font-size: 13px;
+      line-height: 1.4;
+    }
+  }
+
+  .t-card-stock {
+    font-family: var(--font-mono-face), ui-monospace, monospace;
+    font-weight: 500;
+    font-size: 9.5px;
+    letter-spacing: 0.06em;
+  }
+  @media (min-width: 1024px) {
+    .t-card-stock {
+      font-size: 10.5px;
+    }
+  }
+
+  .t-card-was {
+    font-family: var(--font-mono-face), ui-monospace, monospace;
+    font-weight: 400;
+    font-size: 10.5px;
+  }
+  @media (min-width: 1024px) {
+    .t-card-was {
+      font-size: 11.5px;
+    }
+  }
+
+  .t-card-price {
+    font-family: var(--font-mono-face), ui-monospace, monospace;
+    font-weight: 600;
+    font-size: 17px;
+    line-height: 1.1;
+    letter-spacing: -0.01em;
+  }
+  @media (min-width: 1024px) {
+    .t-card-price {
+      font-size: 21px;
+    }
+  }
+
+  .t-card-vat {
+    font-family: var(--font-mono-face), ui-monospace, monospace;
+    font-weight: 400;
+    font-size: 8.5px;
+    letter-spacing: 0.06em;
+  }
+  @media (min-width: 1024px) {
+    .t-card-vat {
+      font-size: 9.5px;
+    }
+  }
+
+  .t-card-cta {
+    font-family: var(--font-mono-face), ui-monospace, monospace;
+    font-weight: 700;
+    font-size: 10px;
+    letter-spacing: 0.07em;
+  }
+  @media (min-width: 1024px) {
+    .t-card-cta {
+      font-size: 10.5px;
+    }
+  }
+
+  /* ── Brand wall ────────────────────────────────────────────────── */
+  .t-brand-name {
+    font-family: var(--font-artegra-face), var(--font-sans-face), sans-serif;
+    font-weight: 500;
+    font-size: 11px;
+    letter-spacing: 0.02em;
+  }
+
+  .t-brand-count {
+    font-family: var(--font-mono-face), ui-monospace, monospace;
+    font-weight: 400;
+    font-size: 9px;
+    letter-spacing: 0.06em;
+  }
+
+  /* ── Reviews ───────────────────────────────────────────────────── */
+  .t-review-rating {
+    font-family: var(--font-mono-face), ui-monospace, monospace;
+    font-weight: 600;
+    font-size: 44px;
+    line-height: 1;
+  }
+  @media (min-width: 1024px) {
+    .t-review-rating {
+      font-size: 62px;
+    }
+  }
+
+  .t-review-text {
+    font-family: var(--font-sans-face), system-ui, sans-serif;
+    font-weight: 400;
+    font-size: 13px;
+    line-height: 1.6;
+  }
+  @media (min-width: 1024px) {
+    .t-review-text {
+      font-size: 13.5px;
+      line-height: 1.65;
+    }
+  }
+
+  .t-review-name {
+    font-family: var(--font-sans-face), system-ui, sans-serif;
+    font-weight: 600;
+    font-size: 12px;
+  }
+
+  .t-review-role {
+    font-family: var(--font-mono-face), ui-monospace, monospace;
+    font-weight: 400;
+    font-size: 10.5px;
+    letter-spacing: 0.06em;
+  }
+
+  /* ── About USPs ────────────────────────────────────────────────── */
+  .t-usp-title {
+    font-family: var(--font-sans-face), system-ui, sans-serif;
+    font-weight: 600;
+    font-size: 13.5px;
+  }
+
+  .t-usp-body {
+    font-family: var(--font-sans-face), system-ui, sans-serif;
+    font-weight: 400;
+    font-size: 13px;
+    line-height: 1.55;
+  }
+
+  /* ── Newsletter ────────────────────────────────────────────────── */
+  .t-news-title {
+    font-family: var(--font-artegra-face), var(--font-sans-face), sans-serif;
+    font-weight: 500;
+    font-size: 15px;
+    line-height: 1.2;
+  }
+  @media (min-width: 1024px) {
+    .t-news-title {
+      font-size: 19px;
+    }
+  }
+
+  .t-news-body {
+    font-family: var(--font-sans-face), system-ui, sans-serif;
+    font-weight: 400;
+    font-size: 13.5px;
+  }
+
+  /* ── Footer ────────────────────────────────────────────────────── */
+  .t-footer-tag {
+    font-family: var(--font-mono-face), ui-monospace, monospace;
+    font-weight: 400;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+  }
+  @media (min-width: 1024px) {
+    .t-footer-tag {
+      font-size: 11px;
+    }
+  }
+
+  .t-footer-col {
+    font-family: var(--font-mono-face), ui-monospace, monospace;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+  }
+  @media (min-width: 1024px) {
+    .t-footer-col {
+      letter-spacing: 0.12em;
+    }
+  }
+
+  .t-footer-link {
+    font-family: var(--font-sans-face), system-ui, sans-serif;
+    font-weight: 400;
+    font-size: 13px;
+  }
+
+  .t-footer-legal {
+    font-family: var(--font-sans-face), system-ui, sans-serif;
+    font-weight: 400;
+    font-size: 11px;
+    line-height: 1.6;
+  }
+  @media (min-width: 1024px) {
+    .t-footer-legal {
+      font-size: 11.5px;
+    }
+  }
+
+  .t-social {
+    font-family: var(--font-mono-face), ui-monospace, monospace;
+    font-weight: 600;
+    font-size: 10.5px;
+  }
+
+  .t-pay {
+    font-family: var(--font-mono-face), ui-monospace, monospace;
+    font-weight: 600;
+    font-size: 8.5px;
+    letter-spacing: 0.07em;
+  }
+}

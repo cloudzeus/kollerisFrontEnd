@@ -1,0 +1,456 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "./typography.css";
+
+/*
+ * Kolleris design tokens.
+ *
+ * Tailwind 4.1 is CSS-first — these replace the `tailwind.config.ts` extension
+ * shown in the development spec. Same values, different mechanism; there is no
+ * JS config file to edit.
+ *
+ * Rule: border-radius is 0 everywhere. `rounded-pill` is the only opt-in,
+ * reserved for dots and status badges.
+ */
+@theme {
+  /* ── Brand ── */
+  --color-k-red: #ff3333;
+  --color-k-red-hover: #c81f1f;
+
+  /* ── Ink & text ── */
+  --color-k-ink: #1a1a1c;
+  --color-k-ink-deep: #101012;
+  --color-k-text-2: #55555a;
+  --color-k-text-3: #6e6e73;
+  --color-k-text-4: #8a8a8e;
+  --color-k-text-5: #a8a8ad;
+  --color-k-text-6: #b4b4b9;
+
+  /* ── Lines & surfaces ── */
+  --color-k-line: #ececee;
+  --color-k-line-2: #dddde0;
+  --color-k-line-3: #f4f4f5;
+  --color-k-surface-2: #fafafb;
+  --color-k-surface-3: #f5f5f6;
+
+  /* ── Status ── */
+  --color-k-green: #1f9254;
+  --color-k-green-2: #4ecb71;
+  --color-k-amber: #b5811a;
+  --color-k-blue: #1f5f8b;
+
+  /* ── Type ── */
+  --font-artegra: var(--font-artegra-face), var(--font-sans-face), sans-serif;
+  --font-sans: var(--font-sans-face), system-ui, sans-serif;
+  --font-mono: var(--font-mono-face), ui-monospace, monospace;
+
+  /*
+   * Maximum CONTENT width — not page width.
+   *
+   * Every band stays full-bleed: the dark breadcrumb strips, the stat grid, the
+   * red newsletter bar and the footer all still run edge to edge on a 3840px
+   * monitor. What stops growing is the text and the grids inside them, so a
+   * wide display gets more page rather than a stretched one.
+   *
+   * The handoff is a 1440px canvas with 40px gutters. 2500 is the client's
+   * call: roughly a 2560 monitor edge to edge, which is where the layout was
+   * breaking before there was any cap at all.
+   */
+  --shell-max: 2500px;
+
+  /* ── Radius: zero is the rule ── */
+  --radius-none: 0px;
+  --radius-pill: 9999px;
+}
+
+@layer base {
+  /*
+   * Kill Tailwind's default rounding globally rather than remembering to write
+   * `rounded-none` on every element.
+   */
+  *,
+  ::before,
+  ::after {
+    border-radius: 0;
+  }
+
+  .rounded-pill,
+  .rounded-full {
+    border-radius: 9999px;
+  }
+
+  html {
+    /* Read by CategoryRail / sticky offsets — SiteHeader updates it on scroll.
+       Never hardcode the header height. */
+    --header-h: 88px;
+
+    /* Height of the sticky compare toolbar — the product row pins beneath it. */
+    --compare-toolbar-h: 52px;
+    scroll-padding-top: var(--header-h);
+  }
+  @media (min-width: 1024px) {
+    html {
+      --compare-toolbar-h: 58px;
+    }
+  }
+
+  body {
+    background: #ffffff;
+    color: var(--color-k-ink);
+    font-family: var(--font-sans);
+  }
+
+  /*
+   * The storefront shell. Full width by design — the cap lives on the CONTENT
+   * (`.shell-x` / `.shell-w`), never on the page, so section backgrounds keep
+   * running edge to edge.
+   *
+   * Storefront only: `/admin` is a different tree with its own density.
+   */
+  .page-shell {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    width: 100%;
+    background: #ffffff;
+  }
+
+  /*
+   * Content gutter that also caps content width.
+   *
+   * `padding-inline: max(gutter, (100% - cap) / 2)` does the job of a centred
+   * wrapper without one: below the cap it is a plain gutter, above it the
+   * padding grows so the content stays centred at exactly `--shell-max`.
+   *
+   * Doing it with padding rather than a `<div>` is the whole point — the dark
+   * bands, the red newsletter strip and the footer still run edge to edge while
+   * their text lines up with everything else on the page.
+   */
+  .shell-x {
+    padding-inline: 1rem;
+  }
+  @media (min-width: 1024px) {
+    .shell-x {
+      padding-inline: max(2.5rem, calc((100% - var(--shell-max)) / 2));
+    }
+  }
+
+  /*
+   * Cap for elements that already carry their own gutter on the inside — the
+   * two-column page grids (cart, checkout, PDP, PLP) and the stat strip.
+   *
+   * Capped at `--shell-max` PLUS the two 40px gutters, so their inner content
+   * lands on exactly the same line as every `.shell-x` band above and below.
+   */
+  .shell-w {
+    margin-inline: auto;
+    width: 100%;
+    max-width: calc(var(--shell-max) + 5rem);
+  }
+
+  /* Numerals are always monospaced — prices, SKUs, quantities, counts. */
+  .numeral {
+    font-family: var(--font-mono-face), ui-monospace, monospace;
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+/*
+ * ─── Section rhythm ────────────────────────────────────────────────────────
+ *
+ * The page was reading as one undifferentiated sheet of white: the product
+ * description and the related-products rail sat on almost the same surface,
+ * with nothing between them, so nobody could tell where one ended.
+ *
+ * The fix is a rule, not a palette. Three surfaces, and NEVER two adjacent
+ * bands on the same one:
+ *
+ *   .band-base   white          — primary content
+ *   .band-alt    surface-2      — supporting content, with a hairline grid
+ *   .band-ink    ink-deep       — punctuation: heroes, breadcrumbs, footer
+ *
+ * Depth comes from hairlines and a red keyline, not shadows — this design has
+ * `border-radius: 0` everywhere and soft shadows would fight it.
+ */
+@layer components {
+  .band-base {
+    background: #ffffff;
+  }
+
+  .band-alt {
+    background: var(--color-k-surface-2);
+  }
+
+  .band-ink {
+    background: var(--color-k-ink-deep);
+    color: #fff;
+  }
+
+  /*
+   * Engineering-drawing grid.
+   *
+   * Blueprint texture for the DARK bands only. On white it read as a table —
+   * at 5% on #fff the lines are the strongest thing in a section of 13px grey
+   * text, so instead of giving the surface depth it looked like a rendering
+   * fault. Light bands get their separation from real surface changes and the
+   * section head, which is what was actually missing.
+   */
+  .band-grid {
+    position: relative;
+    isolation: isolate;
+  }
+  .band-ink.band-grid::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background-image:
+      linear-gradient(to right, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+    background-size: 72px 72px;
+    /* Fades downward so the grid never meets the band's own bottom edge. */
+    mask-image: linear-gradient(to bottom, #000 0%, transparent 78%);
+  }
+
+  /*
+   * Hazard stripe. Already the signature on the price box; promoted to a
+   * utility so the same 7px rule can punctuate a section start.
+   */
+  .rule-hazard {
+    height: 7px;
+    background: repeating-linear-gradient(135deg, #ff3333 0 9px, #1a1a1c 9px 18px);
+  }
+
+  /* Thin red keyline that opens a section head. */
+  .rule-accent {
+    height: 2px;
+    width: 34px;
+    background: var(--color-k-red);
+  }
+}
+
+/*
+ * ─── Sticky header ─────────────────────────────────────────────────────────
+ *
+ * `HeaderShell` flips `data-condensed`; everything below is the reaction. All
+ * of it is CSS so scrolling costs no React render — see the component for why
+ * that matters with a 24-category mega-menu inside.
+ *
+ * The utility bar collapses by max-height rather than `display:none` so it can
+ * animate, and the search row loses 32px of height, not its contents: a header
+ * that reflows its own children while you scroll past it reads as broken.
+ */
+@layer components {
+  .site-header {
+    background: #ffffff;
+    transition: box-shadow 220ms ease;
+  }
+  .site-header[data-condensed="true"] {
+    box-shadow: 0 6px 20px rgba(16, 16, 18, 0.09);
+  }
+
+  .site-header .header-utility {
+    overflow: hidden;
+    max-height: 40px;
+    transition:
+      max-height 240ms ease,
+      opacity 180ms ease;
+  }
+  .site-header[data-condensed="true"] .header-utility {
+    max-height: 0;
+    opacity: 0;
+  }
+
+  .site-header .header-main {
+    transition: height 240ms ease;
+  }
+  .site-header .header-logo {
+    transition: width 240ms ease;
+  }
+
+  @media (min-width: 1024px) {
+    .site-header[data-condensed="true"] .header-main {
+      height: 64px;
+    }
+    .site-header[data-condensed="true"] .header-logo {
+      width: 118px;
+    }
+  }
+
+  /*
+   * The search field is the primary tool on a 5.305-code catalogue, so it gets
+   * a real focus treatment rather than the browser default outline the rest of
+   * the border-heavy design would swallow.
+   */
+  .search-shell:focus-within {
+    box-shadow: 0 0 0 3px rgba(255, 51, 51, 0.16);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .site-header,
+    .site-header .header-utility,
+    .site-header .header-main,
+    .site-header .header-logo {
+      transition: none;
+    }
+  }
+}
+
+/*
+ * ─── One container for the product page ────────────────────────────────────
+ *
+ * The PDP had bands aligning to three different things at once: the product
+ * block to `shell-x` (40px gutter), the specs strip and dealer band to
+ * `shell-w` (no gutter, so they ran to the very edge of the screen), and the
+ * technical section to `shell-x` again. Three left edges on one page.
+ *
+ * `.pdp-band` is the full-bleed wrapper — background and borders run edge to
+ * edge — and `.pdp-inner` is the single column everything inside lines up to.
+ * A buy box does not read better at 1100px and neither does a product photo,
+ * so the column caps well below the shell.
+ */
+@layer components {
+  .pdp-band {
+    padding-inline: 1rem;
+  }
+  @media (min-width: 1024px) {
+    .pdp-band {
+      padding-inline: max(2.5rem, calc((100% - 1440px) / 2));
+    }
+  }
+
+  .pdp-inner {
+    margin-inline: auto;
+    width: 100%;
+    max-width: 1440px;
+  }
+}
+
+/*
+ * ─── Filter sidebar scrollbar ──────────────────────────────────────────────
+ *
+ * The sidebar is a fixed-height scroll region, and the platform scrollbar drew
+ * a 15px grey slab down the middle of the page — the widest vertical element in
+ * the whole layout, sitting between the filters and the grid.
+ *
+ * Thin, in the design's own line colour, and only inked while the region is
+ * hovered or focused. It stays a real scrollbar: `scrollbar-width: none` would
+ * hide the one affordance telling anyone there is more below.
+ */
+@layer components {
+  .scroll-slim {
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent;
+    transition: scrollbar-color 200ms ease;
+  }
+  .scroll-slim:hover,
+  .scroll-slim:focus-within {
+    scrollbar-color: var(--color-k-line-2) transparent;
+  }
+
+  .scroll-slim::-webkit-scrollbar {
+    width: 6px;
+  }
+  .scroll-slim::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .scroll-slim::-webkit-scrollbar-thumb {
+    background: transparent;
+    transition: background 200ms ease;
+  }
+  .scroll-slim:hover::-webkit-scrollbar-thumb,
+  .scroll-slim:focus-within::-webkit-scrollbar-thumb {
+    background: var(--color-k-line-2);
+  }
+  .scroll-slim:hover::-webkit-scrollbar-thumb:hover {
+    background: var(--color-k-text-5);
+  }
+}
+
+/*
+ * ─── Article body ──────────────────────────────────────────────────────────
+ *
+ * HDCtool's editor emits plain HTML with no classes, so the styling has to
+ * come from the parent. Scoped to `.prose-kolleris` rather than applied
+ * globally — the rest of the site is composed from utilities, and loose
+ * element selectors would leak into every page that renders a `<p>`.
+ */
+@layer components {
+  .prose-kolleris {
+    color: var(--color-k-text-2);
+    font-size: 14.5px;
+    line-height: 1.8;
+  }
+  .prose-kolleris > * + * {
+    margin-top: 1.15em;
+  }
+  .prose-kolleris h2,
+  .prose-kolleris h3 {
+    font-family: var(--font-artegra);
+    color: var(--color-k-ink);
+    line-height: 1.25;
+    margin-top: 2em;
+  }
+  .prose-kolleris h2 {
+    font-size: 22px;
+  }
+  .prose-kolleris h3 {
+    font-size: 17px;
+  }
+  .prose-kolleris a {
+    color: var(--color-k-ink);
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+    text-decoration-color: var(--color-k-red);
+  }
+  .prose-kolleris a:hover {
+    color: var(--color-k-red);
+  }
+  .prose-kolleris strong {
+    color: var(--color-k-ink);
+    font-weight: 600;
+  }
+  .prose-kolleris ul,
+  .prose-kolleris ol {
+    padding-left: 1.4em;
+  }
+  .prose-kolleris ul {
+    list-style: disc;
+  }
+  .prose-kolleris ol {
+    list-style: decimal;
+  }
+  .prose-kolleris li + li {
+    margin-top: 0.4em;
+  }
+  .prose-kolleris img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+  }
+  .prose-kolleris blockquote {
+    border-left: 3px solid var(--color-k-red);
+    padding-left: 1.2em;
+    color: var(--color-k-ink);
+    font-size: 16px;
+  }
+  .prose-kolleris table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  .prose-kolleris th,
+  .prose-kolleris td {
+    border-bottom: 1px solid var(--color-k-line);
+    padding: 0.6em 0.8em;
+    text-align: left;
+  }
+  .prose-kolleris code {
+    font-family: var(--font-mono);
+    font-size: 0.92em;
+    background: var(--color-k-surface-3);
+    padding: 0.1em 0.35em;
+  }
+}

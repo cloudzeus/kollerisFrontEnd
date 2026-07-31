@@ -1,0 +1,177 @@
+import type { Metadata } from "next";
+import Image from "next/image";
+import { setRequestLocale } from "next-intl/server";
+import { CartActionsRow } from "@/components/cart/CartActionsRow";
+import { CartCrossSell } from "@/components/cart/CartCrossSell";
+import { CartLineRow } from "@/components/cart/CartLineRow";
+import { CartSummaryPanel } from "@/components/cart/CartSummaryPanel";
+import { QuickOrderPaste } from "@/components/cart/QuickOrderPaste";
+import { SiteChrome } from "@/components/chrome/SiteChrome";
+import { SiteFooter } from "@/components/chrome/SiteFooter";
+import { Link } from "@/i18n/navigation";
+import type { Locale } from "@/i18n/routing";
+import { getMiniCart, getCart, getCartCrossSell } from "@/lib/cart/cart";
+import {
+  getCatalogueStats,
+  getMenuTree,
+  getRootCategories,
+  getTopBrands,
+} from "@/lib/catalog/queries";
+import { upGreek } from "@/lib/greek";
+
+/** Always fresh: a cached cart is a wrong cart. */
+export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  title: "Το καλάθι σας",
+  robots: { index: false, follow: false },
+};
+
+export default async function CartPage({
+  params,
+}: {
+  params: Promise<{ locale: Locale }>;
+}) {
+  const { locale } = await params;
+  setRequestLocale(locale);
+
+  const cart = await getCart(locale);
+  const lines = cart?.lines ?? [];
+  const isEmpty = lines.length === 0;
+
+  const [crossSell, menuTree, brands, stats, rootCategories, miniCart] = await Promise.all([
+    isEmpty ? Promise.resolve([]) : getCartCrossSell(locale, lines.map((l) => l.productId)),
+    getMenuTree(locale),
+    getTopBrands(locale, 16),
+    getCatalogueStats(),
+    getRootCategories(locale),
+    getMiniCart(locale),
+  ]);
+
+  const steps = [
+    { n: "01", label: "ΚΑΛΑΘΙ", active: true },
+    { n: "02", label: "ΣΤΟΙΧΕΙΑ", active: false },
+    { n: "03", label: "ΠΛΗΡΩΜΗ", active: false },
+  ];
+
+  return (
+    <>
+      <SiteChrome
+        locale={locale}
+        cart={miniCart}
+        categories={menuTree}
+        brands={brands}
+        stats={stats}
+      />
+
+      <main id="main">
+        <div className="shell-x bg-k-ink-deep">
+          <nav
+            aria-label="Breadcrumb"
+            className="t-util flex h-11 items-center gap-2.5 text-white/45"
+          >
+            <Link href="/" className="text-white/60 hover:text-white">
+              {upGreek("Αρχική")}
+            </Link>
+            <span className="text-k-red">/</span>
+            <span className="text-white">{upGreek("Καλάθι")}</span>
+          </nav>
+
+          <div className="flex flex-col gap-6 pt-3 pb-8 lg:flex-row lg:items-end lg:justify-between lg:gap-12">
+            <div>
+              <p className="t-eyebrow mb-3.5 flex items-center gap-[11px] text-k-red">
+                <span className="hidden h-[1.5px] w-[26px] bg-k-red lg:block" />
+                {isEmpty
+                  ? upGreek("Κανένα προϊόν")
+                  : `${cart!.totals.itemCount} ${upGreek("προϊόντα")} · ${cart!.totals.unitCount} ${upGreek("τεμάχια")}`}
+              </p>
+              <h1 className="font-artegra text-[26px] leading-[1.14] font-medium text-white lg:text-[34px]">
+                {upGreek("Το καλάθι σας")}
+              </h1>
+            </div>
+
+            <ol className="flex shrink-0">
+              {steps.map((step) => (
+                <li
+                  key={step.n}
+                  className={`flex items-center gap-2 border px-4 py-3 text-[11px] font-semibold tracking-[0.07em] ${
+                    step.active
+                      ? "border-k-red bg-k-red text-white"
+                      : "border-white/15 text-white/40"
+                  }`}
+                >
+                  <span className="t-brand-count opacity-70">{step.n}</span>
+                  {step.label}
+                </li>
+              ))}
+            </ol>
+          </div>
+        </div>
+
+        {/*
+          The summary panel is rendered only when there is something to total.
+          Showing it at €0,00 beside an empty-cart message is the flash the spec
+          calls out (§5, acceptance).
+        */}
+        {isEmpty ? (
+          <div className="shell-x bg-white py-20 text-center">
+            <Image
+              src="/icons/cart.png"
+              alt=""
+              width={46}
+              height={46}
+              className="mx-auto block opacity-35"
+            />
+            <p className="font-artegra mt-5 text-xl leading-[1.3] text-k-ink">
+              {upGreek("Το καλάθι είναι άδειο")}
+            </p>
+            <p className="mt-2.5 text-[13.5px] text-k-text-3">
+              {stats.products.toLocaleString("el-GR")} κωδικοί σας περιμένουν στον
+              κατάλογο.
+            </p>
+            <Link
+              href="/katalogos"
+              className="t-btn-sm mt-5 inline-block bg-k-ink px-7 py-4 text-white transition-colors hover:bg-k-red"
+            >
+              {upGreek("Στον κατάλογο")} →
+            </Link>
+          </div>
+        ) : (
+          <div className="shell-w bg-white lg:grid lg:grid-cols-[1fr_430px] lg:items-start">
+            <div className="min-w-0 border-k-line lg:border-r">
+              {/* Column headings — desktop only; each mobile row labels itself. */}
+              <div className="hidden grid-cols-[1fr_150px_150px_140px_52px] gap-5 border-b border-k-ink px-10 py-4 lg:grid">
+                {["Προϊόν", "Τιμή μονάδας", "Ποσότητα", "Σύνολο", ""].map((label, i) => (
+                  <span
+                    key={label || i}
+                    className={`t-footer-col text-k-text-4 ${
+                      i === 1 || i === 3 ? "text-right" : i === 2 ? "text-center" : ""
+                    }`}
+                  >
+                    {upGreek(label)}
+                  </span>
+                ))}
+              </div>
+
+              {lines.map((line) => (
+                <CartLineRow key={line.id} line={line} />
+              ))}
+
+              <QuickOrderPaste />
+              <CartActionsRow />
+              <CartCrossSell items={crossSell} />
+            </div>
+
+            <CartSummaryPanel
+              totals={cart!.totals}
+              shippingMethod={cart!.shippingMethod}
+              paymentMethod={cart!.paymentMethod}
+            />
+          </div>
+        )}
+      </main>
+
+      <SiteFooter categories={rootCategories} />
+    </>
+  );
+}

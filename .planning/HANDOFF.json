@@ -1,0 +1,94 @@
+{
+  "version": "1.0",
+  "timestamp": "2026-07-31T14:41:04.547Z",
+  "source": "auto-postool",
+  "partial": false,
+  "phase": null,
+  "phase_name": null,
+  "phase_dir": null,
+  "plan": null,
+  "task": null,
+  "total_tasks": null,
+  "status": "auto-checkpoint",
+  "completed_tasks": [],
+  "remaining_tasks": [],
+  "blockers": [],
+  "human_actions_pending": [],
+  "decisions": [],
+  "uncommitted_files": [
+    {
+      "status": "??",
+      "path": ".claude/"
+    },
+    {
+      "status": "??",
+      "path": ".gitignore"
+    },
+    {
+      "status": "??",
+      "path": ".planning/"
+    },
+    {
+      "status": "??",
+      "path": "AGENTS.md"
+    },
+    {
+      "status": "??",
+      "path": "BACKEND_ALIGNMENT.md"
+    },
+    {
+      "status": "??",
+      "path": "CLAUDE.md"
+    },
+    {
+      "status": "??",
+      "path": "eslint.config.mjs"
+    },
+    {
+      "status": "??",
+      "path": "next.config.ts"
+    },
+    {
+      "status": "??",
+      "path": "package-lock.json"
+    },
+    {
+      "status": "??",
+      "path": "package.json"
+    },
+    {
+      "status": "??",
+      "path": "postcss.config.mjs"
+    },
+    {
+      "status": "??",
+      "path": "prisma.config.ts"
+    },
+    {
+      "status": "??",
+      "path": "prisma/"
+    },
+    {
+      "status": "??",
+      "path": "public/"
+    },
+    {
+      "status": "??",
+      "path": "scripts/"
+    },
+    {
+      "status": "??",
+      "path": "src/"
+    },
+    {
+      "status": "??",
+      "path": "tsconfig.json"
+    },
+    {
+      "status": "??",
+      "path": "vitest.config.ts"
+    }
+  ],
+  "next_action": null,
+  "context_notes": "Recent commits:\n47273d0 first commit"
+}

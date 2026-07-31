@@ -1,0 +1,847 @@
+// Kolleris E-shop — own database (PostgreSQL 16).
+//
+// Scope boundary: this database owns the STOREFRONT (CMS, cart, orders,
+// customers, engagement) plus a read-only PROJECTION of the catalogue synced
+// from HDCtool. It never writes to HDCtool. See BACKEND_ALIGNMENT.md §2–§3.
+//
+// This file currently covers Phase 0–1 (RBAC + catalogue projection).
+// Commerce, identity, service, content and engagement models land in their
+// own phases — see BACKEND_ALIGNMENT.md §6 and §9.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+// Prisma 7: the connection URL lives in prisma.config.ts (for Migrate) and is
+// passed to PrismaClient through the pg driver adapter (see src/lib/prisma.ts).
+datasource db {
+  provider = "postgresql"
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// i18n
+// ─────────────────────────────────────────────────────────────────────────────
+
+/// Matches HDCtool's Language enum exactly (MTRAN, ProductSpecifications,
+/// OfferTranslation, PostTranslation all use el/en/it). `el` is the default.
+enum Locale {
+  el
+  en
+  it
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// RBAC — /admin only. Auth.js v5 with the JWT session strategy: the role is
+// carried in the token, so there is no Session table and no adapter here.
+// Storefront customers are a SEPARATE model (Phase 6) — staff and customers
+// must never share an identity table.
+// ─────────────────────────────────────────────────────────────────────────────
+
+enum AdminRole {
+  /// Full access, including settings and user management.
+  ADMIN
+  /// Content, editorial and merchandising. No orders, no customer PII.
+  EDITOR
+  /// Orders, service requests, returns, customers. No content.
+  OPS
+}
+
+model AdminUser {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  name         String?
+  /// argon2id hash. Never a plaintext or reversible value.
+  passwordHash String
+  role         AdminRole @default(EDITOR)
+  isActive     Boolean   @default(true)
+  lastLoginAt  DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  auditEntries AdminAuditLog[]
+
+  @@index([isActive])
+  @@map("admin_users")
+}
+
+/// Who changed what in /admin. Content edits are invisible in git, so this is
+/// the only record of them.
+model AdminAuditLog {
+  id       String  @id @default(cuid())
+  userId   String?
+  user     AdminUser? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  action   String  @db.VarChar(64) // "create" | "update" | "delete" | "publish"
+  entity   String  @db.VarChar(64) // model name
+  entityId String? @db.VarChar(64)
+  /// Field-level before/after. Redact anything sensitive before writing.
+  diff     Json?
+
+  createdAt DateTime @default(now())
+
+  @@index([entity, entityId])
+  @@index([createdAt])
+  @@map("admin_audit_log")
+}
+
+/// Failed login throttling — spec §19 requires 5 attempts → 15 minute lockout,
+/// enforced server-side (a disabled button is not a security control).
+model LoginAttempt {
+  id         String   @id @default(cuid())
+  identifier String   @db.VarChar(320) // email
+  ipAddress  String?  @db.VarChar(64)
+  successful Boolean  @default(false)
+  attemptedAt DateTime @default(now())
+
+  @@index([identifier, attemptedAt])
+  @@index([ipAddress, attemptedAt])
+  @@map("login_attempts")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Catalogue projection — synced FROM HDCtool, never edited by hand.
+//
+// Editable overlays (slug overrides, badges, editorial copy) live in separate
+// curation models so a re-sync can never clobber human work.
+// ─────────────────────────────────────────────────────────────────────────────
+
+model Product {
+  id String @id @default(cuid())
+
+  /// HDCtool MTRL.MTRL — the join key across both systems.
+  mtrl  Int    @unique
+  code  String @db.VarChar(64)
+  code1 String @db.VarChar(64) // EAN
+  code2 String @db.VarChar(64) // manufacturer / MPN
+
+  /// Greek name (MTRAN el, falling back to MTRL.NAME).
+  name String @db.Text
+  /// URL slug, generated here via `slugify()`. Unique; renames leave a Redirect.
+  slug String @unique @db.VarChar(140)
+  /// `searchKey(name + code + code1 + code2 + brand)` — accent-insensitive index.
+  searchKey String @db.Text
+
+  // ── Classification (SoftOne 3-level hierarchy) ──
+  mtrmark     Int? // brand
+  mtrcategory Int?
+  mtrgroup    Int?
+  cccSubgroup2 Int?
+
+  // ── Display pricing. INDICATIVE ONLY. ──
+  // Never used for a purchase decision: PDP, cart and order placement all
+  // re-read live values from HDCtool H3. See BACKEND_ALIGNMENT.md §2.
+  priceNet   Decimal? @db.Decimal(12, 2) // PRICER02, the eshop web price
+  priceList  Decimal? @db.Decimal(12, 2) // struck-through "was", when higher
+  vatRate    Decimal? @db.Decimal(5, 2)  // resolved percentage, not a code
+  qty        Decimal? @db.Decimal(12, 2)
+  priceSyncedAt DateTime?
+
+  // ── Physical (drives shipping + spec-at-a-glance strip) ──
+  width      Decimal? @db.Decimal(10, 2) // DIM1, cm
+  length     Decimal? @db.Decimal(10, 2) // DIM2, cm
+  height     Decimal? @db.Decimal(10, 2) // DIM3, cm
+  weight     Decimal? @db.Decimal(10, 3) // GWEIGHT, kg
+  guaranteeMonths Int?                    // GUARTIME — feeds the warranty page
+
+  // ── Merchandising flags, denormalised for facet counts ──
+  isActive   Boolean @default(true) // mirrors MTRL.eshopListed
+  inStock    Boolean @default(false)
+  isNew      Boolean @default(false)
+  onSale     Boolean @default(false)
+
+  /// Source timestamps, for delta reconciliation.
+  erpInsertedAt DateTime?
+  erpUpdatedAt  DateTime?
+  syncedAt      DateTime @default(now())
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  images       ProductImage[]
+  translations ProductTranslation[]
+  specs        ProductSpec[]
+  override     ProductOverride?
+  cartLines    CartLine[]
+
+  // Facet + listing indexes — every PLP query shape.
+  @@index([isActive, mtrcategory, mtrgroup, cccSubgroup2])
+  @@index([isActive, mtrmark])
+  @@index([isActive, priceNet])
+  @@index([isActive, inStock])
+  @@index([isActive, onSale])
+  @@index([isActive, isNew, erpInsertedAt])
+  @@index([erpUpdatedAt])
+  @@map("products")
+}
+
+/// Category projection — the SoftOne 3-level hierarchy as HDCtool exposes it
+/// (`SuperProductCategory`: CATEGORY → GROUP → SUBGROUP).
+///
+/// `productCount` is denormalised on every sync. Counting live would mean one
+/// query per category on the homepage and catalogue rail; there are 714 nodes.
+model Category {
+  id String @id @default(cuid())
+
+  /// HDCtool `SuperProductCategory.id` — the join key.
+  hdcId   String  @unique
+  erpCode String  @db.VarChar(32)
+  erpType ErpType
+
+  /// Self-referencing hierarchy, resolved from HDCtool's `parentId`.
+  parentId String?
+  parent   Category?  @relation("CategoryTree", fields: [parentId], references: [id], onDelete: SetNull)
+  children Category[] @relation("CategoryTree")
+
+  slug     String @unique @db.VarChar(140)
+  nameEl   String @db.VarChar(255)
+  nameEn   String @db.VarChar(255)
+  nameIt   String @db.VarChar(255)
+
+  mainImage String? @db.Text
+  heroImage String? @db.Text
+  iconImage String? @db.Text
+
+  order Int @default(0)
+
+  /// Eshop-listed products in this node AND all its descendants.
+  productCount Int @default(0)
+  /// Direct children count — "N υποκατηγορίες" on the category tile.
+  childCount   Int @default(0)
+
+  syncedAt  DateTime @default(now())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([erpType, order])
+  @@index([parentId, order])
+  @@index([erpType, productCount])
+  @@map("categories")
+}
+
+enum ErpType {
+  CATEGORY
+  GROUP
+  SUBGROUP
+}
+
+/// Brand projection — HDCtool `SuperProductBrand` joined to `SoftBrand.MTRMARK`.
+model Brand {
+  id String @id @default(cuid())
+
+  /// HDCtool `SuperProductBrand.id`.
+  hdcId String @unique
+  /// SoftOne MTRMARK. Null when the super brand has no linked SoftBrand row.
+  mtrmark Int?
+
+  slug   String @unique @db.VarChar(140)
+  nameEl String @db.VarChar(255)
+  nameEn String @db.VarChar(255)
+  nameIt String @db.VarChar(255)
+
+  logo  String? @db.Text
+  image String? @db.Text
+
+  /// HDCtool's `eshop` flag (returned as 0 | 1).
+  isEshop Boolean @default(false)
+
+  productCount Int @default(0)
+  inStockCount Int @default(0)
+
+  syncedAt  DateTime @default(now())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([isEshop, productCount])
+  @@index([mtrmark])
+  @@map("brands")
+}
+
+model ProductImage {
+  id        String  @id @default(cuid())
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  url       String  @db.Text
+  isFeature Boolean @default(false)
+  order     Int     @default(0)
+  width     Int?
+  height    Int?
+
+  @@index([productId, order])
+  @@map("product_images")
+}
+
+model ProductTranslation {
+  id        String  @id @default(cuid())
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  locale           Locale
+  name             String  @db.Text
+  shortDescription String? @db.Text
+  longDescription  String? @db.Text
+  /// Locale-specific matching key, so EN/IT search works too.
+  searchKey        String  @db.Text
+
+  @@unique([productId, locale])
+  @@map("product_translations")
+}
+
+/// Flattened key/value spec rows. HDCtool stores specs as a wide table
+/// (ProductSpecifications) with a per-category whitelist (CategorySpecField);
+/// flattening here is what makes facets over "length" or "grip material"
+/// possible at all.
+model ProductSpec {
+  id        String  @id @default(cuid())
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  locale    Locale
+  fieldKey  String  @db.VarChar(64) // "voltage" | "torque" | "chuckSize" | …
+  fieldGroup String @db.VarChar(32) // "identification" | "physical" | "technical" | "performance"
+  label     String? @db.VarChar(128)
+  value     String  @db.Text
+  /// Parsed numeric value where the field is numeric — enables range facets
+  /// and the compare page's "highlight best" without re-parsing at read time.
+  valueNumeric Decimal? @db.Decimal(14, 4)
+  unit      String? @db.VarChar(16)
+  order     Int     @default(0)
+
+  @@unique([productId, locale, fieldKey])
+  @@index([fieldKey, valueNumeric])
+  @@index([fieldKey, value])
+  @@map("product_specs")
+}
+
+/// Human-editable overlay on a synced product. Survives every re-sync.
+model ProductOverride {
+  id        String  @id @default(cuid())
+  productId String  @unique
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  /// Overrides the generated slug. The generator will not touch this.
+  slugOverride String? @unique @db.VarChar(140)
+  badges       Json? // string[] — "VDE", "ΝΕΟ", "TOP"
+  editorialCopy String? @db.Text
+  isFeatured   Boolean @default(false)
+  hideFromEshop Boolean @default(false)
+
+  updatedBy String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("product_overrides")
+}
+
+/// Preserves old URLs when a slug changes — a rename must not 404.
+model Redirect {
+  id        String   @id @default(cuid())
+  fromPath  String   @unique @db.VarChar(512)
+  toPath    String   @db.VarChar(512)
+  statusCode Int     @default(301)
+  createdAt DateTime @default(now())
+
+  @@map("redirects")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Sync bookkeeping against HDCtool
+// ─────────────────────────────────────────────────────────────────────────────
+
+enum SyncRunStatus {
+  RUNNING
+  SUCCESS
+  PARTIAL
+  FAILED
+}
+
+/// One row per sync channel ("catalog-delta", "catalog-snapshot", "pricing"),
+/// holding the cursor HDCtool's delta feed (H1) expects back.
+model SyncState {
+  id      String @id @default(cuid())
+  channel String @unique @db.VarChar(64)
+
+  cursor        String?   @db.Text
+  lastRunAt     DateTime?
+  lastSuccessAt DateTime?
+  lastStatus    SyncRunStatus?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  runs SyncRun[]
+
+  @@map("sync_state")
+}
+
+model SyncRun {
+  id      String    @id @default(cuid())
+  stateId String
+  state   SyncState @relation(fields: [stateId], references: [id], onDelete: Cascade)
+
+  status      SyncRunStatus @default(RUNNING)
+  startedAt   DateTime      @default(now())
+  finishedAt  DateTime?
+  processed   Int           @default(0)
+  created     Int           @default(0)
+  updated     Int           @default(0)
+  removed     Int           @default(0)
+  failed      Int           @default(0)
+  /// Per-row failures, so the admin sync monitor can show what did not land.
+  errors      Json?
+
+  @@index([stateId, startedAt])
+  @@map("sync_runs")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Cart
+//
+// A line stores WHAT and HOW MANY — never the price. Every amount shown is
+// recomputed from the product projection at render, so a cart left open for a
+// week cannot check out at last week's price. See BACKEND_ALIGNMENT.md §5.
+// ─────────────────────────────────────────────────────────────────────────────
+
+model Cart {
+  id String @id @default(cuid())
+
+  /// Opaque token in the `KOLLERIS_CART` cookie. Separate from the primary key
+  /// so a leaked id cannot be replayed as a session.
+  token String @unique @db.VarChar(64)
+
+  /// Set once storefront accounts exist (Phase 6); null for guests.
+  customerId String?
+
+  /// Chosen at the cart step, carried into checkout.
+  shippingMethod String? @db.VarChar(32)
+  paymentMethod  String? @db.VarChar(32)
+  couponCode     String? @db.VarChar(64)
+
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  /// Touched on every read; drives abandoned-cart cleanup.
+  lastSeenAt DateTime @default(now())
+
+  lines CartLine[]
+
+  @@index([lastSeenAt])
+  @@index([customerId])
+  @@map("carts")
+}
+
+model CartLine {
+  id     String @id @default(cuid())
+  cartId String
+  cart   Cart   @relation(fields: [cartId], references: [id], onDelete: Cascade)
+
+  /// References the projection. Cascade: a product that leaves the catalogue
+  /// should not leave an unresolvable line behind.
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  quantity Int @default(1)
+
+  /// Price when the line was added — kept for support ("it said 42 € yesterday"),
+  /// never for display or checkout.
+  addedPriceNet Decimal? @db.Decimal(12, 2)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([cartId, productId])
+  @@index([cartId])
+  @@map("cart_lines")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Orders
+//
+// An order is a SNAPSHOT. Unlike a cart line, every price, name and address is
+// frozen at placement — the catalogue re-syncs nightly and the customer must
+// still be able to read back exactly what they agreed to pay.
+// ─────────────────────────────────────────────────────────────────────────────
+
+enum OrderStatus {
+  /// Created, awaiting payment (card / bank transfer).
+  PENDING_PAYMENT
+  /// Paid, or COD accepted.
+  CONFIRMED
+  /// Handed to the courier.
+  SHIPPED
+  DELIVERED
+  CANCELLED
+  /// Payment attempted and refused.
+  FAILED
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+  /// Cash on delivery — collected by the courier, not by us.
+  ON_DELIVERY
+}
+
+model Order {
+  id String @id @default(cuid())
+
+  /// Human-facing reference, e.g. KOL-20260726-0007. Shown to the customer and
+  /// sent to SoftOne as the external reference.
+  orderNumber String @unique @db.VarChar(32)
+
+  status        OrderStatus   @default(PENDING_PAYMENT)
+  paymentStatus PaymentStatus @default(PENDING)
+
+  /// Guest orders have no customer row yet (accounts are Phase 6). The token
+  /// is what lets a guest reopen their own confirmation page and nobody else's.
+  customerId  String?
+  guestToken  String  @unique @db.VarChar(64)
+
+  // ── Contact ──
+  email     String  @db.VarChar(320)
+  phone     String  @db.VarChar(64)
+  firstName String  @db.VarChar(120)
+  lastName  String  @db.VarChar(120)
+
+  // ── Shipping address ──
+  shipLine1    String  @db.VarChar(255)
+  shipLine2    String? @db.VarChar(255)
+  shipCity     String  @db.VarChar(120)
+  shipPostcode String  @db.VarChar(16)
+  shipRegion   String? @db.VarChar(120)
+  shipCountry  String  @default("GR") @db.VarChar(2)
+
+  // ── Invoice (ΤΙΜΟΛΟΓΙΟ) — only when the customer asks for one ──
+  wantsInvoice  Boolean @default(false)
+  companyName   String? @db.VarChar(255)
+  vatNumber     String? @db.VarChar(32)  // ΑΦΜ
+  taxOffice     String? @db.VarChar(120) // ΔΟΥ
+  companyTrade  String? @db.VarChar(255) // δραστηριότητα
+  billLine1     String? @db.VarChar(255)
+  billCity      String? @db.VarChar(120)
+  billPostcode  String? @db.VarChar(16)
+
+  // ── Fulfilment choices ──
+  shippingMethod String @db.VarChar(32)
+  paymentMethod  String @db.VarChar(32)
+  notes          String? @db.Text
+
+  // ── Money, all frozen at placement (EUR) ──
+  subtotalNet   Decimal @db.Decimal(12, 2)
+  subtotalGross Decimal @db.Decimal(12, 2)
+  shippingNet   Decimal @db.Decimal(12, 2)
+  shippingGross Decimal @db.Decimal(12, 2)
+  paymentFeeNet Decimal @default(0) @db.Decimal(12, 2)
+  paymentFeeGross Decimal @default(0) @db.Decimal(12, 2)
+  vatAmount     Decimal @db.Decimal(12, 2)
+  totalGross    Decimal @db.Decimal(12, 2)
+  savingsGross  Decimal @default(0) @db.Decimal(12, 2)
+
+  /// How the postage was priced — zone, chargeable weight, whether any item
+  /// weight was estimated. Kept so a disputed charge can be explained.
+  shippingQuote Json?
+
+  // ── Viva Wallet ──
+  vivaOrderCode     String?   @unique @db.VarChar(64)
+  vivaTransactionId String?   @db.VarChar(64)
+  paidAt            DateTime?
+
+  // ── ACS ──
+  acsVoucherNo String?   @db.VarChar(64)
+  shippedAt    DateTime?
+
+  // ── SoftOne (pushed through HDCtool once paid) ──
+  /// TRDR resolved from the ΑΦΜ at checkout, when the ΑΦΜ lookup found the
+  /// company already registered as a Kolleris customer. Carried so the order
+  /// push reuses that customer instead of creating a second SoftOne record.
+  erpTrdr       Int?
+  erpFindoc     Int?
+  erpPushedAt   DateTime?
+  erpError      String?   @db.Text
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  lines   OrderLine[]
+  history OrderStatusHistory[]
+
+  @@index([status, createdAt])
+  @@index([email])
+  @@index([customerId])
+  @@map("orders")
+}
+
+model OrderLine {
+  id      String @id @default(cuid())
+  orderId String
+  order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  /// Kept for reporting; deliberately NOT a foreign key, so delisting a product
+  /// can never orphan or alter a historical order.
+  productId String? @db.VarChar(64)
+  mtrl      Int?
+
+  // Snapshot — never re-read from the catalogue.
+  sku      String  @db.VarChar(64)
+  name     String  @db.Text
+  brand    String? @db.VarChar(255)
+  imageUrl String? @db.Text
+
+  quantity   Int
+  unitNet    Decimal @db.Decimal(12, 2)
+  unitGross  Decimal @db.Decimal(12, 2)
+  vatRate    Decimal @db.Decimal(5, 2)
+  lineNet    Decimal @db.Decimal(12, 2)
+  lineGross  Decimal @db.Decimal(12, 2)
+  /// Weight used for the postage calculation, kg.
+  weightKg   Decimal? @db.Decimal(10, 3)
+
+  @@index([orderId])
+  @@map("order_lines")
+}
+
+model OrderStatusHistory {
+  id      String @id @default(cuid())
+  orderId String
+  order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  status OrderStatus
+  note   String?     @db.Text
+  /// Who or what caused it: "customer" | "viva-webhook" | "admin:<id>" | "system".
+  actor  String      @db.VarChar(64)
+
+  createdAt DateTime @default(now())
+
+  @@index([orderId, createdAt])
+  @@map("order_status_history")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Contact
+// ─────────────────────────────────────────────────────────────────────────────
+
+enum ContactTopic {
+  /// Τεχνική ερώτηση — ποιο εργαλείο κάνει για τη δουλειά.
+  technical
+  /// Ζητά προσφορά για ποσότητα.
+  quote
+  /// Αίτημα συνεργασίας / εταιρικού λογαριασμού.
+  partnership
+  /// Ερώτηση για υπάρχουσα παραγγελία.
+  order
+  other
+}
+
+enum ContactStatus {
+  new
+  inProgress
+  answered
+  closed
+}
+
+/// A message from the contact form.
+///
+/// Stored rather than emailed: there is no mail service wired yet, and a form
+/// that silently drops what it collects is worse than no form. The `/admin`
+/// inbox (Phase 3, screen 20) reads this table; adding email later is a
+/// notification on top of the row, not a replacement for it.
+model ContactMessage {
+  id String @id @default(cuid())
+
+  topic  ContactTopic
+  status ContactStatus @default(new)
+
+  name    String  @db.VarChar(200)
+  email   String  @db.VarChar(320)
+  phone   String? @db.VarChar(64)
+  company String? @db.VarChar(255)
+  /// ΑΦΜ when the topic is a partnership request.
+  vatNumber String? @db.VarChar(32)
+
+  subject String  @db.VarChar(255)
+  message String  @db.Text
+  /// Order number when the topic is about an existing order.
+  orderRef String? @db.VarChar(32)
+
+  /// Where they were when they wrote — saves an email asking "which product?".
+  pagePath String? @db.VarChar(512)
+  locale   Locale  @default(el)
+
+  /// Set when the sender was signed in.
+  customerId String? @db.VarChar(64)
+
+  handledBy String?   @db.VarChar(64)
+  handledAt DateTime?
+  notes     String?   @db.Text
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status, createdAt])
+  @@index([topic, createdAt])
+  @@index([email])
+  @@map("contact_messages")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Customer identity
+//
+// Owned HERE, not in HDCtool. The `Customer` table over there mirrors SoftOne
+// TRDR — it is the COMMERCIAL entity we invoice, and it holds no credentials.
+// An account is a different thing: an email and a password that may place an
+// order. The two are linked by ΑΦΜ → `Company.erpTrdr`, which the checkout
+// already resolves through the AADE lookup, so this is a join and not a
+// duplicate.
+//
+// Deliberately separate from `AdminUser`: staff and customers must never share
+// an identity table, or one bug puts a customer inside the CMS.
+// ─────────────────────────────────────────────────────────────────────────────
+
+enum AccountType {
+  individual
+  company
+}
+
+enum AccountStatus {
+  /// Registered, waiting on a human. Company accounts start here.
+  pending
+  active
+  suspended
+  rejected
+}
+
+/// Role inside a company account.
+enum CompanyRole {
+  /// Orders without a ceiling, and the only role that manages users.
+  owner
+  /// Orders up to their own spend limit.
+  buyer
+  /// Sees orders and partner prices; cannot order.
+  viewer
+}
+
+model Customer {
+  id String @id @default(cuid())
+
+  email        String  @unique @db.VarChar(320)
+  /// argon2id. Never a plaintext or reversible value.
+  passwordHash String
+  firstName    String  @db.VarChar(120)
+  lastName     String  @db.VarChar(120)
+  phone        String? @db.VarChar(64)
+
+  accountType AccountType   @default(individual)
+  status      AccountStatus @default(active)
+
+  companyId  String?
+  company    Company?     @relation(fields: [companyId], references: [id], onDelete: SetNull)
+  role       CompanyRole?
+  /// Ceiling per order in EUR gross. Null means no ceiling.
+  spendLimit Decimal?     @db.Decimal(12, 2)
+
+  lastLoginAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  sessions CustomerSession[]
+
+  @@index([companyId, role])
+  @@index([status])
+  @@map("customers")
+}
+
+/// A B2B account. The company, not the person.
+model Company {
+  id String @id @default(cuid())
+
+  name       String  @db.VarChar(255)
+  afm        String  @unique @db.VarChar(32)
+  doy        String? @db.VarChar(120)
+  profession String? @db.VarChar(255)
+  phone      String? @db.VarChar(64)
+
+  billAddress  String? @db.VarChar(255)
+  billCity     String? @db.VarChar(120)
+  billPostcode String? @db.VarChar(16)
+
+  /// SoftOne TRDR, when the ΑΦΜ resolved to an existing customer. The link to
+  /// the ERP — not a copy of it.
+  erpTrdr Int?
+
+  status AccountStatus @default(pending)
+
+  /// Multiplier on the net web price. Null until approved — registering is not
+  /// the same as being approved.
+  partnerFactor Decimal? @db.Decimal(4, 3)
+
+  /// Πίστωση. Null until HDCtool exposes credit (H14); the storefront never
+  /// invents a limit.
+  creditLimit Decimal? @db.Decimal(12, 2)
+  creditUsed  Decimal? @db.Decimal(12, 2)
+
+  approvedBy String?   @db.VarChar(64)
+  approvedAt DateTime?
+  notes      String?   @db.Text
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  members Customer[]
+  invites CustomerInvite[]
+
+  @@index([status, createdAt])
+  @@index([erpTrdr])
+  @@map("companies")
+}
+
+/// Opaque session token, held in the `KOLLERIS_SESSION` cookie.
+///
+/// A table rather than a JWT: an owner who removes a colleague expects them to
+/// be out immediately, and a self-contained token cannot be revoked before it
+/// expires.
+model CustomerSession {
+  id String @id @default(cuid())
+
+  token      String   @unique @db.VarChar(64)
+  customerId String
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  expiresAt  DateTime
+  lastSeenAt DateTime @default(now())
+  userAgent  String?  @db.VarChar(512)
+
+  createdAt DateTime @default(now())
+
+  @@index([customerId])
+  @@index([expiresAt])
+  @@map("customer_sessions")
+}
+
+/// Pending invitation to join a company account.
+model CustomerInvite {
+  id String @id @default(cuid())
+
+  email      String      @db.VarChar(320)
+  firstName  String      @db.VarChar(120)
+  lastName   String      @db.VarChar(120)
+  role       CompanyRole @default(buyer)
+  spendLimit Decimal?    @db.Decimal(12, 2)
+
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  token     String    @unique @db.VarChar(64)
+  expiresAt DateTime
+  /// Set once the invitee sets a password and the Customer row is created.
+  acceptedAt DateTime?
+
+  invitedBy String?  @db.VarChar(64)
+  createdAt DateTime @default(now())
+
+  @@unique([companyId, email])
+  @@index([expiresAt])
+  @@map("customer_invites")
+}

@@ -1,0 +1,20 @@
+{
+  "common": {
+    "brand": "KOLLERIS",
+    "search": "Αναζήτηση",
+    "cart": "Καλάθι",
+    "account": "Λογαριασμός",
+    "menu": "Μενού",
+    "close": "Κλείσιμο",
+    "loading": "Φόρτωση…",
+    "vatIncluded": "με ΦΠΑ"
+  },
+  "nav": {
+    "catalogue": "ΚΑΤΑΛΟΓΟΣ",
+    "brands": "BRANDS",
+    "offers": "ΠΡΟΣΦΟΡΕΣ",
+    "newArrivals": "ΝΕΕΣ ΑΦΙΞΕΙΣ",
+    "about": "Η ΕΤΑΙΡΕΙΑ",
+    "contact": "ΕΠΙΚΟΙΝΩΝΙΑ"
+  }
+}
