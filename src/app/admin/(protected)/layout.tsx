@@ -33,7 +33,8 @@ const GROUPS: Array<{ title: string; sections: Section[] }> = [
   {
     title: "Κατάστημα",
     sections: [
-      { href: "/admin/content", label: "Περιεχόμενο", icon: "content", capability: "content" },
+      { href: "/admin/zones", label: "Σελίδες", icon: "zones", capability: "content" },
+      { href: "/admin/content", label: "Κείμενα", icon: "content", capability: "content" },
       { href: "/admin/catalogue", label: "Κατάλογος", icon: "catalogue", capability: "catalogue" },
       { href: "/admin/merchandising", label: "Προσφορές", icon: "merchandising", capability: "merchandising" },
       { href: "/admin/editorial", label: "Άρθρα & FAQ", icon: "editorial", capability: "editorial" },

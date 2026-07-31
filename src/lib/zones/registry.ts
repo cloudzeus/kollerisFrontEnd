@@ -35,7 +35,9 @@ export type FieldKind =
   /** A category, stored as its slug. */
   | "category"
   /** Video URL — same picker as image, different accept list. */
-  | "video";
+  | "video"
+  /** A sales badge: preset label plus a tone. */
+  | "badge";
 
 export type WidgetField = {
   name: string;
@@ -102,6 +104,87 @@ export type ZoneDef = {
  * needs a poster image for the first frame and for browsers that refuse to
  * autoplay, and collapsing them would lose that.
  */
+/**
+ * Ready-made sales badges.
+ *
+ * Presets rather than free text because a badge is a promise: "ΝΕΟ" and "-20%"
+ * mean something to a customer, and a zone where one tile says "ΠΡΟΣΦΟΡΑ" and
+ * the next says "προσφορα!!" reads as a shop that does not check its own work.
+ * Custom text is still allowed — it just is not the first thing offered.
+ */
+export const BADGE_PRESETS: ReadonlyArray<{ value: string; label: string; tone: BadgeTone }> = [
+  { value: "ΝΕΟ", label: "ΝΕΟ", tone: "ink" },
+  { value: "ΠΡΟΣΦΟΡΑ", label: "ΠΡΟΣΦΟΡΑ", tone: "red" },
+  { value: "ΤΕΛΕΥΤΑΙΑ ΤΕΜΑΧΙΑ", label: "ΤΕΛΕΥΤΑΙΑ ΤΕΜΑΧΙΑ", tone: "amber" },
+  { value: "ΔΩΡΕΑΝ ΜΕΤΑΦΟΡΙΚΑ", label: "ΔΩΡΕΑΝ ΜΕΤΑΦΟΡΙΚΑ", tone: "green" },
+  { value: "ΕΠΑΓΓΕΛΜΑΤΙΚΗ ΣΕΙΡΑ", label: "ΕΠΑΓΓΕΛΜΑΤΙΚΗ ΣΕΙΡΑ", tone: "ink" },
+  { value: "ΑΜΕΣΑ ΔΙΑΘΕΣΙΜΟ", label: "ΑΜΕΣΑ ΔΙΑΘΕΣΙΜΟ", tone: "green" },
+] as const;
+
+export type BadgeTone = "ink" | "red" | "amber" | "green";
+
+export const BADGE_TONES: ReadonlyArray<{ value: BadgeTone; label: string; className: string }> = [
+  { value: "ink", label: "Μαύρο", className: "bg-k-ink text-white" },
+  { value: "red", label: "Κόκκινο", className: "bg-k-red text-white" },
+  { value: "amber", label: "Πορτοκαλί", className: "bg-k-amber text-white" },
+  { value: "green", label: "Πράσινο", className: "bg-k-green text-white" },
+] as const;
+
+/**
+ * Entrance animation for a widget's text.
+ *
+ * Offered per widget rather than switched on globally: an animation on
+ * everything is noise, and the point is to draw the eye to the one thing being
+ * sold. Every option respects `prefers-reduced-motion` at render — motion is a
+ * flourish, and for some people it is a symptom.
+ */
+export const ANIMATION_FIELDS: ReadonlyArray<WidgetField> = [
+  {
+    name: "animation",
+    label: "Κίνηση κειμένου",
+    kind: "select",
+    help: "Παίζει μία φορά, όταν το widget εμφανιστεί στην οθόνη.",
+    options: [
+      { value: "none", label: "Καμία" },
+      { value: "fade-up", label: "Ανάδυση από κάτω" },
+      { value: "slide-in", label: "Είσοδος από πλάι" },
+      { value: "reveal", label: "Αποκάλυψη λέξη-λέξη" },
+      { value: "zoom", label: "Ελαφρύ ζουμ" },
+    ],
+    default: "none",
+  },
+  {
+    name: "animationDelay",
+    label: "Καθυστέρηση",
+    kind: "select",
+    help: "Για να μην ξεκινούν όλα μαζί σε μια ζώνη με πολλά widgets.",
+    options: [
+      { value: "0", label: "Καμία" },
+      { value: "100", label: "0,1 δευτ." },
+      { value: "200", label: "0,2 δευτ." },
+      { value: "400", label: "0,4 δευτ." },
+    ],
+    default: "0",
+  },
+] as const;
+
+/** Badge fields, on every widget for the same reason the background group is. */
+export const BADGE_FIELDS: ReadonlyArray<WidgetField> = [
+  {
+    name: "badge",
+    label: "Σήμανση",
+    kind: "badge",
+    help: "Εμφανίζεται πάνω αριστερά. Αφήστε κενό για καμία.",
+  },
+  {
+    name: "badgeTone",
+    label: "Χρώμα σήμανσης",
+    kind: "select",
+    options: BADGE_TONES.map((t) => ({ value: t.value, label: t.label })),
+    default: "red",
+  },
+] as const;
+
 export const BACKGROUND_FIELDS: ReadonlyArray<WidgetField> = [
   {
     name: "bgKind",
@@ -301,7 +384,7 @@ export const WIDGETS_BY_TYPE = new Map(WIDGETS.map((w) => [w.type, w]));
 /** A widget's own fields followed by the background group every widget shares. */
 export function fieldsFor(type: string): ReadonlyArray<WidgetField> {
   const def = WIDGETS_BY_TYPE.get(type);
-  return def ? [...def.fields, ...BACKGROUND_FIELDS] : [];
+  return def ? [...def.fields, ...BADGE_FIELDS, ...ANIMATION_FIELDS, ...BACKGROUND_FIELDS] : [];
 }
 export const ZONES_BY_ID = new Map(ZONES.map((z) => [z.id, z]));
 

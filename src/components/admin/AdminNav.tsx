@@ -8,6 +8,7 @@ import {
   ChevronRight,
   FileText,
   LayoutDashboard,
+  LayoutTemplate,
   LifeBuoy,
   Mail,
   Menu,
@@ -41,6 +42,7 @@ export type NavGroup = { title: string; items: NavItem[] };
 
 const ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
   dashboard: LayoutDashboard,
+  zones: LayoutTemplate,
   content: FileText,
   catalogue: Boxes,
   merchandising: Tag,

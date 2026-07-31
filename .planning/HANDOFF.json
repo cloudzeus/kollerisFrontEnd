@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-07-31T18:51:54.815Z",
+  "timestamp": "2026-07-31T19:00:47.075Z",
   "source": "auto-postool",
   "partial": false,
   "phase": null,
@@ -22,69 +22,37 @@
     },
     {
       "status": "M",
-      "path": "package-lock.json"
+      "path": "src/app/admin/(protected)/layout.tsx"
     },
     {
       "status": "M",
-      "path": "package.json"
+      "path": "src/components/admin/AdminNav.tsx"
     },
     {
       "status": "M",
-      "path": "src/app/admin/(protected)/page.tsx"
-    },
-    {
-      "status": "M",
-      "path": "src/lib/admin/dashboard.ts"
+      "path": "src/lib/zones/registry.ts"
     },
     {
       "status": "??",
-      "path": "src/components/admin/OrdersTable.tsx"
+      "path": "src/app/admin/(protected)/zones/"
     },
     {
       "status": "??",
-      "path": "src/components/ui/alert-dialog.tsx"
+      "path": "src/components/admin/MediaPicker.tsx"
     },
     {
       "status": "??",
-      "path": "src/components/ui/avatar.tsx"
+      "path": "src/components/admin/WidgetForm.tsx"
     },
     {
       "status": "??",
-      "path": "src/components/ui/command.tsx"
+      "path": "src/components/admin/ZoneManager.tsx"
     },
     {
       "status": "??",
-      "path": "src/components/ui/popover.tsx"
-    },
-    {
-      "status": "??",
-      "path": "src/components/ui/progress.tsx"
-    },
-    {
-      "status": "??",
-      "path": "src/components/ui/scroll-area.tsx"
-    },
-    {
-      "status": "??",
-      "path": "src/components/ui/sheet.tsx"
-    },
-    {
-      "status": "??",
-      "path": "src/components/ui/textarea.tsx"
-    },
-    {
-      "status": "??",
-      "path": "src/components/ui/toggle-group.tsx"
-    },
-    {
-      "status": "??",
-      "path": "src/components/ui/toggle.tsx"
-    },
-    {
-      "status": "??",
-      "path": "src/lib/media/picker.ts"
+      "path": "src/components/admin/ZonePreview.tsx"
     }
   ],
   "next_action": null,
-  "context_notes": "Recent commits:\n8263175 feat(zones): zone/widget model, BunnyCDN media pipeline\n602dc27 feat(content): wire the storefront to the CMS\nae58037 feat(admin): rebuild the shell, and a CMS for storefront copy\nd1fdb2a feat(admin): rebuild the dashboard around what needs attention\nc076433 feat(admin): shadcn/ui foundation and the settings screen"
+  "context_notes": "Recent commits:\n382b1fc feat(admin): expandable orders table with row actions\n8263175 feat(zones): zone/widget model, BunnyCDN media pipeline\n602dc27 feat(content): wire the storefront to the CMS\nae58037 feat(admin): rebuild the shell, and a CMS for storefront copy\nd1fdb2a feat(admin): rebuild the dashboard around what needs attention"
 }
