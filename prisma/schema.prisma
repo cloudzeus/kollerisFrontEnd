@@ -845,3 +845,37 @@ model CustomerInvite {
   @@index([expiresAt])
   @@map("customer_invites")
 }
+
+/// Runtime configuration, editable from the mini admin.
+///
+/// Everything here has an environment-variable fallback, and the environment
+/// wins ONLY when no row exists — so a value set in the admin is the value in
+/// force, and `.env` is the seed rather than the override. Anything else and an
+/// operator would change a setting, see no effect, and have no way to find out
+/// why.
+///
+/// Secrets (payment keys, client secrets) are stored encrypted and are NEVER
+/// returned to the browser: the admin shows a masked hint and accepts a
+/// replacement. An admin account that is compromised must not hand over the
+/// payment credentials with it.
+model Setting {
+  /// Registry key, e.g. "viva.clientSecret". Not free-form — see
+  /// `src/lib/settings/registry.ts`, which decides what may be stored and how.
+  key String @id @db.VarChar(64)
+
+  /// Plaintext for ordinary settings; AES-256-GCM (iv:tag:ciphertext, base64)
+  /// for secrets. `isSecret` says which, so a value can never be mistakenly
+  /// rendered.
+  value    String  @db.Text
+  isSecret Boolean @default(false)
+
+  /// Last four characters of the plaintext, for a "••••3H8H" hint in the UI.
+  /// Only ever set for secrets — for anything else the value itself is shown.
+  hint String? @db.VarChar(8)
+
+  updatedBy String?  @db.VarChar(120)
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+
+  @@map("settings")
+}
