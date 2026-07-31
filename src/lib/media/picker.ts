@@ -1,0 +1,149 @@
+import "server-only";
+import { prisma } from "@/lib/prisma";
+import type { Locale } from "@/i18n/routing";
+
+/**
+ * Finding a picture to put in a widget.
+ *
+ * Marketing almost never wants a new photograph — they want the one already on
+ * a product. This is the search behind that: type a name or a code, get
+ * products with their images, pick a frame.
+ *
+ * Search runs against `searchKey`, the same trigram-indexed column the
+ * storefront's own search uses, so an operator typing a supplier code finds what
+ * a customer typing it would.
+ */
+
+export type PickerProduct = {
+  id: string;
+  slug: string;
+  code: string;
+  name: string;
+  brand: string | null;
+  images: Array<{ url: string; width: number | null; height: number | null; isFeature: boolean }>;
+};
+
+export type PickerCategory = {
+  id: string;
+  slug: string;
+  name: string;
+  productCount: number;
+  image: string | null;
+};
+
+/** Names are columns rather than rows on both Category and Brand — pick the
+ *  one for this locale, falling back to Greek so nothing renders blank. */
+function categoryName(
+  row: { nameEl: string; nameEn: string; nameIt: string },
+  locale: Locale,
+): string {
+  const byLocale = { el: row.nameEl, en: row.nameEn, it: row.nameIt } as const;
+  // Greek is the fallback rather than empty: a category with no English name
+  // should read as its Greek one, not as a blank row nobody can pick.
+  return byLocale[locale]?.trim() || row.nameEl;
+}
+
+/**
+ * Products matching a query, with their photography.
+ *
+ * Products with no image are excluded. Offering one to somebody looking for a
+ * picture wastes the click, and the reason is never visible from the row.
+ */
+export async function searchProductsForPicker(
+  query: string,
+  locale: Locale,
+  limit = 24,
+): Promise<PickerProduct[]> {
+  const q = query.trim();
+  if (q.length < 2) return [];
+
+  const rows = await prisma.product.findMany({
+    where: {
+      isActive: true,
+      images: { some: {} },
+      OR: [
+        { searchKey: { contains: q.toLowerCase() } },
+        { code: { contains: q, mode: "insensitive" } },
+        { code1: { contains: q, mode: "insensitive" } },
+        { code2: { contains: q, mode: "insensitive" } },
+      ],
+    },
+    take: limit,
+    include: {
+      translations: { where: { locale }, select: { name: true }, take: 1 },
+      images: {
+        orderBy: [{ isFeature: "desc" }, { order: "asc" }],
+        select: { url: true, width: true, height: true, isFeature: true },
+      },
+    },
+  });
+
+  // Brands join on `mtrmark`, not by relation, so they come in one extra query
+  // over the marks actually present rather than a per-row lookup.
+  const marks = [...new Set(rows.map((r) => r.mtrmark).filter((m): m is number => m != null))];
+  const brands = marks.length
+    ? await prisma.brand.findMany({
+        where: { mtrmark: { in: marks } },
+        select: { mtrmark: true, nameEl: true, nameEn: true, nameIt: true },
+      })
+    : [];
+  const brandByMark = new Map(
+    brands.map((b) => [b.mtrmark, categoryName(b, locale)] as const),
+  );
+
+  return rows.map((p) => ({
+    id: p.id,
+    slug: p.slug,
+    code: p.code,
+    name: p.translations[0]?.name ?? p.name,
+    brand: p.mtrmark != null ? (brandByMark.get(p.mtrmark) ?? null) : null,
+    images: p.images,
+  }));
+}
+
+/**
+ * Categories for the category picker.
+ *
+ * Ordered by product count with no query, so an empty search shows the ones
+ * worth featuring rather than whichever happens to sort first.
+ */
+export async function searchCategoriesForPicker(
+  query: string,
+  locale: Locale,
+  limit = 40,
+): Promise<PickerCategory[]> {
+  const q = query.trim();
+
+  const rows = await prisma.category.findMany({
+    where:
+      q.length >= 2
+        ? {
+            OR: [
+              { nameEl: { contains: q, mode: "insensitive" } },
+              { nameEn: { contains: q, mode: "insensitive" } },
+              { slug: { contains: q, mode: "insensitive" } },
+            ],
+          }
+        : undefined,
+    take: limit,
+    orderBy: { productCount: "desc" },
+    select: {
+      id: true,
+      slug: true,
+      nameEl: true,
+      nameEn: true,
+      nameIt: true,
+      productCount: true,
+      mainImage: true,
+      heroImage: true,
+    },
+  });
+
+  return rows.map((c) => ({
+    id: c.id,
+    slug: c.slug,
+    name: categoryName(c, locale),
+    productCount: c.productCount,
+    image: c.heroImage ?? c.mainImage,
+  }));
+}

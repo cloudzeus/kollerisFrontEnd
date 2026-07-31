@@ -21,18 +21,32 @@ export type AttentionItem = {
   tone: "urgent" | "warn";
 };
 
+export type RecentOrder = {
+  orderNumber: string;
+  createdAt: Date;
+  status: string;
+  paymentStatus: string;
+  totalGross: number;
+  customer: string;
+  email: string;
+  phone: string;
+  city: string;
+  shippingMethod: string;
+  paymentMethod: string;
+  wantsInvoice: boolean;
+  vatNumber: string | null;
+  erpPushed: boolean;
+  erpFindoc: number | null;
+  erpError: string | null;
+  /** Loaded up front so expanding a row costs no round-trip. Eight orders of a
+   *  handful of lines each is far cheaper than a request per expand. */
+  lines: Array<{ sku: string; name: string; quantity: number; lineGross: number }>;
+};
+
 export type DashboardData = {
   attention: AttentionItem[];
   orders: { last7: number; last30: number; revenue7: number; revenue30: number; total: number };
-  recent: Array<{
-    orderNumber: string;
-    createdAt: Date;
-    status: string;
-    paymentStatus: string;
-    totalGross: number;
-    customer: string;
-    erpPushed: boolean;
-  }>;
+  recent: RecentOrder[];
   catalogue: { products: number; active: number };
   sync: Array<{ channel: string; lastRunAt: Date | null; lastSuccessAt: Date | null; lastStatus: string | null }>;
 };
@@ -89,7 +103,20 @@ export async function getDashboard(): Promise<DashboardData> {
         firstName: true,
         lastName: true,
         companyName: true,
+        email: true,
+        phone: true,
+        shipCity: true,
+        shippingMethod: true,
+        paymentMethod: true,
+        wantsInvoice: true,
+        vatNumber: true,
         erpPushedAt: true,
+        erpFindoc: true,
+        erpError: true,
+        lines: {
+          select: { sku: true, name: true, quantity: true, lineGross: true },
+          orderBy: { id: "asc" },
+        },
       },
     }),
     prisma.product.count(),
@@ -159,7 +186,22 @@ export async function getDashboard(): Promise<DashboardData> {
       paymentStatus: o.paymentStatus,
       totalGross: Number(o.totalGross),
       customer: o.companyName ?? `${o.firstName} ${o.lastName}`.trim(),
+      email: o.email,
+      phone: o.phone,
+      city: o.shipCity,
+      shippingMethod: o.shippingMethod,
+      paymentMethod: o.paymentMethod,
+      wantsInvoice: o.wantsInvoice,
+      vatNumber: o.vatNumber,
       erpPushed: o.erpPushedAt != null,
+      erpFindoc: o.erpFindoc,
+      erpError: o.erpError,
+      lines: o.lines.map((l) => ({
+        sku: l.sku,
+        name: l.name,
+        quantity: l.quantity,
+        lineGross: Number(l.lineGross),
+      })),
     })),
     catalogue: { products, active: activeProducts },
     sync: syncStates,

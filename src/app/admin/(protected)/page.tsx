@@ -4,15 +4,7 @@ import { auth } from "@/auth";
 import { formatMoney } from "@/lib/format";
 import { getDashboard } from "@/lib/admin/dashboard";
 import { PageShell, Panel, Stat } from "@/components/admin/PageShell";
-import { Badge } from "@/components/ui/badge";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { OrdersTable } from "@/components/admin/OrdersTable";
 
 export const dynamic = "force-dynamic";
 
@@ -21,15 +13,6 @@ const dt = new Intl.DateTimeFormat("el-GR", {
   timeStyle: "short",
   timeZone: "Europe/Athens",
 });
-
-const ORDER_STATUS: Record<string, { label: string; className: string }> = {
-  PENDING_PAYMENT: { label: "Αναμονή πληρωμής", className: "bg-k-surface-3 text-k-text-2" },
-  CONFIRMED: { label: "Επιβεβαιωμένη", className: "bg-k-ink text-white" },
-  SHIPPED: { label: "Απεστάλη", className: "bg-k-blue text-white" },
-  DELIVERED: { label: "Παραδόθηκε", className: "bg-k-green text-white" },
-  CANCELLED: { label: "Ακυρώθηκε", className: "bg-k-surface-3 text-k-text-3" },
-  FAILED: { label: "Απέτυχε", className: "bg-k-red text-white" },
-};
 
 /**
  * Admin home.
@@ -108,7 +91,7 @@ export default async function AdminDashboard() {
           />
         </div>
 
-        <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_19rem]">
+        <div className="space-y-4">
           <Panel
             title="Πρόσφατες παραγγελίες"
             bodyClassName=""
@@ -121,69 +104,10 @@ export default async function AdminDashboard() {
               </Link>
             }
           >
-            {data.recent.length === 0 ? (
-              <p className="px-4 py-12 text-center text-[12.5px] text-k-text-3">
-                Καμία παραγγελία ακόμη. Οι αριθμοί παραπάνω γεμίζουν με την πρώτη.
-              </p>
-            ) : (
-              <div className="overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Αριθμός</TableHead>
-                      <TableHead>Πελάτης</TableHead>
-                      <TableHead>Κατάσταση</TableHead>
-                      <TableHead className="text-right">Σύνολο</TableHead>
-                      <TableHead className="w-14 text-center">ERP</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {data.recent.map((o) => {
-                      const s = ORDER_STATUS[o.status] ?? {
-                        label: o.status,
-                        className: "bg-k-surface-3 text-k-text-2",
-                      };
-                      return (
-                        <TableRow key={o.orderNumber}>
-                          <TableCell>
-                            <Link
-                              href={`/admin/orders/${o.orderNumber}`}
-                              className="numeral text-[12.5px] text-k-ink underline-offset-2 hover:underline"
-                            >
-                              {o.orderNumber}
-                            </Link>
-                            <span className="numeral mt-0.5 block text-[10.5px] text-k-text-4">
-                              {dt.format(o.createdAt)}
-                            </span>
-                          </TableCell>
-                          <TableCell className="max-w-[15rem] truncate text-[12.5px] text-k-text-2">
-                            {o.customer || "—"}
-                          </TableCell>
-                          <TableCell>
-                            <Badge className={s.className}>{s.label}</Badge>
-                          </TableCell>
-                          <TableCell className="numeral text-right text-[12.5px] text-k-ink">
-                            {formatMoney(o.totalGross)}
-                          </TableCell>
-                          <TableCell className="text-center">
-                            {o.erpPushed ? (
-                              <Check className="mx-auto size-4 text-k-green" aria-label="Στο SoftOne" />
-                            ) : o.paymentStatus === "PAID" ? (
-                              <CircleAlert className="mx-auto size-4 text-k-red" aria-label="Εκκρεμεί" />
-                            ) : (
-                              <span className="text-k-text-5">—</span>
-                            )}
-                          </TableCell>
-                        </TableRow>
-                      );
-                    })}
-                  </TableBody>
-                </Table>
-              </div>
-            )}
+            <OrdersTable orders={data.recent} />
           </Panel>
 
-          <div className="space-y-4">
+          <div className="grid gap-4 md:grid-cols-2">
             <Panel title="Κατάλογος" bodyClassName="">
               <dl className="divide-y divide-k-line text-[12.5px]">
                 <div className="flex items-baseline justify-between px-4 py-2.5">
