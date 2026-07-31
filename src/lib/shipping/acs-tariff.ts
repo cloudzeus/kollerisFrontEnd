@@ -39,16 +39,33 @@ export const ZONES: Record<ShippingZone, ZoneInfo> = {
 const VOLUMETRIC_DIVISOR = 5000;
 
 /** Contract tariff, EUR net. `base` covers `baseKg`; each extra kg adds `perExtraKg`. */
+/**
+ * MEASURED from the live ACS pricelist on 2026-07-31, not estimated. Each row
+ * was read back from `ACS_Price_Calculation` at 0.5, 2, 5 and 12 kg against a
+ * real postcode in that zone, and the per-kg figure is the slope between them:
+ *
+ *   Αττική      11525 / 18545   2.57 → 10.80 over 10 kg
+ *   Ηπειρωτική  54621 / 41222   3.09 → 13.38
+ *   Νησιά       73100 / 85100   4.12 → 14.41
+ *   Δυσπρόσιτες 19007 / 84600   5.15 → 20.58   (ACS product REM)
+ *
+ * The previous values were guesses and overcharged by 44% on islands, 48% on
+ * remote areas and about 20% on light Attica parcels. Amounts are NET and
+ * already include everything ACS bills — there is no separate fuel surcharge to
+ * add, which the old table also got wrong.
+ *
+ * This is only the fallback. `quoteLivePostage` asks ACS for the real figure and
+ * uses this when it cannot.
+ */
 const TARIFF: Record<ShippingZone, { base: number; baseKg: number; perExtraKg: number }> = {
-  attica: { base: 2.9, baseKg: 2, perExtraKg: 0.75 },
-  mainland: { base: 3.9, baseKg: 2, perExtraKg: 0.95 },
-  island: { base: 5.6, baseKg: 2, perExtraKg: 1.4 },
-  remote: { base: 7.2, baseKg: 2, perExtraKg: 1.9 },
+  attica: { base: 2.57, baseKg: 2, perExtraKg: 0.823 },
+  mainland: { base: 3.09, baseKg: 2, perExtraKg: 1.029 },
+  island: { base: 4.12, baseKg: 2, perExtraKg: 1.029 },
+  remote: { base: 5.15, baseKg: 2, perExtraKg: 1.543 },
 };
 
 
 /** Fuel surcharge as a fraction of the base rate. Revised by ACS periodically. */
-const FUEL_SURCHARGE = 0.06;
 
 /** ACS bills a minimum of 0.5 kg however light the parcel is. */
 const MIN_CHARGEABLE_KG = 0.5;
@@ -152,7 +169,6 @@ export type PostageQuote = {
   estimated: boolean;
   baseNet: number;
   extraWeightNet: number;
-  fuelSurchargeNet: number;
   /** What the customer pays, net of VAT, before any free-shipping waiver. */
   totalNet: number;
 };
@@ -172,7 +188,6 @@ export function quotePostage({
   const extraKg = Math.max(0, Math.ceil(weight.chargeableKg - tariff.baseKg));
   const baseNet = tariff.base;
   const extraWeightNet = round(extraKg * tariff.perExtraKg);
-  const fuelSurchargeNet = round((baseNet + extraWeightNet) * FUEL_SURCHARGE);
 
   return {
     zone,
@@ -184,8 +199,7 @@ export function quotePostage({
     estimated: weight.estimatedItems > 0,
     baseNet,
     extraWeightNet,
-    fuelSurchargeNet,
-    totalNet: round(baseNet + extraWeightNet + fuelSurchargeNet),
+    totalNet: round(baseNet + extraWeightNet),
   };
 }
 

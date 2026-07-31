@@ -71,25 +71,27 @@ describe("chargeableWeight", () => {
 describe("quotePostage", () => {
   const light = [{ quantity: 1, weight: 1, width: null, length: null, height: null }];
 
-  it("prices a light Attica parcel at the base rate plus fuel", () => {
+  // The figures below are what ACS actually charges on the Kolleris pricelist,
+  // read back from ACS_Price_Calculation on 2026-07-31. If ACS renegotiates
+  // these fail — which is the point: the fallback table has to be corrected
+  // deliberately rather than left to drift, as the previous one did.
+  it("prices a light Attica parcel at the measured base rate", () => {
     const quote = quotePostage({ items: light, postcode: "18545" });
     expect(quote.zone).toBe("attica");
-    expect(quote.baseNet).toBe(2.9);
+    expect(quote.baseNet).toBe(2.57);
     expect(quote.extraWeightNet).toBe(0);
-    expect(quote.fuelSurchargeNet).toBe(0.17); // 2.90 × 6%
-    expect(quote.totalNet).toBe(3.07);
+    expect(quote.totalNet).toBe(2.57);
   });
 
   it("charges per extra kilo beyond the base allowance", () => {
     const quote = quotePostage({
       items: [{ quantity: 1, weight: 5, width: null, length: null, height: null }],
-      postcode: "54622", // mainland: 3.90 base, 2 kg, 0.95/kg
+      postcode: "54622", // mainland: 3.09 base to 2 kg, then 1.029/kg
     });
     expect(quote.chargeableKg).toBe(5);
-    expect(quote.extraWeightNet).toBe(2.85); // 3 extra kg
-    // 3.90 + 2.85 = 6.75; fuel 6.75 × 6% = 0.405 → 0.41
-    expect(quote.fuelSurchargeNet).toBe(0.41);
-    expect(quote.totalNet).toBe(7.16);
+    expect(quote.extraWeightNet).toBe(3.09); // 3 extra kg
+    // ACS quotes 6.17 for this parcel; the table lands within a cent.
+    expect(quote.totalNet).toBe(6.18);
   });
 
   it("costs more to an island than to the mainland for the same parcel", () => {

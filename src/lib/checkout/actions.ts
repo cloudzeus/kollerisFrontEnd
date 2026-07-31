@@ -6,7 +6,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { getCart, getCartToken } from "@/lib/cart/cart";
 import { PAYMENT_METHODS, SHIPPING_METHODS } from "@/lib/cart/options";
-import { quotePostage } from "@/lib/shipping/acs-tariff";
+import { quoteLivePostage } from "@/lib/shipping/acs-live";
 import { createPaymentOrder, isVivaConfigured } from "@/lib/payment/viva";
 import { routing, type Locale } from "@/i18n/routing";
 
@@ -126,7 +126,7 @@ export async function placeOrder(
   const totals = cart.totals;
   const quote =
     shipping.expressMultiplier > 0
-      ? quotePostage({
+      ? await quoteLivePostage({
           items: cart.lines.map((l) => ({
             quantity: l.quantity,
             weight: l.weight,

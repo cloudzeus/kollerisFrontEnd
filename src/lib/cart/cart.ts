@@ -5,7 +5,8 @@ import { cache } from "react";
 import { prisma } from "@/lib/prisma";
 import type { Locale } from "@/i18n/routing";
 import { grossAmount, netAmount } from "@/lib/format";
-import { quotePostage, type ParcelItem } from "@/lib/shipping/acs-tariff";
+import { type ParcelItem } from "@/lib/shipping/acs-tariff";
+import { quoteLivePostage } from "@/lib/shipping/acs-live";
 import {
   FREE_SHIPPING_THRESHOLD_NET,
   PAYMENT_METHODS,
@@ -165,7 +166,7 @@ export const getCart = cache(async (
   return {
     id: cart.id,
     lines,
-    totals: computeTotals(lines, shippingMethod, paymentMethod, postcode),
+    totals: await computeTotals(lines, shippingMethod, paymentMethod, postcode),
     shippingMethod,
     paymentMethod,
     couponCode: cart.couponCode,
@@ -179,12 +180,12 @@ export const getCart = cache(async (
  * different rates (24 / 13 / 6), and a single blended multiplier would be
  * quietly wrong for any mixed basket.
  */
-export function computeTotals(
+export async function computeTotals(
   lines: CartLineView[],
   shippingMethodId: ShippingMethodId,
   paymentMethodId: PaymentMethodId,
   postcode?: string | null,
-): CartTotals {
+): Promise<CartTotals> {
   const subtotalNet = lines.reduce((sum, l) => sum + l.lineNet, 0);
   const subtotalGross = lines.reduce((sum, l) => sum + l.lineGross, 0);
 
@@ -211,13 +212,11 @@ export function computeTotals(
     height: line.height,
   }));
 
+  // Live from ACS, falling back to the local table when the courier cannot be
+  // reached. Awaited inside `getCart`, which is already cached per request, so
+  // one basket render costs at most one ACS round-trip.
   const quote =
-    shipping.expressMultiplier > 0
-      ? quotePostage({
-          items: parcel,
-          postcode,
-        })
-      : null;
+    shipping.expressMultiplier > 0 ? await quoteLivePostage({ items: parcel, postcode }) : null;
 
   const quotedNet = quote ? round(quote.totalNet * shipping.expressMultiplier) : 0;
   const shippingNet =
