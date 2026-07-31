@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-07-31T19:20:55.706Z",
+  "timestamp": "2026-07-31T19:33:15.691Z",
   "source": "auto-postool",
   "partial": false,
   "phase": null,
@@ -22,21 +22,25 @@
     },
     {
       "status": "M",
-      "path": "src/app/[locale]/page.tsx"
+      "path": "src/app/admin/(protected)/layout.tsx"
     },
     {
       "status": "M",
-      "path": "src/app/globals.css"
-    },
-    {
-      "status": "M",
-      "path": "src/components/home/HeroBanner.tsx"
+      "path": "src/components/admin/AdminNav.tsx"
     },
     {
       "status": "??",
-      "path": "src/components/zones/"
+      "path": "src/app/admin/(protected)/courier/"
+    },
+    {
+      "status": "??",
+      "path": "src/components/admin/CourierBoard.tsx"
+    },
+    {
+      "status": "??",
+      "path": "src/lib/courier/"
     }
   ],
   "next_action": null,
-  "context_notes": "Recent commits:\n366fb9e feat(ai): DeepSeek copy suggestions and translation in the builder\n6885448 feat(admin): page builder — zones, widgets, media picker, live preview\n382b1fc feat(admin): expandable orders table with row actions\n8263175 feat(zones): zone/widget model, BunnyCDN media pipeline\n602dc27 feat(content): wire the storefront to the CMS"
+  "context_notes": "Recent commits:\n2a035ae feat(zones): render zones on the storefront\n366fb9e feat(ai): DeepSeek copy suggestions and translation in the builder\n6885448 feat(admin): page builder — zones, widgets, media picker, live preview\n382b1fc feat(admin): expandable orders table with row actions\n8263175 feat(zones): zone/widget model, BunnyCDN media pipeline"
 }

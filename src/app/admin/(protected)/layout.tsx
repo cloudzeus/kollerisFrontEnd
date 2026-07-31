@@ -25,6 +25,7 @@ const GROUPS: Array<{ title: string; sections: Section[] }> = [
     sections: [
       { href: "/admin", label: "Επισκόπηση", icon: "dashboard", capability: null },
       { href: "/admin/orders", label: "Παραγγελίες", icon: "orders", capability: "orders" },
+      { href: "/admin/courier", label: "Αποστολές", icon: "courier", capability: "orders" },
       { href: "/admin/engagement", label: "Επικοινωνία", icon: "engagement", capability: "engagement" },
       { href: "/admin/customers", label: "Πελάτες", icon: "customers", capability: "customers" },
       { href: "/admin/service", label: "Επιστροφές", icon: "service", capability: "service" },
