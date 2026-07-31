@@ -98,11 +98,6 @@ describe("quotePostage", () => {
     expect(island.totalNet).toBeGreaterThan(mainland.totalNet);
   });
 
-  it("adds the cash-on-delivery fee only when asked", () => {
-    const without = quotePostage({ items: light, postcode: "18545" });
-    const withCod = quotePostage({ items: light, postcode: "18545", cashOnDelivery: true });
-    expect(withCod.totalNet - without.totalNet).toBeCloseTo(2.5, 5);
-  });
 
   it("flags an estimate when any item lacks a weight", () => {
     expect(quotePostage({ items: light, postcode: "18545" }).estimated).toBe(false);

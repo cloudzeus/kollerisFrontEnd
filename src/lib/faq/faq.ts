@@ -3,7 +3,7 @@ import { cache } from "react";
 import { prisma } from "@/lib/prisma";
 import type { Locale } from "@/i18n/routing";
 import { FREE_SHIPPING_THRESHOLD_NET } from "@/lib/cart/options";
-import { COD_FEE_NET, ZONES } from "@/lib/shipping/acs-tariff";
+import { ZONES } from "@/lib/shipping/acs-tariff";
 import { DEFAULT_VAT_RATE, formatMoney } from "@/lib/format";
 import { searchKey } from "@/lib/greek";
 import type { FaqEntry, FaqSection } from "@/lib/faq/faq-types";
@@ -12,7 +12,7 @@ import type { FaqEntry, FaqSection } from "@/lib/faq/faq-types";
  * The FAQ.
  *
  * Every number in an answer is INTERPOLATED from the constant the rest of the
- * site uses — the free-shipping threshold from `cart/options`, the COD fee and
+ * site uses — the free-shipping threshold from `cart/options` and
  * the delivery windows from the ACS tariff engine, the catalogue size from the
  * database. A FAQ is the first thing to go stale in a shop, and it goes stale
  * silently: nobody re-reads it when the threshold moves from 150 to 200, and
@@ -77,10 +77,6 @@ export const getFaq = cache(async (locale: Locale): Promise<FaqSection[]> => {
           a: `Παραγγελία πριν τις 15:00 εργάσιμη φεύγει αυθημερόν. Αττική ${eta("attica")} εργάσιμη, ηπειρωτική Ελλάδα ${eta("mainland")}, νησιά ${eta("island")}, δυσπρόσιτες περιοχές ${eta("remote")} εργάσιμες.`,
         },
         {
-          q: "Πόσο χρεώνεται η αντικαταβολή;",
-          a: `${formatMoney(COD_FEE_NET * (1 + DEFAULT_VAT_RATE / 100))} με ΦΠΑ. Είναι η χρέωση της ACS και προστίθεται στα μεταφορικά — δεν την κρατάμε εμείς.`,
-        },
-        {
           q: "Μπορώ να παραλάβω από το κατάστημα;",
           a: `Ναι, από τον Πειραιά (Κ. Μαυρομιχάλη 4). Επιλέξτε «Παραλαβή από Πειραιά» στο ταμείο — η παραγγελία είναι έτοιμη σε 2 ώρες μέσα στο ωράριο.`,
         },
@@ -100,7 +96,7 @@ export const getFaq = cache(async (locale: Locale): Promise<FaqSection[]> => {
         },
         {
           q: "Πώς μπορώ να πληρώσω;",
-          a: `Κάρτα και IRIS μέσω Viva Wallet, τραπεζική κατάθεση, ή αντικαταβολή. Τα στοιχεία της κάρτας σας δεν περνούν ποτέ από το κατάστημά μας. Οι εγκεκριμένοι εταιρικοί λογαριασμοί πληρώνουν και επί πιστώσει.`,
+          a: `Κάρτα και IRIS μέσω Viva Wallet, ή τραπεζική κατάθεση. Τα στοιχεία της κάρτας σας δεν περνούν ποτέ από το κατάστημά μας. Οι εγκεκριμένοι εταιρικοί λογαριασμοί πληρώνουν και επί πιστώσει.`,
         },
         {
           q: "Έχετε τιμή για επαγγελματίες;",

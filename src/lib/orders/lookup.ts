@@ -64,6 +64,8 @@ const PAYMENT_LABELS: Record<string, string> = {
   card: "Κάρτα",
   iris: "IRIS",
   bank: "Τραπεζική κατάθεση",
+  // Kept although the method is no longer offered: this map renders orders that
+  // were already placed, and a missing entry would show a raw "cod".
   cod: "Αντικαταβολή",
   credit: "Επί πιστώσει",
 };

@@ -54,9 +54,10 @@ export const PAYMENT_METHODS = [
   { id: "card", label: "Κάρτα", feeNet: 0, partnerOnly: false },
   { id: "iris", label: "IRIS", feeNet: 0, partnerOnly: false },
   { id: "bank", label: "Τραπεζική κατάθεση", feeNet: 0, partnerOnly: false },
-  // The COD fee is the ACS charge (COD_FEE_NET), added by the tariff engine
-  // rather than hardcoded here, so there is one source of truth for it.
-  { id: "cod", label: "Αντικαταβολή", feeNet: 0, partnerOnly: false },
+  // Cash on delivery is NOT offered. Kolleris does not accept it (client,
+  // 2026-07-31), and it was listed here — with a 2.50 € net ACS fee — until
+  // that came to light. Do not reinstate without the fee, the FAQ answer and
+  // the SoftOne expense code all going back together.
   { id: "credit", label: "Επί πιστώσει", feeNet: 0, partnerOnly: true },
 ] as const;
 

@@ -102,7 +102,7 @@ export default async function CheckoutPage({
           {!isVivaConfigured() && (
             <p className="mb-6 border-l-[3px] border-k-amber bg-k-surface-2 px-4 py-3 text-[12.5px] leading-[1.55] text-k-text-2">
               Η πληρωμή με κάρτα δεν είναι ενεργή σε αυτό το περιβάλλον. Επιλέξτε
-              αντικαταβολή ή τραπεζική κατάθεση.
+              τραπεζική κατάθεση.
             </p>
           )}
 

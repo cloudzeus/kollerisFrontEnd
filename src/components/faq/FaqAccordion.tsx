@@ -13,7 +13,7 @@ import { searchKey, upGreek } from "@/lib/greek";
  * The client part is only the filter and the "open everything" toggle.
  *
  * Filtering searches the ANSWERS too, not just the questions. Someone typing
- * "αντικαταβολή" does not know it lives under "Αποστολή", and matching only
+ * "μεταφορικά" does not know it lives under "Αποστολή", and matching only
  * headings would tell them we have no answer when we do.
  */
 export function FaqAccordion({ sections }: { sections: FaqSection[] }) {
@@ -50,7 +50,7 @@ export function FaqAccordion({ sections }: { sections: FaqSection[] }) {
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Ψάξτε μια ερώτηση — π.χ. αντικαταβολή, εγγύηση, τιμολόγιο"
+            placeholder="Ψάξτε μια ερώτηση — π.χ. μεταφορικά, εγγύηση, τιμολόγιο"
             autoComplete="off"
             className="t-input min-w-0 flex-1 border-0 bg-transparent pr-2 text-k-ink outline-none placeholder:text-k-text-4"
           />

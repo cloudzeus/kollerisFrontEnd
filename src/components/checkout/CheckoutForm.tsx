@@ -183,11 +183,6 @@ export function CheckoutForm({
             της κάρτας σας δεν περνούν ποτέ από το κατάστημά μας.
           </p>
         )}
-        {payment === "cod" && (
-          <p className="mt-3 border-l-[3px] border-k-amber bg-k-surface-2 px-4 py-3 text-[12px] leading-[1.55] text-k-text-2">
-            Η αντικαταβολή χρεώνεται από την ACS και προστίθεται στα μεταφορικά.
-          </p>
-        )}
         {payment === "bank" && (
           <p className="mt-3 border-l-[3px] border-k-ink bg-k-surface-2 px-4 py-3 text-[12px] leading-[1.55] text-k-text-2">
             Θα λάβετε τα στοιχεία κατάθεσης με email. Η παραγγελία δεσμεύεται για 3

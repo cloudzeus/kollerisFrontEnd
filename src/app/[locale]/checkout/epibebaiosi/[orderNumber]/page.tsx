@@ -178,7 +178,9 @@ export default async function ConfirmationPage({ params, searchParams }: PagePro
                     card: "Κάρτα (Viva Wallet)",
                     iris: "IRIS",
                     bank: "Τραπεζική κατάθεση",
-                    cod: "Αντικαταβολή",
+                    // Kept although the method is no longer offered: this map renders orders that
+  // were already placed, and a missing entry would show a raw "cod".
+  cod: "Αντικαταβολή",
                     credit: "Επί πιστώσει",
                   }[order.paymentMethod] ?? order.paymentMethod
                 }

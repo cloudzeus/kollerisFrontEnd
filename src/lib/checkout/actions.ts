@@ -135,7 +135,6 @@ export async function placeOrder(
             height: l.height,
           })),
           postcode: input.shipPostcode,
-          cashOnDelivery: payment.id === "cod",
         })
       : null;
 
@@ -147,7 +146,9 @@ export async function placeOrder(
       orderNumber,
       guestToken,
       status: "PENDING_PAYMENT",
-      paymentStatus: payment.id === "cod" ? "ON_DELIVERY" : "PENDING",
+      // Every method now settles before or after dispatch, never on it: cash on
+      // delivery is not accepted, so ON_DELIVERY can no longer be reached.
+      paymentStatus: "PENDING",
 
       email: input.email,
       phone: input.phone,

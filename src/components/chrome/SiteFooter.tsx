@@ -4,7 +4,7 @@ import type { CategoryTile } from "@/lib/catalog/queries";
 import { upGreek } from "@/lib/greek";
 
 const SOCIALS = ["FB", "IG", "IN"];
-const PAYMENTS = ["VISA", "MC", "MAESTRO", "IRIS", "PAYPAL", "COD"];
+const PAYMENTS = ["VISA", "MC", "MAESTRO", "IRIS", "PAYPAL"];
 
 /**
  * Footer. Handoff: four columns on desktop; on mobile the link columns collapse

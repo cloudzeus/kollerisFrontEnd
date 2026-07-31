@@ -216,7 +216,6 @@ export function computeTotals(
       ? quotePostage({
           items: parcel,
           postcode,
-          cashOnDelivery: paymentMethodId === "cod",
         })
       : null;
 
@@ -224,8 +223,9 @@ export function computeTotals(
   const shippingNet =
     shipping.freeOverThreshold && freeShippingReached ? 0 : quotedNet;
 
-  // The COD fee is part of the ACS quote, so it is only charged when there is
-  // actually a shipment — a store pickup pays no collection fee.
+  // No payment method carries a fee today — cash on delivery, the only one that
+  // ever did, is not accepted. Kept as a field because the column exists and a
+  // future surcharge would flow through here.
   const paymentFeeNet = payment.feeNet;
 
   // Shipping and fees are charged at the standard rate regardless of basket mix.

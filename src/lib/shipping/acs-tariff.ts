@@ -46,8 +46,6 @@ const TARIFF: Record<ShippingZone, { base: number; baseKg: number; perExtraKg: n
   remote: { base: 7.2, baseKg: 2, perExtraKg: 1.9 },
 };
 
-/** Cash-on-delivery handling, EUR net. ACS bills this per shipment. */
-export const COD_FEE_NET = 2.5;
 
 /** Fuel surcharge as a fraction of the base rate. Revised by ACS periodically. */
 const FUEL_SURCHARGE = 0.06;
@@ -155,7 +153,6 @@ export type PostageQuote = {
   baseNet: number;
   extraWeightNet: number;
   fuelSurchargeNet: number;
-  codFeeNet: number;
   /** What the customer pays, net of VAT, before any free-shipping waiver. */
   totalNet: number;
 };
@@ -164,11 +161,9 @@ export type PostageQuote = {
 export function quotePostage({
   items,
   postcode,
-  cashOnDelivery = false,
 }: {
   items: ParcelItem[];
   postcode: string | null | undefined;
-  cashOnDelivery?: boolean;
 }): PostageQuote {
   const zone = zoneForPostcode(postcode);
   const tariff = TARIFF[zone];
@@ -178,7 +173,6 @@ export function quotePostage({
   const baseNet = tariff.base;
   const extraWeightNet = round(extraKg * tariff.perExtraKg);
   const fuelSurchargeNet = round((baseNet + extraWeightNet) * FUEL_SURCHARGE);
-  const codFeeNet = cashOnDelivery ? COD_FEE_NET : 0;
 
   return {
     zone,
@@ -191,8 +185,7 @@ export function quotePostage({
     baseNet,
     extraWeightNet,
     fuelSurchargeNet,
-    codFeeNet,
-    totalNet: round(baseNet + extraWeightNet + fuelSurchargeNet + codFeeNet),
+    totalNet: round(baseNet + extraWeightNet + fuelSurchargeNet),
   };
 }
 
