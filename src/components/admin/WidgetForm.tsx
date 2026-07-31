@@ -2,10 +2,13 @@
 
 import { useEffect, useState, useTransition } from "react";
 import Image from "next/image";
-import { Check, ChevronsUpDown, Loader2, Search } from "lucide-react";
+import { toast } from "sonner";
+import { Check, ChevronsUpDown, Languages, Loader2, Search, Sparkles } from "lucide-react";
 import {
+  actionGenerateCopy,
   actionSearchCategories,
   actionSearchProducts,
+  actionTranslate,
 } from "@/app/admin/(protected)/zones/actions";
 import type { PickerCategory, PickerProduct } from "@/lib/media/picker";
 import { BADGE_PRESETS, DYNAMIC_TOKENS, fieldsFor, type WidgetField } from "@/lib/zones/registry";
@@ -219,8 +222,43 @@ function LocalisedField({
 }) {
   const map = (value && typeof value === "object" ? value : {}) as Record<string, string>;
   const [active, setActive] = useState<string>("el");
+  const [options, setOptions] = useState<string[]>([]);
+  const [busy, start] = useTransition();
   const current = map[active] ?? "";
   const over = field.maxChars ? current.length - field.maxChars : 0;
+
+  function suggest() {
+    start(async () => {
+      const result = await actionGenerateCopy({
+        field: field.label,
+        // Whatever is already typed is the brief. An empty field still works —
+        // it just produces shop-level copy rather than copy about this tile.
+        context: current || map.el || "",
+        maxChars: field.maxChars,
+        locale: active,
+      });
+      if (result.ok) setOptions(result.options);
+      else toast.error(result.error);
+    });
+  }
+
+  function translate() {
+    const source = map.el?.trim();
+    if (!source) {
+      toast.error("Γράψτε πρώτα το ελληνικό κείμενο.");
+      return;
+    }
+    start(async () => {
+      const result = await actionTranslate({
+        text: source,
+        from: "el",
+        to: active,
+        maxChars: field.maxChars,
+      });
+      if (result.ok) onChange({ ...map, [active]: result.text });
+      else toast.error(result.error);
+    });
+  }
 
   return (
     <div>
@@ -258,6 +296,49 @@ function LocalisedField({
           onChange={(e) => onChange({ ...map, [active]: e.target.value })}
           className="text-[13px]"
         />
+      )}
+
+      <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+        <button
+          type="button"
+          onClick={suggest}
+          disabled={busy}
+          className="inline-flex items-center gap-1 border border-k-line-2 px-2 py-1 text-[11px] text-k-text-2 transition-colors hover:border-k-ink hover:text-k-ink disabled:opacity-50"
+        >
+          {busy ? <Loader2 className="size-3 animate-spin" /> : <Sparkles className="size-3" />}
+          Προτάσεις
+        </button>
+        {active !== "el" && (
+          <button
+            type="button"
+            onClick={translate}
+            disabled={busy}
+            className="inline-flex items-center gap-1 border border-k-line-2 px-2 py-1 text-[11px] text-k-text-2 transition-colors hover:border-k-ink hover:text-k-ink disabled:opacity-50"
+          >
+            <Languages className="size-3" />
+            Μετάφραση από ΕΛ
+          </button>
+        )}
+      </div>
+
+      {options.length > 0 && (
+        <ul className="mt-1.5 divide-y divide-k-line border border-k-line bg-k-surface-2">
+          {options.map((option) => (
+            <li key={option}>
+              <button
+                type="button"
+                onClick={() => {
+                  onChange({ ...map, [active]: option });
+                  setOptions([]);
+                }}
+                className="w-full px-2.5 py-1.5 text-left text-[12px] text-k-text-2 transition-colors hover:bg-white hover:text-k-ink"
+              >
+                {option}
+                <span className="numeral ml-2 text-[10px] text-k-text-5">{option.length}</span>
+              </button>
+            </li>
+          ))}
+        </ul>
       )}
 
       <div className="mt-1 flex flex-wrap items-center gap-x-3 text-[11px] text-k-text-4">

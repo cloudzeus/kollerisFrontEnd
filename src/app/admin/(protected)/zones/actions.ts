@@ -12,6 +12,7 @@ import {
 } from "@/lib/zones/zones";
 import { searchProductsForPicker, searchCategoriesForPicker } from "@/lib/media/picker";
 import { uploadImage } from "@/lib/media/bunny";
+import { generateCopy, translateText } from "@/lib/ai/deepseek";
 import type { Locale } from "@/i18n/routing";
 
 /**
@@ -115,5 +116,42 @@ export async function actionUpload(
   } catch (error) {
     console.error("[zones] upload failed", error);
     return { ok: false, error: error instanceof Error ? error.message : "Η αποστολή απέτυχε" };
+  }
+}
+
+/**
+ * Marketing copy suggestions for one field.
+ *
+ * Returns options rather than applying one: this writes the shop's voice, and
+ * nobody should find a generated headline live without having chosen it.
+ */
+export async function actionGenerateCopy(input: {
+  field: string;
+  context: string;
+  maxChars?: number;
+  locale: string;
+}): Promise<{ ok: true; options: string[] } | { ok: false; error: string }> {
+  await requireEditor();
+  try {
+    return { ok: true, options: await generateCopy(input) };
+  } catch (error) {
+    console.error("[zones] copy generation failed", error);
+    return { ok: false, error: error instanceof Error ? error.message : "Απέτυχε" };
+  }
+}
+
+/** Translate one string into the target locale. */
+export async function actionTranslate(input: {
+  text: string;
+  from: string;
+  to: string;
+  maxChars?: number;
+}): Promise<{ ok: true; text: string } | { ok: false; error: string }> {
+  await requireEditor();
+  try {
+    return { ok: true, text: await translateText(input) };
+  } catch (error) {
+    console.error("[zones] translation failed", error);
+    return { ok: false, error: error instanceof Error ? error.message : "Απέτυχε" };
   }
 }
