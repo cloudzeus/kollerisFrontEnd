@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-07-31T19:10:47.629Z",
+  "timestamp": "2026-07-31T19:20:55.706Z",
   "source": "auto-postool",
   "partial": false,
   "phase": null,
@@ -22,17 +22,21 @@
     },
     {
       "status": "M",
-      "path": "src/app/admin/(protected)/zones/actions.ts"
+      "path": "src/app/[locale]/page.tsx"
     },
     {
       "status": "M",
-      "path": "src/components/admin/WidgetForm.tsx"
+      "path": "src/app/globals.css"
+    },
+    {
+      "status": "M",
+      "path": "src/components/home/HeroBanner.tsx"
     },
     {
       "status": "??",
-      "path": "src/lib/ai/"
+      "path": "src/components/zones/"
     }
   ],
   "next_action": null,
-  "context_notes": "Recent commits:\n6885448 feat(admin): page builder — zones, widgets, media picker, live preview\n382b1fc feat(admin): expandable orders table with row actions\n8263175 feat(zones): zone/widget model, BunnyCDN media pipeline\n602dc27 feat(content): wire the storefront to the CMS\nae58037 feat(admin): rebuild the shell, and a CMS for storefront copy"
+  "context_notes": "Recent commits:\n366fb9e feat(ai): DeepSeek copy suggestions and translation in the builder\n6885448 feat(admin): page builder — zones, widgets, media picker, live preview\n382b1fc feat(admin): expandable orders table with row actions\n8263175 feat(zones): zone/widget model, BunnyCDN media pipeline\n602dc27 feat(content): wire the storefront to the CMS"
 }

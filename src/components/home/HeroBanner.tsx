@@ -23,10 +23,18 @@ export function HeroBanner({
   brandCount,
   featuredTiles,
   copy,
+  aside,
 }: {
   productCount: number;
   brandCount: number;
   copy: Record<string, string>;
+  /**
+   * The `home.aside` zone. Rendered by the page and passed in, because a server
+   * component that fetched its own zone would make this component impossible to
+   * render anywhere else — and the two promo tiles it replaces were the reason
+   * the zone system exists.
+   */
+  aside?: React.ReactNode;
   featuredTiles: Array<{
     eyebrow: string;
     title: string;
@@ -101,8 +109,14 @@ export function HeroBanner({
         the title ran underneath the product and the image was clipped by the
         tile's own `overflow-hidden`. A grid cannot overlap, which is the point.
       */}
-      <div className="hidden grid-rows-2 gap-0.5 lg:grid">
-        {featuredTiles.map((tile) => (
+      {/* The zone wins when it holds anything. The hardcoded tiles stay as the
+          fallback, so an empty zone is not an empty column and the page looks
+          the same the day the builder ships as the day before. */}
+      {aside ? (
+        <div className="hidden grid-rows-2 gap-0.5 lg:grid">{aside}</div>
+      ) : (
+        <div className="hidden grid-rows-2 gap-0.5 lg:grid">
+          {featuredTiles.map((tile) => (
           <article
             key={tile.title}
             className={`group/tile grid grid-cols-[1fr_128px] items-stretch gap-4 overflow-hidden p-[26px] transition-colors ${
@@ -158,8 +172,9 @@ export function HeroBanner({
               <span aria-hidden />
             )}
           </article>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </section>
   );
 }

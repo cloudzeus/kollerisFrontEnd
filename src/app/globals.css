@@ -535,3 +535,32 @@
     padding: 0.1em 0.35em;
   }
 }
+
+/* ─────────────────────────────────────────────────────────────────────────
+   Zone widget entrances
+   ─────────────────────────────────────────────────────────────────────────
+   One-shot entrances for widget text, chosen per widget in the page builder.
+   CSS rather than a motion library: these animate a few elements once, and a
+   runtime would cost more than it moves.
+
+   Applied under `motion-safe:` at the call site, so prefers-reduced-motion
+   disables them with no second code path.
+   ───────────────────────────────────────────────────────────────────────── */
+@keyframes zone-fade-up {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes zone-slide-in {
+  from { opacity: 0; transform: translateX(-22px); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes zone-zoom {
+  from { opacity: 0; transform: scale(.965); }
+  to   { opacity: 1; transform: none; }
+}
+/* Wipes the text in from the left. `clip-path` rather than width so the line
+   never reflows mid-animation. */
+@keyframes zone-reveal {
+  from { opacity: 0; clip-path: inset(0 100% 0 0); }
+  to   { opacity: 1; clip-path: inset(0 0 0 0); }
+}

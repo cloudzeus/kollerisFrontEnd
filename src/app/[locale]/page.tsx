@@ -13,6 +13,8 @@ import { StatStrip } from "@/components/home/StatStrip";
 import type { Locale } from "@/i18n/routing";
 import { getMiniCart } from "@/lib/cart/cart";
 import { getSection } from "@/lib/content/content";
+import { Zone } from "@/components/zones/Zone";
+import { FREE_SHIPPING_THRESHOLD_NET } from "@/lib/cart/options";
 import {
   getCatalogueStats,
   getFeaturedProducts,
@@ -62,6 +64,16 @@ export default async function HomePage({
       getSection("about", locale),
       getSection("reviews", locale),
     ]);
+
+  // Live figures for {tokens} in widget copy. Passed in rather than looked up
+  // per widget: the numbers are already here, and a widget should not be able
+  // to put a query on the page.
+  const zoneContext = {
+    products: stats.products.toLocaleString("el-GR"),
+    brands: String(stats.brands),
+    categories: String(stats.categories),
+    freeShipping: `${FREE_SHIPPING_THRESHOLD_NET}\u00A0€`,
+  };
 
   // Promo tiles: CMS-bound in Phase 3. The images are real catalogue products
   // so the tiles are not placeholder art.
@@ -153,14 +165,17 @@ export default async function HomePage({
           brandCount={stats.brands}
           featuredTiles={promoTiles}
           copy={heroCopy}
+          aside={<Zone id="home.aside" locale={locale} context={zoneContext} />}
         />
         <StatStrip stats={statCards} />
         <CategoryGrid
           categories={categories.slice(0, 8)}
           totalCategories={stats.categories}
         />
+        <Zone id="home.belowCategories" locale={locale} context={zoneContext} />
         <FeaturedProducts products={products} />
         <BrandWall brands={brands} totalBrands={stats.brands} />
+        <Zone id="home.band" locale={locale} context={zoneContext} />
         <ReviewsBand rating="4,9" reviewCount={214} reviews={reviews} copy={reviewsCopy} />
         <AboutSplit usps={usps} copy={aboutCopy} />
         <NewsletterBand />
