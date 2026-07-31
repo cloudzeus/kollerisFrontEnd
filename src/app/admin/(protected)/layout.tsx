@@ -1,8 +1,8 @@
 import { redirect } from "next/navigation";
+import { Toaster } from "sonner";
 import { auth, signOut } from "@/auth";
 import { capabilitiesOf, type Capability } from "@/lib/rbac";
-import { upGreek } from "@/lib/greek";
-import { Toaster } from "sonner";
+import { AdminNav, type NavGroup } from "@/components/admin/AdminNav";
 
 /**
  * /admin is Greek-only staff UI and deliberately sits OUTSIDE the [locale]
@@ -12,75 +12,72 @@ import { Toaster } from "sonner";
  * Middleware already redirects unauthenticated requests; this second check is
  * the real gate. Middleware is routing, not authorisation.
  */
-const SECTIONS: Array<{ href: string; label: string; capability: Capability }> = [
-  { href: "/admin/content", label: "Περιεχόμενο", capability: "content" },
-  { href: "/admin/catalogue", label: "Κατάλογος", capability: "catalogue" },
-  { href: "/admin/merchandising", label: "Προσφορές", capability: "merchandising" },
-  { href: "/admin/editorial", label: "Άρθρα & FAQ", capability: "editorial" },
-  { href: "/admin/orders", label: "Παραγγελίες", capability: "orders" },
-  { href: "/admin/customers", label: "Πελάτες", capability: "customers" },
-  { href: "/admin/service", label: "Επιστροφές & Service", capability: "service" },
-  { href: "/admin/engagement", label: "Επικοινωνία", capability: "engagement" },
-  { href: "/admin/sync", label: "Συγχρονισμός", capability: "sync" },
-  { href: "/admin/settings", label: "Ρυθμίσεις", capability: "settings" },
-  { href: "/admin/users", label: "Χρήστες", capability: "users" },
+
+type Section = { href: string; label: string; icon: string; capability: Capability | null };
+
+/**
+ * Grouped by how often the work happens, not by data model. "Καθημερινά" is
+ * what an operator opens on arrival; "Σύστημα" is what they touch twice a year.
+ */
+const GROUPS: Array<{ title: string; sections: Section[] }> = [
+  {
+    title: "Καθημερινά",
+    sections: [
+      { href: "/admin", label: "Επισκόπηση", icon: "dashboard", capability: null },
+      { href: "/admin/orders", label: "Παραγγελίες", icon: "orders", capability: "orders" },
+      { href: "/admin/engagement", label: "Επικοινωνία", icon: "engagement", capability: "engagement" },
+      { href: "/admin/customers", label: "Πελάτες", icon: "customers", capability: "customers" },
+      { href: "/admin/service", label: "Επιστροφές", icon: "service", capability: "service" },
+    ],
+  },
+  {
+    title: "Κατάστημα",
+    sections: [
+      { href: "/admin/content", label: "Περιεχόμενο", icon: "content", capability: "content" },
+      { href: "/admin/catalogue", label: "Κατάλογος", icon: "catalogue", capability: "catalogue" },
+      { href: "/admin/merchandising", label: "Προσφορές", icon: "merchandising", capability: "merchandising" },
+      { href: "/admin/editorial", label: "Άρθρα & FAQ", icon: "editorial", capability: "editorial" },
+    ],
+  },
+  {
+    title: "Σύστημα",
+    sections: [
+      { href: "/admin/sync", label: "Συγχρονισμός", icon: "sync", capability: "sync" },
+      { href: "/admin/settings", label: "Ρυθμίσεις", icon: "settings", capability: "settings" },
+      { href: "/admin/users", label: "Χρήστες", icon: "users", capability: "users" },
+    ],
+  },
 ];
 
-export default async function AdminLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const session = await auth();
   if (!session?.user) redirect("/admin/login");
 
   const allowed = capabilitiesOf(session.user.role);
-  const visible = SECTIONS.filter((s) => allowed.includes(s.capability));
+  const groups: NavGroup[] = GROUPS.map((g) => ({
+    title: g.title,
+    items: g.sections
+      .filter((s) => s.capability === null || allowed.includes(s.capability))
+      .map(({ href, label, icon }) => ({ href, label, icon })),
+  })).filter((g) => g.items.length > 0);
+
+  async function signOutAction() {
+    "use server";
+    await signOut({ redirectTo: "/admin/login" });
+  }
 
   return (
-    <div className="flex min-h-screen">
-      <aside className="flex w-64 shrink-0 flex-col bg-k-ink-deep text-white">
-        <div className="border-b border-white/10 px-6 py-6">
-          <p className="text-sm font-bold tracking-widest">
-            {upGreek("Kolleris")}
-          </p>
-          <p className="numeral mt-1 text-[11px] tracking-wider text-k-text-5">
-            {session.user.role}
-          </p>
-        </div>
-
-        <nav className="flex-1 py-4">
-          {visible.map((section) => (
-            <a
-              key={section.href}
-              href={section.href}
-              className="block px-6 py-2.5 text-sm text-k-text-6 transition-colors hover:bg-white/5 hover:text-white"
-            >
-              {section.label}
-            </a>
-          ))}
-        </nav>
-
-        <div className="border-t border-white/10 px-6 py-4">
-          <p className="truncate text-xs text-k-text-5">{session.user.email}</p>
-          <form
-            action={async () => {
-              "use server";
-              await signOut({ redirectTo: "/admin/login" });
-            }}
-          >
-            <button
-              type="submit"
-              className="mt-2 text-xs text-k-red transition-colors hover:text-white"
-            >
-              Αποσύνδεση
-            </button>
-          </form>
-        </div>
-      </aside>
-
-      <main id="main" className="flex-1 bg-k-surface-2">{children}</main>
+    <div className="flex min-h-screen bg-k-surface-2">
+      <AdminNav
+        groups={groups}
+        user={session.user.email ?? ""}
+        role={session.user.role}
+        signOutAction={signOutAction}
+      />
+      <main id="main" className="min-w-0 flex-1">
+        {children}
+      </main>
       <Toaster position="bottom-right" richColors closeButton />
-      </div>
+    </div>
   );
 }

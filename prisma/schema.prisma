@@ -879,3 +879,29 @@ model Setting {
 
   @@map("settings")
 }
+
+/// Editable copy and cosmetic elements, per locale.
+///
+/// Same shape as `Setting` and for the same reason: a closed registry decides
+/// what exists (`src/lib/content/registry.ts`), so an orphan key is impossible
+/// and every block has a documented home on a real page.
+///
+/// A missing row falls back to the copy compiled into the component. That is
+/// what makes this safe to adopt one block at a time — nothing breaks before it
+/// has been filled in, and clearing a block restores the original rather than
+/// leaving a hole on the page.
+model ContentBlock {
+  key    String @db.VarChar(64)
+  locale String @db.VarChar(5)
+
+  /// Plain text, a URL, or an image path — the registry says which.
+  value String @db.Text
+
+  updatedBy String?  @db.VarChar(120)
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+
+  @@id([key, locale])
+  @@index([locale])
+  @@map("content_blocks")
+}

@@ -72,14 +72,14 @@ export function SettingsForm({ values }: { values: SettingView[] }) {
   }
 
   return (
-    <div className="space-y-12 pb-28">
+    <div className="space-y-4 pb-28">
       {SETTING_GROUPS.map((group) => {
         const defs = SETTINGS.filter((s) => s.group === group.id);
         if (!defs.length) return null;
 
         return (
-          <section key={group.id} aria-labelledby={`grp-${group.id}`}>
-            <div className="border-b border-k-line pb-3">
+          <section key={group.id} aria-labelledby={`grp-${group.id}`} className="border border-k-line bg-white">
+            <div className="border-b border-k-line bg-k-surface-3 px-4 py-3">
               <h2
                 id={`grp-${group.id}`}
                 className="text-[15px] font-semibold tracking-tight text-k-ink"
@@ -91,7 +91,7 @@ export function SettingsForm({ values }: { values: SettingView[] }) {
               </p>
             </div>
 
-            <div className="divide-y divide-k-line">
+            <div className="divide-y divide-k-line px-4">
               {defs.map((def) => {
                 const view = byKey.get(def.key);
                 const id = `set-${def.key.replace(/\./g, "-")}`;

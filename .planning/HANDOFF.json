@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-07-31T17:49:47.952Z",
+  "timestamp": "2026-07-31T18:05:51.112Z",
   "source": "auto-postool",
   "partial": false,
   "phase": null,
@@ -21,10 +21,42 @@
       "path": ".planning/HANDOFF.json"
     },
     {
+      "status": "M",
+      "path": "prisma/schema.prisma"
+    },
+    {
+      "status": "M",
+      "path": "src/app/admin/(protected)/layout.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/app/admin/(protected)/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/app/admin/(protected)/settings/SettingsForm.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/app/admin/(protected)/settings/page.tsx"
+    },
+    {
       "status": "??",
-      "path": "src/lib/admin/"
+      "path": "prisma/migrations/20260731175838_add_content_blocks/"
+    },
+    {
+      "status": "??",
+      "path": "src/app/admin/(protected)/content/"
+    },
+    {
+      "status": "??",
+      "path": "src/components/admin/"
+    },
+    {
+      "status": "??",
+      "path": "src/lib/content/"
     }
   ],
   "next_action": null,
-  "context_notes": "Recent commits:\nc076433 feat(admin): shadcn/ui foundation and the settings screen\n02653af feat(admin): encrypted settings store for the mini admin\n9c37dd9 feat(shipping): price postage from ACS, and correct the fallback table\n6ee3ab4 fix(checkout): stop offering cash on delivery\n892b728 feat(account): wire B2B approval to HDCtool H5, and correct the identity comments"
+  "context_notes": "Recent commits:\nd1fdb2a feat(admin): rebuild the dashboard around what needs attention\nc076433 feat(admin): shadcn/ui foundation and the settings screen\n02653af feat(admin): encrypted settings store for the mini admin\n9c37dd9 feat(shipping): price postage from ACS, and correct the fallback table\n6ee3ab4 fix(checkout): stop offering cash on delivery"
 }
