@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-08-01T09:21:09.125Z",
+  "timestamp": "2026-08-01T09:26:31.257Z",
   "source": "auto-postool",
   "partial": false,
   "phase": null,
@@ -26,21 +26,25 @@
     },
     {
       "status": "M",
-      "path": "src/components/admin/AdminNav.tsx"
+      "path": "src/lib/banners/__tests__/contract.test.ts"
     },
     {
       "status": "M",
       "path": "src/lib/banners/banners.ts"
     },
     {
-      "status": "??",
-      "path": "src/app/admin/(protected)/banners/"
+      "status": "M",
+      "path": "src/lib/banners/contract.ts"
     },
     {
       "status": "??",
-      "path": "src/components/admin/banners/"
+      "path": "src/app/admin/(protected)/offers/"
+    },
+    {
+      "status": "??",
+      "path": "src/components/admin/banners/OfferManager.tsx"
     }
   ],
   "next_action": null,
-  "context_notes": "Recent commits:\n7cabf1b feat(banners): data model, server layer and content resolution\n314e82c fix(pim): bring the local projection into line after a successful write\nf57c90b fix(pim): say 'not deployed' instead of 'not responding'\n1084d70 feat(admin): delete a product photo\n08fe420 feat(admin): per-spec delete, product and subgroup"
+  "context_notes": "Recent commits:\n94fa0b8 feat(banners): grid template builder\n7cabf1b feat(banners): data model, server layer and content resolution\n314e82c fix(pim): bring the local projection into line after a successful write\nf57c90b fix(pim): say 'not deployed' instead of 'not responding'\n1084d70 feat(admin): delete a product photo"
 }

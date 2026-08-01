@@ -3,6 +3,7 @@ import {
   bannerState,
   cellStyle,
   emptyWidget,
+  offerStatus,
   validateGrid,
   type BannerContent,
   type GridCell,
@@ -98,6 +99,39 @@ describe("bannerState", () => {
     // The state that matters: the storefront still shows the old version, and
     // somebody is about to assume otherwise.
     expect(bannerState(content("b"), content("a"))).toBe("modified");
+  });
+});
+
+describe("offerStatus", () => {
+  const now = new Date("2026-08-01T12:00:00Z");
+  const march = new Date("2026-03-01T00:00:00Z");
+  const april = new Date("2026-04-01T00:00:00Z");
+  const september = new Date("2026-09-01T00:00:00Z");
+
+  it("is live when switched on and inside its dates", () => {
+    expect(offerStatus({ isActive: true, startsAt: march, endsAt: september }, now)).toBe("live");
+  });
+
+  it("is live when switched on with no dates at all", () => {
+    expect(offerStatus({ isActive: true, startsAt: null, endsAt: null }, now)).toBe("live");
+  });
+
+  it("is expired once the end date passes, whatever the switch says", () => {
+    // The case the column exists for: still `isActive` in the database, and
+    // invisible on the site since April.
+    expect(offerStatus({ isActive: true, startsAt: march, endsAt: april }, now)).toBe("expired");
+  });
+
+  it("is scheduled before the start date", () => {
+    expect(offerStatus({ isActive: true, startsAt: september, endsAt: null }, now)).toBe("scheduled");
+  });
+
+  it("is off when the switch vetoes, even inside its dates", () => {
+    expect(offerStatus({ isActive: false, startsAt: march, endsAt: september }, now)).toBe("off");
+  });
+
+  it("treats the end instant as already over", () => {
+    expect(offerStatus({ isActive: true, startsAt: march, endsAt: now }, now)).toBe("expired");
   });
 });
 

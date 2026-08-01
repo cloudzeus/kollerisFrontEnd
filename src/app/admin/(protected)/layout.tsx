@@ -38,7 +38,7 @@ const GROUPS: Array<{ title: string; sections: Section[] }> = [
       { href: "/admin/banners/templates", label: "Banners", icon: "banners", capability: "content" },
       { href: "/admin/content", label: "Κείμενα", icon: "content", capability: "content" },
       { href: "/admin/catalogue", label: "Κατάλογος", icon: "catalogue", capability: "catalogue" },
-      { href: "/admin/merchandising", label: "Προσφορές", icon: "merchandising", capability: "merchandising" },
+      { href: "/admin/offers", label: "Προσφορές", icon: "merchandising", capability: "merchandising" },
       { href: "/admin/editorial", label: "Άρθρα & FAQ", icon: "editorial", capability: "editorial" },
     ],
   },

@@ -8,6 +8,7 @@ import {
   type BannerView,
   type GridCell,
   type GridTemplateView,
+  type OfferView,
 } from "@/lib/banners/contract";
 
 /**
@@ -327,18 +328,7 @@ export async function getPublishedBanner(zone: string) {
 
 /* ────────────────────────── Offers ────────────────────────── */
 
-export type OfferView = {
-  id: string;
-  slug: string;
-  title: string;
-  badge: string | null;
-  href: string;
-  image: string | null;
-  imageWide: string | null;
-  startsAt: Date | null;
-  endsAt: Date | null;
-  isActive: boolean;
-};
+export type { OfferView };
 
 export async function listOffers(): Promise<OfferView[]> {
   return prisma.offer.findMany({ orderBy: [{ isActive: "desc" }, { updatedAt: "desc" }] });

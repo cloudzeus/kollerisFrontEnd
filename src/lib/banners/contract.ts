@@ -166,6 +166,44 @@ export function bannerState(
   return JSON.stringify(draft) === JSON.stringify(published) ? "published" : "modified";
 }
 
+/* ────────────────────────── Offers ────────────────────────── */
+
+/**
+ * A campaign, authored here rather than read from the ERP.
+ *
+ * Lives in `contract.ts` because the offers screen and the widget picker are
+ * both client components, and the module that reads them is `server-only`.
+ */
+export type OfferView = {
+  id: string;
+  slug: string;
+  title: string;
+  badge: string | null;
+  href: string;
+  image: string | null;
+  imageWide: string | null;
+  startsAt: Date | null;
+  endsAt: Date | null;
+  isActive: boolean;
+};
+
+/**
+ * What an offer is doing right now.
+ *
+ * `isActive` on its own lies as soon as a date passes: a campaign switched on
+ * in March and ended in April is still "active" in the column and invisible on
+ * the site. The dates decide, the switch only vetoes.
+ */
+export function offerStatus(
+  offer: Pick<OfferView, "isActive" | "startsAt" | "endsAt">,
+  now: Date = new Date(),
+): "live" | "scheduled" | "expired" | "off" {
+  if (!offer.isActive) return "off";
+  if (offer.endsAt && offer.endsAt <= now) return "expired";
+  if (offer.startsAt && offer.startsAt > now) return "scheduled";
+  return "live";
+}
+
 /* ───────────────────────── Defaults ───────────────────────── */
 
 export const DEFAULT_CHROME: WidgetChrome = {
