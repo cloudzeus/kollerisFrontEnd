@@ -21,6 +21,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -83,12 +90,106 @@ const ASPECTS = [
   { value: "1/1", label: "1:1 — τετράγωνο" },
 ];
 
-/** Starting points, so the first template is not drawn from nothing. */
-const PRESETS: Array<{ label: string; columns: number; rows: number; cells: Rect[] }> = [
+/**
+ * Ready-made divisions of a banner area.
+ *
+ * Drawing a grid freehand is quick once you know what you want; these exist for
+ * the far more common case of not knowing. Each is a whole, valid layout on
+ * 12×6 — no holes, no overlaps — with the aspect ratio the shape actually wants,
+ * because a three-across strip and a four-tile grid are not the same height and
+ * getting that wrong is the first thing that looks amateur.
+ *
+ * Applying one replaces the geometry and nothing else. What goes IN the cells is
+ * the banner's business, and a template swap should not touch it.
+ */
+
+type LayoutCategory = "simple" | "hero" | "tiles" | "mosaic";
+
+const LAYOUT_CATEGORY: Record<LayoutCategory, string> = {
+  simple: "Απλά",
+  hero: "Hero",
+  tiles: "Πλέγματα",
+  mosaic: "Μωσαϊκά",
+};
+
+type Layout = {
+  label: string;
+  hint: string;
+  category: LayoutCategory;
+  columns: number;
+  rows: number;
+  aspect: string;
+  cells: Rect[];
+};
+
+const PRESETS: Layout[] = [
+  /* ── Απλά ── */
   {
-    label: "Hero 3-split",
+    label: "Ένα",
+    hint: "Όλος ο χώρος σε ένα κελί. Για μία δυνατή εικόνα.",
+    category: "simple",
     columns: 12,
     rows: 6,
+    aspect: "21/9",
+    cells: [{ x: 0, y: 0, w: 12, h: 6 }],
+  },
+  {
+    label: "Δύο ίσα",
+    hint: "Δύο ισοδύναμα μηνύματα δίπλα-δίπλα.",
+    category: "simple",
+    columns: 12,
+    rows: 6,
+    aspect: "2/1",
+    cells: [
+      { x: 0, y: 0, w: 6, h: 6 },
+      { x: 6, y: 0, w: 6, h: 6 },
+    ],
+  },
+  {
+    label: "Δύο τρίτα / ένα τρίτο",
+    hint: "Ένα κύριο και ένα δευτερεύον. Η πιο συνηθισμένη ιεραρχία.",
+    category: "simple",
+    columns: 12,
+    rows: 6,
+    aspect: "2/1",
+    cells: [
+      { x: 0, y: 0, w: 8, h: 6 },
+      { x: 8, y: 0, w: 4, h: 6 },
+    ],
+  },
+  {
+    label: "Ένα τρίτο / δύο τρίτα",
+    hint: "Καθρέφτης του προηγούμενου, για εναλλαγή σε διαδοχικές ζώνες.",
+    category: "simple",
+    columns: 12,
+    rows: 6,
+    aspect: "2/1",
+    cells: [
+      { x: 0, y: 0, w: 4, h: 6 },
+      { x: 4, y: 0, w: 8, h: 6 },
+    ],
+  },
+  {
+    label: "Δύο σε στοίβα",
+    hint: "Ο ένας πάνω από τον άλλο. Για στενές ζώνες δίπλα σε hero.",
+    category: "simple",
+    columns: 12,
+    rows: 6,
+    aspect: "1/1",
+    cells: [
+      { x: 0, y: 0, w: 12, h: 3 },
+      { x: 0, y: 3, w: 12, h: 3 },
+    ],
+  },
+
+  /* ── Hero ── */
+  {
+    label: "Hero 3-split",
+    hint: "Μεγάλο αριστερά, δύο στοιβαγμένα δεξιά.",
+    category: "hero",
+    columns: 12,
+    rows: 6,
+    aspect: "21/9",
     cells: [
       { x: 0, y: 0, w: 8, h: 6 },
       { x: 8, y: 0, w: 4, h: 3 },
@@ -96,18 +197,67 @@ const PRESETS: Array<{ label: string; columns: number; rows: number; cells: Rect
     ],
   },
   {
-    label: "Δύο ίσα",
+    label: "Hero 3-split ανάποδα",
+    hint: "Το ίδιο με το μεγάλο δεξιά.",
+    category: "hero",
     columns: 12,
     rows: 6,
+    aspect: "21/9",
     cells: [
-      { x: 0, y: 0, w: 6, h: 6 },
-      { x: 6, y: 0, w: 6, h: 6 },
+      { x: 0, y: 0, w: 4, h: 3 },
+      { x: 0, y: 3, w: 4, h: 3 },
+      { x: 4, y: 0, w: 8, h: 6 },
+    ],
+  },
+  {
+    label: "Hero με τρία δεξιά",
+    hint: "Μία μεγάλη προβολή και τρεις μικρές λωρίδες.",
+    category: "hero",
+    columns: 12,
+    rows: 6,
+    aspect: "21/9",
+    cells: [
+      { x: 0, y: 0, w: 9, h: 6 },
+      { x: 9, y: 0, w: 3, h: 2 },
+      { x: 9, y: 2, w: 3, h: 2 },
+      { x: 9, y: 4, w: 3, h: 2 },
+    ],
+  },
+  {
+    label: "Κέντρο με πλαϊνά",
+    hint: "Το κύριο στη μέση, δύο στενά εκατέρωθεν.",
+    category: "hero",
+    columns: 12,
+    rows: 6,
+    aspect: "21/9",
+    cells: [
+      { x: 0, y: 0, w: 3, h: 6 },
+      { x: 3, y: 0, w: 6, h: 6 },
+      { x: 9, y: 0, w: 3, h: 6 },
+    ],
+  },
+
+  /* ── Πλέγματα ── */
+  {
+    label: "Τρία ίσα",
+    hint: "Τρεις ισοδύναμες κατηγορίες σε λωρίδα.",
+    category: "tiles",
+    columns: 12,
+    rows: 6,
+    aspect: "3/1",
+    cells: [
+      { x: 0, y: 0, w: 4, h: 6 },
+      { x: 4, y: 0, w: 4, h: 6 },
+      { x: 8, y: 0, w: 4, h: 6 },
     ],
   },
   {
     label: "Τέσσερα πλακίδια",
+    hint: "Δύο επί δύο. Καλό για τέσσερις μάρκες ή κατηγορίες.",
+    category: "tiles",
     columns: 12,
     rows: 6,
+    aspect: "16/9",
     cells: [
       { x: 0, y: 0, w: 6, h: 3 },
       { x: 6, y: 0, w: 6, h: 3 },
@@ -115,7 +265,84 @@ const PRESETS: Array<{ label: string; columns: number; rows: number; cells: Rect
       { x: 6, y: 3, w: 6, h: 3 },
     ],
   },
+  {
+    label: "Έξι πλακίδια",
+    hint: "Τρία επί δύο. Πυκνό — δουλεύει μόνο με καθαρές εικόνες.",
+    category: "tiles",
+    columns: 12,
+    rows: 6,
+    aspect: "2/1",
+    cells: [
+      { x: 0, y: 0, w: 4, h: 3 },
+      { x: 4, y: 0, w: 4, h: 3 },
+      { x: 8, y: 0, w: 4, h: 3 },
+      { x: 0, y: 3, w: 4, h: 3 },
+      { x: 4, y: 3, w: 4, h: 3 },
+      { x: 8, y: 3, w: 4, h: 3 },
+    ],
+  },
+
+  /* ── Μωσαϊκά ── */
+  {
+    label: "Λωρίδα πάνω, τρία κάτω",
+    hint: "Ένα μήνυμα σε όλο το πλάτος και τρεις αποδείξεις από κάτω.",
+    category: "mosaic",
+    columns: 12,
+    rows: 6,
+    aspect: "16/9",
+    cells: [
+      { x: 0, y: 0, w: 12, h: 3 },
+      { x: 0, y: 3, w: 4, h: 3 },
+      { x: 4, y: 3, w: 4, h: 3 },
+      { x: 8, y: 3, w: 4, h: 3 },
+    ],
+  },
+  {
+    label: "Τρία πάνω, λωρίδα κάτω",
+    hint: "Το αντίστροφο — οι επιλογές πρώτα, το κάλεσμα μετά.",
+    category: "mosaic",
+    columns: 12,
+    rows: 6,
+    aspect: "16/9",
+    cells: [
+      { x: 0, y: 0, w: 4, h: 3 },
+      { x: 4, y: 0, w: 4, h: 3 },
+      { x: 8, y: 0, w: 4, h: 3 },
+      { x: 0, y: 3, w: 12, h: 3 },
+    ],
+  },
+  {
+    label: "Μεγάλο και τέσσερα",
+    hint: "Μία προβολή στο μισό πλάτος και τέσσερα μικρά δεξιά.",
+    category: "mosaic",
+    columns: 12,
+    rows: 6,
+    aspect: "16/9",
+    cells: [
+      { x: 0, y: 0, w: 6, h: 6 },
+      { x: 6, y: 0, w: 3, h: 3 },
+      { x: 9, y: 0, w: 3, h: 3 },
+      { x: 6, y: 3, w: 3, h: 3 },
+      { x: 9, y: 3, w: 3, h: 3 },
+    ],
+  },
+  {
+    label: "Μωσαϊκό",
+    hint: "Μεγάλο αριστερά, πλατύ πάνω δεξιά, δύο μικρά από κάτω.",
+    category: "mosaic",
+    columns: 12,
+    rows: 6,
+    aspect: "16/9",
+    cells: [
+      { x: 0, y: 0, w: 6, h: 6 },
+      { x: 6, y: 0, w: 6, h: 3 },
+      { x: 6, y: 3, w: 3, h: 3 },
+      { x: 9, y: 3, w: 3, h: 3 },
+    ],
+  },
 ];
+
+const LAYOUT_CATEGORIES = [...new Set(PRESETS.map((p) => p.category))];
 
 const newId = () =>
   typeof crypto !== "undefined" && crypto.randomUUID
@@ -195,6 +422,7 @@ export function GridBuilder({
   const [cells, setCells] = useState<GridCell[]>(template?.cells ?? []);
   const [selected, setSelected] = useState<string | null>(null);
   const [drag, setDrag] = useState<Drag | null>(null);
+  const [gallery, setGallery] = useState(false);
   const [pending, start] = useTransition();
 
   const canvasRef = useRef<HTMLDivElement>(null);
@@ -332,11 +560,13 @@ export function GridBuilder({
 
   /* ─── actions ─── */
 
-  function applyPreset(p: (typeof PRESETS)[number]) {
+  function applyPreset(p: Layout) {
     setColumns(p.columns);
     setRows(p.rows);
+    setAspect(p.aspect);
     setCells(p.cells.map((r, i) => ({ id: newId(), name: `Ζώνη ${i + 1}`, ...r })));
     setSelected(null);
+    setGallery(false);
   }
 
   /** Turn the leftover empty squares into cells, one maximal rectangle at a
@@ -770,43 +1000,75 @@ export function GridBuilder({
           </div>
         )}
 
-        {/* Έτοιμα σχέδια */}
-        <div className="border border-k-line bg-white">
-          <p className="flex items-center gap-1.5 border-b border-k-line px-3 py-2 text-[11px] font-medium uppercase tracking-[0.08em] text-k-text-4">
-            <Sparkles className="size-3" />
-            Έτοιμα σχέδια
-          </p>
-          <div className="grid grid-cols-3 gap-2 p-2">
-            {PRESETS.map((p) => (
-              <button
-                key={p.label}
-                type="button"
-                onClick={() => applyPreset(p)}
-                className="group space-y-1 border border-k-line p-1.5 text-left transition-colors hover:border-k-ink"
-                title={p.label}
-              >
-                <span
-                  className="grid h-9 w-full gap-px"
-                  style={{
-                    gridTemplateColumns: `repeat(${p.columns}, minmax(0,1fr))`,
-                    gridTemplateRows: `repeat(${p.rows}, minmax(0,1fr))`,
-                  }}
-                  aria-hidden
-                >
-                  {p.cells.map((c, i) => (
-                    <span
-                      key={i}
-                      style={cellStyle({ id: "", name: "", ...c })}
-                      className="bg-k-surface-3 group-hover:bg-k-ink/25"
-                    />
+        <Button variant="outline" onClick={() => setGallery(true)} className="w-full">
+          <Sparkles className="size-3.5" />
+          Έτοιμα σχέδια
+        </Button>
+      </div>
+
+      <Dialog open={gallery} onOpenChange={setGallery}>
+        <DialogContent className="max-h-[92vh] w-[min(95vw,64rem)] overflow-y-auto sm:max-w-none">
+          <DialogHeader>
+            <DialogTitle>Έτοιμα σχέδια πλέγματος</DialogTitle>
+            <DialogDescription>
+              Ολόκληρες, έγκυρες διατάξεις. Διαλέξτε μία και μετά σύρετε ό,τι θέλετε αλλιώς —
+              αντικαθιστά μόνο τη γεωμετρία.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-5">
+            {LAYOUT_CATEGORIES.map((category) => (
+              <section key={category} className="space-y-2">
+                <p className="text-[10px] font-medium uppercase tracking-[0.08em] text-k-text-4">
+                  {LAYOUT_CATEGORY[category]}
+                </p>
+                <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                  {PRESETS.filter((p) => p.category === category).map((preset) => (
+                    <li key={preset.label}>
+                      <button
+                        type="button"
+                        onClick={() => applyPreset(preset)}
+                        className="group w-full border border-k-line p-1.5 text-left transition-colors hover:border-k-ink"
+                      >
+                        {/* Drawn at the aspect ratio it carries, so the choice is
+                            about proportion as much as about division. */}
+                        <span
+                          // Fixed height, width follows the ratio: the cards
+                          // stay level while the proportions still read.
+                          className="mx-auto grid h-[6.5rem] max-w-full gap-px bg-k-line"
+                          style={{
+                            aspectRatio: preset.aspect,
+                            gridTemplateColumns: `repeat(${preset.columns}, minmax(0,1fr))`,
+                            gridTemplateRows: `repeat(${preset.rows}, minmax(0,1fr))`,
+                          }}
+                          aria-hidden
+                        >
+                          {preset.cells.map((c, i) => (
+                            <span
+                              key={i}
+                              style={cellStyle({ id: "", name: "", ...c })}
+                              className="bg-k-surface-3 transition-colors group-hover:bg-k-ink/20"
+                            />
+                          ))}
+                        </span>
+                        <span className="mt-1.5 block text-[12px] font-medium text-k-ink">
+                          {preset.label}
+                        </span>
+                        <span className="numeral block text-[10px] text-k-text-5">
+                          {preset.cells.length} κελιά · {preset.aspect}
+                        </span>
+                        <span className="mt-0.5 block text-[10.5px] leading-[1.45] text-k-text-4">
+                          {preset.hint}
+                        </span>
+                      </button>
+                    </li>
                   ))}
-                </span>
-                <span className="block truncate text-[10.5px] text-k-text-3">{p.label}</span>
-              </button>
+                </ul>
+              </section>
             ))}
           </div>
-        </div>
-      </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
