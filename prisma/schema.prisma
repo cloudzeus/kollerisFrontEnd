@@ -944,3 +944,137 @@ model ZoneWidget {
   @@index([zone, order])
   @@map("zone_widgets")
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Banner system: grid templates, placements, widgets
+//
+// Three tables rather than one blob, because the three things have genuinely
+// different lifetimes: a TEMPLATE is drawn once and reused across pages, a
+// PLACEMENT binds one template to one zone on one page, and a WIDGET is the
+// content in one cell of one placement. Collapsing them would mean editing a
+// homepage banner silently reshaped every other page using the same layout.
+// ─────────────────────────────────────────────────────────────────────────────
+
+/// A reusable grid layout, drawn in the builder.
+///
+/// `cells` holds the geometry as JSON rather than as rows: a cell is only ever
+/// read as part of the whole grid, never queried on its own, and a layout with
+/// six cells would otherwise be seven rows to load and keep consistent.
+///
+/// Shape: { cells: [{ id, name, x, y, w, h }], columns, rows }
+/// Coordinates are in grid units, not pixels — the same template has to work at
+/// 400px in an aside and full-bleed in a band.
+model GridTemplate {
+  id   String @id @default(cuid())
+  name String @db.VarChar(80)
+
+  /// Column and row count the cells are laid out on.
+  columns Int @default(12)
+  rows    Int @default(6)
+
+  /// Cell geometry and names. See the shape above.
+  cells Json
+
+  /// Aspect ratio hint for the preview and the storefront, e.g. "16/9".
+  /// Null lets the content decide the height.
+  aspect String? @db.VarChar(12)
+
+  updatedBy String?  @db.VarChar(120)
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+
+  banners Banner[]
+
+  @@map("grid_templates")
+}
+
+/// A saved banner: a grid template plus the widget in each of its cells.
+///
+/// The grid and its content are one thing, saved together and named, and only
+/// then assigned to pages — which is why draft and published live HERE and not
+/// on the assignment. Publishing updates every page the banner sits on, so the
+/// editor shows where else it is placed before the button is pressed.
+///
+/// Draft and published are two JSON columns on one row rather than two rows:
+/// publishing is then one write, and there is never an instant where a banner
+/// has two versions claiming to be current.
+model Banner {
+  id   String @id @default(cuid())
+  name String @db.VarChar(80)
+
+  templateId String
+  template   GridTemplate @relation(fields: [templateId], references: [id])
+
+  /// What the storefront renders. Null until the first publish.
+  published Json?
+  /// What the editor is working on. Copied over `published` on publish.
+  draft     Json?
+
+  publishedAt DateTime?
+  publishedBy String?   @db.VarChar(120)
+
+  updatedBy String?  @db.VarChar(120)
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+
+  placements BannerPlacement[]
+
+  @@index([templateId])
+  @@map("banners")
+}
+
+/// A banner assigned to one zone on one page.
+///
+/// `zone` is the primary key, which states the invariant in the schema rather
+/// than in a comment: one banner per zone, and a banner in as many zones as you
+/// like. Nothing else lives here — the content is on the banner, so assigning
+/// and un-assigning can never lose an edit.
+model BannerPlacement {
+  /// Registry zone id, e.g. "home.aside".
+  zone String @id @db.VarChar(64)
+
+  bannerId String
+  banner   Banner @relation(fields: [bannerId], references: [id], onDelete: Cascade)
+
+  updatedBy String?  @db.VarChar(120)
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+
+  @@index([bannerId])
+  @@map("banner_placements")
+}
+
+/// A promotion the banner system can bind a widget to.
+///
+/// Modelled here rather than pulled from the ERP because a campaign is a
+/// marketing artefact — a name, a window, a landing page — and SoftOne holds
+/// none of that. Product pricing stays where it belongs; this is the wrapper
+/// marketing puts around it.
+model Offer {
+  id    String @id @default(cuid())
+  slug  String @unique @db.VarChar(120)
+  title String @db.VarChar(160)
+
+  /// Badge text, e.g. "-30%". Free text so a campaign can say what it means.
+  badge String? @db.VarChar(40)
+
+  /// Where the CTA goes. A category path, a filtered listing, anything.
+  href String @db.VarChar(255)
+
+  image String? @db.Text
+  /// Second image for a different aspect — a band and a tile rarely share art.
+  imageWide String? @db.Text
+
+  startsAt DateTime?
+  /// Drives the countdown widget. Null means no deadline to show.
+  endsAt   DateTime?
+
+  isActive Boolean @default(true)
+
+  updatedBy String?  @db.VarChar(120)
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+
+  @@index([isActive, endsAt])
+  @@map("offers")
+}

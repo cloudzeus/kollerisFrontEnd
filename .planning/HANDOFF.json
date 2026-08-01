@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-08-01T08:41:33.744Z",
+  "timestamp": "2026-08-01T09:08:55.163Z",
   "source": "auto-postool",
   "partial": false,
   "phase": null,
@@ -19,8 +19,24 @@
     {
       "status": "M",
       "path": ".planning/HANDOFF.json"
+    },
+    {
+      "status": "M",
+      "path": "prisma/schema.prisma"
+    },
+    {
+      "status": "??",
+      "path": "prisma/migrations/20260801084826_add_banner_system/"
+    },
+    {
+      "status": "??",
+      "path": "prisma/migrations/20260801090615_banner_grid_widgets_placement/"
+    },
+    {
+      "status": "??",
+      "path": "src/lib/banners/"
     }
   ],
   "next_action": null,
-  "context_notes": "Recent commits:\nf57c90b fix(pim): say 'not deployed' instead of 'not responding'\n1084d70 feat(admin): delete a product photo\n08fe420 feat(admin): per-spec delete, product and subgroup\nd62af72 feat(admin): catalogue — photo order and specifications\nb84e2ad feat(admin): customers — B2B approvals"
+  "context_notes": "Recent commits:\n314e82c fix(pim): bring the local projection into line after a successful write\nf57c90b fix(pim): say 'not deployed' instead of 'not responding'\n1084d70 feat(admin): delete a product photo\n08fe420 feat(admin): per-spec delete, product and subgroup\nd62af72 feat(admin): catalogue — photo order and specifications"
 }
