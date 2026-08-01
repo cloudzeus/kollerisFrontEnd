@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-08-01T07:56:15.344Z",
+  "timestamp": "2026-08-01T08:06:30.478Z",
   "source": "auto-postool",
   "partial": false,
   "phase": null,
@@ -22,21 +22,21 @@
     },
     {
       "status": "??",
-      "path": "src/app/admin/(protected)/customers/"
+      "path": "src/app/admin/(protected)/catalogue/"
     },
     {
       "status": "??",
-      "path": "src/components/admin/CompanyList.tsx"
+      "path": "src/components/admin/ProductEditor.tsx"
     },
     {
       "status": "??",
-      "path": "src/lib/admin/customers-types.ts"
+      "path": "src/lib/pim/pim-types.ts"
     },
     {
       "status": "??",
-      "path": "src/lib/admin/customers.ts"
+      "path": "src/lib/pim/pim.ts"
     }
   ],
   "next_action": null,
-  "context_notes": "Recent commits:\n52a01dd feat(admin): contact inbox\n86f197d fix(admin): one search box per screen\n1bdddc8 feat(admin): orders screen with server-side filters and paging\nf76424c feat(admin): ACS dispatch desk\n2a035ae feat(zones): render zones on the storefront"
+  "context_notes": "Recent commits:\nb84e2ad feat(admin): customers — B2B approvals\n52a01dd feat(admin): contact inbox\n86f197d fix(admin): one search box per screen\n1bdddc8 feat(admin): orders screen with server-side filters and paging\nf76424c feat(admin): ACS dispatch desk"
 }
