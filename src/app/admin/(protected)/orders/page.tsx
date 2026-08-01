@@ -109,7 +109,7 @@ export default async function OrdersPage({
         </div>
 
         <div className="border border-k-line bg-white">
-          <OrdersTable orders={data.orders} />
+          <OrdersTable orders={data.orders} showSearch={false} />
         </div>
 
         {data.pages > 1 && (

@@ -78,7 +78,18 @@ const SHIPPING: Record<string, string> = {
 
 type SortKey = "date" | "total" | "customer";
 
-export function OrdersTable({ orders }: { orders: RecentOrder[] }) {
+export function OrdersTable({
+  orders,
+  /**
+   * Hidden on the full orders screen, which searches on the server. Two search
+   * boxes on one page is a question about which one is authoritative, and the
+   * answer ("the one that only sees this page") is not worth explaining.
+   */
+  showSearch = true,
+}: {
+  orders: RecentOrder[];
+  showSearch?: boolean;
+}) {
   const [query, setQuery] = useState("");
   const [sort, setSort] = useState<{ key: SortKey; desc: boolean }>({ key: "date", desc: true });
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
@@ -131,6 +142,7 @@ export function OrdersTable({ orders }: { orders: RecentOrder[] }) {
 
   return (
     <div>
+      {showSearch && (
       <div className="flex items-center gap-2 border-b border-k-line px-3 py-2">
         <div className="relative max-w-[18rem] flex-1">
           <Search className="pointer-events-none absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-k-text-4" />
@@ -148,6 +160,7 @@ export function OrdersTable({ orders }: { orders: RecentOrder[] }) {
             : `${rows.length} από ${orders.length}`}
         </span>
       </div>
+      )}
 
       <table className="w-full text-left">
         <thead>
