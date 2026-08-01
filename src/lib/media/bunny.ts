@@ -134,57 +134,64 @@ export async function uploadImage(
   };
 }
 
+/**
+ * Uploads a stream and returns the public CDN URL.
+ *
+ * The bytes are never held: a 60MB video would otherwise sit in the process
+ * twice — once as the request body and once as the outbound buffer — for every
+ * concurrent upload. `Content-Length` is required because Bunny's storage API
+ * does not accept a chunked PUT, which is also why the caller has to know the
+ * size up front.
+ */
+export async function uploadStreamToBunny(
+  body: ReadableStream<Uint8Array>,
+  path: string,
+  contentType: string,
+  length: number,
+): Promise<string> {
+  const { key, zone, hostname } = config();
+  const clean = path.replace(/^\/+/, "");
+
+  const response = await fetch(`https://storage.bunnycdn.com/${zone}/${clean}`, {
+    method: "PUT",
+    headers: {
+      AccessKey: key,
+      "Content-Type": contentType,
+      "Content-Length": String(length),
+    },
+    body,
+    // Node's fetch needs telling that the request body streams while the
+    // response is still being read.
+    duplex: "half",
+  } as RequestInit & { duplex: "half" });
+
+  if (!response.ok) {
+    const detail = await response.text().catch(() => "");
+    throw new Error(`BunnyCDN upload failed (${response.status}): ${detail.slice(0, 200)}`);
+  }
+
+  return `https://${hostname}/${clean}`;
+}
+
 /** What a browser will actually play, by extension. */
-const VIDEO_TYPES: Record<string, string> = {
+export const VIDEO_CONTENT_TYPES: Record<string, string> = {
   mp4: "video/mp4",
   webm: "video/webm",
   mov: "video/quicktime",
 };
 
-export const VIDEO_EXTENSIONS = Object.keys(VIDEO_TYPES);
-
 /**
- * Upload a video, byte for byte.
+ * Deletes one file from storage.
  *
- * No transcoding: doing it properly needs a queue and a media service, and
- * doing it badly — a synchronous ffmpeg in a request — would block the admin
- * for minutes on a file marketing could have exported correctly in the first
- * place. So the constraint is stated instead: MP4 or WebM, and a size cap the
- * caller enforces.
+ * Failure is reported, never thrown — a dead CDN object is untidy, but losing
+ * the edit that replaced it would be worse.
  *
- * `.mov` is accepted because it is what a phone produces, and refusing it at
- * the door is more annoying than serving it — Safari plays it, and everything
- * else at least downloads it.
+ * The public URL keeps serving the file until the edge cache expires. That is
+ * BunnyCDN working as designed, not a failed delete: purging the edge needs the
+ * account-level API key, which this process deliberately does not hold. Nothing
+ * can reach the file through the admin once its row is gone, so the stale copy
+ * costs nothing but a little bandwidth for a while.
  */
-export async function uploadVideo(
-  input: Buffer,
-  { folder, name }: { folder: string; name: string },
-): Promise<{ url: string; bytes: number; extension: string }> {
-  const extension = (name.split(".").pop() ?? "").toLowerCase();
-  const contentType = VIDEO_TYPES[extension];
-  if (!contentType) {
-    throw new Error(`Μη υποστηριζόμενος τύπος βίντεο: .${extension || "—"} (MP4, WebM ή MOV)`);
-  }
-
-  const slug =
-    name
-      .toLowerCase()
-      .replace(/\.[a-z0-9]+$/, "")
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/^-|-$/g, "")
-      .slice(0, 48) || "video";
-
-  const url = await uploadToBunny(
-    input,
-    `eshop/${folder}/${slug}-${Date.now()}.${extension}`,
-    contentType,
-  );
-
-  return { url, bytes: input.length, extension };
-}
-
-/** Deletes one file. Failure is reported, never thrown — a dead CDN object is
- *  untidy, but losing the edit that replaced it would be worse. */
 export async function deleteFromBunny(url: string): Promise<boolean> {
   try {
     const { key, zone, hostname } = config();

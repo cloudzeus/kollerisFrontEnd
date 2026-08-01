@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-08-01T12:16:22.509Z",
+  "timestamp": "2026-08-01T12:25:34.911Z",
   "source": "auto-postool",
   "partial": false,
   "phase": null,
@@ -22,9 +22,33 @@
     },
     {
       "status": "M",
-      "path": "src/components/admin/banners/GridBuilder.tsx"
+      "path": "src/app/admin/(protected)/media/actions.ts"
+    },
+    {
+      "status": "M",
+      "path": "src/components/admin/MediaPicker.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/components/admin/banners/CellEditor.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/lib/media/bunny.ts"
+    },
+    {
+      "status": "M",
+      "path": "src/lib/media/library.ts"
+    },
+    {
+      "status": "??",
+      "path": "src/app/api/admin/"
+    },
+    {
+      "status": "??",
+      "path": "src/lib/media/upload-client.ts"
     }
   ],
   "next_action": null,
-  "context_notes": "Recent commits:\n14c54e4 feat(media): a library, brand logos, and drag-to-place\nad413ba feat(banners): per-cell mobile behaviour, and surface the grid designer\n29f54ce feat(banners): layer canvas, preset library, GSAP, site typography\n73d66bb feat(banners): editor, widget modal, preview, storefront\n2737bc0 feat(banners): offers admin"
+  "context_notes": "Recent commits:\n3536474 feat(banners): sixteen ready-made grid layouts, saved and selectable\n14c54e4 feat(media): a library, brand logos, and drag-to-place\nad413ba feat(banners): per-cell mobile behaviour, and surface the grid designer\n29f54ce feat(banners): layer canvas, preset library, GSAP, site typography\n73d66bb feat(banners): editor, widget modal, preview, storefront"
 }

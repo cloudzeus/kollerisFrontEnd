@@ -34,7 +34,8 @@ import {
   type TextLayer,
 } from "@/lib/banners/contract";
 import { CATEGORY_LABEL, PRESETS, applyPreset, type PresetCategory } from "@/lib/banners/presets";
-import { actionListLogos, actionUploadFiles } from "@/app/admin/(protected)/media/actions";
+import { actionListLogos } from "@/app/admin/(protected)/media/actions";
+import { uploadFiles } from "@/lib/media/upload-client";
 import type { ResolvedCell } from "@/lib/banners/resolve-tokens";
 import { CompositionRenderer } from "@/components/banners/CompositionRenderer";
 import { CellCanvas } from "@/components/admin/banners/CellCanvas";
@@ -201,17 +202,9 @@ export function CellEditor({
     const files = [...transfer.files];
     if (files.length === 0) return;
 
-    const form = new FormData();
-    form.set("folder", "banners");
-    for (const file of files) form.append("files", file);
-
     setUploading(true);
-    void actionUploadFiles(form).then((result) => {
+    void uploadFiles(files, { folder: "banners" }).then((result) => {
       setUploading(false);
-      if (!result.ok) {
-        toast.error(result.error);
-        return;
-      }
       for (const error of result.failed) toast.error(error);
 
       let offset = 0;

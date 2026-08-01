@@ -1,6 +1,6 @@
 import "server-only";
 import { prisma } from "@/lib/prisma";
-import { deleteFromBunny, uploadImage, uploadVideo } from "@/lib/media/bunny";
+import { deleteFromBunny } from "@/lib/media/bunny";
 import type { MediaAssetView, MediaKind } from "@/lib/media/library-types";
 
 /**
@@ -16,10 +16,6 @@ import type { MediaAssetView, MediaKind } from "@/lib/media/library-types";
  * dead thumbnail somebody can clear, while an object without its row is
  * invisible and therefore permanent.
  */
-
-/** Videos are big and this is a synchronous request, not a queue. */
-const MAX_VIDEO_BYTES = 60 * 1024 * 1024;
-const MAX_IMAGE_BYTES = 25 * 1024 * 1024;
 
 export async function listAssets({
   kind,
@@ -52,76 +48,14 @@ export async function listAssets({
   }));
 }
 
-export type UploadResult =
-  | { ok: true; asset: MediaAssetView; note: string }
-  | { ok: false; error: string };
-
 /**
- * Take one file into the library.
+ * Note a file that is already on the CDN.
  *
- * Images are converted to WebP at a sane maximum edge, which is where the size
- * saving reported back to the operator comes from — the point of the conversion
- * is invisible otherwise, and a marketing team that cannot see it will keep
- * asking why their 8MB export "got worse".
+ * Called by the upload route once the bytes have landed. Kept here rather than
+ * in the route so the library owns its own table, and so nothing can write a
+ * row for an object that was never uploaded.
  */
-export async function ingest(
-  file: File,
-  { folder, actor }: { folder: string; actor: string },
-): Promise<UploadResult> {
-  const isVideo = file.type.startsWith("video/") || /\.(mp4|webm|mov)$/i.test(file.name);
-  const cap = isVideo ? MAX_VIDEO_BYTES : MAX_IMAGE_BYTES;
-
-  if (file.size > cap) {
-    return {
-      ok: false,
-      error: `Το «${file.name}» είναι ${Math.round(file.size / 1024 / 1024)}MB — το όριο είναι ${cap / 1024 / 1024}MB.`,
-    };
-  }
-
-  const buffer = Buffer.from(await file.arrayBuffer());
-
-  try {
-    if (isVideo) {
-      const result = await uploadVideo(buffer, { folder, name: file.name });
-      const asset = await record({
-        url: result.url,
-        kind: "video",
-        name: file.name,
-        folder,
-        width: null,
-        height: null,
-        bytes: result.bytes,
-        actor,
-      });
-      return { ok: true, asset, note: `${Math.round(result.bytes / 1024 / 1024)}MB` };
-    }
-
-    const result = await uploadImage(buffer, { folder, name: file.name });
-    const asset = await record({
-      url: result.url,
-      kind: "image",
-      name: file.name,
-      folder,
-      width: result.width,
-      height: result.height,
-      bytes: result.bytes,
-      actor,
-    });
-    return {
-      ok: true,
-      asset,
-      note: `${Math.round(result.originalBytes / 1024)} KB → ${Math.round(result.bytes / 1024)} KB · ${result.width}×${result.height}`,
-    };
-  } catch (error) {
-    console.error("[media] upload failed", error);
-    return {
-      ok: false,
-      error: error instanceof Error ? error.message : `Το «${file.name}» δεν ανέβηκε.`,
-    };
-  }
-}
-
-async function record(input: {
+export async function recordAsset(input: {
   url: string;
   kind: MediaKind;
   name: string;

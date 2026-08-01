@@ -21,8 +21,8 @@ import {
   actionDeleteAsset,
   actionListAssets,
   actionListLogos,
-  actionUploadFiles,
 } from "@/app/admin/(protected)/media/actions";
+import { uploadFiles } from "@/lib/media/upload-client";
 import { actionSearchProducts } from "@/app/admin/(protected)/zones/actions";
 import { fileSize, type MediaAssetView } from "@/lib/media/library-types";
 import type { PickerProduct } from "@/lib/media/picker";
@@ -157,17 +157,9 @@ function LibraryTab({
     if (list.length === 0) return;
 
     setUploading(true);
-    const form = new FormData();
-    form.set("folder", "library");
-    for (const file of list) form.append("files", file);
-
-    const result = await actionUploadFiles(form);
+    const result = await uploadFiles(list);
     setUploading(false);
 
-    if (!result.ok) {
-      toast.error(result.error);
-      return;
-    }
     for (const error of result.failed) toast.error(error);
     if (result.added.length > 0) {
       toast.success(
