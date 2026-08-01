@@ -69,6 +69,25 @@ export async function getPimProduct(slug: string, locale: Locale): Promise<PimPr
 
 type PimResponse = { success: boolean; error?: string } & Record<string, unknown>;
 
+/**
+ * Turns a transport failure into something an operator can act on.
+ *
+ * A 404 here does not mean "not found", it means the method has not been
+ * deployed to HDCtool yet — which is a different instruction to the person
+ * reading it than "the server is down", and the two were being reported
+ * identically.
+ */
+function describe(error: unknown, op: string): string {
+  const message = error instanceof Error ? error.message : "";
+  if (message.includes("404")) {
+    return `Το HDCtool δεν έχει ακόμη τη μέθοδο «${op}» — χρειάζεται deploy.`;
+  }
+  if (message.includes("401") || message.includes("403")) {
+    return "Το HDCtool απέρριψε το κλειδί πρόσβασης.";
+  }
+  return "Το HDCtool δεν απαντά.";
+}
+
 async function write(op: string, params: Record<string, unknown>) {
   try {
     const response = await hdctoolRequest<PimResponse>("/api/public/pim", { op, ...params });
@@ -76,13 +95,7 @@ async function write(op: string, params: Record<string, unknown>) {
     return { ok: true as const };
   } catch (error) {
     console.error("[pim]", op, error);
-    return {
-      ok: false as const,
-      error:
-        error instanceof Error && error.message.includes("404")
-          ? "Το HDCtool δεν έχει ακόμη αυτή τη μέθοδο — χρειάζεται deploy."
-          : "Το HDCtool δεν απαντά.",
-    };
+    return { ok: false as const, error: describe(error, op) };
   }
 }
 
@@ -98,7 +111,7 @@ async function writeCounted(op: string, params: Record<string, unknown>) {
     };
   } catch (error) {
     console.error("[pim]", op, error);
-    return { ok: false as const, error: "Το HDCtool δεν απαντά." };
+    return { ok: false as const, error: describe(error, op) };
   }
 }
 

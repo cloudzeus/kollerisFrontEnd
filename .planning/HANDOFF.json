@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-08-01T08:16:24.327Z",
+  "timestamp": "2026-08-01T08:18:19.637Z",
   "source": "auto-postool",
   "partial": false,
   "phase": null,
@@ -15,24 +15,7 @@
   "blockers": [],
   "human_actions_pending": [],
   "decisions": [],
-  "uncommitted_files": [
-    {
-      "status": "M",
-      "path": ".planning/HANDOFF.json"
-    },
-    {
-      "status": "M",
-      "path": "src/app/admin/(protected)/catalogue/actions.ts"
-    },
-    {
-      "status": "M",
-      "path": "src/components/admin/ProductEditor.tsx"
-    },
-    {
-      "status": "M",
-      "path": "src/lib/pim/pim.ts"
-    }
-  ],
+  "uncommitted_files": [],
   "next_action": null,
-  "context_notes": "Recent commits:\n08fe420 feat(admin): per-spec delete, product and subgroup\nd62af72 feat(admin): catalogue — photo order and specifications\nb84e2ad feat(admin): customers — B2B approvals\n52a01dd feat(admin): contact inbox\n86f197d fix(admin): one search box per screen"
+  "context_notes": "Recent commits:\n1084d70 feat(admin): delete a product photo\n08fe420 feat(admin): per-spec delete, product and subgroup\nd62af72 feat(admin): catalogue — photo order and specifications\nb84e2ad feat(admin): customers — B2B approvals\n52a01dd feat(admin): contact inbox"
 }
