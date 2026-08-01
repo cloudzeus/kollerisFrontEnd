@@ -24,6 +24,7 @@ import { toast } from "sonner";
 import {
   actionClearSpec,
   actionClearSpecSubgroup,
+  actionDeleteImage,
   actionSaveOrder,
   actionSaveSpec,
 } from "@/app/admin/(protected)/catalogue/actions";
@@ -68,6 +69,7 @@ export function ProductEditor({ product, locale }: { product: PimProduct; locale
     Object.fromEntries(product.specs.map((s) => [s.field, s.value])),
   );
   const [confirmBulk, setConfirmBulk] = useState<{ field: string; label: string } | null>(null);
+  const [confirmImage, setConfirmImage] = useState<PimImage | null>(null);
   const [pending, start] = useTransition();
 
   const original = product.images.map((i) => i.url).join("|");
@@ -110,6 +112,20 @@ export function ProductEditor({ product, locale }: { product: PimProduct; locale
       } else {
         toast.error(result.error);
       }
+    });
+  }
+
+  function removeImage(img: PimImage) {
+    setConfirmImage(null);
+    start(async () => {
+      const result = await actionDeleteImage(product.mtrl, img.url);
+      if (!result.ok) {
+        toast.error(result.error);
+        return;
+      }
+      setImages((imgs) => imgs.filter((i) => i.url !== img.url));
+      if (feature === img.url) setFeature(images.find((i) => i.url !== img.url)?.url ?? null);
+      toast.success("Η φωτογραφία αφαιρέθηκε.");
     });
   }
 
@@ -197,6 +213,7 @@ export function ProductEditor({ product, locale }: { product: PimProduct; locale
                     index={index}
                     isFeature={feature === img.url}
                     onFeature={() => setFeature(img.url)}
+                    onDelete={() => setConfirmImage(img)}
                   />
                 ))}
               </ul>
@@ -289,6 +306,27 @@ export function ProductEditor({ product, locale }: { product: PimProduct; locale
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <AlertDialog open={confirmImage != null} onOpenChange={(o) => !o && setConfirmImage(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-[15px]">Διαγραφή φωτογραφίας;</AlertDialogTitle>
+            <AlertDialogDescription className="text-[12.5px] leading-[1.6]">
+              Αφαιρείται από αυτό το προϊόν σε όλα τα κανάλια. Αν το ίδιο αρχείο χρησιμοποιείται
+              και σε άλλα προϊόντα, εκεί παραμένει.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Άκυρο</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => confirmImage && removeImage(confirmImage)}
+              className="bg-k-red hover:bg-k-red-hover"
+            >
+              Διαγραφή
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
@@ -298,11 +336,13 @@ function ImageTile({
   index,
   isFeature,
   onFeature,
+  onDelete,
 }: {
   image: PimImage;
   index: number;
   isFeature: boolean;
   onFeature: () => void;
+  onDelete: () => void;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: image.url,
@@ -331,6 +371,16 @@ function ImageTile({
         aria-label={`Μετακίνηση εικόνας ${index + 1}`}
       >
         <GripVertical className="size-3.5" />
+      </button>
+
+      <button
+        type="button"
+        onClick={onDelete}
+        className="absolute right-1 top-8 grid size-6 place-items-center bg-white/85 text-k-text-4 opacity-0 transition-colors hover:text-k-red group-hover:opacity-100"
+        aria-label={`Διαγραφή φωτογραφίας ${index + 1}`}
+        title="Διαγραφή φωτογραφίας"
+      >
+        <Trash2 className="size-3" />
       </button>
 
       <button

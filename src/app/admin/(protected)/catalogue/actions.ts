@@ -3,7 +3,13 @@
 import { revalidatePath } from "next/cache";
 import { auth } from "@/auth";
 import { assertCan } from "@/lib/rbac";
-import { clearSpec, clearSpecForSubgroup, saveImageOrder, saveSpec } from "@/lib/pim/pim";
+import {
+  clearSpec,
+  clearSpecForSubgroup,
+  deleteImage,
+  saveImageOrder,
+  saveSpec,
+} from "@/lib/pim/pim";
 import { searchProductsForPicker } from "@/lib/media/picker";
 import type { Locale } from "@/i18n/routing";
 
@@ -60,6 +66,14 @@ export async function actionClearSpec(mtrl: number, field: string) {
 export async function actionClearSpecSubgroup(mtrl: number, field: string) {
   await requireCatalogue();
   const result = await clearSpecForSubgroup(mtrl, field);
+  revalidatePath("/admin/catalogue");
+  return result;
+}
+
+/** Remove one image from the product. */
+export async function actionDeleteImage(mtrl: number, url: string) {
+  await requireCatalogue();
+  const result = await deleteImage(mtrl, url);
   revalidatePath("/admin/catalogue");
   return result;
 }

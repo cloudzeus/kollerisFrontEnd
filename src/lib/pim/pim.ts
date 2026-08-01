@@ -116,6 +116,17 @@ export async function saveSpec(mtrl: number, field: string, value: string, local
     : write("spec/clear", { mtrl, field });
 }
 
+/**
+ * Remove one image from the product.
+ *
+ * HDCtool deletes the row and only removes the CDN object when nothing else
+ * points at it — 183 files in this catalogue are shared between products, and
+ * deleting one for a single product would blank the photo on the others.
+ */
+export async function deleteImage(mtrl: number, url: string) {
+  return writeCounted("images/delete", { mtrl, url });
+}
+
 /** Remove the field from this product, in every language. */
 export async function clearSpec(mtrl: number, field: string) {
   return write("spec/clear", { mtrl, field });
