@@ -1,6 +1,6 @@
 import { getZone } from "@/lib/zones/zones";
 import { getPublishedBanner } from "@/lib/banners/banners";
-import { resolveWidgets } from "@/lib/banners/resolve";
+import { resolveCells } from "@/lib/banners/resolve";
 import { ZONES_BY_ID, type WidgetInstance } from "@/lib/zones/registry";
 import { cn } from "@/lib/utils";
 import { BannerRenderer } from "@/components/banners/BannerRenderer";
@@ -41,9 +41,14 @@ export async function Zone({
 
   const banner = await getPublishedBanner(id);
   if (banner) {
-    const widgets = await resolveWidgets(banner.content, locale);
     return (
-      <BannerRenderer template={banner.template} widgets={widgets} className={className} />
+      <BannerRenderer
+        template={banner.template}
+        content={banner.content}
+        resolved={await resolveCells(banner.content, locale)}
+        locale={locale}
+        className={className}
+      />
     );
   }
 

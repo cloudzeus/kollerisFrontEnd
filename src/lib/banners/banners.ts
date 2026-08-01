@@ -130,7 +130,7 @@ export async function deleteTemplate(id: string): Promise<Result> {
 const asContent = (value: unknown): BannerContent | null => {
   if (!value || typeof value !== "object") return null;
   const c = value as BannerContent;
-  return c.widgets ? c : null;
+  return c.cells ? c : null;
 };
 
 export type BannerSummary = {
@@ -201,7 +201,7 @@ export async function createBanner(
       // An empty draft rather than null, so the editor has something to write
       // into and `bannerState` reads "draft" from the first save rather than
       // "empty" for a banner somebody has already started.
-      draft: { widgets: {} } as never,
+      draft: { cells: {} } as never,
       updatedBy: actor.slice(0, 120),
     },
     select: { id: true },
@@ -245,7 +245,7 @@ export async function publish(
   if (!row) return fail("Το banner δεν βρέθηκε.");
 
   const draft = asContent(row.draft);
-  if (!draft || Object.keys(draft.widgets).length === 0) {
+  if (!draft || Object.keys(draft.cells).length === 0) {
     return fail("Το πρόχειρο είναι άδειο — δεν υπάρχει τίποτα να δημοσιευτεί.");
   }
 
@@ -329,7 +329,7 @@ const loadPublished = cache(
     const map = new Map<string, { template: GridTemplateView; content: BannerContent }>();
     for (const row of rows) {
       const content = asContent(row.banner.published);
-      if (!content || Object.keys(content.widgets).length === 0) continue;
+      if (!content || Object.keys(content.cells).length === 0) continue;
       map.set(row.zone, { template: toTemplateView(row.banner.template), content });
     }
     return map;

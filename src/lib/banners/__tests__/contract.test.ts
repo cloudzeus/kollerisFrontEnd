@@ -2,7 +2,8 @@ import { describe, expect, it } from "vitest";
 import {
   bannerState,
   cellStyle,
-  emptyWidget,
+  emptyComposition,
+  newLayer,
   offerStatus,
   validateGrid,
   type BannerContent,
@@ -80,7 +81,7 @@ describe("validateGrid", () => {
 
 describe("bannerState", () => {
   const content = (title: string): BannerContent => ({
-    widgets: { zone1: { ...emptyWidget("custom"), heading: { el: title } } as never },
+    cells: { zone1: { ...emptyComposition(), href: title } },
   });
 
   it("is empty before anything is written", () => {
@@ -106,21 +107,21 @@ describe("bannerState", () => {
     // compares an object built in the browser against one that came back
     // through the database. Comparing raw JSON reported every published banner
     // as modified — the badge lying in the reassuring direction.
-    const written = { widgets: { z1: { source: "custom", href: "/a", chrome: { badge: "x" } } } };
-    const returned = { widgets: { z1: { chrome: { badge: "x" }, href: "/a", source: "custom" } } };
+    const written = { cells: { z1: { href: "/a", binding: { source: "none" }, layers: [] } } };
+    const returned = { cells: { z1: { layers: [], binding: { source: "none" }, href: "/a" } } };
     expect(JSON.stringify(written)).not.toBe(JSON.stringify(returned));
     expect(bannerState(written as never, returned as never)).toBe("published");
   });
 
   it("treats an absent key and an undefined one as the same content", () => {
-    const a = { widgets: { z1: { source: "custom", badge: undefined } } };
-    const b = { widgets: { z1: { source: "custom" } } };
+    const a = { cells: { z1: { href: "/a", name: undefined } } };
+    const b = { cells: { z1: { href: "/a" } } };
     expect(bannerState(a as never, b as never)).toBe("published");
   });
 
   it("does not ignore a real difference nested deep in a widget", () => {
-    const a = { widgets: { z1: { chrome: { badge: "ΝΕΟ", overlay: "medium" } } } };
-    const b = { widgets: { z1: { chrome: { overlay: "medium", badge: "-30%" } } } };
+    const a = { cells: { z1: { background: { color: "ink", overlay: "medium" } } } };
+    const b = { cells: { z1: { background: { overlay: "medium", color: "white" } } } };
     expect(bannerState(a as never, b as never)).toBe("modified");
   });
 });
@@ -167,20 +168,26 @@ describe("cellStyle", () => {
   });
 });
 
-describe("emptyWidget", () => {
-  it("starts a product widget with the title on and everything else off", () => {
-    const w = emptyWidget("product");
-    expect(w.source).toBe("product");
-    if (w.source === "product") {
-      expect(w.fields.title).toBe(true);
-      // Every field on produces a tile nobody can read.
-      expect(Object.values(w.fields).filter(Boolean)).toHaveLength(1);
+describe("newLayer", () => {
+  it("places a new layer somewhere visible", () => {
+    // A layer dropped at 0,0 with no size means the first thing anybody does is
+    // fight it into view.
+    for (const kind of ["text", "badge", "button", "image", "shape"] as const) {
+      const layer = newLayer(kind);
+      expect(layer.frame.w).toBeGreaterThan(0);
+      expect(layer.frame.h).toBeGreaterThan(0);
+      expect(layer.frame.x).toBeLessThan(100);
+      expect(layer.frame.y).toBeLessThan(100);
     }
   });
 
-  it("gives every source the same chrome defaults", () => {
-    for (const source of ["product", "offer", "custom"] as const) {
-      expect(emptyWidget(source).chrome.overlay).toBe("medium");
-    }
+  it("gives every layer a unique id", () => {
+    const ids = new Set(Array.from({ length: 40 }, () => newLayer("text").id));
+    expect(ids.size).toBe(40);
+  });
+
+  it("starts every layer unanimated", () => {
+    // An entrance nobody asked for is the default that makes a page feel cheap.
+    expect(newLayer("text").anim.preset).toBe("none");
   });
 });

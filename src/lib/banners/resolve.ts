@@ -1,68 +1,57 @@
 import "server-only";
 import { prisma } from "@/lib/prisma";
-import type { BannerContent, CellWidget, LocalisedText, WidgetChrome } from "@/lib/banners/contract";
+import type { BannerContent, Binding } from "@/lib/banners/contract";
+import type { ResolvedCell } from "@/lib/banners/resolve-tokens";
 import type { Locale } from "@/i18n/routing";
 
+export type { ResolvedCell };
+export { applyTokens } from "@/lib/banners/resolve-tokens";
+
 /**
- * Turning bound widgets into something renderable.
+ * Turning a cell's binding into the values its layers print.
  *
- * A product widget stores only a slug and which fields to show; a banner cell
- * needs a title, a price and an image. This is where that happens — once, on
+ * A bound cell stores a slug and nothing else; the composition refers to the
+ * live data through `{token}`s. This is where those get their values — once, on
  * the server, in one query per source type rather than one per cell. A banner
  * with six product cells is one product query, not six.
  *
  * A binding that no longer resolves — a deleted product, an expired offer —
- * yields null and the cell renders empty. The alternative is a page that throws
- * because somebody archived a product, which is a far worse failure than a gap.
+ * yields empty tokens, so its layers render blank rather than taking the page
+ * down. A page that throws because somebody archived a product is a far worse
+ * failure than a gap.
  */
-
-export type ResolvedWidget = {
-  cellId: string;
-  href: string;
-  eyebrow: string;
-  title: string;
-  body: string;
-  cta: string;
-  /** Formatted, VAT-inclusive, ready to print. */
-  price: string | null;
-  /** Struck-through comparison price, when the product genuinely has one. */
-  comparePrice: string | null;
-  media: { kind: "none" | "image" | "video"; image: string; video: string; poster: string };
-  /** Absolute deadline for a countdown, ISO. Null when there is nothing to count to. */
-  countdownTo: string | null;
-  chrome: WidgetChrome;
-};
-
-const text = (t: LocalisedText, locale: Locale): string =>
-  (t[locale] || t.el || "").trim();
 
 const money = (value: number): string =>
   new Intl.NumberFormat("el-GR", { style: "currency", currency: "EUR" }).format(value);
 
-/**
- * Resolve every cell of a banner.
- *
- * Order of the returned array follows the cell ids given, so the renderer can
- * zip it against the template's cells without a lookup.
- */
-export async function resolveWidgets(
+/** How long until a date, in words. Printed once at render — a banner is not a
+ *  checkout timer, and a second hand costs a client component per cell. */
+function endsIn(date: Date): string {
+  const ms = date.getTime() - Date.now();
+  if (ms <= 0) return "";
+  const days = Math.floor(ms / 86_400_000);
+  if (days > 0) return `${days} ${days === 1 ? "ημέρα" : "ημέρες"}`;
+  const hours = Math.max(1, Math.floor(ms / 3_600_000));
+  return `${hours} ${hours === 1 ? "ώρα" : "ώρες"}`;
+}
+
+export async function resolveCells(
   content: BannerContent,
   locale: Locale,
-): Promise<Map<string, ResolvedWidget>> {
-  const entries = Object.entries(content.widgets ?? {});
-  const out = new Map<string, ResolvedWidget>();
+): Promise<Map<string, ResolvedCell>> {
+  const entries = Object.entries(content.cells ?? {});
+  const out = new Map<string, ResolvedCell>();
   if (entries.length === 0) return out;
 
-  // Collect the slugs first, so each source type is one query.
-  const productSlugs = entries
-    .filter(([, w]) => w.source === "product")
-    .map(([, w]) => (w as Extract<CellWidget, { source: "product" }>).slug)
-    .filter(Boolean);
+  const slugsOf = (source: "product" | "offer") =>
+    entries
+      .map(([, c]) => c.binding)
+      .filter((b): b is Extract<Binding, { slug: string }> => b.source === source)
+      .map((b) => b.slug)
+      .filter(Boolean);
 
-  const offerSlugs = entries
-    .filter(([, w]) => w.source === "offer")
-    .map(([, w]) => (w as Extract<CellWidget, { source: "offer" }>).slug)
-    .filter(Boolean);
+  const productSlugs = slugsOf("product");
+  const offerSlugs = slugsOf("offer");
 
   const [products, offers] = await Promise.all([
     productSlugs.length
@@ -76,7 +65,11 @@ export async function resolveWidgets(
             priceNet: true,
             priceList: true,
             vatRate: true,
-            translations: { where: { locale }, select: { name: true, shortDescription: true }, take: 1 },
+            translations: {
+              where: { locale },
+              select: { name: true, shortDescription: true },
+              take: 1,
+            },
             images: {
               orderBy: [{ isFeature: "desc" }, { order: "asc" }],
               select: { url: true },
@@ -109,92 +102,62 @@ export async function resolveWidgets(
   const productBySlug = new Map(products.map((p) => [p.slug, p]));
   const offerBySlug = new Map(offers.map((o) => [o.slug, o]));
 
-  for (const [cellId, widget] of entries) {
-    if (widget.source === "product") {
-      const p = productBySlug.get(widget.slug);
-      if (!p) continue; // deleted or archived — the cell renders empty
+  for (const [cellId, cell] of entries) {
+    const binding = cell.binding;
+
+    if (binding.source === "product") {
+      const p = productBySlug.get(binding.slug);
+      if (!p) {
+        out.set(cellId, { tokens: {}, href: cell.href, image: "" });
+        continue;
+      }
 
       const vat = 1 + Number(p.vatRate ?? 24) / 100;
       const net = p.priceNet == null ? null : Number(p.priceNet);
       const list = p.priceList == null ? null : Number(p.priceList);
 
       out.set(cellId, {
-        cellId,
+        tokens: {
+          "{title}": p.translations[0]?.name ?? p.name,
+          "{brand}": p.mtrmark != null ? (brandByMark.get(p.mtrmark) ?? "") : "",
+          "{code}": p.code,
+          "{price}": net == null ? "" : money(net * vat),
+          // Only when there genuinely is one above the selling price — a
+          // compare price equal to the price is a discount that does not exist.
+          "{compare}": list != null && net != null && list > net ? money(list * vat) : "",
+          "{desc}": p.translations[0]?.shortDescription ?? "",
+          "{image}": p.images[0]?.url ?? "",
+        },
         // Derived, never typed. The canonical product URL is the only correct
         // destination for a product tile.
         href: `/proion/${p.slug}`,
-        eyebrow: widget.fields.brand
-          ? (p.mtrmark != null ? (brandByMark.get(p.mtrmark) ?? "") : "")
-          : widget.fields.code
-            ? p.code
-            : "",
-        title: widget.fields.title ? (p.translations[0]?.name ?? p.name) : "",
-        body: widget.fields.shortDescription ? (p.translations[0]?.shortDescription ?? "") : "",
-        cta: "",
-        price: widget.fields.price && net != null ? money(net * vat) : null,
-        // Only when there genuinely is one above the selling price — a compare
-        // price equal to the price is a discount that does not exist.
-        comparePrice:
-          widget.fields.comparePrice && list != null && net != null && list > net
-            ? money(list * vat)
-            : null,
-        media: {
-          kind: "image",
-          image: widget.imageUrl || p.images[0]?.url || "",
-          video: "",
-          poster: "",
-        },
-        countdownTo: null,
-        chrome: widget.chrome,
+        image: p.images[0]?.url ?? "",
       });
       continue;
     }
 
-    if (widget.source === "offer") {
-      const o = offerBySlug.get(widget.slug);
-      if (!o || !o.isActive) continue;
+    if (binding.source === "offer") {
+      const o = offerBySlug.get(binding.slug);
+      if (!o || !o.isActive) {
+        out.set(cellId, { tokens: {}, href: cell.href, image: "" });
+        continue;
+      }
 
       out.set(cellId, {
-        cellId,
+        tokens: {
+          "{title}": o.title,
+          "{badge}": o.badge ?? "",
+          "{ends}": o.endsAt ? endsIn(o.endsAt) : "",
+          "{image}": o.image ?? "",
+          "{imageWide}": o.imageWide || o.image || "",
+        },
         href: o.href,
-        eyebrow: "",
-        title: o.title,
-        body: "",
-        cta: "",
-        price: null,
-        comparePrice: null,
-        media: {
-          kind: "image",
-          image: (widget.image === "imageWide" ? o.imageWide : o.image) || o.image || "",
-          video: "",
-          poster: "",
-        },
-        // A countdown needs an end date. Asking for one without it is not an
-        // error — it just has nothing to count to.
-        countdownTo: widget.countdown && o.endsAt ? o.endsAt.toISOString() : null,
-        chrome: {
-          ...widget.chrome,
-          // The offer's own badge wins unless the cell overrode it, so "-30%"
-          // is written once on the campaign and not re-typed per banner.
-          badge: widget.chrome.badge || o.badge || "",
-        },
+        image: o.imageWide || o.image || "",
       });
       continue;
     }
 
-    out.set(cellId, {
-      cellId,
-      href: widget.href || "/katalogos",
-      eyebrow: text(widget.subheading, locale),
-      title: text(widget.heading, locale),
-      body: text(widget.body, locale),
-      cta: text(widget.cta, locale),
-      price: null,
-      comparePrice: null,
-      media: widget.media,
-      countdownTo: null,
-      chrome: widget.chrome,
-    });
+    out.set(cellId, { tokens: {}, href: cell.href, image: "" });
   }
 
   return out;

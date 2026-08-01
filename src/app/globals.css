@@ -604,3 +604,16 @@
     min-height: 0;
   }
 }
+
+/* A slow drift on a banner background. Purely decorative, so it stops dead for
+   anyone who asked for less motion. */
+@keyframes banner-ken-burns {
+  from { transform: scale(1); }
+  to   { transform: scale(1.12); }
+}
+.banner-ken-burns {
+  animation: banner-ken-burns 18s ease-out both alternate infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .banner-ken-burns { animation: none; }
+}

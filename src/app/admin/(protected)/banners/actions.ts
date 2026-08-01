@@ -16,7 +16,7 @@ import {
   searchOffersForPicker,
   unassignZone,
 } from "@/lib/banners/banners";
-import { resolveWidgets } from "@/lib/banners/resolve";
+import { resolveCells } from "@/lib/banners/resolve";
 import { searchProductsForPicker } from "@/lib/media/picker";
 import { generateCopy, translateText } from "@/lib/ai/deepseek";
 import type { BannerContent, GridCell } from "@/lib/banners/contract";
@@ -124,7 +124,7 @@ export async function actionUnassign(zone: string) {
 }
 
 /**
- * Render-ready widgets for the editor canvas and the preview.
+ * Live values for the editor canvas and the preview.
  *
  * The same resolver the storefront uses, so the editor shows the real title and
  * the real price rather than the slug somebody typed. A Map does not cross the
@@ -132,7 +132,7 @@ export async function actionUnassign(zone: string) {
  */
 export async function actionResolve(content: BannerContent, locale: Locale) {
   await requireEditor();
-  return Object.fromEntries(await resolveWidgets(content, locale));
+  return Object.fromEntries(await resolveCells(content, locale));
 }
 
 /* ───────────────────────── Pickers ───────────────────────── */

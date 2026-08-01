@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-08-01T09:47:57.642Z",
+  "timestamp": "2026-08-01T11:34:39.341Z",
   "source": "auto-postool",
   "partial": false,
   "phase": null,
@@ -26,11 +26,27 @@
     },
     {
       "status": "M",
-      "path": "src/app/admin/(protected)/layout.tsx"
+      "path": "src/app/globals.css"
     },
     {
       "status": "M",
-      "path": "src/app/globals.css"
+      "path": "src/components/admin/banners/BannerEditor.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/components/admin/banners/PreviewModal.tsx"
+    },
+    {
+      "status": "D",
+      "path": "src/components/admin/banners/WidgetModal.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/components/banners/BannerRenderer.tsx"
+    },
+    {
+      "status": "D",
+      "path": "src/components/banners/chrome.ts"
     },
     {
       "status": "M",
@@ -42,6 +58,10 @@
     },
     {
       "status": "M",
+      "path": "src/lib/banners/__tests__/contract.test.ts"
+    },
+    {
+      "status": "M",
       "path": "src/lib/banners/banners.ts"
     },
     {
@@ -50,37 +70,37 @@
     },
     {
       "status": "M",
-      "path": "src/lib/media/picker.ts"
+      "path": "src/lib/banners/resolve.ts"
     },
     {
       "status": "??",
-      "path": "src/app/admin/(protected)/banners/[id]/"
+      "path": "src/components/admin/banners/CellCanvas.tsx"
     },
     {
       "status": "??",
-      "path": "src/app/admin/(protected)/banners/page.tsx"
+      "path": "src/components/admin/banners/CellEditor.tsx"
     },
     {
       "status": "??",
-      "path": "src/components/admin/banners/BannerEditor.tsx"
+      "path": "src/components/admin/banners/fields.tsx"
     },
     {
       "status": "??",
-      "path": "src/components/admin/banners/BannerList.tsx"
+      "path": "src/components/banners/BannerMotion.tsx"
     },
     {
       "status": "??",
-      "path": "src/components/admin/banners/PreviewModal.tsx"
+      "path": "src/components/banners/CompositionRenderer.tsx"
     },
     {
       "status": "??",
-      "path": "src/components/admin/banners/WidgetModal.tsx"
+      "path": "src/lib/banners/presets.ts"
     },
     {
       "status": "??",
-      "path": "src/components/banners/"
+      "path": "src/lib/banners/resolve-tokens.ts"
     }
   ],
   "next_action": null,
-  "context_notes": "Recent commits:\n2737bc0 feat(banners): offers admin\n94fa0b8 feat(banners): grid template builder\n7cabf1b feat(banners): data model, server layer and content resolution\n314e82c fix(pim): bring the local projection into line after a successful write\nf57c90b fix(pim): say 'not deployed' instead of 'not responding'"
+  "context_notes": "Recent commits:\n73d66bb feat(banners): editor, widget modal, preview, storefront\n2737bc0 feat(banners): offers admin\n94fa0b8 feat(banners): grid template builder\n7cabf1b feat(banners): data model, server layer and content resolution\n314e82c fix(pim): bring the local projection into line after a successful write"
 }

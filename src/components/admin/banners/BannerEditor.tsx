@@ -21,14 +21,14 @@ import {
   sameContent,
   type BannerContent,
   type BannerView,
-  type CellWidget,
+  type CellComposition,
   type GridCell,
 } from "@/lib/banners/contract";
-import type { ResolvedWidget } from "@/lib/banners/resolve";
+import type { ResolvedCell } from "@/lib/banners/resolve-tokens";
 import { ZONES } from "@/lib/zones/registry";
 import { BannerRenderer } from "@/components/banners/BannerRenderer";
 import { PageShell, Panel } from "@/components/admin/PageShell";
-import { WidgetModal } from "@/components/admin/banners/WidgetModal";
+import { CellEditor } from "@/components/admin/banners/CellEditor";
 import { PreviewModal } from "@/components/admin/banners/PreviewModal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -59,6 +59,21 @@ import { cn } from "@/lib/utils";
  * are before the button is pressed.
  */
 
+/**
+ * How wide a cell is against its height, in the template's own units.
+ *
+ * The editing canvas has to have the cell's real proportions or every
+ * composition is arranged against a shape that does not exist. A template with
+ * no aspect ratio is assumed to be roughly 16:7 overall, which is what the
+ * thumbnails use.
+ */
+function cellAspect(template: BannerView["template"], cell: GridCell): number {
+  const [w, h] = (template.aspect ?? "16/7").split("/").map(Number);
+  const bannerAspect = w && h ? w / h : 16 / 7;
+  const unitAspect = (template.rows / template.columns) * bannerAspect;
+  return (cell.w / cell.h) * unitAspect;
+}
+
 const STATE: Record<string, { label: string; className: string }> = {
   empty: { label: "Κενό", className: "bg-k-surface-3 text-k-text-3" },
   draft: { label: "Πρόχειρο", className: "bg-k-amber text-white" },
@@ -76,11 +91,11 @@ export function BannerEditor({
 }) {
   const router = useRouter();
   const [name, setName] = useState(banner.name);
-  const [content, setContent] = useState<BannerContent>(banner.draft ?? { widgets: {} });
-  const [saved, setSaved] = useState<BannerContent>(banner.draft ?? { widgets: {} });
+  const [content, setContent] = useState<BannerContent>(banner.draft ?? { cells: {} });
+  const [saved, setSaved] = useState<BannerContent>(banner.draft ?? { cells: {} });
   const [editing, setEditing] = useState<GridCell | null>(null);
   const [preview, setPreview] = useState(false);
-  const [resolved, setResolved] = useState<Record<string, ResolvedWidget>>({});
+  const [resolved, setResolved] = useState<Record<string, ResolvedCell>>({});
   const [busy, start] = useTransition();
 
   const dirty = !sameContent(content, saved);
@@ -153,7 +168,7 @@ export function BannerEditor({
         toast.error(result.error);
         return;
       }
-      const restored = banner.published ?? { widgets: {} };
+      const restored = banner.published ?? { cells: {} };
       setContent(restored);
       setSaved(restored);
       toast.success("Οι αλλαγές αναιρέθηκαν.");
@@ -229,13 +244,20 @@ export function BannerEditor({
         {/* ── Καμβάς ── */}
         <div className="space-y-3">
           <div className="relative border border-k-line bg-white">
-            <BannerRenderer template={template} widgets={widgets} interactive={false} />
+            <BannerRenderer
+              template={template}
+              content={content}
+              resolved={widgets}
+              locale="el"
+              interactive={false}
+              motion={false}
+            />
 
             {/* Στόχοι κλικ, στην ίδια γεωμετρία με τον renderer */}
             <div className="banner-shell absolute inset-0">
               <div className="banner-grid" style={gridVars(template)}>
                 {template.cells.map((cell) => {
-                  const has = Boolean(content.widgets[cell.id]);
+                  const has = Boolean(content.cells[cell.id]);
                   return (
                     <button
                       key={cell.id}
@@ -381,21 +403,25 @@ export function BannerEditor({
         </div>
       </div>
 
-      <WidgetModal
+      <CellEditor
         cell={editing}
-        widget={editing ? (content.widgets[editing.id] ?? null) : null}
+        composition={editing ? (content.cells[editing.id] ?? null) : null}
+        resolved={editing ? resolved[editing.id] : undefined}
+        // The cell's real proportions, so the editing canvas is not a lie about
+        // the shape the composition has to fit.
+        aspect={editing ? cellAspect(template, editing) : 16 / 9}
         onClose={() => setEditing(null)}
-        onSave={(widget: CellWidget) => {
+        onSave={(composition: CellComposition) => {
           if (!editing) return;
-          setContent((c) => ({ ...c, widgets: { ...c.widgets, [editing.id]: widget } }));
+          setContent((c) => ({ ...c, cells: { ...c.cells, [editing.id]: composition } }));
           setEditing(null);
         }}
         onClear={() => {
           if (!editing) return;
           setContent((c) => {
-            const widgets = { ...c.widgets };
-            delete widgets[editing.id];
-            return { ...c, widgets };
+            const cells = { ...c.cells };
+            delete cells[editing.id];
+            return { ...c, cells };
           });
           setEditing(null);
         }}
@@ -405,7 +431,8 @@ export function BannerEditor({
         open={preview}
         onOpenChange={setPreview}
         template={template}
-        widgets={widgets}
+        content={content}
+        resolved={widgets}
         footer={
           <>
             <Button variant="outline" onClick={() => setPreview(false)}>

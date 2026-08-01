@@ -2,8 +2,8 @@ import Image from "next/image";
 import { Link } from "@/i18n/navigation";
 import { upGreek } from "@/lib/greek";
 import { cn } from "@/lib/utils";
-import { ANIMATION, OVERLAY, badgeClass as toneClass } from "@/components/banners/chrome";
 import {
+  BADGE_TONES,
   propBool,
   propString,
   propText,
@@ -20,9 +20,31 @@ import type { Locale } from "@/i18n/routing";
  * else, and none of them can forget the overlay that makes text legible over a
  * photograph.
  *
- * Overlay, animation and badge tones come from `components/banners/chrome`,
- * shared with the banner grid renderer so the two cannot drift.
+ * Animation is CSS, not a library. These are one-shot entrances of a few
+ * elements; a motion runtime would cost more than it animates. Every variant is
+ * defined under a `motion-safe:` prefix, so `prefers-reduced-motion` disables
+ * them without a second code path — motion is a flourish, and for some people
+ * it is a symptom.
+ *
+ * The banner grid is a different renderer with its own layer model; these
+ * values are not shared with it, since the two express different things.
  */
+
+const OVERLAY: Record<string, string> = {
+  none: "",
+  light: "bg-[linear-gradient(180deg,transparent_20%,rgba(16,16,18,.55)_100%)]",
+  medium: "bg-[linear-gradient(180deg,rgba(16,16,18,.15)_0%,rgba(16,16,18,.72)_100%)]",
+  strong: "bg-[linear-gradient(180deg,rgba(16,16,18,.45)_0%,rgba(16,16,18,.88)_100%)]",
+};
+
+const ANIMATION: Record<string, string> = {
+  none: "",
+  "fade-up": "motion-safe:animate-[zone-fade-up_.6s_cubic-bezier(.22,1,.36,1)_both]",
+  "slide-in": "motion-safe:animate-[zone-slide-in_.6s_cubic-bezier(.22,1,.36,1)_both]",
+  reveal: "motion-safe:animate-[zone-reveal_.7s_cubic-bezier(.22,1,.36,1)_both]",
+  zoom: "motion-safe:animate-[zone-zoom_.7s_cubic-bezier(.22,1,.36,1)_both]",
+};
+
 
 export type WidgetContext = {
   products: string;
@@ -60,7 +82,7 @@ export function WidgetRenderer({
 
   const animation = ANIMATION[propString(p, "animation") || "none"] ?? "";
   const delay = propString(p, "animationDelay");
-  const badgeClass = toneClass(tone);
+  const badgeClass = BADGE_TONES.find((b) => b.value === tone)?.className ?? "bg-k-red text-white";
 
   const hasMedia = Boolean(image) || (bgKind === "video" && Boolean(bgVideo));
   const onDark = dark || hasMedia;

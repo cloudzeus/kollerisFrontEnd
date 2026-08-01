@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { Laptop, Smartphone, Tablet } from "lucide-react";
 import { BannerRenderer } from "@/components/banners/BannerRenderer";
-import type { GridTemplateView } from "@/lib/banners/contract";
-import type { ResolvedWidget } from "@/lib/banners/resolve";
+import type { BannerContent, GridTemplateView } from "@/lib/banners/contract";
+import type { ResolvedCell } from "@/lib/banners/resolve-tokens";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 
@@ -32,33 +32,38 @@ export function PreviewModal({
   open,
   onOpenChange,
   template,
-  widgets,
+  content,
+  resolved,
   footer,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   template: GridTemplateView;
-  widgets: Map<string, ResolvedWidget>;
+  content: BannerContent;
+  resolved: Map<string, ResolvedCell>;
   footer?: React.ReactNode;
 }) {
   const [viewport, setViewport] = useState<(typeof VIEWPORTS)[number]["id"]>("desktop");
   const width = VIEWPORTS.find((v) => v.id === viewport)!.width;
 
-  const frameRef = useRef<HTMLDivElement>(null);
-  const stageRef = useRef<HTMLDivElement>(null);
+  // The two nodes are held in state rather than in refs: the dialog mounts its
+  // content in a portal, and an effect keyed on `open` can run before those
+  // refs are populated — which left the preview measured at zero and therefore
+  // invisible. A callback ref fires exactly when the node attaches, so the
+  // measurement cannot be early.
+  const [stage, setStage] = useState<HTMLDivElement | null>(null);
+  const [frame, setFrame] = useState<HTMLDivElement | null>(null);
   const [scale, setScale] = useState(1);
   const [height, setHeight] = useState(0);
 
   // The scaled element keeps its unscaled layout box, so the stage has to be
   // told how tall the result actually is.
   useEffect(() => {
-    if (!open) return;
-    const frame = frameRef.current;
-    const stage = stageRef.current;
-    if (!frame || !stage) return;
+    if (!stage || !frame) return;
 
     const measure = () => {
       const available = stage.clientWidth;
+      if (available === 0) return;
       const next = Math.min(1, available / width);
       setScale(next);
       setHeight(frame.offsetHeight * next);
@@ -78,7 +83,7 @@ export function PreviewModal({
       clearTimeout(timer);
       observer.disconnect();
     };
-  }, [open, width, widgets]);
+  }, [stage, frame, width, resolved]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -107,7 +112,7 @@ export function PreviewModal({
           </div>
         </DialogHeader>
 
-        <div ref={stageRef} className="overflow-hidden bg-k-surface-2 p-4">
+        <div ref={setStage} className="overflow-hidden bg-k-surface-2 p-4">
           {/* Hidden until measured: an unscaled 1440 frame for one frame reads
               as a broken layout rather than as a preview still loading. */}
           <div
@@ -115,7 +120,7 @@ export function PreviewModal({
             className={cn("mx-auto transition-opacity", height === 0 && "opacity-0")}
           >
             <div
-              ref={frameRef}
+              ref={setFrame}
               style={{
                 width,
                 transform: `scale(${scale})`,
@@ -123,7 +128,13 @@ export function PreviewModal({
               }}
               className="bg-white shadow-sm"
             >
-              <BannerRenderer template={template} widgets={widgets} interactive={false} />
+              <BannerRenderer
+                template={template}
+                content={content}
+                resolved={resolved}
+                locale="el"
+                interactive={false}
+              />
             </div>
           </div>
         </div>
