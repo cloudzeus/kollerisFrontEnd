@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-07-31T19:33:15.691Z",
+  "timestamp": "2026-08-01T07:06:39.525Z",
   "source": "auto-postool",
   "partial": false,
   "phase": null,
@@ -21,26 +21,10 @@
       "path": ".planning/HANDOFF.json"
     },
     {
-      "status": "M",
-      "path": "src/app/admin/(protected)/layout.tsx"
-    },
-    {
-      "status": "M",
-      "path": "src/components/admin/AdminNav.tsx"
-    },
-    {
       "status": "??",
-      "path": "src/app/admin/(protected)/courier/"
-    },
-    {
-      "status": "??",
-      "path": "src/components/admin/CourierBoard.tsx"
-    },
-    {
-      "status": "??",
-      "path": "src/lib/courier/"
+      "path": "src/lib/admin/orders.ts"
     }
   ],
   "next_action": null,
-  "context_notes": "Recent commits:\n2a035ae feat(zones): render zones on the storefront\n366fb9e feat(ai): DeepSeek copy suggestions and translation in the builder\n6885448 feat(admin): page builder — zones, widgets, media picker, live preview\n382b1fc feat(admin): expandable orders table with row actions\n8263175 feat(zones): zone/widget model, BunnyCDN media pipeline"
+  "context_notes": "Recent commits:\nf76424c feat(admin): ACS dispatch desk\n2a035ae feat(zones): render zones on the storefront\n366fb9e feat(ai): DeepSeek copy suggestions and translation in the builder\n6885448 feat(admin): page builder — zones, widgets, media picker, live preview\n382b1fc feat(admin): expandable orders table with row actions"
 }
