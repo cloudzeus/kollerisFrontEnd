@@ -107,6 +107,38 @@ export async function searchProductsForPicker(
 }
 
 /**
+ * Everything one product can lend to a composition.
+ *
+ * The banner editor binds a cell to a product and then wants its parts — the
+ * photographs especially — laid out by hand. Searching again for a product
+ * already chosen is the kind of step that makes a tool feel like a form.
+ */
+export async function productAssets(
+  slug: string,
+  locale: Locale,
+): Promise<{ name: string; images: string[] } | null> {
+  const row = await prisma.product.findUnique({
+    where: { slug },
+    select: {
+      name: true,
+      translations: { where: { locale }, select: { name: true }, take: 1 },
+      images: {
+        orderBy: [{ isFeature: "desc" }, { order: "asc" }],
+        select: { url: true },
+      },
+    },
+  });
+  if (!row) return null;
+
+  return {
+    name: row.translations[0]?.name ?? row.name,
+    // Deduplicated by url for the same reason the picker is: the same CDN file
+    // is attached twice often enough to show nine tiles for six photographs.
+    images: [...new Set(row.images.map((i) => i.url))],
+  };
+}
+
+/**
  * Categories for the category picker.
  *
  * Ordered by product count with no query, so an empty search shows the ones

@@ -18,6 +18,7 @@ import {
   DEFAULT_TEXT_STYLE,
   TOKENS,
   clampFrame,
+  layerForToken,
   emptyComposition,
   newLayer,
   seedOfferLayers,
@@ -35,6 +36,7 @@ import {
 } from "@/lib/banners/contract";
 import { CATEGORY_LABEL, PRESETS, applyPreset, type PresetCategory } from "@/lib/banners/presets";
 import { actionListLogos } from "@/app/admin/(protected)/media/actions";
+import { actionProductAssets } from "@/app/admin/(protected)/banners/actions";
 import { uploadFiles } from "@/lib/media/upload-client";
 import type { ResolvedCell } from "@/lib/banners/resolve-tokens";
 import { CompositionRenderer } from "@/components/banners/CompositionRenderer";
@@ -72,6 +74,7 @@ import { cn } from "@/lib/utils";
 /** Private drag payloads. A plain string would collide with dragged text. */
 const LAYER_MIME = "application/x-kolleris-layer";
 const ASSET_MIME = "application/x-kolleris-asset";
+const TOKEN_MIME = "application/x-kolleris-token";
 
 const LAYER_ICON: Record<LayerKind, React.ComponentType<{ className?: string }>> = {
   text: Type,
@@ -152,6 +155,12 @@ export function CellEditor({
 
   const layer = draft.layers.find((l) => l.id === selected) ?? null;
 
+  /** Media behind the layers means white text; a flat light cell means ink. */
+  const onDark =
+    draft.background.kind === "video" ||
+    draft.background.kind === "image" ||
+    (draft.background.kind === "color" && draft.background.color === "ink");
+
   const patchLayer = (id: string, patch: Partial<Layer>) =>
     setDraft((d) => ({
       ...d,
@@ -187,6 +196,21 @@ export function CellEditor({
    * next time rather than leaving a one-off URL.
    */
   function dropAt(transfer: DataTransfer, at: { x: number; y: number }) {
+    const token = transfer.getData(TOKEN_MIME);
+    if (token) {
+      // Dressed for what it carries and for what is behind it, then centred on
+      // the drop — see `layerForToken`.
+      const created = layerForToken(token, onDark);
+      created.frame = clampFrame({
+        ...created.frame,
+        x: at.x - created.frame.w / 2,
+        y: at.y - created.frame.h / 2,
+      });
+      setDraft((d) => ({ ...d, layers: [...d.layers, created] }));
+      setSelected(created.id);
+      return;
+    }
+
     const kind = transfer.getData(LAYER_MIME) as LayerKind | "";
     if (kind) {
       addLayer(kind, at);
@@ -302,6 +326,12 @@ export function CellEditor({
                 ))}
               </div>
 
+              <SourceRail
+                binding={draft.binding}
+                resolved={resolved}
+                tokens={tokens}
+              />
+
               <LogoRail />
 
               <p className="text-[11px] leading-[1.6] text-k-text-4">
@@ -382,6 +412,132 @@ export function CellEditor({
         }}
       />
     </>
+  );
+}
+
+/* ───────────────────────── Source rail ───────────────────────── */
+
+/**
+ * Everything the bound product or offer can lend, ready to drag.
+ *
+ * The cell already knows which product it shows; asking somebody to type
+ * `{price}` into a text layer they first had to create is three steps for a
+ * thing the editor could simply offer. Each chip drops a text layer already
+ * styled for what it carries; each photograph drops an image layer.
+ *
+ * This is also how a product photograph gets on top of a video background —
+ * the background is the cell's, the photograph is a layer, and dragging one
+ * onto the other is the whole operation.
+ */
+function SourceRail({
+  binding,
+  resolved,
+  tokens,
+}: {
+  binding: CellComposition["binding"];
+  resolved: ResolvedCell | undefined;
+  tokens: ReadonlyArray<{ token: string; label: string }>;
+}) {
+  const [images, setImages] = useState<string[]>([]);
+  const [name, setName] = useState("");
+
+  const slug = binding.source === "none" ? "" : binding.slug;
+
+  useEffect(() => {
+    if (binding.source !== "product" || !slug) {
+      setImages([]);
+      setName("");
+      return;
+    }
+    let cancelled = false;
+    void actionProductAssets(slug, "el").then((assets) => {
+      if (cancelled || !assets) return;
+      setImages(assets.images);
+      setName(assets.name);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [binding.source, slug]);
+
+  // An offer lends its two crops rather than a gallery.
+  const offerImages =
+    binding.source === "offer"
+      ? [resolved?.tokens["{image}"], resolved?.tokens["{imageWide}"]].filter(
+          (u): u is string => Boolean(u),
+        )
+      : [];
+
+  const gallery = binding.source === "product" ? images : offerImages;
+  if (!slug || (tokens.length === 0 && gallery.length === 0)) return null;
+
+  return (
+    <div className="space-y-1.5 border border-k-line bg-k-surface-2 p-2">
+      <p className="truncate text-[11px] text-k-text-3">
+        Από {binding.source === "product" ? "το προϊόν" : "την προσφορά"}
+        {name ? ` «${name}»` : ""} — σύρετε στον καμβά
+      </p>
+
+      {tokens.length > 0 && (
+        <ul className="flex flex-wrap gap-1">
+          {tokens.map((t) => {
+            const value = resolved?.tokens[t.token] ?? "";
+            return (
+              <li key={t.token}>
+                <button
+                  type="button"
+                  draggable
+                  onDragStart={(e) => {
+                    e.dataTransfer.setData(TOKEN_MIME, t.token);
+                    e.dataTransfer.effectAllowed = "copy";
+                  }}
+                  // The live value on the chip, not the token: an operator
+                  // choosing between "{price}" and "{compare}" is guessing,
+                  // while one choosing between "27,14 €" and nothing is not.
+                  title={value || "Χωρίς τιμή για αυτό το προϊόν"}
+                  className={cn(
+                    "flex cursor-grab items-baseline gap-1.5 border bg-white px-1.5 py-1 text-[11px] transition-colors active:cursor-grabbing",
+                    value
+                      ? "border-k-line text-k-ink hover:border-k-ink"
+                      : "border-dashed border-k-line text-k-text-5",
+                  )}
+                >
+                  <span className="text-k-text-4">{t.label}</span>
+                  {value && <span className="numeral max-w-[9rem] truncate">{value}</span>}
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+
+      {gallery.length > 0 && (
+        <ul className="scroll-slim flex gap-1.5 overflow-x-auto pb-1">
+          {gallery.map((url) => (
+            <li key={url} className="shrink-0">
+              <button
+                type="button"
+                draggable
+                onDragStart={(e) => {
+                  e.dataTransfer.setData(ASSET_MIME, url);
+                  e.dataTransfer.effectAllowed = "copy";
+                }}
+                className="relative block size-12 cursor-grab border border-k-line bg-white transition-colors hover:border-k-ink active:cursor-grabbing"
+              >
+                <NextImage
+                  src={url}
+                  alt=""
+                  fill
+                  sizes="48px"
+                  className="object-contain p-0.5"
+                  unoptimized
+                />
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
   );
 }
 

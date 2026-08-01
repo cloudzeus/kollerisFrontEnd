@@ -17,7 +17,7 @@ import {
   unassignZone,
 } from "@/lib/banners/banners";
 import { resolveCells } from "@/lib/banners/resolve";
-import { searchProductsForPicker } from "@/lib/media/picker";
+import { productAssets, searchProductsForPicker } from "@/lib/media/picker";
 import { generateCopy, translateText } from "@/lib/ai/deepseek";
 import type { BannerContent, GridCell } from "@/lib/banners/contract";
 import type { Locale } from "@/i18n/routing";
@@ -140,6 +140,12 @@ export async function actionResolve(content: BannerContent, locale: Locale) {
 export async function actionSearchProducts(query: string, locale: Locale) {
   await requireEditor();
   return searchProductsForPicker(query, locale, 24);
+}
+
+/** Every photograph a bound product can lend, for the editor's rail. */
+export async function actionProductAssets(slug: string, locale: Locale) {
+  await requireEditor();
+  return productAssets(slug, locale);
 }
 
 export async function actionSearchOffers(query: string) {

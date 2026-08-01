@@ -450,6 +450,107 @@ export function newLayer(kind: LayerKind): Layer {
 }
 
 /**
+ * A text layer carrying one live value, dressed the way that value should be.
+ *
+ * A price is monospaced and heavy; a brand is small, tracked-out and red; a
+ * description is body copy. Dropping a `{price}` that arrives styled as a
+ * 42px display heading means the first thing anybody does is fix it, every
+ * single time.
+ *
+ * `onDark` decides the colour rather than a fixed default: text dropped onto a
+ * cell with a photograph or a video behind it needs to be white, and having to
+ * notice that afterwards is the same wasted step.
+ */
+export function layerForToken(token: string, onDark: boolean): TextLayer {
+  const layer = newLayer("text") as TextLayer;
+  const light: ColorToken = onDark ? "white" : "ink";
+  const quiet: ColorToken = onDark ? "white-70" : "muted";
+
+  const styles: Record<string, { name: string; frame: Frame; style: Partial<TextStyle> }> = {
+    "{title}": {
+      name: "Τίτλος",
+      frame: { x: 6, y: 62, w: 62, h: 20 },
+      style: { size: 42, color: light },
+    },
+    "{brand}": {
+      name: "Μάρκα",
+      frame: { x: 6, y: 54, w: 40, h: 7 },
+      style: { font: "mono", size: 15, weight: 500, tracking: 10, color: "red" },
+    },
+    "{code}": {
+      name: "Κωδικός",
+      frame: { x: 6, y: 46, w: 30, h: 7 },
+      style: { font: "mono", size: 14, weight: 400, tracking: 6, color: quiet },
+    },
+    "{price}": {
+      name: "Τιμή",
+      frame: { x: 6, y: 84, w: 34, h: 10 },
+      style: {
+        font: "mono",
+        size: 26,
+        weight: 600,
+        tracking: 0,
+        color: light,
+        uppercase: false,
+      },
+    },
+    "{compare}": {
+      name: "Πριν",
+      frame: { x: 42, y: 85, w: 24, h: 8 },
+      style: {
+        font: "mono",
+        size: 18,
+        weight: 400,
+        tracking: 0,
+        color: quiet,
+        uppercase: false,
+      },
+    },
+    "{desc}": {
+      name: "Περιγραφή",
+      frame: { x: 6, y: 70, w: 52, h: 14 },
+      style: {
+        font: "sans",
+        size: 16,
+        weight: 400,
+        tracking: 0,
+        leading: 155,
+        color: quiet,
+        uppercase: false,
+      },
+    },
+    "{badge}": {
+      name: "Badge",
+      frame: { x: 6, y: 10, w: 20, h: 8 },
+      style: { font: "mono", size: 16, weight: 600, tracking: 6, color: "red" },
+    },
+    "{ends}": {
+      name: "Λήγει",
+      frame: { x: 6, y: 76, w: 40, h: 8 },
+      style: {
+        font: "mono",
+        size: 16,
+        weight: 500,
+        tracking: 4,
+        color: quiet,
+        uppercase: false,
+      },
+    },
+  };
+
+  const preset = styles[token];
+  layer.text = { el: token };
+  if (preset) {
+    layer.name = preset.name;
+    layer.frame = preset.frame;
+    layer.style = { ...DEFAULT_TEXT_STYLE, ...preset.style };
+  } else {
+    layer.style = { ...DEFAULT_TEXT_STYLE, color: light };
+  }
+  return layer;
+}
+
+/**
  * The composition a freshly bound product starts from.
  *
  * A bound cell that renders empty until somebody adds four layers by hand is a
