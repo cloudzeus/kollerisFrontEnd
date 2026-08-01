@@ -97,6 +97,17 @@ export async function saveTemplate(
 }
 
 /**
+ * How many banners are drawn on each template.
+ *
+ * The list shows it because deletion is refused for a template in use, and
+ * learning that only after pressing delete is a worse way to find out.
+ */
+export async function templateUsage(): Promise<Map<string, number>> {
+  const rows = await prisma.banner.groupBy({ by: ["templateId"], _count: { _all: true } });
+  return new Map(rows.map((r) => [r.templateId, r._count._all]));
+}
+
+/**
  * A template in use cannot be deleted.
  *
  * Cascading would silently empty every banner drawn on it. Reporting the count
