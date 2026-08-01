@@ -14,9 +14,15 @@ export * from "@/lib/pim/pim-types";
  * is that an edit applies everywhere — Magento and Skroutz included — and the
  * only way to mean that is to write where the catalogue actually lives.
  *
- * The consequence is worth stating: a saved change shows on the storefront
- * after the next sync, not immediately. The screen says so rather than leaving
- * somebody to refresh and wonder.
+ * After a write succeeds, the local projection is brought into line with it.
+ * That is not "editing the copy" — it is keeping the copy in agreement ahead of
+ * the sync, which is what a cache of a known-changed value should do. Leaving it
+ * stale meant an operator deleted a spec, HDCtool accepted it, and the screen
+ * kept showing the old value; the change looked like it had failed when it had
+ * not.
+ *
+ * The storefront still catches up on the next sync. Only this projection is
+ * touched, and only to match what HDCtool just confirmed.
  */
 
 /** First row wins, which is the one the ordering already put first. */
@@ -120,13 +126,38 @@ async function writeCounted(op: string, params: Record<string, unknown>) {
  * to HDCtool. The CDN url is the only stable key both sides share.
  */
 export async function saveImageOrder(mtrl: number, urls: string[], featureUrl: string | null) {
-  return write("images/order", { mtrl, urls, featureUrl });
+  const result = await write("images/order", { mtrl, urls, featureUrl });
+  if (result.ok) {
+    const product = await prisma.product.findFirst({ where: { mtrl }, select: { id: true } });
+    if (product) {
+      await prisma.$transaction([
+        ...urls.map((url, index) =>
+          prisma.productImage.updateMany({
+            where: { productId: product.id, url },
+            data: { order: index, isFeature: url === featureUrl },
+          }),
+        ),
+      ]);
+    }
+  }
+  return result;
 }
 
 export async function saveSpec(mtrl: number, field: string, value: string, locale: Locale) {
-  return value.trim()
-    ? write("spec/save", { mtrl, field, value: value.trim(), language: locale })
-    : write("spec/clear", { mtrl, field });
+  const trimmed = value.trim();
+  if (!trimmed) return clearSpec(mtrl, field);
+
+  const result = await write("spec/save", { mtrl, field, value: trimmed, language: locale });
+  if (result.ok) {
+    const product = await prisma.product.findFirst({ where: { mtrl }, select: { id: true } });
+    if (product) {
+      await prisma.productSpec.updateMany({
+        where: { productId: product.id, fieldKey: field, locale },
+        data: { value: trimmed },
+      });
+    }
+  }
+  return result;
 }
 
 /**
@@ -137,12 +168,40 @@ export async function saveSpec(mtrl: number, field: string, value: string, local
  * deleting one for a single product would blank the photo on the others.
  */
 export async function deleteImage(mtrl: number, url: string) {
-  return writeCounted("images/delete", { mtrl, url });
+  const result = await writeCounted("images/delete", { mtrl, url });
+  if (result.ok) {
+    const product = await prisma.product.findFirst({ where: { mtrl }, select: { id: true } });
+    if (product) {
+      await prisma.productImage.deleteMany({ where: { productId: product.id, url } });
+    }
+  }
+  return result;
+}
+
+/**
+ * Mirror a cleared field into the local projection.
+ *
+ * Deletes the rows rather than blanking them: the projection stores specs as
+ * present key/value rows, and a row with an empty value would render as a spec
+ * with no value rather than as no spec.
+ */
+async function mirrorClear(mtrls: number[], field: string): Promise<void> {
+  if (mtrls.length === 0) return;
+  const products = await prisma.product.findMany({
+    where: { mtrl: { in: mtrls } },
+    select: { id: true },
+  });
+  if (products.length === 0) return;
+  await prisma.productSpec.deleteMany({
+    where: { productId: { in: products.map((p) => p.id) }, fieldKey: field },
+  });
 }
 
 /** Remove the field from this product, in every language. */
 export async function clearSpec(mtrl: number, field: string) {
-  return write("spec/clear", { mtrl, field });
+  const result = await write("spec/clear", { mtrl, field });
+  if (result.ok) await mirrorClear([mtrl], field);
+  return result;
 }
 
 /**
@@ -153,5 +212,24 @@ export async function clearSpec(mtrl: number, field: string) {
  * every product in it.
  */
 export async function clearSpecForSubgroup(mtrl: number, field: string) {
-  return writeCounted("spec/clearSubgroup", { mtrl, field });
+  const result = await writeCounted("spec/clearSubgroup", { mtrl, field });
+  if (!result.ok) return result;
+
+  // Mirror across the same subgroup locally. The projection carries the
+  // subgroup on each product, so this does not need HDCtool to tell it which
+  // products were touched.
+  const source = await prisma.product.findFirst({
+    where: { mtrl },
+    select: { cccSubgroup2: true },
+  });
+  if (source?.cccSubgroup2 != null) {
+    const siblings = await prisma.product.findMany({
+      where: { cccSubgroup2: source.cccSubgroup2 },
+      select: { id: true },
+    });
+    await prisma.productSpec.deleteMany({
+      where: { productId: { in: siblings.map((s) => s.id) }, fieldKey: field },
+    });
+  }
+  return result;
 }

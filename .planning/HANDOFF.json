@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-08-01T08:18:19.637Z",
+  "timestamp": "2026-08-01T08:41:33.744Z",
   "source": "auto-postool",
   "partial": false,
   "phase": null,
@@ -15,7 +15,12 @@
   "blockers": [],
   "human_actions_pending": [],
   "decisions": [],
-  "uncommitted_files": [],
+  "uncommitted_files": [
+    {
+      "status": "M",
+      "path": ".planning/HANDOFF.json"
+    }
+  ],
   "next_action": null,
-  "context_notes": "Recent commits:\n1084d70 feat(admin): delete a product photo\n08fe420 feat(admin): per-spec delete, product and subgroup\nd62af72 feat(admin): catalogue — photo order and specifications\nb84e2ad feat(admin): customers — B2B approvals\n52a01dd feat(admin): contact inbox"
+  "context_notes": "Recent commits:\nf57c90b fix(pim): say 'not deployed' instead of 'not responding'\n1084d70 feat(admin): delete a product photo\n08fe420 feat(admin): per-spec delete, product and subgroup\nd62af72 feat(admin): catalogue — photo order and specifications\nb84e2ad feat(admin): customers — B2B approvals"
 }
