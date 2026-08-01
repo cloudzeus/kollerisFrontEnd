@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-08-01T07:50:54.921Z",
+  "timestamp": "2026-08-01T07:56:15.344Z",
   "source": "auto-postool",
   "partial": false,
   "phase": null,
@@ -22,17 +22,21 @@
     },
     {
       "status": "??",
-      "path": "src/app/admin/(protected)/engagement/"
+      "path": "src/app/admin/(protected)/customers/"
     },
     {
       "status": "??",
-      "path": "src/components/admin/Inbox.tsx"
+      "path": "src/components/admin/CompanyList.tsx"
     },
     {
       "status": "??",
-      "path": "src/lib/admin/inbox.ts"
+      "path": "src/lib/admin/customers-types.ts"
+    },
+    {
+      "status": "??",
+      "path": "src/lib/admin/customers.ts"
     }
   ],
   "next_action": null,
-  "context_notes": "Recent commits:\n86f197d fix(admin): one search box per screen\n1bdddc8 feat(admin): orders screen with server-side filters and paging\nf76424c feat(admin): ACS dispatch desk\n2a035ae feat(zones): render zones on the storefront\n366fb9e feat(ai): DeepSeek copy suggestions and translation in the builder"
+  "context_notes": "Recent commits:\n52a01dd feat(admin): contact inbox\n86f197d fix(admin): one search box per screen\n1bdddc8 feat(admin): orders screen with server-side filters and paging\nf76424c feat(admin): ACS dispatch desk\n2a035ae feat(zones): render zones on the storefront"
 }
