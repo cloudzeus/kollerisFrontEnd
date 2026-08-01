@@ -10,6 +10,7 @@ import {
   type Layer,
   type ShapeLayer,
   type TextLayer,
+  type TickerLayer,
 } from "@/lib/banners/contract";
 
 /**
@@ -37,7 +38,7 @@ export type Preset = {
   hint: string;
   category: PresetCategory;
   /** Bindings this look is meant for. Shown first for a matching cell. */
-  suits: Array<"none" | "product" | "offer">;
+  suits: Array<"none" | "product" | "offer" | "products">;
   build: () => { background: Background; layers: Layer[] };
 };
 
@@ -92,6 +93,12 @@ const shape = (
   layer.frame = frame;
   layer.color = color;
   layer.opacity = opacity;
+  return layer;
+};
+
+const ticker = (frame: TickerLayer["frame"]): TickerLayer => {
+  const layer = newLayer("ticker") as TickerLayer;
+  layer.frame = frame;
   return layer;
 };
 
@@ -373,6 +380,46 @@ export const PRESETS: Preset[] = [
       layers: [
         text("Τίτλος", "{title}", { x: 6, y: 60, w: 70, h: 24 }, { size: 44, color: "white" }),
         button("Δείτε περισσότερα", { x: 6, y: 86, w: 40, h: 9 }, "underline", "white"),
+      ],
+    }),
+  },
+  {
+    id: "offer-ticker",
+    label: "Καμπάνια με εναλλαγή",
+    hint: "Τίτλος και κουμπί σταθερά, τα προϊόντα να περνούν ένα-ένα δίπλα.",
+    category: "offer",
+    suits: ["products"],
+    build: () => ({
+      background: flatBg("white"),
+      layers: [
+        badge("{count} προϊόντα", { x: 6, y: 12, w: 24, h: 9 }, "ink"),
+        text("Τίτλος", "", { x: 6, y: 26, w: 42, h: 26 }, { size: 34 }),
+        text("Κείμενο", "", { x: 6, y: 54, w: 40, h: 14 }, {
+          font: "sans",
+          size: 17,
+          weight: 400,
+          tracking: 0,
+          leading: 155,
+          color: "muted",
+          uppercase: false,
+        }),
+        button("Δείτε την προσφορά", { x: 6, y: 76, w: 42, h: 9 }, "solid"),
+        ticker({ x: 54, y: 10, w: 40, h: 78 }),
+      ],
+    }),
+  },
+  {
+    id: "ticker-dark",
+    label: "Εναλλαγή σε σκούρο",
+    hint: "Το ίδιο σε μαύρο φόντο, με τα προϊόντα σε πλήρες ύψος.",
+    category: "offer",
+    suits: ["products"],
+    build: () => ({
+      background: flatBg("ink"),
+      layers: [
+        text("Τίτλος", "", { x: 6, y: 30, w: 40, h: 26 }, { size: 34, color: "white" }),
+        button("Δείτε τα όλα", { x: 6, y: 66, w: 40, h: 9 }, "underline", "white"),
+        ticker({ x: 52, y: 8, w: 44, h: 84 }),
       ],
     }),
   },

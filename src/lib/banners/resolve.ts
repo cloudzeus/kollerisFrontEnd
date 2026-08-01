@@ -21,8 +21,10 @@ export { applyTokens } from "@/lib/banners/resolve-tokens";
  * failure than a gap.
  */
 
-const money = (value: number): string =>
+const format = (value: number): string =>
   new Intl.NumberFormat("el-GR", { style: "currency", currency: "EUR" }).format(value);
+
+const money = format;
 
 /** How long until a date, in words. Printed once at render — a banner is not a
  *  checkout timer, and a second hand costs a client component per cell. */
@@ -53,10 +55,19 @@ export async function resolveCells(
   const productSlugs = slugsOf("product");
   const offerSlugs = slugsOf("offer");
 
+  // A set's products join the same query as the single-product cells: ten
+  // products in one cell and one in another are eleven rows, not two queries.
+  const setSlugs = entries
+    .map(([, c]) => c.binding)
+    .filter((b): b is Extract<Binding, { slugs: string[] }> => b.source === "products")
+    .flatMap((b) => b.slugs);
+
+  const allProductSlugs = [...new Set([...productSlugs, ...setSlugs])];
+
   const [products, offers] = await Promise.all([
-    productSlugs.length
+    allProductSlugs.length
       ? prisma.product.findMany({
-          where: { slug: { in: productSlugs } },
+          where: { slug: { in: allProductSlugs } },
           select: {
             slug: true,
             name: true,
@@ -132,6 +143,34 @@ export async function resolveCells(
         // destination for a product tile.
         href: `/proion/${p.slug}`,
         image: p.images[0]?.url ?? "",
+      });
+      continue;
+    }
+
+    if (binding.source === "products") {
+      const money = (p: (typeof products)[number]) => {
+        const net = p.priceNet == null ? null : Number(p.priceNet);
+        if (net == null) return "";
+        return format(net * (1 + Number(p.vatRate ?? 24) / 100));
+      };
+
+      // Kept in the order they were chosen — the rotation is a running order,
+      // and re-sorting it would quietly override a decision somebody made.
+      const items = binding.slugs
+        .map((slug) => productBySlug.get(slug))
+        .filter((p): p is NonNullable<typeof p> => Boolean(p))
+        .map((p) => ({
+          slug: p.slug,
+          name: p.translations[0]?.name ?? p.name,
+          image: p.images[0]?.url ?? "",
+          price: money(p),
+        }));
+
+      out.set(cellId, {
+        tokens: { "{count}": String(items.length), "{image}": items[0]?.image ?? "" },
+        href: cell.href,
+        image: items[0]?.image ?? "",
+        items,
       });
       continue;
     }

@@ -10,6 +10,7 @@ import {
   EyeOff,
   Image as ImageIcon,
   LayoutGrid,
+  Repeat,
   Square,
   Trash2,
   Type,
@@ -33,12 +34,14 @@ import {
   type LayerKind,
   type ShapeLayer,
   type TextLayer,
+  type TickerLayer,
 } from "@/lib/banners/contract";
 import { CATEGORY_LABEL, PRESETS, applyPreset, type PresetCategory } from "@/lib/banners/presets";
 import { actionListLogos } from "@/app/admin/(protected)/media/actions";
-import { actionProductAssets } from "@/app/admin/(protected)/banners/actions";
+import { actionProductAssets, actionResolve } from "@/app/admin/(protected)/banners/actions";
 import { uploadFiles } from "@/lib/media/upload-client";
 import type { ResolvedCell } from "@/lib/banners/resolve-tokens";
+import type { PickerProduct } from "@/lib/media/picker";
 import { CompositionRenderer } from "@/components/banners/CompositionRenderer";
 import { CellCanvas } from "@/components/admin/banners/CellCanvas";
 import { LocalisedField, NumberField, OfferPicker, ProductCombo, Segmented } from "@/components/admin/banners/fields";
@@ -82,6 +85,7 @@ const LAYER_ICON: Record<LayerKind, React.ComponentType<{ className?: string }>>
   button: LayoutGrid,
   image: ImageIcon,
   shape: Square,
+  ticker: Repeat,
 };
 
 const ANIMATIONS = [
@@ -120,12 +124,27 @@ const DEMO: ResolvedCell = {
   },
   href: "#",
   image: "",
+  // Enough items for a ticker thumbnail to read as a rotation.
+  items: [
+    {
+      slug: "demo-1",
+      name: "Κλειδί ρατσέτας",
+      image: "https://kolleris.b-cdn.net/mtrl-files/images/SL.171_1.webp",
+      price: "79,26 €",
+    },
+    {
+      slug: "demo-2",
+      name: "Κατσαβίδι",
+      image: "https://kolleris.b-cdn.net/mtrl-files/images/SL.171_2.webp",
+      price: "24,80 €",
+    },
+  ],
 };
 
 export function CellEditor({
   cell,
   composition: initial,
-  resolved,
+  resolved: initialResolved,
   aspect,
   onClose,
   onSave,
@@ -133,6 +152,7 @@ export function CellEditor({
 }: {
   cell: GridCell | null;
   composition: CellComposition | null;
+  /** What the editor had resolved when the modal opened. */
   resolved: ResolvedCell | undefined;
   aspect: number;
   onClose: () => void;
@@ -140,14 +160,33 @@ export function CellEditor({
   onClear: () => void;
 }) {
   const [draft, setDraft] = useState<CellComposition>(initial ?? emptyComposition());
+  const [resolved, setResolved] = useState<ResolvedCell | undefined>(initialResolved);
   const [selected, setSelected] = useState<string | null>(null);
   const [gallery, setGallery] = useState(false);
   const [uploading, setUploading] = useState(false);
+
+  /**
+   * Re-resolve as the binding changes.
+   *
+   * The values came from the editor behind this modal, which only knows the
+   * composition as it was when the modal opened. Binding a product here and
+   * seeing `{title}` on the canvas until Apply is pressed is a preview that
+   * lies about the thing being previewed.
+   */
+  useEffect(() => {
+    if (!cell) return;
+    const timer = setTimeout(async () => {
+      const next = await actionResolve({ cells: { [cell.id]: draft } }, "el");
+      setResolved(next[cell.id]);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [cell, draft.binding, draft.href]);
 
   // A different cell means a different composition; the modal is one instance.
   useEffect(() => {
     if (!cell) return;
     setDraft(initial ?? emptyComposition());
+    setResolved(initialResolved);
     setSelected(null);
     // An empty cell opens straight onto the shelf — that is the first decision.
     setGallery(!initial || initial.layers.length === 0);
@@ -305,6 +344,7 @@ export function CellEditor({
                     ["badge", "Badge"],
                     ["button", "Κουμπί"],
                     ["image", "Εικόνα"],
+                    ["ticker", "Εναλλαγή"],
                     ["shape", "Πλαίσιο"],
                   ] as Array<[LayerKind, string]>
                 ).map(([kind, label]) => (
@@ -403,7 +443,7 @@ export function CellEditor({
       <PresetGallery
         open={gallery}
         onOpenChange={setGallery}
-        binding={draft.binding.source}
+        binding={draft.binding.source === "products" ? "none" : draft.binding.source}
         aspect={aspect}
         onPick={(presetId) => {
           setDraft((d) => applyPreset(d, presetId));
@@ -412,6 +452,103 @@ export function CellEditor({
         }}
       />
     </>
+  );
+}
+
+/* ─────────────────────── Product set picker ─────────────────────── */
+
+/**
+ * Choosing the products a ticker rotates through.
+ *
+ * Order is kept and adjustable, because the order IS the running order — the
+ * first product is what a visitor who never waits sees, and re-sorting by name
+ * or price would quietly override that.
+ */
+function ProductSetPicker({
+  slugs,
+  onChange,
+}: {
+  slugs: string[];
+  onChange: (slugs: string[]) => void;
+}) {
+  const [chosen, setChosen] = useState<Record<string, PickerProduct>>({});
+
+  function add(product: PickerProduct) {
+    setChosen((c) => ({ ...c, [product.slug]: product }));
+    if (!slugs.includes(product.slug)) onChange([...slugs, product.slug]);
+  }
+
+  function move(slug: string, direction: -1 | 1) {
+    const index = slugs.indexOf(slug);
+    const target = index + direction;
+    if (index < 0 || target < 0 || target >= slugs.length) return;
+    const next = [...slugs];
+    [next[index], next[target]] = [next[target], next[index]];
+    onChange(next);
+  }
+
+  return (
+    <div className="space-y-1.5">
+      <ProductCombo value="" onPick={add} />
+
+      {slugs.length === 0 ? (
+        <p className="border border-dashed border-k-line px-2.5 py-2 text-[11px] leading-[1.5] text-k-text-3">
+          Κανένα προϊόν ακόμη. Προσθέστε όσα θέλετε — εμφανίζονται με τη σειρά που τα βάζετε.
+        </p>
+      ) : (
+        <ul className="max-h-44 space-y-1 overflow-y-auto">
+          {slugs.map((slug, index) => (
+            <li
+              key={slug}
+              className="flex items-center gap-1 border border-k-line bg-white px-1.5 py-1"
+            >
+              <span className="numeral w-4 shrink-0 text-[10px] text-k-text-4">{index + 1}</span>
+              {chosen[slug]?.images[0] && (
+                <span className="relative size-6 shrink-0 border border-k-line">
+                  <NextImage
+                    src={chosen[slug].images[0].url}
+                    alt=""
+                    fill
+                    sizes="24px"
+                    className="object-contain p-0.5"
+                    unoptimized
+                  />
+                </span>
+              )}
+              <span className="min-w-0 flex-1 truncate text-[11px] text-k-ink">
+                {chosen[slug]?.name ?? slug}
+              </span>
+              <button
+                type="button"
+                onClick={() => move(slug, -1)}
+                disabled={index === 0}
+                className="p-0.5 text-k-text-4 hover:text-k-ink disabled:opacity-30"
+                aria-label="Πιο πάνω"
+              >
+                <ArrowUp className="size-3" />
+              </button>
+              <button
+                type="button"
+                onClick={() => move(slug, 1)}
+                disabled={index === slugs.length - 1}
+                className="p-0.5 text-k-text-4 hover:text-k-ink disabled:opacity-30"
+                aria-label="Πιο κάτω"
+              >
+                <ArrowDown className="size-3" />
+              </button>
+              <button
+                type="button"
+                onClick={() => onChange(slugs.filter((s) => s !== slug))}
+                className="p-0.5 text-k-text-4 hover:text-k-red"
+                aria-label="Αφαίρεση"
+              >
+                <Trash2 className="size-3" />
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
   );
 }
 
@@ -441,7 +578,9 @@ function SourceRail({
   const [images, setImages] = useState<string[]>([]);
   const [name, setName] = useState("");
 
-  const slug = binding.source === "none" ? "" : binding.slug;
+  const slug =
+    binding.source === "product" || binding.source === "offer" ? binding.slug : "";
+  const setSize = binding.source === "products" ? binding.slugs.length : 0;
 
   useEffect(() => {
     if (binding.source !== "product" || !slug) {
@@ -469,6 +608,31 @@ function SourceRail({
       : [];
 
   const gallery = binding.source === "product" ? images : offerImages;
+  if (binding.source === "products") {
+    // A set lends a ticker rather than a gallery: dragging one of ten
+    // photographs out of it would be picking a favourite, which is the opposite
+    // of what a set is for.
+    if (setSize === 0) return null;
+    return (
+      <div className="space-y-1.5 border border-k-line bg-k-surface-2 p-2">
+        <p className="text-[11px] text-k-text-3">
+          {setSize} προϊόντα — σύρετε την εναλλαγή στον καμβά
+        </p>
+        <button
+          type="button"
+          draggable
+          onDragStart={(e) => {
+            e.dataTransfer.setData(LAYER_MIME, "ticker");
+            e.dataTransfer.effectAllowed = "copy";
+          }}
+          className="flex cursor-grab items-center gap-1.5 border border-k-line bg-white px-2 py-1 text-[11.5px] text-k-ink transition-colors hover:border-k-ink active:cursor-grabbing"
+        >
+          <Repeat className="size-3" />
+          Εναλλαγή προϊόντων
+        </button>
+      </div>
+    );
+  }
   if (!slug || (tokens.length === 0 && gallery.length === 0)) return null;
 
   return (
@@ -731,7 +895,12 @@ function CellPanel({
           onChange={(source) =>
             setDraft((d) => ({
               ...d,
-              binding: source === "none" ? { source: "none" } : { source, slug: "" },
+              binding:
+                source === "none"
+                  ? { source: "none" }
+                  : source === "products"
+                    ? { source: "products", slugs: [] }
+                    : { source, slug: "" },
               // A cell that has never been composed gets the matching starter
               // layers; one that has is left alone, since replacing somebody's
               // work as a side effect of changing a dropdown is never right.
@@ -749,6 +918,7 @@ function CellPanel({
             { value: "none" as const, label: "Ελεύθερο" },
             { value: "product" as const, label: "Προϊόν" },
             { value: "offer" as const, label: "Προσφορά" },
+            { value: "products" as const, label: "Πολλά" },
           ]}
         />
 
@@ -758,13 +928,33 @@ function CellPanel({
             onPick={(p) => setDraft((d) => ({ ...d, binding: { source: "product", slug: p.slug } }))}
           />
         )}
+        {draft.binding.source === "products" && (
+          <ProductSetPicker
+            slugs={draft.binding.slugs}
+            onChange={(slugs) => setDraft((d) => ({ ...d, binding: { source: "products", slugs } }))}
+          />
+        )}
         {draft.binding.source === "offer" && (
           <OfferPicker
             value={draft.binding.slug}
             onPick={(o) => setDraft((d) => ({ ...d, binding: { source: "offer", slug: o.slug } }))}
           />
         )}
-        {draft.binding.source === "none" ? (
+        {draft.binding.source === "products" ? (
+          <div className="space-y-1">
+            <Label className="text-[11px] text-k-text-3">Σύνδεσμος</Label>
+            <Input
+              value={draft.href}
+              onChange={(e) => setDraft((d) => ({ ...d, href: e.target.value }))}
+              className="h-8 text-[12px]"
+              placeholder="/prosfores"
+            />
+            <p className="text-[10.5px] leading-[1.5] text-k-text-4">
+              Το κελί δείχνει πολλά προϊόντα, οπότε οδηγεί σε μία σελίδα που τα περιέχει — όχι στο
+              καθένα ξεχωριστά.
+            </p>
+          </div>
+        ) : draft.binding.source === "none" ? (
           <div className="space-y-1">
             <Label className="text-[11px] text-k-text-3">Σύνδεσμος</Label>
             <Input
@@ -991,6 +1181,62 @@ function LayerInspector({
             suffix="%"
             onChange={(opacity) => onPatch({ opacity } as Partial<Layer>)}
           />
+        </>
+      )}
+
+      {layer.kind === "ticker" && (
+        <>
+          <div className="grid grid-cols-2 gap-2">
+            <NumberField
+              label="Ρυθμός"
+              value={layer.interval}
+              min={800}
+              max={10000}
+              step={250}
+              suffix="ms"
+              onChange={(interval) => onPatch({ interval } as Partial<Layer>)}
+            />
+            <Segmented
+              label="Εναλλαγή"
+              value={layer.effect}
+              onChange={(effect) => onPatch({ effect } as Partial<Layer>)}
+              options={[
+                { value: "fade" as const, label: "Fade" },
+                { value: "slide" as const, label: "Slide" },
+              ]}
+            />
+          </div>
+          <Segmented
+            label="Προσαρμογή"
+            value={layer.fit}
+            onChange={(fit) => onPatch({ fit } as Partial<Layer>)}
+            options={[
+              { value: "contain" as const, label: "Ολόκληρη" },
+              { value: "cover" as const, label: "Γέμισμα" },
+            ]}
+          />
+          <div className="grid grid-cols-2 gap-2">
+            <label className="flex items-center justify-between gap-2 border border-k-line px-2.5 py-1.5">
+              <span className="text-[11.5px] text-k-ink">Όνομα</span>
+              <Switch
+                checked={layer.showName}
+                onCheckedChange={(showName) => onPatch({ showName } as Partial<Layer>)}
+                aria-label="Όνομα προϊόντος"
+              />
+            </label>
+            <label className="flex items-center justify-between gap-2 border border-k-line px-2.5 py-1.5">
+              <span className="text-[11.5px] text-k-ink">Τιμή</span>
+              <Switch
+                checked={layer.showPrice}
+                onCheckedChange={(showPrice) => onPatch({ showPrice } as Partial<Layer>)}
+                aria-label="Τιμή προϊόντος"
+              />
+            </label>
+          </div>
+          <p className="text-[10.5px] leading-[1.5] text-k-text-4">
+            Δείχνει τα προϊόντα του κελιού ένα-ένα. Σταματά όσο ο επισκέπτης έχει τον δείκτη πάνω
+            του.
+          </p>
         </>
       )}
 

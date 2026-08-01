@@ -13,6 +13,8 @@ export type ResolvedCell = {
   href: string;
   /** The bound entity's own picture, for seeding a background or a layer. */
   image: string;
+  /** The products of a set binding, in the order they were chosen. */
+  items?: Array<{ slug: string; name: string; image: string; price: string }>;
 };
 
 /**

@@ -11,6 +11,7 @@ import {
   type LocalisedText,
   type ShapeLayer,
   type TextLayer,
+  type TickerLayer,
 } from "@/lib/banners/contract";
 import { applyTokens, type ResolvedCell } from "@/lib/banners/resolve-tokens";
 import { cn } from "@/lib/utils";
@@ -109,7 +110,13 @@ export function CompositionRenderer({
 
       {composition.layers.map((layer) =>
         layer.hidden ? null : (
-          <LayerView key={layer.id} layer={layer} tokens={tokens} locale={locale} />
+          <LayerView
+            key={layer.id}
+            layer={layer}
+            tokens={tokens}
+            items={resolved?.items}
+            locale={locale}
+          />
         ),
       )}
     </div>
@@ -119,10 +126,12 @@ export function CompositionRenderer({
 function LayerView({
   layer,
   tokens,
+  items,
   locale,
 }: {
   layer: Layer;
   tokens: Record<string, string>;
+  items: ResolvedCell["items"];
   locale: Locale;
 }) {
   // Read by the one motion island per banner rather than by a client component
@@ -140,6 +149,8 @@ function LayerView({
   const style = layerStyle(layer);
 
   switch (layer.kind) {
+    case "ticker":
+      return <TickerView layer={layer} items={items} style={style} motion={motion} />;
     case "shape":
       return <ShapeView layer={layer} style={style} motion={motion} />;
     case "image":
@@ -154,6 +165,69 @@ function LayerView({
 }
 
 type Motion = Record<string, unknown>;
+
+/**
+ * The product set, one at a time.
+ *
+ * Every slide is in the markup, with the first marked active. That is what a
+ * crawler reads and what a visitor sees if the script never runs — a perfectly
+ * good product tile rather than an empty box — and the cycling is one attribute
+ * for the motion island to find.
+ *
+ * No links inside: the cell is already a link, and nesting one inside another
+ * is invalid markup that browsers resolve by guessing.
+ */
+function TickerView({
+  layer,
+  items,
+  style,
+  motion,
+}: {
+  layer: TickerLayer;
+  items: ResolvedCell["items"];
+  style: React.CSSProperties;
+  motion: Motion;
+}) {
+  if (!items || items.length === 0) return null;
+
+  return (
+    <div
+      {...motion}
+      data-ticker
+      data-interval={layer.interval}
+      data-effect={layer.effect}
+      style={style}
+      className="banner-ticker"
+    >
+      {items.map((item, index) => (
+        <div key={item.slug} className="banner-slide" data-active={index === 0 ? "" : undefined}>
+          {item.image && (
+            <Image
+              src={item.image}
+              alt={item.name}
+              fill
+              sizes="(min-width:1024px) 30vw, 60vw"
+              unoptimized
+              className={cn(
+                layer.fit === "cover" ? "object-cover" : "object-contain",
+                (layer.showName || layer.showPrice) && "pb-[14%]",
+              )}
+            />
+          )}
+
+          {(layer.showName || layer.showPrice) && (
+            <div className="banner-slide-caption">
+              {layer.showName && <span className="truncate">{item.name}</span>}
+              {layer.showPrice && item.price && (
+                <span className="numeral shrink-0 font-semibold">{item.price}</span>
+              )}
+            </div>
+          )}
+        </div>
+      ))}
+    </div>
+  );
+}
 
 function ShapeView({
   layer,

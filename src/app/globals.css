@@ -629,3 +629,49 @@
     display: block;
   }
 }
+
+/* ─────────────────────────────────────────────────────────────────────────
+   Product ticker
+   ─────────────────────────────────────────────────────────────────────────
+   Every slide is in the markup; one carries `data-active`. The script only
+   moves that attribute, so the resting state is server-rendered and a failed
+   hydration leaves the first product on screen rather than an empty box.
+   ───────────────────────────────────────────────────────────────────────── */
+.banner-ticker {
+  container-type: inline-size;
+}
+.banner-slide {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.45s ease, transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+  pointer-events: none;
+}
+.banner-slide[data-active] {
+  opacity: 1;
+}
+.banner-ticker[data-effect="slide"] .banner-slide {
+  transform: translateY(12%);
+}
+.banner-ticker[data-effect="slide"] .banner-slide[data-active] {
+  transform: none;
+}
+.banner-slide-caption {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0.6em;
+  font-size: max(10px, 5cqw);
+  line-height: 1.3;
+}
+/* The swap still happens — the point is the products, not the movement — but
+   nothing slides or fades for anyone who asked for less of it. */
+@media (prefers-reduced-motion: reduce) {
+  .banner-slide {
+    transition: none;
+    transform: none !important;
+  }
+}

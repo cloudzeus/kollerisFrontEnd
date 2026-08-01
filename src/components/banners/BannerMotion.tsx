@@ -66,6 +66,53 @@ function split(el: HTMLElement, mode: Split): HTMLElement[] {
   return spans.length ? spans : [el];
 }
 
+/**
+ * Cycle every product ticker in the banner.
+ *
+ * Moves one attribute; the CSS does the rest. Paused while the pointer is over
+ * a ticker, because a picture that changes the moment somebody leans in to look
+ * at it is the most irritating thing a carousel does.
+ */
+function startTickers(root: HTMLElement): () => void {
+  const timers: Array<ReturnType<typeof setInterval>> = [];
+  const cleanups: Array<() => void> = [];
+
+  for (const ticker of root.querySelectorAll<HTMLElement>("[data-ticker]")) {
+    const slides = [...ticker.children].filter((c): c is HTMLElement => c instanceof HTMLElement);
+    if (slides.length < 2) continue;
+
+    const interval = Math.max(800, Number(ticker.dataset.interval ?? 2500));
+    let index = slides.findIndex((s) => s.hasAttribute("data-active"));
+    let paused = false;
+
+    const timer = setInterval(() => {
+      if (paused) return;
+      slides[index]?.removeAttribute("data-active");
+      index = (index + 1) % slides.length;
+      slides[index]?.setAttribute("data-active", "");
+    }, interval);
+    timers.push(timer);
+
+    const hold = () => {
+      paused = true;
+    };
+    const release = () => {
+      paused = false;
+    };
+    ticker.addEventListener("pointerenter", hold);
+    ticker.addEventListener("pointerleave", release);
+    cleanups.push(() => {
+      ticker.removeEventListener("pointerenter", hold);
+      ticker.removeEventListener("pointerleave", release);
+    });
+  }
+
+  return () => {
+    for (const timer of timers) clearInterval(timer);
+    for (const cleanup of cleanups) cleanup();
+  };
+}
+
 export function BannerMotion() {
   const anchor = useRef<HTMLSpanElement>(null);
 
@@ -73,11 +120,16 @@ export function BannerMotion() {
     const root = anchor.current?.parentElement;
     if (!root) return;
 
-    // Motion is a flourish, and for some people it is a symptom.
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    // Motion is a flourish, and for some people it is a symptom. The ticker
+    // still runs — what it shows IS the content, and the CSS drops the
+    // transition — but nothing else animates.
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      return startTickers(root);
+    }
 
+    const tickers = startTickers(root);
     const targets = [...root.querySelectorAll<HTMLElement>("[data-anim]")];
-    if (targets.length === 0) return;
+    if (targets.length === 0) return tickers;
 
     const tweens: gsap.core.Tween[] = [];
 
@@ -114,7 +166,7 @@ export function BannerMotion() {
       );
     }
 
-    if (tweens.length === 0) return;
+    if (tweens.length === 0) return tickers;
 
     const observer = new IntersectionObserver(
       (entries) => {
@@ -127,6 +179,7 @@ export function BannerMotion() {
     observer.observe(root);
 
     return () => {
+      tickers?.();
       observer.disconnect();
       for (const tween of tweens) tween.revert();
     };

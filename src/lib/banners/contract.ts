@@ -75,7 +75,17 @@ export type GridTemplateView = {
 export type Binding =
   | { source: "none" }
   | { source: "product"; slug: string }
-  | { source: "offer"; slug: string };
+  | { source: "offer"; slug: string }
+  /**
+   * A set of products, in the order they were chosen.
+   *
+   * Its own source rather than a repeated product binding: the cell shows all
+   * of them in rotation, so `{title}` has no single answer and offering it
+   * would be a promise the renderer cannot keep. What a set lends is a ticker
+   * and a count; the headline and the button are written by hand, about the
+   * campaign rather than about any one item.
+   */
+  | { source: "products"; slugs: string[] };
 
 /**
  * Text tokens a bound cell can print.
@@ -93,6 +103,7 @@ export const TOKENS = [
   { token: "{desc}", label: "Σύντομη περιγραφή", sources: ["product"] },
   { token: "{badge}", label: "Badge προσφοράς", sources: ["offer"] },
   { token: "{ends}", label: "Λήγει σε…", sources: ["offer"] },
+  { token: "{count}", label: "Πλήθος προϊόντων", sources: ["products"] },
 ] as const;
 
 /* ──────────────────────────── Layers ──────────────────────────── */
@@ -191,7 +202,31 @@ export type ShapeLayer = LayerBase & {
   opacity: number;
 };
 
-export type Layer = ImageLayer | TextLayer | BadgeLayer | ButtonLayer | ShapeLayer;
+/**
+ * A rotating view of the cell's product set.
+ *
+ * One box, one product at a time. The first is rendered server-side and every
+ * other slide is in the markup behind it, so a failed hydration leaves a
+ * perfectly good product tile rather than an empty rectangle — and a crawler
+ * sees all ten.
+ */
+export type TickerLayer = LayerBase & {
+  kind: "ticker";
+  /** Milliseconds each product holds the frame. */
+  interval: number;
+  effect: "fade" | "slide";
+  fit: "cover" | "contain";
+  showName: boolean;
+  showPrice: boolean;
+};
+
+export type Layer =
+  | ImageLayer
+  | TextLayer
+  | BadgeLayer
+  | ButtonLayer
+  | ShapeLayer
+  | TickerLayer;
 
 export type LayerKind = Layer["kind"];
 
@@ -423,6 +458,19 @@ export function newLayer(kind: LayerKind): Layer {
           uppercase: true,
           color: "ink",
         },
+      };
+    case "ticker":
+      return {
+        id: uid(),
+        name: "Εναλλαγή προϊόντων",
+        kind: "ticker",
+        frame: { x: 52, y: 10, w: 42, h: 74 },
+        anim,
+        interval: 2500,
+        effect: "fade",
+        fit: "contain",
+        showName: false,
+        showPrice: true,
       };
     case "image":
       return {
