@@ -100,6 +100,29 @@ describe("bannerState", () => {
     // somebody is about to assume otherwise.
     expect(bannerState(content("b"), content("a"))).toBe("modified");
   });
+
+  it("ignores key order", () => {
+    // Both sides live in a jsonb column, which reorders keys, and the editor
+    // compares an object built in the browser against one that came back
+    // through the database. Comparing raw JSON reported every published banner
+    // as modified — the badge lying in the reassuring direction.
+    const written = { widgets: { z1: { source: "custom", href: "/a", chrome: { badge: "x" } } } };
+    const returned = { widgets: { z1: { chrome: { badge: "x" }, href: "/a", source: "custom" } } };
+    expect(JSON.stringify(written)).not.toBe(JSON.stringify(returned));
+    expect(bannerState(written as never, returned as never)).toBe("published");
+  });
+
+  it("treats an absent key and an undefined one as the same content", () => {
+    const a = { widgets: { z1: { source: "custom", badge: undefined } } };
+    const b = { widgets: { z1: { source: "custom" } } };
+    expect(bannerState(a as never, b as never)).toBe("published");
+  });
+
+  it("does not ignore a real difference nested deep in a widget", () => {
+    const a = { widgets: { z1: { chrome: { badge: "ΝΕΟ", overlay: "medium" } } } };
+    const b = { widgets: { z1: { chrome: { overlay: "medium", badge: "-30%" } } } };
+    expect(bannerState(a as never, b as never)).toBe("modified");
+  });
 });
 
 describe("offerStatus", () => {

@@ -97,7 +97,12 @@ export async function searchProductsForPicker(
     code: p.code,
     name: p.translations[0]?.name ?? p.name,
     brand: p.mtrmark != null ? (brandByMark.get(p.mtrmark) ?? null) : null,
-    images: p.images,
+    // The same CDN file is attached to a product more than once often enough
+    // that a picker shows nine tiles for six photographs. The url is the only
+    // identity an image has here, so it is the one deduplicated on.
+    images: p.images.filter(
+      (img, i, all) => all.findIndex((other) => other.url === img.url) === i,
+    ),
   }));
 }
 

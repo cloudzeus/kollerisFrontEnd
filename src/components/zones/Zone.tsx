@@ -1,15 +1,24 @@
 import { getZone } from "@/lib/zones/zones";
+import { getPublishedBanner } from "@/lib/banners/banners";
+import { resolveWidgets } from "@/lib/banners/resolve";
 import { ZONES_BY_ID, type WidgetInstance } from "@/lib/zones/registry";
 import { cn } from "@/lib/utils";
+import { BannerRenderer } from "@/components/banners/BannerRenderer";
 import { WidgetRenderer, type WidgetContext } from "@/components/zones/WidgetRenderer";
 import type { Locale } from "@/i18n/routing";
 
 /**
  * Renders one zone.
  *
- * The layout comes from the zone definition, not from the widgets, so a tile
- * dropped into a 400px column and the same tile in a full-width band are laid
- * out by the slot rather than by whoever configured them.
+ * A zone can hold either a banner — a saved grid with a widget per cell — or
+ * the older flat list of widgets. The banner wins when one is assigned, which
+ * is what makes the two coexist: pages built the old way keep working
+ * untouched, and a zone converts the moment somebody assigns a banner to it.
+ *
+ * The layout of the list form comes from the zone definition, not from the
+ * widgets, so a tile dropped into a 400px column and the same tile in a
+ * full-width band are laid out by the slot rather than by whoever configured
+ * them. A banner brings its own geometry and ignores the slot's.
  *
  * An empty zone renders nothing at all — no wrapper, no spacing. A page with an
  * unfilled zone should look like a page without that zone, not like one with a
@@ -29,6 +38,14 @@ export async function Zone({
 }) {
   const def = ZONES_BY_ID.get(id);
   if (!def) return null;
+
+  const banner = await getPublishedBanner(id);
+  if (banner) {
+    const widgets = await resolveWidgets(banner.content, locale);
+    return (
+      <BannerRenderer template={banner.template} widgets={widgets} className={className} />
+    );
+  }
 
   const widgets = await getZone(id);
   if (widgets.length === 0) return null;

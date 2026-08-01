@@ -163,7 +163,32 @@ export function bannerState(
   if (!published && !draft) return "empty";
   if (!published) return "draft";
   if (!draft) return "published";
-  return JSON.stringify(draft) === JSON.stringify(published) ? "published" : "modified";
+  return sameContent(draft, published) ? "published" : "modified";
+}
+
+/**
+ * Deep equality with sorted keys.
+ *
+ * Both sides are stored in a `jsonb` column, which does not preserve key order,
+ * and the editor compares an object it built in the browser against one that
+ * came back through the database. A plain `JSON.stringify` comparison reports
+ * every published banner as modified the moment the round trip reorders a key
+ * — the badge saying "unpublished changes" about a banner with none is worse
+ * than no badge at all.
+ */
+export function sameContent(a: BannerContent, b: BannerContent): boolean {
+  return canonical(a) === canonical(b);
+}
+
+function canonical(value: unknown): string {
+  if (value === undefined) return "null";
+  if (value === null || typeof value !== "object") return JSON.stringify(value) ?? "null";
+  if (Array.isArray(value)) return `[${value.map(canonical).join(",")}]`;
+  const entries = Object.entries(value as Record<string, unknown>)
+    // An absent key and a key set to undefined are the same content.
+    .filter(([, v]) => v !== undefined)
+    .sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0));
+  return `{${entries.map(([k, v]) => `${JSON.stringify(k)}:${canonical(v)}`).join(",")}}`;
 }
 
 /* ────────────────────────── Offers ────────────────────────── */
@@ -304,4 +329,28 @@ export function cellStyle(cell: GridCell): React.CSSProperties {
     gridColumn: `${cell.x + 1} / span ${cell.w}`,
     gridRow: `${cell.y + 1} / span ${cell.h}`,
   };
+}
+
+/**
+ * The same placement, as custom properties.
+ *
+ * The rendered banner collapses to one column on a narrow container, which a
+ * style attribute cannot express — inline styles have no breakpoints. The
+ * variables are read inside a container query in `globals.css`, and ignored
+ * below it, so the collapse needs no second geometry.
+ */
+export function cellVars(cell: GridCell): React.CSSProperties {
+  return {
+    "--bn-col": `${cell.x + 1} / span ${cell.w}`,
+    "--bn-row": `${cell.y + 1} / span ${cell.h}`,
+  } as React.CSSProperties;
+}
+
+/** Grid-level variables: the template's own dimensions and shape. */
+export function gridVars(template: Pick<GridTemplateView, "columns" | "rows" | "aspect">) {
+  return {
+    "--bn-cols": template.columns,
+    "--bn-rows": template.rows,
+    "--bn-aspect": template.aspect ?? "auto",
+  } as React.CSSProperties;
 }

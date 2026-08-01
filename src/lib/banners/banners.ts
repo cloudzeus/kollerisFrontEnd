@@ -282,6 +282,20 @@ export async function deleteBanner(id: string): Promise<Result> {
 
 /* ──────────────────────── Placement ──────────────────────── */
 
+/**
+ * Every zone that already has a banner, and which one.
+ *
+ * The editor shows it before you assign: a zone holds exactly one banner, so
+ * assigning to a taken zone replaces what is there, and that should be a
+ * decision rather than a surprise.
+ */
+export async function listPlacements(): Promise<Record<string, { id: string; name: string }>> {
+  const rows = await prisma.bannerPlacement.findMany({
+    include: { banner: { select: { id: true, name: true } } },
+  });
+  return Object.fromEntries(rows.map((p) => [p.zone, { id: p.banner.id, name: p.banner.name }]));
+}
+
 export async function assignBanner(zone: string, bannerId: string): Promise<Result> {
   await prisma.bannerPlacement.upsert({
     where: { zone },

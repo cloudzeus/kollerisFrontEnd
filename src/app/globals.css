@@ -564,3 +564,43 @@
   from { opacity: 0; clip-path: inset(0 100% 0 0); }
   to   { opacity: 1; clip-path: inset(0 0 0 0); }
 }
+
+/* ─────────────────────────────────────────────────────────────────────────
+   Banner grid
+   ─────────────────────────────────────────────────────────────────────────
+   A container query, not a media query. The preview modal renders the banner
+   at a fixed 390 / 768 / 1440 inside a desktop window; a media query would
+   read the window and show the desktop layout at every setting, which is the
+   one thing a responsive preview must not do.
+
+   Below the threshold the grid collapses to a single column in cell order —
+   a twelve-column layout at 390px is unreadable, and the order cells were
+   drawn in is the only ordering the template carries.
+   ───────────────────────────────────────────────────────────────────────── */
+.banner-shell {
+  container-type: inline-size;
+}
+.banner-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1px;
+}
+.banner-grid > * {
+  min-height: 13rem;
+}
+@container (min-width: 44rem) {
+  .banner-grid {
+    grid-template-columns: repeat(var(--bn-cols), minmax(0, 1fr));
+    grid-template-rows: repeat(var(--bn-rows), minmax(0, 1fr));
+    aspect-ratio: var(--bn-aspect);
+    /* A template with no aspect ratio has `aspect-ratio: auto`, so its height
+       would come from its content — and an empty cell has none. This is what
+       gives a row its height in that case, and a floor in every other. */
+    min-height: calc(var(--bn-rows) * 3.25rem);
+  }
+  .banner-grid > * {
+    grid-column: var(--bn-col);
+    grid-row: var(--bn-row);
+    min-height: 0;
+  }
+}

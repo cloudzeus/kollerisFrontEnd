@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import {
   WIDGETS_BY_TYPE,
   ZONES_BY_ID,
+  fieldsFor,
   type WidgetInstance,
 } from "@/lib/zones/registry";
 
@@ -65,7 +66,11 @@ function clean(type: string, props: Record<string, unknown>): Result & { props?:
 
   const out: Record<string, unknown> = {};
 
-  for (const field of def.fields) {
+  // `fieldsFor`, not `def.fields`: badge, animation and background are shared
+  // across every widget type and live outside the type's own field list.
+  // Iterating the type's fields alone silently dropped every one of them on
+  // save — the form collected them and nothing was ever stored.
+  for (const field of fieldsFor(type)) {
     const value = props[field.name];
 
     if (field.kind === "boolean") {
@@ -117,9 +122,8 @@ export async function addWidget(
 
   // Defaults from the registry, so a new widget renders something rather than
   // appearing as an empty box nobody can tell is broken or just new.
-  const def = WIDGETS_BY_TYPE.get(type)!;
   const props: Record<string, unknown> = {};
-  for (const field of def.fields) {
+  for (const field of fieldsFor(type)) {
     if (field.default !== undefined) props[field.name] = field.default;
     else if (field.kind === "boolean") props[field.name] = false;
     else if (field.localised) props[field.name] = {};

@@ -3,8 +3,24 @@
 import { revalidatePath } from "next/cache";
 import { auth } from "@/auth";
 import { assertCan } from "@/lib/rbac";
-import { deleteTemplate, saveTemplate } from "@/lib/banners/banners";
-import type { GridCell } from "@/lib/banners/contract";
+import {
+  assignBanner,
+  createBanner,
+  deleteBanner,
+  deleteTemplate,
+  discardDraft,
+  publish,
+  renameBanner,
+  saveDraft,
+  saveTemplate,
+  searchOffersForPicker,
+  unassignZone,
+} from "@/lib/banners/banners";
+import { resolveWidgets } from "@/lib/banners/resolve";
+import { searchProductsForPicker } from "@/lib/media/picker";
+import { generateCopy, translateText } from "@/lib/ai/deepseek";
+import type { BannerContent, GridCell } from "@/lib/banners/contract";
+import type { Locale } from "@/i18n/routing";
 
 /**
  * Banner editing.
@@ -38,4 +54,117 @@ export async function actionDeleteTemplate(id: string) {
   const result = await deleteTemplate(id);
   if (result.ok) revalidatePath("/admin/banners/templates");
   return result;
+}
+
+/* ───────────────────────── Banners ───────────────────────── */
+
+/** A draft change touches nothing public; publishing and assigning do. */
+function refreshStorefront() {
+  revalidatePath("/", "layout");
+}
+
+export async function actionCreateBanner(name: string, templateId: string) {
+  const actor = await requireEditor();
+  const result = await createBanner(name, templateId, actor);
+  if (result.ok) revalidatePath("/admin/banners");
+  return result;
+}
+
+export async function actionRenameBanner(id: string, name: string) {
+  const actor = await requireEditor();
+  const result = await renameBanner(id, name, actor);
+  if (result.ok) revalidatePath("/admin/banners");
+  return result;
+}
+
+export async function actionSaveDraft(id: string, content: BannerContent) {
+  const actor = await requireEditor();
+  return saveDraft(id, content, actor);
+}
+
+export async function actionPublish(id: string) {
+  const actor = await requireEditor();
+  const result = await publish(id, actor);
+  if (result.ok) {
+    refreshStorefront();
+    revalidatePath("/admin/banners");
+  }
+  return result;
+}
+
+export async function actionDiscardDraft(id: string) {
+  const actor = await requireEditor();
+  const result = await discardDraft(id, actor);
+  if (result.ok) revalidatePath(`/admin/banners/${id}`);
+  return result;
+}
+
+export async function actionDeleteBanner(id: string) {
+  await requireEditor();
+  const result = await deleteBanner(id);
+  if (result.ok) {
+    refreshStorefront();
+    revalidatePath("/admin/banners");
+  }
+  return result;
+}
+
+export async function actionAssign(zone: string, bannerId: string) {
+  await requireEditor();
+  const result = await assignBanner(zone, bannerId);
+  if (result.ok) refreshStorefront();
+  return result;
+}
+
+export async function actionUnassign(zone: string) {
+  await requireEditor();
+  const result = await unassignZone(zone);
+  if (result.ok) refreshStorefront();
+  return result;
+}
+
+/**
+ * Render-ready widgets for the editor canvas and the preview.
+ *
+ * The same resolver the storefront uses, so the editor shows the real title and
+ * the real price rather than the slug somebody typed. A Map does not cross the
+ * server-action boundary; a record does.
+ */
+export async function actionResolve(content: BannerContent, locale: Locale) {
+  await requireEditor();
+  return Object.fromEntries(await resolveWidgets(content, locale));
+}
+
+/* ───────────────────────── Pickers ───────────────────────── */
+
+export async function actionSearchProducts(query: string, locale: Locale) {
+  await requireEditor();
+  return searchProductsForPicker(query, locale, 24);
+}
+
+export async function actionSearchOffers(query: string) {
+  await requireEditor();
+  return searchOffersForPicker(query);
+}
+
+/* ───────────────────────── Copy ───────────────────────── */
+
+export async function actionGenerateCopy(input: {
+  field: string;
+  context: string;
+  maxChars?: number;
+  locale: string;
+}) {
+  await requireEditor();
+  return generateCopy(input);
+}
+
+export async function actionTranslate(input: {
+  text: string;
+  from: string;
+  to: string;
+  maxChars?: number;
+}) {
+  await requireEditor();
+  return translateText(input);
 }

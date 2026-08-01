@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-08-01T09:26:31.257Z",
+  "timestamp": "2026-08-01T09:47:57.642Z",
   "source": "auto-postool",
   "partial": false,
   "phase": null,
@@ -22,11 +22,23 @@
     },
     {
       "status": "M",
+      "path": "src/app/admin/(protected)/banners/actions.ts"
+    },
+    {
+      "status": "M",
       "path": "src/app/admin/(protected)/layout.tsx"
     },
     {
       "status": "M",
-      "path": "src/lib/banners/__tests__/contract.test.ts"
+      "path": "src/app/globals.css"
+    },
+    {
+      "status": "M",
+      "path": "src/components/zones/WidgetRenderer.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/components/zones/Zone.tsx"
     },
     {
       "status": "M",
@@ -37,14 +49,38 @@
       "path": "src/lib/banners/contract.ts"
     },
     {
-      "status": "??",
-      "path": "src/app/admin/(protected)/offers/"
+      "status": "M",
+      "path": "src/lib/media/picker.ts"
     },
     {
       "status": "??",
-      "path": "src/components/admin/banners/OfferManager.tsx"
+      "path": "src/app/admin/(protected)/banners/[id]/"
+    },
+    {
+      "status": "??",
+      "path": "src/app/admin/(protected)/banners/page.tsx"
+    },
+    {
+      "status": "??",
+      "path": "src/components/admin/banners/BannerEditor.tsx"
+    },
+    {
+      "status": "??",
+      "path": "src/components/admin/banners/BannerList.tsx"
+    },
+    {
+      "status": "??",
+      "path": "src/components/admin/banners/PreviewModal.tsx"
+    },
+    {
+      "status": "??",
+      "path": "src/components/admin/banners/WidgetModal.tsx"
+    },
+    {
+      "status": "??",
+      "path": "src/components/banners/"
     }
   ],
   "next_action": null,
-  "context_notes": "Recent commits:\n94fa0b8 feat(banners): grid template builder\n7cabf1b feat(banners): data model, server layer and content resolution\n314e82c fix(pim): bring the local projection into line after a successful write\nf57c90b fix(pim): say 'not deployed' instead of 'not responding'\n1084d70 feat(admin): delete a product photo"
+  "context_notes": "Recent commits:\n2737bc0 feat(banners): offers admin\n94fa0b8 feat(banners): grid template builder\n7cabf1b feat(banners): data model, server layer and content resolution\n314e82c fix(pim): bring the local projection into line after a successful write\nf57c90b fix(pim): say 'not deployed' instead of 'not responding'"
 }
