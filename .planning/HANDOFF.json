@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-08-01T07:08:28.862Z",
+  "timestamp": "2026-08-01T07:50:54.921Z",
   "source": "auto-postool",
   "partial": false,
   "phase": null,
@@ -18,13 +18,21 @@
   "uncommitted_files": [
     {
       "status": "M",
-      "path": "src/app/admin/(protected)/orders/page.tsx"
+      "path": ".planning/HANDOFF.json"
     },
     {
-      "status": "M",
-      "path": "src/components/admin/OrdersTable.tsx"
+      "status": "??",
+      "path": "src/app/admin/(protected)/engagement/"
+    },
+    {
+      "status": "??",
+      "path": "src/components/admin/Inbox.tsx"
+    },
+    {
+      "status": "??",
+      "path": "src/lib/admin/inbox.ts"
     }
   ],
   "next_action": null,
-  "context_notes": "Recent commits:\n1bdddc8 feat(admin): orders screen with server-side filters and paging\nf76424c feat(admin): ACS dispatch desk\n2a035ae feat(zones): render zones on the storefront\n366fb9e feat(ai): DeepSeek copy suggestions and translation in the builder\n6885448 feat(admin): page builder — zones, widgets, media picker, live preview"
+  "context_notes": "Recent commits:\n86f197d fix(admin): one search box per screen\n1bdddc8 feat(admin): orders screen with server-side filters and paging\nf76424c feat(admin): ACS dispatch desk\n2a035ae feat(zones): render zones on the storefront\n366fb9e feat(ai): DeepSeek copy suggestions and translation in the builder"
 }
