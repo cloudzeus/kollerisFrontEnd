@@ -34,6 +34,19 @@ export type GridCell = {
   y: number;
   w: number;
   h: number;
+  /**
+   * What happens to this cell on a narrow screen.
+   *
+   * A twelve-column layout has to become one column on a phone, and not every
+   * region earns its place there — a decorative third tile below two others is
+   * three screens of scrolling nobody asked for. Hiding is a layout decision,
+   * so it lives on the template beside the geometry rather than on each banner
+   * drawn over it.
+   *
+   * `order` is the stacking position when collapsed; without one, cells stack
+   * in the order they were drawn.
+   */
+  mobile?: { hidden?: boolean; order?: number };
 };
 
 export type GridGeometry = {

@@ -256,17 +256,18 @@ export function BannerEditor({
             {/* Στόχοι κλικ, στην ίδια γεωμετρία με τον renderer */}
             <div className="banner-shell absolute inset-0">
               <div className="banner-grid" style={gridVars(template)}>
-                {template.cells.map((cell) => {
+                {template.cells.map((cell, index) => {
                   const has = Boolean(content.cells[cell.id]);
                   return (
                     <button
                       key={cell.id}
                       type="button"
-                      style={cellVars(cell)}
+                      style={{ ...cellVars(cell), order: cell.mobile?.order ?? index }}
                       onClick={() => setEditing(cell)}
                       className={cn(
                         "group flex items-center justify-center border-2 border-transparent transition-colors hover:border-k-ink/70",
                         !has && "bg-white/40",
+                        cell.mobile?.hidden && "bn-mobile-hidden",
                       )}
                       aria-label={`Επεξεργασία: ${cell.name}`}
                     >

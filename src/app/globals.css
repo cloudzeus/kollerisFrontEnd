@@ -617,3 +617,15 @@
 @media (prefers-reduced-motion: reduce) {
   .banner-ken-burns { animation: none; }
 }
+
+/* A cell the template drops on narrow screens. Base rule hides it; the
+   container query above restores it, so "hidden" only ever means "hidden while
+   collapsed". */
+.banner-grid > .bn-mobile-hidden {
+  display: none;
+}
+@container (min-width: 44rem) {
+  .banner-grid > .bn-mobile-hidden {
+    display: block;
+  }
+}

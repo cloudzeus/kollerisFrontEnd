@@ -36,6 +36,7 @@ const GROUPS: Array<{ title: string; sections: Section[] }> = [
     sections: [
       { href: "/admin/zones", label: "Σελίδες", icon: "zones", capability: "content" },
       { href: "/admin/banners", label: "Banners", icon: "banners", capability: "content" },
+      { href: "/admin/banners/templates", label: "Πλέγματα", icon: "templates", capability: "content" },
       { href: "/admin/content", label: "Κείμενα", icon: "content", capability: "content" },
       { href: "/admin/catalogue", label: "Κατάλογος", icon: "catalogue", capability: "catalogue" },
       { href: "/admin/offers", label: "Προσφορές", icon: "merchandising", capability: "merchandising" },

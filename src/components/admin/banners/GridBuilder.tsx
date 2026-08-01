@@ -2,7 +2,19 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { AlertTriangle, Check, Loader2, Plus, Sparkles, Trash2 } from "lucide-react";
+import {
+  AlertTriangle,
+  Check,
+  ChevronDown,
+  ChevronUp,
+  Eye,
+  EyeOff,
+  Loader2,
+  Plus,
+  Smartphone,
+  Sparkles,
+  Trash2,
+} from "lucide-react";
 import { toast } from "sonner";
 import { cellStyle, validateGrid, type GridCell, type GridTemplateView } from "@/lib/banners/contract";
 import { Button } from "@/components/ui/button";
@@ -378,6 +390,44 @@ export function GridBuilder({
 
   const tint = (id: string) => TINTS[view.findIndex((c) => c.id === id) % TINTS.length];
 
+  /* ─── how the grid stacks on a phone ─── */
+
+  /** Drawn order unless somebody has said otherwise; hidden cells sink last. */
+  const mobileOrder = [...cells].sort((a, b) => {
+    if (Boolean(a.mobile?.hidden) !== Boolean(b.mobile?.hidden)) return a.mobile?.hidden ? 1 : -1;
+    return (a.mobile?.order ?? cells.indexOf(a)) - (b.mobile?.order ?? cells.indexOf(b));
+  });
+
+  /** Renumber every visible cell after a move, so the stored order is always a
+   *  clean sequence rather than a set of gaps somebody has to reason about. */
+  function renumber(next: GridCell[]) {
+    let position = 0;
+    setCells(
+      cells.map((c) => {
+        const index = next.findIndex((n) => n.id === c.id);
+        const hidden = Boolean(next[index]?.mobile?.hidden);
+        return { ...c, mobile: { hidden, order: hidden ? 999 : position++ } };
+      }),
+    );
+  }
+
+  function moveMobile(id: string, direction: -1 | 1) {
+    const index = mobileOrder.findIndex((c) => c.id === id);
+    const target = index + direction;
+    if (index < 0 || target < 0 || target >= mobileOrder.length) return;
+    const next = [...mobileOrder];
+    [next[index], next[target]] = [next[target], next[index]];
+    renumber(next);
+  }
+
+  function toggleMobile(id: string) {
+    renumber(
+      mobileOrder.map((c) =>
+        c.id === id ? { ...c, mobile: { ...c.mobile, hidden: !c.mobile?.hidden } } : c,
+      ),
+    );
+  }
+
   return (
     <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_19rem]">
       {/* ── Καμβάς ── */}
@@ -644,6 +694,81 @@ export function GridBuilder({
             </ul>
           )}
         </div>
+
+        {/* Σε κινητό */}
+        {cells.length > 0 && (
+          <div className="border border-k-line bg-white">
+            <p className="flex items-center gap-1.5 border-b border-k-line px-3 py-2 text-[11px] font-medium uppercase tracking-[0.08em] text-k-text-4">
+              <Smartphone className="size-3" />
+              Σε κινητό
+            </p>
+            <div className="space-y-2 p-2">
+              <p className="text-[11px] leading-[1.55] text-k-text-3">
+                Το πλέγμα γίνεται μία στήλη. Ορίστε τη σειρά και κρύψτε όσα κελιά δεν αξίζουν το
+                scroll.
+              </p>
+              <ul className="space-y-1">
+                {mobileOrder.map((c, index) => (
+                  <li
+                    key={c.id}
+                    className={cn(
+                      "flex items-center gap-1.5 border border-k-line px-2 py-1.5",
+                      c.mobile?.hidden && "bg-k-surface-2",
+                    )}
+                  >
+                    <span className="numeral w-4 shrink-0 text-[10.5px] text-k-text-4">
+                      {c.mobile?.hidden ? "—" : index + 1}
+                    </span>
+                    <span className={cn("size-3 shrink-0 border", tint(c.id))} aria-hidden />
+                    <span
+                      className={cn(
+                        "min-w-0 flex-1 truncate text-[11.5px]",
+                        c.mobile?.hidden ? "text-k-text-5 line-through" : "text-k-ink",
+                      )}
+                    >
+                      {c.name}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => moveMobile(c.id, -1)}
+                      disabled={index === 0 || Boolean(c.mobile?.hidden)}
+                      className="p-0.5 text-k-text-4 hover:text-k-ink disabled:opacity-30"
+                      aria-label="Πιο πάνω"
+                    >
+                      <ChevronUp className="size-3.5" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => moveMobile(c.id, 1)}
+                      disabled={index === mobileOrder.length - 1 || Boolean(c.mobile?.hidden)}
+                      className="p-0.5 text-k-text-4 hover:text-k-ink disabled:opacity-30"
+                      aria-label="Πιο κάτω"
+                    >
+                      <ChevronDown className="size-3.5" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => toggleMobile(c.id)}
+                      className="p-0.5 text-k-text-4 hover:text-k-ink"
+                      aria-label={c.mobile?.hidden ? "Εμφάνιση σε κινητό" : "Απόκρυψη σε κινητό"}
+                    >
+                      {c.mobile?.hidden ? (
+                        <EyeOff className="size-3.5" />
+                      ) : (
+                        <Eye className="size-3.5" />
+                      )}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+              {mobileOrder.every((c) => c.mobile?.hidden) && (
+                <p className="border border-k-amber/40 bg-k-amber/10 px-2 py-1.5 text-[11px] text-k-ink">
+                  Όλα τα κελιά είναι κρυμμένα — σε κινητό δεν θα φαίνεται τίποτα.
+                </p>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Έτοιμα σχέδια */}
         <div className="border border-k-line bg-white">

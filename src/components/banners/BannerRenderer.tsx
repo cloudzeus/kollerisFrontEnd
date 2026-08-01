@@ -47,12 +47,22 @@ export function BannerRenderer({
   return (
     <div className={cn("banner-shell", className)}>
       <div className="banner-grid bg-k-line" style={gridVars(template)} data-banner-grid>
-        {template.cells.map((cell) => {
+        {template.cells.map((cell, index) => {
           const composition = content.cells?.[cell.id];
           const cellResolved = resolved.get(cell.id);
 
+          // `order` only bites while the grid is collapsed to one column;
+          // above the breakpoint every cell is placed explicitly.
+          const placement = {
+            ...cellVars(cell),
+            order: cell.mobile?.order ?? index,
+          };
+          const collapse = cell.mobile?.hidden ? "bn-mobile-hidden" : undefined;
+
           if (!composition) {
-            return <div key={cell.id} style={cellVars(cell)} className="min-w-0 bg-white" />;
+            return (
+              <div key={cell.id} style={placement} className={cn("min-w-0 bg-white", collapse)} />
+            );
           }
 
           const body = (
@@ -65,7 +75,7 @@ export function BannerRenderer({
 
           if (!interactive) {
             return (
-              <div key={cell.id} style={cellVars(cell)} className="min-w-0">
+              <div key={cell.id} style={placement} className={cn("min-w-0", collapse)}>
                 {body}
               </div>
             );
@@ -75,8 +85,8 @@ export function BannerRenderer({
             <Link
               key={cell.id}
               href={cellResolved?.href || composition.href || "/katalogos"}
-              style={cellVars(cell)}
-              className="group min-w-0"
+              style={placement}
+              className={cn("group min-w-0", collapse)}
             >
               {body}
             </Link>
