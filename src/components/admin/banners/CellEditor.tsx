@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import NextImage from "next/image";
 import {
   ArrowDown,
   ArrowUp,
@@ -16,6 +17,7 @@ import {
 import {
   DEFAULT_TEXT_STYLE,
   TOKENS,
+  clampFrame,
   emptyComposition,
   newLayer,
   seedOfferLayers,
@@ -32,6 +34,7 @@ import {
   type TextLayer,
 } from "@/lib/banners/contract";
 import { CATEGORY_LABEL, PRESETS, applyPreset, type PresetCategory } from "@/lib/banners/presets";
+import { actionListLogos, actionUploadFiles } from "@/app/admin/(protected)/media/actions";
 import type { ResolvedCell } from "@/lib/banners/resolve-tokens";
 import { CompositionRenderer } from "@/components/banners/CompositionRenderer";
 import { CellCanvas } from "@/components/admin/banners/CellCanvas";
@@ -49,6 +52,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
 /**
@@ -63,6 +67,10 @@ import { cn } from "@/lib/utils";
  * looks turns that into a choice, and everything on the canvas afterwards is an
  * ordinary layer with nothing special about it.
  */
+
+/** Private drag payloads. A plain string would collide with dragged text. */
+const LAYER_MIME = "application/x-kolleris-layer";
+const ASSET_MIME = "application/x-kolleris-asset";
 
 const LAYER_ICON: Record<LayerKind, React.ComponentType<{ className?: string }>> = {
   text: Type,
@@ -130,6 +138,7 @@ export function CellEditor({
   const [draft, setDraft] = useState<CellComposition>(initial ?? emptyComposition());
   const [selected, setSelected] = useState<string | null>(null);
   const [gallery, setGallery] = useState(false);
+  const [uploading, setUploading] = useState(false);
 
   // A different cell means a different composition; the modal is one instance.
   useEffect(() => {
@@ -150,10 +159,77 @@ export function CellEditor({
 
   const setLayers = (layers: Layer[]) => setDraft((d) => ({ ...d, layers }));
 
-  function addLayer(kind: LayerKind) {
+  function addLayer(kind: LayerKind, at?: { x: number; y: number }, src?: string) {
     const created = newLayer(kind);
+    if (at) {
+      // Dropped things arrive centred under the pointer. Landing at the drop
+      // point's top-left corner is technically simpler and feels wrong every
+      // single time.
+      created.frame = clampFrame({
+        ...created.frame,
+        x: at.x - created.frame.w / 2,
+        y: at.y - created.frame.h / 2,
+      });
+    }
+    if (src && created.kind === "image") created.src = src;
     setDraft((d) => ({ ...d, layers: [...d.layers, created] }));
     setSelected(created.id);
+    return created;
+  }
+
+  /**
+   * Something landed on the canvas.
+   *
+   * Three sources, one handler: a kind from the palette, a picture from the
+   * logo rail, or files straight off the desktop. Files upload into the library
+   * on the way in, so dropping a photograph onto a banner also files it for
+   * next time rather than leaving a one-off URL.
+   */
+  function dropAt(transfer: DataTransfer, at: { x: number; y: number }) {
+    const kind = transfer.getData(LAYER_MIME) as LayerKind | "";
+    if (kind) {
+      addLayer(kind, at);
+      return;
+    }
+
+    const src = transfer.getData(ASSET_MIME);
+    if (src) {
+      addLayer("image", at, src);
+      return;
+    }
+
+    const files = [...transfer.files];
+    if (files.length === 0) return;
+
+    const form = new FormData();
+    form.set("folder", "banners");
+    for (const file of files) form.append("files", file);
+
+    setUploading(true);
+    void actionUploadFiles(form).then((result) => {
+      setUploading(false);
+      if (!result.ok) {
+        toast.error(result.error);
+        return;
+      }
+      for (const error of result.failed) toast.error(error);
+
+      let offset = 0;
+      for (const { asset } of result.added) {
+        if (asset.kind === "video") {
+          // A video is a background, not a floating element — there is nowhere
+          // sensible to put a 40MB rectangle in the middle of a composition.
+          setDraft((d) => ({
+            ...d,
+            background: { ...d.background, kind: "video", video: asset.url },
+          }));
+          toast.success("Το βίντεο μπήκε ως φόντο.");
+          continue;
+        }
+        addLayer("image", { x: at.x + offset, y: at.y + offset }, asset.url);
+        offset += 3;
+      }
+    });
   }
 
   function reorder(id: string, direction: -1 | 1) {
@@ -182,6 +258,7 @@ export function CellEditor({
               <DialogTitle>{cell?.name}</DialogTitle>
               <DialogDescription>
                 {cell?.w}×{cell?.h} στο πλέγμα · {draft.layers.length} στοιχεία
+                {uploading && " · ανεβαίνει…"}
               </DialogDescription>
             </div>
             <Button variant="outline" onClick={() => setGallery(true)}>
@@ -199,11 +276,12 @@ export function CellEditor({
                 selected={selected}
                 onSelect={setSelected}
                 onChange={setLayers}
+                onDropAt={dropAt}
                 aspect={aspect}
               />
 
               <div className="flex flex-wrap items-center gap-1.5">
-                <span className="text-[11px] text-k-text-4">Προσθήκη:</span>
+                <span className="text-[11px] text-k-text-4">Σύρετε ή πατήστε:</span>
                 {(
                   [
                     ["text", "Κείμενο"],
@@ -216,18 +294,28 @@ export function CellEditor({
                   <button
                     key={kind}
                     type="button"
+                    // Dragged onto the canvas it lands where it was dropped;
+                    // clicked it lands where that kind of thing usually goes.
+                    draggable
+                    onDragStart={(e) => {
+                      e.dataTransfer.setData(LAYER_MIME, kind);
+                      e.dataTransfer.effectAllowed = "copy";
+                    }}
                     onClick={() => addLayer(kind)}
-                    className="border border-k-line px-2 py-1 text-[11.5px] text-k-text-2 transition-colors hover:border-k-ink hover:text-k-ink"
+                    className="cursor-grab border border-k-line px-2 py-1 text-[11.5px] text-k-text-2 transition-colors hover:border-k-ink hover:text-k-ink active:cursor-grabbing"
                   >
                     + {label}
                   </button>
                 ))}
               </div>
 
+              <LogoRail />
+
               <p className="text-[11px] leading-[1.6] text-k-text-4">
                 Σύρετε για μετακίνηση, τις λαβές για μέγεθος. Κουμπώνει στις άκρες και στα άλλα
                 στοιχεία — κρατήστε Alt για ελεύθερη τοποθέτηση. Βελάκια για ακρίβεια, Shift για
-                μεγάλα βήματα, Alt+βελάκια για μέγεθος.
+                μεγάλα βήματα, Alt+βελάκια για μέγεθος. Ρίξτε αρχεία από τον υπολογιστή απευθείας
+                πάνω στον καμβά.
               </p>
             </div>
 
@@ -301,6 +389,62 @@ export function CellEditor({
         }}
       />
     </>
+  );
+}
+
+/* ───────────────────────── Logo rail ───────────────────────── */
+
+/**
+ * Every brand's logo, one drag away.
+ *
+ * They are already on the CDN and already the right ones. A marketing team
+ * hunting through a shared drive for the FACOM logo will eventually use a wrong
+ * or outdated version, and that is a supplier problem rather than a design one.
+ */
+function LogoRail() {
+  const [logos, setLogos] = useState<Array<{ slug: string; name: string; logo: string }>>([]);
+
+  useEffect(() => {
+    let cancelled = false;
+    void actionListLogos().then((rows) => {
+      if (!cancelled) setLogos(rows);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  if (logos.length === 0) return null;
+
+  return (
+    <div className="space-y-1">
+      <p className="text-[11px] text-k-text-4">Λογότυπα — σύρετε στον καμβά</p>
+      <ul className="scroll-slim flex gap-1.5 overflow-x-auto pb-1">
+        {logos.map((brand) => (
+          <li key={brand.slug} className="shrink-0">
+            <button
+              type="button"
+              draggable
+              onDragStart={(e) => {
+                e.dataTransfer.setData(ASSET_MIME, brand.logo);
+                e.dataTransfer.effectAllowed = "copy";
+              }}
+              title={brand.name}
+              className="relative block size-12 cursor-grab border border-k-line bg-white transition-colors hover:border-k-ink active:cursor-grabbing"
+            >
+              <NextImage
+                src={brand.logo}
+                alt={brand.name}
+                fill
+                sizes="48px"
+                className="object-contain p-1.5"
+                unoptimized
+              />
+            </button>
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }
 

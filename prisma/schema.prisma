@@ -1078,3 +1078,37 @@ model Offer {
   @@index([isActive, endsAt])
   @@map("offers")
 }
+
+/// A file marketing uploaded, so there is a library rather than a write-only
+/// pipe to the CDN.
+///
+/// Uploads used to go straight to BunnyCDN and be forgotten: the URL lived in
+/// whatever field it was pasted into, and nothing could list what existed. A
+/// row per file is what makes "the picture we used last month" findable.
+///
+/// The CDN is still the source of the bytes — this table only knows about them.
+/// A row without its object is a dead thumbnail; an object without its row is
+/// invisible. Deleting removes both, in that order.
+model MediaAsset {
+  id String @id @default(cuid())
+
+  /// Public CDN URL. Unique because the same bytes uploaded twice get a new
+  /// timestamped name, so a repeat here means a genuine duplicate row.
+  url  String @unique @db.Text
+  /// `image` or `video`. Videos are stored as uploaded; images are WebP.
+  kind String @db.VarChar(10)
+
+  /// What the operator called the file when it arrived.
+  name   String @db.VarChar(160)
+  folder String @db.VarChar(40)
+
+  width  Int?
+  height Int?
+  bytes  Int
+
+  uploadedBy String   @db.VarChar(120)
+  createdAt  DateTime @default(now())
+
+  @@index([kind, createdAt])
+  @@map("media_assets")
+}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, useTransition } from "react";
+import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 import Image from "next/image";
 import {
   ArrowLeft,
@@ -9,16 +9,27 @@ import {
   Link2,
   Loader2,
   Package,
+  Play,
   Search,
+  Tag,
+  Trash2,
   Upload,
   X,
 } from "lucide-react";
 import { toast } from "sonner";
-import { actionSearchProducts, actionUpload } from "@/app/admin/(protected)/zones/actions";
+import {
+  actionDeleteAsset,
+  actionListAssets,
+  actionListLogos,
+  actionUploadFiles,
+} from "@/app/admin/(protected)/media/actions";
+import { actionSearchProducts } from "@/app/admin/(protected)/zones/actions";
+import { fileSize, type MediaAssetView } from "@/lib/media/library-types";
 import type { PickerProduct } from "@/lib/media/picker";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Dialog,
   DialogContent,
@@ -28,122 +39,74 @@ import {
 } from "@/components/ui/dialog";
 
 /**
- * Choosing a picture.
+ * Choosing a file.
  *
- * Three ways in, because there are three situations: the photo already exists on
- * a product (overwhelmingly the common case), marketing has a new file, or
- * somebody has a URL. Product search is the default tab for that reason.
+ * Four ways in, because there are four situations: it is already in the
+ * library, it is a brand's logo, it is a photograph of a product, or it is on
+ * somebody's disk. The library leads — the second time a file is needed should
+ * not be another upload, which is exactly what happened while uploads went
+ * straight to the CDN and were never recorded.
  *
- * The product flow is two steps on purpose — find the product, then pick the
+ * The product flow stays two steps on purpose — find the product, then pick the
  * frame. A flat grid of every image from every match looks efficient and is
- * unusable: forty near-identical shots of six products with nothing saying which
- * belongs to which.
- *
- * Search is debounced at 250ms and fires from two characters. Typing a supplier
- * code should not put a query on the database per keystroke.
+ * unusable: forty near-identical shots of six products with nothing saying
+ * which belongs to which.
  */
 
-type Mode = "product" | "upload" | "url";
+type Mode = "library" | "logos" | "product" | "url";
+
+const TABS: Array<{ id: Mode; label: string; icon: React.ComponentType<{ className?: string }> }> = [
+  { id: "library", label: "Βιβλιοθήκη", icon: ImageIcon },
+  { id: "logos", label: "Λογότυπα", icon: Tag },
+  { id: "product", label: "Προϊόντα", icon: Package },
+  { id: "url", label: "URL", icon: Link2 },
+];
 
 export function MediaPicker({
   open,
   onOpenChange,
   onPick,
-  locale = "el",
   accept = "image",
-  title = "Επιλογή εικόνας",
+  title = "Επιλογή αρχείου",
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onPick: (url: string) => void;
-  locale?: "el" | "en" | "it";
   accept?: "image" | "video";
   title?: string;
 }) {
-  const [mode, setMode] = useState<Mode>("product");
-  const [query, setQuery] = useState("");
-  const [results, setResults] = useState<PickerProduct[]>([]);
-  const [selected, setSelected] = useState<PickerProduct | null>(null);
-  const [url, setUrl] = useState("");
-  const [searching, startSearch] = useTransition();
-  const [uploading, startUpload] = useTransition();
-  const fileInput = useRef<HTMLInputElement>(null);
+  const [mode, setMode] = useState<Mode>("library");
 
-  // Reset on close, so reopening does not resume somebody else's half-finished
-  // search from ten minutes ago.
-  useEffect(() => {
-    if (!open) {
-      setQuery("");
-      setResults([]);
-      setSelected(null);
-      setUrl("");
-      setMode(accept === "video" ? "upload" : "product");
-    }
-  }, [open, accept]);
-
-  useEffect(() => {
-    if (mode !== "product" || query.trim().length < 2) {
-      setResults([]);
-      return;
-    }
-    const timer = setTimeout(() => {
-      startSearch(async () => {
-        setResults(await actionSearchProducts(query, locale));
-      });
-    }, 250);
-    return () => clearTimeout(timer);
-  }, [query, mode, locale]);
-
-  function pick(chosen: string) {
-    onPick(chosen);
+  function choose(url: string) {
+    onPick(url);
     onOpenChange(false);
-    toast.success("Η εικόνα επιλέχθηκε.");
   }
 
-  function upload(file: File) {
-    const form = new FormData();
-    form.set("file", file);
-    startUpload(async () => {
-      const result = await actionUpload(form);
-      if (result.ok) {
-        toast.success(`Ανέβηκε. ${result.saved}`);
-        pick(result.url);
-      } else {
-        toast.error(result.error);
-      }
-    });
-  }
-
-  const TABS: Array<{ id: Mode; label: string; icon: React.ComponentType<{ className?: string }> }> = [
-    ...(accept === "image"
-      ? [{ id: "product" as const, label: "Από προϊόν", icon: Package }]
-      : []),
-    { id: "upload", label: "Ανέβασμα", icon: Upload },
-    { id: "url", label: "Διεύθυνση", icon: Link2 },
-  ];
+  // A video field has no business offering logos or product photography.
+  const tabs = accept === "video" ? TABS.filter((t) => t.id === "library" || t.id === "url") : TABS;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[56rem] gap-0 p-0">
-        <DialogHeader className="border-b border-k-line px-5 py-4">
-          <DialogTitle className="text-[15px]">{title}</DialogTitle>
-          <DialogDescription className="text-[12.5px]">
+      <DialogContent className="flex max-h-[92vh] w-[min(96vw,64rem)] flex-col overflow-hidden sm:max-w-none">
+        <DialogHeader>
+          <DialogTitle>{title}</DialogTitle>
+          <DialogDescription>
             {accept === "video"
-              ? "Ανεβάστε βίντεο ή δώστε διεύθυνση."
-              : "Διαλέξτε φωτογραφία από προϊόν, ανεβάστε δική σας, ή δώστε διεύθυνση."}
+              ? "MP4, WebM ή MOV έως 60MB."
+              : "Ό,τι έχει ανέβει, τα λογότυπα των εταιριών, ή φωτογραφία προϊόντος."}
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex items-center gap-1 border-b border-k-line px-3">
-          {TABS.map((tab) => (
+        <div className="flex border-b border-k-line">
+          {tabs.map((tab) => (
             <button
               key={tab.id}
               type="button"
               onClick={() => setMode(tab.id)}
               className={cn(
-                "-mb-px flex items-center gap-1.5 border-b-2 px-3 py-2.5 text-[13px] transition-colors",
+                "flex items-center gap-1.5 border-b-2 px-3 py-2 text-[12.5px] transition-colors",
                 mode === tab.id
-                  ? "border-k-ink font-medium text-k-ink"
+                  ? "border-k-red font-medium text-k-ink"
                   : "border-transparent text-k-text-3 hover:text-k-ink",
               )}
             >
@@ -153,225 +116,391 @@ export function MediaPicker({
           ))}
         </div>
 
-        {/* ── Από προϊόν ── */}
-        {mode === "product" && (
-          <div className="flex h-[26rem] flex-col">
-            {selected ? (
-              <>
-                <div className="flex items-center gap-2 border-b border-k-line px-4 py-2.5">
-                  <button
-                    type="button"
-                    onClick={() => setSelected(null)}
-                    className="flex items-center gap-1.5 text-[12.5px] text-k-text-3 transition-colors hover:text-k-ink"
-                  >
-                    <ArrowLeft className="size-3.5" />
-                    Πίσω
-                  </button>
-                  <span className="min-w-0 flex-1 truncate text-[12.5px] text-k-ink">
-                    {selected.name}
-                  </span>
-                  <span className="numeral text-[11px] text-k-text-4">
-                    {selected.images.length} φωτογραφίες
-                  </span>
-                </div>
-
-                <div className="grid flex-1 grid-cols-3 gap-2 overflow-y-auto p-4 sm:grid-cols-4 md:grid-cols-5">
-                  {selected.images.map((img) => (
-                    <button
-                      key={img.url}
-                      type="button"
-                      onClick={() => pick(img.url)}
-                      className="group relative aspect-square border border-k-line bg-white transition-colors hover:border-k-ink"
-                    >
-                      <Image
-                        src={img.url}
-                        alt=""
-                        fill
-                        sizes="140px"
-                        className="object-contain p-1.5"
-                        unoptimized
-                      />
-                      {img.isFeature && (
-                        <span className="absolute left-1 top-1 bg-k-ink px-1 py-px text-[9px] text-white">
-                          ΚΥΡΙΑ
-                        </span>
-                      )}
-                      <span className="absolute inset-0 hidden place-items-center bg-k-ink/70 group-hover:grid">
-                        <Check className="size-5 text-white" />
-                      </span>
-                    </button>
-                  ))}
-                </div>
-              </>
-            ) : (
-              <>
-                <div className="border-b border-k-line px-4 py-2.5">
-                  <div className="relative">
-                    <Search className="pointer-events-none absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-k-text-4" />
-                    {searching && (
-                      <Loader2 className="absolute right-2.5 top-1/2 size-3.5 -translate-y-1/2 animate-spin text-k-text-4" />
-                    )}
-                    <Input
-                      autoFocus
-                      value={query}
-                      onChange={(e) => setQuery(e.target.value)}
-                      placeholder="Όνομα, κωδικός, barcode…"
-                      className="h-9 pl-8 text-[13px]"
-                    />
-                  </div>
-                </div>
-
-                <div className="flex-1 overflow-y-auto">
-                  {query.trim().length < 2 ? (
-                    <Empty icon={Search} text="Γράψτε δύο χαρακτήρες για αναζήτηση." />
-                  ) : results.length === 0 && !searching ? (
-                    <Empty icon={Package} text={`Κανένα προϊόν με φωτογραφία για «${query}».`} />
-                  ) : (
-                    <ul className="divide-y divide-k-line">
-                      {results.map((p) => (
-                        <li key={p.id}>
-                          <button
-                            type="button"
-                            onClick={() => setSelected(p)}
-                            className="flex w-full items-center gap-3 px-4 py-2.5 text-left transition-colors hover:bg-k-surface-2"
-                          >
-                            <span className="relative size-10 shrink-0 border border-k-line bg-white">
-                              <Image
-                                src={p.images[0].url}
-                                alt=""
-                                fill
-                                sizes="40px"
-                                className="object-contain p-0.5"
-                                unoptimized
-                              />
-                            </span>
-                            <span className="min-w-0 flex-1">
-                              <span className="block truncate text-[12.5px] text-k-ink">
-                                {p.name}
-                              </span>
-                              <span className="numeral block text-[11px] text-k-text-4">
-                                {p.code}
-                                {p.brand ? ` · ${p.brand}` : ""}
-                              </span>
-                            </span>
-                            <span className="numeral shrink-0 text-[11px] text-k-text-4">
-                              {p.images.length} φωτ.
-                            </span>
-                          </button>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
-              </>
-            )}
-          </div>
-        )}
-
-        {/* ── Ανέβασμα ── */}
-        {mode === "upload" && (
-          <div className="flex h-[26rem] items-center justify-center p-6">
-            <input
-              ref={fileInput}
-              type="file"
-              accept={accept === "video" ? "video/*" : "image/*"}
-              className="hidden"
-              onChange={(e) => {
-                const file = e.target.files?.[0];
-                if (file) upload(file);
-              }}
-            />
-            <div
-              onDragOver={(e) => e.preventDefault()}
-              onDrop={(e) => {
-                e.preventDefault();
-                const file = e.dataTransfer.files?.[0];
-                if (file) upload(file);
-              }}
-              className="grid w-full max-w-[28rem] place-items-center gap-3 border-2 border-dashed border-k-line-2 px-6 py-12 text-center"
-            >
-              {uploading ? (
-                <>
-                  <Loader2 className="size-6 animate-spin text-k-text-4" />
-                  <p className="text-[13px] text-k-text-2">Μετατροπή και αποστολή…</p>
-                </>
-              ) : (
-                <>
-                  <Upload className="size-6 text-k-text-4" />
-                  <p className="text-[13px] text-k-text-2">
-                    Σύρετε αρχείο εδώ, ή
-                    <button
-                      type="button"
-                      onClick={() => fileInput.current?.click()}
-                      className="ml-1 text-k-ink underline underline-offset-2"
-                    >
-                      επιλέξτε
-                    </button>
-                  </p>
-                  <p className="max-w-[24rem] text-[11.5px] leading-[1.5] text-k-text-4">
-                    {accept === "video"
-                      ? "Το βίντεο ανεβαίνει όπως είναι. Κρατήστε το κάτω από 5MB."
-                      : "Η εικόνα μετατρέπεται αυτόματα σε WebP με μέγιστη πλευρά 1920px."}
-                  </p>
-                </>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* ── Διεύθυνση ── */}
-        {mode === "url" && (
-          <div className="flex h-[26rem] flex-col gap-4 p-6">
-            <div>
-              <label htmlFor="media-url" className="text-[12.5px] text-k-ink">
-                Διεύθυνση αρχείου
-              </label>
-              <Input
-                id="media-url"
-                autoFocus
-                value={url}
-                onChange={(e) => setUrl(e.target.value)}
-                placeholder="https://…"
-                className="mt-1.5 font-mono text-[12.5px]"
-              />
-              <p className="mt-1.5 text-[11.5px] text-k-text-4">
-                Δεν περνά από μετατροπή — χρησιμοποιήστε το μόνο για αρχεία που είναι ήδη
-                βελτιστοποιημένα.
-              </p>
-            </div>
-
-            {url.trim() && accept === "image" && (
-              <div className="relative min-h-0 flex-1 border border-k-line bg-k-surface-2">
-                <Image src={url} alt="" fill sizes="600px" className="object-contain" unoptimized />
-              </div>
-            )}
-
-            <Button onClick={() => url.trim() && pick(url.trim())} disabled={!url.trim()}>
-              Χρήση
-            </Button>
-          </div>
-        )}
+        <div className="min-h-0 flex-1 overflow-y-auto">
+          {mode === "library" && <LibraryTab accept={accept} onPick={choose} />}
+          {mode === "logos" && <LogoTab onPick={choose} />}
+          {mode === "product" && <ProductTab onPick={choose} />}
+          {mode === "url" && <UrlTab onPick={choose} />}
+        </div>
       </DialogContent>
     </Dialog>
   );
 }
 
-function Empty({
-  icon: Icon,
-  text,
+/* ───────────────────────── Library ───────────────────────── */
+
+function LibraryTab({
+  accept,
+  onPick,
 }: {
-  icon: React.ComponentType<{ className?: string }>;
-  text: string;
+  accept: "image" | "video";
+  onPick: (url: string) => void;
 }) {
+  const [assets, setAssets] = useState<MediaAssetView[]>([]);
+  const [query, setQuery] = useState("");
+  const [loading, startLoad] = useTransition();
+  const [uploading, setUploading] = useState(false);
+  const [dragging, setDragging] = useState(false);
+  const input = useRef<HTMLInputElement>(null);
+
+  const load = useCallback(() => {
+    startLoad(async () => setAssets(await actionListAssets({ kind: accept, query })));
+  }, [accept, query]);
+
+  useEffect(() => {
+    const timer = setTimeout(load, query ? 250 : 0);
+    return () => clearTimeout(timer);
+  }, [load, query]);
+
+  async function upload(files: FileList | File[]) {
+    const list = [...files];
+    if (list.length === 0) return;
+
+    setUploading(true);
+    const form = new FormData();
+    form.set("folder", "library");
+    for (const file of list) form.append("files", file);
+
+    const result = await actionUploadFiles(form);
+    setUploading(false);
+
+    if (!result.ok) {
+      toast.error(result.error);
+      return;
+    }
+    for (const error of result.failed) toast.error(error);
+    if (result.added.length > 0) {
+      toast.success(
+        result.added.length === 1
+          ? `Ανέβηκε — ${result.added[0].note}`
+          : `Ανέβηκαν ${result.added.length} αρχεία.`,
+      );
+      load();
+    }
+  }
+
+  function remove(asset: MediaAssetView) {
+    startLoad(async () => {
+      const result = await actionDeleteAsset(asset.id);
+      if (!result.ok) {
+        toast.error(result.error);
+        return;
+      }
+      toast.success(`Το «${asset.name}» διαγράφηκε.`);
+      load();
+    });
+  }
+
   return (
-    <div className="grid h-full place-items-center gap-2 px-6 text-center">
-      <Icon className="size-6 text-k-text-5" />
-      <p className="text-[12.5px] text-k-text-3">{text}</p>
+    <div
+      onDragOver={(e) => {
+        e.preventDefault();
+        setDragging(true);
+      }}
+      onDragLeave={() => setDragging(false)}
+      onDrop={(e) => {
+        e.preventDefault();
+        setDragging(false);
+        void upload(e.dataTransfer.files);
+      }}
+      className={cn("space-y-3 p-1", dragging && "outline-dashed outline-2 outline-k-red")}
+    >
+      <div className="flex gap-2">
+        <div className="relative flex-1">
+          <Search className="pointer-events-none absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-k-text-4" />
+          <Input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Αναζήτηση με όνομα αρχείου…"
+            className="pl-8"
+          />
+        </div>
+        <Button onClick={() => input.current?.click()} disabled={uploading}>
+          {uploading ? <Loader2 className="size-3.5 animate-spin" /> : <Upload className="size-3.5" />}
+          Ανέβασμα
+        </Button>
+        <input
+          ref={input}
+          type="file"
+          multiple
+          accept={accept === "video" ? "video/mp4,video/webm,video/quicktime" : "image/*"}
+          className="hidden"
+          onChange={(e) => {
+            if (e.target.files) void upload(e.target.files);
+            e.target.value = "";
+          }}
+        />
+      </div>
+
+      {loading && assets.length === 0 ? (
+        <p className="flex items-center justify-center gap-2 py-16 text-[12.5px] text-k-text-3">
+          <Loader2 className="size-4 animate-spin" />
+          Φόρτωση…
+        </p>
+      ) : assets.length === 0 ? (
+        <div className="border border-dashed border-k-line px-6 py-16 text-center">
+          <Upload className="mx-auto size-7 text-k-text-4" />
+          <p className="mt-3 text-[13px] font-medium text-k-ink">
+            {query ? "Κανένα αποτέλεσμα" : "Η βιβλιοθήκη είναι άδεια"}
+          </p>
+          <p className="mx-auto mt-1 max-w-[46ch] text-[12px] leading-[1.6] text-k-text-3">
+            Σύρετε αρχεία εδώ ή πατήστε Ανέβασμα. Ό,τι ανεβάζετε μένει εδώ για την επόμενη φορά.
+          </p>
+        </div>
+      ) : (
+        <ul className="grid grid-cols-3 gap-2 sm:grid-cols-4 lg:grid-cols-6">
+          {assets.map((asset) => (
+            <li key={asset.id} className="group relative">
+              <button
+                type="button"
+                onClick={() => onPick(asset.url)}
+                className="block w-full border border-k-line bg-white transition-colors hover:border-k-ink"
+              >
+                <span className="relative block aspect-square bg-k-surface-2">
+                  {asset.kind === "video" ? (
+                    <>
+                      <video src={asset.url} muted className="size-full object-cover" />
+                      <Play className="absolute left-1/2 top-1/2 size-5 -translate-x-1/2 -translate-y-1/2 fill-white text-white drop-shadow" />
+                    </>
+                  ) : (
+                    <Image
+                      src={asset.url}
+                      alt=""
+                      fill
+                      sizes="160px"
+                      className="object-contain p-1"
+                      unoptimized
+                    />
+                  )}
+                </span>
+                <span className="block truncate px-1.5 py-1 text-left text-[10.5px] text-k-text-3">
+                  {asset.name}
+                </span>
+                <span className="numeral block px-1.5 pb-1 text-left text-[9.5px] text-k-text-5">
+                  {asset.width ? `${asset.width}×${asset.height} · ` : ""}
+                  {fileSize(asset.bytes)}
+                </span>
+              </button>
+              <button
+                type="button"
+                onClick={() => remove(asset)}
+                className="absolute right-1 top-1 hidden bg-white/90 p-1 text-k-text-3 hover:text-k-red group-hover:block"
+                aria-label={`Διαγραφή ${asset.name}`}
+              >
+                <Trash2 className="size-3" />
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }
 
-/** The small preview + button pair that sits in a widget form. */
+/* ───────────────────────── Logos ───────────────────────── */
+
+function LogoTab({ onPick }: { onPick: (url: string) => void }) {
+  const [logos, setLogos] = useState<Array<{ slug: string; name: string; logo: string }>>([]);
+  const [loading, start] = useTransition();
+
+  useEffect(() => {
+    start(async () => setLogos(await actionListLogos()));
+  }, []);
+
+  if (loading && logos.length === 0) {
+    return (
+      <p className="flex items-center justify-center gap-2 py-16 text-[12.5px] text-k-text-3">
+        <Loader2 className="size-4 animate-spin" />
+        Φόρτωση…
+      </p>
+    );
+  }
+
+  if (logos.length === 0) {
+    return (
+      <p className="px-6 py-16 text-center text-[12.5px] text-k-text-3">
+        Καμία εταιρία δεν έχει λογότυπο καταχωρημένο.
+      </p>
+    );
+  }
+
+  return (
+    <ul className="grid grid-cols-3 gap-2 p-1 sm:grid-cols-4 lg:grid-cols-6">
+      {logos.map((brand) => (
+        <li key={brand.slug}>
+          <button
+            type="button"
+            onClick={() => onPick(brand.logo)}
+            className="block w-full border border-k-line bg-white transition-colors hover:border-k-ink"
+            title={brand.name}
+          >
+            {/* Logos are drawn for white and are usually transparent, so they
+                get padding and a light field rather than the grey the rest of
+                the grid uses. */}
+            <span className="relative block aspect-[3/2] bg-white">
+              <Image
+                src={brand.logo}
+                alt={brand.name}
+                fill
+                sizes="160px"
+                className="object-contain p-3"
+                unoptimized
+              />
+            </span>
+            <span className="block truncate border-t border-k-line px-1.5 py-1 text-center text-[10.5px] text-k-text-3">
+              {brand.name}
+            </span>
+          </button>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+/* ───────────────────────── Products ───────────────────────── */
+
+function ProductTab({ onPick }: { onPick: (url: string) => void }) {
+  const [query, setQuery] = useState("");
+  const [results, setResults] = useState<PickerProduct[]>([]);
+  const [selected, setSelected] = useState<PickerProduct | null>(null);
+  const [searching, start] = useTransition();
+
+  useEffect(() => {
+    if (query.trim().length < 2) {
+      setResults([]);
+      return;
+    }
+    const timer = setTimeout(() => {
+      start(async () => setResults(await actionSearchProducts(query, "el")));
+    }, 250);
+    return () => clearTimeout(timer);
+  }, [query]);
+
+  if (selected) {
+    return (
+      <div className="space-y-3 p-1">
+        <button
+          type="button"
+          onClick={() => setSelected(null)}
+          className="flex items-center gap-1.5 text-[12px] text-k-text-3 transition-colors hover:text-k-ink"
+        >
+          <ArrowLeft className="size-3.5" />
+          {selected.name}
+        </button>
+        <ul className="grid grid-cols-3 gap-2 sm:grid-cols-4 lg:grid-cols-6">
+          {selected.images.map((image) => (
+            <li key={image.url}>
+              <button
+                type="button"
+                onClick={() => onPick(image.url)}
+                className="relative block aspect-square w-full border border-k-line bg-white transition-colors hover:border-k-ink"
+              >
+                <Image
+                  src={image.url}
+                  alt=""
+                  fill
+                  sizes="160px"
+                  className="object-contain p-1"
+                  unoptimized
+                />
+              </button>
+            </li>
+          ))}
+        </ul>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-3 p-1">
+      <div className="relative">
+        <Search className="pointer-events-none absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-k-text-4" />
+        {searching && (
+          <Loader2 className="absolute right-2.5 top-1/2 size-3.5 -translate-y-1/2 animate-spin text-k-text-4" />
+        )}
+        <Input
+          autoFocus
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Όνομα ή κωδικός προϊόντος…"
+          className="pl-8"
+        />
+      </div>
+
+      {results.length === 0 ? (
+        <p className="px-6 py-16 text-center text-[12.5px] text-k-text-3">
+          {query.trim().length < 2 ? "Γράψτε δύο χαρακτήρες." : "Κανένα αποτέλεσμα."}
+        </p>
+      ) : (
+        <ul className="divide-y divide-k-line border border-k-line">
+          {results.map((product) => (
+            <li key={product.slug}>
+              <button
+                type="button"
+                onClick={() => setSelected(product)}
+                className="flex w-full items-center gap-2.5 px-2.5 py-2 text-left transition-colors hover:bg-k-surface-2"
+              >
+                {product.images[0] && (
+                  <span className="relative size-9 shrink-0 border border-k-line bg-white">
+                    <Image
+                      src={product.images[0].url}
+                      alt=""
+                      fill
+                      sizes="36px"
+                      className="object-contain p-0.5"
+                      unoptimized
+                    />
+                  </span>
+                )}
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate text-[12.5px] text-k-ink">{product.name}</span>
+                  <span className="numeral block text-[10.5px] text-k-text-4">
+                    {product.code} · {product.images.length}{" "}
+                    {product.images.length === 1 ? "φωτογραφία" : "φωτογραφίες"}
+                  </span>
+                </span>
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
+/* ───────────────────────── URL ───────────────────────── */
+
+function UrlTab({ onPick }: { onPick: (url: string) => void }) {
+  const [url, setUrl] = useState("");
+  const valid = /^https?:\/\/.+/.test(url.trim());
+
+  return (
+    <div className="space-y-3 p-1">
+      <div className="space-y-1.5">
+        <Label htmlFor="media-url" className="text-[11.5px]">
+          Διεύθυνση αρχείου
+        </Label>
+        <Input
+          id="media-url"
+          value={url}
+          onChange={(e) => setUrl(e.target.value)}
+          placeholder="https://…"
+        />
+        <p className="text-[11px] leading-[1.5] text-k-text-4">
+          Το αρχείο μένει εκεί που είναι — αν κατέβει από τον άλλο διακομιστή, κατεβαίνει και από
+          το banner. Για δικά μας υλικά προτιμήστε το ανέβασμα.
+        </p>
+      </div>
+      <Button onClick={() => onPick(url.trim())} disabled={!valid}>
+        <Check className="size-3.5" />
+        Χρήση
+      </Button>
+    </div>
+  );
+}
+
+/* ───────────────────────── Field ───────────────────────── */
+
 export function MediaField({
   value,
   onChange,
@@ -422,9 +551,7 @@ export function MediaField({
               </Button>
             )}
           </div>
-          {value && (
-            <p className="mt-1 truncate font-mono text-[10.5px] text-k-text-4">{value}</p>
-          )}
+          {value && <p className="mt-1 truncate font-mono text-[10.5px] text-k-text-4">{value}</p>}
         </div>
       </div>
 

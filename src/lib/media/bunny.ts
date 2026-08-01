@@ -134,6 +134,55 @@ export async function uploadImage(
   };
 }
 
+/** What a browser will actually play, by extension. */
+const VIDEO_TYPES: Record<string, string> = {
+  mp4: "video/mp4",
+  webm: "video/webm",
+  mov: "video/quicktime",
+};
+
+export const VIDEO_EXTENSIONS = Object.keys(VIDEO_TYPES);
+
+/**
+ * Upload a video, byte for byte.
+ *
+ * No transcoding: doing it properly needs a queue and a media service, and
+ * doing it badly — a synchronous ffmpeg in a request — would block the admin
+ * for minutes on a file marketing could have exported correctly in the first
+ * place. So the constraint is stated instead: MP4 or WebM, and a size cap the
+ * caller enforces.
+ *
+ * `.mov` is accepted because it is what a phone produces, and refusing it at
+ * the door is more annoying than serving it — Safari plays it, and everything
+ * else at least downloads it.
+ */
+export async function uploadVideo(
+  input: Buffer,
+  { folder, name }: { folder: string; name: string },
+): Promise<{ url: string; bytes: number; extension: string }> {
+  const extension = (name.split(".").pop() ?? "").toLowerCase();
+  const contentType = VIDEO_TYPES[extension];
+  if (!contentType) {
+    throw new Error(`Μη υποστηριζόμενος τύπος βίντεο: .${extension || "—"} (MP4, WebM ή MOV)`);
+  }
+
+  const slug =
+    name
+      .toLowerCase()
+      .replace(/\.[a-z0-9]+$/, "")
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-|-$/g, "")
+      .slice(0, 48) || "video";
+
+  const url = await uploadToBunny(
+    input,
+    `eshop/${folder}/${slug}-${Date.now()}.${extension}`,
+    contentType,
+  );
+
+  return { url, bytes: input.length, extension };
+}
+
 /** Deletes one file. Failure is reported, never thrown — a dead CDN object is
  *  untidy, but losing the edit that replaced it would be worse. */
 export async function deleteFromBunny(url: string): Promise<boolean> {

@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-08-01T11:41:17.211Z",
+  "timestamp": "2026-08-01T11:52:14.794Z",
   "source": "auto-postool",
   "partial": false,
   "phase": null,
@@ -22,21 +22,41 @@
     },
     {
       "status": "M",
-      "path": "src/app/admin/(protected)/layout.tsx"
+      "path": "prisma/schema.prisma"
     },
     {
       "status": "M",
-      "path": "src/app/globals.css"
+      "path": "src/components/admin/MediaPicker.tsx"
     },
     {
       "status": "M",
-      "path": "src/components/admin/AdminNav.tsx"
+      "path": "src/components/admin/banners/CellCanvas.tsx"
     },
     {
       "status": "M",
-      "path": "src/lib/banners/contract.ts"
+      "path": "src/components/admin/banners/CellEditor.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/lib/media/bunny.ts"
+    },
+    {
+      "status": "??",
+      "path": "prisma/migrations/20260801114853_media_library/"
+    },
+    {
+      "status": "??",
+      "path": "src/app/admin/(protected)/media/"
+    },
+    {
+      "status": "??",
+      "path": "src/lib/media/library-types.ts"
+    },
+    {
+      "status": "??",
+      "path": "src/lib/media/library.ts"
     }
   ],
   "next_action": null,
-  "context_notes": "Recent commits:\n29f54ce feat(banners): layer canvas, preset library, GSAP, site typography\n73d66bb feat(banners): editor, widget modal, preview, storefront\n2737bc0 feat(banners): offers admin\n94fa0b8 feat(banners): grid template builder\n7cabf1b feat(banners): data model, server layer and content resolution"
+  "context_notes": "Recent commits:\nad413ba feat(banners): per-cell mobile behaviour, and surface the grid designer\n29f54ce feat(banners): layer canvas, preset library, GSAP, site typography\n73d66bb feat(banners): editor, widget modal, preview, storefront\n2737bc0 feat(banners): offers admin\n94fa0b8 feat(banners): grid template builder"
 }

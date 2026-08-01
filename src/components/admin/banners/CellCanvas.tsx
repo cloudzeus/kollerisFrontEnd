@@ -56,6 +56,7 @@ export function CellCanvas({
   selected,
   onSelect,
   onChange,
+  onDropAt,
   aspect,
 }: {
   composition: CellComposition;
@@ -63,6 +64,12 @@ export function CellCanvas({
   selected: string | null;
   onSelect: (id: string | null) => void;
   onChange: (layers: Layer[]) => void;
+  /**
+   * Something was dropped on the canvas — a layer kind from the palette, a logo
+   * from the rail, or files from the desktop. The canvas reports where; what to
+   * make of it is the editor's decision.
+   */
+  onDropAt?: (transfer: DataTransfer, at: { x: number; y: number }) => void;
   /** The cell's real proportions, so the canvas is not a lie about its shape. */
   aspect: number;
 }) {
@@ -70,6 +77,7 @@ export function CellCanvas({
   const [drag, setDrag] = useState<Drag | null>(null);
   const [guides, setGuides] = useState<Guides>({ x: [], y: [] });
   const [free, setFree] = useState(false);
+  const [over, setOver] = useState(false);
 
   const layers = composition.layers;
 
@@ -225,7 +233,22 @@ export function CellCanvas({
     <div
       ref={boxRef}
       onPointerDown={() => onSelect(null)}
-      className="relative touch-none select-none border border-k-line bg-white"
+      onDragOver={(e) => {
+        if (!onDropAt) return;
+        e.preventDefault();
+        setOver(true);
+      }}
+      onDragLeave={() => setOver(false)}
+      onDrop={(e) => {
+        if (!onDropAt) return;
+        e.preventDefault();
+        setOver(false);
+        onDropAt(e.dataTransfer, pointAt(e.clientX, e.clientY));
+      }}
+      className={cn(
+        "relative touch-none select-none border border-k-line bg-white",
+        over && "outline-dashed outline-2 outline-offset-2 outline-k-red",
+      )}
       style={{ aspectRatio: aspect }}
     >
       <CompositionRenderer composition={composition} resolved={resolved} locale="el" />
