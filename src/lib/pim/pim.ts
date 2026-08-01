@@ -86,6 +86,22 @@ async function write(op: string, params: Record<string, unknown>) {
   }
 }
 
+/** Like `write`, but keeps the counts a bulk operation returns. */
+async function writeCounted(op: string, params: Record<string, unknown>) {
+  try {
+    const response = await hdctoolRequest<PimResponse>("/api/public/pim", { op, ...params });
+    if (!response.success) return { ok: false as const, error: response.error ?? "Απέτυχε" };
+    return {
+      ok: true as const,
+      products: Number(response.products ?? 0),
+      cleared: Number(response.cleared ?? 0),
+    };
+  } catch (error) {
+    console.error("[pim]", op, error);
+    return { ok: false as const, error: "Το HDCtool δεν απαντά." };
+  }
+}
+
 /**
  * Urls, not ids: the eshop's ProductImage rows carry local ids that mean nothing
  * to HDCtool. The CDN url is the only stable key both sides share.
@@ -98,4 +114,20 @@ export async function saveSpec(mtrl: number, field: string, value: string, local
   return value.trim()
     ? write("spec/save", { mtrl, field, value: value.trim(), language: locale })
     : write("spec/clear", { mtrl, field });
+}
+
+/** Remove the field from this product, in every language. */
+export async function clearSpec(mtrl: number, field: string) {
+  return write("spec/clear", { mtrl, field });
+}
+
+/**
+ * Remove the field from every product in the same final subgroup.
+ *
+ * The subgroup is resolved on the HDCtool side from this product, not passed
+ * in: a subgroup id sent from here is one that can be wrong, and this writes to
+ * every product in it.
+ */
+export async function clearSpecForSubgroup(mtrl: number, field: string) {
+  return writeCounted("spec/clearSubgroup", { mtrl, field });
 }

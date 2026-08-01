@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-08-01T08:06:30.478Z",
+  "timestamp": "2026-08-01T08:13:09.116Z",
   "source": "auto-postool",
   "partial": false,
   "phase": null,
@@ -18,25 +18,13 @@
   "uncommitted_files": [
     {
       "status": "M",
-      "path": ".planning/HANDOFF.json"
+      "path": "src/app/admin/(protected)/catalogue/actions.ts"
     },
     {
-      "status": "??",
-      "path": "src/app/admin/(protected)/catalogue/"
-    },
-    {
-      "status": "??",
-      "path": "src/components/admin/ProductEditor.tsx"
-    },
-    {
-      "status": "??",
-      "path": "src/lib/pim/pim-types.ts"
-    },
-    {
-      "status": "??",
+      "status": "M",
       "path": "src/lib/pim/pim.ts"
     }
   ],
   "next_action": null,
-  "context_notes": "Recent commits:\nb84e2ad feat(admin): customers — B2B approvals\n52a01dd feat(admin): contact inbox\n86f197d fix(admin): one search box per screen\n1bdddc8 feat(admin): orders screen with server-side filters and paging\nf76424c feat(admin): ACS dispatch desk"
+  "context_notes": "Recent commits:\nd62af72 feat(admin): catalogue — photo order and specifications\nb84e2ad feat(admin): customers — B2B approvals\n52a01dd feat(admin): contact inbox\n86f197d fix(admin): one search box per screen\n1bdddc8 feat(admin): orders screen with server-side filters and paging"
 }

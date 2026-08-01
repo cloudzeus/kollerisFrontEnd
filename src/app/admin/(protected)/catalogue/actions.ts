@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { auth } from "@/auth";
 import { assertCan } from "@/lib/rbac";
-import { saveImageOrder, saveSpec } from "@/lib/pim/pim";
+import { clearSpec, clearSpecForSubgroup, saveImageOrder, saveSpec } from "@/lib/pim/pim";
 import { searchProductsForPicker } from "@/lib/media/picker";
 import type { Locale } from "@/i18n/routing";
 
@@ -37,6 +37,29 @@ export async function actionSaveOrder(mtrl: number, urls: string[], featureUrl: 
 export async function actionSaveSpec(mtrl: number, field: string, value: string, locale: Locale) {
   await requireCatalogue();
   const result = await saveSpec(mtrl, field, value, locale);
+  revalidatePath("/admin/catalogue");
+  return result;
+}
+
+/** Remove the field from this product only. */
+export async function actionClearSpec(mtrl: number, field: string) {
+  await requireCatalogue();
+  const result = await clearSpec(mtrl, field);
+  revalidatePath("/admin/catalogue");
+  return result;
+}
+
+/**
+ * Remove the field from every product in the same final subgroup.
+ *
+ * The bulk one. A wrong spec is usually wrong for the whole family it was
+ * imported with, and fixing them one at a time is how half of them stay wrong —
+ * but it writes to products nobody is looking at, so the UI confirms first and
+ * reports how many changed.
+ */
+export async function actionClearSpecSubgroup(mtrl: number, field: string) {
+  await requireCatalogue();
+  const result = await clearSpecForSubgroup(mtrl, field);
   revalidatePath("/admin/catalogue");
   return result;
 }

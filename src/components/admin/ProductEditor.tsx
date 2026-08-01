@@ -19,9 +19,11 @@ import {
   useSortable,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { GripVertical, Info, Loader2, Star, Undo2 } from "lucide-react";
+import { GripVertical, Info, Layers, Loader2, Star, Trash2, Undo2 } from "lucide-react";
 import { toast } from "sonner";
 import {
+  actionClearSpec,
+  actionClearSpecSubgroup,
   actionSaveOrder,
   actionSaveSpec,
 } from "@/app/admin/(protected)/catalogue/actions";
@@ -30,6 +32,16 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 /**
  * Editing one product's presentation.
@@ -55,6 +67,7 @@ export function ProductEditor({ product, locale }: { product: PimProduct; locale
   const [specs, setSpecs] = useState<Record<string, string>>(
     Object.fromEntries(product.specs.map((s) => [s.field, s.value])),
   );
+  const [confirmBulk, setConfirmBulk] = useState<{ field: string; label: string } | null>(null);
   const [pending, start] = useTransition();
 
   const original = product.images.map((i) => i.url).join("|");
@@ -94,6 +107,35 @@ export function ProductEditor({ product, locale }: { product: PimProduct; locale
       const result = await actionSaveSpec(product.mtrl, field, value, locale);
       if (result.ok) {
         toast.success(value.trim() ? `${label}: αποθηκεύτηκε.` : `${label}: καθαρίστηκε παντού.`);
+      } else {
+        toast.error(result.error);
+      }
+    });
+  }
+
+  function clearOne(field: string, label: string) {
+    start(async () => {
+      const result = await actionClearSpec(product.mtrl, field);
+      if (result.ok) {
+        setSpecs((v) => ({ ...v, [field]: "" }));
+        toast.success(`${label}: αφαιρέθηκε από το προϊόν.`);
+      } else {
+        toast.error(result.error);
+      }
+    });
+  }
+
+  function clearSubgroup(field: string, label: string) {
+    setConfirmBulk(null);
+    start(async () => {
+      const result = await actionClearSpecSubgroup(product.mtrl, field);
+      if (result.ok) {
+        setSpecs((v) => ({ ...v, [field]: "" }));
+        toast.success(
+          `${label}: αφαιρέθηκε από ${result.products} ${
+            result.products === 1 ? "προϊόν" : "προϊόντα"
+          } της υποκατηγορίας.`,
+        );
       } else {
         toast.error(result.error);
       }
@@ -175,11 +217,38 @@ export function ProductEditor({ product, locale }: { product: PimProduct; locale
         <div className="grid gap-x-6 gap-y-4 p-4 sm:grid-cols-2 lg:grid-cols-3">
           {product.specs.map((s) => {
             const changed = (specs[s.field] ?? "") !== s.value;
+            const filled = (specs[s.field] ?? "").trim().length > 0;
             return (
               <div key={s.field}>
-                <Label htmlFor={`s-${s.field}`} className="text-[12px] text-k-text-2">
-                  {s.label}
-                </Label>
+                <div className="flex items-center justify-between gap-2">
+                  <Label htmlFor={`s-${s.field}`} className="text-[12px] text-k-text-2">
+                    {s.label}
+                  </Label>
+                  {filled && (
+                    <div className="flex items-center gap-0.5">
+                      <button
+                        type="button"
+                        onClick={() => clearOne(s.field, s.label)}
+                        disabled={pending}
+                        title="Αφαίρεση από αυτό το προϊόν"
+                        aria-label={`Αφαίρεση «${s.label}» από αυτό το προϊόν`}
+                        className="grid size-6 place-items-center text-k-text-5 transition-colors hover:bg-k-surface-3 hover:text-k-red disabled:opacity-40"
+                      >
+                        <Trash2 className="size-3" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setConfirmBulk({ field: s.field, label: s.label })}
+                        disabled={pending}
+                        title="Αφαίρεση από όλη την υποκατηγορία"
+                        aria-label={`Αφαίρεση «${s.label}» από όλη την υποκατηγορία`}
+                        className="grid size-6 place-items-center text-k-text-5 transition-colors hover:bg-k-surface-3 hover:text-k-red disabled:opacity-40"
+                      >
+                        <Layers className="size-3" />
+                      </button>
+                    </div>
+                  )}
+                </div>
                 <Input
                   id={`s-${s.field}`}
                   value={specs[s.field] ?? ""}
@@ -194,6 +263,32 @@ export function ProductEditor({ product, locale }: { product: PimProduct; locale
           })}
         </div>
       </section>
+
+      {/* Only the bulk delete confirms. Clearing one field on one product is a
+          keystroke to undo; clearing it across a subgroup touches products
+          nobody is looking at. */}
+      <AlertDialog open={confirmBulk != null} onOpenChange={(o) => !o && setConfirmBulk(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-[15px]">
+              Αφαίρεση «{confirmBulk?.label}» από όλη την υποκατηγορία;
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-[12.5px] leading-[1.6]">
+              Σβήνεται από <strong className="text-k-ink">κάθε προϊόν</strong> της ίδιας τελικής
+              υποκατηγορίας, σε όλες τις γλώσσες, και σε όλα τα κανάλια. Δεν αναιρείται.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Άκυρο</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => confirmBulk && clearSubgroup(confirmBulk.field, confirmBulk.label)}
+              className="bg-k-red hover:bg-k-red-hover"
+            >
+              Αφαίρεση από όλα
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
