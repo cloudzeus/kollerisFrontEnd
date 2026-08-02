@@ -261,7 +261,7 @@ export function CellCanvas({
       )}
       style={{ aspectRatio: aspect }}
     >
-      <CompositionRenderer composition={composition} resolved={resolved} locale="el" />
+      <CompositionRenderer composition={composition} resolved={resolved} locale="el" interactive={false} />
       {motionKey ? <BannerMotion key={motionKey} /> : null}
 
       {/* ── Οδηγοί ── */}

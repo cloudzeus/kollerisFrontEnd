@@ -70,6 +70,7 @@ export function BannerRenderer({
               composition={composition}
               resolved={cellResolved}
               locale={locale}
+              interactive={interactive}
             />
           );
 

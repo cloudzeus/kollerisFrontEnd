@@ -54,11 +54,21 @@ export function CompositionRenderer({
   resolved,
   locale,
   className,
+  interactive = true,
 }: {
   composition: CellComposition;
   resolved: ResolvedCell | undefined;
   locale: Locale;
   className?: string;
+  /**
+   * Whether links render as links.
+   *
+   * Off inside the admin. The localised `Link` needs next-intl's provider, and
+   * `/admin` sits outside the locale tree on purpose — rendering one there
+   * throws "No intl context found" and takes the editor down with it. Nothing
+   * in an editing canvas wants to be navigable anyway.
+   */
+  interactive?: boolean;
 }) {
   const bg = composition.background;
   const tokens = resolved?.tokens ?? {};
@@ -117,6 +127,7 @@ export function CompositionRenderer({
             tokens={tokens}
             items={resolved?.items}
             locale={locale}
+            interactive={interactive}
           />
         ),
       )}
@@ -129,11 +140,13 @@ function LayerView({
   tokens,
   items,
   locale,
+  interactive,
 }: {
   layer: Layer;
   tokens: Record<string, string>;
   items: ResolvedCell["items"];
   locale: Locale;
+  interactive: boolean;
 }) {
   // Read by the one motion island per banner rather than by a client component
   // per layer: the text stays server-rendered and the JavaScript is one script
@@ -159,7 +172,16 @@ function LayerView({
     case "badge":
       return <BadgeView layer={layer} tokens={tokens} locale={locale} style={style} motion={motion} />;
     case "button":
-      return <ButtonView layer={layer} tokens={tokens} locale={locale} style={style} motion={motion} />;
+      return (
+        <ButtonView
+          layer={layer}
+          tokens={tokens}
+          locale={locale}
+          style={style}
+          motion={motion}
+          interactive={interactive}
+        />
+      );
     default:
       return <TextView layer={layer} tokens={tokens} locale={locale} style={style} motion={motion} />;
   }
@@ -364,12 +386,14 @@ function ButtonView({
   locale,
   style,
   motion,
+  interactive,
 }: {
   layer: ButtonLayer;
   tokens: Record<string, string>;
   locale: Locale;
   style: React.CSSProperties;
   motion: Motion;
+  interactive: boolean;
 }) {
   const value = applyTokens(localised(layer.text, locale), tokens);
   if (!value) return null;
@@ -403,7 +427,7 @@ function ButtonView({
   // Written out twice rather than through a polymorphic component: `Link` and
   // `div` take different props, and the version that satisfies both types is
   // less readable than the branch.
-  if (layer.href) {
+  if (layer.href && interactive) {
     return (
       <Link {...motion} href={layer.href} style={box}>
         {label}

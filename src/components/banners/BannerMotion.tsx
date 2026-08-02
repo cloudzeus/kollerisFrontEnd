@@ -131,57 +131,121 @@ export function BannerMotion() {
     const targets = [...root.querySelectorAll<HTMLElement>("[data-anim]")];
     if (targets.length === 0) return tickers;
 
-    const tweens: gsap.core.Tween[] = [];
 
-    for (const el of targets) {
-      const preset = PRESETS[el.dataset.anim ?? ""];
-      if (!preset) continue;
+    /**
+     * Nothing is touched until the page is actually being looked at.
+     *
+     * A `from` tween applies its start state the moment it is created — the
+     * text goes to opacity 0 immediately and only the ticker brings it back.
+     * The ticker runs on requestAnimationFrame, which does not run in a hidden
+     * document. So arming while hidden hides the content and then never
+     * reveals it: a background tab, a prerender or an embedded pane would show
+     * a banner with no text in it, permanently.
+     *
+     * The fix is not a longer timeout, it is not arming at all. A hidden page
+     * has no viewer, so there is no entrance to miss; when it becomes visible
+     * the animation is set up then, from an untouched starting point.
+     */
+    let disarm: (() => void) | null = null;
 
-      const delay = Number(el.dataset.animDelay ?? 0) / 1000;
-      const duration = Number(el.dataset.animDuration ?? 700) / 1000;
+    const arm = () => {
+      if (disarm) return;
 
-      // Split the inner span, not the positioned box — the box carries the
-      // layout and has to keep its own transform. Guarded so a second mount in
-      // development does not split the pieces into pieces.
-      const inner = el.firstElementChild as HTMLElement | null;
-      const subject = preset.split === "none" ? el : (inner ?? el);
-      const already = subject.dataset.split === "done";
-      const pieces = already
-        ? [...subject.children].filter((c): c is HTMLElement => c instanceof HTMLElement)
-        : split(subject, preset.split);
-      if (preset.split !== "none") subject.dataset.split = "done";
+      const tweens: gsap.core.Tween[] = [];
 
-      // `from` with immediateRender: the resting state is whatever the server
-      // rendered, and the animation only ever describes where it comes from.
-      // Paused, so a banner further down the page still plays to somebody.
-      tweens.push(
-        gsap.from(pieces, {
-          ...preset.from,
-          duration,
-          delay,
-          ease: "power3.out",
-          stagger: preset.stagger,
-          paused: true,
-        }),
-      );
-    }
+      for (const el of targets) {
+        const preset = PRESETS[el.dataset.anim ?? ""];
+        if (!preset) continue;
 
-    if (tweens.length === 0) return tickers;
+        const delay = Number(el.dataset.animDelay ?? 0) / 1000;
+        const duration = Number(el.dataset.animDuration ?? 700) / 1000;
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (!entries.some((entry) => entry.isIntersecting)) return;
+        // Split the inner span, not the positioned box — the box carries the
+        // layout and has to keep its own transform. Guarded so a second mount
+        // in development does not split the pieces into pieces.
+        const inner = el.firstElementChild as HTMLElement | null;
+        const subject = preset.split === "none" ? el : (inner ?? el);
+        const already = subject.dataset.split === "done";
+        const pieces = already
+          ? [...subject.children].filter((c): c is HTMLElement => c instanceof HTMLElement)
+          : split(subject, preset.split);
+        if (preset.split !== "none") subject.dataset.split = "done";
+
+        // `from` with immediateRender: the resting state is whatever the server
+        // rendered, and the animation only ever describes where it comes from.
+        // Paused, so a banner further down the page still plays to somebody.
+        tweens.push(
+          gsap.from(pieces, {
+            ...preset.from,
+            duration,
+            delay,
+            ease: "power3.out",
+            stagger: preset.stagger,
+            paused: true,
+          }),
+        );
+      }
+
+      if (tweens.length === 0) {
+        disarm = () => {};
+        return;
+      }
+
+      let settled = false;
+
+      const play = () => {
+        if (settled) return;
+        settled = true;
         for (const tween of tweens) tween.play();
-        observer.disconnect();
-      },
-      { threshold: 0.2 },
-    );
-    observer.observe(root);
+        listen(false);
+      };
+
+      /** Give up on animating and show the resting state. Content always wins. */
+      const reveal = () => {
+        if (settled) return;
+        settled = true;
+        for (const tween of tweens) tween.progress(1).kill();
+        listen(false);
+      };
+
+      /** Measured rather than observed: an IntersectionObserver is one more
+       *  thing that does not fire in a hidden document. */
+      const check = () => {
+        const box = root.getBoundingClientRect();
+        if (box.height === 0) return;
+        if (box.top < window.innerHeight * 0.9 && box.bottom > 0) play();
+      };
+
+      const failsafe = setTimeout(reveal, 4000);
+      const listen = (on: boolean) => {
+        const fn = on ? window.addEventListener : window.removeEventListener;
+        fn("scroll", check, { passive: true } as AddEventListenerOptions);
+        fn("resize", check, { passive: true } as AddEventListenerOptions);
+        if (!on) clearTimeout(failsafe);
+      };
+
+      listen(true);
+      check();
+
+      disarm = () => {
+        listen(false);
+        for (const tween of tweens) tween.revert();
+      };
+    };
+
+    const onVisible = () => {
+      if (document.hidden) return;
+      document.removeEventListener("visibilitychange", onVisible);
+      arm();
+    };
+
+    if (document.hidden) document.addEventListener("visibilitychange", onVisible);
+    else arm();
 
     return () => {
+      document.removeEventListener("visibilitychange", onVisible);
       tickers?.();
-      observer.disconnect();
-      for (const tween of tweens) tween.revert();
+      disarm?.();
     };
   }, []);
 
