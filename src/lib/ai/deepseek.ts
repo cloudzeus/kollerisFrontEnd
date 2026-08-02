@@ -116,6 +116,61 @@ export async function generateCopy({
 }
 
 /**
+ * Translate many strings in one request.
+ *
+ * Seven hundred category names one call at a time is seven hundred round trips
+ * and about as many minutes. Batched, it is a handful of requests — and the
+ * model sees siblings together, which is why "ΚΛΕΙΔΙΑ" comes back as "Wrenches"
+ * rather than "Keys" when the batch also holds "ΚΑΣΤΑΝΙΕΣ" and "ΜΥΤΕΣ".
+ *
+ * JSON in, JSON out, positional. A batch that comes back the wrong length is
+ * rejected rather than zipped up hopefully: a silent off-by-one here would
+ * mislabel every category after it.
+ */
+export async function translateBatch({
+  texts,
+  from,
+  to,
+  context,
+}: {
+  texts: string[];
+  from: string;
+  to: string;
+  /** What this set of strings IS, so the model can pick the right register. */
+  context?: string;
+}): Promise<string[]> {
+  if (texts.length === 0) return [];
+
+  const system = [
+    `Μετάφρασε από ${LANGUAGE[from] ?? from} σε ${LANGUAGE[to] ?? to}.`,
+    "Πρόκειται για e-shop επαγγελματικών εργαλείων.",
+    context ? `Τα κείμενα είναι: ${context}.` : "",
+    "Κράτησε αμετάφραστα: ονόματα brand, κωδικούς, μονάδες μέτρησης, διαστάσεις.",
+    "Δέχεσαι πίνακα JSON και επιστρέφεις πίνακα JSON με ΤΟΝ ΙΔΙΟ αριθμό στοιχείων, στην ίδια σειρά.",
+    "Επίστρεψε ΜΟΝΟ τον πίνακα JSON, χωρίς σχόλια ή markdown.",
+  ]
+    .filter(Boolean)
+    .join(" ");
+
+  const raw = await chat(system, JSON.stringify(texts), Math.min(8000, texts.length * 60 + 400));
+
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(raw.replace(/^```(?:json)?|```$/g, "").trim());
+  } catch {
+    throw new Error("Η μετάφραση δεν επέστρεψε έγκυρο JSON.");
+  }
+
+  if (!Array.isArray(parsed) || parsed.length !== texts.length) {
+    throw new Error(
+      `Η μετάφραση επέστρεψε ${Array.isArray(parsed) ? parsed.length : "?"} αντί για ${texts.length} στοιχεία.`,
+    );
+  }
+
+  return parsed.map((value, i) => (typeof value === "string" ? value.trim() : texts[i]));
+}
+
+/**
  * Translate one string.
  *
  * Product and brand names stay as they are — translating "FACOM" or a tool code

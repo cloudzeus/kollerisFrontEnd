@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-08-02T09:56:30.286Z",
+  "timestamp": "2026-08-02T10:54:55.583Z",
   "source": "auto-postool",
   "partial": false,
   "phase": null,
@@ -22,25 +22,33 @@
     },
     {
       "status": "M",
-      "path": "src/components/admin/banners/CellCanvas.tsx"
+      "path": "src/app/admin/(protected)/layout.tsx"
     },
     {
       "status": "M",
-      "path": "src/components/admin/banners/CellEditor.tsx"
+      "path": "src/components/admin/AdminNav.tsx"
     },
     {
       "status": "M",
-      "path": "src/components/banners/BannerMotion.tsx"
+      "path": "src/lib/ai/deepseek.ts"
     },
     {
-      "status": "M",
-      "path": "src/components/banners/BannerRenderer.tsx"
+      "status": "??",
+      "path": "run.mts"
     },
     {
-      "status": "M",
-      "path": "src/components/banners/CompositionRenderer.tsx"
+      "status": "??",
+      "path": "src/app/admin/(protected)/translations/"
+    },
+    {
+      "status": "??",
+      "path": "src/components/admin/TranslationBoard.tsx"
+    },
+    {
+      "status": "??",
+      "path": "src/lib/i18n/"
     }
   ],
   "next_action": null,
-  "context_notes": "Recent commits:\nd357082 fix(banners): animations you can see, button links, a translate button\n0ce15b9 feat(media): background removal via Claid\n8494abe feat(banners): product sets and a rotating ticker\nd96e684 feat(banners): the bound product's parts, ready to drag\n68cce10 fix(media): upload through a route handler, not a server action"
+  "context_notes": "Recent commits:\n3825617 fix(banners): an entrance animation could hide text permanently\nd357082 fix(banners): animations you can see, button links, a translate button\n0ce15b9 feat(media): background removal via Claid\n8494abe feat(banners): product sets and a rotating ticker\nd96e684 feat(banners): the bound product's parts, ready to drag"
 }
