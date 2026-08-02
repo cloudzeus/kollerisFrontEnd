@@ -26,7 +26,7 @@ const untranslatable = (el: string) => el.trim().length < 2;
 export async function coverage(): Promise<SourceCoverage[]> {
   const [categories, offers, products] = await Promise.all([
     prisma.category.findMany({ select: { nameEl: true, nameEn: true, nameIt: true } }),
-    prisma.offer.findMany({ select: { title: true } }),
+    prisma.offer.findMany({ select: { titleEl: true, titleEn: true, titleIt: true } }),
     prisma.productTranslation.findMany({
       select: { productId: true, locale: true, name: true },
     }),
@@ -73,10 +73,11 @@ export async function coverage(): Promise<SourceCoverage[]> {
       label: "Προσφορές",
       hint: "Οι τίτλοι των καμπανιών. Γράφονται στα ελληνικά στο mini admin.",
       total: offers.length,
-      // Offers hold a single title today, with no per-locale columns — the
-      // honest reading is that none of them is translated.
-      missing: { en: offers.length, it: offers.length },
-      translatable: false,
+      missing: {
+        en: offers.filter((o) => !o.titleEn.trim() || o.titleEn.trim() === o.titleEl.trim()).length,
+        it: offers.filter((o) => !o.titleIt.trim() || o.titleIt.trim() === o.titleEl.trim()).length,
+      },
+      translatable: true,
     },
   ];
 }
@@ -93,6 +94,7 @@ export async function translateMissing(
   locale: TargetLocale,
   { limit = 200, batchSize = 40 }: { limit?: number; batchSize?: number } = {},
 ): Promise<{ ok: true; translated: number; remaining: number } | { ok: false; error: string }> {
+  if (source === "offers") return translateOffers(locale);
   if (source !== "categories") return { ok: false, error: "Άγνωστη πηγή." };
 
   const rows = await prisma.category.findMany({
@@ -141,6 +143,46 @@ export async function translateMissing(
   }
 
   return { ok: true, translated, remaining: pending.length - translated };
+}
+
+/**
+ * Campaign copy, title and description together.
+ *
+ * Sent as one batch per offer rather than one per field, so the description is
+ * translated knowing the headline it sits under.
+ */
+async function translateOffers(
+  locale: TargetLocale,
+): Promise<{ ok: true; translated: number; remaining: number } | { ok: false; error: string }> {
+  const rows = await prisma.offer.findMany();
+  const pending = rows.filter((o) => {
+    const title = locale === "en" ? o.titleEn : o.titleIt;
+    return !title.trim() || title.trim() === o.titleEl.trim();
+  });
+  if (pending.length === 0) return { ok: true, translated: 0, remaining: 0 };
+
+  try {
+    const result = await translateBatch({
+      texts: pending.flatMap((o) => [o.titleEl, o.descriptionEl || "—"]),
+      from: "el",
+      to: locale,
+      context: "τίτλοι και περιγραφές προσφορών καταστήματος",
+    });
+    await prisma.$transaction(
+      pending.map((offer, index) =>
+        prisma.offer.update({
+          where: { id: offer.id },
+          data:
+            locale === "en"
+              ? { titleEn: result[index * 2], descriptionEn: result[index * 2 + 1] === "—" ? "" : result[index * 2 + 1] }
+              : { titleIt: result[index * 2], descriptionIt: result[index * 2 + 1] === "—" ? "" : result[index * 2 + 1] },
+        }),
+      ),
+    );
+    return { ok: true, translated: pending.length, remaining: 0 };
+  } catch (error) {
+    return { ok: false, error: error instanceof Error ? error.message : "Η μετάφραση απέτυχε." };
+  }
 }
 
 /** The rows still showing Greek, for the operator to inspect or fix by hand. */

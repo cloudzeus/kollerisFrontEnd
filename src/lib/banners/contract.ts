@@ -351,6 +351,7 @@ function canonical(value: unknown): string {
 export type OfferView = {
   id: string;
   slug: string;
+  /** Greek. The picker is a Greek-only admin; the storefront picks by locale. */
   title: string;
   badge: string | null;
   href: string;

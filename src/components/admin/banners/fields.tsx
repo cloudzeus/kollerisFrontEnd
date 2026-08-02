@@ -75,7 +75,14 @@ export function Segmented<T extends string | number>({
 
 /* ───────────────────────── Number field ───────────────────────── */
 
-/** A number with a unit, dragged or typed. Compact enough for four in a row. */
+/**
+ * A number with a unit, dragged or typed.
+ *
+ * `null` renders as an empty box, not as `0`. A field showing zero when nothing
+ * has been set invites typing "20" into it and getting "020" — and reads as a
+ * decision somebody made rather than one still open. Clearing it returns null,
+ * which is how "no limit" is expressed.
+ */
 export function NumberField({
   value,
   onChange,
@@ -84,14 +91,16 @@ export function NumberField({
   max = 999,
   step = 1,
   suffix,
+  placeholder,
 }: {
-  value: number;
+  value: number | null;
   onChange: (value: number) => void;
   label: string;
   min?: number;
   max?: number;
   step?: number;
   suffix?: string;
+  placeholder?: string;
 }) {
   return (
     <label className="block space-y-1">
@@ -99,11 +108,16 @@ export function NumberField({
       <span className="relative block">
         <Input
           type="number"
-          value={Number.isFinite(value) ? value : 0}
+          value={value == null || !Number.isFinite(value) ? "" : value}
           min={min}
           max={max}
           step={step}
+          placeholder={placeholder}
           onChange={(e) => {
+            if (e.target.value === "") {
+              onChange(0);
+              return;
+            }
             const next = Number(e.target.value);
             onChange(Number.isFinite(next) ? Math.min(max, Math.max(min, next)) : 0);
           }}

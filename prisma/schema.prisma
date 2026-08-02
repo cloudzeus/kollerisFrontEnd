@@ -1050,10 +1050,44 @@ model BannerPlacement {
 /// marketing artefact — a name, a window, a landing page — and SoftOne holds
 /// none of that. Product pricing stays where it belongs; this is the wrapper
 /// marketing puts around it.
+/// What an offer applies to. Exactly one of the three is populated.
+enum OfferScope {
+  /// A hand-picked list of products.
+  products
+  /// Everything of one brand.
+  brand
+  /// Everything under one category, its children included.
+  category
+}
+
+/// How the saving is expressed.
+enum OfferDiscount {
+  /// A percentage off the selling price.
+  percent
+  /// A fixed amount off, in euros.
+  amount
+  /// Buy N, get M free. `buy` and `free` carry the numbers.
+  bogo
+  /// No arithmetic — the campaign is a promotion, not a discount.
+  none
+}
+
 model Offer {
-  id    String @id @default(cuid())
-  slug  String @unique @db.VarChar(120)
-  title String @db.VarChar(160)
+  id   String @id @default(cuid())
+  slug String @unique @db.VarChar(120)
+
+  /// Copy, per language.
+  ///
+  /// Three columns rather than a translations table: an offer has exactly two
+  /// pieces of text and never grows a fourth language without a deploy. The
+  /// Greek is written by hand, the other two are translated from it.
+  titleEl String @db.VarChar(160)
+  titleEn String @default("") @db.VarChar(160)
+  titleIt String @default("") @db.VarChar(160)
+
+  descriptionEl String @default("") @db.VarChar(400)
+  descriptionEn String @default("") @db.VarChar(400)
+  descriptionIt String @default("") @db.VarChar(400)
 
   /// Badge text, e.g. "-30%". Free text so a campaign can say what it means.
   badge String? @db.VarChar(40)
@@ -1061,9 +1095,39 @@ model Offer {
   /// Where the CTA goes. A category path, a filtered listing, anything.
   href String @db.VarChar(255)
 
+  /// ── What it covers ──
+  scope OfferScope @default(products)
+  /// Product slugs, in the order they were chosen. Empty unless scope is
+  /// `products`.
+  productSlugs String[]
+  brandSlug    String? @db.VarChar(140)
+  categorySlug String? @db.VarChar(140)
+
+  /// ── The saving ──
+  ///
+  /// Recorded and displayed here; NOT applied to cart pricing. Pricing policy
+  /// belongs to HDCtool by an earlier decision, and two systems computing the
+  /// same discount from different rules is how a shop charges the wrong amount.
+  discount      OfferDiscount @default(percent)
+  discountValue Decimal?      @db.Decimal(10, 2)
+  /// For `bogo`: buy this many.
+  bogoBuy       Int?
+  /// For `bogo`: get this many free.
+  bogoFree      Int?
+
+  /// ── Limits ──
+  /// How many times one customer may use it. Null means no limit.
+  maxPerCustomer Int?
+  /// How many times in total. Null means no limit.
+  maxTotal       Int?
+  /// Redemptions so far, so `maxTotal` means something.
+  usedCount      Int @default(0)
+
   image String? @db.Text
   /// Second image for a different aspect — a band and a tile rarely share art.
   imageWide String? @db.Text
+  /// A short loop for banner backgrounds.
+  video String? @db.Text
 
   startsAt DateTime?
   /// Drives the countdown widget. Null means no deadline to show.

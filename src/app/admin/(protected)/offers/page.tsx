@@ -1,8 +1,11 @@
+import Link from "next/link";
+import { Plus } from "lucide-react";
 import { auth } from "@/auth";
 import { assertCan } from "@/lib/rbac";
-import { listOffers } from "@/lib/banners/banners";
+import { listOffers } from "@/lib/offers/offers";
 import { PageShell } from "@/components/admin/PageShell";
-import { OfferManager } from "@/components/admin/banners/OfferManager";
+import { OfferList } from "@/components/admin/offers/OfferList";
+import { Button } from "@/components/ui/button";
 
 export const dynamic = "force-dynamic";
 
@@ -10,14 +13,20 @@ export default async function OffersPage() {
   const session = await auth();
   assertCan(session?.user.role, "merchandising");
 
-  const offers = await listOffers();
-
   return (
     <PageShell
       title="Προσφορές"
-      description="Καμπάνιες που συνδέονται σε banners. Γράφονται μία φορά εδώ και εμφανίζονται όπου τις τοποθετήσετε."
+      description="Καμπάνιες: τι λένε, σε τι εφαρμόζονται, πόσο κρατούν. Συνδέονται σε banners από το εύρος τους."
+      actions={
+        <Button asChild>
+          <Link href="/admin/offers/new">
+            <Plus className="size-3.5" />
+            Νέα προσφορά
+          </Link>
+        </Button>
+      }
     >
-      <OfferManager offers={offers} />
+      <OfferList offers={await listOffers()} />
     </PageShell>
   );
 }

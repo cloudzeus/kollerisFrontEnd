@@ -3,14 +3,17 @@
 import { revalidatePath } from "next/cache";
 import { auth } from "@/auth";
 import { assertCan } from "@/lib/rbac";
-import { deleteOffer, saveOffer } from "@/lib/banners/banners";
+import { deleteOffer, rewriteCopy, saveOffer } from "@/lib/offers/offers";
+import { searchBrandsForPicker, searchCategoriesForPicker, searchProductsForPicker } from "@/lib/media/picker";
+import { translateText } from "@/lib/ai/deepseek";
+import type { OfferDraft } from "@/lib/offers/offer-types";
+import type { Locale } from "@/i18n/routing";
 
 /**
- * Offer editing.
+ * The offer wizard's endpoints.
  *
- * The storefront is revalidated on every write: an offer is on the page, and an
- * operator who ends a campaign should see it gone rather than learn that a
- * cache holds it for a while.
+ * The storefront is revalidated on every write: a campaign that starts today
+ * and is not visible until a cache expires has not started.
  */
 
 async function requireEditor(): Promise<string> {
@@ -19,42 +22,62 @@ async function requireEditor(): Promise<string> {
   return session?.user.email ?? "unknown";
 }
 
-function refresh() {
-  revalidatePath("/", "layout");
-  revalidatePath("/admin/offers");
-}
-
-/** Dates arrive as `datetime-local` strings — local wall clock, no zone. */
-const at = (value: string | null | undefined): Date | null => {
-  if (!value) return null;
-  const d = new Date(value);
-  return Number.isNaN(d.getTime()) ? null : d;
-};
-
-export async function actionSaveOffer(input: {
-  id?: string;
-  slug: string;
-  title: string;
-  badge?: string;
-  href: string;
-  image?: string;
-  imageWide?: string;
-  startsAt?: string | null;
-  endsAt?: string | null;
-  isActive?: boolean;
-}) {
+export async function actionSaveOffer(draft: OfferDraft) {
   const actor = await requireEditor();
-  const result = await saveOffer(
-    { ...input, startsAt: at(input.startsAt), endsAt: at(input.endsAt) },
-    actor,
-  );
-  if (result.ok) refresh();
+  const result = await saveOffer(draft, actor);
+  if (result.ok) {
+    revalidatePath("/", "layout");
+    revalidatePath("/admin/offers");
+  }
   return result;
 }
 
 export async function actionDeleteOffer(id: string) {
   await requireEditor();
   const result = await deleteOffer(id);
-  if (result.ok) refresh();
+  revalidatePath("/", "layout");
+  revalidatePath("/admin/offers");
   return result;
+}
+
+/** Marketing rewrites — options to choose from, never applied automatically. */
+export async function actionRewrite(input: {
+  text: string;
+  kind: "title" | "description";
+  tone: string;
+  context: string;
+}) {
+  await requireEditor();
+  try {
+    return { ok: true as const, options: await rewriteCopy(input) };
+  } catch (error) {
+    return { ok: false as const, error: error instanceof Error ? error.message : "Απέτυχε." };
+  }
+}
+
+export async function actionTranslateOffer(input: { text: string; to: "en" | "it"; maxChars: number }) {
+  await requireEditor();
+  try {
+    return {
+      ok: true as const,
+      text: await translateText({ text: input.text, from: "el", to: input.to, maxChars: input.maxChars }),
+    };
+  } catch (error) {
+    return { ok: false as const, error: error instanceof Error ? error.message : "Απέτυχε." };
+  }
+}
+
+export async function actionSearchProducts(query: string, locale: Locale) {
+  await requireEditor();
+  return searchProductsForPicker(query, locale, 24);
+}
+
+export async function actionSearchBrands(query: string, locale: Locale) {
+  await requireEditor();
+  return searchBrandsForPicker(query, locale);
+}
+
+export async function actionSearchCategories(query: string, locale: Locale) {
+  await requireEditor();
+  return searchCategoriesForPicker(query, locale, 40);
 }

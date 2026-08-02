@@ -30,7 +30,7 @@ function config() {
   return { key, url };
 }
 
-async function chat(system: string, user: string, maxTokens = 500): Promise<string> {
+export async function chat(system: string, user: string, maxTokens = 500): Promise<string> {
   const { key, url } = config();
 
   const response = await fetch(url, {

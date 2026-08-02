@@ -344,82 +344,35 @@ export async function getPublishedBanner(zone: string) {
 
 export type { OfferView };
 
-export async function listOffers(): Promise<OfferView[]> {
-  return prisma.offer.findMany({ orderBy: [{ isActive: "desc" }, { updatedAt: "desc" }] });
-}
-
 /**
  * Offers for the widget picker.
  *
  * Expired ones are excluded: binding a banner to a campaign that ended last
- * month is a mistake the picker can simply not offer.
+ * month is a mistake the picker can simply not offer. Writing offers lives in
+ * `lib/offers` — this is the read the banner editor needs and nothing more.
  */
 export async function searchOffersForPicker(query: string): Promise<OfferView[]> {
   const q = query.trim();
-  return prisma.offer.findMany({
+  const rows = await prisma.offer.findMany({
     where: {
       isActive: true,
       OR: [{ endsAt: null }, { endsAt: { gt: new Date() } }],
-      ...(q.length >= 2
-        ? { OR: [{ title: { contains: q, mode: "insensitive" } }, { slug: { contains: q } }] }
-        : {}),
+      ...(q.length >= 2 ? { titleEl: { contains: q, mode: "insensitive" } } : {}),
     },
     orderBy: { updatedAt: "desc" },
     take: 30,
   });
-}
 
-export async function saveOffer(
-  input: {
-    id?: string;
-    slug: string;
-    title: string;
-    badge?: string | null;
-    href: string;
-    image?: string | null;
-    imageWide?: string | null;
-    startsAt?: Date | null;
-    endsAt?: Date | null;
-    isActive?: boolean;
-  },
-  actor: string,
-): Promise<{ ok: true; id: string } | { ok: false; error: string }> {
-  const slug = input.slug.trim().toLowerCase();
-  const title = input.title.trim();
-  const href = input.href.trim();
-
-  if (!slug || !title || !href) return fail("Slug, τίτλος και σύνδεσμος είναι υποχρεωτικά.");
-  if (!/^[a-z0-9-]+$/.test(slug)) return fail("Το slug δέχεται μόνο πεζά, αριθμούς και παύλες.");
-  if (input.startsAt && input.endsAt && input.endsAt <= input.startsAt) {
-    return fail("Η λήξη πρέπει να είναι μετά την έναρξη.");
-  }
-
-  const clash = await prisma.offer.findUnique({ where: { slug }, select: { id: true } });
-  if (clash && clash.id !== input.id) return fail(`Το slug «${slug}» χρησιμοποιείται ήδη.`);
-
-  const data = {
-    slug,
-    title: title.slice(0, 160),
-    badge: input.badge?.trim() || null,
-    href: href.slice(0, 255),
-    image: input.image || null,
-    imageWide: input.imageWide || null,
-    startsAt: input.startsAt ?? null,
-    endsAt: input.endsAt ?? null,
-    isActive: input.isActive !== false,
-    updatedBy: actor.slice(0, 120),
-  };
-
-  const row = input.id
-    ? await prisma.offer.update({ where: { id: input.id }, data, select: { id: true } })
-    : await prisma.offer.create({ data, select: { id: true } });
-
-  return { ok: true, id: row.id };
-}
-
-export async function deleteOffer(id: string): Promise<Result> {
-  // Widgets bound to it resolve to nothing and the cell renders empty rather
-  // than breaking the page — see `resolve.ts`.
-  await prisma.offer.delete({ where: { id } });
-  return { ok: true };
+  return rows.map((row) => ({
+    id: row.id,
+    slug: row.slug,
+    title: row.titleEl,
+    badge: row.badge,
+    href: row.href,
+    image: row.image,
+    imageWide: row.imageWide,
+    startsAt: row.startsAt,
+    endsAt: row.endsAt,
+    isActive: row.isActive,
+  }));
 }

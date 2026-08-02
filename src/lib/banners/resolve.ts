@@ -184,7 +184,10 @@ export async function resolveCells(
 
       out.set(cellId, {
         tokens: {
-          "{title}": o.title,
+          "{title}": (locale === "en" ? o.titleEn : locale === "it" ? o.titleIt : o.titleEl) || o.titleEl,
+          "{desc}":
+            (locale === "en" ? o.descriptionEn : locale === "it" ? o.descriptionIt : o.descriptionEl) ||
+            o.descriptionEl,
           "{badge}": o.badge ?? "",
           "{ends}": o.endsAt ? endsIn(o.endsAt) : "",
           "{image}": o.image ?? "",

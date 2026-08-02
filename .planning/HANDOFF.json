@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-08-02T11:22:36.152Z",
+  "timestamp": "2026-08-02T12:15:27.860Z",
   "source": "auto-postool",
   "partial": false,
   "phase": null,
@@ -22,169 +22,69 @@
     },
     {
       "status": "M",
-      "path": "scripts/i18n/codemod.mts"
+      "path": "prisma/schema.prisma"
     },
     {
       "status": "M",
-      "path": "scripts/i18n/out/extracted.json"
+      "path": "src/app/admin/(protected)/offers/actions.ts"
     },
     {
       "status": "M",
-      "path": "scripts/i18n/out/skipped.json"
+      "path": "src/app/admin/(protected)/offers/page.tsx"
+    },
+    {
+      "status": "D",
+      "path": "src/components/admin/banners/OfferManager.tsx"
     },
     {
       "status": "M",
-      "path": "src/components/account/AccountShell.tsx"
+      "path": "src/components/admin/banners/fields.tsx"
     },
     {
       "status": "M",
-      "path": "src/components/account/AuthForms.tsx"
+      "path": "src/lib/ai/deepseek.ts"
     },
     {
       "status": "M",
-      "path": "src/components/account/MemberAdmin.tsx"
+      "path": "src/lib/banners/banners.ts"
     },
     {
       "status": "M",
-      "path": "src/components/brands/BrandSearchGrid.tsx"
+      "path": "src/lib/banners/contract.ts"
     },
     {
       "status": "M",
-      "path": "src/components/cart/CartLineRow.tsx"
+      "path": "src/lib/banners/resolve.ts"
     },
     {
       "status": "M",
-      "path": "src/components/cart/CartSummaryPanel.tsx"
+      "path": "src/lib/i18n/coverage.ts"
     },
     {
       "status": "M",
-      "path": "src/components/cart/MiniCart.tsx"
-    },
-    {
-      "status": "M",
-      "path": "src/components/catalogue/CategoryPicker.tsx"
-    },
-    {
-      "status": "M",
-      "path": "src/components/catalogue/TaxonomyFinder.tsx"
-    },
-    {
-      "status": "M",
-      "path": "src/components/checkout/CheckoutForm.tsx"
-    },
-    {
-      "status": "M",
-      "path": "src/components/chrome/MegaMenu.tsx"
-    },
-    {
-      "status": "M",
-      "path": "src/components/chrome/MobileMenu.tsx"
-    },
-    {
-      "status": "M",
-      "path": "src/components/chrome/SearchSuggest.tsx"
-    },
-    {
-      "status": "M",
-      "path": "src/components/chrome/SiteFooter.tsx"
-    },
-    {
-      "status": "M",
-      "path": "src/components/compare/CompareMatrix.tsx"
-    },
-    {
-      "status": "M",
-      "path": "src/components/compare/CompareToolbar.tsx"
-    },
-    {
-      "status": "M",
-      "path": "src/components/compare/CompareTray.tsx"
-    },
-    {
-      "status": "M",
-      "path": "src/components/contact/ContactForm.tsx"
-    },
-    {
-      "status": "M",
-      "path": "src/components/faq/FaqAccordion.tsx"
-    },
-    {
-      "status": "M",
-      "path": "src/components/home/BrandWall.tsx"
-    },
-    {
-      "status": "M",
-      "path": "src/components/home/CategoryGrid.tsx"
-    },
-    {
-      "status": "M",
-      "path": "src/components/home/FeaturedProducts.tsx"
-    },
-    {
-      "status": "M",
-      "path": "src/components/home/ReviewsBand.tsx"
-    },
-    {
-      "status": "M",
-      "path": "src/components/pdp/PriceBox.tsx"
-    },
-    {
-      "status": "M",
-      "path": "src/components/pdp/ProductGallery.tsx"
-    },
-    {
-      "status": "M",
-      "path": "src/components/pdp/ProductTabs.tsx"
-    },
-    {
-      "status": "M",
-      "path": "src/components/plp/FilterSidebar.tsx"
-    },
-    {
-      "status": "M",
-      "path": "src/components/plp/MobileFilterSheet.tsx"
-    },
-    {
-      "status": "M",
-      "path": "src/components/plp/PlpToolbar.tsx"
-    },
-    {
-      "status": "M",
-      "path": "src/components/product/ProductCard.tsx"
-    },
-    {
-      "status": "M",
-      "path": "src/components/product/QuickViewProvider.tsx"
-    },
-    {
-      "status": "M",
-      "path": "src/components/ui/Expandable.tsx"
-    },
-    {
-      "status": "M",
-      "path": "src/messages/el.json"
-    },
-    {
-      "status": "M",
-      "path": "src/messages/en.json"
-    },
-    {
-      "status": "M",
-      "path": "src/messages/it.json"
+      "path": "src/lib/media/picker.ts"
     },
     {
       "status": "??",
-      "path": "scripts/i18n/out/remaining.json"
+      "path": "prisma/migrations/20260802145920_offer_wizard/"
     },
     {
       "status": "??",
-      "path": "scripts/i18n/remaining.mts"
+      "path": "src/app/admin/(protected)/offers/[id]/"
     },
     {
       "status": "??",
-      "path": "scripts/i18n/templates.mts"
+      "path": "src/app/admin/(protected)/offers/new/"
+    },
+    {
+      "status": "??",
+      "path": "src/components/admin/offers/"
+    },
+    {
+      "status": "??",
+      "path": "src/lib/offers/"
     }
   ],
   "next_action": null,
-  "context_notes": "Recent commits:\n048dcfc feat(i18n): lift 369 interface strings into the message files\nbd9cba6 feat(i18n): translation coverage screen, and translated categories\n3825617 fix(banners): an entrance animation could hide text permanently\nd357082 fix(banners): animations you can see, button links, a translate button\n0ce15b9 feat(media): background removal via Claid"
+  "context_notes": "Recent commits:\n9bbdc48 feat(i18n): no Greek left hardcoded in the storefront\n048dcfc feat(i18n): lift 369 interface strings into the message files\nbd9cba6 feat(i18n): translation coverage screen, and translated categories\n3825617 fix(banners): an entrance animation could hide text permanently\nd357082 fix(banners): animations you can see, button links, a translate button"
 }

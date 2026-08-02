@@ -138,6 +138,33 @@ export async function productAssets(
   };
 }
 
+export type PickerBrand = { slug: string; name: string; logo: string | null; productCount: number };
+
+/**
+ * Brands for the offer wizard.
+ *
+ * Ordered by catalogue weight with no query, so an empty search offers the ones
+ * a campaign is plausibly about rather than whichever sorts first.
+ */
+export async function searchBrandsForPicker(query: string, locale: Locale): Promise<PickerBrand[]> {
+  const q = query.trim();
+  const rows = await prisma.brand.findMany({
+    where: {
+      isEshop: true,
+      ...(q.length >= 2 ? { OR: [{ nameEl: { contains: q, mode: "insensitive" } }, { slug: { contains: q } }] } : {}),
+    },
+    select: { slug: true, nameEl: true, nameEn: true, nameIt: true, logo: true, productCount: true },
+    orderBy: { productCount: "desc" },
+    take: 40,
+  });
+  return rows.map((r) => ({
+    slug: r.slug,
+    name: categoryName(r, locale),
+    logo: r.logo,
+    productCount: r.productCount,
+  }));
+}
+
 /**
  * Categories for the category picker.
  *
