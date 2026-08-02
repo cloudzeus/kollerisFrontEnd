@@ -11,6 +11,7 @@ import {
   Image as ImageIcon,
   LayoutGrid,
   Repeat,
+  Scissors,
   Square,
   Trash2,
   Type,
@@ -37,7 +38,7 @@ import {
   type TickerLayer,
 } from "@/lib/banners/contract";
 import { CATEGORY_LABEL, PRESETS, applyPreset, type PresetCategory } from "@/lib/banners/presets";
-import { actionListLogos } from "@/app/admin/(protected)/media/actions";
+import { actionListLogos, actionRemoveBackground } from "@/app/admin/(protected)/media/actions";
 import { actionProductAssets, actionResolve } from "@/app/admin/(protected)/banners/actions";
 import { uploadFiles } from "@/lib/media/upload-client";
 import type { ResolvedCell } from "@/lib/banners/resolve-tokens";
@@ -412,6 +413,7 @@ export function CellEditor({
                 <LayerInspector
                   layer={layer}
                   tokens={tokens}
+                  resolvedSrc={resolved?.tokens["{image}"] ?? ""}
                   onPatch={(patch) => patchLayer(layer.id, patch)}
                 />
               ) : (
@@ -1087,15 +1089,72 @@ function CellPanel({
   );
 }
 
+/**
+ * Cut the subject out of this layer's picture.
+ *
+ * A new file every time, never a replacement: the version with its background
+ * is usually still right somewhere else, and overwriting would change banners
+ * nobody was editing.
+ *
+ * A layer showing `{image}` follows whichever product the cell is bound to. A
+ * cutout is one specific picture, so accepting one stops that following — which
+ * the button says out loud, because discovering it later looks like a bug.
+ */
+function CutoutButton({
+  src,
+  resolvedSrc,
+  onDone,
+}: {
+  src: string;
+  resolvedSrc: string;
+  onDone: (url: string) => void;
+}) {
+  const [busy, setBusy] = useState(false);
+  const bound = src === "{image}";
+  const target = bound ? resolvedSrc : src;
+
+  if (!target) return null;
+
+  function run() {
+    setBusy(true);
+    void actionRemoveBackground(target, "layer").then((result) => {
+      setBusy(false);
+      if (!result.ok) {
+        toast.error(result.error);
+        return;
+      }
+      onDone(result.asset.url);
+      toast.success(`Το φόντο αφαιρέθηκε — ${result.note}`);
+    });
+  }
+
+  return (
+    <div className="space-y-1">
+      <Button variant="outline" onClick={run} disabled={busy} className="w-full">
+        <Scissors className="size-3.5" />
+        {busy ? "Αφαίρεση φόντου…" : "Αφαίρεση φόντου"}
+      </Button>
+      <p className="text-[10.5px] leading-[1.5] text-k-text-4">
+        {bound
+          ? "Δημιουργεί νέο αρχείο· το στοιχείο παύει να ακολουθεί το προϊόν του κελιού."
+          : "Δημιουργεί νέο αρχείο στη βιβλιοθήκη. Το πρωτότυπο μένει ως έχει."}
+      </p>
+    </div>
+  );
+}
+
 /* ───────────────────────── Inspector ───────────────────────── */
 
 function LayerInspector({
   layer,
   tokens,
+  resolvedSrc,
   onPatch,
 }: {
   layer: Layer;
   tokens: ReadonlyArray<{ token: string; label: string }>;
+  /** What `{image}` currently points at, so a bound layer can still be cut out. */
+  resolvedSrc: string;
   onPatch: (patch: Partial<Layer>) => void;
 }) {
   const hasText = layer.kind === "text" || layer.kind === "badge" || layer.kind === "button";
@@ -1180,6 +1239,11 @@ function LayerInspector({
             max={100}
             suffix="%"
             onChange={(opacity) => onPatch({ opacity } as Partial<Layer>)}
+          />
+          <CutoutButton
+            src={layer.src}
+            resolvedSrc={resolvedSrc}
+            onDone={(url) => onPatch({ src: url } as Partial<Layer>)}
           />
         </>
       )}

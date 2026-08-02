@@ -10,6 +10,7 @@ import {
   Loader2,
   Package,
   Play,
+  Scissors,
   Search,
   Tag,
   Trash2,
@@ -21,6 +22,7 @@ import {
   actionDeleteAsset,
   actionListAssets,
   actionListLogos,
+  actionRemoveBackground,
 } from "@/app/admin/(protected)/media/actions";
 import { uploadFiles } from "@/lib/media/upload-client";
 import { actionSearchProducts } from "@/app/admin/(protected)/zones/actions";
@@ -171,6 +173,19 @@ function LibraryTab({
     }
   }
 
+  function cutout(asset: MediaAssetView) {
+    setUploading(true);
+    void actionRemoveBackground(asset.url, asset.name).then((result) => {
+      setUploading(false);
+      if (!result.ok) {
+        toast.error(result.error);
+        return;
+      }
+      toast.success(`Έτοιμο — ${result.note}`);
+      load();
+    });
+  }
+
   function remove(asset: MediaAssetView) {
     startLoad(async () => {
       const result = await actionDeleteAsset(asset.id);
@@ -273,14 +288,28 @@ function LibraryTab({
                   {fileSize(asset.bytes)}
                 </span>
               </button>
-              <button
-                type="button"
-                onClick={() => remove(asset)}
-                className="absolute right-1 top-1 hidden bg-white/90 p-1 text-k-text-3 hover:text-k-red group-hover:block"
-                aria-label={`Διαγραφή ${asset.name}`}
-              >
-                <Trash2 className="size-3" />
-              </button>
+              <div className="absolute right-1 top-1 hidden gap-px group-hover:flex">
+                {asset.kind === "image" && (
+                  <button
+                    type="button"
+                    onClick={() => cutout(asset)}
+                    disabled={uploading}
+                    className="bg-white/90 p-1 text-k-text-3 hover:text-k-ink disabled:opacity-40"
+                    aria-label={`Αφαίρεση φόντου από ${asset.name}`}
+                    title="Αφαίρεση φόντου — δημιουργεί νέο αρχείο"
+                  >
+                    <Scissors className="size-3" />
+                  </button>
+                )}
+                <button
+                  type="button"
+                  onClick={() => remove(asset)}
+                  className="bg-white/90 p-1 text-k-text-3 hover:text-k-red"
+                  aria-label={`Διαγραφή ${asset.name}`}
+                >
+                  <Trash2 className="size-3" />
+                </button>
+              </div>
             </li>
           ))}
         </ul>

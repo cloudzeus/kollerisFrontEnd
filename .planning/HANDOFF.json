@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-08-01T12:59:11.644Z",
+  "timestamp": "2026-08-02T09:20:29.208Z",
   "source": "auto-postool",
   "partial": false,
   "phase": null,
@@ -22,37 +22,21 @@
     },
     {
       "status": "M",
-      "path": "src/app/globals.css"
+      "path": "src/app/admin/(protected)/media/actions.ts"
+    },
+    {
+      "status": "M",
+      "path": "src/components/admin/MediaPicker.tsx"
     },
     {
       "status": "M",
       "path": "src/components/admin/banners/CellEditor.tsx"
     },
     {
-      "status": "M",
-      "path": "src/components/banners/BannerMotion.tsx"
-    },
-    {
-      "status": "M",
-      "path": "src/components/banners/CompositionRenderer.tsx"
-    },
-    {
-      "status": "M",
-      "path": "src/lib/banners/contract.ts"
-    },
-    {
-      "status": "M",
-      "path": "src/lib/banners/presets.ts"
-    },
-    {
-      "status": "M",
-      "path": "src/lib/banners/resolve-tokens.ts"
-    },
-    {
-      "status": "M",
-      "path": "src/lib/banners/resolve.ts"
+      "status": "??",
+      "path": "src/lib/media/claid.ts"
     }
   ],
   "next_action": null,
-  "context_notes": "Recent commits:\nd96e684 feat(banners): the bound product's parts, ready to drag\n68cce10 fix(media): upload through a route handler, not a server action\n3536474 feat(banners): sixteen ready-made grid layouts, saved and selectable\n14c54e4 feat(media): a library, brand logos, and drag-to-place\nad413ba feat(banners): per-cell mobile behaviour, and surface the grid designer"
+  "context_notes": "Recent commits:\n8494abe feat(banners): product sets and a rotating ticker\nd96e684 feat(banners): the bound product's parts, ready to drag\n68cce10 fix(media): upload through a route handler, not a server action\n3536474 feat(banners): sixteen ready-made grid layouts, saved and selectable\n14c54e4 feat(media): a library, brand logos, and drag-to-place"
 }
