@@ -76,6 +76,8 @@ const button = (
   variant: ButtonLayer["variant"] = "underline",
   color: ButtonLayer["style"]["color"] = "ink",
 ): ButtonLayer => {
+  // No href: a preset's button follows the cell, which is what makes the same
+  // look reusable across cells pointing at different places.
   const layer = newLayer("button") as ButtonLayer;
   layer.text = { el: value };
   layer.frame = frame;

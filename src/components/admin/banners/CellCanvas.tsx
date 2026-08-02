@@ -9,6 +9,7 @@ import {
 } from "@/lib/banners/contract";
 import type { ResolvedCell } from "@/lib/banners/resolve-tokens";
 import { CompositionRenderer } from "@/components/banners/CompositionRenderer";
+import { BannerMotion } from "@/components/banners/BannerMotion";
 import { cn } from "@/lib/utils";
 
 /**
@@ -57,6 +58,7 @@ export function CellCanvas({
   onSelect,
   onChange,
   onDropAt,
+  motionKey,
   aspect,
 }: {
   composition: CellComposition;
@@ -70,6 +72,14 @@ export function CellCanvas({
    * make of it is the editor's decision.
    */
   onDropAt?: (transfer: DataTransfer, at: { x: number; y: number }) => void;
+  /**
+   * Bumped to replay the entrance animations here.
+   *
+   * The canvas is otherwise still — an entrance that fires on every keystroke is
+   * a distraction, not a preview. But an animation you can only judge by opening
+   * another window is one that looks broken, so it plays on demand.
+   */
+  motionKey?: number;
   /** The cell's real proportions, so the canvas is not a lie about its shape. */
   aspect: number;
 }) {
@@ -252,6 +262,7 @@ export function CellCanvas({
       style={{ aspectRatio: aspect }}
     >
       <CompositionRenderer composition={composition} resolved={resolved} locale="el" />
+      {motionKey ? <BannerMotion key={motionKey} /> : null}
 
       {/* ── Οδηγοί ── */}
       {guides.x.map((x) => (

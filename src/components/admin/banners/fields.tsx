@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useTransition } from "react";
 import Image from "next/image";
-import { Check, ChevronsUpDown, Loader2, Search, Sparkles } from "lucide-react";
+import { Check, ChevronsUpDown, Languages, Loader2, Search, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import {
   actionGenerateCopy,
@@ -177,7 +177,15 @@ export function LocalisedField({
     });
   }
 
-  function translate() {
+  /**
+   * Translate the Greek into the other two.
+   *
+   * On Greek it fills both at once, which is the whole job: nobody writes the
+   * Italian first, and nobody wants to do this twice. It used to appear only
+   * after switching language — a button you cannot see until you have already
+   * guessed it exists is a button that does not exist.
+   */
+  function translate(targets: Array<"en" | "it">) {
     const source = value.el ?? "";
     if (!source.trim()) {
       toast.info("Γράψτε πρώτα το ελληνικό κείμενο.");
@@ -185,13 +193,22 @@ export function LocalisedField({
     }
     start(async () => {
       try {
-        const result = await actionTranslate({
-          text: source,
-          from: "Ελληνικά",
-          to: locale === "en" ? "English" : "Italiano",
-          maxChars,
-        });
-        onChange({ ...value, [locale]: result });
+        const results = await Promise.all(
+          targets.map((to) =>
+            actionTranslate({
+              text: source,
+              from: "Ελληνικά",
+              to: to === "en" ? "English" : "Italiano",
+              maxChars,
+            }).then((text) => [to, text] as const),
+          ),
+        );
+        onChange({ ...value, ...Object.fromEntries(results) });
+        toast.success(
+          targets.length > 1
+            ? "Μεταφράστηκε σε αγγλικά και ιταλικά."
+            : `Μεταφράστηκε στα ${targets[0] === "en" ? "αγγλικά" : "ιταλικά"}.`,
+        );
       } catch (error) {
         toast.error(error instanceof Error ? error.message : "Η μετάφραση απέτυχε.");
       }
@@ -247,16 +264,20 @@ export function LocalisedField({
           {busy ? <Loader2 className="size-3 animate-spin" /> : <Sparkles className="size-3" />}
           Πρόταση
         </button>
-        {locale !== "el" && (
-          <button
-            type="button"
-            onClick={translate}
-            disabled={busy}
-            className="text-[10.5px] text-k-text-3 transition-colors hover:text-k-ink disabled:opacity-50"
-          >
-            Μετάφραση
-          </button>
-        )}
+        <button
+          type="button"
+          onClick={() => translate(locale === "el" ? ["en", "it"] : [locale])}
+          disabled={busy || !(value.el ?? "").trim()}
+          className="flex items-center gap-1 text-[10.5px] text-k-text-3 transition-colors hover:text-k-ink disabled:opacity-40"
+          title={
+            (value.el ?? "").trim()
+              ? undefined
+              : "Γράψτε πρώτα το ελληνικό κείμενο"
+          }
+        >
+          {busy ? <Loader2 className="size-3 animate-spin" /> : <Languages className="size-3" />}
+          {locale === "el" ? "Μετάφραση σε EN + IT" : "Μετάφραση από τα ελληνικά"}
+        </button>
         <span className="numeral ml-auto text-[10px] text-k-text-5">
           {current.length}/{maxChars}
         </span>

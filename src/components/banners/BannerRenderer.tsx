@@ -7,7 +7,7 @@ import {
   type GridTemplateView,
 } from "@/lib/banners/contract";
 import type { ResolvedCell } from "@/lib/banners/resolve-tokens";
-import { CompositionRenderer } from "@/components/banners/CompositionRenderer";
+import { CompositionRenderer, hasOwnLinks } from "@/components/banners/CompositionRenderer";
 import { BannerMotion } from "@/components/banners/BannerMotion";
 import type { Locale } from "@/i18n/routing";
 
@@ -73,7 +73,9 @@ export function BannerRenderer({
             />
           );
 
-          if (!interactive) {
+          // A cell whose buttons carry their own destinations is not itself a
+          // link — see `hasOwnLinks`.
+          if (!interactive || hasOwnLinks(composition)) {
             return (
               <div key={cell.id} style={placement} className={cn("min-w-0", collapse)}>
                 {body}

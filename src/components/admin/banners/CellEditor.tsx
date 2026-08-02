@@ -10,6 +10,7 @@ import {
   EyeOff,
   Image as ImageIcon,
   LayoutGrid,
+  Play,
   Repeat,
   Scissors,
   Square,
@@ -165,6 +166,7 @@ export function CellEditor({
   const [selected, setSelected] = useState<string | null>(null);
   const [gallery, setGallery] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [motionKey, setMotionKey] = useState(0);
 
   /**
    * Re-resolve as the binding changes.
@@ -334,6 +336,7 @@ export function CellEditor({
                 onSelect={setSelected}
                 onChange={setLayers}
                 onDropAt={dropAt}
+                motionKey={motionKey}
                 aspect={aspect}
               />
 
@@ -413,6 +416,7 @@ export function CellEditor({
                 <LayerInspector
                   layer={layer}
                   tokens={tokens}
+                  onReplay={() => setMotionKey((k) => k + 1)}
                   resolvedSrc={resolved?.tokens["{image}"] ?? ""}
                   onPatch={(patch) => patchLayer(layer.id, patch)}
                 />
@@ -1149,12 +1153,14 @@ function LayerInspector({
   layer,
   tokens,
   resolvedSrc,
+  onReplay,
   onPatch,
 }: {
   layer: Layer;
   tokens: ReadonlyArray<{ token: string; label: string }>;
   /** What `{image}` currently points at, so a bound layer can still be cut out. */
   resolvedSrc: string;
+  onReplay: () => void;
   onPatch: (patch: Partial<Layer>) => void;
 }) {
   const hasText = layer.kind === "text" || layer.kind === "badge" || layer.kind === "button";
@@ -1338,6 +1344,23 @@ function LayerInspector({
       )}
 
       {layer.kind === "button" && (
+        <div className="space-y-1">
+          <Label className="text-[11px] text-k-text-3">Σύνδεσμος</Label>
+          <Input
+            value={layer.href}
+            onChange={(e) => onPatch({ href: e.target.value } as Partial<Layer>)}
+            className="h-8 text-[12px]"
+            placeholder="Ίδιος με το κελί"
+          />
+          <p className="text-[10.5px] leading-[1.5] text-k-text-4">
+            {layer.href
+              ? "Το κουμπί έχει δικό του προορισμό, οπότε το υπόλοιπο κελί παύει να είναι σύνδεσμος."
+              : "Κενό: ακολουθεί τον προορισμό του κελιού."}
+          </p>
+        </div>
+      )}
+
+      {layer.kind === "button" && (
         <Segmented
           label="Στυλ"
           value={layer.variant}
@@ -1380,7 +1403,12 @@ function LayerInspector({
             <button
               key={a.value}
               type="button"
-              onClick={() => onPatch({ anim: { ...layer.anim, preset: a.value } } as Partial<Layer>)}
+              onClick={() => {
+                onPatch({ anim: { ...layer.anim, preset: a.value } } as Partial<Layer>);
+                // Play it here, now. Picking an entrance and seeing nothing is
+                // indistinguishable from a control that does not work.
+                setTimeout(onReplay, 60);
+              }}
               className={cn(
                 "border px-2 py-1 text-[11px] transition-colors",
                 layer.anim.preset === a.value
@@ -1416,8 +1444,12 @@ function LayerInspector({
                 }
               />
             </div>
+            <Button variant="outline" onClick={onReplay} className="w-full">
+              <Play className="size-3.5" />
+              Δοκιμή
+            </Button>
             <p className="text-[10.5px] leading-[1.5] text-k-text-4">
-              Παίζει μία φορά, όταν το banner μπει στην οθόνη. Φαίνεται στην προεπισκόπηση, όχι εδώ.
+              Στο site παίζει μία φορά, όταν το banner μπει στην οθόνη.
             </p>
           </>
         )}

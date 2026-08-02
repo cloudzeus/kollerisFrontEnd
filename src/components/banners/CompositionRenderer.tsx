@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { Link } from "@/i18n/navigation";
 import {
   COLOR_VALUE,
   FONT_STACK,
@@ -375,30 +376,57 @@ function ButtonView({
 
   const onDark = layer.style.color === "white";
 
-  return (
-    <div
-      {...motion}
-      style={{
-        ...style,
-        display: "flex",
-        alignItems: "center",
-        textTransform: layer.style.uppercase ? "uppercase" : "none",
-        color: COLOR_VALUE[layer.style.color],
-        fontFamily: FONT_STACK[layer.style.font],
-      }}
+  const box: React.CSSProperties = {
+    ...style,
+    display: "flex",
+    alignItems: "center",
+    textTransform: layer.style.uppercase ? "uppercase" : "none",
+    color: COLOR_VALUE[layer.style.color],
+    fontFamily: FONT_STACK[layer.style.font],
+  };
+
+  const label = (
+    <span
+      className={cn(
+        "inline-flex w-fit max-w-full items-center gap-[1.5cqw] whitespace-nowrap transition-colors",
+        layer.variant === "underline" && "border-b-[.25cqw] border-k-red pb-[0.6cqw]",
+        layer.variant === "solid" &&
+          cn("px-[3cqw] py-[1.6cqw]", onDark ? "bg-white text-k-ink" : "bg-k-red text-white"),
+        layer.variant === "outline" && "border-[.2cqw] border-current px-[3cqw] py-[1.6cqw]",
+      )}
     >
-      <span
-        className={cn(
-          "inline-flex w-fit max-w-full items-center gap-[1.5cqw] whitespace-nowrap transition-colors",
-          layer.variant === "underline" && "border-b-[.25cqw] border-k-red pb-[0.6cqw]",
-          layer.variant === "solid" &&
-            cn("px-[3cqw] py-[1.6cqw]", onDark ? "bg-white text-k-ink" : "bg-k-red text-white"),
-          layer.variant === "outline" && "border-[.2cqw] border-current px-[3cqw] py-[1.6cqw]",
-        )}
-      >
-        {value}
-        {layer.variant === "underline" && <span aria-hidden>→</span>}
-      </span>
+      {value}
+      {layer.variant === "underline" && <span aria-hidden>→</span>}
+    </span>
+  );
+
+  // Written out twice rather than through a polymorphic component: `Link` and
+  // `div` take different props, and the version that satisfies both types is
+  // less readable than the branch.
+  if (layer.href) {
+    return (
+      <Link {...motion} href={layer.href} style={box}>
+        {label}
+      </Link>
+    );
+  }
+
+  return (
+    <div {...motion} style={box}>
+      {label}
     </div>
+  );
+}
+
+/**
+ * Does anything inside this cell carry its own destination?
+ *
+ * If so the cell cannot be a link: an anchor inside an anchor is invalid markup
+ * that browsers resolve by guessing, and the guess is rarely what the operator
+ * drew. The buttons become the links and the rest of the cell is decoration.
+ */
+export function hasOwnLinks(composition: CellComposition): boolean {
+  return composition.layers.some(
+    (layer) => !layer.hidden && layer.kind === "button" && Boolean(layer.href),
   );
 }

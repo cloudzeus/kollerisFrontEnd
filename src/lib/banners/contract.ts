@@ -190,6 +190,16 @@ export type BadgeLayer = LayerBase & {
 export type ButtonLayer = LayerBase & {
   kind: "button";
   text: LocalisedText;
+  /**
+   * Where this button goes, when it should not go where the cell goes.
+   *
+   * Empty means it inherits the cell's destination, which is the common case.
+   * A cell with two buttons pointing at two places needs its own links, and the
+   * renderer stops wrapping the whole cell the moment one of them has an href —
+   * an anchor inside an anchor is invalid markup that browsers resolve by
+   * guessing.
+   */
+  href: string;
   variant: "underline" | "solid" | "outline";
   style: Pick<TextStyle, "font" | "size" | "weight" | "tracking" | "uppercase" | "color">;
 };
@@ -449,6 +459,7 @@ export function newLayer(kind: LayerKind): Layer {
         frame: { x: 6, y: 86, w: 34, h: 9 },
         anim,
         text: { el: "Δείτε περισσότερα" },
+        href: "",
         variant: "underline",
         style: {
           font: "sans",
