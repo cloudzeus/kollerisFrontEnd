@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useState, useTransition } from "react";
 import { addSkusToCart } from "@/lib/cart/actions";
 import { upGreek } from "@/lib/greek";
@@ -12,6 +13,7 @@ import { upGreek } from "@/lib/greek";
  * until the site is on the phone.
  */
 export function QuickOrderPaste() {
+  const t = useTranslations("cart.QuickOrderPaste");
   const [text, setText] = useState("");
   const [pending, startTransition] = useTransition();
   const [result, setResult] = useState<
@@ -30,8 +32,8 @@ export function QuickOrderPaste() {
         setResult({
           error:
             response.error === "no_matches"
-              ? "Κανένας από τους κωδικούς δεν βρέθηκε."
-              : "Δεν ήταν δυνατή η προσθήκη.",
+              ? t("kanenas_apo_toys_kodikoys_den")
+              : t("den_itan_dynati_i_prosthiki"),
         });
       }
     });
@@ -42,17 +44,16 @@ export function QuickOrderPaste() {
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between lg:gap-6">
         <div className="min-w-0">
           <p className="text-[13px] font-semibold text-k-ink">
-            Γρήγορη παραγγελία με κωδικούς
+            {t("grigori_paraggelia_me_kodikoys")}
           </p>
           <p className="mt-1 text-[12px] leading-[1.5] text-k-text-3">
-            Επικολλήστε λίστα κωδικών από το Excel σας — ένας κωδικός ανά γραμμή ή
-            χωρισμένοι με κόμμα.
+            {t("epikolliste_lista_kodikon_apo_to")}
           </p>
         </div>
 
         <form onSubmit={submit} className="flex shrink-0">
           <label htmlFor="sku-paste" className="sr-only">
-            Κωδικοί προϊόντων
+            {t("kodikoi_proionton")}
           </label>
           <input
             id="sku-paste"
@@ -66,7 +67,7 @@ export function QuickOrderPaste() {
             disabled={pending || !text.trim()}
             className="t-card-cta border-0 bg-k-ink px-5 text-white transition-colors hover:bg-k-red disabled:opacity-50"
           >
-            {pending ? upGreek("…") : upGreek("Προσθήκη")}
+            {pending ? upGreek("…") : upGreek(t("prosthiki"))}
           </button>
         </form>
       </div>
@@ -79,13 +80,13 @@ export function QuickOrderPaste() {
             <>
               {result.added > 0 && (
                 <p className="text-[12px] text-k-green">
-                  Προστέθηκαν {result.added}{" "}
-                  {result.added === 1 ? "κωδικός" : "κωδικοί"}.
+                  {t("prostethikan")} {result.added}{" "}
+                  {result.added === 1 ? t("kodikos") : t("kodikoi")}.
                 </p>
               )}
               {result.notFound.length > 0 && (
                 <p className="text-[12px] text-k-amber">
-                  Δεν βρέθηκαν: {result.notFound.join(", ")}
+                  {t("den_vrethikan")} {result.notFound.join(", ")}
                 </p>
               )}
             </>

@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 /**
@@ -104,12 +105,13 @@ function Arrow({
   onClick: () => void;
   className: string;
 }) {
+  const t = useTranslations("product.ProductRail");
   return (
     <button
       type="button"
       onClick={onClick}
       disabled={disabled}
-      aria-label={direction === "left" ? "Προηγούμενα προϊόντα" : "Επόμενα προϊόντα"}
+      aria-label={direction === "left" ? t("proigoymena_proionta") : t("epomena_proionta")}
       className={`absolute top-1/2 z-10 hidden h-11 w-11 -translate-y-1/2 cursor-pointer items-center justify-center border border-k-line-2 bg-white text-k-ink shadow-[0_4px_14px_rgba(0,0,0,.10)] transition-colors hover:border-k-ink hover:bg-k-ink hover:text-white disabled:cursor-default disabled:border-k-line disabled:bg-white disabled:text-k-text-6 disabled:shadow-none lg:flex ${className}`}
     >
       <svg

@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useTransition } from "react";
 import { Link } from "@/i18n/navigation";
 import { clearCart } from "@/lib/cart/actions";
@@ -12,6 +13,7 @@ import { upGreek } from "@/lib/greek";
  * misclick loses a basket someone spent ten minutes assembling.
  */
 export function CartActionsRow() {
+  const t = useTranslations("cart.CartActionsRow");
   const [pending, startTransition] = useTransition();
 
   return (
@@ -20,21 +22,21 @@ export function CartActionsRow() {
         href="/katalogos"
         className="t-link-mono flex items-center gap-2 text-k-ink hover:text-k-red"
       >
-        ‹ {upGreek("Συνεχίστε τις αγορές")}
+        ‹ {upGreek(t("synechiste_tis_agores"))}
       </Link>
 
       <button
         type="button"
         disabled={pending}
         onClick={() => {
-          if (!window.confirm("Να αδειάσει το καλάθι;")) return;
+          if (!window.confirm(t("na_adeiasei_to_kalathi"))) return;
           startTransition(async () => {
             await clearCart();
           });
         }}
         className="t-link-mono self-start text-k-text-4 transition-colors hover:text-k-red disabled:opacity-50"
       >
-        ✕ {upGreek("Άδειασμα καλαθιού")}
+        ✕ {upGreek(t("adeiasma_kalathioy"))}
       </button>
     </div>
   );

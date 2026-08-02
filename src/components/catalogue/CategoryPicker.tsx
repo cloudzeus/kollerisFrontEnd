@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "@/i18n/navigation";
 import type { CatalogueNode } from "@/lib/catalog/catalogue-index-types";
@@ -30,6 +31,7 @@ export function CategoryPicker({
   nodes: CatalogueNode[];
   label: string;
 }) {
+  const t = useTranslations("catalogue.CategoryPicker");
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
 
@@ -98,7 +100,7 @@ export function CategoryPicker({
         <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center sm:p-6">
           <button
             type="button"
-            aria-label="Κλείσιμο"
+            aria-label={t("kleisimo")}
             tabIndex={-1}
             onClick={() => setOpen(false)}
             className="absolute inset-0 cursor-default bg-black/55"
@@ -114,7 +116,7 @@ export function CategoryPicker({
               <div className="min-w-0">
                 <p className="t-eyebrow flex items-center gap-2.5 text-k-red">
                   <span aria-hidden className="rule-accent block shrink-0" />
-                  {upGreek("Επιλογή υποκατηγορίας")}
+                  {upGreek(t("epilogi_ypokatigorias"))}
                 </p>
                 <p className="font-artegra mt-2 truncate text-[17px] leading-[1.25] text-k-ink lg:text-xl">
                   {upGreek(root)}
@@ -129,12 +131,12 @@ export function CategoryPicker({
                       <line x1="15.8" y1="15.8" x2="22" y2="22" />
                     </svg>
                   </span>
-                  <span className="sr-only">Φιλτράρισμα υποκατηγοριών</span>
+                  <span className="sr-only">{t("filtrarisma_ypokatigorion")}</span>
                   <input
                     autoFocus
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
-                    placeholder="Φιλτράρισμα…"
+                    placeholder={t("filtrarisma")}
                     className="t-input min-w-0 flex-1 border-0 bg-transparent pr-3 text-k-ink outline-none placeholder:text-k-text-4"
                   />
                 </label>
@@ -142,7 +144,7 @@ export function CategoryPicker({
                 <button
                   type="button"
                   onClick={() => setOpen(false)}
-                  aria-label="Κλείσιμο"
+                  aria-label={t("kleisimo")}
                   className="flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center border border-k-line-2 text-xl leading-none text-k-ink transition-colors hover:border-k-ink hover:bg-k-ink hover:text-white"
                 >
                   ×
@@ -153,7 +155,7 @@ export function CategoryPicker({
             <div className="scroll-slim min-h-0 flex-1 overflow-y-auto p-4 lg:p-5">
               {groups.length === 0 ? (
                 <p className="py-12 text-center text-[13px] text-k-text-3">
-                  Καμία υποκατηγορία για «{query.trim()}».
+                  {t("kamia_ypokatigoria_gia")}{query.trim()}».
                 </p>
               ) : (
                 <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 lg:gap-8">
@@ -211,7 +213,7 @@ export function CategoryPicker({
                 onClick={() => setOpen(false)}
                 className="t-brand-count cursor-pointer text-k-text-4 underline underline-offset-4 transition-colors hover:text-k-ink"
               >
-                {upGreek("Κλείσιμο")}
+                {upGreek(t("kleisimo"))}
               </button>
             </div>
           </div>

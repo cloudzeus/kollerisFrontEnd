@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useState, useTransition } from "react";
 import { addToCart } from "@/lib/cart/actions";
 import { upGreek } from "@/lib/greek";
@@ -24,6 +25,7 @@ export function AddToCartButton({
   className?: string;
   label?: string;
 }) {
+  const t = useTranslations("cart.AddToCartButton");
   const [pending, startTransition] = useTransition();
   const [state, setState] = useState<"idle" | "done" | "error">("idle");
 
@@ -44,12 +46,12 @@ export function AddToCartButton({
       className={`${className} disabled:opacity-60`}
     >
       {state === "done"
-        ? `✓ ${upGreek("Στο καλάθι")}`
+        ? `✓ ${upGreek(t("sto_kalathi"))}`
         : state === "error"
-          ? upGreek("Δοκιμάστε ξανά")
+          ? upGreek(t("dokimaste_xana"))
           : pending
             ? "…"
-            : (label ?? upGreek("Στο καλάθι"))}
+            : (label ?? upGreek(t("sto_kalathi")))}
     </button>
   );
 }

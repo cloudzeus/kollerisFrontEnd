@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useTransition } from "react";
 import { Link } from "@/i18n/navigation";
 import { applyCoupon, setCartOptions } from "@/lib/cart/actions";
@@ -33,6 +34,7 @@ export function CartSummaryPanel({
   paymentMethod: PaymentMethodId;
   isPartner?: boolean;
 }) {
+  const t = useTranslations("cart.CartSummaryPanel");
   const [pending, startTransition] = useTransition();
   const [coupon, setCoupon] = useState("");
   const [couponError, setCouponError] = useState<string | null>(null);
@@ -58,13 +60,13 @@ export function CartSummaryPanel({
       {/* Free shipping */}
       <div className="border-b border-k-line px-4 py-6 lg:px-8">
         <div className="mb-3.5 flex items-baseline justify-between">
-          <span className="t-footer-col text-k-text-4">{upGreek("Δωρεάν μεταφορικά")}</span>
+          <span className="t-footer-col text-k-text-4">{upGreek(t("dorean_metaforika"))}</span>
           <span
             className={`t-badge px-1.5 py-1 ${
               totals.freeShippingReached ? "bg-k-green text-white" : "bg-k-surface-3 text-k-text-3"
             }`}
           >
-            {totals.freeShippingReached ? upGreek("Ενεργό") : `${progress}%`}
+            {totals.freeShippingReached ? upGreek(t("energo")) : `${progress}%`}
           </span>
         </div>
         <div className="relative h-2 overflow-hidden bg-k-line">
@@ -77,14 +79,14 @@ export function CartSummaryPanel({
         </div>
         <p className="mt-3 text-[12px] leading-[1.5] text-k-text-2">
           {totals.freeShippingReached ? (
-            <>Τα μεταφορικά σας είναι δωρεάν.</>
+            <>{t("ta_metaforika_sas_einai_dorean")}</>
           ) : (
             <>
-              Προσθέστε ακόμη{" "}
+              {t("prostheste_akomi")}{" "}
               <strong className="font-mono font-semibold text-k-ink">
                 {formatMoney(totals.freeShippingRemaining)}
               </strong>{" "}
-              (καθαρή αξία) για δωρεάν μεταφορικά.
+              {t("kathari_axia_gia_dorean_metaforika")}
             </>
           )}
         </p>
@@ -92,9 +94,10 @@ export function CartSummaryPanel({
 
       {/* Shipping */}
       <div className="border-b border-k-line px-4 py-6 lg:px-8">
-        <p className="t-footer-col mb-3 text-k-text-4">{upGreek("Τρόπος παραλαβής")}</p>
+        <p className="t-footer-col mb-3 text-k-text-4">{upGreek(t("tropos_paralavis"))}</p>
         <div className="flex flex-col gap-px border border-k-line bg-k-line">
           {SHIPPING_METHODS.map((method) => {
+  const t = useTranslations("cart.CartSummaryPanel");
             const active = method.id === shippingMethod;
             const free = method.freeOverThreshold && totals.freeShippingReached;
             /*
@@ -132,10 +135,10 @@ export function CartSummaryPanel({
                   }`}
                 >
                   {free || method.expressMultiplier === 0
-                    ? upGreek("Δωρεάν")
+                    ? upGreek(t("dorean"))
                     : cost != null
                       ? formatMoney(cost)
-                      : upGreek("Υπολογισμός")}
+                      : upGreek(t("ypologismos"))}
                 </span>
               </button>
             );
@@ -145,7 +148,7 @@ export function CartSummaryPanel({
 
       {/* Payment */}
       <div className="border-b border-k-line px-4 py-6 lg:px-8">
-        <p className="t-footer-col mb-3 text-k-text-4">{upGreek("Τρόπος πληρωμής")}</p>
+        <p className="t-footer-col mb-3 text-k-text-4">{upGreek(t("tropos_pliromis"))}</p>
         <div className="flex flex-wrap gap-2">
           {payments.map((method) => {
             const active = method.id === paymentMethod;
@@ -181,27 +184,27 @@ export function CartSummaryPanel({
             startTransition(async () => {
               const result = await applyCoupon();
               setCouponError(
-                result.ok ? null : "Τα κουπόνια δεν είναι ακόμη διαθέσιμα.",
+                result.ok ? null : t("ta_koyponia_den_einai_akomi"),
               );
             });
           }}
           className="flex"
         >
           <label htmlFor="coupon" className="sr-only">
-            Κωδικός έκπτωσης
+            {t("kodikos_ekptosis")}
           </label>
           <input
             id="coupon"
             value={coupon}
             onChange={(e) => setCoupon(e.target.value)}
-            placeholder="Κωδικός έκπτωσης"
+            placeholder={t("kodikos_ekptosis")}
             className="h-[46px] min-w-0 flex-1 border border-r-0 border-k-line-2 px-3.5 font-mono text-[12.5px] text-k-ink outline-none focus:border-k-ink"
           />
           <button
             type="submit"
             className="t-card-cta border-0 bg-k-ink px-5 text-white transition-colors hover:bg-k-red"
           >
-            {upGreek("Εφαρμογή")}
+            {upGreek(t("efarmogi"))}
           </button>
         </form>
         {couponError && (
@@ -221,7 +224,7 @@ export function CartSummaryPanel({
               k: "Μεταφορικά",
               v:
                 totals.shippingGross === 0
-                  ? upGreek("Δωρεάν")
+                  ? upGreek(t("dorean"))
                   : formatMoney(totals.shippingGross),
             },
             ...(totals.paymentFeeGross > 0
@@ -241,17 +244,17 @@ export function CartSummaryPanel({
         {totals.postage && totals.shippingGross > 0 && (
           <p className="mt-2.5 text-[11px] leading-[1.5] text-white/45">
             {totals.postage.carrier} · {totals.postage.zoneLabel} ·{" "}
-            {totals.postage.chargeableKg} kg χρεώσιμο βάρος
+            {totals.postage.chargeableKg} {t("kg_chreosimo_varos")}
             {totals.postage.estimated && " (εκτίμηση)"}
             {" — "}
-            {totals.postage.etaDays} εργάσιμες
+            {totals.postage.etaDays} {t("ergasimes")}
           </p>
         )}
 
         <div className="mt-4 flex items-end justify-between gap-4 border-t border-white/16 pt-4">
           <div>
-            <p className="t-footer-col text-white/50">{upGreek("Τελικό σύνολο")}</p>
-            <p className="t-account-label mt-1.5 text-white/40">{upGreek("Με ΦΠΑ")}</p>
+            <p className="t-footer-col text-white/50">{upGreek(t("teliko_synolo"))}</p>
+            <p className="t-account-label mt-1.5 text-white/40">{upGreek(t("me_fpa"))}</p>
           </div>
           <p className="font-mono text-[30px] leading-none font-semibold tracking-[-0.03em] whitespace-nowrap text-white lg:text-[38px]">
             {formatMoney(totals.totalGross)}
@@ -260,7 +263,7 @@ export function CartSummaryPanel({
 
         {totals.savingsGross > 0 && (
           <p className="mt-3.5 border-l-[3px] border-k-red bg-k-red/14 px-3.5 py-2.5 text-[11.5px] font-semibold text-white">
-            Κερδίζετε {formatMoney(totals.savingsGross)} σε αυτή την παραγγελία
+            {t("kerdizete")} {formatMoney(totals.savingsGross)} {t("se_ayti_tin_paraggelia")}
           </p>
         )}
 
@@ -268,11 +271,11 @@ export function CartSummaryPanel({
           href="/checkout"
           className="t-btn mt-4 flex h-14 w-full items-center justify-center bg-k-red text-white transition-colors hover:bg-white hover:text-k-ink"
         >
-          {upGreek("Ολοκλήρωση παραγγελίας")} →
+          {upGreek(t("oloklirosi_paraggelias"))} →
         </Link>
 
         <p className="t-account-label mt-3 flex items-center justify-center gap-2 text-white/50">
-          {upGreek("Ασφαλής πληρωμή · SSL")}
+          {upGreek(t("asfalis_pliromi_ssl"))}
         </p>
       </div>
     </aside>

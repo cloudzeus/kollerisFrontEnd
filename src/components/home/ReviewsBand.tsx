@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import { upGreek } from "@/lib/greek";
 
 export type SiteReview = {
@@ -28,6 +29,7 @@ export function ReviewsBand({
   reviews: SiteReview[];
   copy: Record<string, string>
 }) {
+  const t = useTranslations("home.ReviewsBand");
   if (reviews.length === 0) return null;
 
   const stars = [0, 1, 2, 3, 4];
@@ -61,8 +63,7 @@ export function ReviewsBand({
             ))}
           </p>
           <p className="t-review-text mt-3.5 text-white/60 lg:mt-4">
-            Βασισμένο σε {reviewCount} αξιολογήσεις επαγγελματιών, συνεργείων και
-            ναυπηγείων.
+            {t("vasismeno_se")} {reviewCount} {t("axiologiseis_epaggelmation_synergeion_kai_naypigeion")}
           </p>
         </div>
 

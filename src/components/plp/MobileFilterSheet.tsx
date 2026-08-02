@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { FilterSidebar } from "@/components/plp/FilterSidebar";
 import type { RawParams } from "@/lib/catalog/filter-href";
@@ -28,6 +29,7 @@ export function MobileFilterSheet({
   basePath: string;
   params: RawParams;
 }) {
+  const t = useTranslations("plp.MobileFilterSheet");
   const [open, setOpen] = useState(false);
 
   const activeCount =
@@ -58,7 +60,7 @@ export function MobileFilterSheet({
         aria-expanded={open}
         className="t-btn-sm flex h-11 items-center gap-2 border-[1.5px] border-k-ink px-4 text-k-ink lg:hidden"
       >
-        {upGreek("Φίλτρα")}
+        {upGreek(t("filtra"))}
         {activeCount > 0 && (
           <span className="t-brand-count bg-k-red px-1.5 py-0.5 text-white">
             {activeCount}
@@ -70,7 +72,7 @@ export function MobileFilterSheet({
         <div className="fixed inset-0 z-50 lg:hidden">
           <button
             type="button"
-            aria-label="Κλείσιμο φίλτρων"
+            aria-label={t("kleisimo_filtron")}
             tabIndex={-1}
             onClick={() => setOpen(false)}
             className="absolute inset-0 bg-black/50"
@@ -79,7 +81,7 @@ export function MobileFilterSheet({
           <div
             role="dialog"
             aria-modal="true"
-            aria-label="Φίλτρα"
+            aria-label={t("filtra")}
             className="absolute inset-x-0 bottom-0 flex max-h-[88vh] flex-col bg-white"
           >
             <FilterSidebar

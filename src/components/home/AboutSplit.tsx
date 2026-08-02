@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { upGreek } from "@/lib/greek";
 
@@ -16,6 +17,7 @@ export function AboutSplit({
   usps: Array<{ n: string; title: string; body: string }>;
   copy: Record<string, string>
 }) {
+  const t = useTranslations("home.AboutSplit");
   return (
     <section className="shell-w grid bg-white lg:grid-cols-2">
       <div className="relative hidden min-h-[420px] items-center justify-center bg-k-surface-3 lg:flex">
@@ -40,7 +42,7 @@ export function AboutSplit({
           <rect width="100%" height="100%" fill="url(#kstripe)" />
         </svg>
         <p className="t-footer-tag relative bg-k-surface-3/92 px-5 py-3.5 text-center text-k-text-4">
-          {upGreek("Φωτογραφία αποθήκης / ομάδας")}
+          {upGreek(t("fotografia_apothikis_omadas"))}
           <br />
           <span className="text-k-text-6">1200 × 840</span>
         </p>
@@ -54,9 +56,7 @@ export function AboutSplit({
           {upGreek(copy.titleSecond)}
         </h2>
         <p className="t-body text-k-text-2">
-          Για 46 χρόνια, η Kolleris είναι ο προμηθευτής που καλούν ναυτιλιακές
-          εταιρείες, εργοστάσια και συνεργεία. Άμεσες σχέσεις με Milwaukee, Knipex,
-          Wera — ακριβής διαθεσιμότητα, χωρίς «θα δούμε».
+          {t("gia_46_chronia_i_kolleris")}
         </p>
 
         <dl className="mt-1 flex flex-col gap-3.5">

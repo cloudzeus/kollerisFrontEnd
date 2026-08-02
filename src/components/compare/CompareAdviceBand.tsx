@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import type { CompareAdvice, CompareColumn } from "@/lib/compare/options";
 import { upGreek } from "@/lib/greek";
@@ -17,15 +18,16 @@ export function CompareAdviceBand({
   advice: CompareAdvice[];
   columns: CompareColumn[];
 }) {
+  const t = useTranslations("compare.CompareAdviceBand");
   if (advice.length === 0) return null;
 
   return (
     <section className="shell-x border-t border-k-line bg-k-surface-3 py-7 lg:py-11">
       <p className="t-eyebrow text-k-red">
-        {upGreek("Η επιλογή του υπευθύνου")}
+        {upGreek(t("i_epilogi_toy_ypeythynoy"))}
       </p>
       <h2 className="font-artegra mt-2 text-[19px] leading-[1.2] font-medium text-k-ink lg:text-[25px]">
-        {upGreek("Ποιο να πάρετε, ανάλογα με τι μετράει")}
+        {upGreek(t("poio_na_parete_analoga_me"))}
       </h2>
 
       <div className="mt-5 grid gap-px border border-k-line bg-k-line sm:grid-cols-2 lg:mt-7 lg:grid-cols-4">

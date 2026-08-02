@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "@/i18n/navigation";
@@ -29,6 +30,7 @@ export function MiniCart({
   cart: MiniCartSummary | null;
   variant?: "desktop" | "mobile";
 }) {
+  const t = useTranslations("cart.MiniCart");
   const [open, setOpen] = useState(false);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const wrapper = useRef<HTMLDivElement>(null);
@@ -99,9 +101,9 @@ export function MiniCart({
 
         {variant === "desktop" && (
           <span className="block text-left">
-            <span className="t-account-label block text-k-text-4">{upGreek("Καλάθι")}</span>
+            <span className="t-account-label block text-k-text-4">{upGreek(t("kalathi"))}</span>
             <span className="t-account-value mt-0.5 block text-k-ink">
-              {cart ? formatMoney(cart.subtotalGross) : upGreek("Άδειο")}
+              {cart ? formatMoney(cart.subtotalGross) : upGreek(t("adeio"))}
             </span>
           </span>
         )}
@@ -110,28 +112,28 @@ export function MiniCart({
       {open && (
         <div
           role="dialog"
-          aria-label="Το καλάθι σας"
+          aria-label={t("to_kalathi_sas")}
           onMouseEnter={cancelClose}
           className="absolute top-full right-0 z-40 mt-2 w-[min(92vw,360px)] border border-k-line bg-white shadow-[0_18px_40px_rgba(0,0,0,.12)]"
         >
           <div className="flex items-baseline justify-between border-b border-k-line px-[18px] py-3.5">
             <span className="text-[11px] font-bold tracking-[0.07em] text-k-ink">
-              {upGreek("Το καλάθι σας")}
+              {upGreek(t("to_kalathi_sas"))}
             </span>
             <span className="t-brand-count text-k-text-4">
-              {cart ? `${cart.itemCount} ${upGreek("προϊόντα")}` : "—"}
+              {cart ? `${cart.itemCount} ${upGreek(t("proionta"))}` : "—"}
             </span>
           </div>
 
           {!cart ? (
             <div className="px-[18px] py-10 text-center">
-              <p className="text-[13px] text-k-text-3">Το καλάθι είναι άδειο.</p>
+              <p className="text-[13px] text-k-text-3">{t("to_kalathi_einai_adeio")}</p>
               <Link
                 href="/katalogos"
                 onClick={() => setOpen(false)}
                 className="t-link-mono mt-3 inline-block border-b-[1.5px] border-k-red pb-0.5 text-k-ink"
               >
-                {upGreek("Στον κατάλογο")} →
+                {upGreek(t("ston_katalogo"))} →
               </Link>
             </div>
           ) : (
@@ -178,14 +180,14 @@ export function MiniCart({
 
                 {cart.overflow > 0 && (
                   <p className="px-[18px] py-2.5 text-[11.5px] text-k-text-4">
-                    + {cart.overflow} ακόμη στο καλάθι
+                    + {cart.overflow} {t("akomi_sto_kalathi")}
                   </p>
                 )}
               </div>
 
               <div className="border-b border-k-line bg-k-surface-2 px-[18px] py-3.5">
                 <div className="flex items-baseline justify-between">
-                  <span className="text-[12px] text-k-text-3">Υποσύνολο</span>
+                  <span className="text-[12px] text-k-text-3">{t("yposynolo")}</span>
                   <span className="font-mono text-[19px] font-semibold whitespace-nowrap text-k-ink">
                     {formatMoney(cart.subtotalGross)}
                   </span>
@@ -200,11 +202,11 @@ export function MiniCart({
                   />
                 </div>
                 <p className="mt-1.5 text-[10.5px] text-k-text-5">
-                  Χωρίς μεταφορικά — υπολογίζονται στο καλάθι.
+                  {t("choris_metaforika_ypologizontai_sto_kalathi")}
                 </p>
                 <p className="mt-2 text-[11px] leading-[1.5] text-k-text-3">
                   {cart.freeShippingReached
-                    ? "Δωρεάν μεταφορικά — ενεργά."
+                    ? t("dorean_metaforika_energa")
                     : `Ακόμη ${formatMoney(cart.freeShippingRemaining)} για δωρεάν μεταφορικά.`}
                 </p>
               </div>
@@ -215,14 +217,14 @@ export function MiniCart({
                   onClick={() => setOpen(false)}
                   className="t-card-cta flex h-11 flex-1 items-center justify-center border-[1.5px] border-k-ink text-k-ink transition-colors hover:bg-k-ink hover:text-white"
                 >
-                  {upGreek("Καλάθι")}
+                  {upGreek(t("kalathi"))}
                 </Link>
                 <Link
                   href="/checkout"
                   onClick={() => setOpen(false)}
                   className="t-card-cta flex h-11 flex-1 items-center justify-center bg-k-red text-white transition-colors hover:bg-k-red-hover"
                 >
-                  {upGreek("Ολοκλήρωση")} →
+                  {upGreek(t("oloklirosi"))} →
                 </Link>
               </div>
             </>

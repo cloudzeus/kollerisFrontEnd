@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import Image from "next/image";
 import { Link } from "@/i18n/navigation";
 import type { BrandTile } from "@/lib/catalog/queries";
@@ -19,6 +20,7 @@ export function BrandWall({
   brands: BrandTile[];
   totalBrands: number;
 }) {
+  const t = useTranslations("home.BrandWall");
   if (brands.length === 0) return null;
 
   return (
@@ -26,10 +28,10 @@ export function BrandWall({
       <SectionHeading
         center
         eyebrow="Exclusive partnerships"
-        title="Τα brands που αντιπροσωπεύουμε"
+        title={t("ta_brands_poy_antiprosopeyoyme")}
       >
         <p className="t-news-body mt-3 text-k-text-3">
-          {totalBrands} brands με ενεργά προϊόντα · μία διεύθυνση
+          {totalBrands} {t("brands_me_energa_proionta_mia")}
         </p>
       </SectionHeading>
 
@@ -53,7 +55,7 @@ export function BrandWall({
               <span className="t-brand-name text-k-text-2">{brand.name}</span>
             )}
             <span className="t-brand-count text-k-text-6">
-              {brand.productCount.toLocaleString("el-GR")} {upGreek("κωδ.")}
+              {brand.productCount.toLocaleString("el-GR")} {upGreek(t("kod"))}
             </span>
           </Link>
         ))}

@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import Image from "next/image";
 import { useActionState } from "react";
 import { trackOrder, type TrackState } from "@/lib/orders/lookup";
@@ -14,6 +15,7 @@ import { upGreek } from "@/lib/greek";
  * lookup fields any more, and a "search again" link is one tap when they do.
  */
 export function OrderTracker({ initialOrderNumber }: { initialOrderNumber?: string }) {
+  const t = useTranslations("orders.OrderTracker");
   const [state, action, pending] = useActionState<TrackState, FormData>(trackOrder, {
     state: "idle",
   });
@@ -27,7 +29,7 @@ export function OrderTracker({ initialOrderNumber }: { initialOrderNumber?: stri
       <div className="grid gap-4 sm:grid-cols-2">
         <label className="block">
           <span className="t-account-label mb-1.5 block text-k-text-4">
-            {upGreek("Αριθμός παραγγελίας")}
+            {upGreek(t("arithmos_paraggelias"))}
             <span className="ml-1 text-k-red">*</span>
           </span>
           <input
@@ -42,7 +44,7 @@ export function OrderTracker({ initialOrderNumber }: { initialOrderNumber?: stri
 
         <label className="block">
           <span className="t-account-label mb-1.5 block text-k-text-4">
-            {upGreek("Email παραγγελίας")}
+            {upGreek(t("email_paraggelias"))}
             <span className="ml-1 text-k-red">*</span>
           </span>
           <input
@@ -70,10 +72,10 @@ export function OrderTracker({ initialOrderNumber }: { initialOrderNumber?: stri
           disabled={pending}
           className="t-btn h-13 bg-k-red px-9 py-4 text-white transition-colors hover:bg-k-red-hover disabled:opacity-60"
         >
-          {pending ? "…" : upGreek("Εντοπισμός")}
+          {pending ? "…" : upGreek(t("entopismos"))}
         </button>
         <p className="text-[12px] leading-[1.55] text-k-text-4">
-          Ο αριθμός είναι στο email επιβεβαίωσης. Δεν χρειάζεται λογαριασμός.
+          {t("o_arithmos_einai_sto_email")}
         </p>
       </div>
     </form>
@@ -81,6 +83,7 @@ export function OrderTracker({ initialOrderNumber }: { initialOrderNumber?: stri
 }
 
 function Result({ order }: { order: Extract<TrackState, { state: "found" }>["order"] }) {
+  const t = useTranslations("orders.OrderTracker");
   const halted = order.status === "CANCELLED" || order.status === "FAILED";
   const date = (iso: string | null) =>
     iso
@@ -95,12 +98,12 @@ function Result({ order }: { order: Extract<TrackState, { state: "found" }>["ord
     <div>
       <div className="flex flex-wrap items-start justify-between gap-5 border border-k-line bg-white p-5 lg:p-6">
         <div className="min-w-0">
-          <p className="t-account-label text-k-text-4">{upGreek("Παραγγελία")}</p>
+          <p className="t-account-label text-k-text-4">{upGreek(t("paraggelia"))}</p>
           <p className="mt-1 font-mono text-[19px] leading-none font-semibold text-k-ink lg:text-[23px]">
             {order.orderNumber}
           </p>
           <p className="t-brand-count mt-2 text-k-text-4">
-            {date(order.placedAt)} · {order.itemCount} {upGreek("τεμ.")} ·{" "}
+            {date(order.placedAt)} · {order.itemCount} {upGreek(t("tem"))} ·{" "}
             {formatMoney(order.totalGross)}
           </p>
         </div>
@@ -123,8 +126,8 @@ function Result({ order }: { order: Extract<TrackState, { state: "found" }>["ord
       {halted ? (
         <p className="mt-px border border-t-0 border-k-line bg-k-surface-2 px-5 py-5 text-[13px] leading-[1.65] text-k-text-2 lg:px-6">
           {order.status === "CANCELLED"
-            ? "Η παραγγελία ακυρώθηκε. Αν δεν την ακυρώσατε εσείς, καλέστε μας στο 210 411 1355."
-            : "Η πληρωμή δεν ολοκληρώθηκε. Μπορείτε να ξαναπροσπαθήσετε ή να μας καλέσετε στο 210 411 1355."}
+            ? t("i_paraggelia_akyrothike_an_den")
+            : t("i_pliromi_den_oloklirothike_mporeite")}
         </p>
       ) : (
         <ol className="mt-px grid gap-px border border-t-0 border-k-line bg-k-line sm:grid-cols-2 lg:grid-cols-4">
@@ -144,7 +147,7 @@ function Result({ order }: { order: Extract<TrackState, { state: "found" }>["ord
                 {step.label}
               </span>
               <span className="t-brand-count text-k-text-4">
-                {step.at ? date(step.at) : step.current ? upGreek("σε εξέλιξη") : "—"}
+                {step.at ? date(step.at) : step.current ? upGreek(t("se_exelixi")) : "—"}
               </span>
             </li>
           ))}
@@ -154,7 +157,7 @@ function Result({ order }: { order: Extract<TrackState, { state: "found" }>["ord
       {order.voucher && (
         <div className="mt-px flex flex-wrap items-center justify-between gap-4 border border-t-0 border-k-line bg-k-surface-2 px-5 py-4 lg:px-6">
           <div className="min-w-0">
-            <p className="t-account-label text-k-text-4">{upGreek("Αριθμός αποστολής ACS")}</p>
+            <p className="t-account-label text-k-text-4">{upGreek(t("arithmos_apostolis_acs"))}</p>
             <p className="mt-1 font-mono text-[14px] font-semibold text-k-ink">{order.voucher}</p>
           </div>
           <a
@@ -163,7 +166,7 @@ function Result({ order }: { order: Extract<TrackState, { state: "found" }>["ord
             rel="noreferrer"
             className="t-btn-sm bg-k-ink px-6 py-3.5 text-white transition-colors hover:bg-k-red"
           >
-            {upGreek("Παρακολούθηση στην ACS")} →
+            {upGreek(t("parakoloythisi_stin_acs"))} →
           </a>
         </div>
       )}
@@ -201,7 +204,7 @@ function Result({ order }: { order: Extract<TrackState, { state: "found" }>["ord
       )}
 
       <p className="mt-5 text-[12.5px] text-k-text-3">
-        Κάτι δεν πάει καλά;{" "}
+        {t("kati_den_paei_kala")}{" "}
         <a href="tel:+302104111355" className="font-semibold text-k-ink underline underline-offset-4">
           210 411 1355
         </a>{" "}
@@ -211,7 +214,7 @@ function Result({ order }: { order: Extract<TrackState, { state: "found" }>["ord
           onClick={() => window.location.reload()}
           className="cursor-pointer font-semibold text-k-ink underline underline-offset-4"
         >
-          Άλλη παραγγελία
+          {t("alli_paraggelia")}
         </button>
       </p>
     </div>

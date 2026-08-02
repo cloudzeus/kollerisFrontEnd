@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import Image from "next/image";
 import { useCallback, useRef, useState } from "react";
 import { Link } from "@/i18n/navigation";
@@ -55,6 +56,7 @@ export function MegaMenu({
   totalProducts: number;
   totalBrands: number;
 }) {
+  const t = useTranslations("chrome.MegaMenu");
   const [open, setOpen] = useState<Panel>(null);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -106,7 +108,7 @@ export function MegaMenu({
             open === "categories" ? "bg-k-red text-white" : "bg-k-ink text-white"
           }`}
         >
-          {upGreek("Κατηγορίες")}
+          {upGreek(t("katigories"))}
           <span className="text-[9px]">▾</span>
         </button>
 
@@ -150,7 +152,7 @@ export function MegaMenu({
               {/* Featured product tile */}
               <div className="py-[26px] pl-[26px]">
                 <p className="t-account-label mb-3 text-k-text-4">
-                  {upGreek("Προτεινόμενο")}
+                  {upGreek(t("proteinomeno"))}
                 </p>
                 {featured ? (
                   <div className="flex flex-col gap-3.5 bg-k-surface-3 p-5">
@@ -174,7 +176,7 @@ export function MegaMenu({
                       href={`/proion/${featured.slug}`}
                       className="t-link-mono self-start border-b-[1.5px] border-k-red pb-0.5 text-k-ink"
                     >
-                      {upGreek("Δείτε το")} →
+                      {upGreek(t("deite_to"))} →
                     </Link>
                   </div>
                 ) : (
@@ -185,11 +187,11 @@ export function MegaMenu({
 
             <div className="mt-1 flex items-center justify-between border-t border-[#F0F0F2] py-4">
               <p className="text-[12px] text-k-text-3">
-                {totalCategories} βασικές κατηγορίες · {totalSubcategories}{" "}
-                υποκατηγορίες · {totalProducts.toLocaleString("el-GR")} κωδικοί
+                {totalCategories} {t("vasikes_katigories")} {totalSubcategories}{" "}
+                {t("ypokatigories")} {totalProducts.toLocaleString("el-GR")} {t("kodikoi")}
               </p>
               <Link href="/katalogos" className="t-link-mono text-k-ink hover:text-k-red">
-                {upGreek("Όλες οι κατηγορίες")} →
+                {upGreek(t("oles_oi_katigories"))} →
               </Link>
             </div>
           </div>
@@ -219,7 +221,7 @@ export function MegaMenu({
           >
             <div className="mb-[18px] flex items-baseline justify-between">
               <p className="text-[12px] font-bold tracking-[0.06em] text-k-ink">
-                {upGreek("Αντιπροσωπευόμενα brands")}
+                {upGreek(t("antiprosopeyomena_brands"))}
               </p>
               <Link href="/brands" className="t-link-mono text-k-ink hover:text-k-red">
                 {upGreek(`Όλα τα ${totalBrands}`)} →

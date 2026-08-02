@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 import type { FaqSection } from "@/lib/faq/faq-types";
 import { searchKey, upGreek } from "@/lib/greek";
@@ -17,6 +18,7 @@ import { searchKey, upGreek } from "@/lib/greek";
  * headings would tell them we have no answer when we do.
  */
 export function FaqAccordion({ sections }: { sections: FaqSection[] }) {
+  const t = useTranslations("faq.FaqAccordion");
   const [query, setQuery] = useState("");
   const [expandAll, setExpandAll] = useState(false);
 
@@ -46,11 +48,11 @@ export function FaqAccordion({ sections }: { sections: FaqSection[] }) {
               <line x1="15.8" y1="15.8" x2="22" y2="22" />
             </svg>
           </span>
-          <span className="sr-only">Αναζήτηση στις ερωτήσεις</span>
+          <span className="sr-only">{t("anazitisi_stis_erotiseis")}</span>
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Ψάξτε μια ερώτηση — π.χ. μεταφορικά, εγγύηση, τιμολόγιο"
+            placeholder={t("psaxte_mia_erotisi_p_ch")}
             autoComplete="off"
             className="t-input min-w-0 flex-1 border-0 bg-transparent pr-2 text-k-ink outline-none placeholder:text-k-text-4"
           />
@@ -58,7 +60,7 @@ export function FaqAccordion({ sections }: { sections: FaqSection[] }) {
             <button
               type="button"
               onClick={() => setQuery("")}
-              aria-label="Καθαρισμός"
+              aria-label={t("katharismos")}
               className="cursor-pointer px-4 text-k-text-4 transition-colors hover:text-k-ink"
             >
               ✕
@@ -75,7 +77,7 @@ export function FaqAccordion({ sections }: { sections: FaqSection[] }) {
             onClick={() => setExpandAll((v) => !v)}
             className="t-brand-count cursor-pointer text-k-ink underline underline-offset-4 transition-colors hover:text-k-red"
           >
-            {upGreek(expandAll ? "Σύμπτυξη όλων" : "Άνοιγμα όλων")}
+            {upGreek(expandAll ? t("symptyxi_olon") : t("anoigma_olon"))}
           </button>
         </div>
       </div>
@@ -83,11 +85,10 @@ export function FaqAccordion({ sections }: { sections: FaqSection[] }) {
       {filtering && shown === 0 && (
         <div className="mt-7 border border-k-line bg-k-surface-2 px-5 py-12 text-center">
           <p className="text-[13.5px] font-semibold text-k-ink">
-            Καμία ερώτηση για «{query.trim()}»
+            {t("kamia_erotisi_gia")}{query.trim()}»
           </p>
           <p className="mx-auto mt-2 max-w-md text-[12.5px] leading-[1.6] text-k-text-3">
-            Ρωτήστε μας απευθείας — απαντάμε την ίδια εργάσιμη, και η ερώτησή σας πιθανότατα
-            μπει εδώ για τον επόμενο.
+            {t("rotiste_mas_apeytheias_apantame_tin")}
           </p>
           <a
             href="tel:+302104111355"

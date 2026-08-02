@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useQuickView } from "@/components/product/QuickViewProvider";
 import { upGreek } from "@/lib/greek";
 
@@ -10,6 +11,7 @@ import { upGreek } from "@/lib/greek";
  * after a tap competes with the card's own link.
  */
 export function QuickViewTrigger({ slug }: { slug: string }) {
+  const t = useTranslations("product.QuickViewTrigger");
   const quickView = useQuickView();
 
   return (
@@ -23,7 +25,7 @@ export function QuickViewTrigger({ slug }: { slug: string }) {
         <path d="M2 12s3.8-6 10-6 10 6 10 6-3.8 6-10 6-10-6-10-6Z" />
         <circle cx="12" cy="12" r="2.6" />
       </svg>
-      {upGreek("Γρήγορη προβολή")}
+      {upGreek(t("grigori_provoli"))}
     </button>
   );
 }

@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import Image from "next/image";
 import { Link } from "@/i18n/navigation";
 import type { CategoryTile } from "@/lib/catalog/queries";
@@ -14,16 +15,17 @@ const PAYMENTS = ["VISA", "MC", "MAESTRO", "IRIS", "PAYPAL"];
  * The category column is live from the projection.
  */
 export function SiteFooter({ categories }: { categories: CategoryTile[] }) {
+  const t = useTranslations("chrome.SiteFooter");
   const columns = [
     {
-      title: upGreek("Κατηγορίες"),
+      title: upGreek(t("katigories")),
       links: categories.slice(0, 6).map((c) => ({
         href: `/katalogos/${c.slug}`,
         label: upGreek(c.name),
       })),
     },
     {
-      title: upGreek("Εξυπηρέτηση"),
+      title: upGreek(t("exypiretisi")),
       links: [
         { href: "/logariasmos/entopismos", label: "Εντοπισμός παραγγελίας" },
         { href: "/logariasmos/epistrofes", label: "Επιστροφές" },
@@ -33,7 +35,7 @@ export function SiteFooter({ categories }: { categories: CategoryTile[] }) {
       ],
     },
     {
-      title: upGreek("Η εταιρεία"),
+      title: upGreek(t("i_etaireia")),
       links: [
         { href: "/etaireia", label: "Ποιοι είμαστε" },
         { href: "/brands", label: "Brands" },
@@ -118,7 +120,7 @@ export function SiteFooter({ categories }: { categories: CategoryTile[] }) {
           © {new Date().getFullYear()} Kolleris Bros IKE
           <br className="lg:hidden" />
           <span className="hidden lg:inline"> · </span>
-          Κ. Μαυρομιχάλη 4, 18545 Πειραιάς
+          {t("k_mayromichali_4_18545_peiraias")}
         </p>
         <div className="hidden items-center gap-2 lg:flex">
           {PAYMENTS.map((payment) => (

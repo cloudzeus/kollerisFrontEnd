@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { upGreek } from "@/lib/greek";
 
@@ -27,6 +28,7 @@ export function CompareToolbar({
   differingRows: number;
   columnCount: number;
 }) {
+  const t = useTranslations("compare.CompareToolbar");
   const href = (next: { diff?: boolean; best?: boolean }) => {
     const params = new URLSearchParams({ ids: ids.join(",") });
     if (next.diff ?? diffOnly) params.set("diff", "1");
@@ -44,13 +46,13 @@ export function CompareToolbar({
             href={href({ diff: !diffOnly })}
             active={diffOnly}
             disabled={!canDiff}
-            label="Μόνο διαφορές"
+            label={t("mono_diafores")}
           />
           <Toggle
             href={href({ best: !highlightBest })}
             active={highlightBest}
             disabled={!canDiff}
-            label="Καλύτερη τιμή ανά γραμμή"
+            label={t("kalyteri_timi_ana_grammi")}
           />
         </div>
 
@@ -58,14 +60,14 @@ export function CompareToolbar({
           <span className="font-mono font-semibold text-k-ink">
             {diffOnly ? differingRows : totalRows}
           </span>
-          {upGreek(diffOnly ? `από ${totalRows} γραμμές` : "γραμμές")}
+          {upGreek(diffOnly ? `από ${totalRows} γραμμές` : t("grammes"))}
           {!diffOnly && differingRows > 0 && (
             <>
               <span className="block h-[14px] w-px bg-k-line-2" />
               <span className="font-mono font-semibold text-k-red">
                 {differingRows}
               </span>
-              {upGreek("με διαφορά")}
+              {upGreek(t("me_diafora"))}
             </>
           )}
         </p>

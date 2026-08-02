@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useActionState, useState } from "react";
 import { submitContact, type ContactState } from "@/lib/contact/actions";
 import { upGreek } from "@/lib/greek";
@@ -52,6 +53,7 @@ const TOPICS = [
 ] as const;
 
 export function ContactForm({ locale, pagePath }: { locale: string; pagePath?: string }) {
+  const t = useTranslations("contact.ContactForm");
   const [state, action, pending] = useActionState<ContactState, FormData>(submitContact, {});
   const [topic, setTopic] = useState<(typeof TOPICS)[number]["value"]>("technical");
 
@@ -60,16 +62,16 @@ export function ContactForm({ locale, pagePath }: { locale: string; pagePath?: s
   if (state.ok) {
     return (
       <div className="border-l-[3px] border-k-green bg-k-surface-2 p-6 lg:p-8">
-        <p className="t-eyebrow text-k-green">{upGreek("Στάλθηκε")}</p>
+        <p className="t-eyebrow text-k-green">{upGreek(t("stalthike"))}</p>
         <p className="font-artegra mt-3 text-[19px] leading-[1.25] text-k-ink lg:text-[22px]">
-          {upGreek("Το λάβαμε")}
+          {upGreek(t("to_lavame"))}
         </p>
         <p className="mt-3 max-w-lg text-[13.5px] leading-[1.7] text-k-text-2">
-          Απαντάμε συνήθως την ίδια εργάσιμη. Αν βιάζεστε, καλέστε μας στο{" "}
+          {t("apantame_synithos_tin_idia_ergasimi")}{" "}
           <a href="tel:+302104111355" className="font-semibold text-k-ink underline underline-offset-4">
             210 411 1355
           </a>{" "}
-          — σηκώνει άνθρωπος.
+          {t("sikonei_anthropos")}
         </p>
       </div>
     );
@@ -83,7 +85,7 @@ export function ContactForm({ locale, pagePath }: { locale: string; pagePath?: s
       {/* Honeypot: off-screen, not `display:none`, so a bot's autofill still
           finds it while a screen reader is told to skip it. */}
       <div aria-hidden className="absolute left-[-9999px] h-0 w-0 overflow-hidden">
-        <label htmlFor="website">Μην συμπληρώσετε</label>
+        <label htmlFor="website">{t("min_symplirosete")}</label>
         <input id="website" name="website" type="text" tabIndex={-1} autoComplete="off" />
       </div>
 
@@ -94,7 +96,7 @@ export function ContactForm({ locale, pagePath }: { locale: string; pagePath?: s
       )}
 
       <fieldset>
-        <legend className="t-account-label mb-2.5 text-k-text-4">{upGreek("Θέμα")}</legend>
+        <legend className="t-account-label mb-2.5 text-k-text-4">{upGreek(t("thema"))}</legend>
         <div className="flex flex-wrap gap-1.5">
           {TOPICS.map((option) => (
             <label
@@ -123,24 +125,24 @@ export function ContactForm({ locale, pagePath }: { locale: string; pagePath?: s
       </fieldset>
 
       <div className="grid gap-4 sm:grid-cols-2">
-        <Field label="Ονοματεπώνυμο" name="name" required error={state.fieldErrors?.name} />
+        <Field label={t("onomateponymo")} name="name" required error={state.fieldErrors?.name} />
         <Field label="Email" name="email" type="email" autoComplete="email" required error={state.fieldErrors?.email} />
-        <Field label="Τηλέφωνο" name="phone" type="tel" autoComplete="tel" help="Για να σας πάρουμε αν είναι πιο γρήγορο." />
-        <Field label="Εταιρεία" name="company" required={topic === "partnership"} error={state.fieldErrors?.company} />
+        <Field label={t("tilefono")} name="phone" type="tel" autoComplete="tel" help="Για να σας πάρουμε αν είναι πιο γρήγορο." />
+        <Field label={t("etaireia")} name="company" required={topic === "partnership"} error={state.fieldErrors?.company} />
 
         {topic === "partnership" && (
-          <Field label="ΑΦΜ" name="vatNumber" error={state.fieldErrors?.vatNumber} help="Για να ετοιμάσουμε τον εταιρικό λογαριασμό." />
+          <Field label={t("afm")} name="vatNumber" error={state.fieldErrors?.vatNumber} help="Για να ετοιμάσουμε τον εταιρικό λογαριασμό." />
         )}
         {topic === "order" && (
-          <Field label="Αριθμός παραγγελίας" name="orderRef" placeholder="π.χ. KOL-20260731-0007" error={state.fieldErrors?.orderRef} />
+          <Field label={t("arithmos_paraggelias")} name="orderRef" placeholder={t("p_ch_kol_20260731_0007")} error={state.fieldErrors?.orderRef} />
         )}
       </div>
 
-      <Field label="Θέμα μηνύματος" name="subject" required error={state.fieldErrors?.subject} />
+      <Field label={t("thema_minymatos")} name="subject" required error={state.fieldErrors?.subject} />
 
       <label className="block">
         <span className="t-account-label mb-1.5 block text-k-text-4">
-          {upGreek("Μήνυμα")}
+          {upGreek(t("minyma"))}
           <span className="ml-1 text-k-red">*</span>
         </span>
         <textarea
@@ -163,7 +165,7 @@ export function ContactForm({ locale, pagePath }: { locale: string; pagePath?: s
         disabled={pending}
         className="t-btn h-13 self-start bg-k-red px-10 py-4 text-white transition-colors hover:bg-k-red-hover disabled:opacity-60"
       >
-        {pending ? "…" : upGreek("Αποστολή")}
+        {pending ? "…" : upGreek(t("apostoli"))}
       </button>
     </form>
   );

@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useActionState, useState } from "react";
 import { CompanyVatFields } from "@/components/account/CompanyVatFields";
 import { register, signIn, updateProfile, type AuthState } from "@/lib/account/actions";
@@ -17,6 +18,7 @@ import { upGreek } from "@/lib/greek";
  */
 
 export function SignInForm({ redirectTo }: { redirectTo?: string }) {
+  const t = useTranslations("account.AuthForms");
   const [state, action, pending] = useActionState<AuthState, FormData>(signIn, {});
 
   return (
@@ -26,7 +28,7 @@ export function SignInForm({ redirectTo }: { redirectTo?: string }) {
 
       <Field label="Email" name="email" type="email" autoComplete="email" required error={state.fieldErrors?.email} />
       <Field
-        label="Κωδικός"
+        label={t("kodikos")}
         name="password"
         type="password"
         autoComplete="current-password"
@@ -39,13 +41,13 @@ export function SignInForm({ redirectTo }: { redirectTo?: string }) {
         disabled={pending}
         className="t-btn h-13 bg-k-red py-4 text-white transition-colors hover:bg-k-red-hover disabled:opacity-60"
       >
-        {pending ? "…" : upGreek("Σύνδεση")}
+        {pending ? "…" : upGreek(t("syndesi"))}
       </button>
 
       <p className="text-[12.5px] text-k-text-3">
-        Δεν έχετε λογαριασμό;{" "}
+        {t("den_echete_logariasmo")}{" "}
         <Link href="/eggrafi" className="font-semibold text-k-ink underline underline-offset-4 hover:text-k-red">
-          Εγγραφείτε
+          {t("eggrafeite")}
         </Link>
       </p>
     </form>
@@ -53,6 +55,7 @@ export function SignInForm({ redirectTo }: { redirectTo?: string }) {
 }
 
 export function RegisterForm() {
+  const t = useTranslations("account.AuthForms");
   const [state, action, pending] = useActionState<AuthState, FormData>(register, {});
   const [accountType, setAccountType] = useState<"individual" | "company">("individual");
 
@@ -61,7 +64,7 @@ export function RegisterForm() {
       <FormError message={state.error} />
 
       <fieldset>
-        <legend className="t-account-label mb-2.5 text-k-text-4">{upGreek("Τύπος λογαριασμού")}</legend>
+        <legend className="t-account-label mb-2.5 text-k-text-4">{upGreek(t("typos_logariasmoy"))}</legend>
         <div className="grid gap-px border border-k-line bg-k-line sm:grid-cols-2">
           {(
             [
@@ -102,25 +105,24 @@ export function RegisterForm() {
 
       {accountType === "company" && (
         <div className="border-l-[3px] border-k-red bg-k-surface-2 p-4">
-          <p className="t-eyebrow mb-3.5 text-k-red">{upGreek("Στοιχεία εταιρείας")}</p>
+          <p className="t-eyebrow mb-3.5 text-k-red">{upGreek(t("stoicheia_etaireias"))}</p>
           {/* Same component as checkout — the ΑΦΜ fills the rest from the ΑΑΔΕ. */}
           <CompanyVatFields required showAddress fieldErrors={state.fieldErrors} />
           <p className="mt-4 flex items-start gap-2.5 border-t border-k-line pt-3.5 text-[11.5px] leading-[1.55] text-k-text-3">
             <span aria-hidden className="mt-1 block h-1.5 w-1.5 shrink-0 bg-k-amber" />
-            Οι εταιρικοί λογαριασμοί ελέγχονται πριν ενεργοποιηθούν — συνήθως σε 2
-            εργάσιμες. Θα ειδοποιηθείτε με email.
+            {t("oi_etairikoi_logariasmoi_elegchontai_prin")}
           </p>
         </div>
       )}
 
       <div className="grid gap-4 sm:grid-cols-2">
-        <Field label="Όνομα" name="firstName" required error={state.fieldErrors?.firstName} />
-        <Field label="Επώνυμο" name="lastName" required error={state.fieldErrors?.lastName} />
+        <Field label={t("onoma")} name="firstName" required error={state.fieldErrors?.firstName} />
+        <Field label={t("eponymo")} name="lastName" required error={state.fieldErrors?.lastName} />
         <Field label="Email" name="email" type="email" autoComplete="email" required error={state.fieldErrors?.email} />
-        <Field label="Κινητό" name="phone" type="tel" autoComplete="tel" required error={state.fieldErrors?.phone} />
+        <Field label={t("kinito")} name="phone" type="tel" autoComplete="tel" required error={state.fieldErrors?.phone} />
         <div className="sm:col-span-2">
           <Field
-            label="Κωδικός"
+            label={t("kodikos")}
             name="password"
             type="password"
             autoComplete="new-password"
@@ -134,7 +136,7 @@ export function RegisterForm() {
       <label className="flex cursor-pointer items-start gap-3">
         <input type="checkbox" name="terms" className="mt-0.5 h-4 w-4 shrink-0 accent-k-red" />
         <span className="text-[12.5px] leading-[1.5] text-k-text-2">
-          Αποδέχομαι τους όρους χρήσης και την πολιτική απορρήτου.
+          {t("apodechomai_toys_oroys_chrisis_kai")}
           {state.fieldErrors?.terms && (
             <span className="mt-1 block text-[11px] text-k-red">{state.fieldErrors.terms}</span>
           )}
@@ -146,13 +148,13 @@ export function RegisterForm() {
         disabled={pending}
         className="t-btn h-13 bg-k-red py-4 text-white transition-colors hover:bg-k-red-hover disabled:opacity-60"
       >
-        {pending ? "…" : upGreek(accountType === "company" ? "Αίτηση εταιρικού λογαριασμού" : "Εγγραφή")}
+        {pending ? "…" : upGreek(accountType === "company" ? t("aitisi_etairikoy_logariasmoy") : t("eggrafi"))}
       </button>
 
       <p className="text-[12.5px] text-k-text-3">
-        Έχετε ήδη λογαριασμό;{" "}
+        {t("echete_idi_logariasmo")}{" "}
         <Link href="/eisodos" className="font-semibold text-k-ink underline underline-offset-4 hover:text-k-red">
-          Συνδεθείτε
+          {t("syndetheite")}
         </Link>
       </p>
     </form>
@@ -160,6 +162,7 @@ export function RegisterForm() {
 }
 
 export function ProfileForm({ user }: { user: AccountUser }) {
+  const t = useTranslations("account.AuthForms");
   const [state, action, pending] = useActionState<AuthState, FormData>(updateProfile, {});
   const [saved, setSaved] = useState(false);
 
@@ -175,15 +178,15 @@ export function ProfileForm({ user }: { user: AccountUser }) {
       <FormError message={state.error} />
       {saved && !state.error && (
         <p className="border-l-[3px] border-k-green bg-k-green/8 px-4 py-3 text-[12.5px] text-k-ink">
-          Τα στοιχεία σας αποθηκεύτηκαν.
+          {t("ta_stoicheia_sas_apothikeytikan")}
         </p>
       )}
 
       <div className="grid gap-4 sm:grid-cols-2">
-        <Field label="Όνομα" name="firstName" defaultValue={user.firstName} required />
-        <Field label="Επώνυμο" name="lastName" defaultValue={user.lastName} required />
+        <Field label={t("onoma")} name="firstName" defaultValue={user.firstName} required />
+        <Field label={t("eponymo")} name="lastName" defaultValue={user.lastName} required />
       </div>
-      <Field label="Κινητό" name="phone" type="tel" defaultValue={user.phone ?? ""} required />
+      <Field label={t("kinito")} name="phone" type="tel" defaultValue={user.phone ?? ""} required />
 
       {/* Email is the login identifier — changing it is a support action, not a
           form field, or a typo locks the customer out of their own account. */}
@@ -195,7 +198,7 @@ export function ProfileForm({ user }: { user: AccountUser }) {
           className="t-input h-12 w-full border border-k-line-2 bg-k-surface-3 px-3.5 text-k-text-3 outline-none"
         />
         <span className="mt-1 block text-[11px] text-k-text-4">
-          Για αλλαγή email καλέστε μας στο 210 411 1355.
+          {t("gia_allagi_email_kaleste_mas")}
         </span>
       </label>
 
@@ -204,7 +207,7 @@ export function ProfileForm({ user }: { user: AccountUser }) {
         disabled={pending}
         className="t-btn-sm self-start bg-k-ink px-7 py-3.5 text-white transition-colors hover:bg-k-red disabled:opacity-60"
       >
-        {pending ? "…" : upGreek("Αποθήκευση")}
+        {pending ? "…" : upGreek(t("apothikeysi"))}
       </button>
     </form>
   );

@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useState, useTransition } from "react";
 import { lookupCompanyByVat } from "@/lib/account/actions";
 import { isValidAfm, normaliseAfm, type VatCompany } from "@/lib/account/vat";
@@ -48,6 +49,7 @@ export function CompanyVatFields({
   /** Checkout keeps the billing address separate; registration asks for it here. */
   showAddress?: boolean;
 }) {
+  const t = useTranslations("account.CompanyVatFields");
   const [afm, setAfm] = useState("");
   const [company, setCompany] = useState<VatCompany | null>(null);
   const [status, setStatus] = useState<
@@ -85,7 +87,7 @@ export function CompanyVatFields({
       <div>
         <label className="block">
           <span className="t-account-label mb-1.5 block text-k-text-4">
-            {upGreek("ΑΦΜ")}
+            {upGreek(t("afm"))}
             {required && <span className="ml-1 text-k-red">*</span>}
           </span>
           <span className="flex">
@@ -105,7 +107,7 @@ export function CompanyVatFields({
               }}
               inputMode="numeric"
               autoComplete="off"
-              placeholder="π.χ. 099095556"
+              placeholder={t("p_ch_099095556")}
               required={required}
               aria-invalid={fieldErrors?.[names.afm] || status === "invalid" ? true : undefined}
               aria-describedby="vat-status"
@@ -121,7 +123,7 @@ export function CompanyVatFields({
               disabled={!canLookup || pending}
               className="t-btn-sm h-12 shrink-0 bg-k-ink px-4 text-white transition-colors hover:bg-k-red disabled:cursor-not-allowed disabled:opacity-40 lg:px-6"
             >
-              {pending ? "…" : upGreek("Αναζήτηση")}
+              {pending ? "…" : upGreek(t("anazitisi"))}
             </button>
           </span>
         </label>
@@ -130,35 +132,34 @@ export function CompanyVatFields({
           {status === "kolleris" && (
             <span className="flex items-center gap-1.5 text-k-green">
               <span aria-hidden className="block h-1.5 w-1.5 bg-current" />
-              Σας βρήκαμε στους πελάτες μας — τα στοιχεία συμπληρώθηκαν.
+              {t("sas_vrikame_stoys_pelates_mas")}
             </span>
           )}
           {status === "aade" && (
             <span className="flex items-center gap-1.5 text-k-green">
               <span aria-hidden className="block h-1.5 w-1.5 bg-current" />
-              Στοιχεία από το μητρώο ΑΑΔΕ — ελέγξτε τα και διορθώστε αν χρειάζεται.
+              {t("stoicheia_apo_to_mitroo_aade")}
             </span>
           )}
           {status === "not_found" && (
             <span className="text-k-amber">
-              Το ΑΦΜ δεν βρέθηκε στο μητρώο. Συμπληρώστε τα στοιχεία χειροκίνητα.
+              {t("to_afm_den_vrethike_sto")}
             </span>
           )}
           {status === "unavailable" && (
             <span className="text-k-amber">
-              Το μητρώο δεν απαντά αυτή τη στιγμή. Συμπληρώστε τα στοιχεία χειροκίνητα —
-              η παραγγελία δεν επηρεάζεται.
+              {t("to_mitroo_den_apanta_ayti")}
             </span>
           )}
           {status === "invalid" && (
-            <span className="text-k-red">Το ΑΦΜ δεν είναι έγκυρο (9 ψηφία).</span>
+            <span className="text-k-red">{t("to_afm_den_einai_egkyro")}</span>
           )}
           {status === null && !canLookup && digits.length > 0 && (
-            <span className="text-k-text-4">9 ψηφία — χωρίς EL μπροστά.</span>
+            <span className="text-k-text-4">{t("9_psifia_choris_el_mprosta")}</span>
           )}
           {status === null && digits.length === 0 && (
             <span className="text-k-text-4">
-              Γράψτε το ΑΦΜ και πατήστε «Αναζήτηση» — συμπληρώνουμε τα υπόλοιπα από την ΑΑΔΕ.
+              {t("grapste_to_afm_kai_patiste")}
             </span>
           )}
         </p>
@@ -167,7 +168,7 @@ export function CompanyVatFields({
       <div className="grid gap-4 sm:grid-cols-2">
         <Filled
           key={`${fillKey}-name`}
-          label="Επωνυμία"
+          label={t("eponymia")}
           name={names.name}
           defaultValue={company?.name ?? ""}
           required={required}
@@ -175,14 +176,14 @@ export function CompanyVatFields({
         />
         <Filled
           key={`${fillKey}-doy`}
-          label="ΔΟΥ"
+          label={t("doy")}
           name={names.doy}
           defaultValue={company?.doy ?? ""}
           error={fieldErrors?.[names.doy]}
         />
         <Filled
           key={`${fillKey}-trade`}
-          label="Δραστηριότητα"
+          label={t("drastiriotita")}
           name={names.trade}
           defaultValue={company?.profession ?? ""}
           error={fieldErrors?.[names.trade]}
@@ -193,7 +194,7 @@ export function CompanyVatFields({
           <>
             <Filled
               key={`${fillKey}-address`}
-              label="Διεύθυνση έδρας"
+              label={t("dieythynsi_edras")}
               name={names.address}
               defaultValue={company?.address ?? ""}
               error={fieldErrors?.[names.address]}
@@ -201,14 +202,14 @@ export function CompanyVatFields({
             />
             <Filled
               key={`${fillKey}-city`}
-              label="Πόλη"
+              label={t("poli")}
               name={names.city}
               defaultValue={company?.city ?? ""}
               error={fieldErrors?.[names.city]}
             />
             <Filled
               key={`${fillKey}-postcode`}
-              label="Τ.Κ."
+              label={t("t_k")}
               name={names.postcode}
               defaultValue={company?.zip ?? ""}
               error={fieldErrors?.[names.postcode]}

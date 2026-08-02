@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import Image from "next/image";
 import { Link } from "@/i18n/navigation";
 import type { CategoryTile } from "@/lib/catalog/queries";
@@ -21,13 +22,14 @@ export function CategoryGrid({
   categories: CategoryTile[];
   totalCategories: number;
 }) {
+  const t = useTranslations("home.CategoryGrid");
   if (categories.length === 0) return null;
 
   return (
     <section className="bg-white shell-x py-7 lg:pt-16 lg:pb-17">
       <SectionHeading
         eyebrow="Το πλήρες inventory"
-        title="Αγορά ανά κατηγορία"
+        title={t("agora_ana_katigoria")}
         action={{ href: "/katalogos", label: `Όλες οι ${totalCategories} κατηγορίες` }}
       />
 
@@ -43,7 +45,7 @@ export function CategoryGrid({
                 {String(index + 1).padStart(2, "0")}
               </span>
               <span className="t-cat-count text-k-text-4">
-                {category.productCount.toLocaleString("el-GR")} {upGreek("κωδ.")}
+                {category.productCount.toLocaleString("el-GR")} {upGreek(t("kod"))}
               </span>
             </div>
 
@@ -62,7 +64,7 @@ export function CategoryGrid({
             <div>
               <p className="t-cat-name text-k-ink">{upGreek(category.name)}</p>
               <p className="t-cat-subs mt-[5px] hidden text-k-text-4 lg:block">
-                {category.childCount} υποκατηγορίες
+                {category.childCount} {t("ypokatigories")}
               </p>
             </div>
           </Link>

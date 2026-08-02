@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import Image from "next/image";
 import { MiniCart } from "@/components/cart/MiniCart";
 import { MobileMenu } from "@/components/chrome/MobileMenu";
@@ -50,6 +51,7 @@ export function SiteHeader({
   totalSubcategories: number;
   totalProducts: number;
 }) {
+  const t = useTranslations("chrome.SiteHeader");
   // Plain, serialisable shape for the client island — the menu tree carries
   // children, counts and images the search scope has no use for.
   const suggestCategories = categories.slice(0, 12).map((category) => ({
@@ -81,7 +83,7 @@ export function SiteHeader({
             />
           </Link>
 
-          <Link href="/eisodos" aria-label="Λογαριασμός">
+          <Link href="/eisodos" aria-label={t("logariasmos")}>
             <AccountIcon size={19} />
           </Link>
 
@@ -97,11 +99,11 @@ export function SiteHeader({
         </div>
 
         <nav
-          aria-label="Γλώσσα"
+          aria-label={t("glossa")}
           className="flex items-center justify-end gap-2 border-b border-k-line bg-white px-4 py-2.5"
         >
           <span className="t-account-label text-k-text-4">
-            {upGreek("Γλώσσα")}
+            {upGreek(t("glossa"))}
           </span>
           <div className="flex border border-k-line-2">
             {routing.locales.map((code) => (
@@ -144,10 +146,10 @@ export function SiteHeader({
             <AccountIcon />
             <span className="block">
               <span className="t-account-label block text-k-text-4">
-                {upGreek("Λογαριασμός")}
+                {upGreek(t("logariasmos"))}
               </span>
               <span className="t-account-value mt-0.5 block text-k-ink transition-colors group-hover/acc:text-k-red">
-                Σύνδεση B2B
+                {t("syndesi_b2b")}
               </span>
             </span>
           </Link>

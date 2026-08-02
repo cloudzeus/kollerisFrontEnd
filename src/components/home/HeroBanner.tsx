@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import Image from "next/image";
 import { Link } from "@/i18n/navigation";
 import { upGreek } from "@/lib/greek";
@@ -44,6 +45,7 @@ export function HeroBanner({
     dark?: boolean;
   }>;
 }) {
+  const t = useTranslations("home.HeroBanner");
   const formatted = productCount.toLocaleString("el-GR");
 
   // The mobile lead is the one line marketing can write with live figures in
@@ -94,7 +96,7 @@ export function HeroBanner({
               href="/katalogos"
               className="t-btn-outline hidden border-[1.5px] border-white/34 px-7 py-[15px] text-white transition-colors hover:border-white lg:block"
             >
-              {upGreek(copy.ctaSecondary)} {formatted}+ {upGreek("κωδικών")}
+              {upGreek(copy.ctaSecondary)} {formatted}+ {upGreek(t("kodikon"))}
             </Link>
           </div>
         </div>
@@ -154,7 +156,7 @@ export function HeroBanner({
                   tile.dark ? "text-white hover:text-k-red" : "text-k-ink hover:text-k-red"
                 }`}
               >
-                {upGreek("Δείτε τα")} →
+                {upGreek(t("deite_ta"))} →
               </Link>
             </div>
 

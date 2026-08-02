@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import Image from "next/image";
 import { useTransition } from "react";
 import { Link } from "@/i18n/navigation";
@@ -15,6 +16,7 @@ import { upGreek } from "@/lib/greek";
  * decision taken on the PLP.
  */
 export function CartCrossSell({ items }: { items: CrossSellItem[] }) {
+  const t = useTranslations("cart.CartCrossSell");
   const [pending, startTransition] = useTransition();
 
   if (items.length === 0) return null;
@@ -26,15 +28,14 @@ export function CartCrossSell({ items }: { items: CrossSellItem[] }) {
         <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between lg:gap-8">
           <div>
             <p className="t-eyebrow mb-2.5 text-k-red">
-              {upGreek("Μην ξαναπαραγγείλετε αύριο")}
+              {upGreek(t("min_xanaparaggeilete_ayrio"))}
             </p>
             <h2 className="font-artegra text-[18px] leading-[1.2] font-medium text-white lg:text-[21px]">
-              {upGreek("Ξεχάσατε κάτι για τη δουλειά;")}
+              {upGreek(t("xechasate_kati_gia_ti_doyleia"))}
             </h2>
           </div>
           <p className="max-w-[330px] text-[12.5px] leading-[1.6] text-white/55 lg:text-right">
-            Επιλεγμένα από τις ίδιες κατηγορίες με το καλάθι σας. Μία αποστολή, ένα
-            κόστος μεταφορικών.
+            {t("epilegmena_apo_tis_idies_katigories")}
           </p>
         </div>
 
@@ -46,7 +47,7 @@ export function CartCrossSell({ items }: { items: CrossSellItem[] }) {
             >
               <div className="flex items-center justify-between">
                 <span className="t-badge border border-white/16 px-1.5 py-1 text-white/50">
-                  {upGreek("Προτεινόμενο")}
+                  {upGreek(t("proteinomeno"))}
                 </span>
                 <span className="t-brand-count text-white/40">{item.sku}</span>
               </div>
@@ -89,7 +90,7 @@ export function CartCrossSell({ items }: { items: CrossSellItem[] }) {
                   }
                   className="t-card-cta h-9 border-0 bg-k-red px-3 text-white transition-colors hover:bg-white hover:text-k-ink"
                 >
-                  + {upGreek("Προσθήκη")}
+                  + {upGreek(t("prosthiki"))}
                 </button>
               </div>
             </div>

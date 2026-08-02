@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { upGreek } from "@/lib/greek";
@@ -28,6 +29,7 @@ export function ProductGallery({
   alt: string;
   discountLabel: string | null;
 }) {
+  const t = useTranslations("pdp.ProductGallery");
   const [active, setActive] = useState(0);
   const [lightbox, setLightbox] = useState(false);
   const current = images[active];
@@ -195,7 +197,7 @@ export function ProductGallery({
                 className="max-h-full max-w-full object-contain transition-transform duration-300 ease-out will-change-transform lg:group-hover/zoom:scale-[2.2]"
               />
             ) : (
-              <p className="t-footer-tag text-center text-k-text-4">{upGreek("Χωρίς εικόνα")}</p>
+              <p className="t-footer-tag text-center text-k-text-4">{upGreek(t("choris_eikona"))}</p>
             )}
 
             {/* Affordance. Fades while zooming so it never sits over the detail
@@ -216,7 +218,7 @@ export function ProductGallery({
                   <line x1="7.5" y1="10.5" x2="13.5" y2="10.5" />
                 </svg>
                 <span className="hidden lg:inline">ZOOM</span>
-                <span className="lg:hidden">{upGreek("Μεγέθυνση")}</span>
+                <span className="lg:hidden">{upGreek(t("megethynsi"))}</span>
               </span>
             )}
 
@@ -272,12 +274,13 @@ function RailArrow({
   onClick: () => void;
   count?: number;
 }) {
+  const t = useTranslations("pdp.ProductGallery");
   return (
     <button
       type="button"
       onClick={onClick}
       disabled={disabled}
-      aria-label={direction === "up" ? "Προηγούμενες εικόνες" : "Επόμενες εικόνες"}
+      aria-label={direction === "up" ? t("proigoymenes_eikones") : t("epomenes_eikones")}
       className="hidden h-7 w-[88px] shrink-0 cursor-pointer items-center justify-center gap-1.5 border border-k-line bg-white text-k-text-3 transition-colors hover:border-k-ink hover:text-k-ink disabled:cursor-default disabled:border-k-line disabled:text-k-text-6 disabled:hover:border-k-line lg:flex"
     >
       <svg
@@ -311,6 +314,7 @@ function Lightbox({
   onMove: (index: number) => void;
   onClose: () => void;
 }) {
+  const t = useTranslations("pdp.ProductGallery");
   useEffect(() => {
     const previous = document.body.style.overflow;
     document.body.style.overflow = "hidden";
@@ -329,14 +333,14 @@ function Lightbox({
   return (
     <div className="fixed inset-0 z-50 flex flex-col bg-k-ink-deep/97">
       <div className="flex shrink-0 items-center justify-between border-b border-white/12 px-4 py-3 lg:px-8">
-        <span className="t-eyebrow text-k-red">{upGreek("Μεγέθυνση")}</span>
+        <span className="t-eyebrow text-k-red">{upGreek(t("megethynsi"))}</span>
         <span className="t-brand-count font-mono text-white/50">
           {active + 1} / {images.length}
         </span>
         <button
           type="button"
           onClick={onClose}
-          aria-label="Κλείσιμο"
+          aria-label={t("kleisimo")}
           className="flex h-10 w-10 items-center justify-center text-2xl leading-none text-white transition-colors hover:text-k-red"
         >
           ×

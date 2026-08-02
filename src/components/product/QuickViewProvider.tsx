@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import Image from "next/image";
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { AddToCartButton } from "@/components/cart/AddToCartButton";
@@ -49,6 +50,7 @@ export function QuickViewProvider({
   locale: string;
   children: React.ReactNode;
 }) {
+  const t = useTranslations("product.QuickViewProvider");
   const [slug, setSlug] = useState<string | null>(null);
   /*
    * The cache IS the state. Deriving `product` from it during render — rather
@@ -107,7 +109,7 @@ export function QuickViewProvider({
         <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center sm:p-6">
           <button
             type="button"
-            aria-label="Κλείσιμο"
+            aria-label={t("kleisimo")}
             tabIndex={-1}
             onClick={close}
             className="absolute inset-0 bg-black/55"
@@ -120,11 +122,11 @@ export function QuickViewProvider({
             className="relative flex max-h-[92vh] w-full max-w-4xl flex-col overflow-hidden bg-white"
           >
             <div className="flex shrink-0 items-center justify-between border-b border-k-line px-4 py-3 lg:px-6">
-              <span className="t-eyebrow text-k-red">{upGreek("Γρήγορη προβολή")}</span>
+              <span className="t-eyebrow text-k-red">{upGreek(t("grigori_provoli"))}</span>
               <button
                 type="button"
                 onClick={close}
-                aria-label="Κλείσιμο"
+                aria-label={t("kleisimo")}
                 className="flex h-10 w-10 items-center justify-center text-2xl leading-none text-k-ink"
               >
                 ×
@@ -146,8 +148,7 @@ export function QuickViewProvider({
 
               {state === "error" && (
                 <p className="p-10 text-center text-[13px] text-k-text-3">
-                  Δεν ήταν δυνατή η φόρτωση. Δοκιμάστε ξανά ή ανοίξτε τη σελίδα του
-                  προϊόντος.
+                  {t("den_itan_dynati_i_fortosi")}
                 </p>
               )}
 
@@ -167,6 +168,7 @@ function QuickViewBody({
   product: QuickViewProduct;
   onNavigate: () => void;
 }) {
+  const t = useTranslations("product.QuickViewProvider");
   const ctx = { vatRate: product.vatRate };
   const saving =
     product.priceListNet != null && product.priceNet != null
@@ -190,7 +192,7 @@ function QuickViewBody({
             className="max-h-full max-w-full object-contain"
           />
         ) : (
-          <span className="t-footer-tag text-k-text-4">{upGreek("Χωρίς εικόνα")}</span>
+          <span className="t-footer-tag text-k-text-4">{upGreek(t("choris_eikona"))}</span>
         )}
       </div>
 
@@ -231,8 +233,8 @@ function QuickViewBody({
         >
           <span className="rounded-pill block h-1.5 w-1.5 bg-current" />
           {product.inStock
-            ? `${upGreek("Άμεσα διαθέσιμο")} · ${product.qty} ${upGreek("τεμ.")}`
-            : upGreek("Κατόπιν παραγγελίας")}
+            ? `${upGreek(t("amesa_diathesimo"))} · ${product.qty} ${upGreek(t("tem"))}`
+            : upGreek(t("katopin_paraggelias"))}
         </p>
 
         {product.specs.length > 0 && (
@@ -263,7 +265,7 @@ function QuickViewBody({
             onClick={onNavigate}
             className="t-btn-sm flex h-12 items-center justify-center border-[1.5px] border-k-ink px-5 text-k-ink transition-colors hover:bg-k-ink hover:text-white"
           >
-            {upGreek("Πλήρη στοιχεία")} →
+            {upGreek(t("pliri_stoicheia"))} →
           </Link>
         </div>
       </div>

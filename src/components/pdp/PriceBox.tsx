@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { AddToCartButton } from "@/components/cart/AddToCartButton";
 import { BuyNowButton } from "@/components/cart/BuyNowButton";
@@ -32,6 +33,7 @@ export function PriceBox({
   qty: number;
   inStock: boolean;
 }) {
+  const t = useTranslations("pdp.PriceBox");
   const [quantity, setQuantity] = useState(1);
   const [tick, setTick] = useState<number | null>(null);
 
@@ -72,7 +74,7 @@ export function PriceBox({
         */}
         {saving && priceListNet != null ? (
           <div className="flex flex-wrap items-baseline gap-x-2.5 gap-y-1">
-            <span className="t-account-label text-white/40">{upGreek("Τιμή καταλόγου")}</span>
+            <span className="t-account-label text-white/40">{upGreek(t("timi_katalogoy"))}</span>
             <span className="font-mono text-[13px] font-medium text-white/45 line-through">
               {formatPrice(priceListNet, ctx)}
             </span>
@@ -81,7 +83,7 @@ export function PriceBox({
             </span>
           </div>
         ) : (
-          <span className="t-account-label block text-white/40">{upGreek("Τιμή eshop")}</span>
+          <span className="t-account-label block text-white/40">{upGreek(t("timi_eshop"))}</span>
         )}
 
         <p className="mt-2 font-mono text-[38px] leading-[1.02] font-semibold tracking-[-0.03em] text-white lg:text-[44px]">
@@ -93,7 +95,7 @@ export function PriceBox({
           {priceNet != null && (
             <>
               {" · "}
-              {upGreek("χωρίς ΦΠΑ")} {formatMoney(priceNet)}
+              {upGreek(t("choris_fpa"))} {formatMoney(priceNet)}
             </>
           )}
         </p>
@@ -103,7 +105,7 @@ export function PriceBox({
             <button
               type="button"
               onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-              aria-label="Μείωση ποσότητας"
+              aria-label={t("meiosi_posotitas")}
               className="h-[52px] w-11 border-0 bg-transparent text-lg text-white transition-colors hover:bg-white/10"
             >
               −
@@ -117,7 +119,7 @@ export function PriceBox({
             <button
               type="button"
               onClick={() => setQuantity((q) => q + 1)}
-              aria-label="Αύξηση ποσότητας"
+              aria-label={t("ayxisi_posotitas")}
               className="h-[52px] w-11 border-0 bg-transparent text-lg text-white transition-colors hover:bg-white/10"
             >
               +
@@ -127,7 +129,7 @@ export function PriceBox({
           <AddToCartButton
             productId={productId}
             quantity={quantity}
-            label={upGreek("Προσθήκη στο καλάθι")}
+            label={upGreek(t("prosthiki_sto_kalathi"))}
             className="t-btn h-[52px] flex-1 border-0 bg-k-red text-white transition-colors hover:bg-white hover:text-k-ink"
           />
         </div>
@@ -137,7 +139,7 @@ export function PriceBox({
           productId={productId}
           quantity={quantity}
           disabled={priceNet == null}
-          label={upGreek("Αγορά τώρα — απευθείας ταμείο")}
+          label={upGreek(t("agora_tora_apeytheias_tameio"))}
           className="t-btn-sm mt-2.5 h-[46px] w-full border border-white/25 bg-transparent text-white transition-colors hover:border-white hover:bg-white hover:text-k-ink"
         />
 
@@ -149,8 +151,8 @@ export function PriceBox({
           >
             <span className="rounded-pill block h-[7px] w-[7px] bg-current" />
             {inStock
-              ? `${upGreek("Διαθέσιμο")} · ${qty} ${upGreek("τεμ.")}`
-              : upGreek("Κατόπιν παραγγελίας")}
+              ? `${upGreek(t("diathesimo"))} · ${qty} ${upGreek(t("tem"))}`
+              : upGreek(t("katopin_paraggelias"))}
           </span>
           <span className="relative h-[5px] flex-1 overflow-hidden bg-white/12">
             <span
@@ -165,16 +167,16 @@ export function PriceBox({
             <p className="flex-1 text-[12px] leading-[1.45] text-white/82">
               {cutoff ? (
                 <>
-                  Παραγγείλετε μέσα σε{" "}
+                  {t("paraggeilete_mesa_se")}{" "}
                   <span className="font-mono text-[13px] font-semibold text-white">
                     {cutoff.remaining}
                   </span>{" "}
-                  και φεύγει <strong className="font-semibold text-white">{cutoff.label}</strong>
+                  {t("kai_feygei")} <strong className="font-semibold text-white">{cutoff.label}</strong>
                 </>
               ) : (
                 /* Placeholder until the client clock starts — same height, so
                    nothing shifts when the real countdown appears. */
-                <span className="opacity-0">Παραγγείλετε μέσα σε 00:00:00</span>
+                <span className="opacity-0">{t("paraggeilete_mesa_se_00_00")}</span>
               )}
             </p>
           </div>
@@ -194,14 +196,14 @@ export function PriceBox({
         <span className="block h-8 w-[3px] shrink-0 bg-k-red" />
         <span className="min-w-0 flex-1">
           <span className="t-account-label block text-k-text-4">
-            {upGreek("Είστε επαγγελματίας;")}
+            {upGreek(t("eiste_epaggelmatias"))}
           </span>
           <span className="mt-1 block text-[12.5px] leading-[1.4] font-semibold text-k-ink">
-            Συνδεθείτε και δείτε την τιμή συνεργάτη σας
+            {t("syndetheite_kai_deite_tin_timi")}
           </span>
         </span>
         <span className="t-card-cta shrink-0 text-k-red transition-transform group-hover/b2b:translate-x-0.5">
-          {upGreek("Σύνδεση")} →
+          {upGreek(t("syndesi"))} →
         </span>
       </Link>
     </div>

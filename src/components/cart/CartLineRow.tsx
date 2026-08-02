@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import Image from "next/image";
 import { useOptimistic, useTransition } from "react";
 import { Link } from "@/i18n/navigation";
@@ -17,6 +18,7 @@ import { upGreek } from "@/lib/greek";
  * server then disagrees with. The spec calls this out explicitly.
  */
 export function CartLineRow({ line }: { line: CartLineView }) {
+  const t = useTranslations("cart.CartLineRow");
   const [pending, startTransition] = useTransition();
   const [optimisticQty, setOptimisticQty] = useOptimistic(line.quantity);
 
@@ -79,8 +81,8 @@ export function CartLineRow({ line }: { line: CartLineView }) {
           >
             <span className="rounded-pill block h-1.5 w-1.5 bg-current" />
             {line.inStock
-              ? `${upGreek("Άμεσα διαθέσιμο")} · ${line.availableQty} ${upGreek("τεμ.")}`
-              : upGreek("Κατόπιν παραγγελίας")}
+              ? `${upGreek(t("amesa_diathesimo"))} · ${line.availableQty} ${upGreek(t("tem"))}`
+              : upGreek(t("katopin_paraggelias"))}
           </span>
 
           {/* Only shown when the basket actually exceeds stock. */}
@@ -95,7 +97,7 @@ export function CartLineRow({ line }: { line: CartLineView }) {
       {/* Unit price */}
       <div className="lg:text-right">
         <span className="t-account-label mb-1 block text-k-text-4 lg:hidden">
-          {upGreek("Τιμή μονάδας")}
+          {upGreek(t("timi_monadas"))}
         </span>
         {line.unitListNet != null && (
           <span className="t-card-was block whitespace-nowrap text-k-text-5 line-through">
@@ -113,14 +115,14 @@ export function CartLineRow({ line }: { line: CartLineView }) {
       {/* Quantity */}
       <div className="flex items-center gap-4 lg:justify-center">
         <span className="t-account-label text-k-text-4 lg:hidden">
-          {upGreek("Ποσότητα")}
+          {upGreek(t("posotita"))}
         </span>
         <div className="flex border border-k-line-2">
           <button
             type="button"
             onClick={() => setQuantity(optimisticQty - 1)}
             disabled={optimisticQty <= 1}
-            aria-label="Μείωση ποσότητας"
+            aria-label={t("meiosi_posotitas")}
             className="h-11 w-[38px] border-0 bg-white text-[17px] text-k-ink disabled:text-k-text-5"
           >
             −
@@ -134,7 +136,7 @@ export function CartLineRow({ line }: { line: CartLineView }) {
           <button
             type="button"
             onClick={() => setQuantity(optimisticQty + 1)}
-            aria-label="Αύξηση ποσότητας"
+            aria-label={t("ayxisi_posotitas")}
             className="h-11 w-[38px] border-0 bg-white text-[17px] text-k-ink"
           >
             +
@@ -144,7 +146,7 @@ export function CartLineRow({ line }: { line: CartLineView }) {
 
       {/* Line total */}
       <div className="flex items-center justify-between lg:block lg:text-right">
-        <span className="t-account-label text-k-text-4 lg:hidden">{upGreek("Σύνολο")}</span>
+        <span className="t-account-label text-k-text-4 lg:hidden">{upGreek(t("synolo"))}</span>
         <span className="font-mono text-[19px] font-semibold whitespace-nowrap text-k-ink">
           {formatPrice(line.unitNet * optimisticQty, ctx)}
         </span>

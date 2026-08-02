@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useTransition } from "react";
 import { useLocale } from "next-intl";
 import { buyNow } from "@/lib/cart/actions";
@@ -29,6 +30,7 @@ export function BuyNowButton({
   className?: string;
   label?: string;
 }) {
+  const t = useTranslations("cart.BuyNowButton");
   const locale = useLocale();
   const [pending, startTransition] = useTransition();
 
@@ -46,7 +48,7 @@ export function BuyNowButton({
       disabled={disabled || pending}
       className={`${className} cursor-pointer disabled:cursor-not-allowed disabled:opacity-60`}
     >
-      {pending ? "…" : (label ?? upGreek("Αγορά τώρα"))}
+      {pending ? "…" : (label ?? upGreek(t("agora_tora")))}
     </button>
   );
 }

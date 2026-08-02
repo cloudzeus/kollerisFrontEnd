@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import {
   PRICE_BANDS,
@@ -35,6 +36,7 @@ export function FilterSidebar({
   params: RawParams;
   className?: string;
 }) {
+  const t = useTranslations("plp.FilterSidebar");
   const activeSubs = facets.subcategories.filter((s) => s.active).length;
   const activeBrands = facets.brands.filter((b) => b.active).length;
   const priceActive = params.min != null || params.max != null;
@@ -44,16 +46,16 @@ export function FilterSidebar({
     <aside className={className}>
       <div className="flex shrink-0 items-center justify-between bg-k-ink px-[22px] py-4">
         <span className="text-[11.5px] font-bold tracking-[0.09em] text-white">
-          {upGreek("Φίλτρα")}
+          {upGreek(t("filtra"))}
         </span>
         <Link href={basePath} className="t-card-cta text-white/60 hover:text-k-red">
-          {upGreek("Καθαρισμός")}
+          {upGreek(t("katharismos"))}
         </Link>
       </div>
 
       <div className="scroll-slim flex-1 overflow-y-auto">
         {facets.subcategories.length > 0 && (
-          <Group title="Υποκατηγορία" badge={activeSubs} defaultOpen>
+          <Group title={t("ypokatigoria")} badge={activeSubs} defaultOpen>
             <CheckList
               items={facets.subcategories}
               hrefFor={(slug) => toggleMultiHref(basePath, params, "sub", slug)}
@@ -70,7 +72,7 @@ export function FilterSidebar({
           </Group>
         )}
 
-        <Group title="Τιμή" badge={priceActive ? 1 : 0} defaultOpen>
+        <Group title={t("timi")} badge={priceActive ? 1 : 0} defaultOpen>
           <div className="flex flex-wrap gap-1.5">
             {PRICE_BANDS.map((band) => {
               const active = isPriceBandActive(params, band);
@@ -91,12 +93,12 @@ export function FilterSidebar({
             })}
           </div>
           <p className="mt-3 text-[11px] text-k-text-4">
-            Εύρος καταλόγου: {formatPrice(facets.priceBounds.min, { vatRate: 24 })} —{" "}
+            {t("eyros_katalogoy")} {formatPrice(facets.priceBounds.min, { vatRate: 24 })} —{" "}
             {formatPrice(facets.priceBounds.max, { vatRate: 24 })}
           </p>
         </Group>
 
-        <Group title="Διαθεσιμότητα" badge={params.avail ? 1 : 0} defaultOpen>
+        <Group title={t("diathesimotita")} badge={params.avail ? 1 : 0} defaultOpen>
           <div className="flex flex-col gap-0.5">
             {facets.availability.map((item) => (
               <Link
@@ -124,7 +126,7 @@ export function FilterSidebar({
           </div>
         </Group>
 
-        <Group title="Ειδικά φίλτρα" badge={flagCount} defaultOpen>
+        <Group title={t("eidika_filtra")} badge={flagCount} defaultOpen>
           <div className="flex flex-col gap-2.5">
             {(
               [
@@ -163,10 +165,9 @@ export function FilterSidebar({
 
         <div className="px-[22px] pt-5 pb-6">
           <div className="border-l-[3px] border-k-red bg-k-surface-3 px-[18px] py-4">
-            <p className="text-[12.5px] font-semibold text-k-ink">Δεν βρίσκετε το σωστό;</p>
+            <p className="text-[12.5px] font-semibold text-k-ink">{t("den_vriskete_to_sosto")}</p>
             <p className="mt-1.5 text-[12px] leading-[1.55] text-k-text-3">
-              Πείτε μας τη δουλειά και σας προτείνουμε τον κωδικό. 46 χρόνια εμπειρίας
-              στο τηλέφωνο.
+              {t("peite_mas_ti_doyleia_kai")}
             </p>
             <a
               href="tel:+302104111355"

@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useEffect, useId, useState } from "react";
 import { Link } from "@/i18n/navigation";
 import type { BrandTile, MenuCategory } from "@/lib/catalog/queries";
@@ -27,6 +28,7 @@ export function MobileMenu({
   totalSubcategories: number;
   totalProducts: number;
 }) {
+  const t = useTranslations("chrome.MobileMenu");
   const [open, setOpen] = useState(false);
   const [expanded, setExpanded] = useState<string | null>(null);
   const [tab, setTab] = useState<"categories" | "brands">("categories");
@@ -53,10 +55,10 @@ export function MobileMenu({
   }, [open]);
 
   const secondary = [
-    { href: "/prosfores", label: upGreek("Προσφορές"), accent: true },
-    { href: "/nees-afixeis", label: upGreek("Νέες αφίξεις") },
-    { href: "/etaireia", label: upGreek("Η εταιρεία") },
-    { href: "/epikoinonia", label: upGreek("Επικοινωνία") },
+    { href: "/prosfores", label: upGreek(t("prosfores")), accent: true },
+    { href: "/nees-afixeis", label: upGreek(t("nees_afixeis")) },
+    { href: "/etaireia", label: upGreek(t("i_etaireia")) },
+    { href: "/epikoinonia", label: upGreek(t("epikoinonia")) },
     { href: "/blog", label: "BLOG" },
   ];
 
@@ -64,7 +66,7 @@ export function MobileMenu({
     <>
       <button
         type="button"
-        aria-label="Μενού"
+        aria-label={t("menoy")}
         aria-expanded={open}
         aria-controls={panelId}
         onClick={() => setOpen(true)}
@@ -79,7 +81,7 @@ export function MobileMenu({
         <div className="fixed inset-0 z-50 lg:hidden">
           <button
             type="button"
-            aria-label="Κλείσιμο μενού"
+            aria-label={t("kleisimo_menoy")}
             tabIndex={-1}
             onClick={() => setOpen(false)}
             className="absolute inset-0 bg-black/50"
@@ -89,15 +91,15 @@ export function MobileMenu({
             id={panelId}
             role="dialog"
             aria-modal="true"
-            aria-label="Πλοήγηση"
+            aria-label={t("ploigisi")}
             className="absolute inset-y-0 left-0 flex w-[min(88vw,340px)] flex-col bg-white"
           >
             <div className="flex h-14 shrink-0 items-center justify-between border-b border-k-line px-4">
-              <span className="t-footer-col text-k-ink">{upGreek("Μενού")}</span>
+              <span className="t-footer-col text-k-ink">{upGreek(t("menoy"))}</span>
               <button
                 type="button"
                 onClick={() => setOpen(false)}
-                aria-label="Κλείσιμο"
+                aria-label={t("kleisimo")}
                 className="flex h-11 w-11 items-center justify-center text-2xl leading-none text-k-ink"
               >
                 ×
@@ -107,7 +109,7 @@ export function MobileMenu({
             <div className="flex shrink-0 border-b border-k-line">
               {(
                 [
-                  ["categories", upGreek("Κατηγορίες")],
+                  ["categories", upGreek(t("katigories"))],
                   ["brands", "BRANDS"],
                 ] as const
               ).map(([key, label]) => (
@@ -131,6 +133,7 @@ export function MobileMenu({
               {tab === "categories" ? (
                 <>
                   {categories.map((category, index) => {
+  const t = useTranslations("chrome.MobileMenu");
                     const isOpen = expanded === category.id;
                     return (
                       <div key={category.id} className="border-b border-k-line">
@@ -157,7 +160,7 @@ export function MobileMenu({
                             <button
                               type="button"
                               aria-expanded={isOpen}
-                              aria-label={`${isOpen ? "Απόκρυψη" : "Εμφάνιση"} υποκατηγοριών ${category.name}`}
+                              aria-label={`${isOpen ? t("apokrypsi") : t("emfanisi")} υποκατηγοριών ${category.name}`}
                               onClick={() => setExpanded(isOpen ? null : category.id)}
                               className="flex w-11 shrink-0 items-center justify-center text-k-text-4"
                             >
@@ -202,8 +205,8 @@ export function MobileMenu({
                   })}
 
                   <p className="px-4 py-4 text-[12px] text-k-text-3">
-                    {totalCategories} κατηγορίες · {totalSubcategories} υποκατηγορίες ·{" "}
-                    {totalProducts.toLocaleString("el-GR")} κωδικοί
+                    {totalCategories} {t("katigories_2")} {totalSubcategories} {t("ypokatigories")}{" "}
+                    {totalProducts.toLocaleString("el-GR")} {t("kodikoi")}
                   </p>
                 </>
               ) : (
@@ -217,7 +220,7 @@ export function MobileMenu({
                     >
                       <span className="t-brand-name text-k-ink">{brand.name}</span>
                       <span className="t-brand-count text-k-text-5">
-                        {brand.productCount.toLocaleString("el-GR")} {upGreek("κωδ.")}
+                        {brand.productCount.toLocaleString("el-GR")} {upGreek(t("kod"))}
                       </span>
                     </Link>
                   ))}
@@ -244,7 +247,7 @@ export function MobileMenu({
                 onClick={() => setOpen(false)}
                 className="t-btn-sm flex min-h-12 items-center justify-center bg-k-ink text-white"
               >
-                {upGreek("Σύνδεση B2B")}
+                {upGreek(t("syndesi_b2b"))}
               </Link>
             </div>
           </div>

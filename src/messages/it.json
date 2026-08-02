@@ -16,5 +16,490 @@
     "newArrivals": "NOVITÀ",
     "about": "AZIENDA",
     "contact": "CONTATTI"
+  },
+  "product": {
+    "CompareCheckbox": {
+      "i_sygkrisi_choraei_4_proionta": "Il confronto può contenere 4 prodotti",
+      "mono_proionta_tis_idias_katigorias": "Solo prodotti della stessa categoria",
+      "mono_proionta_tis_idias_katigorias_2": "Solo prodotti della stessa categoria, fino a 4",
+      "afairesi_apo_ti_sygkrisi": "Rimuovi dal confronto",
+      "prosthiki_sti_sygkrisi": "Aggiungi al confronto",
+      "eos_4": "Fino a 4",
+      "alli_kat": "Altra cat.",
+      "sygkrisi": "Confronto"
+    },
+    "ProductCard": {
+      "amesa_diathesimo": "Disponibile subito",
+      "teleytaia": "Ultimo",
+      "tem": "pz.",
+      "katopin_paraggelias": "Su ordinazione",
+      "choris_eikona": "Nessuna immagine"
+    },
+    "ProductRail": {
+      "proigoymena_proionta": "Prodotti precedenti",
+      "epomena_proionta": "Prodotti successivi"
+    },
+    "QuickViewProvider": {
+      "kleisimo": "Chiudi",
+      "grigori_provoli": "Vista rapida",
+      "den_itan_dynati_i_fortosi": "Caricamento non riuscito. Riprova oppure apri la pagina del prodotto.",
+      "choris_eikona": "Nessuna immagine",
+      "amesa_diathesimo": "Disponibile subito",
+      "tem": "pz.",
+      "katopin_paraggelias": "Su ordinazione",
+      "pliri_stoicheia": "Dettagli completi"
+    },
+    "QuickViewTrigger": {
+      "grigori_provoli": "Vista rapida"
+    }
+  },
+  "plp": {
+    "FilterSidebar": {
+      "filtra": "Filtri",
+      "katharismos": "Azzera",
+      "ypokatigoria": "Sottocategoria",
+      "timi": "Prezzo",
+      "eyros_katalogoy": "Intervallo catalogo:",
+      "diathesimotita": "Disponibilità",
+      "eidika_filtra": "Filtri speciali",
+      "den_vriskete_to_sosto": "Non trovi quello giusto?",
+      "peite_mas_ti_doyleia_kai": "Dicci il tuo lavoro e ti consigliamo il codice. 46 anni di esperienza al telefono."
+    },
+    "MobileFilterSheet": {
+      "filtra": "Filtri",
+      "kleisimo_filtron": "Chiudi filtri"
+    },
+    "Pagination": {
+      "selidopoiisi": "Paginazione",
+      "proigoymeni": "Precedente",
+      "epomeni": "Successiva"
+    },
+    "PlpToolbar": {
+      "proionta": "prodotti",
+      "katharismos_olon": "Pulisci tutto",
+      "ana_grammi": "Per riga",
+      "proionta_2": "Prodotti",
+      "taxinomisi": "Ordina"
+    }
+  },
+  "pdp": {
+    "ProductGallery": {
+      "choris_eikona": "Senza immagine",
+      "megethynsi": "Ingrandisci",
+      "proigoymenes_eikones": "Immagini precedenti",
+      "epomenes_eikones": "Immagini successive",
+      "kleisimo": "Chiudi"
+    },
+    "ProductTabs": {
+      "stoicheia_proiontos": "Dettagli prodotto",
+      "me_mia_matia": "A colpo d'occhio",
+      "den_yparchei_akomi_analytiki_perigrafi": "Non esiste ancora una descrizione dettagliata per questo codice.\n                  Chiamateci al 210 411 1355 per dettagli tecnici.",
+      "ta_technika_charaktiristika_gia_ayton": "Le specifiche tecniche per questo codice non sono\n                  ancora state inserite.",
+      "episimi_eggyisi_kataskeyasti_servis_kai": "Garanzia ufficiale del produttore, assistenza e ricambi da Kolleris."
+    }
+  },
+  "orders": {
+    "OrderTracker": {
+      "arithmos_paraggelias": "Numero ordine",
+      "email_paraggelias": "Email ordine",
+      "entopismos": "Trova ordine",
+      "o_arithmos_einai_sto_email": "Il numero è nell'email di conferma. Non serve un account.",
+      "paraggelia": "Ordine",
+      "tem": "pz.",
+      "i_paraggelia_akyrothike_an_den": "L'ordine è stato annullato. Se non l'hai annullato tu, chiamaci al 210 411 1355.",
+      "i_pliromi_den_oloklirothike_mporeite": "Il pagamento non è stato completato. Puoi riprovare o chiamarci al 210 411 1355.",
+      "se_exelixi": "in corso",
+      "arithmos_apostolis_acs": "Numero spedizione ACS",
+      "parakoloythisi_stin_acs": "Tracciamento su ACS",
+      "kati_den_paei_kala": "Qualcosa non va?",
+      "alli_paraggelia": "Altro ordine"
+    }
+  },
+  "home": {
+    "AboutSplit": {
+      "fotografia_apothikis_omadas": "Foto magazzino / gruppo",
+      "gia_46_chronia_i_kolleris": "Per 46 anni, Kolleris è il fornitore a cui si rivolgono compagnie di navigazione,\n          fabbriche e officine. Rapporti diretti con Milwaukee, Knipex,\n          Wera — disponibilità precisa, senza 'vedremo'."
+    },
+    "BrandWall": {
+      "ta_brands_poy_antiprosopeyoyme": "I brand che rappresentiamo",
+      "brands_me_energa_proionta_mia": "brand con prodotti attivi · un unico indirizzo",
+      "kod": "cod."
+    },
+    "CategoryGrid": {
+      "agora_ana_katigoria": "Acquista per categoria",
+      "kod": "cod.",
+      "ypokatigories": "sottocategorie"
+    },
+    "FeaturedProducts": {
+      "ta_pio_dimofili_ergaleia": "Gli strumenti più popolari",
+      "oles_oi_times_me_fpa": "Tutti i prezzi IVA inclusa",
+      "deite_ola_ta_proionta": "Vedi tutti i prodotti"
+    },
+    "HeroBanner": {
+      "kodikon": "codici",
+      "deite_ta": "Vedi tutti"
+    },
+    "NewsletterBand": {
+      "eggrafi_sto_newsletter": "Iscrizione alla newsletter",
+      "nea_proionta_prosfores_kai_technika": "Nuovi prodotti, offerte e consigli tecnici — una volta al mese.",
+      "to_email_sas": "La tua email",
+      "eggrafi": "Iscriviti"
+    },
+    "ReviewsBand": {
+      "vasismeno_se": "Basato su",
+      "axiologiseis_epaggelmation_synergeion_kai_naypigeion": "recensioni di professionisti, officine e\n            cantieri navali."
+    }
+  },
+  "faq": {
+    "FaqAccordion": {
+      "anazitisi_stis_erotiseis": "Cerca tra le domande",
+      "psaxte_mia_erotisi_p_ch": "Cerca una domanda — es. spedizione, garanzia, fattura",
+      "katharismos": "Cancella",
+      "symptyxi_olon": "Comprimi tutto",
+      "anoigma_olon": "Espandi tutto",
+      "kamia_erotisi_gia": "Nessuna domanda per «",
+      "rotiste_mas_apeytheias_apantame_tin": "Scrivici direttamente — rispondiamo lo stesso giorno lavorativo, e la tua domanda probabilmente\n            verrà aggiunta qui per il prossimo."
+    }
+  },
+  "contact": {
+    "ContactForm": {
+      "stalthike": "Inviato",
+      "to_lavame": "Ricevuto",
+      "apantame_synithos_tin_idia_ergasimi": "Di solito rispondiamo lo stesso giorno lavorativo. Se hai fretta, chiamaci al",
+      "sikonei_anthropos": "— risponde una persona.",
+      "min_symplirosete": "Non compilare",
+      "thema": "Oggetto",
+      "onomateponymo": "Nome e cognome",
+      "tilefono": "Telefono",
+      "etaireia": "Azienda",
+      "afm": "Partita IVA",
+      "arithmos_paraggelias": "Numero d'ordine",
+      "p_ch_kol_20260731_0007": "es. KOL-20260731-0007",
+      "thema_minymatos": "Oggetto del messaggio",
+      "minyma": "Messaggio",
+      "apostoli": "Invia"
+    }
+  },
+  "compare": {
+    "CompareAdviceBand": {
+      "i_epilogi_toy_ypeythynoy": "La scelta del responsabile",
+      "poio_na_parete_analoga_me": "Quale prendere, in base a cosa conta"
+    },
+    "CompareMatrix": {
+      "charaktiristiko": "Caratteristica",
+      "diaferei": "differisce",
+      "to_chamilotero_tis_sygkrisis": "— il più basso del confronto",
+      "to_ypsilotero_tis_sygkrisis": "— il più alto del confronto",
+      "afairesi": "Rimuovi",
+      "choris_eikona": "Senza immagine"
+    },
+    "CompareToolbar": {
+      "mono_diafores": "Solo differenze",
+      "kalyteri_timi_ana_grammi": "Miglior prezzo per linea",
+      "grammes": "linee",
+      "me_diafora": "con differenza"
+    },
+    "CompareTray": {
+      "sygkrisi": "Confronto",
+      "idia_katigoria": "Stessa categoria",
+      "katharismos": "Pulisci"
+    }
+  },
+  "chrome": {
+    "HeaderShell": {
+      "metavasi_sto_periechomeno": "Vai al contenuto"
+    },
+    "MainNav": {
+      "katalogos": "Catalogo",
+      "nees_afixeis": "Nuovi arrivi",
+      "i_etaireia": "L'azienda",
+      "epikoinonia": "Contatti",
+      "kyria_ploigisi": "Navigazione principale",
+      "prosfores": "Offerte"
+    },
+    "MegaMenu": {
+      "katigories": "Categorie",
+      "proteinomeno": "Consigliato",
+      "deite_to": "Vedi",
+      "vasikes_katigories": "categorie principali ·",
+      "ypokatigories": "sottocategorie ·",
+      "kodikoi": "codici",
+      "oles_oi_katigories": "Tutte le categorie",
+      "antiprosopeyomena_brands": "Brand rappresentati"
+    },
+    "MobileMenu": {
+      "prosfores": "Offerte",
+      "nees_afixeis": "Nuovi arrivi",
+      "i_etaireia": "L'azienda",
+      "epikoinonia": "Contatti",
+      "menoy": "Menu",
+      "kleisimo_menoy": "Chiudi menu",
+      "ploigisi": "Navigazione",
+      "kleisimo": "Chiudi",
+      "katigories": "Categorie",
+      "apokrypsi": "Nascondi",
+      "emfanisi": "Mostra",
+      "katigories_2": "categorie ·",
+      "ypokatigories": "sottocategorie ·",
+      "kodikoi": "codici",
+      "kod": "cod.",
+      "syndesi_b2b": "Accesso B2B"
+    },
+    "SearchSuggest": {
+      "anazitisi_proionton": "Cerca prodotti",
+      "katigoria_anazitisis": "Categoria di ricerca",
+      "oles_oi_katigories": "Tutte le categorie",
+      "anazitisi": "Cerca",
+      "anazitisi_me_kodiko_proion_i": "Cerca per codice, prodotto o brand — es. 4932359490",
+      "anazitisi_kodikoy_i_proiontos": "Cerca codice o prodotto",
+      "protaseis_anazitisis": "Suggerimenti di ricerca",
+      "den_vrethike_kati_gia": "Nessun risultato per «",
+      "dokimaste_ton_kodiko_toy_kataskeyasti": "Prova il codice del produttore, meno parole, o chiamaci\n                al 210 411 1355 — troviamo il codice insieme.",
+      "akrivis_kodikos": "Codice esatto",
+      "proionta": "Prodotti",
+      "katigories": "Categorie",
+      "tem": "pz.",
+      "katopin": "Su ordinazione"
+    },
+    "SiteFooter": {
+      "katigories": "Categorie",
+      "exypiretisi": "Assistenza",
+      "i_etaireia": "L'azienda",
+      "k_mayromichali_4_18545_peiraias": "K. Mavromichali 4, 18545 Pireo"
+    },
+    "SiteHeader": {
+      "logariasmos": "Account",
+      "glossa": "Lingua",
+      "syndesi_b2b": "Accesso B2B"
+    },
+    "UtilityBar": {
+      "kodikoi": "codici",
+      "paradosi_24_48o_dorean_ano": "Consegna 24-48h · Gratuita oltre 150€",
+      "paradosi_24_48o_se_oli": "Consegna 24-48h in tutta la Grecia",
+      "dorean_apostoli_ano_ton_150": "Spedizione gratuita oltre 150€",
+      "t_30_210_411_1355": "Tel. [+30] 210 411 1355"
+    }
+  },
+  "checkout": {
+    "CheckoutForm": {
+      "stoicheia_epikoinonias": "Dati di contatto",
+      "onoma": "Nome",
+      "eponymo": "Cognome",
+      "kinito": "Cellulare",
+      "dieythynsi_paradosis": "Indirizzo di consegna",
+      "odos_kai_arithmos": "Via e numero",
+      "orofos_koydoyni": "Piano / citofono",
+      "periochi": "Zona",
+      "poli": "Città",
+      "t_k": "CAP",
+      "thelo_timologio_chreiazontai_afm_kai": "Voglio fattura (servono Partita IVA e Ufficio delle Entrate)",
+      "tropos_apostolis": "Metodo di spedizione",
+      "to_kostos_ypologizetai_apo_to": "Il costo è calcolato in base al peso addebitabile e alla zona ACS del tuo CAP —\n          consulta il riepilogo a destra.",
+      "tropos_pliromis": "Metodo di pagamento",
+      "tha_metafertheite_stin_asfali_selida": "Verrai reindirizzato alla pagina di pagamento sicura di Viva Wallet. I dati\n            della tua carta non passano mai dal nostro negozio.",
+      "tha_lavete_ta_stoicheia_katathesis": "Riceverai i dati per il bonifico via email. L'ordine è riservato per 3\n            giorni lavorativi.",
+      "scholia_kai_oloklirosi": "Commenti e completamento",
+      "scholia_paraggelias": "Commenti sull'ordine",
+      "odigies_paradosis_ores_paralavis": "Istruzioni di consegna, orari di ritiro…",
+      "apodechomai_toys_oroys_chrisis_kai": "Accetto i termini di utilizzo e la politica sulla privacy.",
+      "apaiteitai_apodochi_ton_oron": "È richiesta l'accettazione dei termini.",
+      "ginetai_katachorisi": "Registrazione in corso…",
+      "pliromi_me_asfaleia": "Pagamento sicuro",
+      "oloklirosi_paraggelias": "Completamento ordine"
+    }
+  },
+  "catalogue": {
+    "CategoryPicker": {
+      "kleisimo": "Chiudi",
+      "epilogi_ypokatigorias": "Selezione sottocategoria",
+      "filtrarisma_ypokatigorion": "Filtraggio sottocategorie",
+      "filtrarisma": "Filtraggio…",
+      "kamia_ypokatigoria_gia": "Nessuna sottocategoria per «"
+    },
+    "TaxonomyFinder": {
+      "anazitisi_katigorias": "Ricerca categoria",
+      "vreite_katigoria_p_ch_allen": "Trova categoria — es. chiavi, trapano a tazza, guanti",
+      "katharismos": "Cancella",
+      "grapste_toylachiston_2_charaktires": "Inserisci almeno 2 caratteri.",
+      "kamia_katigoria_gia": "Nessuna categoria per «",
+      "dokimaste_tin_anazitisi_proionton_stin": "Prova la ricerca prodotti in alto — cerca per codici e nomi,\n            non solo per categorie.",
+      "kod": "cod."
+    }
+  },
+  "cart": {
+    "AddToCartButton": {
+      "sto_kalathi": "Nel carrello",
+      "dokimaste_xana": "Riprova"
+    },
+    "BuyNowButton": {
+      "agora_tora": "Acquista ora"
+    },
+    "CartActionsRow": {
+      "synechiste_tis_agores": "Continua gli acquisti",
+      "na_adeiasei_to_kalathi": "Svuotare il carrello?",
+      "adeiasma_kalathioy": "Svuota carrello"
+    },
+    "CartCrossSell": {
+      "min_xanaparaggeilete_ayrio": "Non riordinare domani",
+      "xechasate_kati_gia_ti_doyleia": "Hai dimenticato qualcosa per il lavoro?",
+      "epilegmena_apo_tis_idies_katigories": "Selezionati dalle stesse categorie del tuo carrello. Una spedizione, un\n            costo di trasporto.",
+      "proteinomeno": "Consigliato",
+      "prosthiki": "Aggiungi"
+    },
+    "CartLineRow": {
+      "amesa_diathesimo": "Disponibile subito",
+      "tem": "pz.",
+      "katopin_paraggelias": "Su ordinazione",
+      "timi_monadas": "Prezzo unitario",
+      "posotita": "Quantità",
+      "meiosi_posotitas": "Riduci quantità",
+      "ayxisi_posotitas": "Aumenta quantità",
+      "synolo": "Totale"
+    },
+    "CartSummaryPanel": {
+      "dorean_metaforika": "Spedizione gratuita",
+      "energo": "Attivo",
+      "ta_metaforika_sas_einai_dorean": "La tua spedizione è gratuita.",
+      "prostheste_akomi": "Aggiungi ancora",
+      "kathari_axia_gia_dorean_metaforika": "(valore netto) per la spedizione gratuita.",
+      "tropos_paralavis": "Metodo di ritiro",
+      "dorean": "Gratuito",
+      "ypologismos": "Calcolo",
+      "tropos_pliromis": "Metodo di pagamento",
+      "ta_koyponia_den_einai_akomi": "I coupon non sono ancora disponibili.",
+      "kodikos_ekptosis": "Codice sconto",
+      "efarmogi": "Applica",
+      "kg_chreosimo_varos": "kg peso addebitabile",
+      "ergasimes": "giorni lavorativi",
+      "teliko_synolo": "Totale finale",
+      "me_fpa": "IVA inclusa",
+      "kerdizete": "Risparmi",
+      "se_ayti_tin_paraggelia": "su questo ordine",
+      "oloklirosi_paraggelias": "Completa l'ordine",
+      "asfalis_pliromi_ssl": "Pagamento sicuro · SSL"
+    },
+    "MiniCart": {
+      "kalathi": "Carrello",
+      "adeio": "Vuoto",
+      "to_kalathi_sas": "Il tuo carrello",
+      "proionta": "prodotti",
+      "to_kalathi_einai_adeio": "Il carrello è vuoto.",
+      "ston_katalogo": "Al catalogo",
+      "akomi_sto_kalathi": "ancora nel carrello",
+      "yposynolo": "Subtotale",
+      "choris_metaforika_ypologizontai_sto_kalathi": "Senza spese di spedizione — calcolate nel carrello.",
+      "dorean_metaforika_energa": "Spedizione gratuita — attiva.",
+      "oloklirosi": "Completa"
+    },
+    "QuickOrderPaste": {
+      "kanenas_apo_toys_kodikoys_den": "Nessuno dei codici è stato trovato.",
+      "den_itan_dynati_i_prosthiki": "Impossibile aggiungere.",
+      "grigori_paraggelia_me_kodikoys": "Ordine rapido con codici",
+      "epikolliste_lista_kodikon_apo_to": "Incolla l'elenco dei codici dal tuo Excel — un codice per riga o\n            separati da virgola.",
+      "kodikoi_proionton": "Codici prodotto",
+      "prosthiki": "Aggiungi",
+      "prostethikan": "Aggiunti",
+      "kodikos": "codice",
+      "kodikoi": "codici",
+      "den_vrethikan": "Non trovati:"
+    }
+  },
+  "brands": {
+    "BrandSearchGrid": {
+      "vreite_brand_p_ch_knip": "Trova brand — es. knip",
+      "anazitisi_brand": "Cerca brand",
+      "katharismos": "Pulisci",
+      "episimi_antiprosopeysi": "Rappresentanza ufficiale",
+      "taxinomisi_kata_plithos_kodikon": "Ordinamento per numero di codici",
+      "den_vrethike_brand": "Brand non trovato",
+      "antiprosopeyoyme_polla_akomi_brands_kai": "Rappresentiamo molti altri brand e li procuriamo su ordinazione.\n            Chiamateci.",
+      "t_210_411_1355": "Tel. 210 411 1355",
+      "se_apothema": "Disponibile",
+      "katopin": "Su richiesta",
+      "kod": "cod."
+    }
+  },
+  "blog": {
+    "BlogMissingNotice": {
+      "den_echei_energopoiithei_akomi": "Non ancora attivato",
+      "ta_arthra_perimenoyn_to_hdctool": "Gli articoli attendono HDCtool",
+      "to_periechomeno_yparchei_idi_ta": "Il contenuto esiste già: i modelli",
+      "el_en_it_kai": "(el/en/it) e",
+      "einai_sto_hdctool_mazi_me": "sono su HDCtool, insieme al loro\n        editor. Manca un endpoint pubblico —",
+      "zita_cookie_session_eno_to": "richiede un cookie di sessione, mentre l'\n        eshop usa bearer.",
+      "to_symvolaio_h16_h17_einai": "Il contratto (H16–H17) è su",
+      "kai_sto": "e su",
+      "nees_afixeis": "Nuovi arrivi",
+      "i_etaireia": "L'azienda"
+    }
+  },
+  "account": {
+    "AccountShell": {
+      "archiki": "Home",
+      "etairikos_logariasmos": "Account aziendale",
+      "o_logariasmos_moy": "Il mio account",
+      "etaireia": "Azienda",
+      "idiotis": "Privato",
+      "den_echei_energopoiithei_akomi": "Non ancora attivato",
+      "syntoma": "Presto",
+      "aposyndesi": "Disconnetti"
+    },
+    "AuthForms": {
+      "kodikos": "Password",
+      "syndesi": "Accedi",
+      "den_echete_logariasmo": "Non hai un account?",
+      "eggrafeite": "Registrati",
+      "typos_logariasmoy": "Tipo di account",
+      "stoicheia_etaireias": "Dati aziendali",
+      "oi_etairikoi_logariasmoi_elegchontai_prin": "Gli account aziendali vengono verificati prima dell'attivazione — di solito entro 2\n            giorni lavorativi. Riceverai una notifica via email.",
+      "onoma": "Nome",
+      "eponymo": "Cognome",
+      "kinito": "Cellulare",
+      "apodechomai_toys_oroys_chrisis_kai": "Accetto i termini di utilizzo e la politica sulla privacy.",
+      "aitisi_etairikoy_logariasmoy": "Richiesta account aziendale",
+      "eggrafi": "Registrazione",
+      "echete_idi_logariasmo": "Hai già un account?",
+      "syndetheite": "Accedi",
+      "ta_stoicheia_sas_apothikeytikan": "I tuoi dati sono stati salvati.",
+      "gia_allagi_email_kaleste_mas": "Per cambiare email chiamaci al 210 411 1355.",
+      "apothikeysi": "Salva"
+    },
+    "CompanyVatFields": {
+      "afm": "P.IVA",
+      "p_ch_099095556": "es. 099095556",
+      "anazitisi": "Cerca",
+      "sas_vrikame_stoys_pelates_mas": "Ti abbiamo trovato tra i nostri clienti — i dati sono stati compilati.",
+      "stoicheia_apo_to_mitroo_aade": "Dati dal registro AADE — controllali e correggili se necessario.",
+      "to_afm_den_vrethike_sto": "La P.IVA non è stata trovata nel registro. Compila i dati manualmente.",
+      "to_mitroo_den_apanta_ayti": "Il registro non risponde al momento. Compila i dati manualmente —\n              l'ordine non viene influenzato.",
+      "to_afm_den_einai_egkyro": "La P.IVA non è valida (9 cifre).",
+      "9_psifia_choris_el_mprosta": "9 cifre — senza EL davanti.",
+      "grapste_to_afm_kai_patiste": "Inserisci la P.IVA e premi «Cerca» — completiamo il resto tramite AADE.",
+      "eponymia": "Ragione sociale",
+      "doy": "Ufficio fiscale (DOY)",
+      "drastiriotita": "Attività",
+      "dieythynsi_edras": "Indirizzo sede legale",
+      "poli": "Città",
+      "t_k": "CAP"
+    },
+    "MemberAdmin": {
+      "eseis": "tu",
+      "choris_orio": "senza limite",
+      "paraggelies": "ordini",
+      "akyro": "Annulla",
+      "allagi": "Modifica",
+      "afairesi": "Rimuovi",
+      "rolos": "Ruolo",
+      "orio_ana_paraggelia": "Limite per ordine (€)",
+      "katastasi": "Stato",
+      "energos": "Attivo",
+      "se_anastoli": "In sospeso",
+      "apothikeysi": "Salva",
+      "prosklisi_christi": "Invito utente",
+      "o_christis_lamvanei_email_me": "L'utente riceve un'email con un link di attivazione. Ordina con i dati\n        dell'azienda e i prezzi da partner.",
+      "onoma": "Nome",
+      "eponymo": "Cognome",
+      "apostoli_prosklisis": "Invia invito"
+    }
   }
 }

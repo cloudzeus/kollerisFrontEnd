@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import { MobileFilterSheet } from "@/components/plp/MobileFilterSheet";
 import { Link } from "@/i18n/navigation";
 import {
@@ -36,6 +37,7 @@ export function PlpToolbar({
   basePath: string;
   params: RawParams;
 }) {
+  const t = useTranslations("plp.PlpToolbar");
   const chips: Array<{ label: string; href: string }> = [
     ...facets.subcategories
       .filter((s) => s.active)
@@ -81,7 +83,7 @@ export function PlpToolbar({
         <div className="flex min-w-0 flex-wrap items-center gap-3">
           <MobileFilterSheet facets={facets} total={total} basePath={basePath} params={params} />
           <span className="shrink-0 text-[13px] font-semibold whitespace-nowrap text-k-ink">
-            {total.toLocaleString("el-GR")} προϊόντα
+            {total.toLocaleString("el-GR")} {t("proionta")}
           </span>
 
           <div className="flex min-w-0 flex-wrap items-center gap-1.5">
@@ -101,7 +103,7 @@ export function PlpToolbar({
                 href={basePath}
                 className="px-1 text-[10px] font-semibold tracking-[0.05em] whitespace-nowrap text-k-red"
               >
-                {upGreek("Καθαρισμός όλων")}
+                {upGreek(t("katharismos_olon"))}
               </Link>
             )}
           </div>
@@ -109,7 +111,7 @@ export function PlpToolbar({
 
         <div className="flex shrink-0 items-center gap-4">
           <div className="hidden items-center gap-2 xl:flex">
-            <span className="t-stat-label text-k-text-4">{upGreek("Ανά γραμμή")}</span>
+            <span className="t-stat-label text-k-text-4">{upGreek(t("ana_grammi"))}</span>
             <div className="flex border border-k-line-2">
               {PER_ROW_OPTIONS.map((n) => (
                 <Link
@@ -127,7 +129,7 @@ export function PlpToolbar({
           </div>
 
           <div className="hidden items-center gap-2 lg:flex">
-            <span className="t-stat-label text-k-text-4">{upGreek("Προϊόντα")}</span>
+            <span className="t-stat-label text-k-text-4">{upGreek(t("proionta_2"))}</span>
             <div className="flex border border-k-line-2">
               {PER_PAGE_OPTIONS.map((n) => (
                 <Link
@@ -163,7 +165,7 @@ export function PlpToolbar({
                 ),
               )}
             <label htmlFor="sort" className="sr-only">
-              Ταξινόμηση
+              {t("taxinomisi")}
             </label>
             <select
               id="sort"

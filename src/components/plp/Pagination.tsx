@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { upGreek } from "@/lib/greek";
 
@@ -16,6 +17,7 @@ export function Pagination({
   basePath: string;
   params: Record<string, string | string[] | undefined>;
 }) {
+  const t = useTranslations("plp.Pagination");
   if (totalPages <= 1) return null;
 
   const href = (target: number) => {
@@ -39,14 +41,14 @@ export function Pagination({
   const pages = [...window].sort((a, b) => a - b);
 
   return (
-    <nav aria-label="Σελιδοποίηση" className="mt-8 flex items-center justify-center gap-1.5">
+    <nav aria-label={t("selidopoiisi")} className="mt-8 flex items-center justify-center gap-1.5">
       {page > 1 && (
         <Link
           href={href(page - 1)}
           rel="prev"
           className="t-card-cta flex h-10 items-center border border-k-line-2 px-3 text-k-ink transition-colors hover:border-k-ink"
         >
-          ‹ {upGreek("Προηγούμενη")}
+          ‹ {upGreek(t("proigoymeni"))}
         </Link>
       )}
 
@@ -75,7 +77,7 @@ export function Pagination({
           rel="next"
           className="t-card-cta flex h-10 items-center border border-k-line-2 px-3 text-k-ink transition-colors hover:border-k-ink"
         >
-          {upGreek("Επόμενη")} ›
+          {upGreek(t("epomeni"))} ›
         </Link>
       )}
     </nav>

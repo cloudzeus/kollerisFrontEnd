@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import Image from "next/image";
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import { useRouter } from "@/i18n/navigation";
@@ -36,6 +37,7 @@ export function SearchSuggest({
   categories: Array<{ slug: string; name: string }>;
   variant?: "desktop" | "mobile";
 }) {
+  const t = useTranslations("chrome.SearchSuggest");
   const router = useRouter();
   const listId = useId();
 
@@ -185,7 +187,7 @@ export function SearchSuggest({
     <div ref={root} className="relative min-w-0 flex-1">
       <form
         role="search"
-        aria-label="Αναζήτηση προϊόντων"
+        aria-label={t("anazitisi_proionton")}
         action="/anazitisi"
         className={
           desktop
@@ -196,14 +198,14 @@ export function SearchSuggest({
         {desktop && (
           <>
             <label htmlFor="scope-desktop" className="sr-only">
-              Κατηγορία αναζήτησης
+              {t("katigoria_anazitisis")}
             </label>
             <select
               id="scope-desktop"
               name="cat"
               className="t-search-cat h-full w-[168px] shrink-0 cursor-pointer truncate border-0 border-r border-[#E4E4E6] bg-white pr-7 pl-4 text-k-ink outline-none xl:w-[196px]"
             >
-              <option value="">{upGreek("Όλες οι κατηγορίες")}</option>
+              <option value="">{upGreek(t("oles_oi_katigories"))}</option>
               {categories.map((category) => (
                 <option key={category.slug} value={category.slug}>
                   {category.name}
@@ -214,7 +216,7 @@ export function SearchSuggest({
         )}
 
         <label htmlFor={`q-${variant}`} className="sr-only">
-          Αναζήτηση
+          {t("anazitisi")}
         </label>
         <input
           ref={input}
@@ -236,8 +238,8 @@ export function SearchSuggest({
           onKeyDown={onKeyDown}
           placeholder={
             desktop
-              ? "Αναζήτηση με κωδικό, προϊόν ή brand — π.χ. 4932359490"
-              : "Αναζήτηση κωδικού ή προϊόντος"
+              ? t("anazitisi_me_kodiko_proion_i")
+              : t("anazitisi_kodikoy_i_proiontos")
           }
           className={
             desktop
@@ -254,7 +256,7 @@ export function SearchSuggest({
 
         <button
           type="submit"
-          aria-label="Αναζήτηση"
+          aria-label={t("anazitisi")}
           className={`flex shrink-0 cursor-pointer items-center justify-center border-0 bg-k-red transition-colors hover:bg-k-red-hover ${
             desktop ? "w-[58px]" : "h-[46px] w-[52px]"
           }`}
@@ -284,7 +286,7 @@ export function SearchSuggest({
         <div
           id={listId}
           role="listbox"
-          aria-label="Προτάσεις αναζήτησης"
+          aria-label={t("protaseis_anazitisis")}
           className="absolute inset-x-0 top-[calc(100%+6px)] z-50 max-h-[70vh] overflow-y-auto border border-k-line bg-white shadow-[0_18px_40px_rgba(0,0,0,.14)]"
         >
           {loading && !data && <SuggestSkeleton />}
@@ -292,11 +294,10 @@ export function SearchSuggest({
           {isEmpty && (
             <div className="px-5 py-8 text-center">
               <p className="text-[13.5px] font-semibold text-k-ink">
-                Δεν βρέθηκε κάτι για «{query.trim()}»
+                {t("den_vrethike_kati_gia")}{query.trim()}»
               </p>
               <p className="mx-auto mt-2 max-w-sm text-[12.5px] leading-[1.6] text-k-text-3">
-                Δοκιμάστε τον κωδικό του κατασκευαστή, λιγότερες λέξεις, ή καλέστε μας
-                στο 210 411 1355 — βρίσκουμε τον κωδικό μαζί.
+                {t("dokimaste_ton_kodiko_toy_kataskeyasti")}
               </p>
             </div>
           )}
@@ -304,7 +305,7 @@ export function SearchSuggest({
           {data && rows.length > 0 && (
             <>
               {data.exact && (
-                <Section label="Ακριβής κωδικός">
+                <Section label={t("akrivis_kodikos")}>
                   <ProductRow
                     id={`${listId}-0`}
                     product={data.exact}
@@ -318,7 +319,7 @@ export function SearchSuggest({
               )}
 
               {data.products.length > 0 && (
-                <Section label="Προϊόντα">
+                <Section label={t("proionta")}>
                   {data.products.map((product, index) => {
                     const i = (data.exact ? 1 : 0) + index;
                     return (
@@ -337,7 +338,7 @@ export function SearchSuggest({
               )}
 
               {data.categories.length > 0 && (
-                <Section label="Κατηγορίες">
+                <Section label={t("katigories")}>
                   {data.categories.map((category, index) => {
                     const i = (data.exact ? 1 : 0) + data.products.length + index;
                     return (
@@ -435,6 +436,7 @@ function ProductRow({
   onSelect: () => void;
   onHover: () => void;
 }) {
+  const t = useTranslations("chrome.SearchSuggest");
   return (
     <button
       type="button"
@@ -491,7 +493,7 @@ function ProductRow({
           }`}
         >
           <span aria-hidden className="rounded-pill block h-1.5 w-1.5 bg-current" />
-          {product.inStock ? `${product.qty} ${upGreek("τεμ.")}` : upGreek("Κατόπιν")}
+          {product.inStock ? `${product.qty} ${upGreek(t("tem"))}` : upGreek(t("katopin"))}
         </span>
       </span>
     </button>

@@ -1,0 +1,788 @@
+[
+  {
+    "file": "components/ui/Expandable.tsx",
+    "line": 27,
+    "value": "Περισσότερα",
+    "why": "εκτός component"
+  },
+  {
+    "file": "components/ui/Expandable.tsx",
+    "line": 28,
+    "value": "Λιγότερα",
+    "why": "εκτός component"
+  },
+  {
+    "file": "components/product/ProductCard.tsx",
+    "line": 45,
+    "value": "`${upGreek(\"Τελευταία\")} ${product.qty} ${upGreek(\"τεμ.\")}`",
+    "why": "template literal"
+  },
+  {
+    "file": "components/product/ProductCard.tsx",
+    "line": 129,
+    "value": "`με ΦΠΑ ${product.vatRate}%`",
+    "why": "template literal"
+  },
+  {
+    "file": "components/product/QuickViewProvider.tsx",
+    "line": 119,
+    "value": "Γρήγορη προβολή",
+    "why": "BinaryExpression"
+  },
+  {
+    "file": "components/product/QuickViewProvider.tsx",
+    "line": 224,
+    "value": "`με ΦΠΑ ${product.vatRate}%`",
+    "why": "template literal"
+  },
+  {
+    "file": "components/product/QuickViewProvider.tsx",
+    "line": 234,
+    "value": "`${upGreek(\"Άμεσα διαθέσιμο\")} · ${product.qty} ${upGreek(\"τ",
+    "why": "template literal"
+  },
+  {
+    "file": "components/plp/FilterSidebar.tsx",
+    "line": 131,
+    "value": "Σε προσφορά",
+    "why": "PropertyAssignment"
+  },
+  {
+    "file": "components/plp/FilterSidebar.tsx",
+    "line": 132,
+    "value": "Νέα προϊόντα",
+    "why": "PropertyAssignment"
+  },
+  {
+    "file": "components/plp/MobileFilterSheet.tsx",
+    "line": 98,
+    "value": "`Εμφάνιση ${total.toLocaleString(\"el-GR\")} προϊόντων`",
+    "why": "template literal"
+  },
+  {
+    "file": "components/plp/PlpToolbar.tsx",
+    "line": 56,
+    "value": "Άμεσα διαθέσιμα",
+    "why": "PropertyAssignment"
+  },
+  {
+    "file": "components/plp/PlpToolbar.tsx",
+    "line": 61,
+    "value": "Σε προσφορά",
+    "why": "PropertyAssignment"
+  },
+  {
+    "file": "components/plp/PlpToolbar.tsx",
+    "line": 64,
+    "value": "Νέα",
+    "why": "PropertyAssignment"
+  },
+  {
+    "file": "components/pdp/PriceBox.tsx",
+    "line": 94,
+    "value": "`με ΦΠΑ ${vatRate}%`",
+    "why": "template literal"
+  },
+  {
+    "file": "components/pdp/PriceBox.tsx",
+    "line": 214,
+    "value": "την Κυριακή",
+    "why": "εκτός component"
+  },
+  {
+    "file": "components/pdp/PriceBox.tsx",
+    "line": 215,
+    "value": "τη Δευτέρα",
+    "why": "εκτός component"
+  },
+  {
+    "file": "components/pdp/PriceBox.tsx",
+    "line": 216,
+    "value": "την Τρίτη",
+    "why": "εκτός component"
+  },
+  {
+    "file": "components/pdp/PriceBox.tsx",
+    "line": 217,
+    "value": "την Τετάρτη",
+    "why": "εκτός component"
+  },
+  {
+    "file": "components/pdp/PriceBox.tsx",
+    "line": 218,
+    "value": "την Πέμπτη",
+    "why": "εκτός component"
+  },
+  {
+    "file": "components/pdp/PriceBox.tsx",
+    "line": 219,
+    "value": "την Παρασκευή",
+    "why": "εκτός component"
+  },
+  {
+    "file": "components/pdp/PriceBox.tsx",
+    "line": 220,
+    "value": "το Σάββατο",
+    "why": "εκτός component"
+  },
+  {
+    "file": "components/pdp/PriceBox.tsx",
+    "line": 248,
+    "value": "σήμερα",
+    "why": "εκτός component"
+  },
+  {
+    "file": "components/pdp/PriceBox.tsx",
+    "line": 248,
+    "value": "αύριο",
+    "why": "εκτός component"
+  },
+  {
+    "file": "components/pdp/ProductGallery.tsx",
+    "line": 139,
+    "value": "`Εικόνα ${index + 1}`",
+    "why": "template literal"
+  },
+  {
+    "file": "components/pdp/ProductGallery.tsx",
+    "line": 172,
+    "value": "`${alt} — εικόνα ${active + 1} από ${images.length}`",
+    "why": "template literal"
+  },
+  {
+    "file": "components/pdp/ProductGallery.tsx",
+    "line": 363,
+    "value": "`Εικόνα ${index + 1}`",
+    "why": "template literal"
+  },
+  {
+    "file": "components/pdp/ProductTabs.tsx",
+    "line": 30,
+    "value": "Περιγραφή",
+    "why": "PropertyAssignment"
+  },
+  {
+    "file": "components/pdp/ProductTabs.tsx",
+    "line": 33,
+    "value": "`Χαρακτηριστικά${product.specs.length ? ` (${product.specs.l",
+    "why": "template literal"
+  },
+  {
+    "file": "components/pdp/ProductTabs.tsx",
+    "line": 36,
+    "value": "Αποστολή & επιστροφές",
+    "why": "PropertyAssignment"
+  },
+  {
+    "file": "components/pdp/ProductTabs.tsx",
+    "line": 87,
+    "value": "Τεχνικός φάκελος",
+    "why": "JsxAttribute"
+  },
+  {
+    "file": "components/pdp/ProductTabs.tsx",
+    "line": 176,
+    "value": "`Και τα ${product.specs.length} χαρακτηριστικά`",
+    "why": "template literal"
+  },
+  {
+    "file": "components/pdp/ProductTabs.tsx",
+    "line": 237,
+    "value": "Παράδοση 24-48 ώρες",
+    "why": "PropertyAssignment"
+  },
+  {
+    "file": "components/pdp/ProductTabs.tsx",
+    "line": 238,
+    "value": "Πανελλαδικά με courier. Παραγγελίες πριν τις 15:00 φεύγουν αυθημερόν.",
+    "why": "PropertyAssignment"
+  },
+  {
+    "file": "components/pdp/ProductTabs.tsx",
+    "line": 241,
+    "value": "Δωρεάν μεταφορικά άνω των 150 €",
+    "why": "PropertyAssignment"
+  },
+  {
+    "file": "components/pdp/ProductTabs.tsx",
+    "line": 242,
+    "value": "Για παραγγελίες άνω των 150 € (καθαρή αξία) τα μεταφορικά είναι δωρεάν.",
+    "why": "PropertyAssignment"
+  },
+  {
+    "file": "components/pdp/ProductTabs.tsx",
+    "line": 245,
+    "value": "Επιστροφή σε 14 ημέρες",
+    "why": "PropertyAssignment"
+  },
+  {
+    "file": "components/pdp/ProductTabs.tsx",
+    "line": 246,
+    "value": "Αμεταχείριστο προϊόν στη συσκευασία του, με το παραστατικό αγοράς.",
+    "why": "PropertyAssignment"
+  },
+  {
+    "file": "components/pdp/ProductTabs.tsx",
+    "line": 249,
+    "value": "Εγγύηση κατασκευαστή",
+    "why": "PropertyAssignment"
+  },
+  {
+    "file": "components/pdp/ProductTabs.tsx",
+    "line": 251,
+    "value": "`${product.guaranteeMonths} μήνες εγγύηση, σέρβις και ανταλλ",
+    "why": "template literal"
+  },
+  {
+    "file": "components/home/BrandWall.tsx",
+    "line": 67,
+    "value": "`Όλα τα ${totalBrands} brands`",
+    "why": "template literal"
+  },
+  {
+    "file": "components/home/CategoryGrid.tsx",
+    "line": 29,
+    "value": "Το πλήρες inventory",
+    "why": "JsxAttribute"
+  },
+  {
+    "file": "components/home/CategoryGrid.tsx",
+    "line": 31,
+    "value": "`Όλες οι ${totalCategories} κατηγορίες`",
+    "why": "template literal"
+  },
+  {
+    "file": "components/home/FeaturedProducts.tsx",
+    "line": 21,
+    "value": "Επιλεγμένοι κωδικοί",
+    "why": "JsxAttribute"
+  },
+  {
+    "file": "components/home/FeaturedProducts.tsx",
+    "line": 23,
+    "value": "Δείτε όλα τα προϊόντα",
+    "why": "PropertyAssignment"
+  },
+  {
+    "file": "components/home/ReviewsBand.tsx",
+    "line": 47,
+    "value": "`${rating} στα 5`",
+    "why": "template literal"
+  },
+  {
+    "file": "components/home/ReviewsBand.tsx",
+    "line": 56,
+    "value": "`${rating} στα 5`",
+    "why": "template literal"
+  },
+  {
+    "file": "components/faq/FaqAccordion.tsx",
+    "line": 71,
+    "value": "`${shown} από ${total}`",
+    "why": "template literal"
+  },
+  {
+    "file": "components/faq/FaqAccordion.tsx",
+    "line": 71,
+    "value": "`${total} ερωτήσεις`",
+    "why": "template literal"
+  },
+  {
+    "file": "components/contact/ContactForm.tsx",
+    "line": 23,
+    "value": "Τεχνική ερώτηση",
+    "why": "εκτός component"
+  },
+  {
+    "file": "components/contact/ContactForm.tsx",
+    "line": 24,
+    "value": "Ποιο εργαλείο κάνει για τη δουλειά σας",
+    "why": "εκτός component"
+  },
+  {
+    "file": "components/contact/ContactForm.tsx",
+    "line": 26,
+    "value": "Περιγράψτε τη δουλειά: υλικό, διάμετρος, συχνότητα χρήσης. Δεν χρειάζεται να ξέρετε τον κωδικό.",
+    "why": "εκτός component"
+  },
+  {
+    "file": "components/contact/ContactForm.tsx",
+    "line": 30,
+    "value": "Προσφορά",
+    "why": "εκτός component"
+  },
+  {
+    "file": "components/contact/ContactForm.tsx",
+    "line": 31,
+    "value": "Για ποσότητα ή σετ",
+    "why": "εκτός component"
+  },
+  {
+    "file": "components/contact/ContactForm.tsx",
+    "line": 32,
+    "value": "Ποια είδη και σε τι ποσότητες; Αν έχετε κωδικούς, επικολλήστε τους εδώ.",
+    "why": "εκτός component"
+  },
+  {
+    "file": "components/contact/ContactForm.tsx",
+    "line": 36,
+    "value": "Συνεργασία B2B",
+    "why": "εκτός component"
+  },
+  {
+    "file": "components/contact/ContactForm.tsx",
+    "line": 37,
+    "value": "Εταιρικός λογαριασμός",
+    "why": "εκτός component"
+  },
+  {
+    "file": "components/contact/ContactForm.tsx",
+    "line": 38,
+    "value": "Πείτε μας για την εταιρεία σας και τι είδη σας ενδιαφέρουν.",
+    "why": "εκτός component"
+  },
+  {
+    "file": "components/contact/ContactForm.tsx",
+    "line": 42,
+    "value": "Παραγγελία",
+    "why": "εκτός component"
+  },
+  {
+    "file": "components/contact/ContactForm.tsx",
+    "line": 43,
+    "value": "Για υπάρχουσα παραγγελία",
+    "why": "εκτός component"
+  },
+  {
+    "file": "components/contact/ContactForm.tsx",
+    "line": 44,
+    "value": "Τι θέλετε να ελέγξουμε; Παράδοση, τιμολόγιο, επιστροφή.",
+    "why": "εκτός component"
+  },
+  {
+    "file": "components/contact/ContactForm.tsx",
+    "line": 48,
+    "value": "Άλλο",
+    "why": "εκτός component"
+  },
+  {
+    "file": "components/contact/ContactForm.tsx",
+    "line": 50,
+    "value": "Πείτε μας.",
+    "why": "εκτός component"
+  },
+  {
+    "file": "components/contact/ContactForm.tsx",
+    "line": 128,
+    "value": "Για να σας πάρουμε αν είναι πιο γρήγορο.",
+    "why": "JsxAttribute"
+  },
+  {
+    "file": "components/contact/ContactForm.tsx",
+    "line": 132,
+    "value": "Για να ετοιμάσουμε τον εταιρικό λογαριασμό.",
+    "why": "JsxAttribute"
+  },
+  {
+    "file": "components/compare/CompareMatrix.tsx",
+    "line": 170,
+    "value": "`Αφαίρεση ${column.name} από τη σύγκριση`",
+    "why": "template literal"
+  },
+  {
+    "file": "components/compare/CompareMatrix.tsx",
+    "line": 217,
+    "value": "`με ΦΠΑ ${column.vatRate}%`",
+    "why": "template literal"
+  },
+  {
+    "file": "components/compare/CompareToolbar.tsx",
+    "line": 61,
+    "value": "`από ${totalRows} γραμμές`",
+    "why": "template literal"
+  },
+  {
+    "file": "components/compare/CompareTray.tsx",
+    "line": 85,
+    "value": "`Αφαίρεση ${item.name} από τη σύγκριση`",
+    "why": "template literal"
+  },
+  {
+    "file": "components/chrome/MegaMenu.tsx",
+    "line": 225,
+    "value": "`Όλα τα ${totalBrands}`",
+    "why": "template literal"
+  },
+  {
+    "file": "components/chrome/MobileMenu.tsx",
+    "line": 160,
+    "value": "`${isOpen ? \"Απόκρυψη\" : \"Εμφάνιση\"} υποκατηγοριών ${categor",
+    "why": "template literal"
+  },
+  {
+    "file": "components/chrome/MobileMenu.tsx",
+    "line": 196,
+    "value": "`Όλες οι ${category.childCount} υποκατηγορίες`",
+    "why": "template literal"
+  },
+  {
+    "file": "components/chrome/SearchSuggest.tsx",
+    "line": 93,
+    "value": "`Όλα τα ${data.totalProducts} αποτελέσματα`",
+    "why": "template literal"
+  },
+  {
+    "file": "components/chrome/SearchSuggest.tsx",
+    "line": 279,
+    "value": "`${data.totalProducts} αποτελέσματα για ${data.query}`",
+    "why": "template literal"
+  },
+  {
+    "file": "components/chrome/SearchSuggest.tsx",
+    "line": 398,
+    "value": "`Όλα τα ${data.totalProducts} αποτελέσματα`",
+    "why": "template literal"
+  },
+  {
+    "file": "components/chrome/SearchSuggest.tsx",
+    "line": 494,
+    "value": "`${product.qty} ${upGreek(\"τεμ.\")}`",
+    "why": "template literal"
+  },
+  {
+    "file": "components/chrome/SiteFooter.tsx",
+    "line": 28,
+    "value": "Εντοπισμός παραγγελίας",
+    "why": "PropertyAssignment"
+  },
+  {
+    "file": "components/chrome/SiteFooter.tsx",
+    "line": 29,
+    "value": "Επιστροφές",
+    "why": "PropertyAssignment"
+  },
+  {
+    "file": "components/chrome/SiteFooter.tsx",
+    "line": 30,
+    "value": "Εγγυήσεις",
+    "why": "PropertyAssignment"
+  },
+  {
+    "file": "components/chrome/SiteFooter.tsx",
+    "line": 31,
+    "value": "Συχνές ερωτήσεις",
+    "why": "PropertyAssignment"
+  },
+  {
+    "file": "components/chrome/SiteFooter.tsx",
+    "line": 32,
+    "value": "Επικοινωνία",
+    "why": "PropertyAssignment"
+  },
+  {
+    "file": "components/chrome/SiteFooter.tsx",
+    "line": 38,
+    "value": "Ποιοι είμαστε",
+    "why": "PropertyAssignment"
+  },
+  {
+    "file": "components/chrome/SiteFooter.tsx",
+    "line": 40,
+    "value": "Προσφορές",
+    "why": "PropertyAssignment"
+  },
+  {
+    "file": "components/chrome/SiteFooter.tsx",
+    "line": 42,
+    "value": "Λογαριασμός B2B",
+    "why": "PropertyAssignment"
+  },
+  {
+    "file": "components/chrome/UtilityBar.tsx",
+    "line": 23,
+    "value": "`${productCount.toLocaleString(\"el-GR\")}+ ${upGreek(\"κωδικοί",
+    "why": "template literal"
+  },
+  {
+    "file": "components/checkout/CheckoutForm.tsx",
+    "line": 98,
+    "value": "Καθορίζει τη ζώνη ACS και το κόστος αποστολής.",
+    "why": "JsxAttribute"
+  },
+  {
+    "file": "components/checkout/CheckoutForm.tsx",
+    "line": 231,
+    "value": "`${upGreek(\"Πληρωμή με ασφάλεια\")} →`",
+    "why": "template literal"
+  },
+  {
+    "file": "components/checkout/CheckoutForm.tsx",
+    "line": 232,
+    "value": "`${upGreek(\"Ολοκλήρωση παραγγελίας\")} →`",
+    "why": "template literal"
+  },
+  {
+    "file": "components/catalogue/CategoryPicker.tsx",
+    "line": 110,
+    "value": "`Υποκατηγορίες — ${root}`",
+    "why": "template literal"
+  },
+  {
+    "file": "components/catalogue/CategoryPicker.tsx",
+    "line": 207,
+    "value": "`${shown} υποκατηγορίες σε ${groups.length} ομάδες`",
+    "why": "template literal"
+  },
+  {
+    "file": "components/catalogue/TaxonomyFinder.tsx",
+    "line": 82,
+    "value": "`${results.length}${results.length === 24 ? \"+\" : \"\"} αποτελ",
+    "why": "template literal"
+  },
+  {
+    "file": "components/catalogue/TaxonomyFinder.tsx",
+    "line": 83,
+    "value": "`${nodes.length} κατηγορίες σε 3 επίπεδα`",
+    "why": "template literal"
+  },
+  {
+    "file": "components/cart/AddToCartButton.tsx",
+    "line": 47,
+    "value": "`✓ ${upGreek(\"Στο καλάθι\")}`",
+    "why": "template literal"
+  },
+  {
+    "file": "components/cart/CartLineRow.tsx",
+    "line": 82,
+    "value": "`${upGreek(\"Άμεσα διαθέσιμο\")} · ${line.availableQty} ${upGr",
+    "why": "template literal"
+  },
+  {
+    "file": "components/cart/CartLineRow.tsx",
+    "line": 89,
+    "value": "`Διαθέσιμα ${line.availableQty} — τα υπόλοιπα κατόπιν παραγγ",
+    "why": "template literal"
+  },
+  {
+    "file": "components/cart/CartLineRow.tsx",
+    "line": 109,
+    "value": "`με ΦΠΑ ${line.vatRate}%`",
+    "why": "template literal"
+  },
+  {
+    "file": "components/cart/CartLineRow.tsx",
+    "line": 158,
+    "value": "`Αφαίρεση ${line.name}`",
+    "why": "template literal"
+  },
+  {
+    "file": "components/cart/CartSummaryPanel.tsx",
+    "line": 219,
+    "value": "Καθαρή αξία",
+    "why": "PropertyAssignment"
+  },
+  {
+    "file": "components/cart/CartSummaryPanel.tsx",
+    "line": 221,
+    "value": "Μεταφορικά",
+    "why": "PropertyAssignment"
+  },
+  {
+    "file": "components/cart/CartSummaryPanel.tsx",
+    "line": 228,
+    "value": "Επιβάρυνση πληρωμής",
+    "why": "PropertyAssignment"
+  },
+  {
+    "file": "components/cart/CartSummaryPanel.tsx",
+    "line": 230,
+    "value": "ΦΠΑ",
+    "why": "PropertyAssignment"
+  },
+  {
+    "file": "components/cart/CartSummaryPanel.tsx",
+    "line": 245,
+    "value": " (εκτίμηση)",
+    "why": "BinaryExpression"
+  },
+  {
+    "file": "components/cart/MiniCart.tsx",
+    "line": 81,
+    "value": "`Καλάθι, ${count} τεμάχια`",
+    "why": "template literal"
+  },
+  {
+    "file": "components/cart/MiniCart.tsx",
+    "line": 122,
+    "value": "`${cart.itemCount} ${upGreek(\"προϊόντα\")}`",
+    "why": "template literal"
+  },
+  {
+    "file": "components/cart/MiniCart.tsx",
+    "line": 208,
+    "value": "`Ακόμη ${formatMoney(cart.freeShippingRemaining)} για δωρεάν",
+    "why": "template literal"
+  },
+  {
+    "file": "components/brands/BrandSearchGrid.tsx",
+    "line": 58,
+    "value": "`${filtered.length} από ${brands.length}`",
+    "why": "template literal"
+  },
+  {
+    "file": "components/account/AccountShell.tsx",
+    "line": 23,
+    "value": "Επισκόπηση",
+    "why": "εκτός component"
+  },
+  {
+    "file": "components/account/AccountShell.tsx",
+    "line": 24,
+    "value": "Στοιχεία λογαριασμού",
+    "why": "εκτός component"
+  },
+  {
+    "file": "components/account/AccountShell.tsx",
+    "line": 25,
+    "value": "Παραγγελίες",
+    "why": "εκτός component"
+  },
+  {
+    "file": "components/account/AccountShell.tsx",
+    "line": 26,
+    "value": "Διευθύνσεις",
+    "why": "εκτός component"
+  },
+  {
+    "file": "components/account/AccountShell.tsx",
+    "line": 27,
+    "value": "Εγγυήσεις & σέρβις",
+    "why": "εκτός component"
+  },
+  {
+    "file": "components/account/AccountShell.tsx",
+    "line": 28,
+    "value": "Επιστροφές",
+    "why": "εκτός component"
+  },
+  {
+    "file": "components/account/AccountShell.tsx",
+    "line": 29,
+    "value": "Αγαπημένα",
+    "why": "εκτός component"
+  },
+  {
+    "file": "components/account/AccountShell.tsx",
+    "line": 31,
+    "value": "Εταιρικός λογαριασμός",
+    "why": "εκτός component"
+  },
+  {
+    "file": "components/account/AccountShell.tsx",
+    "line": 32,
+    "value": "Χρήστες & ρόλοι",
+    "why": "εκτός component"
+  },
+  {
+    "file": "components/account/AccountShell.tsx",
+    "line": 33,
+    "value": "Τιμολόγια & πίστωση",
+    "why": "εκτός component"
+  },
+  {
+    "file": "components/account/AccountShell.tsx",
+    "line": 34,
+    "value": "Λίστες υλικών",
+    "why": "εκτός component"
+  },
+  {
+    "file": "components/account/AuthForms.tsx",
+    "line": 70,
+    "value": "Ιδιώτης",
+    "why": "PropertyAssignment"
+  },
+  {
+    "file": "components/account/AuthForms.tsx",
+    "line": 71,
+    "value": "Παραγγελίες, διευθύνσεις, εγγυήσεις και επιστροφές.",
+    "why": "PropertyAssignment"
+  },
+  {
+    "file": "components/account/AuthForms.tsx",
+    "line": 75,
+    "value": "Εταιρεία (B2B)",
+    "why": "PropertyAssignment"
+  },
+  {
+    "file": "components/account/AuthForms.tsx",
+    "line": 76,
+    "value": "Τιμές συνεργάτη, πληρωμή επί πιστώσει, πολλοί χρήστες με ρόλους και όρια.",
+    "why": "PropertyAssignment"
+  },
+  {
+    "file": "components/account/AuthForms.tsx",
+    "line": 129,
+    "value": "Τουλάχιστον 8 χαρακτήρες, με γράμματα και αριθμούς.",
+    "why": "JsxAttribute"
+  },
+  {
+    "file": "components/account/MemberAdmin.tsx",
+    "line": 38,
+    "value": "Χρήστης",
+    "why": "ArrayLiteralExpression"
+  },
+  {
+    "file": "components/account/MemberAdmin.tsx",
+    "line": 38,
+    "value": "Ρόλος",
+    "why": "ArrayLiteralExpression"
+  },
+  {
+    "file": "components/account/MemberAdmin.tsx",
+    "line": 38,
+    "value": "Όριο ανά παραγγελία",
+    "why": "ArrayLiteralExpression"
+  },
+  {
+    "file": "components/account/MemberAdmin.tsx",
+    "line": 38,
+    "value": "Φέτος",
+    "why": "ArrayLiteralExpression"
+  },
+  {
+    "file": "components/account/MemberAdmin.tsx",
+    "line": 38,
+    "value": "Κατάσταση",
+    "why": "ArrayLiteralExpression"
+  },
+  {
+    "file": "components/account/MemberAdmin.tsx",
+    "line": 217,
+    "value": "Ενεργός",
+    "why": "PropertyAssignment"
+  },
+  {
+    "file": "components/account/MemberAdmin.tsx",
+    "line": 218,
+    "value": "Προσκλήθηκε",
+    "why": "PropertyAssignment"
+  },
+  {
+    "file": "components/account/MemberAdmin.tsx",
+    "line": 219,
+    "value": "Σε έγκριση",
+    "why": "PropertyAssignment"
+  },
+  {
+    "file": "components/account/MemberAdmin.tsx",
+    "line": 220,
+    "value": "Αναστολή",
+    "why": "PropertyAssignment"
+  },
+  {
+    "file": "components/account/MemberAdmin.tsx",
+    "line": 221,
+    "value": "Απορρίφθηκε",
+    "why": "PropertyAssignment"
+  }
+]

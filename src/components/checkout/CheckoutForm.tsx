@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useActionState, useState } from "react";
 import { CompanyVatFields } from "@/components/account/CompanyVatFields";
 import { placeOrder, type CheckoutState } from "@/lib/checkout/actions";
@@ -24,6 +25,7 @@ export function CheckoutForm({
   postcode: string;
   isPartner?: boolean;
 }) {
+  const t = useTranslations("checkout.CheckoutForm");
   const [state, action, pending] = useActionState<CheckoutState, FormData>(placeOrder, {});
   const [wantsInvoice, setWantsInvoice] = useState(false);
   const [shipping, setShipping] = useState<string>("courier");
@@ -45,10 +47,10 @@ export function CheckoutForm({
         </p>
       )}
 
-      <Step n="01" title="Στοιχεία επικοινωνίας">
+      <Step n="01" title={t("stoicheia_epikoinonias")}>
         <div className="grid gap-4 sm:grid-cols-2">
-          <Field label="Όνομα" name="firstName" error={state.fieldErrors?.firstName} required />
-          <Field label="Επώνυμο" name="lastName" error={state.fieldErrors?.lastName} required />
+          <Field label={t("onoma")} name="firstName" error={state.fieldErrors?.firstName} required />
+          <Field label={t("eponymo")} name="lastName" error={state.fieldErrors?.lastName} required />
           <Field
             label="Email"
             name="email"
@@ -58,7 +60,7 @@ export function CheckoutForm({
             required
           />
           <Field
-            label="Κινητό"
+            label={t("kinito")}
             name="phone"
             type="tel"
             autoComplete="tel"
@@ -68,28 +70,28 @@ export function CheckoutForm({
         </div>
       </Step>
 
-      <Step n="02" title="Διεύθυνση παράδοσης">
+      <Step n="02" title={t("dieythynsi_paradosis")}>
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="sm:col-span-2">
             <Field
-              label="Οδός και αριθμός"
+              label={t("odos_kai_arithmos")}
               name="shipLine1"
               autoComplete="address-line1"
               error={state.fieldErrors?.shipLine1}
               required
             />
           </div>
-          <Field label="Όροφος / κουδούνι" name="shipLine2" autoComplete="address-line2" />
-          <Field label="Περιοχή" name="shipRegion" />
+          <Field label={t("orofos_koydoyni")} name="shipLine2" autoComplete="address-line2" />
+          <Field label={t("periochi")} name="shipRegion" />
           <Field
-            label="Πόλη"
+            label={t("poli")}
             name="shipCity"
             autoComplete="address-level2"
             error={state.fieldErrors?.shipCity}
             required
           />
           <Field
-            label="Τ.Κ."
+            label={t("t_k")}
             name="shipPostcode"
             autoComplete="postal-code"
             defaultValue={postcode}
@@ -108,7 +110,7 @@ export function CheckoutForm({
             className="h-4 w-4 accent-k-red"
           />
           <span className="text-[13px] font-semibold text-k-ink">
-            Θέλω τιμολόγιο (χρειάζονται ΑΦΜ και ΔΟΥ)
+            {t("thelo_timologio_chreiazontai_afm_kai")}
           </span>
         </label>
 
@@ -121,7 +123,7 @@ export function CheckoutForm({
         )}
       </Step>
 
-      <Step n="03" title="Τρόπος αποστολής">
+      <Step n="03" title={t("tropos_apostolis")}>
         <div className="flex flex-col gap-px border border-k-line bg-k-line">
           {SHIPPING_METHODS.map((method) => (
             <label
@@ -148,12 +150,11 @@ export function CheckoutForm({
           ))}
         </div>
         <p className="mt-2.5 text-[11.5px] text-k-text-4">
-          Το κόστος υπολογίζεται από το χρεώσιμο βάρος και τη ζώνη ACS του Τ.Κ. σας —
-          δείτε τη σύνοψη δεξιά.
+          {t("to_kostos_ypologizetai_apo_to")}
         </p>
       </Step>
 
-      <Step n="04" title="Τρόπος πληρωμής">
+      <Step n="04" title={t("tropos_pliromis")}>
         <div className="flex flex-wrap gap-2">
           {payments.map((method) => (
             <label
@@ -179,27 +180,25 @@ export function CheckoutForm({
 
         {(payment === "card" || payment === "iris") && (
           <p className="mt-3 border-l-[3px] border-k-ink bg-k-surface-2 px-4 py-3 text-[12px] leading-[1.55] text-k-text-2">
-            Θα μεταφερθείτε στην ασφαλή σελίδα πληρωμής της Viva Wallet. Τα στοιχεία
-            της κάρτας σας δεν περνούν ποτέ από το κατάστημά μας.
+            {t("tha_metafertheite_stin_asfali_selida")}
           </p>
         )}
         {payment === "bank" && (
           <p className="mt-3 border-l-[3px] border-k-ink bg-k-surface-2 px-4 py-3 text-[12px] leading-[1.55] text-k-text-2">
-            Θα λάβετε τα στοιχεία κατάθεσης με email. Η παραγγελία δεσμεύεται για 3
-            εργάσιμες.
+            {t("tha_lavete_ta_stoicheia_katathesis")}
           </p>
         )}
       </Step>
 
-      <Step n="05" title="Σχόλια και ολοκλήρωση">
+      <Step n="05" title={t("scholia_kai_oloklirosi")}>
         <label className="block">
           <span className="t-account-label mb-1.5 block text-k-text-4">
-            {upGreek("Σχόλια παραγγελίας")}
+            {upGreek(t("scholia_paraggelias"))}
           </span>
           <textarea
             name="notes"
             rows={3}
-            placeholder="Οδηγίες παράδοσης, ώρες παραλαβής…"
+            placeholder={t("odigies_paradosis_ores_paralavis")}
             className="t-input w-full border border-k-line-2 px-3.5 py-3 text-k-ink outline-none focus:border-k-ink"
           />
         </label>
@@ -213,11 +212,11 @@ export function CheckoutForm({
             className="mt-0.5 h-4 w-4 accent-k-red"
           />
           <span className="text-[12.5px] leading-[1.55] text-k-text-2">
-            Αποδέχομαι τους όρους χρήσης και την πολιτική απορρήτου.
+            {t("apodechomai_toys_oroys_chrisis_kai")}
           </span>
         </label>
         {state.fieldErrors?.terms && (
-          <p className="mt-1.5 text-[11.5px] text-k-red">Απαιτείται αποδοχή των όρων.</p>
+          <p className="mt-1.5 text-[11.5px] text-k-red">{t("apaiteitai_apodochi_ton_oron")}</p>
         )}
 
         <button
@@ -226,10 +225,10 @@ export function CheckoutForm({
           className="t-btn mt-6 flex h-14 w-full items-center justify-center bg-k-red text-white transition-colors hover:bg-k-red-hover disabled:opacity-50"
         >
           {pending
-            ? upGreek("Γίνεται καταχώρηση…")
+            ? upGreek(t("ginetai_katachorisi"))
             : payment === "card" || payment === "iris"
-              ? `${upGreek("Πληρωμή με ασφάλεια")} →`
-              : `${upGreek("Ολοκλήρωση παραγγελίας")} →`}
+              ? `${upGreek(t("pliromi_me_asfaleia"))} →`
+              : `${upGreek(t("oloklirosi_paraggelias"))} →`}
         </button>
       </Step>
     </form>

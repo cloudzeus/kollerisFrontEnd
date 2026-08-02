@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import Image from "next/image";
 import { Link } from "@/i18n/navigation";
 import { clearCompareForm, removeFromCompareForm } from "@/lib/compare/actions";
@@ -17,6 +18,7 @@ import { upGreek } from "@/lib/greek";
  * what is inside it so the thumbnails line up with the grid they came from.
  */
 export function CompareTray({ tray }: { tray: CompareTrayView }) {
+  const t = useTranslations("compare.CompareTray");
   if (tray.items.length === 0) return null;
 
   const slots = Array.from(
@@ -37,12 +39,12 @@ export function CompareTray({ tray }: { tray: CompareTrayView }) {
             <div className="flex min-w-0 items-center gap-3 lg:gap-5">
               <p className="hidden shrink-0 lg:block">
                 <span className="t-eyebrow block text-k-red">
-                  {upGreek("Σύγκριση")}
+                  {upGreek(t("sygkrisi"))}
                 </span>
                 <span className="t-brand-count block text-white/45">
                   {tray.scopeLabel
                     ? upGreek(tray.scopeLabel)
-                    : upGreek("Ίδια κατηγορία")}
+                    : upGreek(t("idia_katigoria"))}
                 </span>
               </p>
 
@@ -108,7 +110,7 @@ export function CompareTray({ tray }: { tray: CompareTrayView }) {
                   type="submit"
                   className="t-brand-count px-2 py-3 text-white/45 underline-offset-4 transition-colors hover:text-white hover:underline"
                 >
-                  {upGreek("Καθαρισμός")}
+                  {upGreek(t("katharismos"))}
                 </button>
               </form>
 
@@ -116,7 +118,7 @@ export function CompareTray({ tray }: { tray: CompareTrayView }) {
                 href={href}
                 className="t-btn-sm flex h-11 flex-1 items-center justify-center gap-2 bg-k-red px-5 text-white transition-colors hover:bg-k-red-hover lg:flex-none lg:px-7"
               >
-                {upGreek("Σύγκριση")} ({tray.items.length}) →
+                {upGreek(t("sygkrisi"))} ({tray.items.length}) →
               </Link>
             </div>
           </div>

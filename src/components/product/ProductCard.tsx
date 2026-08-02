@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import Image from "next/image";
 import { AddToCartButton } from "@/components/cart/AddToCartButton";
 import { BuyNowButton } from "@/components/cart/BuyNowButton";
@@ -32,6 +33,7 @@ export function ProductCard({
   product: ProductCardData;
   compare?: { selected: boolean; disabled: boolean };
 }) {
+  const t = useTranslations("product.ProductCard");
   const ctx = { vatRate: product.vatRate };
   const saving =
     product.priceListNet != null && product.priceNet != null
@@ -40,12 +42,12 @@ export function ProductCard({
 
   const stock = product.inStock
     ? product.qty > 5
-      ? { label: upGreek("Άμεσα διαθέσιμο"), className: "text-k-green" }
+      ? { label: upGreek(t("amesa_diathesimo")), className: "text-k-green" }
       : {
-          label: `${upGreek("Τελευταία")} ${product.qty} ${upGreek("τεμ.")}`,
+          label: `${upGreek(t("teleytaia"))} ${product.qty} ${upGreek(t("tem"))}`,
           className: "text-k-amber",
         }
-    : { label: upGreek("Κατόπιν παραγγελίας"), className: "text-k-text-4" };
+    : { label: upGreek(t("katopin_paraggelias")), className: "text-k-text-4" };
 
   return (
     /*
@@ -89,7 +91,7 @@ export function ProductCard({
             />
           ) : (
             <span className="t-card-vat flex h-[118px] items-center justify-center bg-k-surface-3 text-k-text-5 @[240px]:h-[160px] @[320px]:h-[186px]">
-              {upGreek("Χωρίς εικόνα")}
+              {upGreek(t("choris_eikona"))}
             </span>
           )}
         </Link>

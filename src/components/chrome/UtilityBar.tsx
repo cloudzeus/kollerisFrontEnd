@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import Image from "next/image";
 import { Link } from "@/i18n/navigation";
 import { LOCALE_LABELS, routing, type Locale } from "@/i18n/routing";
@@ -20,14 +21,15 @@ export function UtilityBar({
   productCount: number;
   brandCount: number;
 }) {
-  const counts = `${productCount.toLocaleString("el-GR")}+ ${upGreek("κωδικοί")} · ${brandCount} BRANDS`;
+  const t = useTranslations("chrome.UtilityBar");
+  const counts = `${productCount.toLocaleString("el-GR")}+ ${upGreek(t("kodikoi"))} · ${brandCount} BRANDS`;
 
   return (
     <>
       {/* Mobile — single condensed claim, centred. */}
       <div className="header-utility t-util flex h-8 items-center justify-center gap-2 bg-k-ink text-white/75 lg:hidden">
         <span className="block h-1 w-1 bg-k-red" />
-        {upGreek("Παράδοση 24-48ω · Δωρεάν άνω 150€")}
+        {upGreek(t("paradosi_24_48o_dorean_ano"))}
       </div>
 
       {/*
@@ -39,11 +41,11 @@ export function UtilityBar({
         <div className="flex items-center gap-[22px] whitespace-nowrap">
           <span className="flex items-center gap-2">
             <Image src="/icons/truck.png" alt="" width={17} height={17} className="block" />
-            {upGreek("Παράδοση 24-48ω σε όλη την Ελλάδα")}
+            {upGreek(t("paradosi_24_48o_se_oli"))}
           </span>
           <span className="hidden text-white/24 xl:inline">/</span>
           <span className="hidden xl:inline">
-            {upGreek("Δωρεάν αποστολή άνω των 150€")}
+            {upGreek(t("dorean_apostoli_ano_ton_150"))}
           </span>
           <span className="hidden text-white/24 2xl:inline">/</span>
           <span className="hidden 2xl:inline">{counts}</span>
@@ -70,7 +72,7 @@ export function UtilityBar({
             href="tel:+302104111355"
             className="whitespace-nowrap text-white transition-colors hover:text-k-red"
           >
-            Τ. [+30] 210 411 1355
+            {t("t_30_210_411_1355")}
           </a>
         </div>
       </div>

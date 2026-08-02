@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import Image from "next/image";
 import { Fragment } from "react";
 import { Link } from "@/i18n/navigation";
@@ -33,6 +34,7 @@ export function CompareMatrix({
   highlightBest: boolean;
   ids: string[];
 }) {
+  const t = useTranslations("compare.CompareMatrix");
   const visible = groups
     .map((g) => ({
       ...g,
@@ -52,7 +54,7 @@ export function CompareMatrix({
               className="sticky left-0 z-10 w-[148px] min-w-[148px] border-r border-b border-k-line bg-white align-bottom lg:w-[220px] lg:min-w-[220px]"
             >
               <span className="t-eyebrow block p-3 text-k-red lg:p-5">
-                {upGreek("Χαρακτηριστικό")}
+                {upGreek(t("charaktiristiko"))}
               </span>
             </th>
 
@@ -91,12 +93,13 @@ export function CompareMatrix({
                     </span>
                     {row.differs && (
                       <span className="t-brand-count mt-1 block text-k-red">
-                        {upGreek("διαφέρει")}
+                        {upGreek(t("diaferei"))}
                       </span>
                     )}
                   </th>
 
                   {row.cells.map((cell, index) => {
+  const t = useTranslations("compare.CompareMatrix");
                     const isBest = highlightBest && row.bestIndex === index;
                     return (
                       <td
@@ -127,8 +130,8 @@ export function CompareMatrix({
                                τιμή" would read as a price claim. */
                             <span className="sr-only">
                               {row.direction === "lower"
-                                ? " — το χαμηλότερο της σύγκρισης"
-                                : " — το υψηλότερο της σύγκρισης"}
+                                ? t("to_chamilotero_tis_sygkrisis")
+                                : t("to_ypsilotero_tis_sygkrisis")}
                             </span>
                           )}
                         </span>
@@ -146,6 +149,7 @@ export function CompareMatrix({
 }
 
 function ColumnHead({ column, ids }: { column: CompareColumn; ids: string[] }) {
+  const t = useTranslations("compare.CompareMatrix");
   const ctx = { vatRate: column.vatRate };
   const saving =
     column.priceListNet != null && column.priceNet != null
@@ -168,7 +172,7 @@ function ColumnHead({ column, ids }: { column: CompareColumn; ids: string[] }) {
         href={removeHref}
         scroll={false}
         aria-label={`Αφαίρεση ${column.name} από τη σύγκριση`}
-        title="Αφαίρεση"
+        title={t("afairesi")}
         className="absolute top-1.5 right-1.5 flex h-6 w-6 items-center justify-center text-[15px] leading-none text-k-text-5 transition-colors hover:bg-k-red hover:text-white"
       >
         ×
@@ -191,7 +195,7 @@ function ColumnHead({ column, ids }: { column: CompareColumn; ids: string[] }) {
             />
           ) : (
             <span className="t-brand-count text-k-text-5">
-              {upGreek("Χωρίς εικόνα")}
+              {upGreek(t("choris_eikona"))}
             </span>
           )}
         </span>

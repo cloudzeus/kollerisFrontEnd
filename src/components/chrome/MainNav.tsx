@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import { MegaMenu } from "@/components/chrome/MegaMenu";
 import { Link } from "@/i18n/navigation";
 import type { BrandTile, MenuCategory, ProductCardData } from "@/lib/catalog/queries";
@@ -29,20 +30,21 @@ export function MainNav({
   totalProducts: number;
   totalBrands: number;
 }) {
+  const t = useTranslations("chrome.MainNav");
   const links = [
-    { href: "/katalogos", label: upGreek("Κατάλογος") },
-    { href: "/nees-afixeis", label: upGreek("Νέες αφίξεις") },
+    { href: "/katalogos", label: upGreek(t("katalogos")) },
+    { href: "/nees-afixeis", label: upGreek(t("nees_afixeis")) },
   ] as const;
 
   const secondary = [
-    { href: "/etaireia", label: upGreek("Η εταιρεία") },
-    { href: "/epikoinonia", label: upGreek("Επικοινωνία") },
+    { href: "/etaireia", label: upGreek(t("i_etaireia")) },
+    { href: "/epikoinonia", label: upGreek(t("epikoinonia")) },
     { href: "/blog", label: "BLOG" },
   ] as const;
 
   return (
     <nav
-      aria-label="Κύρια πλοήγηση"
+      aria-label={t("kyria_ploigisi")}
       className="relative z-20 hidden border-b border-k-line bg-white lg:block"
     >
       <div className="shell-x flex items-stretch justify-between">
@@ -72,7 +74,7 @@ export function MainNav({
             className="t-nav-strong flex h-[54px] items-center gap-[7px] px-[18px] text-k-red"
           >
             <span className="block h-[5px] w-[5px] bg-k-red" />
-            {upGreek("Προσφορές")}
+            {upGreek(t("prosfores"))}
           </Link>
         </div>
 

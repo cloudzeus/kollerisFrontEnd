@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useState, useTransition } from "react";
 import { toggleCompare } from "@/lib/compare/actions";
 import { upGreek } from "@/lib/greek";
@@ -27,6 +28,7 @@ export function CompareCheckbox({
   disabled?: boolean;
   className?: string;
 }) {
+  const t = useTranslations("product.CompareCheckbox");
   const [pending, startTransition] = useTransition();
   const [refused, setRefused] = useState<"full" | "wrong_scope" | null>(null);
 
@@ -45,13 +47,13 @@ export function CompareCheckbox({
   // rather than in a toast the customer has to go looking for.
   const title = refused
     ? refused === "full"
-      ? "Η σύγκριση χωράει 4 προϊόντα"
-      : "Μόνο προϊόντα της ίδιας κατηγορίας"
+      ? t("i_sygkrisi_choraei_4_proionta")
+      : t("mono_proionta_tis_idias_katigorias")
     : disabled
-      ? "Μόνο προϊόντα της ίδιας κατηγορίας, έως 4"
+      ? t("mono_proionta_tis_idias_katigorias_2")
       : selected
-        ? "Αφαίρεση από τη σύγκριση"
-        : "Προσθήκη στη σύγκριση";
+        ? t("afairesi_apo_ti_sygkrisi")
+        : t("prosthiki_sti_sygkrisi");
 
   return (
     <button
@@ -77,10 +79,10 @@ export function CompareCheckbox({
         {selected ? "✓" : ""}
       </span>
       {refused === "full"
-        ? upGreek("Έως 4")
+        ? upGreek(t("eos_4"))
         : refused === "wrong_scope"
-          ? upGreek("Άλλη κατ.")
-          : upGreek("Σύγκριση")}
+          ? upGreek(t("alli_kat"))
+          : upGreek(t("sygkrisi"))}
     </button>
   );
 }

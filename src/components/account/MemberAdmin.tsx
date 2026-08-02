@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useActionState, useState } from "react";
 import { inviteMember, removeMember, updateMember, type AuthState } from "@/lib/account/actions";
 import {
@@ -70,6 +71,7 @@ function MemberRow({
   canManage: boolean;
   isSelf: boolean;
 }) {
+  const t = useTranslations("account.MemberAdmin");
   const [updateState, update, updating] = useActionState<AuthState, FormData>(updateMember, {});
   const [removeState, remove, removing] = useActionState<AuthState, FormData>(removeMember, {});
   const [editing, setEditing] = useState(false);
@@ -82,7 +84,7 @@ function MemberRow({
         <td className="px-3 py-3.5 lg:px-4">
           <span className="block text-[13px] font-medium text-k-ink">
             {member.firstName} {member.lastName}
-            {isSelf && <span className="t-brand-count ml-2 text-k-text-4">{upGreek("εσείς")}</span>}
+            {isSelf && <span className="t-brand-count ml-2 text-k-text-4">{upGreek(t("eseis"))}</span>}
           </span>
           <span className="mt-0.5 block font-mono text-[11.5px] text-k-text-4">{member.email}</span>
         </td>
@@ -96,7 +98,7 @@ function MemberRow({
 
         <td className="px-3 py-3.5 font-mono text-[12.5px] text-k-ink lg:px-4">
           {member.spendLimit == null ? (
-            <span className="text-k-text-4">{upGreek("χωρίς όριο")}</span>
+            <span className="text-k-text-4">{upGreek(t("choris_orio"))}</span>
           ) : (
             formatMoney(member.spendLimit)
           )}
@@ -107,7 +109,7 @@ function MemberRow({
             {formatMoney(member.spentThisYear)}
           </span>
           <span className="t-brand-count mt-0.5 block text-k-text-4">
-            {member.ordersThisYear} {upGreek("παραγγελίες")}
+            {member.ordersThisYear} {upGreek(t("paraggelies"))}
           </span>
         </td>
 
@@ -123,7 +125,7 @@ function MemberRow({
                 onClick={() => setEditing((v) => !v)}
                 className="t-brand-count text-k-ink underline underline-offset-4 hover:text-k-red"
               >
-                {upGreek(editing ? "Άκυρο" : "Αλλαγή")}
+                {upGreek(editing ? t("akyro") : t("allagi"))}
               </button>
               <form action={remove}>
                 <input type="hidden" name="memberId" value={member.id} />
@@ -132,7 +134,7 @@ function MemberRow({
                   disabled={removing}
                   className="t-brand-count text-k-text-4 underline underline-offset-4 hover:text-k-red disabled:opacity-50"
                 >
-                  {upGreek(removing ? "…" : "Αφαίρεση")}
+                  {upGreek(removing ? "…" : t("afairesi"))}
                 </button>
               </form>
             </span>
@@ -147,7 +149,7 @@ function MemberRow({
               <input type="hidden" name="memberId" value={member.id} />
 
               <label className="block">
-                <span className="t-account-label mb-1.5 block text-k-text-4">{upGreek("Ρόλος")}</span>
+                <span className="t-account-label mb-1.5 block text-k-text-4">{upGreek(t("rolos"))}</span>
                 <select
                   name="role"
                   defaultValue={member.role}
@@ -163,7 +165,7 @@ function MemberRow({
 
               <label className="block">
                 <span className="t-account-label mb-1.5 block text-k-text-4">
-                  {upGreek("Όριο ανά παραγγελία (€)")}
+                  {upGreek(t("orio_ana_paraggelia"))}
                 </span>
                 <input
                   name="spendLimit"
@@ -171,20 +173,20 @@ function MemberRow({
                   min={0}
                   step={10}
                   defaultValue={member.spendLimit ?? ""}
-                  placeholder="χωρίς όριο"
+                  placeholder={t("choris_orio")}
                   className="t-input h-11 w-44 border border-k-line-2 bg-white px-3 text-k-ink outline-none focus:border-k-ink"
                 />
               </label>
 
               <label className="block">
-                <span className="t-account-label mb-1.5 block text-k-text-4">{upGreek("Κατάσταση")}</span>
+                <span className="t-account-label mb-1.5 block text-k-text-4">{upGreek(t("katastasi"))}</span>
                 <select
                   name="status"
                   defaultValue={member.status === "suspended" ? "suspended" : "active"}
                   className="t-input h-11 border border-k-line-2 bg-white px-3 text-k-ink outline-none focus:border-k-ink"
                 >
-                  <option value="active">Ενεργός</option>
-                  <option value="suspended">Σε αναστολή</option>
+                  <option value="active">{t("energos")}</option>
+                  <option value="suspended">{t("se_anastoli")}</option>
                 </select>
               </label>
 
@@ -193,7 +195,7 @@ function MemberRow({
                 disabled={updating}
                 className="t-btn-sm h-11 bg-k-ink px-6 text-white transition-colors hover:bg-k-red disabled:opacity-60"
               >
-                {updating ? "…" : upGreek("Αποθήκευση")}
+                {updating ? "…" : upGreek(t("apothikeysi"))}
               </button>
             </form>
             {error && <p className="mt-2.5 text-[12px] text-k-red">{error}</p>}
@@ -231,15 +233,15 @@ function Status({ status }: { status: CompanyMember["status"] }) {
 }
 
 export function InviteMemberForm() {
+  const t = useTranslations("account.MemberAdmin");
   const [state, action, pending] = useActionState<AuthState, FormData>(inviteMember, {});
   const [role, setRole] = useState<CompanyRole>("buyer");
 
   return (
     <form action={action} className="border border-k-line bg-k-surface-2 p-4 lg:p-5">
-      <p className="t-eyebrow text-k-red">{upGreek("Πρόσκληση χρήστη")}</p>
+      <p className="t-eyebrow text-k-red">{upGreek(t("prosklisi_christi"))}</p>
       <p className="mt-2 max-w-xl text-[12.5px] leading-[1.55] text-k-text-3">
-        Ο χρήστης λαμβάνει email με σύνδεσμο ενεργοποίησης. Παραγγέλνει με τα στοιχεία
-        της εταιρείας και τις τιμές συνεργάτη σας.
+        {t("o_christis_lamvanei_email_me")}
       </p>
 
       {state.error && (
@@ -249,12 +251,12 @@ export function InviteMemberForm() {
       )}
 
       <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Small label="Όνομα" name="firstName" required />
-        <Small label="Επώνυμο" name="lastName" required />
+        <Small label={t("onoma")} name="firstName" required />
+        <Small label={t("eponymo")} name="lastName" required />
         <Small label="Email" name="email" type="email" required className="sm:col-span-2 lg:col-span-1" />
 
         <label className="block">
-          <span className="t-account-label mb-1.5 block text-k-text-4">{upGreek("Ρόλος")}</span>
+          <span className="t-account-label mb-1.5 block text-k-text-4">{upGreek(t("rolos"))}</span>
           <select
             name="role"
             value={role}
@@ -277,10 +279,10 @@ export function InviteMemberForm() {
             control that does nothing. */}
         {role !== "owner" && (
           <Small
-            label="Όριο ανά παραγγελία (€)"
+            label={t("orio_ana_paraggelia")}
             name="spendLimit"
             type="number"
-            placeholder="χωρίς όριο"
+            placeholder={t("choris_orio")}
           />
         )}
         <button
@@ -288,7 +290,7 @@ export function InviteMemberForm() {
           disabled={pending}
           className="t-btn-sm h-12 bg-k-ink px-7 text-white transition-colors hover:bg-k-red disabled:opacity-60"
         >
-          {pending ? "…" : upGreek("Αποστολή πρόσκλησης")}
+          {pending ? "…" : upGreek(t("apostoli_prosklisis"))}
         </button>
       </div>
     </form>

@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { signOut } from "@/lib/account/actions";
 import type { AccountUser } from "@/lib/account/contract";
@@ -47,6 +48,7 @@ export function AccountShell({
   lead?: string;
   children: React.ReactNode;
 }) {
+  const t = useTranslations("account.AccountShell");
   const isCompany = user.accountType === "company";
   const items = ITEMS.filter((item) => !item.companyOnly || isCompany);
   const company = user.company;
@@ -56,10 +58,10 @@ export function AccountShell({
       <div className="shell-x bg-k-ink-deep">
         <nav aria-label="Breadcrumb" className="t-util flex h-11 items-center gap-2.5 text-white/45">
           <Link href="/" className="text-white/60 hover:text-white">
-            {upGreek("Αρχική")}
+            {upGreek(t("archiki"))}
           </Link>
           <span className="text-k-red">/</span>
-          <span className="text-white">{upGreek(isCompany ? "Εταιρικός λογαριασμός" : "Ο λογαριασμός μου")}</span>
+          <span className="text-white">{upGreek(isCompany ? t("etairikos_logariasmos") : t("o_logariasmos_moy"))}</span>
         </nav>
 
         <div className="flex flex-col gap-5 pt-2.5 pb-7 lg:flex-row lg:items-end lg:justify-between lg:gap-12">
@@ -76,7 +78,7 @@ export function AccountShell({
 
           <div className="shrink-0 border-l-[3px] border-k-red pl-4">
             <span className="t-eyebrow block text-k-red">
-              {upGreek(isCompany ? "Εταιρεία" : "Ιδιώτης")}
+              {upGreek(isCompany ? t("etaireia") : t("idiotis"))}
             </span>
             <span className="mt-1.5 block text-[13px] leading-[1.35] text-white lg:text-[15px]">
               {isCompany && company ? upGreek(company.name) : `${user.firstName} ${user.lastName}`}
@@ -94,18 +96,19 @@ export function AccountShell({
         <aside className="border-b border-k-line lg:border-r lg:border-b-0">
           <ul className="flex overflow-x-auto lg:flex-col lg:overflow-visible">
             {items.map((item) => {
+  const t = useTranslations("account.AccountShell");
               const isActive = item.href === active;
               if (!item.ready) {
                 return (
                   <li key={item.href} className="shrink-0">
                     <span
                       aria-disabled
-                      title="Δεν έχει ενεργοποιηθεί ακόμη"
+                      title={t("den_echei_energopoiithei_akomi")}
                       className="t-nav-sub flex cursor-not-allowed items-center gap-2 border-b border-transparent px-4 py-3.5 text-k-text-5 lg:border-b-k-line lg:px-6"
                     >
                       {upGreek(item.label)}
                       <span className="t-brand-count shrink-0 border border-k-line-2 px-1 py-px text-k-text-5">
-                        {upGreek("σύντομα")}
+                        {upGreek(t("syntoma"))}
                       </span>
                     </span>
                   </li>
@@ -134,7 +137,7 @@ export function AccountShell({
               type="submit"
               className="t-btn-sm w-full border-[1.5px] border-k-ink px-5 py-3 text-k-ink transition-colors hover:bg-k-ink hover:text-white"
             >
-              {upGreek("Αποσύνδεση")}
+              {upGreek(t("aposyndesi"))}
             </button>
           </form>
         </aside>

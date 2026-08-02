@@ -158,30 +158,29 @@ export function TranslationBoard({ sources }: { sources: SourceCoverage[] }) {
         </Panel>
       ))}
 
-      {/* The gap this screen cannot close, stated rather than omitted. */}
+      {/* What the extraction pass did and did not reach. */}
       <Panel title="Κείμενα διεπαφής" description="Ό,τι είναι γραμμένο μέσα στα components.">
-        <div className="flex gap-2.5">
-          <AlertTriangle className="mt-0.5 size-4 shrink-0 text-k-amber" />
-          <div className="space-y-2 text-[12.5px] leading-[1.65] text-k-text-2">
-            <p>
+        <div className="space-y-3 text-[12.5px] leading-[1.65] text-k-text-2">
+          <p className="flex items-start gap-2.5">
+            <Check className="mt-0.5 size-4 shrink-0 text-k-green" />
+            <span>
               <span className="numeral font-medium text-k-ink">
-                {HARDCODED_UI.strings.toLocaleString("el-GR")}
+                {HARDCODED_UI.extracted.toLocaleString("el-GR")}
               </span>{" "}
-              ελληνικά κείμενα βρίσκονται γραμμένα απευθείας σε{" "}
-              <span className="numeral">{HARDCODED_UI.files}</span> αρχεία — κουμπιά, τίτλοι
-              ενοτήτων, μηνύματα σφάλματος, φόρμες. Στα αρχεία γλώσσας υπάρχουν μόλις{" "}
-              <span className="numeral">{HARDCODED_UI.inMessages}</span>.
-            </p>
-            <p>
-              Αυτά <strong>δεν αλλάζουν</strong> με τη γλώσσα και δεν διορθώνονται από εδώ: είναι
-              αλλαγή κώδικα, όχι δεδομένων. Πρέπει πρώτα να βγουν από τα components σε αρχεία
-              μετάφρασης — μηχανική δουλειά, αλλά δουλειά προγραμματιστή.
-            </p>
-            <p className="text-k-text-3">
-              Μέχρι να γίνει, ένας Άγγλος επισκέπτης βλέπει μεταφρασμένα προϊόντα και κατηγορίες
-              μέσα σε ελληνικό περιβάλλον.
-            </p>
-          </div>
+              κείμενα βγήκαν από τα components στα αρχεία γλώσσας και είναι μεταφρασμένα σε αγγλικά
+              και ιταλικά. Κουμπιά, ετικέτες, τίτλοι, μηνύματα — αλλάζουν πλέον με τη γλώσσα.
+            </span>
+          </p>
+          <p className="flex items-start gap-2.5">
+            <AlertTriangle className="mt-0.5 size-4 shrink-0 text-k-amber" />
+            <span>
+              <span className="numeral font-medium text-k-ink">{HARDCODED_UI.remaining}</span>{" "}
+              μένουν σε <span className="numeral">{HARDCODED_UI.files}</span> αρχεία: πίνακες
+              ετικετών έξω από components, κείμενα με ενσωματωμένες τιμές, ενώσεις string. Το καθένα
+              θέλει απόφαση για τη δομή του αρχείου, όχι αντικατάσταση — γι\u2019 αυτό δεν τα άγγιξε ο
+              αυτόματος μετασχηματισμός.
+            </span>
+          </p>
         </div>
       </Panel>
     </div>

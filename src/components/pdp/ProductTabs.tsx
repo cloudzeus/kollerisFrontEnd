@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { SectionHead } from "@/components/chrome/SectionHead";
 import { Expandable } from "@/components/ui/Expandable";
@@ -26,6 +27,7 @@ import { upGreek } from "@/lib/greek";
  *    in three it is a glance.
  */
 export function ProductTabs({ product }: { product: ProductDetail }) {
+  const t = useTranslations("pdp.ProductTabs");
   const tabs = [
     { key: "description", label: "Περιγραφή", show: true },
     {
@@ -84,7 +86,7 @@ export function ProductTabs({ product }: { product: ProductDetail }) {
     <section className="band-alt border-t border-k-line">
       <div className="pdp-band py-8 lg:py-12">
         <div className="pdp-inner">
-          <SectionHead eyebrow="Τεχνικός φάκελος" title="Στοιχεία προϊόντος" />
+          <SectionHead eyebrow="Τεχνικός φάκελος" title={t("stoicheia_proiontos")} />
 
           {/*
             The tab bar sits UNDER its own heading, full width, not in the
@@ -149,7 +151,7 @@ export function ProductTabs({ product }: { product: ProductDetail }) {
                           className="rule-accent block shrink-0"
                         />
                         <span className="t-eyebrow text-k-red">
-                          {upGreek("Με μια ματιά")}
+                          {upGreek(t("me_mia_matia"))}
                         </span>
                       </p>
                       <dl>
@@ -182,8 +184,7 @@ export function ProductTabs({ product }: { product: ProductDetail }) {
                 </div>
               ) : (
                 <p className="t-body text-k-text-4">
-                  Δεν υπάρχει ακόμη αναλυτική περιγραφή για αυτόν τον κωδικό.
-                  Καλέστε μας στο 210 411 1355 για τεχνικές λεπτομέρειες.
+                  {t("den_yparchei_akomi_analytiki_perigrafi")}
                 </p>
               )}
             </div>
@@ -223,8 +224,7 @@ export function ProductTabs({ product }: { product: ProductDetail }) {
                 </div>
               ) : (
                 <p className="t-body text-k-text-4">
-                  Τα τεχνικά χαρακτηριστικά για αυτόν τον κωδικό δεν έχουν
-                  καταχωρηθεί ακόμη.
+                  {t("ta_technika_charaktiristika_gia_ayton")}
                 </p>
               )}
             </div>
@@ -249,7 +249,7 @@ export function ProductTabs({ product }: { product: ProductDetail }) {
                     title: "Εγγύηση κατασκευαστή",
                     body: product.guaranteeMonths
                       ? `${product.guaranteeMonths} μήνες εγγύηση, σέρβις και ανταλλακτικά από την Kolleris.`
-                      : "Επίσημη εγγύηση κατασκευαστή, σέρβις και ανταλλακτικά από την Kolleris.",
+                      : t("episimi_eggyisi_kataskeyasti_servis_kai"),
                   },
                 ].map((item) => (
                   <div

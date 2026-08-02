@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useEffect, useRef } from "react";
 
 /**
@@ -21,6 +22,7 @@ import { useEffect, useRef } from "react";
  * still useful, the animation is what some people cannot tolerate.
  */
 export function HeaderShell({ children }: { children: React.ReactNode }) {
+  const t = useTranslations("chrome.HeaderShell");
   const root = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
@@ -95,7 +97,7 @@ export function HeaderShell({ children }: { children: React.ReactNode }) {
         href="#main"
         className="t-btn-sm sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:bg-k-ink focus:px-5 focus:py-3 focus:text-white"
       >
-        Μετάβαση στο περιεχόμενο
+        {t("metavasi_sto_periechomeno")}
       </a>
       {children}
     </header>

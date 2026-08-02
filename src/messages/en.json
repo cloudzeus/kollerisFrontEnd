@@ -16,5 +16,490 @@
     "newArrivals": "NEW ARRIVALS",
     "about": "ABOUT",
     "contact": "CONTACT"
+  },
+  "product": {
+    "CompareCheckbox": {
+      "i_sygkrisi_choraei_4_proionta": "Comparison can hold 4 products",
+      "mono_proionta_tis_idias_katigorias": "Only products of the same category",
+      "mono_proionta_tis_idias_katigorias_2": "Only products of the same category, up to 4",
+      "afairesi_apo_ti_sygkrisi": "Remove from comparison",
+      "prosthiki_sti_sygkrisi": "Add to comparison",
+      "eos_4": "Up to 4",
+      "alli_kat": "Other cat.",
+      "sygkrisi": "Compare"
+    },
+    "ProductCard": {
+      "amesa_diathesimo": "Immediately available",
+      "teleytaia": "Last",
+      "tem": "pcs.",
+      "katopin_paraggelias": "On order",
+      "choris_eikona": "No image"
+    },
+    "ProductRail": {
+      "proigoymena_proionta": "Previous products",
+      "epomena_proionta": "Next products"
+    },
+    "QuickViewProvider": {
+      "kleisimo": "Close",
+      "grigori_provoli": "Quick view",
+      "den_itan_dynati_i_fortosi": "Unable to load. Try again or open the product page.",
+      "choris_eikona": "No image",
+      "amesa_diathesimo": "Immediately available",
+      "tem": "pcs.",
+      "katopin_paraggelias": "On order",
+      "pliri_stoicheia": "Full details"
+    },
+    "QuickViewTrigger": {
+      "grigori_provoli": "Quick view"
+    }
+  },
+  "plp": {
+    "FilterSidebar": {
+      "filtra": "Filters",
+      "katharismos": "Clear",
+      "ypokatigoria": "Subcategory",
+      "timi": "Price",
+      "eyros_katalogoy": "Catalog range:",
+      "diathesimotita": "Availability",
+      "eidika_filtra": "Special filters",
+      "den_vriskete_to_sosto": "Can't find the right one?",
+      "peite_mas_ti_doyleia_kai": "Tell us your job and we'll suggest the code. 46 years of experience on the phone."
+    },
+    "MobileFilterSheet": {
+      "filtra": "Filters",
+      "kleisimo_filtron": "Close filters"
+    },
+    "Pagination": {
+      "selidopoiisi": "Pagination",
+      "proigoymeni": "Previous",
+      "epomeni": "Next"
+    },
+    "PlpToolbar": {
+      "proionta": "products",
+      "katharismos_olon": "Clear all",
+      "ana_grammi": "Per line",
+      "proionta_2": "Products",
+      "taxinomisi": "Sort"
+    }
+  },
+  "pdp": {
+    "ProductGallery": {
+      "choris_eikona": "No image",
+      "megethynsi": "Zoom",
+      "proigoymenes_eikones": "Previous images",
+      "epomenes_eikones": "Next images",
+      "kleisimo": "Close"
+    },
+    "ProductTabs": {
+      "stoicheia_proiontos": "Product details",
+      "me_mia_matia": "At a glance",
+      "den_yparchei_akomi_analytiki_perigrafi": "There is no detailed description for this code yet.\n                  Call us at 210 411 1355 for technical details.",
+      "ta_technika_charaktiristika_gia_ayton": "Technical specifications for this code have not\n                  been entered yet.",
+      "episimi_eggyisi_kataskeyasti_servis_kai": "Official manufacturer warranty, service and spare parts from Kolleris."
+    }
+  },
+  "orders": {
+    "OrderTracker": {
+      "arithmos_paraggelias": "Order number",
+      "email_paraggelias": "Order email",
+      "entopismos": "Track",
+      "o_arithmos_einai_sto_email": "The number is in the confirmation email. No account needed.",
+      "paraggelia": "Order",
+      "tem": "pcs.",
+      "i_paraggelia_akyrothike_an_den": "The order was cancelled. If you did not cancel it, call us at 210 411 1355.",
+      "i_pliromi_den_oloklirothike_mporeite": "Payment was not completed. You can try again or call us at 210 411 1355.",
+      "se_exelixi": "in progress",
+      "arithmos_apostolis_acs": "ACS tracking number",
+      "parakoloythisi_stin_acs": "Track on ACS",
+      "kati_den_paei_kala": "Something wrong?",
+      "alli_paraggelia": "Another order"
+    }
+  },
+  "home": {
+    "AboutSplit": {
+      "fotografia_apothikis_omadas": "Warehouse / group photo",
+      "gia_46_chronia_i_kolleris": "For 46 years, Kolleris is the supplier that shipping\n          companies, factories and workshops call. Direct relationships with Milwaukee, Knipex,\n          Wera — accurate availability, no “we’ll see”."
+    },
+    "BrandWall": {
+      "ta_brands_poy_antiprosopeyoyme": "The brands we represent",
+      "brands_me_energa_proionta_mia": "brands with active products · one address",
+      "kod": "code"
+    },
+    "CategoryGrid": {
+      "agora_ana_katigoria": "Shop by category",
+      "kod": "code",
+      "ypokatigories": "subcategories"
+    },
+    "FeaturedProducts": {
+      "ta_pio_dimofili_ergaleia": "Most popular tools",
+      "oles_oi_times_me_fpa": "All prices include VAT",
+      "deite_ola_ta_proionta": "View all products"
+    },
+    "HeroBanner": {
+      "kodikon": "codes",
+      "deite_ta": "View them"
+    },
+    "NewsletterBand": {
+      "eggrafi_sto_newsletter": "Subscribe to the newsletter",
+      "nea_proionta_prosfores_kai_technika": "New products, offers and technical tips — once a month.",
+      "to_email_sas": "Your email",
+      "eggrafi": "Subscribe"
+    },
+    "ReviewsBand": {
+      "vasismeno_se": "Based on",
+      "axiologiseis_epaggelmation_synergeion_kai_naypigeion": "ratings from professionals, workshops and\n            shipyards."
+    }
+  },
+  "faq": {
+    "FaqAccordion": {
+      "anazitisi_stis_erotiseis": "Search in the questions",
+      "psaxte_mia_erotisi_p_ch": "Search for a question — e.g. shipping, warranty, invoice",
+      "katharismos": "Clear",
+      "symptyxi_olon": "Collapse all",
+      "anoigma_olon": "Expand all",
+      "kamia_erotisi_gia": "No question for “",
+      "rotiste_mas_apeytheias_apantame_tin": "Ask us directly — we reply the same business day, and your question will likely\n            be added here for the next one."
+    }
+  },
+  "contact": {
+    "ContactForm": {
+      "stalthike": "Sent",
+      "to_lavame": "We received it",
+      "apantame_synithos_tin_idia_ergasimi": "We usually reply the same business day. If you are in a hurry, call us at",
+      "sikonei_anthropos": "— a real person answers.",
+      "min_symplirosete": "Do not fill in",
+      "thema": "Subject",
+      "onomateponymo": "Full name",
+      "tilefono": "Phone",
+      "etaireia": "Company",
+      "afm": "VAT number",
+      "arithmos_paraggelias": "Order number",
+      "p_ch_kol_20260731_0007": "e.g. KOL-20260731-0007",
+      "thema_minymatos": "Message subject",
+      "minyma": "Message",
+      "apostoli": "Send"
+    }
+  },
+  "compare": {
+    "CompareAdviceBand": {
+      "i_epilogi_toy_ypeythynoy": "The expert's choice",
+      "poio_na_parete_analoga_me": "Which one to get, depending on what matters"
+    },
+    "CompareMatrix": {
+      "charaktiristiko": "Feature",
+      "diaferei": "differs",
+      "to_chamilotero_tis_sygkrisis": "— the lowest in the comparison",
+      "to_ypsilotero_tis_sygkrisis": "— the highest in the comparison",
+      "afairesi": "Remove",
+      "choris_eikona": "No image"
+    },
+    "CompareToolbar": {
+      "mono_diafores": "Differences only",
+      "kalyteri_timi_ana_grammi": "Best price per line",
+      "grammes": "lines",
+      "me_diafora": "with difference"
+    },
+    "CompareTray": {
+      "sygkrisi": "Comparison",
+      "idia_katigoria": "Same category",
+      "katharismos": "Clear"
+    }
+  },
+  "chrome": {
+    "HeaderShell": {
+      "metavasi_sto_periechomeno": "Skip to content"
+    },
+    "MainNav": {
+      "katalogos": "Catalog",
+      "nees_afixeis": "New arrivals",
+      "i_etaireia": "The company",
+      "epikoinonia": "Contact",
+      "kyria_ploigisi": "Main navigation",
+      "prosfores": "Offers"
+    },
+    "MegaMenu": {
+      "katigories": "Categories",
+      "proteinomeno": "Featured",
+      "deite_to": "View it",
+      "vasikes_katigories": "main categories ·",
+      "ypokatigories": "subcategories ·",
+      "kodikoi": "codes",
+      "oles_oi_katigories": "All categories",
+      "antiprosopeyomena_brands": "Represented brands"
+    },
+    "MobileMenu": {
+      "prosfores": "Offers",
+      "nees_afixeis": "New arrivals",
+      "i_etaireia": "The company",
+      "epikoinonia": "Contact",
+      "menoy": "Menu",
+      "kleisimo_menoy": "Close menu",
+      "ploigisi": "Navigation",
+      "kleisimo": "Close",
+      "katigories": "Categories",
+      "apokrypsi": "Hide",
+      "emfanisi": "Show",
+      "katigories_2": "categories ·",
+      "ypokatigories": "subcategories ·",
+      "kodikoi": "codes",
+      "kod": "code",
+      "syndesi_b2b": "B2B login"
+    },
+    "SearchSuggest": {
+      "anazitisi_proionton": "Search products",
+      "katigoria_anazitisis": "Search category",
+      "oles_oi_katigories": "All categories",
+      "anazitisi": "Search",
+      "anazitisi_me_kodiko_proion_i": "Search by code, product or brand — e.g. 4932359490",
+      "anazitisi_kodikoy_i_proiontos": "Search by code or product",
+      "protaseis_anazitisis": "Search suggestions",
+      "den_vrethike_kati_gia": "Nothing found for «",
+      "dokimaste_ton_kodiko_toy_kataskeyasti": "Try the manufacturer's code, fewer words, or call us at 210 411 1355 — we'll find the code together.",
+      "akrivis_kodikos": "Exact code",
+      "proionta": "Products",
+      "katigories": "Categories",
+      "tem": "pcs.",
+      "katopin": "On request"
+    },
+    "SiteFooter": {
+      "katigories": "Categories",
+      "exypiretisi": "Support",
+      "i_etaireia": "The company",
+      "k_mayromichali_4_18545_peiraias": "K. Mavromichali 4, 18545 Piraeus"
+    },
+    "SiteHeader": {
+      "logariasmos": "Account",
+      "glossa": "Language",
+      "syndesi_b2b": "B2B Login"
+    },
+    "UtilityBar": {
+      "kodikoi": "codes",
+      "paradosi_24_48o_dorean_ano": "Delivery 24-48h · Free over €150",
+      "paradosi_24_48o_se_oli": "Delivery 24-48h across Greece",
+      "dorean_apostoli_ano_ton_150": "Free shipping over €150",
+      "t_30_210_411_1355": "Tel. [+30] 210 411 1355"
+    }
+  },
+  "checkout": {
+    "CheckoutForm": {
+      "stoicheia_epikoinonias": "Contact details",
+      "onoma": "First name",
+      "eponymo": "Last name",
+      "kinito": "Mobile",
+      "dieythynsi_paradosis": "Delivery address",
+      "odos_kai_arithmos": "Street and number",
+      "orofos_koydoyni": "Floor / buzzer",
+      "periochi": "Area",
+      "poli": "City",
+      "t_k": "Postal code",
+      "thelo_timologio_chreiazontai_afm_kai": "I want an invoice (VAT number and tax office required)",
+      "tropos_apostolis": "Shipping method",
+      "to_kostos_ypologizetai_apo_to": "Cost is calculated based on chargeable weight and the ACS zone of your postal code — see the summary on the right.",
+      "tropos_pliromis": "Payment method",
+      "tha_metafertheite_stin_asfali_selida": "You will be redirected to Viva Wallet's secure payment page. Your card details never pass through our store.",
+      "tha_lavete_ta_stoicheia_katathesis": "You will receive the deposit details by email. The order is reserved for 3 business days.",
+      "scholia_kai_oloklirosi": "Comments and checkout",
+      "scholia_paraggelias": "Order comments",
+      "odigies_paradosis_ores_paralavis": "Delivery instructions, pickup hours…",
+      "apodechomai_toys_oroys_chrisis_kai": "I accept the terms of use and the privacy policy.",
+      "apaiteitai_apodochi_ton_oron": "Acceptance of the terms is required.",
+      "ginetai_katachorisi": "Submitting…",
+      "pliromi_me_asfaleia": "Pay securely",
+      "oloklirosi_paraggelias": "Complete order"
+    }
+  },
+  "catalogue": {
+    "CategoryPicker": {
+      "kleisimo": "Close",
+      "epilogi_ypokatigorias": "Select subcategory",
+      "filtrarisma_ypokatigorion": "Filter subcategories",
+      "filtrarisma": "Filtering…",
+      "kamia_ypokatigoria_gia": "No subcategory for \""
+    },
+    "TaxonomyFinder": {
+      "anazitisi_katigorias": "Search category",
+      "vreite_katigoria_p_ch_allen": "Find category — e.g. allen, hole saw, gloves",
+      "katharismos": "Clear",
+      "grapste_toylachiston_2_charaktires": "Type at least 2 characters.",
+      "kamia_katigoria_gia": "No category for \"",
+      "dokimaste_tin_anazitisi_proionton_stin": "Try the product search at the top — it searches by codes and names,\n            not just categories.",
+      "kod": "code"
+    }
+  },
+  "cart": {
+    "AddToCartButton": {
+      "sto_kalathi": "Add to cart",
+      "dokimaste_xana": "Try again"
+    },
+    "BuyNowButton": {
+      "agora_tora": "Buy now"
+    },
+    "CartActionsRow": {
+      "synechiste_tis_agores": "Continue shopping",
+      "na_adeiasei_to_kalathi": "Empty the cart?",
+      "adeiasma_kalathioy": "Empty cart"
+    },
+    "CartCrossSell": {
+      "min_xanaparaggeilete_ayrio": "Don't order again tomorrow",
+      "xechasate_kati_gia_ti_doyleia": "Forgot something for the job?",
+      "epilegmena_apo_tis_idies_katigories": "Selected from the same categories as your cart. One shipment, one\n            shipping cost.",
+      "proteinomeno": "Recommended",
+      "prosthiki": "Add"
+    },
+    "CartLineRow": {
+      "amesa_diathesimo": "In stock",
+      "tem": "pcs.",
+      "katopin_paraggelias": "On order",
+      "timi_monadas": "Unit price",
+      "posotita": "Quantity",
+      "meiosi_posotitas": "Decrease quantity",
+      "ayxisi_posotitas": "Increase quantity",
+      "synolo": "Total"
+    },
+    "CartSummaryPanel": {
+      "dorean_metaforika": "Free shipping",
+      "energo": "Active",
+      "ta_metaforika_sas_einai_dorean": "Your shipping is free.",
+      "prostheste_akomi": "Add another",
+      "kathari_axia_gia_dorean_metaforika": "(net value) for free shipping.",
+      "tropos_paralavis": "Delivery method",
+      "dorean": "Free",
+      "ypologismos": "Calculate",
+      "tropos_pliromis": "Payment method",
+      "ta_koyponia_den_einai_akomi": "Coupons are not available yet.",
+      "kodikos_ekptosis": "Discount code",
+      "efarmogi": "Apply",
+      "kg_chreosimo_varos": "kg billable weight",
+      "ergasimes": "business days",
+      "teliko_synolo": "Total",
+      "me_fpa": "Incl. VAT",
+      "kerdizete": "You save",
+      "se_ayti_tin_paraggelia": "on this order",
+      "oloklirosi_paraggelias": "Checkout",
+      "asfalis_pliromi_ssl": "Secure payment · SSL"
+    },
+    "MiniCart": {
+      "kalathi": "Cart",
+      "adeio": "Empty",
+      "to_kalathi_sas": "Your cart",
+      "proionta": "items",
+      "to_kalathi_einai_adeio": "The cart is empty.",
+      "ston_katalogo": "Go to catalog",
+      "akomi_sto_kalathi": "still in cart",
+      "yposynolo": "Subtotal",
+      "choris_metaforika_ypologizontai_sto_kalathi": "No shipping — calculated at checkout.",
+      "dorean_metaforika_energa": "Free shipping — active.",
+      "oloklirosi": "Complete"
+    },
+    "QuickOrderPaste": {
+      "kanenas_apo_toys_kodikoys_den": "None of the codes were found.",
+      "den_itan_dynati_i_prosthiki": "Could not be added.",
+      "grigori_paraggelia_me_kodikoys": "Quick order with codes",
+      "epikolliste_lista_kodikon_apo_to": "Paste a list of codes from your Excel — one code per line or\n            comma-separated.",
+      "kodikoi_proionton": "Product codes",
+      "prosthiki": "Add",
+      "prostethikan": "Added",
+      "kodikos": "code",
+      "kodikoi": "codes",
+      "den_vrethikan": "Not found:"
+    }
+  },
+  "brands": {
+    "BrandSearchGrid": {
+      "vreite_brand_p_ch_knip": "Find brand — e.g. knip",
+      "anazitisi_brand": "Search brand",
+      "katharismos": "Clear",
+      "episimi_antiprosopeysi": "Official representation",
+      "taxinomisi_kata_plithos_kodikon": "Sort by number of codes",
+      "den_vrethike_brand": "Brand not found",
+      "antiprosopeyoyme_polla_akomi_brands_kai": "We represent many more brands and source them on request.\n            Call us.",
+      "t_210_411_1355": "T. 210 411 1355",
+      "se_apothema": "In stock",
+      "katopin": "On request",
+      "kod": "code"
+    }
+  },
+  "blog": {
+    "BlogMissingNotice": {
+      "den_echei_energopoiithei_akomi": "Not activated yet",
+      "ta_arthra_perimenoyn_to_hdctool": "Articles are waiting for HDCtool",
+      "to_periechomeno_yparchei_idi_ta": "Content already exists: the models",
+      "el_en_it_kai": "(el/en/it) and",
+      "einai_sto_hdctool_mazi_me": "are in HDCtool, together with their\n        editor. A public endpoint is missing — it",
+      "zita_cookie_session_eno_to": "requires a session cookie, while the\n        eshop keeps a bearer.",
+      "to_symvolaio_h16_h17_einai": "The contract (H16–H17) is at",
+      "kai_sto": "and at",
+      "nees_afixeis": "New arrivals",
+      "i_etaireia": "The company"
+    }
+  },
+  "account": {
+    "AccountShell": {
+      "archiki": "Home",
+      "etairikos_logariasmos": "Corporate account",
+      "o_logariasmos_moy": "My account",
+      "etaireia": "Company",
+      "idiotis": "Individual",
+      "den_echei_energopoiithei_akomi": "Not activated yet",
+      "syntoma": "soon",
+      "aposyndesi": "Logout"
+    },
+    "AuthForms": {
+      "kodikos": "Password",
+      "syndesi": "Login",
+      "den_echete_logariasmo": "Don't have an account?",
+      "eggrafeite": "Register",
+      "typos_logariasmoy": "Account type",
+      "stoicheia_etaireias": "Company details",
+      "oi_etairikoi_logariasmoi_elegchontai_prin": "Corporate accounts are reviewed before activation — usually within 2\n            business days. You will be notified by email.",
+      "onoma": "First name",
+      "eponymo": "Last name",
+      "kinito": "Mobile",
+      "apodechomai_toys_oroys_chrisis_kai": "I accept the terms of use and the privacy policy.",
+      "aitisi_etairikoy_logariasmoy": "Corporate account request",
+      "eggrafi": "Register",
+      "echete_idi_logariasmo": "Already have an account?",
+      "syndetheite": "Sign in",
+      "ta_stoicheia_sas_apothikeytikan": "Your details have been saved.",
+      "gia_allagi_email_kaleste_mas": "For email changes, call us at 210 411 1355.",
+      "apothikeysi": "Save"
+    },
+    "CompanyVatFields": {
+      "afm": "Tax ID (AFM)",
+      "p_ch_099095556": "e.g. 099095556",
+      "anazitisi": "Search",
+      "sas_vrikame_stoys_pelates_mas": "We found you in our customer list — details have been filled in.",
+      "stoicheia_apo_to_mitroo_aade": "Details from the AADE registry — check them and correct if necessary.",
+      "to_afm_den_vrethike_sto": "Tax ID not found in the registry. Fill in the details manually.",
+      "to_mitroo_den_apanta_ayti": "The registry is not responding at the moment. Fill in the details manually —\n              the order is not affected.",
+      "to_afm_den_einai_egkyro": "Tax ID is invalid (9 digits).",
+      "9_psifia_choris_el_mprosta": "9 digits — without EL prefix.",
+      "grapste_to_afm_kai_patiste": "Enter the Tax ID and press “Search” — we fill in the rest from AADE.",
+      "eponymia": "Company name",
+      "doy": "Tax office (DOY)",
+      "drastiriotita": "Activity",
+      "dieythynsi_edras": "Registered address",
+      "poli": "City",
+      "t_k": "Postal code"
+    },
+    "MemberAdmin": {
+      "eseis": "you",
+      "choris_orio": "unlimited",
+      "paraggelies": "orders",
+      "akyro": "Cancel",
+      "allagi": "Change",
+      "afairesi": "Remove",
+      "rolos": "Role",
+      "orio_ana_paraggelia": "Limit per order (€)",
+      "katastasi": "Status",
+      "energos": "Active",
+      "se_anastoli": "Suspended",
+      "apothikeysi": "Save",
+      "prosklisi_christi": "Invite user",
+      "o_christis_lamvanei_email_me": "The user receives an email with an activation link. They order with the company's\n        details and your partner prices.",
+      "onoma": "First name",
+      "eponymo": "Last name",
+      "apostoli_prosklisis": "Send invitation"
+    }
   }
 }

@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-08-02T10:54:55.583Z",
+  "timestamp": "2026-08-02T11:08:07.455Z",
   "source": "auto-postool",
   "partial": false,
   "phase": null,
@@ -22,33 +22,225 @@
     },
     {
       "status": "M",
-      "path": "src/app/admin/(protected)/layout.tsx"
+      "path": "src/components/account/AccountShell.tsx"
     },
     {
       "status": "M",
-      "path": "src/components/admin/AdminNav.tsx"
+      "path": "src/components/account/AuthForms.tsx"
     },
     {
       "status": "M",
-      "path": "src/lib/ai/deepseek.ts"
+      "path": "src/components/account/CompanyVatFields.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/components/account/MemberAdmin.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/components/blog/BlogMissingNotice.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/components/brands/BrandSearchGrid.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/components/cart/AddToCartButton.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/components/cart/BuyNowButton.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/components/cart/CartActionsRow.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/components/cart/CartCrossSell.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/components/cart/CartLineRow.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/components/cart/CartSummaryPanel.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/components/cart/MiniCart.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/components/cart/QuickOrderPaste.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/components/catalogue/CategoryPicker.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/components/catalogue/TaxonomyFinder.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/components/checkout/CheckoutForm.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/components/chrome/HeaderShell.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/components/chrome/MainNav.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/components/chrome/MegaMenu.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/components/chrome/MobileMenu.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/components/chrome/SearchSuggest.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/components/chrome/SiteFooter.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/components/chrome/SiteHeader.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/components/chrome/UtilityBar.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/components/compare/CompareAdviceBand.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/components/compare/CompareMatrix.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/components/compare/CompareToolbar.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/components/compare/CompareTray.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/components/contact/ContactForm.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/components/faq/FaqAccordion.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/components/home/AboutSplit.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/components/home/BrandWall.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/components/home/CategoryGrid.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/components/home/FeaturedProducts.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/components/home/HeroBanner.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/components/home/NewsletterBand.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/components/home/ReviewsBand.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/components/orders/OrderTracker.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/components/pdp/PriceBox.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/components/pdp/ProductGallery.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/components/pdp/ProductTabs.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/components/plp/FilterSidebar.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/components/plp/MobileFilterSheet.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/components/plp/Pagination.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/components/plp/PlpToolbar.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/components/product/CompareCheckbox.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/components/product/ProductCard.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/components/product/ProductRail.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/components/product/QuickViewProvider.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/components/product/QuickViewTrigger.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/messages/el.json"
+    },
+    {
+      "status": "M",
+      "path": "src/messages/en.json"
+    },
+    {
+      "status": "M",
+      "path": "src/messages/it.json"
     },
     {
       "status": "??",
-      "path": "run.mts"
-    },
-    {
-      "status": "??",
-      "path": "src/app/admin/(protected)/translations/"
-    },
-    {
-      "status": "??",
-      "path": "src/components/admin/TranslationBoard.tsx"
-    },
-    {
-      "status": "??",
-      "path": "src/lib/i18n/"
+      "path": "scripts/i18n/"
     }
   ],
   "next_action": null,
-  "context_notes": "Recent commits:\n3825617 fix(banners): an entrance animation could hide text permanently\nd357082 fix(banners): animations you can see, button links, a translate button\n0ce15b9 feat(media): background removal via Claid\n8494abe feat(banners): product sets and a rotating ticker\nd96e684 feat(banners): the bound product's parts, ready to drag"
+  "context_notes": "Recent commits:\nbd9cba6 feat(i18n): translation coverage screen, and translated categories\n3825617 fix(banners): an entrance animation could hide text permanently\nd357082 fix(banners): animations you can see, button links, a translate button\n0ce15b9 feat(media): background removal via Claid\n8494abe feat(banners): product sets and a rotating ticker"
 }

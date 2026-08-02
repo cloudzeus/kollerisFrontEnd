@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 import { Link } from "@/i18n/navigation";
 import type { CatalogueNode } from "@/lib/catalog/catalogue-index-types";
@@ -22,6 +23,7 @@ import { searchKey, upGreek } from "@/lib/greek";
  * maze than the one it is meant to solve.
  */
 export function TaxonomyFinder({ nodes }: { nodes: CatalogueNode[] }) {
+  const t = useTranslations("catalogue.TaxonomyFinder");
   const [query, setQuery] = useState("");
 
   const results = useMemo(() => {
@@ -57,11 +59,11 @@ export function TaxonomyFinder({ nodes }: { nodes: CatalogueNode[] }) {
               <line x1="15.8" y1="15.8" x2="22" y2="22" />
             </svg>
           </span>
-          <span className="sr-only">Αναζήτηση κατηγορίας</span>
+          <span className="sr-only">{t("anazitisi_katigorias")}</span>
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Βρείτε κατηγορία — π.χ. αλλεν, ποτηροτρύπανο, γάντια"
+            placeholder={t("vreite_katigoria_p_ch_allen")}
             autoComplete="off"
             className="t-input min-w-0 flex-1 border-0 bg-transparent pr-2 text-k-ink outline-none placeholder:text-k-text-4"
           />
@@ -69,7 +71,7 @@ export function TaxonomyFinder({ nodes }: { nodes: CatalogueNode[] }) {
             <button
               type="button"
               onClick={() => setQuery("")}
-              aria-label="Καθαρισμός"
+              aria-label={t("katharismos")}
               className="cursor-pointer px-4 text-k-text-4 transition-colors hover:text-k-ink"
             >
               ✕
@@ -86,18 +88,17 @@ export function TaxonomyFinder({ nodes }: { nodes: CatalogueNode[] }) {
 
       {tooShort && (
         <p className="px-4 py-8 text-center text-[13px] text-k-text-3 lg:px-5">
-          Γράψτε τουλάχιστον 2 χαρακτήρες.
+          {t("grapste_toylachiston_2_charaktires")}
         </p>
       )}
 
       {!tooShort && query.trim() && results.length === 0 && (
         <div className="px-4 py-10 text-center lg:px-5">
           <p className="text-[13.5px] font-semibold text-k-ink">
-            Καμία κατηγορία για «{query.trim()}»
+            {t("kamia_katigoria_gia")}{query.trim()}»
           </p>
           <p className="mx-auto mt-2 max-w-md text-[12.5px] leading-[1.6] text-k-text-3">
-            Δοκιμάστε την αναζήτηση προϊόντων στην κορυφή — ψάχνει σε κωδικούς και ονόματα,
-            όχι μόνο σε κατηγορίες.
+            {t("dokimaste_tin_anazitisi_proionton_stin")}
           </p>
         </div>
       )}
@@ -125,7 +126,7 @@ export function TaxonomyFinder({ nodes }: { nodes: CatalogueNode[] }) {
                   <span className="block font-mono text-[12.5px] font-semibold text-k-ink">
                     {node.count.toLocaleString("el-GR")}
                   </span>
-                  <span className="t-brand-count block text-k-text-5">{upGreek("κωδ.")}</span>
+                  <span className="t-brand-count block text-k-text-5">{upGreek(t("kod"))}</span>
                 </span>
               </Link>
             </li>

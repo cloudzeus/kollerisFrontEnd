@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import Image from "next/image";
 import { useMemo, useState } from "react";
 import { Link } from "@/i18n/navigation";
@@ -15,6 +16,7 @@ import { searchKey, upGreek } from "@/lib/greek";
  * finds Wera regardless of accents or case.
  */
 export function BrandSearchGrid({ brands }: { brands: BrandListItem[] }) {
+  const t = useTranslations("brands.BrandSearchGrid");
   const [query, setQuery] = useState("");
 
   const filtered = useMemo(() => {
@@ -37,15 +39,15 @@ export function BrandSearchGrid({ brands }: { brands: BrandListItem[] }) {
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Βρείτε brand — π.χ. knip"
-              aria-label="Αναζήτηση brand"
+              placeholder={t("vreite_brand_p_ch_knip")}
+              aria-label={t("anazitisi_brand")}
               className="t-input min-w-0 flex-1 border-0 bg-transparent pr-2 text-k-ink outline-none placeholder:text-k-text-4"
             />
             {query && (
               <button
                 type="button"
                 onClick={() => setQuery("")}
-                aria-label="Καθαρισμός"
+                aria-label={t("katharismos")}
                 className="px-3 text-k-text-4 hover:text-k-ink"
               >
                 ✕
@@ -61,26 +63,25 @@ export function BrandSearchGrid({ brands }: { brands: BrandListItem[] }) {
 
         <p className="flex items-center gap-2.5 text-[12.5px] text-k-text-3">
           <span className="block h-[7px] w-[7px] bg-k-red" />
-          Επίσημη αντιπροσώπευση
+          {t("episimi_antiprosopeysi")}
           <span className="mx-1.5 block h-[18px] w-px bg-k-line" />
-          Ταξινόμηση κατά πλήθος κωδικών
+          {t("taxinomisi_kata_plithos_kodikon")}
         </p>
       </div>
 
       {filtered.length === 0 ? (
         <div className="shell-x py-16 text-center">
           <p className="font-artegra text-xl leading-[1.3] text-k-ink">
-            {upGreek("Δεν βρέθηκε brand")}
+            {upGreek(t("den_vrethike_brand"))}
           </p>
           <p className="mx-auto mt-2.5 max-w-md text-[13.5px] text-k-text-3">
-            Αντιπροσωπεύουμε πολλά ακόμη brands και τα προμηθευόμαστε κατά παραγγελία.
-            Καλέστε μας.
+            {t("antiprosopeyoyme_polla_akomi_brands_kai")}
           </p>
           <a
             href="tel:+302104111355"
             className="t-btn-sm mt-5 inline-block bg-k-ink px-7 py-4 text-white transition-colors hover:bg-k-red"
           >
-            Τ. 210 411 1355
+            {t("t_210_411_1355")}
           </a>
         </div>
       ) : (
@@ -98,7 +99,7 @@ export function BrandSearchGrid({ brands }: { brands: BrandListItem[] }) {
                   }`}
                 />
                 <span className="t-brand-count text-k-text-4">
-                  {brand.inStockCount > 0 ? upGreek("Σε απόθεμα") : upGreek("Κατόπιν")}
+                  {brand.inStockCount > 0 ? upGreek(t("se_apothema")) : upGreek(t("katopin"))}
                 </span>
               </span>
 
@@ -122,7 +123,7 @@ export function BrandSearchGrid({ brands }: { brands: BrandListItem[] }) {
                 <span className="font-mono text-[13px] font-semibold text-k-ink">
                   {brand.productCount.toLocaleString("el-GR")}
                 </span>
-                <span className="t-brand-count text-k-text-5">{upGreek("κωδ.")}</span>
+                <span className="t-brand-count text-k-text-5">{upGreek(t("kod"))}</span>
               </span>
             </Link>
           ))}
