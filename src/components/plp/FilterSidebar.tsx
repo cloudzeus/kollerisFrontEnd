@@ -130,8 +130,8 @@ export function FilterSidebar({
           <div className="flex flex-col gap-2.5">
             {(
               [
-                { key: "sale", label: "Σε προσφορά", count: facets.flags.sale },
-                { key: "new", label: "Νέα προϊόντα", count: facets.flags.isNew },
+                { key: "sale", label: t("se_prosfora"), count: facets.flags.sale },
+                { key: "new", label: t("nea_proionta"), count: facets.flags.isNew },
               ] as const
             ).map((flag) => {
               const active = params[flag.key] === "1";

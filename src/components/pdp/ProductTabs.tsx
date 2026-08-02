@@ -29,13 +29,15 @@ import { upGreek } from "@/lib/greek";
 export function ProductTabs({ product }: { product: ProductDetail }) {
   const t = useTranslations("pdp.ProductTabs");
   const tabs = [
-    { key: "description", label: "Περιγραφή", show: true },
+    { key: "description", label: t("perigrafi"), show: true },
     {
       key: "specs",
-      label: `Χαρακτηριστικά${product.specs.length ? ` (${product.specs.length})` : ""}`,
+      label: product.specs.length
+        ? t("charaktiristika_me_plithos", { count: product.specs.length })
+        : t("charaktiristika"),
       show: true,
     },
-    { key: "shipping", label: "Αποστολή & επιστροφές", show: true },
+    { key: "shipping", label: t("apostoli_epistrofes"), show: true },
   ] as const;
 
   const longText = stripRestatement(
@@ -86,7 +88,7 @@ export function ProductTabs({ product }: { product: ProductDetail }) {
     <section className="band-alt border-t border-k-line">
       <div className="pdp-band py-8 lg:py-12">
         <div className="pdp-inner">
-          <SectionHead eyebrow="Τεχνικός φάκελος" title={t("stoicheia_proiontos")} />
+          <SectionHead eyebrow={t("technikos_fakelos")} title={t("stoicheia_proiontos")} />
 
           {/*
             The tab bar sits UNDER its own heading, full width, not in the
@@ -175,7 +177,7 @@ export function ProductTabs({ product }: { product: ProductDetail }) {
                         className="t-card-cta w-full cursor-pointer border-t border-k-line bg-k-surface-2 px-5 py-3.5 text-left text-k-ink transition-colors hover:bg-k-ink hover:text-white"
                       >
                         {upGreek(
-                          `Και τα ${product.specs.length} χαρακτηριστικά`,
+                          t("kai_ta_ola_charaktiristika", { count: product.specs.length }),
                         )}{" "}
                         →
                       </button>
@@ -234,21 +236,21 @@ export function ProductTabs({ product }: { product: ProductDetail }) {
               <div className="grid gap-px border border-k-line bg-k-line sm:grid-cols-2 xl:grid-cols-4">
                 {[
                   {
-                    title: "Παράδοση 24-48 ώρες",
-                    body: "Πανελλαδικά με courier. Παραγγελίες πριν τις 15:00 φεύγουν αυθημερόν.",
+                    title: t("paradosi_24_48_ores"),
+                    body: t("paradosi_body"),
                   },
                   {
-                    title: "Δωρεάν μεταφορικά άνω των 150 €",
-                    body: "Για παραγγελίες άνω των 150 € (καθαρή αξία) τα μεταφορικά είναι δωρεάν.",
+                    title: t("dorean_metaforika_150"),
+                    body: t("dorean_metaforika_body"),
                   },
                   {
-                    title: "Επιστροφή σε 14 ημέρες",
-                    body: "Αμεταχείριστο προϊόν στη συσκευασία του, με το παραστατικό αγοράς.",
+                    title: t("epistrofi_14_imeres"),
+                    body: t("epistrofi_body"),
                   },
                   {
-                    title: "Εγγύηση κατασκευαστή",
+                    title: t("eggyisi_kataskeyasti"),
                     body: product.guaranteeMonths
-                      ? `${product.guaranteeMonths} μήνες εγγύηση, σέρβις και ανταλλακτικά από την Kolleris.`
+                      ? t("eggyisi_mines", { months: product.guaranteeMonths })
                       : t("episimi_eggyisi_kataskeyasti_servis_kai"),
                   },
                 ].map((item) => (

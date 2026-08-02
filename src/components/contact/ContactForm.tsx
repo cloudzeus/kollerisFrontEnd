@@ -18,38 +18,20 @@ import { upGreek } from "@/lib/greek";
  * topic is chosen, not before.
  */
 
+/**
+ * The five reasons somebody writes in.
+ *
+ * Only the value and the message keys live here — the words themselves are in
+ * the message files, looked up at render. Keeping labels at module scope would
+ * mean this list could never speak anything but Greek, which is exactly how the
+ * form ended up untranslated in the first place.
+ */
 const TOPICS = [
-  {
-    value: "technical",
-    label: "Τεχνική ερώτηση",
-    hint: "Ποιο εργαλείο κάνει για τη δουλειά σας",
-    placeholder:
-      "Περιγράψτε τη δουλειά: υλικό, διάμετρος, συχνότητα χρήσης. Δεν χρειάζεται να ξέρετε τον κωδικό.",
-  },
-  {
-    value: "quote",
-    label: "Προσφορά",
-    hint: "Για ποσότητα ή σετ",
-    placeholder: "Ποια είδη και σε τι ποσότητες; Αν έχετε κωδικούς, επικολλήστε τους εδώ.",
-  },
-  {
-    value: "partnership",
-    label: "Συνεργασία B2B",
-    hint: "Εταιρικός λογαριασμός",
-    placeholder: "Πείτε μας για την εταιρεία σας και τι είδη σας ενδιαφέρουν.",
-  },
-  {
-    value: "order",
-    label: "Παραγγελία",
-    hint: "Για υπάρχουσα παραγγελία",
-    placeholder: "Τι θέλετε να ελέγξουμε; Παράδοση, τιμολόγιο, επιστροφή.",
-  },
-  {
-    value: "other",
-    label: "Άλλο",
-    hint: "",
-    placeholder: "Πείτε μας.",
-  },
+  { value: "technical" },
+  { value: "quote" },
+  { value: "partnership" },
+  { value: "order" },
+  { value: "other" },
 ] as const;
 
 export function ContactForm({ locale, pagePath }: { locale: string; pagePath?: string }) {
@@ -57,7 +39,6 @@ export function ContactForm({ locale, pagePath }: { locale: string; pagePath?: s
   const [state, action, pending] = useActionState<ContactState, FormData>(submitContact, {});
   const [topic, setTopic] = useState<(typeof TOPICS)[number]["value"]>("technical");
 
-  const active = TOPICS.find((t) => t.value === topic)!;
 
   if (state.ok) {
     return (
@@ -115,23 +96,23 @@ export function ContactForm({ locale, pagePath }: { locale: string; pagePath?: s
                 onChange={() => setTopic(option.value)}
                 className="sr-only"
               />
-              {upGreek(option.label)}
+              {upGreek(t(`topic_${option.value}_label`))}
             </label>
           ))}
         </div>
-        {active.hint && (
-          <p className="mt-2.5 text-[12px] text-k-text-4">{active.hint}</p>
+        {topic !== "other" && (
+          <p className="mt-2.5 text-[12px] text-k-text-4">{t(`topic_${topic}_hint`)}</p>
         )}
       </fieldset>
 
       <div className="grid gap-4 sm:grid-cols-2">
         <Field label={t("onomateponymo")} name="name" required error={state.fieldErrors?.name} />
         <Field label="Email" name="email" type="email" autoComplete="email" required error={state.fieldErrors?.email} />
-        <Field label={t("tilefono")} name="phone" type="tel" autoComplete="tel" help="Για να σας πάρουμε αν είναι πιο γρήγορο." />
+        <Field label={t("tilefono")} name="phone" type="tel" autoComplete="tel" help={t("gia_na_sas_paroyme_an")} />
         <Field label={t("etaireia")} name="company" required={topic === "partnership"} error={state.fieldErrors?.company} />
 
         {topic === "partnership" && (
-          <Field label={t("afm")} name="vatNumber" error={state.fieldErrors?.vatNumber} help="Για να ετοιμάσουμε τον εταιρικό λογαριασμό." />
+          <Field label={t("afm")} name="vatNumber" error={state.fieldErrors?.vatNumber} help={t("gia_na_etoimasoyme_ton_etairiko")} />
         )}
         {topic === "order" && (
           <Field label={t("arithmos_paraggelias")} name="orderRef" placeholder={t("p_ch_kol_20260731_0007")} error={state.fieldErrors?.orderRef} />
@@ -149,7 +130,7 @@ export function ContactForm({ locale, pagePath }: { locale: string; pagePath?: s
           name="message"
           rows={6}
           required
-          placeholder={active.placeholder}
+          placeholder={t(`topic_${topic}_placeholder`)}
           aria-invalid={state.fieldErrors?.message ? true : undefined}
           className={`t-input w-full resize-y border px-3.5 py-3 leading-[1.6] text-k-ink outline-none focus:border-k-ink ${
             state.fieldErrors?.message ? "border-k-red" : "border-k-line-2"

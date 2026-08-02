@@ -31,12 +31,13 @@ export function MemberTable({
   canManage: boolean;
   currentUserId: string;
 }) {
+  const t = useTranslations("account.MemberAdmin");
   return (
     <div className="overflow-x-auto">
       <table className="w-full min-w-[720px] border-collapse text-left">
         <thead>
           <tr className="border-y border-k-line bg-k-surface-2">
-            {["Χρήστης", "Ρόλος", "Όριο ανά παραγγελία", "Φέτος", "Κατάσταση", ""].map((h, i) => (
+            {[t("col_user"), t("col_role"), t("col_limit"), t("col_year"), t("col_status"), ""].map((h, i) => (
               <th
                 key={h || i}
                 scope="col"
@@ -215,12 +216,13 @@ function MemberRow({
 }
 
 function Status({ status }: { status: CompanyMember["status"] }) {
+  const t = useTranslations("account.MemberAdmin");
   const map = {
-    active: { label: "Ενεργός", className: "text-k-green" },
-    invited: { label: "Προσκλήθηκε", className: "text-k-amber" },
-    pending: { label: "Σε έγκριση", className: "text-k-amber" },
-    suspended: { label: "Αναστολή", className: "text-k-red" },
-    rejected: { label: "Απορρίφθηκε", className: "text-k-text-4" },
+    active: { label: t("status_active"), className: "text-k-green" },
+    invited: { label: t("status_invited"), className: "text-k-amber" },
+    pending: { label: t("status_pending"), className: "text-k-amber" },
+    suspended: { label: t("status_suspended"), className: "text-k-red" },
+    rejected: { label: t("status_rejected"), className: "text-k-text-4" },
   } as const;
   const item = map[status];
 

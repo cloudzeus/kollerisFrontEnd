@@ -118,7 +118,7 @@ export function QuickViewProvider({
           <div
             role="dialog"
             aria-modal="true"
-            aria-label={product?.name ?? "Γρήγορη προβολή"}
+            aria-label={product?.name ?? t("grigori_provoli")}
             className="relative flex max-h-[92vh] w-full max-w-4xl flex-col overflow-hidden bg-white"
           >
             <div className="flex shrink-0 items-center justify-between border-b border-k-line px-4 py-3 lg:px-6">
@@ -223,7 +223,7 @@ function QuickViewBody({
           </span>
         </div>
         <p className="t-card-vat mt-1 text-k-text-5">
-          {upGreek(`με ΦΠΑ ${product.vatRate}%`)}
+          {upGreek(t("me_fpa", { vatRate: product.vatRate }))}
         </p>
 
         <p

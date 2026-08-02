@@ -28,11 +28,8 @@ export type SourceCoverage = {
  * `src/components`, admin excluded.
  */
 export const HARDCODED_UI = {
-  /** Lifted into the message files by the extraction pass. */
-  extracted: 369,
-  /** Still written into components: module-scope label maps, template
-   *  literals with interpolation, string concatenation. Each needs a decision
-   *  about that file's shape, not a substitution. */
-  remaining: 131,
-  files: 34,
+  /** Every user-visible string now lives in the message files. */
+  extracted: 491,
+  remaining: 0,
+  files: 0,
 };

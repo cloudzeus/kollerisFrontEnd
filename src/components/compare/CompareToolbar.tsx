@@ -60,7 +60,7 @@ export function CompareToolbar({
           <span className="font-mono font-semibold text-k-ink">
             {diffOnly ? differingRows : totalRows}
           </span>
-          {upGreek(diffOnly ? `από ${totalRows} γραμμές` : t("grammes"))}
+          {upGreek(diffOnly ? t("apo_grammes", { totalRows: totalRows }) : t("grammes"))}
           {!diffOnly && differingRows > 0 && (
             <>
               <span className="block h-[14px] w-px bg-k-line-2" />

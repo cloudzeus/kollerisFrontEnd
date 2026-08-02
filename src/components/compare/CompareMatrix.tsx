@@ -171,7 +171,7 @@ function ColumnHead({ column, ids }: { column: CompareColumn; ids: string[] }) {
       <Link
         href={removeHref}
         scroll={false}
-        aria-label={`Αφαίρεση ${column.name} από τη σύγκριση`}
+        aria-label={t("afairesi_apo_ti_sygkrisi", { name: column.name })}
         title={t("afairesi")}
         className="absolute top-1.5 right-1.5 flex h-6 w-6 items-center justify-center text-[15px] leading-none text-k-text-5 transition-colors hover:bg-k-red hover:text-white"
       >
@@ -218,7 +218,7 @@ function ColumnHead({ column, ids }: { column: CompareColumn; ids: string[] }) {
         {column.priceNet != null ? formatPrice(column.priceNet, ctx) : "—"}
       </span>
       <span className="t-card-vat mt-1 block text-k-text-5">
-        {upGreek(`με ΦΠΑ ${column.vatRate}%`)}
+        {upGreek(t("me_fpa", { vatRate: column.vatRate }))}
       </span>
 
       <AddToCartButton

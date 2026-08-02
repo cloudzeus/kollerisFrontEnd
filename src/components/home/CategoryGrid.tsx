@@ -28,9 +28,9 @@ export function CategoryGrid({
   return (
     <section className="bg-white shell-x py-7 lg:pt-16 lg:pb-17">
       <SectionHeading
-        eyebrow="Το πλήρες inventory"
+        eyebrow={t("to_plires_inventory")}
         title={t("agora_ana_katigoria")}
-        action={{ href: "/katalogos", label: `Όλες οι ${totalCategories} κατηγορίες` }}
+        action={{ href: "/katalogos", label: t("oles_oi_katigories", { totalCategories: totalCategories }) }}
       />
 
       <div className="grid grid-cols-2 gap-px border border-k-line bg-k-line md:grid-cols-3 lg:grid-cols-4">

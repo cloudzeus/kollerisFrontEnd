@@ -27,21 +27,21 @@ export function SiteFooter({ categories }: { categories: CategoryTile[] }) {
     {
       title: upGreek(t("exypiretisi")),
       links: [
-        { href: "/logariasmos/entopismos", label: "Εντοπισμός παραγγελίας" },
-        { href: "/logariasmos/epistrofes", label: "Επιστροφές" },
-        { href: "/logariasmos/eggyiseis", label: "Εγγυήσεις" },
-        { href: "/syxnes-erotiseis", label: "Συχνές ερωτήσεις" },
-        { href: "/epikoinonia", label: "Επικοινωνία" },
+        { href: "/logariasmos/entopismos", label: t("entopismos_paraggelias") },
+        { href: "/logariasmos/epistrofes", label: t("epistrofes") },
+        { href: "/logariasmos/eggyiseis", label: t("eggyiseis") },
+        { href: "/syxnes-erotiseis", label: t("sychnes_erotiseis") },
+        { href: "/epikoinonia", label: t("epikoinonia") },
       ],
     },
     {
       title: upGreek(t("i_etaireia")),
       links: [
-        { href: "/etaireia", label: "Ποιοι είμαστε" },
+        { href: "/etaireia", label: t("poioi_eimaste") },
         { href: "/brands", label: "Brands" },
-        { href: "/prosfores", label: "Προσφορές" },
+        { href: "/prosfores", label: t("prosfores") },
         { href: "/blog", label: "Blog" },
-        { href: "/eisodos", label: "Λογαριασμός B2B" },
+        { href: "/eisodos", label: t("logariasmos_b2b") },
       ],
     },
   ];

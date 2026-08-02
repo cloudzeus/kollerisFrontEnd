@@ -160,7 +160,7 @@ export function MobileMenu({
                             <button
                               type="button"
                               aria-expanded={isOpen}
-                              aria-label={`${isOpen ? t("apokrypsi") : t("emfanisi")} υποκατηγοριών ${category.name}`}
+                              aria-label={t(isOpen ? "hide_subcategories" : "show_subcategories", { name: category.name })}
                               onClick={() => setExpanded(isOpen ? null : category.id)}
                               className="flex w-11 shrink-0 items-center justify-center text-k-text-4"
                             >
@@ -196,7 +196,7 @@ export function MobileMenu({
                               onClick={() => setOpen(false)}
                               className="block pt-2 pr-4 pl-[34px] text-[10px] font-semibold tracking-[0.07em] text-k-red"
                             >
-                              {upGreek(`Όλες οι ${category.childCount} υποκατηγορίες`)} →
+                              {upGreek(t("oles_oi_ypokatigories", { childCount: category.childCount }))} →
                             </Link>
                           </div>
                         )}

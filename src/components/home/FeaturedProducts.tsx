@@ -20,9 +20,9 @@ export function FeaturedProducts({ products }: { products: ProductCardData[] }) 
   return (
     <section className="border-t border-k-line bg-k-surface-3 shell-x py-7 lg:pt-16 lg:pb-[70px]">
       <SectionHeading
-        eyebrow="Επιλεγμένοι κωδικοί"
+        eyebrow={t("epilegmenoi_kodikoi")}
         title={t("ta_pio_dimofili_ergaleia")}
-        action={{ href: "/katalogos", label: "Δείτε όλα τα προϊόντα" }}
+        action={{ href: "/katalogos", label: t("deite_ola_ta_proionta") }}
       >
         <p className="t-stat-label mt-2 text-k-text-4">{upGreek(t("oles_oi_times_me_fpa"))}</p>
       </SectionHeading>

@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { AlertTriangle, Check, Languages, Loader2, Sparkles } from "lucide-react";
+import { Check, Languages, Loader2, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import {
   actionListMissing,
@@ -158,29 +158,22 @@ export function TranslationBoard({ sources }: { sources: SourceCoverage[] }) {
         </Panel>
       ))}
 
-      {/* What the extraction pass did and did not reach. */}
+      {/* The extraction pass, now complete. */}
       <Panel title="Κείμενα διεπαφής" description="Ό,τι είναι γραμμένο μέσα στα components.">
-        <div className="space-y-3 text-[12.5px] leading-[1.65] text-k-text-2">
-          <p className="flex items-start gap-2.5">
-            <Check className="mt-0.5 size-4 shrink-0 text-k-green" />
-            <span>
-              <span className="numeral font-medium text-k-ink">
-                {HARDCODED_UI.extracted.toLocaleString("el-GR")}
-              </span>{" "}
-              κείμενα βγήκαν από τα components στα αρχεία γλώσσας και είναι μεταφρασμένα σε αγγλικά
-              και ιταλικά. Κουμπιά, ετικέτες, τίτλοι, μηνύματα — αλλάζουν πλέον με τη γλώσσα.
+        <div className="flex items-start gap-2.5 text-[12.5px] leading-[1.65] text-k-text-2">
+          <Check className="mt-0.5 size-4 shrink-0 text-k-green" />
+          <span>
+            <span className="numeral font-medium text-k-ink">
+              {HARDCODED_UI.extracted.toLocaleString("el-GR")}
+            </span>{" "}
+            κείμενα βγήκαν από τα components στα αρχεία γλώσσας και είναι μεταφρασμένα σε αγγλικά
+            και ιταλικά — κουμπιά, ετικέτες, τίτλοι, μηνύματα, μηνύματα σφάλματος. Δεν έμεινε
+            ελληνικό κείμενο γραμμένο μέσα σε component του καταστήματος.
+            <span className="mt-1 block text-k-text-3">
+              Νέα κείμενα γράφονται στα ελληνικά στο <span className="font-mono">el.json</span> και
+              μεταφράζονται με το <span className="font-mono">scripts/i18n/translate.mts</span>.
             </span>
-          </p>
-          <p className="flex items-start gap-2.5">
-            <AlertTriangle className="mt-0.5 size-4 shrink-0 text-k-amber" />
-            <span>
-              <span className="numeral font-medium text-k-ink">{HARDCODED_UI.remaining}</span>{" "}
-              μένουν σε <span className="numeral">{HARDCODED_UI.files}</span> αρχεία: πίνακες
-              ετικετών έξω από components, κείμενα με ενσωματωμένες τιμές, ενώσεις string. Το καθένα
-              θέλει απόφαση για τη δομή του αρχείου, όχι αντικατάσταση — γι\u2019 αυτό δεν τα άγγιξε ο
-              αυτόματος μετασχηματισμός.
-            </span>
-          </p>
+          </span>
         </div>
       </Panel>
     </div>

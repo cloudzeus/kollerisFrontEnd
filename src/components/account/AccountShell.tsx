@@ -18,21 +18,22 @@ import { upGreek } from "@/lib/greek";
  * dead link would be worse. This way the shape is honest and nothing 404s.
  */
 
+/** The label is a message key: this list must be able to speak three languages. */
 type Item = { href: string; label: string; ready: boolean; companyOnly?: boolean };
 
 const ITEMS: Item[] = [
-  { href: "/logariasmos", label: "Επισκόπηση", ready: true },
-  { href: "/logariasmos/stoicheia", label: "Στοιχεία λογαριασμού", ready: true },
-  { href: "/logariasmos/paraggelies", label: "Παραγγελίες", ready: false },
-  { href: "/logariasmos/dieuthynseis", label: "Διευθύνσεις", ready: false },
-  { href: "/logariasmos/eggyiseis", label: "Εγγυήσεις & σέρβις", ready: false },
-  { href: "/logariasmos/epistrofes", label: "Επιστροφές", ready: false },
-  { href: "/logariasmos/agapimena", label: "Αγαπημένα", ready: false },
+  { href: "/logariasmos", label: "nav_logariasmos", ready: true },
+  { href: "/logariasmos/stoicheia", label: "nav_logariasmos_stoicheia", ready: true },
+  { href: "/logariasmos/paraggelies", label: "nav_logariasmos_paraggelies", ready: false },
+  { href: "/logariasmos/dieuthynseis", label: "nav_logariasmos_dieuthynseis", ready: false },
+  { href: "/logariasmos/eggyiseis", label: "nav_logariasmos_eggyiseis", ready: false },
+  { href: "/logariasmos/epistrofes", label: "nav_logariasmos_epistrofes", ready: false },
+  { href: "/logariasmos/agapimena", label: "nav_logariasmos_agapimena", ready: false },
   // ── Company only ──
-  { href: "/b2b", label: "Εταιρικός λογαριασμός", ready: true, companyOnly: true },
-  { href: "/b2b/xristes", label: "Χρήστες & ρόλοι", ready: true, companyOnly: true },
-  { href: "/b2b/timologia", label: "Τιμολόγια & πίστωση", ready: false, companyOnly: true },
-  { href: "/b2b/listes", label: "Λίστες υλικών", ready: false, companyOnly: true },
+  { href: "/b2b", label: "nav_b2b", ready: true, companyOnly: true },
+  { href: "/b2b/xristes", label: "nav_b2b_xristes", ready: true, companyOnly: true },
+  { href: "/b2b/timologia", label: "nav_b2b_timologia", ready: false, companyOnly: true },
+  { href: "/b2b/listes", label: "nav_b2b_listes", ready: false, companyOnly: true },
 ];
 
 export function AccountShell({
@@ -106,7 +107,7 @@ export function AccountShell({
                       title={t("den_echei_energopoiithei_akomi")}
                       className="t-nav-sub flex cursor-not-allowed items-center gap-2 border-b border-transparent px-4 py-3.5 text-k-text-5 lg:border-b-k-line lg:px-6"
                     >
-                      {upGreek(item.label)}
+                      {upGreek(t(item.label))}
                       <span className="t-brand-count shrink-0 border border-k-line-2 px-1 py-px text-k-text-5">
                         {upGreek(t("syntoma"))}
                       </span>
@@ -125,7 +126,7 @@ export function AccountShell({
                         : "border-b-transparent text-k-text-3 hover:text-k-ink lg:border-b-k-line lg:border-l-transparent"
                     }`}
                   >
-                    {upGreek(item.label)}
+                    {upGreek(t(item.label))}
                   </Link>
                 </li>
               );

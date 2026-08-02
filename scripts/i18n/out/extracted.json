@@ -1,457 +1,71 @@
 {
-  "product.CompareCheckbox": {
-    "i_sygkrisi_choraei_4_proionta": "Η σύγκριση χωράει 4 προϊόντα",
-    "mono_proionta_tis_idias_katigorias": "Μόνο προϊόντα της ίδιας κατηγορίας",
-    "mono_proionta_tis_idias_katigorias_2": "Μόνο προϊόντα της ίδιας κατηγορίας, έως 4",
-    "afairesi_apo_ti_sygkrisi": "Αφαίρεση από τη σύγκριση",
-    "prosthiki_sti_sygkrisi": "Προσθήκη στη σύγκριση",
-    "eos_4": "Έως 4",
-    "alli_kat": "Άλλη κατ.",
-    "sygkrisi": "Σύγκριση"
-  },
   "product.ProductCard": {
-    "amesa_diathesimo": "Άμεσα διαθέσιμο",
-    "teleytaia": "Τελευταία",
-    "tem": "τεμ.",
-    "katopin_paraggelias": "Κατόπιν παραγγελίας",
-    "choris_eikona": "Χωρίς εικόνα"
-  },
-  "product.ProductRail": {
-    "proigoymena_proionta": "Προηγούμενα προϊόντα",
-    "epomena_proionta": "Επόμενα προϊόντα"
+    "me_fpa": "με ΦΠΑ {vatRate}%"
   },
   "product.QuickViewProvider": {
-    "kleisimo": "Κλείσιμο",
-    "grigori_provoli": "Γρήγορη προβολή",
-    "den_itan_dynati_i_fortosi": "Δεν ήταν δυνατή η φόρτωση. Δοκιμάστε ξανά ή ανοίξτε τη σελίδα του\n                  προϊόντος.",
-    "choris_eikona": "Χωρίς εικόνα",
-    "amesa_diathesimo": "Άμεσα διαθέσιμο",
-    "tem": "τεμ.",
-    "katopin_paraggelias": "Κατόπιν παραγγελίας",
-    "pliri_stoicheia": "Πλήρη στοιχεία"
-  },
-  "product.QuickViewTrigger": {
-    "grigori_provoli": "Γρήγορη προβολή"
-  },
-  "plp.FilterSidebar": {
-    "filtra": "Φίλτρα",
-    "katharismos": "Καθαρισμός",
-    "ypokatigoria": "Υποκατηγορία",
-    "timi": "Τιμή",
-    "eyros_katalogoy": "Εύρος καταλόγου:",
-    "diathesimotita": "Διαθεσιμότητα",
-    "eidika_filtra": "Ειδικά φίλτρα",
-    "den_vriskete_to_sosto": "Δεν βρίσκετε το σωστό;",
-    "peite_mas_ti_doyleia_kai": "Πείτε μας τη δουλειά και σας προτείνουμε τον κωδικό. 46 χρόνια εμπειρίας\n              στο τηλέφωνο."
+    "me_fpa": "με ΦΠΑ {vatRate}%"
   },
   "plp.MobileFilterSheet": {
-    "filtra": "Φίλτρα",
-    "kleisimo_filtron": "Κλείσιμο φίλτρων"
-  },
-  "plp.Pagination": {
-    "selidopoiisi": "Σελιδοποίηση",
-    "proigoymeni": "Προηγούμενη",
-    "epomeni": "Επόμενη"
-  },
-  "plp.PlpToolbar": {
-    "proionta": "προϊόντα",
-    "katharismos_olon": "Καθαρισμός όλων",
-    "ana_grammi": "Ανά γραμμή",
-    "proionta_2": "Προϊόντα",
-    "taxinomisi": "Ταξινόμηση"
+    "emfanisi_proionton": "Εμφάνιση {n} προϊόντων"
   },
   "pdp.ProductGallery": {
-    "choris_eikona": "Χωρίς εικόνα",
-    "megethynsi": "Μεγέθυνση",
-    "proigoymenes_eikones": "Προηγούμενες εικόνες",
-    "epomenes_eikones": "Επόμενες εικόνες",
-    "kleisimo": "Κλείσιμο"
-  },
-  "pdp.ProductTabs": {
-    "stoicheia_proiontos": "Στοιχεία προϊόντος",
-    "me_mia_matia": "Με μια ματιά",
-    "den_yparchei_akomi_analytiki_perigrafi": "Δεν υπάρχει ακόμη αναλυτική περιγραφή για αυτόν τον κωδικό.\n                  Καλέστε μας στο 210 411 1355 για τεχνικές λεπτομέρειες.",
-    "ta_technika_charaktiristika_gia_ayton": "Τα τεχνικά χαρακτηριστικά για αυτόν τον κωδικό δεν έχουν\n                  καταχωρηθεί ακόμη.",
-    "episimi_eggyisi_kataskeyasti_servis_kai": "Επίσημη εγγύηση κατασκευαστή, σέρβις και ανταλλακτικά από την Kolleris."
-  },
-  "orders.OrderTracker": {
-    "arithmos_paraggelias": "Αριθμός παραγγελίας",
-    "email_paraggelias": "Email παραγγελίας",
-    "entopismos": "Εντοπισμός",
-    "o_arithmos_einai_sto_email": "Ο αριθμός είναι στο email επιβεβαίωσης. Δεν χρειάζεται λογαριασμός.",
-    "paraggelia": "Παραγγελία",
-    "tem": "τεμ.",
-    "i_paraggelia_akyrothike_an_den": "Η παραγγελία ακυρώθηκε. Αν δεν την ακυρώσατε εσείς, καλέστε μας στο 210 411 1355.",
-    "i_pliromi_den_oloklirothike_mporeite": "Η πληρωμή δεν ολοκληρώθηκε. Μπορείτε να ξαναπροσπαθήσετε ή να μας καλέσετε στο 210 411 1355.",
-    "se_exelixi": "σε εξέλιξη",
-    "arithmos_apostolis_acs": "Αριθμός αποστολής ACS",
-    "parakoloythisi_stin_acs": "Παρακολούθηση στην ACS",
-    "kati_den_paei_kala": "Κάτι δεν πάει καλά;",
-    "alli_paraggelia": "Άλλη παραγγελία"
-  },
-  "home.AboutSplit": {
-    "fotografia_apothikis_omadas": "Φωτογραφία αποθήκης / ομάδας",
-    "gia_46_chronia_i_kolleris": "Για 46 χρόνια, η Kolleris είναι ο προμηθευτής που καλούν ναυτιλιακές\n          εταιρείες, εργοστάσια και συνεργεία. Άμεσες σχέσεις με Milwaukee, Knipex,\n          Wera — ακριβής διαθεσιμότητα, χωρίς «θα δούμε»."
+    "eikona": "Εικόνα {n}",
+    "eikona_apo": "{alt} — εικόνα {n} από {length}",
+    "eikona_2": "Εικόνα {n}"
   },
   "home.BrandWall": {
-    "ta_brands_poy_antiprosopeyoyme": "Τα brands που αντιπροσωπεύουμε",
-    "brands_me_energa_proionta_mia": "brands με ενεργά προϊόντα · μία διεύθυνση",
-    "kod": "κωδ."
+    "ola_ta_brands": "Όλα τα {totalBrands} brands"
   },
   "home.CategoryGrid": {
-    "agora_ana_katigoria": "Αγορά ανά κατηγορία",
-    "kod": "κωδ.",
-    "ypokatigories": "υποκατηγορίες"
-  },
-  "home.FeaturedProducts": {
-    "ta_pio_dimofili_ergaleia": "Τα πιο δημοφιλή εργαλεία",
-    "oles_oi_times_me_fpa": "Όλες οι τιμές με ΦΠΑ",
-    "deite_ola_ta_proionta": "Δείτε όλα τα προϊόντα"
-  },
-  "home.HeroBanner": {
-    "kodikon": "κωδικών",
-    "deite_ta": "Δείτε τα"
-  },
-  "home.NewsletterBand": {
-    "eggrafi_sto_newsletter": "Εγγραφή στο newsletter",
-    "nea_proionta_prosfores_kai_technika": "Νέα προϊόντα, προσφορές και τεχνικά tips — μία φορά τον μήνα.",
-    "to_email_sas": "Το email σας",
-    "eggrafi": "Εγγραφή"
+    "oles_oi_katigories": "Όλες οι {totalCategories} κατηγορίες"
   },
   "home.ReviewsBand": {
-    "vasismeno_se": "Βασισμένο σε",
-    "axiologiseis_epaggelmation_synergeion_kai_naypigeion": "αξιολογήσεις επαγγελματιών, συνεργείων και\n            ναυπηγείων."
+    "sta_5": "{rating} στα 5",
+    "sta_5_2": "{rating} στα 5"
   },
   "faq.FaqAccordion": {
-    "anazitisi_stis_erotiseis": "Αναζήτηση στις ερωτήσεις",
-    "psaxte_mia_erotisi_p_ch": "Ψάξτε μια ερώτηση — π.χ. μεταφορικά, εγγύηση, τιμολόγιο",
-    "katharismos": "Καθαρισμός",
-    "symptyxi_olon": "Σύμπτυξη όλων",
-    "anoigma_olon": "Άνοιγμα όλων",
-    "kamia_erotisi_gia": "Καμία ερώτηση για «",
-    "rotiste_mas_apeytheias_apantame_tin": "Ρωτήστε μας απευθείας — απαντάμε την ίδια εργάσιμη, και η ερώτησή σας πιθανότατα\n            μπει εδώ για τον επόμενο."
-  },
-  "contact.ContactForm": {
-    "stalthike": "Στάλθηκε",
-    "to_lavame": "Το λάβαμε",
-    "apantame_synithos_tin_idia_ergasimi": "Απαντάμε συνήθως την ίδια εργάσιμη. Αν βιάζεστε, καλέστε μας στο",
-    "sikonei_anthropos": "— σηκώνει άνθρωπος.",
-    "min_symplirosete": "Μην συμπληρώσετε",
-    "thema": "Θέμα",
-    "onomateponymo": "Ονοματεπώνυμο",
-    "tilefono": "Τηλέφωνο",
-    "etaireia": "Εταιρεία",
-    "afm": "ΑΦΜ",
-    "arithmos_paraggelias": "Αριθμός παραγγελίας",
-    "p_ch_kol_20260731_0007": "π.χ. KOL-20260731-0007",
-    "thema_minymatos": "Θέμα μηνύματος",
-    "minyma": "Μήνυμα",
-    "apostoli": "Αποστολή"
-  },
-  "compare.CompareAdviceBand": {
-    "i_epilogi_toy_ypeythynoy": "Η επιλογή του υπευθύνου",
-    "poio_na_parete_analoga_me": "Ποιο να πάρετε, ανάλογα με τι μετράει"
+    "apo": "{shown} από {total}",
+    "erotiseis": "{total} ερωτήσεις"
   },
   "compare.CompareMatrix": {
-    "charaktiristiko": "Χαρακτηριστικό",
-    "diaferei": "διαφέρει",
-    "to_chamilotero_tis_sygkrisis": " — το χαμηλότερο της σύγκρισης",
-    "to_ypsilotero_tis_sygkrisis": " — το υψηλότερο της σύγκρισης",
-    "afairesi": "Αφαίρεση",
-    "choris_eikona": "Χωρίς εικόνα"
+    "afairesi_apo_ti_sygkrisi": "Αφαίρεση {name} από τη σύγκριση",
+    "me_fpa": "με ΦΠΑ {vatRate}%"
   },
   "compare.CompareToolbar": {
-    "mono_diafores": "Μόνο διαφορές",
-    "kalyteri_timi_ana_grammi": "Καλύτερη τιμή ανά γραμμή",
-    "grammes": "γραμμές",
-    "me_diafora": "με διαφορά"
+    "apo_grammes": "από {totalRows} γραμμές"
   },
   "compare.CompareTray": {
-    "sygkrisi": "Σύγκριση",
-    "idia_katigoria": "Ίδια κατηγορία",
-    "katharismos": "Καθαρισμός"
-  },
-  "chrome.HeaderShell": {
-    "metavasi_sto_periechomeno": "Μετάβαση στο περιεχόμενο"
-  },
-  "chrome.MainNav": {
-    "katalogos": "Κατάλογος",
-    "nees_afixeis": "Νέες αφίξεις",
-    "i_etaireia": "Η εταιρεία",
-    "epikoinonia": "Επικοινωνία",
-    "kyria_ploigisi": "Κύρια πλοήγηση",
-    "prosfores": "Προσφορές"
+    "afairesi_apo_ti_sygkrisi": "Αφαίρεση {name} από τη σύγκριση"
   },
   "chrome.MegaMenu": {
-    "katigories": "Κατηγορίες",
-    "proteinomeno": "Προτεινόμενο",
-    "deite_to": "Δείτε το",
-    "vasikes_katigories": "βασικές κατηγορίες ·",
-    "ypokatigories": "υποκατηγορίες ·",
-    "kodikoi": "κωδικοί",
-    "oles_oi_katigories": "Όλες οι κατηγορίες",
-    "antiprosopeyomena_brands": "Αντιπροσωπευόμενα brands"
+    "ola_ta": "Όλα τα {totalBrands}"
   },
   "chrome.MobileMenu": {
-    "prosfores": "Προσφορές",
-    "nees_afixeis": "Νέες αφίξεις",
-    "i_etaireia": "Η εταιρεία",
-    "epikoinonia": "Επικοινωνία",
-    "menoy": "Μενού",
-    "kleisimo_menoy": "Κλείσιμο μενού",
-    "ploigisi": "Πλοήγηση",
-    "kleisimo": "Κλείσιμο",
-    "katigories": "Κατηγορίες",
-    "apokrypsi": "Απόκρυψη",
-    "emfanisi": "Εμφάνιση",
-    "katigories_2": "κατηγορίες ·",
-    "ypokatigories": "υποκατηγορίες ·",
-    "kodikoi": "κωδικοί",
-    "kod": "κωδ.",
-    "syndesi_b2b": "Σύνδεση B2B"
+    "oles_oi_ypokatigories": "Όλες οι {childCount} υποκατηγορίες"
   },
   "chrome.SearchSuggest": {
-    "anazitisi_proionton": "Αναζήτηση προϊόντων",
-    "katigoria_anazitisis": "Κατηγορία αναζήτησης",
-    "oles_oi_katigories": "Όλες οι κατηγορίες",
-    "anazitisi": "Αναζήτηση",
-    "anazitisi_me_kodiko_proion_i": "Αναζήτηση με κωδικό, προϊόν ή brand — π.χ. 4932359490",
-    "anazitisi_kodikoy_i_proiontos": "Αναζήτηση κωδικού ή προϊόντος",
-    "protaseis_anazitisis": "Προτάσεις αναζήτησης",
-    "den_vrethike_kati_gia": "Δεν βρέθηκε κάτι για «",
-    "dokimaste_ton_kodiko_toy_kataskeyasti": "Δοκιμάστε τον κωδικό του κατασκευαστή, λιγότερες λέξεις, ή καλέστε μας\n                στο 210 411 1355 — βρίσκουμε τον κωδικό μαζί.",
-    "akrivis_kodikos": "Ακριβής κωδικός",
-    "proionta": "Προϊόντα",
-    "katigories": "Κατηγορίες",
-    "tem": "τεμ.",
-    "katopin": "Κατόπιν"
-  },
-  "chrome.SiteFooter": {
-    "katigories": "Κατηγορίες",
-    "exypiretisi": "Εξυπηρέτηση",
-    "i_etaireia": "Η εταιρεία",
-    "k_mayromichali_4_18545_peiraias": "Κ. Μαυρομιχάλη 4, 18545 Πειραιάς"
-  },
-  "chrome.SiteHeader": {
-    "logariasmos": "Λογαριασμός",
-    "glossa": "Γλώσσα",
-    "syndesi_b2b": "Σύνδεση B2B"
-  },
-  "chrome.UtilityBar": {
-    "kodikoi": "κωδικοί",
-    "paradosi_24_48o_dorean_ano": "Παράδοση 24-48ω · Δωρεάν άνω 150€",
-    "paradosi_24_48o_se_oli": "Παράδοση 24-48ω σε όλη την Ελλάδα",
-    "dorean_apostoli_ano_ton_150": "Δωρεάν αποστολή άνω των 150€",
-    "t_30_210_411_1355": "Τ. [+30] 210 411 1355"
-  },
-  "checkout.CheckoutForm": {
-    "stoicheia_epikoinonias": "Στοιχεία επικοινωνίας",
-    "onoma": "Όνομα",
-    "eponymo": "Επώνυμο",
-    "kinito": "Κινητό",
-    "dieythynsi_paradosis": "Διεύθυνση παράδοσης",
-    "odos_kai_arithmos": "Οδός και αριθμός",
-    "orofos_koydoyni": "Όροφος / κουδούνι",
-    "periochi": "Περιοχή",
-    "poli": "Πόλη",
-    "t_k": "Τ.Κ.",
-    "thelo_timologio_chreiazontai_afm_kai": "Θέλω τιμολόγιο (χρειάζονται ΑΦΜ και ΔΟΥ)",
-    "tropos_apostolis": "Τρόπος αποστολής",
-    "to_kostos_ypologizetai_apo_to": "Το κόστος υπολογίζεται από το χρεώσιμο βάρος και τη ζώνη ACS του Τ.Κ. σας —\n          δείτε τη σύνοψη δεξιά.",
-    "tropos_pliromis": "Τρόπος πληρωμής",
-    "tha_metafertheite_stin_asfali_selida": "Θα μεταφερθείτε στην ασφαλή σελίδα πληρωμής της Viva Wallet. Τα στοιχεία\n            της κάρτας σας δεν περνούν ποτέ από το κατάστημά μας.",
-    "tha_lavete_ta_stoicheia_katathesis": "Θα λάβετε τα στοιχεία κατάθεσης με email. Η παραγγελία δεσμεύεται για 3\n            εργάσιμες.",
-    "scholia_kai_oloklirosi": "Σχόλια και ολοκλήρωση",
-    "scholia_paraggelias": "Σχόλια παραγγελίας",
-    "odigies_paradosis_ores_paralavis": "Οδηγίες παράδοσης, ώρες παραλαβής…",
-    "apodechomai_toys_oroys_chrisis_kai": "Αποδέχομαι τους όρους χρήσης και την πολιτική απορρήτου.",
-    "apaiteitai_apodochi_ton_oron": "Απαιτείται αποδοχή των όρων.",
-    "ginetai_katachorisi": "Γίνεται καταχώρηση…",
-    "pliromi_me_asfaleia": "Πληρωμή με ασφάλεια",
-    "oloklirosi_paraggelias": "Ολοκλήρωση παραγγελίας"
+    "ola_ta_apotelesmata": "Όλα τα {totalProducts} αποτελέσματα",
+    "apotelesmata_gia": "{totalProducts} αποτελέσματα για {query}",
+    "ola_ta_apotelesmata_2": "Όλα τα {totalProducts} αποτελέσματα"
   },
   "catalogue.CategoryPicker": {
-    "kleisimo": "Κλείσιμο",
-    "epilogi_ypokatigorias": "Επιλογή υποκατηγορίας",
-    "filtrarisma_ypokatigorion": "Φιλτράρισμα υποκατηγοριών",
-    "filtrarisma": "Φιλτράρισμα…",
-    "kamia_ypokatigoria_gia": "Καμία υποκατηγορία για «"
+    "ypokatigories": "Υποκατηγορίες — {root}",
+    "ypokatigories_se_omades": "{shown} υποκατηγορίες σε {length} ομάδες"
   },
   "catalogue.TaxonomyFinder": {
-    "anazitisi_katigorias": "Αναζήτηση κατηγορίας",
-    "vreite_katigoria_p_ch_allen": "Βρείτε κατηγορία — π.χ. αλλεν, ποτηροτρύπανο, γάντια",
-    "katharismos": "Καθαρισμός",
-    "grapste_toylachiston_2_charaktires": "Γράψτε τουλάχιστον 2 χαρακτήρες.",
-    "kamia_katigoria_gia": "Καμία κατηγορία για «",
-    "dokimaste_tin_anazitisi_proionton_stin": "Δοκιμάστε την αναζήτηση προϊόντων στην κορυφή — ψάχνει σε κωδικούς και ονόματα,\n            όχι μόνο σε κατηγορίες.",
-    "kod": "κωδ."
-  },
-  "cart.AddToCartButton": {
-    "sto_kalathi": "Στο καλάθι",
-    "dokimaste_xana": "Δοκιμάστε ξανά"
-  },
-  "cart.BuyNowButton": {
-    "agora_tora": "Αγορά τώρα"
-  },
-  "cart.CartActionsRow": {
-    "synechiste_tis_agores": "Συνεχίστε τις αγορές",
-    "na_adeiasei_to_kalathi": "Να αδειάσει το καλάθι;",
-    "adeiasma_kalathioy": "Άδειασμα καλαθιού"
-  },
-  "cart.CartCrossSell": {
-    "min_xanaparaggeilete_ayrio": "Μην ξαναπαραγγείλετε αύριο",
-    "xechasate_kati_gia_ti_doyleia": "Ξεχάσατε κάτι για τη δουλειά;",
-    "epilegmena_apo_tis_idies_katigories": "Επιλεγμένα από τις ίδιες κατηγορίες με το καλάθι σας. Μία αποστολή, ένα\n            κόστος μεταφορικών.",
-    "proteinomeno": "Προτεινόμενο",
-    "prosthiki": "Προσθήκη"
+    "apotelesmata": "{length}{n} αποτελέσματα",
+    "katigories_se_3_epipeda": "{length} κατηγορίες σε 3 επίπεδα"
   },
   "cart.CartLineRow": {
-    "amesa_diathesimo": "Άμεσα διαθέσιμο",
-    "tem": "τεμ.",
-    "katopin_paraggelias": "Κατόπιν παραγγελίας",
-    "timi_monadas": "Τιμή μονάδας",
-    "posotita": "Ποσότητα",
-    "meiosi_posotitas": "Μείωση ποσότητας",
-    "ayxisi_posotitas": "Αύξηση ποσότητας",
-    "synolo": "Σύνολο"
-  },
-  "cart.CartSummaryPanel": {
-    "dorean_metaforika": "Δωρεάν μεταφορικά",
-    "energo": "Ενεργό",
-    "ta_metaforika_sas_einai_dorean": "Τα μεταφορικά σας είναι δωρεάν.",
-    "prostheste_akomi": "Προσθέστε ακόμη",
-    "kathari_axia_gia_dorean_metaforika": "(καθαρή αξία) για δωρεάν μεταφορικά.",
-    "tropos_paralavis": "Τρόπος παραλαβής",
-    "dorean": "Δωρεάν",
-    "ypologismos": "Υπολογισμός",
-    "tropos_pliromis": "Τρόπος πληρωμής",
-    "ta_koyponia_den_einai_akomi": "Τα κουπόνια δεν είναι ακόμη διαθέσιμα.",
-    "kodikos_ekptosis": "Κωδικός έκπτωσης",
-    "efarmogi": "Εφαρμογή",
-    "kg_chreosimo_varos": "kg χρεώσιμο βάρος",
-    "ergasimes": "εργάσιμες",
-    "teliko_synolo": "Τελικό σύνολο",
-    "me_fpa": "Με ΦΠΑ",
-    "kerdizete": "Κερδίζετε",
-    "se_ayti_tin_paraggelia": "σε αυτή την παραγγελία",
-    "oloklirosi_paraggelias": "Ολοκλήρωση παραγγελίας",
-    "asfalis_pliromi_ssl": "Ασφαλής πληρωμή · SSL"
+    "diathesima_ta_ypoloipa_katopin_paraggelias": "Διαθέσιμα {availableQty} — τα υπόλοιπα κατόπιν παραγγελίας",
+    "me_fpa": "με ΦΠΑ {vatRate}%",
+    "afairesi": "Αφαίρεση {name}"
   },
   "cart.MiniCart": {
-    "kalathi": "Καλάθι",
-    "adeio": "Άδειο",
-    "to_kalathi_sas": "Το καλάθι σας",
-    "proionta": "προϊόντα",
-    "to_kalathi_einai_adeio": "Το καλάθι είναι άδειο.",
-    "ston_katalogo": "Στον κατάλογο",
-    "akomi_sto_kalathi": "ακόμη στο καλάθι",
-    "yposynolo": "Υποσύνολο",
-    "choris_metaforika_ypologizontai_sto_kalathi": "Χωρίς μεταφορικά — υπολογίζονται στο καλάθι.",
-    "dorean_metaforika_energa": "Δωρεάν μεταφορικά — ενεργά.",
-    "oloklirosi": "Ολοκλήρωση"
-  },
-  "cart.QuickOrderPaste": {
-    "kanenas_apo_toys_kodikoys_den": "Κανένας από τους κωδικούς δεν βρέθηκε.",
-    "den_itan_dynati_i_prosthiki": "Δεν ήταν δυνατή η προσθήκη.",
-    "grigori_paraggelia_me_kodikoys": "Γρήγορη παραγγελία με κωδικούς",
-    "epikolliste_lista_kodikon_apo_to": "Επικολλήστε λίστα κωδικών από το Excel σας — ένας κωδικός ανά γραμμή ή\n            χωρισμένοι με κόμμα.",
-    "kodikoi_proionton": "Κωδικοί προϊόντων",
-    "prosthiki": "Προσθήκη",
-    "prostethikan": "Προστέθηκαν",
-    "kodikos": "κωδικός",
-    "kodikoi": "κωδικοί",
-    "den_vrethikan": "Δεν βρέθηκαν:"
+    "kalathi_temachia": "Καλάθι, {count} τεμάχια",
+    "akomi_gia_dorean_metaforika": "Ακόμη {n} για δωρεάν μεταφορικά."
   },
   "brands.BrandSearchGrid": {
-    "vreite_brand_p_ch_knip": "Βρείτε brand — π.χ. knip",
-    "anazitisi_brand": "Αναζήτηση brand",
-    "katharismos": "Καθαρισμός",
-    "episimi_antiprosopeysi": "Επίσημη αντιπροσώπευση",
-    "taxinomisi_kata_plithos_kodikon": "Ταξινόμηση κατά πλήθος κωδικών",
-    "den_vrethike_brand": "Δεν βρέθηκε brand",
-    "antiprosopeyoyme_polla_akomi_brands_kai": "Αντιπροσωπεύουμε πολλά ακόμη brands και τα προμηθευόμαστε κατά παραγγελία.\n            Καλέστε μας.",
-    "t_210_411_1355": "Τ. 210 411 1355",
-    "se_apothema": "Σε απόθεμα",
-    "katopin": "Κατόπιν",
-    "kod": "κωδ."
-  },
-  "blog.BlogMissingNotice": {
-    "den_echei_energopoiithei_akomi": "Δεν έχει ενεργοποιηθεί ακόμη",
-    "ta_arthra_perimenoyn_to_hdctool": "Τα άρθρα περιμένουν το HDCtool",
-    "to_periechomeno_yparchei_idi_ta": "Το περιεχόμενο υπάρχει ήδη: τα μοντέλα",
-    "el_en_it_kai": "(el/en/it) και",
-    "einai_sto_hdctool_mazi_me": "είναι στο HDCtool, μαζί με τον\n        editor τους. Λείπει δημόσιο endpoint — το",
-    "zita_cookie_session_eno_to": "ζητά cookie session, ενώ το\n        eshop κρατά bearer.",
-    "to_symvolaio_h16_h17_einai": "Το συμβόλαιο (H16–H17) είναι στο",
-    "kai_sto": "και στο",
-    "nees_afixeis": "Νέες αφίξεις",
-    "i_etaireia": "Η εταιρεία"
-  },
-  "account.AccountShell": {
-    "archiki": "Αρχική",
-    "etairikos_logariasmos": "Εταιρικός λογαριασμός",
-    "o_logariasmos_moy": "Ο λογαριασμός μου",
-    "etaireia": "Εταιρεία",
-    "idiotis": "Ιδιώτης",
-    "den_echei_energopoiithei_akomi": "Δεν έχει ενεργοποιηθεί ακόμη",
-    "syntoma": "σύντομα",
-    "aposyndesi": "Αποσύνδεση"
-  },
-  "account.AuthForms": {
-    "kodikos": "Κωδικός",
-    "syndesi": "Σύνδεση",
-    "den_echete_logariasmo": "Δεν έχετε λογαριασμό;",
-    "eggrafeite": "Εγγραφείτε",
-    "typos_logariasmoy": "Τύπος λογαριασμού",
-    "stoicheia_etaireias": "Στοιχεία εταιρείας",
-    "oi_etairikoi_logariasmoi_elegchontai_prin": "Οι εταιρικοί λογαριασμοί ελέγχονται πριν ενεργοποιηθούν — συνήθως σε 2\n            εργάσιμες. Θα ειδοποιηθείτε με email.",
-    "onoma": "Όνομα",
-    "eponymo": "Επώνυμο",
-    "kinito": "Κινητό",
-    "apodechomai_toys_oroys_chrisis_kai": "Αποδέχομαι τους όρους χρήσης και την πολιτική απορρήτου.",
-    "aitisi_etairikoy_logariasmoy": "Αίτηση εταιρικού λογαριασμού",
-    "eggrafi": "Εγγραφή",
-    "echete_idi_logariasmo": "Έχετε ήδη λογαριασμό;",
-    "syndetheite": "Συνδεθείτε",
-    "ta_stoicheia_sas_apothikeytikan": "Τα στοιχεία σας αποθηκεύτηκαν.",
-    "gia_allagi_email_kaleste_mas": "Για αλλαγή email καλέστε μας στο 210 411 1355.",
-    "apothikeysi": "Αποθήκευση"
-  },
-  "account.CompanyVatFields": {
-    "afm": "ΑΦΜ",
-    "p_ch_099095556": "π.χ. 099095556",
-    "anazitisi": "Αναζήτηση",
-    "sas_vrikame_stoys_pelates_mas": "Σας βρήκαμε στους πελάτες μας — τα στοιχεία συμπληρώθηκαν.",
-    "stoicheia_apo_to_mitroo_aade": "Στοιχεία από το μητρώο ΑΑΔΕ — ελέγξτε τα και διορθώστε αν χρειάζεται.",
-    "to_afm_den_vrethike_sto": "Το ΑΦΜ δεν βρέθηκε στο μητρώο. Συμπληρώστε τα στοιχεία χειροκίνητα.",
-    "to_mitroo_den_apanta_ayti": "Το μητρώο δεν απαντά αυτή τη στιγμή. Συμπληρώστε τα στοιχεία χειροκίνητα —\n              η παραγγελία δεν επηρεάζεται.",
-    "to_afm_den_einai_egkyro": "Το ΑΦΜ δεν είναι έγκυρο (9 ψηφία).",
-    "9_psifia_choris_el_mprosta": "9 ψηφία — χωρίς EL μπροστά.",
-    "grapste_to_afm_kai_patiste": "Γράψτε το ΑΦΜ και πατήστε «Αναζήτηση» — συμπληρώνουμε τα υπόλοιπα από την ΑΑΔΕ.",
-    "eponymia": "Επωνυμία",
-    "doy": "ΔΟΥ",
-    "drastiriotita": "Δραστηριότητα",
-    "dieythynsi_edras": "Διεύθυνση έδρας",
-    "poli": "Πόλη",
-    "t_k": "Τ.Κ."
-  },
-  "account.MemberAdmin": {
-    "eseis": "εσείς",
-    "choris_orio": "χωρίς όριο",
-    "paraggelies": "παραγγελίες",
-    "akyro": "Άκυρο",
-    "allagi": "Αλλαγή",
-    "afairesi": "Αφαίρεση",
-    "rolos": "Ρόλος",
-    "orio_ana_paraggelia": "Όριο ανά παραγγελία (€)",
-    "katastasi": "Κατάσταση",
-    "energos": "Ενεργός",
-    "se_anastoli": "Σε αναστολή",
-    "apothikeysi": "Αποθήκευση",
-    "prosklisi_christi": "Πρόσκληση χρήστη",
-    "o_christis_lamvanei_email_me": "Ο χρήστης λαμβάνει email με σύνδεσμο ενεργοποίησης. Παραγγέλνει με τα στοιχεία\n        της εταιρείας και τις τιμές συνεργάτη σας.",
-    "onoma": "Όνομα",
-    "eponymo": "Επώνυμο",
-    "apostoli_prosklisis": "Αποστολή πρόσκλησης"
+    "apo": "{length} από {length2}"
   }
 }

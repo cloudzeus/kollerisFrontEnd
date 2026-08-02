@@ -66,7 +66,7 @@ export function BrandWall({
           href="/brands"
           className="t-link-mono border-b-[1.5px] border-k-red pb-[3px] text-k-ink transition-colors hover:text-k-red"
         >
-          {upGreek(`Όλα τα ${totalBrands} brands`)} →
+          {upGreek(t("ola_ta_brands", { totalBrands: totalBrands }))} →
         </Link>
       </div>
     </section>

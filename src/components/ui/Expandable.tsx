@@ -1,4 +1,5 @@
 "use client";
+import { useTranslations } from "next-intl";
 
 import { useId, useState } from "react";
 import { upGreek } from "@/lib/greek";
@@ -24,8 +25,8 @@ export function Expandable({
   lines = 4,
   /** Pass false when the content is short enough that clamping is pointless. */
   collapsible = true,
-  moreLabel = "Περισσότερα",
-  lessLabel = "Λιγότερα",
+  moreLabel,
+  lessLabel,
   className = "",
 }: {
   children: React.ReactNode;
@@ -35,6 +36,7 @@ export function Expandable({
   lessLabel?: string;
   className?: string;
 }) {
+  const t = useTranslations("ui.Expandable");
   const [open, setOpen] = useState(false);
   const id = useId();
 
@@ -63,7 +65,7 @@ export function Expandable({
         aria-controls={id}
         className="t-card-cta mt-3.5 inline-flex cursor-pointer items-center gap-2 border-b-[1.5px] border-k-red pb-[3px] text-k-ink transition-colors hover:text-k-red"
       >
-        {upGreek(open ? lessLabel : moreLabel)}
+        {upGreek(open ? (lessLabel ?? t("ligotera")) : (moreLabel ?? t("perissotera")))}
         <span aria-hidden className={`transition-transform ${open ? "rotate-180" : ""}`}>
           ▾
         </span>

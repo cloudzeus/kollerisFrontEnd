@@ -97,7 +97,7 @@ export function MobileFilterSheet({
                 onClick={() => setOpen(false)}
                 className="t-btn h-12 w-full bg-k-red text-white"
               >
-                {upGreek(`Εμφάνιση ${total.toLocaleString("el-GR")} προϊόντων`)}
+                {upGreek(t("emfanisi_proionton", { n: total.toLocaleString("el-GR") }))}
               </button>
             </div>
           </div>

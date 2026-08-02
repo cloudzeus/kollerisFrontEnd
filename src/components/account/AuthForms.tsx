@@ -70,13 +70,13 @@ export function RegisterForm() {
             [
               {
                 value: "individual",
-                title: "Ιδιώτης",
-                body: "Παραγγελίες, διευθύνσεις, εγγυήσεις και επιστροφές.",
+                title: t("idiotis"),
+                body: t("paraggelies_dieythynseis_eggyiseis_kai_epistrofes"),
               },
               {
                 value: "company",
-                title: "Εταιρεία (B2B)",
-                body: "Τιμές συνεργάτη, πληρωμή επί πιστώσει, πολλοί χρήστες με ρόλους και όρια.",
+                title: t("etaireia_b2b"),
+                body: t("times_synergati_pliromi_epi_pistosei"),
               },
             ] as const
           ).map((option) => (
@@ -128,7 +128,7 @@ export function RegisterForm() {
             autoComplete="new-password"
             required
             error={state.fieldErrors?.password}
-            help="Τουλάχιστον 8 χαρακτήρες, με γράμματα και αριθμούς."
+            help={t("toylachiston_8_charaktires_me_grammata")}
           />
         </div>
       </div>

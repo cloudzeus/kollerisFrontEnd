@@ -92,7 +92,7 @@ export function SearchSuggest({
     if (data.totalProducts > 0) {
       out.push({
         href: `/anazitisi?q=${encodeURIComponent(data.query)}`,
-        label: `Όλα τα ${data.totalProducts} αποτελέσματα`,
+        label: t("ola_ta_apotelesmata", { totalProducts: data.totalProducts }),
       });
     }
     return out;
@@ -278,7 +278,7 @@ export function SearchSuggest({
       {/* Announced separately so a screen reader hears the count, not the rows. */}
       <span aria-live="polite" className="sr-only">
         {data && !loading
-          ? `${data.totalProducts} αποτελέσματα για ${data.query}`
+          ? t("apotelesmata_gia", { totalProducts: data.totalProducts, query: data.query })
           : ""}
       </span>
 
@@ -396,7 +396,7 @@ export function SearchSuggest({
                       : "bg-k-surface-2 text-k-ink hover:bg-k-ink hover:text-white"
                   }`}
                 >
-                  {upGreek(`Όλα τα ${data.totalProducts} αποτελέσματα`)}
+                  {upGreek(t("ola_ta_apotelesmata_2", { totalProducts: data.totalProducts }))}
                   <span aria-hidden>→</span>
                 </button>
               )}

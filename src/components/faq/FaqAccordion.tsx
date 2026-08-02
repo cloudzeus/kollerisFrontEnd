@@ -70,7 +70,7 @@ export function FaqAccordion({ sections }: { sections: FaqSection[] }) {
 
         <div className="flex items-center gap-4">
           <p className="t-brand-count text-k-text-4" aria-live="polite">
-            {filtering ? upGreek(`${shown} από ${total}`) : upGreek(`${total} ερωτήσεις`)}
+            {filtering ? upGreek(t("apo", { shown: shown, total: total })) : upGreek(t("erotiseis", { total: total }))}
           </p>
           <button
             type="button"

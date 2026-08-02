@@ -141,17 +141,27 @@ export function transform(file: string): FileResult {
 
     if (ts.isStringLiteral(node) && GREEK.test(node.text)) {
       const parent = node.parent;
+      // Any attribute holding Greek is read by somebody: the allow-list only
+      // ever excluded props this codebase happens to name differently.
       const isAttr =
-        (ts.isJsxAttribute(parent) && VISIBLE_ATTRS.has(parent.name.getText())) ||
-        (ts.isJsxExpression(parent) &&
-          ts.isJsxAttribute(parent.parent) &&
-          VISIBLE_ATTRS.has(parent.parent.name.getText()));
+        ts.isJsxAttribute(parent) ||
+        (ts.isJsxExpression(parent) && ts.isJsxAttribute(parent.parent));
 
-      const inJsxExpression = ts.isJsxExpression(parent);
-      const inCall = ts.isCallExpression(parent);
-      const inTernary = ts.isConditionalExpression(parent);
+      // Every position where a plain `t(...)` is a drop-in replacement. The
+      // guard that matters is `inComponent` below — scope, not shape, decides
+      // whether `t` can be reached.
+      const swappable =
+        ts.isJsxExpression(parent) ||
+        ts.isCallExpression(parent) ||
+        ts.isConditionalExpression(parent) ||
+        ts.isPropertyAssignment(parent) ||
+        ts.isArrayLiteralExpression(parent) ||
+        ts.isBinaryExpression(parent) ||
+        ts.isBindingElement(parent) ||
+        ts.isReturnStatement(parent) ||
+        ts.isVariableDeclaration(parent);
 
-      if (isAttr || inJsxExpression || inCall || inTernary) {
+      if (isAttr || swappable) {
         if (!inComponent(node)) {
           skipped.push({ line: line(node.getStart()), value: node.text, why: "εκτός component" });
         } else {
@@ -191,6 +201,8 @@ export function transform(file: string): FileResult {
   );
 
   for (const body of touched) {
+    // A second pass over an already-converted file must not declare `t` twice.
+    if (/\bconst t = (await )?(useTranslations|getTranslations)\(/.test(body.getText())) continue;
     const fn = body.parent as ts.FunctionLikeDeclaration;
     const isAsync = fn.modifiers?.some((m) => m.kind === ts.SyntaxKind.AsyncKeyword) ?? false;
     // A server component is async and gets the awaited helper; a client one

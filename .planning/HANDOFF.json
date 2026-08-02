@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-08-02T11:08:07.455Z",
+  "timestamp": "2026-08-02T11:22:36.152Z",
   "source": "auto-postool",
   "partial": false,
   "phase": null,
@@ -22,6 +22,18 @@
     },
     {
       "status": "M",
+      "path": "scripts/i18n/codemod.mts"
+    },
+    {
+      "status": "M",
+      "path": "scripts/i18n/out/extracted.json"
+    },
+    {
+      "status": "M",
+      "path": "scripts/i18n/out/skipped.json"
+    },
+    {
+      "status": "M",
       "path": "src/components/account/AccountShell.tsx"
     },
     {
@@ -30,35 +42,11 @@
     },
     {
       "status": "M",
-      "path": "src/components/account/CompanyVatFields.tsx"
-    },
-    {
-      "status": "M",
       "path": "src/components/account/MemberAdmin.tsx"
     },
     {
       "status": "M",
-      "path": "src/components/blog/BlogMissingNotice.tsx"
-    },
-    {
-      "status": "M",
       "path": "src/components/brands/BrandSearchGrid.tsx"
-    },
-    {
-      "status": "M",
-      "path": "src/components/cart/AddToCartButton.tsx"
-    },
-    {
-      "status": "M",
-      "path": "src/components/cart/BuyNowButton.tsx"
-    },
-    {
-      "status": "M",
-      "path": "src/components/cart/CartActionsRow.tsx"
-    },
-    {
-      "status": "M",
-      "path": "src/components/cart/CartCrossSell.tsx"
     },
     {
       "status": "M",
@@ -74,10 +62,6 @@
     },
     {
       "status": "M",
-      "path": "src/components/cart/QuickOrderPaste.tsx"
-    },
-    {
-      "status": "M",
       "path": "src/components/catalogue/CategoryPicker.tsx"
     },
     {
@@ -87,14 +71,6 @@
     {
       "status": "M",
       "path": "src/components/checkout/CheckoutForm.tsx"
-    },
-    {
-      "status": "M",
-      "path": "src/components/chrome/HeaderShell.tsx"
-    },
-    {
-      "status": "M",
-      "path": "src/components/chrome/MainNav.tsx"
     },
     {
       "status": "M",
@@ -111,18 +87,6 @@
     {
       "status": "M",
       "path": "src/components/chrome/SiteFooter.tsx"
-    },
-    {
-      "status": "M",
-      "path": "src/components/chrome/SiteHeader.tsx"
-    },
-    {
-      "status": "M",
-      "path": "src/components/chrome/UtilityBar.tsx"
-    },
-    {
-      "status": "M",
-      "path": "src/components/compare/CompareAdviceBand.tsx"
     },
     {
       "status": "M",
@@ -146,10 +110,6 @@
     },
     {
       "status": "M",
-      "path": "src/components/home/AboutSplit.tsx"
-    },
-    {
-      "status": "M",
       "path": "src/components/home/BrandWall.tsx"
     },
     {
@@ -162,19 +122,7 @@
     },
     {
       "status": "M",
-      "path": "src/components/home/HeroBanner.tsx"
-    },
-    {
-      "status": "M",
-      "path": "src/components/home/NewsletterBand.tsx"
-    },
-    {
-      "status": "M",
       "path": "src/components/home/ReviewsBand.tsx"
-    },
-    {
-      "status": "M",
-      "path": "src/components/orders/OrderTracker.tsx"
     },
     {
       "status": "M",
@@ -198,15 +146,7 @@
     },
     {
       "status": "M",
-      "path": "src/components/plp/Pagination.tsx"
-    },
-    {
-      "status": "M",
       "path": "src/components/plp/PlpToolbar.tsx"
-    },
-    {
-      "status": "M",
-      "path": "src/components/product/CompareCheckbox.tsx"
     },
     {
       "status": "M",
@@ -214,15 +154,11 @@
     },
     {
       "status": "M",
-      "path": "src/components/product/ProductRail.tsx"
-    },
-    {
-      "status": "M",
       "path": "src/components/product/QuickViewProvider.tsx"
     },
     {
       "status": "M",
-      "path": "src/components/product/QuickViewTrigger.tsx"
+      "path": "src/components/ui/Expandable.tsx"
     },
     {
       "status": "M",
@@ -238,9 +174,17 @@
     },
     {
       "status": "??",
-      "path": "scripts/i18n/"
+      "path": "scripts/i18n/out/remaining.json"
+    },
+    {
+      "status": "??",
+      "path": "scripts/i18n/remaining.mts"
+    },
+    {
+      "status": "??",
+      "path": "scripts/i18n/templates.mts"
     }
   ],
   "next_action": null,
-  "context_notes": "Recent commits:\nbd9cba6 feat(i18n): translation coverage screen, and translated categories\n3825617 fix(banners): an entrance animation could hide text permanently\nd357082 fix(banners): animations you can see, button links, a translate button\n0ce15b9 feat(media): background removal via Claid\n8494abe feat(banners): product sets and a rotating ticker"
+  "context_notes": "Recent commits:\n048dcfc feat(i18n): lift 369 interface strings into the message files\nbd9cba6 feat(i18n): translation coverage screen, and translated categories\n3825617 fix(banners): an entrance animation could hide text permanently\nd357082 fix(banners): animations you can see, button links, a translate button\n0ce15b9 feat(media): background removal via Claid"
 }

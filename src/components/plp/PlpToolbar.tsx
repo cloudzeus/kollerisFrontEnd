@@ -55,15 +55,15 @@ export function PlpToolbar({
 
   if (params.avail === "in-stock") {
     chips.push({
-      label: "Άμεσα διαθέσιμα",
+      label: t("amesa_diathesima"),
       href: setParamHref(basePath, params, "avail", null),
     });
   }
   if (params.sale === "1") {
-    chips.push({ label: "Σε προσφορά", href: setParamHref(basePath, params, "sale", null) });
+    chips.push({ label: t("se_prosfora"), href: setParamHref(basePath, params, "sale", null) });
   }
   if (params.new === "1") {
-    chips.push({ label: "Νέα", href: setParamHref(basePath, params, "new", null) });
+    chips.push({ label: t("nea"), href: setParamHref(basePath, params, "new", null) });
   }
   if (params.min != null || params.max != null) {
     const withoutMin = setParamHref(basePath, params, "min", null);

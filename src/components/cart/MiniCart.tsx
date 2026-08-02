@@ -80,7 +80,7 @@ export function MiniCart({
         type="button"
         aria-expanded={open}
         aria-haspopup="dialog"
-        aria-label={`Καλάθι, ${count} τεμάχια`}
+        aria-label={t("kalathi_temachia", { count: count })}
         onClick={() => setOpen((v) => !v)}
         className="flex items-center gap-2.5"
       >
@@ -207,7 +207,7 @@ export function MiniCart({
                 <p className="mt-2 text-[11px] leading-[1.5] text-k-text-3">
                   {cart.freeShippingReached
                     ? t("dorean_metaforika_energa")
-                    : `Ακόμη ${formatMoney(cart.freeShippingRemaining)} για δωρεάν μεταφορικά.`}
+                    : t("akomi_gia_dorean_metaforika", { n: formatMoney(cart.freeShippingRemaining) })}
                 </p>
               </div>
 

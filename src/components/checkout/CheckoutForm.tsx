@@ -97,7 +97,7 @@ export function CheckoutForm({
             defaultValue={postcode}
             error={state.fieldErrors?.shipPostcode}
             required
-            help="Καθορίζει τη ζώνη ACS και το κόστος αποστολής."
+            help={t("kathorizei_ti_zoni_acs_kai")}
           />
         </div>
 

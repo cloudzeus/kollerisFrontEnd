@@ -57,7 +57,7 @@ export function BrandSearchGrid({ brands }: { brands: BrandListItem[] }) {
           <span className="t-nav-sub whitespace-nowrap text-k-text-4">
             {filtered.length === brands.length
               ? upGreek(`${brands.length} brands`)
-              : upGreek(`${filtered.length} από ${brands.length}`)}
+              : upGreek(t("apo", { length: filtered.length, length2: brands.length }))}
           </span>
         </div>
 

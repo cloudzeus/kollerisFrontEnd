@@ -91,7 +91,7 @@ export function PriceBox({
         </p>
 
         <p className="t-account-label mt-2 text-white/50">
-          {upGreek(`με ΦΠΑ ${vatRate}%`)}
+          {upGreek(t("me_fpa", { rate: vatRate }))}
           {priceNet != null && (
             <>
               {" · "}
@@ -210,15 +210,8 @@ export function PriceBox({
   );
 }
 
-const DAY_NAMES = [
-  "την Κυριακή",
-  "τη Δευτέρα",
-  "την Τρίτη",
-  "την Τετάρτη",
-  "την Πέμπτη",
-  "την Παρασκευή",
-  "το Σάββατο",
-];
+/** Message keys, not words: the delivery line has to speak three languages. */
+const DAY_KEYS = ["day_0", "day_1", "day_2", "day_3", "day_4", "day_5", "day_6"];
 
 /**
  * Warehouse cutoff is 15:00 on weekdays. Past it — or at a weekend — roll
@@ -245,7 +238,7 @@ function nextCutoff(now: Date): { remaining: string; label: string } {
     (new Date(target).setHours(0, 0, 0, 0) - new Date(now).setHours(0, 0, 0, 0)) / 86_400_000,
   );
   const label =
-    daysAhead === 0 ? "σήμερα" : daysAhead === 1 ? "αύριο" : DAY_NAMES[target.getDay()];
+    daysAhead === 0 ? "today" : daysAhead === 1 ? "tomorrow" : DAY_KEYS[target.getDay()];
 
   const pad = (n: number) => String(n).padStart(2, "0");
   return { remaining: `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`, label };

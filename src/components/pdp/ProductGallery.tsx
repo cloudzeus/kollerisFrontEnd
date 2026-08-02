@@ -138,7 +138,7 @@ export function ProductGallery({
                   key={image.id}
                   type="button"
                   onClick={() => setActive(index)}
-                  aria-label={`Εικόνα ${index + 1}`}
+                  aria-label={t("eikona", { n: index + 1 })}
                   aria-current={index === active}
                   className={`flex h-[72px] w-[72px] shrink-0 items-center justify-center border bg-white p-1.5 transition-colors lg:h-[88px] lg:w-[88px] ${
                     index === active ? "border-k-ink" : "border-k-line hover:border-k-line-2"
@@ -171,7 +171,7 @@ export function ProductGallery({
             ref={frame}
             role="group"
             tabIndex={0}
-            aria-label={`${alt} — εικόνα ${active + 1} από ${images.length}`}
+            aria-label={t("eikona_apo", { alt: alt, n: active + 1, length: images.length })}
             onKeyDown={onKey}
             onMouseMove={track}
             onMouseLeave={resetZoom}
@@ -364,7 +364,7 @@ function Lightbox({
               key={image.id}
               type="button"
               onClick={() => onMove(index)}
-              aria-label={`Εικόνα ${index + 1}`}
+              aria-label={t("eikona_2", { n: index + 1 })}
               aria-current={index === active}
               className={`flex h-14 w-14 items-center justify-center border bg-white p-1 transition-colors lg:h-16 lg:w-16 ${
                 index === active ? "border-k-red" : "border-white/20 hover:border-white/50"

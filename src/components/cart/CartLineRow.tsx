@@ -88,7 +88,7 @@ export function CartLineRow({ line }: { line: CartLineView }) {
           {/* Only shown when the basket actually exceeds stock. */}
           {line.overStock && (
             <span className="t-badge self-start bg-k-amber px-2 py-1 text-white">
-              {upGreek(`Διαθέσιμα ${line.availableQty} — τα υπόλοιπα κατόπιν παραγγελίας`)}
+              {upGreek(t("diathesima_ta_ypoloipa_katopin_paraggelias", { availableQty: line.availableQty }))}
             </span>
           )}
         </div>
@@ -108,7 +108,7 @@ export function CartLineRow({ line }: { line: CartLineView }) {
           {formatPrice(line.unitNet, ctx)}
         </span>
         <span className="t-card-vat mt-0.5 block text-k-text-5">
-          {upGreek(`με ΦΠΑ ${line.vatRate}%`)}
+          {upGreek(t("me_fpa", { vatRate: line.vatRate }))}
         </span>
       </div>
 
@@ -157,7 +157,7 @@ export function CartLineRow({ line }: { line: CartLineView }) {
         <button
           type="button"
           onClick={remove}
-          aria-label={`Αφαίρεση ${line.name}`}
+          aria-label={t("afairesi", { name: line.name })}
           className="flex h-11 w-11 items-center justify-center border border-k-line bg-white text-k-text-4 transition-colors hover:border-k-red hover:text-k-red"
         >
           ✕

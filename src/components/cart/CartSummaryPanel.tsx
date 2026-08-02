@@ -219,18 +219,18 @@ export function CartSummaryPanel({
       <div className="bg-k-ink px-4 py-6 lg:px-8">
         <dl className="flex flex-col gap-2.5">
           {[
-            { k: "Καθαρή αξία", v: formatMoney(totals.subtotalNet) },
+            { k: t("kathari_axia"), v: formatMoney(totals.subtotalNet) },
             {
-              k: "Μεταφορικά",
+              k: t("metaforika"),
               v:
                 totals.shippingGross === 0
                   ? upGreek(t("dorean"))
                   : formatMoney(totals.shippingGross),
             },
             ...(totals.paymentFeeGross > 0
-              ? [{ k: "Επιβάρυνση πληρωμής", v: formatMoney(totals.paymentFeeGross) }]
+              ? [{ k: t("epivarynsi_pliromis"), v: formatMoney(totals.paymentFeeGross) }]
               : []),
-            { k: "ΦΠΑ", v: formatMoney(totals.vatAmount) },
+            { k: t("fpa"), v: formatMoney(totals.vatAmount) },
           ].map((row) => (
             <div key={row.k} className="flex items-baseline justify-between gap-4">
               <dt className="text-[12.5px] text-white/55">{row.k}</dt>
@@ -245,7 +245,7 @@ export function CartSummaryPanel({
           <p className="mt-2.5 text-[11px] leading-[1.5] text-white/45">
             {totals.postage.carrier} · {totals.postage.zoneLabel} ·{" "}
             {totals.postage.chargeableKg} {t("kg_chreosimo_varos")}
-            {totals.postage.estimated && " (εκτίμηση)"}
+            {totals.postage.estimated && t("ektimisi")}
             {" — "}
             {totals.postage.etaDays} {t("ergasimes")}
           </p>

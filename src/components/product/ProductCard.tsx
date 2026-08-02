@@ -128,7 +128,7 @@ export function ProductCard({
               {product.priceNet != null ? formatPrice(product.priceNet, ctx) : "—"}
             </div>
             <div className="t-card-vat mt-0.5 text-k-text-5">
-              {upGreek(`με ΦΠΑ ${product.vatRate}%`)}
+              {upGreek(t("me_fpa", { vatRate: product.vatRate }))}
             </div>
           </div>
 

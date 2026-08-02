@@ -109,7 +109,7 @@ export function CategoryPicker({
           <div
             role="dialog"
             aria-modal="true"
-            aria-label={`Υποκατηγορίες — ${root}`}
+            aria-label={t("ypokatigories", { root: root })}
             className="relative flex max-h-[92vh] w-full max-w-5xl flex-col overflow-hidden border border-k-line bg-white"
           >
             <div className="flex shrink-0 flex-col gap-3.5 border-b border-k-line p-4 lg:flex-row lg:items-center lg:justify-between lg:p-5">
@@ -206,7 +206,7 @@ export function CategoryPicker({
 
             <div className="flex shrink-0 items-center justify-between gap-4 border-t border-k-line bg-k-surface-2 px-4 py-3 lg:px-5">
               <p className="t-brand-count text-k-text-4" aria-live="polite">
-                {upGreek(`${shown} υποκατηγορίες σε ${groups.length} ομάδες`)}
+                {upGreek(t("ypokatigories_se_omades", { shown: shown, length: groups.length }))}
               </p>
               <button
                 type="button"

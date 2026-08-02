@@ -81,8 +81,8 @@ export function TaxonomyFinder({ nodes }: { nodes: CatalogueNode[] }) {
 
         <p className="t-brand-count shrink-0 text-k-text-4" aria-live="polite">
           {query.trim()
-            ? upGreek(`${results.length}${results.length === 24 ? "+" : ""} αποτελέσματα`)
-            : upGreek(`${nodes.length} κατηγορίες σε 3 επίπεδα`)}
+            ? upGreek(t("apotelesmata", { length: results.length, n: results.length === 24 ? "+" : "" }))
+            : upGreek(t("katigories_se_3_epipeda", { length: nodes.length }))}
         </p>
       </div>
 

@@ -46,7 +46,7 @@ export function ReviewsBand({
             <span className="t-news-body hidden text-white/50 lg:inline">/ 5,0</span>
             <span
               className="flex gap-[3px] lg:hidden"
-              aria-label={`${rating} στα 5`}
+              aria-label={t("sta_5", { rating: rating })}
             >
               {stars.map((i) => (
                 <span key={i} className="text-sm text-k-red">
@@ -55,7 +55,7 @@ export function ReviewsBand({
               ))}
             </span>
           </div>
-          <p className="mt-3.5 hidden gap-1 lg:flex" aria-label={`${rating} στα 5`}>
+          <p className="mt-3.5 hidden gap-1 lg:flex" aria-label={t("sta_5_2", { rating: rating })}>
             {stars.map((i) => (
               <span key={i} className="text-lg text-k-red">
                 ★

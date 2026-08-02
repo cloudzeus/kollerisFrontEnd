@@ -224,7 +224,7 @@ export function MegaMenu({
                 {upGreek(t("antiprosopeyomena_brands"))}
               </p>
               <Link href="/brands" className="t-link-mono text-k-ink hover:text-k-red">
-                {upGreek(`Όλα τα ${totalBrands}`)} →
+                {upGreek(t("ola_ta", { totalBrands: totalBrands }))} →
               </Link>
             </div>
             <div className="grid grid-cols-6 gap-px border border-k-line bg-k-line">
