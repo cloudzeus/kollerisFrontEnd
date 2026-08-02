@@ -1060,6 +1060,18 @@ enum OfferScope {
   category
 }
 
+/// How a campaign presents itself on the page.
+enum OfferWidget {
+  /// Full-width band. The default, and the only one that reads at any width.
+  strip
+  /// Image tile with the copy over it.
+  card
+  /// A running line of the same message. Loud on purpose.
+  marquee
+  /// The deadline, counting down. Needs an end date to say anything.
+  countdown
+}
+
 /// How the saving is expressed.
 enum OfferDiscount {
   /// A percentage off the selling price.
@@ -1122,6 +1134,9 @@ model Offer {
   maxTotal       Int?
   /// Redemptions so far, so `maxTotal` means something.
   usedCount      Int @default(0)
+
+  /// Which ready-made presentation this campaign uses wherever it appears.
+  widget OfferWidget @default(strip)
 
   image String? @db.Text
   /// Second image for a different aspect — a band and a tile rarely share art.

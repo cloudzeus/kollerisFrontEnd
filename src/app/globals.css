@@ -675,3 +675,26 @@
     transform: none !important;
   }
 }
+
+/* ─────────────────────────────────────────────────────────────────────────
+   Offer widgets
+   ─────────────────────────────────────────────────────────────────────────
+   One-shot entrances plus the marquee's endless track. Applied under
+   `motion-safe:` at the call site, so prefers-reduced-motion removes them with
+   no second code path — including the marquee, which is the one somebody with
+   vestibular sensitivity would notice first.
+   ───────────────────────────────────────────────────────────────────────── */
+@keyframes offer-rise {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes offer-pop {
+  from { opacity: 0; transform: scale(.7) rotate(-4deg); }
+  to   { opacity: 1; transform: none; }
+}
+/* Exactly half: the second copy of the track sits where the first started, so
+   the reset is invisible. */
+@keyframes offer-marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}

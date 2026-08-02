@@ -22,7 +22,7 @@ const toRow = (row: {
   brandSlug: string | null; categorySlug: string | null; discount: string;
   discountValue: unknown; bogoBuy: number | null; bogoFree: number | null;
   maxPerCustomer: number | null; maxTotal: number | null; usedCount: number;
-  image: string | null; imageWide: string | null; video: string | null;
+  widget: string; image: string | null; imageWide: string | null; video: string | null;
   startsAt: Date | null; endsAt: Date | null; isActive: boolean; updatedAt: Date;
 }): OfferRow => ({
   id: row.id,
@@ -39,6 +39,7 @@ const toRow = (row: {
   discountValue: row.discountValue == null ? null : Number(row.discountValue),
   bogoBuy: row.bogoBuy, bogoFree: row.bogoFree,
   maxPerCustomer: row.maxPerCustomer, maxTotal: row.maxTotal, usedCount: row.usedCount,
+  widget: row.widget as OfferRow["widget"],
   image: row.image ?? "", imageWide: row.imageWide ?? "", video: row.video ?? "",
   startsAt: row.startsAt, endsAt: row.endsAt,
   isActive: row.isActive, updatedAt: row.updatedAt,
@@ -102,6 +103,7 @@ export async function saveOffer(
     bogoFree: draft.discount === "bogo" ? draft.bogoFree : null,
     maxPerCustomer: draft.maxPerCustomer,
     maxTotal: draft.maxTotal,
+    widget: draft.widget,
     image: draft.image || null,
     imageWide: draft.imageWide || null,
     video: draft.video || null,

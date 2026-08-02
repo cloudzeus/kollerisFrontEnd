@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-08-02T12:15:27.860Z",
+  "timestamp": "2026-08-02T12:24:42.442Z",
   "source": "auto-postool",
   "partial": false,
   "phase": null,
@@ -26,65 +26,29 @@
     },
     {
       "status": "M",
-      "path": "src/app/admin/(protected)/offers/actions.ts"
+      "path": "src/app/globals.css"
     },
     {
       "status": "M",
-      "path": "src/app/admin/(protected)/offers/page.tsx"
-    },
-    {
-      "status": "D",
-      "path": "src/components/admin/banners/OfferManager.tsx"
+      "path": "src/components/admin/offers/OfferWizard.tsx"
     },
     {
       "status": "M",
-      "path": "src/components/admin/banners/fields.tsx"
+      "path": "src/lib/offers/offer-types.ts"
     },
     {
       "status": "M",
-      "path": "src/lib/ai/deepseek.ts"
-    },
-    {
-      "status": "M",
-      "path": "src/lib/banners/banners.ts"
-    },
-    {
-      "status": "M",
-      "path": "src/lib/banners/contract.ts"
-    },
-    {
-      "status": "M",
-      "path": "src/lib/banners/resolve.ts"
-    },
-    {
-      "status": "M",
-      "path": "src/lib/i18n/coverage.ts"
-    },
-    {
-      "status": "M",
-      "path": "src/lib/media/picker.ts"
+      "path": "src/lib/offers/offers.ts"
     },
     {
       "status": "??",
-      "path": "prisma/migrations/20260802145920_offer_wizard/"
+      "path": "prisma/migrations/20260802151640_offer_widget/"
     },
     {
       "status": "??",
-      "path": "src/app/admin/(protected)/offers/[id]/"
-    },
-    {
-      "status": "??",
-      "path": "src/app/admin/(protected)/offers/new/"
-    },
-    {
-      "status": "??",
-      "path": "src/components/admin/offers/"
-    },
-    {
-      "status": "??",
-      "path": "src/lib/offers/"
+      "path": "src/components/offers/"
     }
   ],
   "next_action": null,
-  "context_notes": "Recent commits:\n9bbdc48 feat(i18n): no Greek left hardcoded in the storefront\n048dcfc feat(i18n): lift 369 interface strings into the message files\nbd9cba6 feat(i18n): translation coverage screen, and translated categories\n3825617 fix(banners): an entrance animation could hide text permanently\nd357082 fix(banners): animations you can see, button links, a translate button"
+  "context_notes": "Recent commits:\na2581ea feat(offers): a campaign wizard, and offers that carry their own terms\n9bbdc48 feat(i18n): no Greek left hardcoded in the storefront\n048dcfc feat(i18n): lift 369 interface strings into the message files\nbd9cba6 feat(i18n): translation coverage screen, and translated categories\n3825617 fix(banners): an entrance animation could hide text permanently"
 }

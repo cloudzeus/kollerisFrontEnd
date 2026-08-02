@@ -32,7 +32,9 @@ import {
   type OfferDiscount,
   type OfferDraft,
   type OfferScope,
+  type OfferWidgetKind,
 } from "@/lib/offers/offer-types";
+import { OfferWidget, WIDGET_HINT, WIDGET_LABEL } from "@/components/offers/OfferWidget";
 import type { PickerBrand, PickerCategory, PickerProduct } from "@/lib/media/picker";
 import { MediaField } from "@/components/admin/MediaPicker";
 import { Segmented, NumberField } from "@/components/admin/banners/fields";
@@ -767,6 +769,106 @@ function TermsStep({
   );
 }
 
+/**
+ * The widget, live, at three widths.
+ *
+ * Rendered by the same component the storefront uses. Each width is real and
+ * scaled only for display, so the marquee's speed and the strip's wrapping are
+ * the ones a visitor gets rather than an approximation drawn at editor size.
+ */
+function OfferPreview({ draft }: { draft: OfferDraft }) {
+  const [width, setWidth] = useState(1200);
+  const [stage, setStage] = useState<HTMLDivElement | null>(null);
+  const [frame, setFrame] = useState<HTMLDivElement | null>(null);
+  const [scale, setScale] = useState(1);
+  const [height, setHeight] = useState(0);
+
+  useEffect(() => {
+    if (!stage || !frame) return;
+    const measure = () => {
+      const available = stage.clientWidth;
+      if (available === 0) return;
+      const next = Math.min(1, available / width);
+      setScale(next);
+      setHeight(frame.offsetHeight * next);
+    };
+    measure();
+    const raf = requestAnimationFrame(measure);
+    const observer = new ResizeObserver(measure);
+    observer.observe(stage);
+    observer.observe(frame);
+    return () => {
+      cancelAnimationFrame(raf);
+      observer.disconnect();
+    };
+  }, [stage, frame, width, draft]);
+
+  const view = {
+    slug: draft.slug,
+    title: draft.titleEl || "Ο τίτλος της προσφοράς",
+    description: draft.descriptionEl,
+    badge: draft.badge || suggestedBadge(draft),
+    href: draft.href,
+    image: draft.image,
+    imageWide: draft.imageWide,
+    video: draft.video,
+    endsAt: draft.endsAt ? new Date(draft.endsAt) : null,
+    discount: draft.discount,
+    discountValue: draft.discountValue,
+    bogoBuy: draft.bogoBuy,
+    bogoFree: draft.bogoFree,
+    widget: draft.widget,
+  };
+
+  return (
+    <div className="space-y-1.5">
+      <div className="flex gap-1">
+        {[
+          { w: 1200, label: "Υπολογιστής" },
+          { w: 768, label: "Tablet" },
+          { w: 390, label: "Κινητό" },
+        ].map((v) => (
+          <button
+            key={v.w}
+            type="button"
+            onClick={() => setWidth(v.w)}
+            className={cn(
+              "border px-2 py-1 text-[10.5px] transition-colors",
+              width === v.w
+                ? "border-k-ink bg-k-ink text-white"
+                : "border-k-line text-k-text-3 hover:border-k-ink",
+            )}
+          >
+            {v.label}
+          </button>
+        ))}
+      </div>
+
+      <div ref={setStage} className="overflow-hidden bg-k-surface-2 p-3">
+        <div
+          style={{ height: height || undefined, width: width * scale }}
+          className={cn("mx-auto transition-opacity", height === 0 && "opacity-0")}
+        >
+          <div
+            ref={setFrame}
+            style={{ width, transform: `scale(${scale})`, transformOrigin: "top left" }}
+          >
+            {/* `key` forces a remount on every change, so the entrance replays
+                instead of being something you saw once and cannot see again. */}
+            <OfferWidget
+              key={`${draft.widget}-${width}-${view.title}-${view.badge}`}
+              offer={view}
+              locale="el"
+              interactive={false}
+              className={draft.widget === "card" ? "max-w-[22rem]" : ""}
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /* ─────────────────────────── 4. Εμφάνιση ─────────────────────────── */
 
 function MediaStep({
@@ -832,6 +934,42 @@ function MediaStep({
           </p>
         </div>
       </div>
+
+      {/* ── Παρουσίαση ── */}
+      <section className="space-y-2 border-t border-k-line pt-3">
+        <p className="text-[11px] font-medium uppercase tracking-[0.08em] text-k-text-4">
+          Παρουσίαση
+        </p>
+        <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-4">
+          {(["strip", "card", "marquee", "countdown"] as const).map((kind) => (
+            <button
+              key={kind}
+              type="button"
+              onClick={() => set("widget", kind as OfferWidgetKind)}
+              title={WIDGET_HINT[kind]}
+              className={cn(
+                "border px-2 py-1.5 text-[11.5px] transition-colors",
+                draft.widget === kind
+                  ? "border-k-ink bg-k-ink text-white"
+                  : "border-k-line text-k-text-2 hover:border-k-ink hover:text-k-ink",
+              )}
+            >
+              {WIDGET_LABEL[kind]}
+            </button>
+          ))}
+        </div>
+        <p className="text-[10.5px] leading-[1.5] text-k-text-4">{WIDGET_HINT[draft.widget]}</p>
+
+        {draft.widget === "countdown" && !draft.endsAt && (
+          <p className="border border-k-amber/40 bg-k-amber/10 px-2.5 py-1.5 text-[11px] text-k-ink">
+            Η μέτρηση χρειάζεται ημερομηνία λήξης — ορίστε την στους Όρους.
+          </p>
+        )}
+
+        {/* The real component against the real draft: what is approved here is
+            what ships. */}
+        <OfferPreview draft={draft} />
+      </section>
 
       <section className="space-y-2 border-t border-k-line pt-3">
         <div className="flex items-center justify-between gap-2">

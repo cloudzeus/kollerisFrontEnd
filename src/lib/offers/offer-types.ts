@@ -7,6 +7,7 @@
 
 export type OfferScope = "products" | "brand" | "category";
 export type OfferDiscount = "percent" | "amount" | "bogo" | "none";
+export type OfferWidgetKind = "strip" | "card" | "marquee" | "countdown";
 
 /** Per-locale copy. Greek is written; the others are translated from it. */
 export type OfferCopy = {
@@ -36,6 +37,9 @@ export type OfferDraft = OfferCopy & {
 
   maxPerCustomer: number | null;
   maxTotal: number | null;
+
+  /** Which ready-made presentation it uses wherever it appears. */
+  widget: OfferWidgetKind;
 
   image: string;
   imageWide: string;
@@ -100,6 +104,7 @@ export function emptyOffer(): OfferDraft {
     productSlugs: [],
     brandSlug: "",
     categorySlug: "",
+    widget: "strip",
     discount: "percent",
     discountValue: null,
     bogoBuy: 1,
