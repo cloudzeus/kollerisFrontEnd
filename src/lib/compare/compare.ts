@@ -11,7 +11,7 @@ type Translator = Awaited<ReturnType<typeof getTranslations>>;
 import { formatPrice, grossAmount } from "@/lib/format";
 import type { ProductCardData } from "@/lib/catalog/queries";
 import { comparableNumber } from "@/lib/compare/numeric";
-import { formatSpecValue } from "@/lib/catalog/spec-format";
+import { formatSpecValue, isEmptySpec } from "@/lib/catalog/spec-format";
 import {
   COMPARE_COOKIE,
   parseCompareCookie,
@@ -433,18 +433,21 @@ function buildGroups(
   for (const [fieldKey, info] of [...meta].sort(
     (a, b) => (order.get(a[0]) ?? 0) - (order.get(b[0]) ?? 0),
   )) {
-    const row = buildRow(
-      fieldKey,
-      info.label,
-      byProduct.map((specs) => {
-        const spec = specs.get(fieldKey);
-        if (!spec?.value) return { text: null };
-        // Shared with the PDP: the projection often has the unit inside the
-        // value already, so appending gives "50 Nm Nm".
-        return { text: formatSpecValue(spec.value, spec.unit), raw: spec.value };
-      }),
-      SPEC_DIRECTION[fieldKey] ?? null,
-    );
+    const cells = byProduct.map((specs) => {
+      const spec = specs.get(fieldKey);
+      // An "N/A" is the field declining to answer, which is the same as not
+      // being there — and the same rule the PDP applies.
+      if (!spec?.value || isEmptySpec(spec.value)) return { text: null };
+      // Shared with the PDP: the projection often has the unit inside the
+      // value already, so appending gives "50 Nm Nm".
+      return { text: formatSpecValue(spec.value, spec.unit), raw: spec.value };
+    });
+
+    // Every column silent: the row is a label above a line of dashes. Drop it
+    // rather than print a question none of the products answered.
+    if (cells.every((c) => c.text === null)) continue;
+
+    const row = buildRow(fieldKey, info.label, cells, SPEC_DIRECTION[fieldKey] ?? null);
 
     (extra[info.group] ?? (extra[info.group] = [])).push(row);
   }

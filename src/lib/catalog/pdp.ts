@@ -1,3 +1,4 @@
+import { isEmptySpec } from "@/lib/catalog/spec-format";
 import "server-only";
 import { cache } from "react";
 import { getTranslations } from "next-intl/server";
@@ -96,13 +97,18 @@ export const getProductBySlug = cache(
     const pick = (row: { nameEl: string; nameEn: string; nameIt: string }) =>
       locale === "en" ? row.nameEn || row.nameEl : locale === "it" ? row.nameIt || row.nameEl : row.nameEl;
 
-    const specRows: ProductSpecRow[] = specs.map((s) => ({
-      fieldKey: s.fieldKey,
-      fieldGroup: s.fieldGroup,
-      label: s.label ?? s.fieldKey,
-      value: s.value,
-      unit: s.unit,
-    }));
+    // Dropped here rather than at each render site, so the spec table, the
+    // at-a-glance strip and the "and the other N" count all agree on what
+    // exists. A row that says "N/A" is not a fact about the product.
+    const specRows: ProductSpecRow[] = specs
+      .filter((s) => !isEmptySpec(s.value))
+      .map((s) => ({
+        fieldKey: s.fieldKey,
+        fieldGroup: s.fieldGroup,
+        label: s.label ?? s.fieldKey,
+        value: s.value,
+        unit: s.unit,
+      }));
 
     const t = await getTranslations({ locale, namespace: "pdp.specGroups" });
     const specGroups = SPEC_GROUPS

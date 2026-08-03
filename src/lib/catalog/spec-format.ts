@@ -10,6 +10,42 @@
  * So append only when the value does not already end with the unit — compared
  * case-insensitively and ignoring spaces, because the two disagree on both.
  */
+/**
+ * The ways the projection says "this field does not apply to this product".
+ *
+ * `N/A` alone is 164,000 of the roughly 400,000 spec rows in the catalogue —
+ * the single most common value by a wide margin, ahead of every real answer.
+ * Each one rendered as a labelled row, so a hand spanner listed a voltage, a
+ * wattage and a maximum speed, all of them saying nothing, and the unit was
+ * appended on top: "Τάση — Δεν ισχύει V".
+ */
+const NOT_APPLICABLE = new Set([
+  "n/a",
+  "na",
+  "n.a.",
+  "δεν ισχύει",
+  "δ/υ",
+  "not applicable",
+  "non applicabile",
+  "-",
+  "--",
+  "—",
+  "–",
+  "",
+]);
+
+/**
+ * True when a spec row says nothing and should not be shown at all — no value,
+ * and no label either.
+ *
+ * Matched on the whole trimmed value, not as a prefix: a handful of rows read
+ * "Non applicabile (coppia: 25 Nm)" and carry a real number inside the
+ * parenthesis, and dropping those would delete information rather than noise.
+ */
+export function isEmptySpec(value: string | null | undefined): boolean {
+  return NOT_APPLICABLE.has((value ?? "").trim().toLowerCase());
+}
+
 export function formatSpecValue(value: string, unit?: string | null): string {
   const text = value.trim();
   if (!unit) return text;
