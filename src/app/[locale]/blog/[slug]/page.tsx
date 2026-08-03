@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import type { Metadata } from "next";
 import Image from "next/image";
 import { notFound } from "next/navigation";
@@ -42,6 +43,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 export default async function BlogPostPage({ params }: PageProps) {
+  const t = await getTranslations("blog.page");
   const { locale, slug } = await params;
   setRequestLocale(locale);
 
@@ -85,7 +87,7 @@ export default async function BlogPostPage({ params }: PageProps) {
             className="t-util flex min-h-11 flex-wrap items-center gap-x-2.5 gap-y-1 py-2 text-white/45"
           >
             <Link href="/" className="shrink-0 text-white/60 hover:text-white">
-              {upGreek("Αρχική")}
+              {upGreek(t("archiki"))}
             </Link>
             <span className="text-k-red">/</span>
             <Link href="/blog" className="shrink-0 text-white/60 hover:text-white">
@@ -122,7 +124,7 @@ export default async function BlogPostPage({ params }: PageProps) {
                 {post.readingMinutes != null && (
                   <>
                     <span aria-hidden className="block h-[12px] w-px bg-white/20" />
-                    <span>{upGreek(`${post.readingMinutes}′ ανάγνωση`)}</span>
+                    <span>{upGreek(t("anagnosi", { readingMinutes: post.readingMinutes }))}</span>
                   </>
                 )}
               </p>
@@ -169,14 +171,14 @@ export default async function BlogPostPage({ params }: PageProps) {
         <section className="band-alt border-t border-k-line">
           <div className="shell-x flex flex-wrap items-center justify-between gap-4 py-7">
             <p className="text-[13px] text-k-text-3">
-              Ερώτηση για κάτι από το άρθρο; Σηκώνει άνθρωπος.
+              {t("erotisi_gia_kati_apo_to")}
             </p>
             <div className="flex flex-wrap gap-3">
               <Link
                 href="/blog"
                 className="t-btn-sm border-[1.5px] border-k-ink px-6 py-3.5 text-k-ink transition-colors hover:bg-k-ink hover:text-white"
               >
-                ← {upGreek("Όλα τα άρθρα")}
+                ← {upGreek(t("ola_ta_arthra"))}
               </Link>
               <a
                 href="tel:+302104111355"

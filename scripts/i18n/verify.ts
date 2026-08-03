@@ -75,6 +75,27 @@ export function findProblems(): Problem[] {
     }
     const known = new Set(keys);
 
+    /** The string elements of `const NAME = [...]` in this file. */
+    const arrayElements = (name: string): string[] | null => {
+      let found: string[] | null = null;
+      const walk = (node: ts.Node) => {
+        if (
+          ts.isVariableDeclaration(node) &&
+          ts.isIdentifier(node.name) &&
+          node.name.text === name &&
+          node.initializer
+        ) {
+          // `as const` wraps the array in an assertion.
+          const init = ts.isAsExpression(node.initializer) ? node.initializer.expression : node.initializer;
+          if (ts.isArrayLiteralExpression(init))
+            found = init.elements.filter(ts.isStringLiteral).map((e) => e.text);
+        }
+        ts.forEachChild(node, walk);
+      };
+      walk(source);
+      return found;
+    };
+
     /** Every `name: "value"` in this file — how a nav list holds its keys. */
     const propertyValues = (name: string): string[] => {
       const found: string[] = [];
@@ -115,8 +136,17 @@ export function findProblems(): Problem[] {
           const pattern = templatePattern(arg);
           if (!keys.some((k) => pattern.test(k)))
             problems.push({ file: where, detail: `${ns}.${arg.getText()} — κανένα κλειδί δεν ταιριάζει` });
-        } else if (ts.isPropertyAccessExpression(arg) && ts.isIdentifier(arg.name)) {
-          const candidates = propertyValues(arg.name.text);
+        } else if (ts.isElementAccessExpression(arg) && ts.isIdentifier(arg.expression)) {
+          // `UNITS[i]` — the index is unknown, so every element must exist.
+          const elements = arrayElements(arg.expression.text);
+          if (elements === null || elements.length === 0)
+            problems.push({ file: where, detail: `${arg.getText()} — δεν βρέθηκε ο πίνακας για έλεγχο` });
+          else for (const element of elements) check(element, ` (μέσω ${arg.expression.text})`);
+        } else if (ts.isPropertyAccessExpression(arg) || ts.isIdentifier(arg)) {
+          // `item.label`, and the same thing destructured to a bare `label`:
+          // both are answered by the `label: "…"` entries in this file.
+          const name = ts.isIdentifier(arg) ? arg.text : (arg.name as ts.Identifier).text;
+          const candidates = propertyValues(name);
           if (candidates.length === 0)
             problems.push({ file: where, detail: `${arg.getText()} — δεν βρέθηκαν τιμές για έλεγχο` });
           for (const candidate of candidates) check(candidate, ` (μέσω ${arg.getText()})`);

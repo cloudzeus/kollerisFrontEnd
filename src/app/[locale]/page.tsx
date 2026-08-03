@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import { setRequestLocale } from "next-intl/server";
 import { SiteChrome } from "@/components/chrome/SiteChrome";
 import { SiteFooter } from "@/components/chrome/SiteFooter";
@@ -47,6 +48,7 @@ export default async function HomePage({
 }: {
   params: Promise<{ locale: Locale }>;
 }) {
+  const t = await getTranslations("page");
   const { locale } = await params;
   setRequestLocale(locale);
 
@@ -79,17 +81,17 @@ export default async function HomePage({
   // so the tiles are not placeholder art.
   const promoTiles = [
     {
-      eyebrow: "ΝΕΑ ΑΦΙΞΗ",
-      title: "MILWAUKEE\nΕΡΓΑΛΕΙΑ ΜΠΑΤΑΡΙΑΣ",
-      body: "Σειρές M12 & M18 σε άμεση διαθεσιμότητα",
+      eyebrow: t("nea_afixi"),
+      title: t("milwaukee_ergaleia_mpatarias"),
+      body: t("seires_m12_m18_se_amesi"),
       href: "/katalogos",
       image:
         "https://kolleris.b-cdn.net/papatheo/4932359490/primary-0-1751206821802.webp",
     },
     {
-      eyebrow: "ΕΩΣ -25%",
-      title: "KNIPEX\nΠΕΝΣΙΚΑ & ΤΣΙΜΠΙΔΙΚΑ",
-      body: "Γερμανική ποιότητα, εγγύηση εφ' όρου ζωής",
+      eyebrow: t("eos_25"),
+      title: t("knipex_pensika_tsimpidika"),
+      body: t("germaniki_poiotita_eggyisi_ef_oroy"),
       href: "/prosfores",
       image: "https://kolleris.b-cdn.net/mtrl-files/images/81%2011%20250_1.webp",
       dark: true,
@@ -99,52 +101,52 @@ export default async function HomePage({
   const statCards = [
     {
       value: `${(stats.products / 1000).toFixed(1).replace(".", ",")}K`,
-      line1: "Κωδικοί σε",
-      line2: "διαθέσιμο κατάλογο",
+      line1: t("kodikoi_se"),
+      line2: t("diathesimo_katalogo"),
     },
-    { value: String(stats.brands), line1: "Brands με", line2: "ενεργά προϊόντα" },
+    { value: String(stats.brands), line1: t("brands_me"), line2: t("energa_proionta") },
     {
       value: String(stats.inStock),
-      line1: "Κωδικοί σε",
-      line2: "άμεση διαθεσιμότητα",
+      line1: t("kodikoi_se"),
+      line2: t("amesi_diathesimotita"),
     },
-    { value: "24-48ω", line1: "Παράδοση σε", line2: "όλη την Ελλάδα" },
+    { value: t("24_48o"), line1: t("paradosi_se"), line2: t("oli_tin_ellada") },
   ];
 
   // Reviews: static until the CMS `SiteReview` model exists (admin screen 15).
   const reviews = [
     {
-      text: "Παραγγέλνουμε για τρία πλοία. Ό,τι λένε ότι έχουν, το έχουν — και φεύγει αυθημερόν.",
-      name: "Δ. Παπαδόπουλος",
-      role: "ΤΕΧΝΙΚΟΣ ΔΙΕΥΘΥΝΤΗΣ · ΝΑΥΤΙΛΙΑΚΗ",
+      text: t("paraggelnoyme_gia_tria_ploia_o"),
+      name: t("d_papadopoylos"),
+      role: t("technikos_dieythyntis_naytiliaki"),
     },
     {
-      text: "Οι τιμές συνεργάτη είναι πραγματικές, όχι διαπραγμάτευση κάθε φορά. Μας γλιτώνει χρόνο.",
-      name: "Κ. Βασιλείου",
-      role: "ΥΠΕΥΘΥΝΟΣ ΠΡΟΜΗΘΕΙΩΝ · ΕΡΓΟΣΤΑΣΙΟ",
+      text: t("oi_times_synergati_einai_pragmatikes"),
+      name: t("k_vasileioy"),
+      role: t("ypeythynos_promitheion_ergostasio"),
     },
     {
-      text: "46 χρόνια στην αγορά φαίνονται. Ξέρουν τι ζητάς πριν τελειώσεις τη φράση.",
-      name: "Γ. Αντωνίου",
-      role: "ΙΔΙΟΚΤΗΤΗΣ · ΣΥΝΕΡΓΕΙΟ",
+      text: t("46_chronia_stin_agora_fainontai"),
+      name: t("g_antonioy"),
+      role: t("idioktitis_synergeio"),
     },
   ];
 
   const usps = [
     {
       n: "01",
-      title: "Πραγματικό απόθεμα, όχι υποσχέσεις",
-      body: `${stats.inStock.toLocaleString("el-GR")} κωδικοί σε άμεση διαθεσιμότητα αυτή τη στιγμή.`,
+      title: t("pragmatiko_apothema_ochi_yposcheseis"),
+      body: t("kodikoi_se_amesi_diathesimotita_ayti", { n: stats.inStock.toLocaleString("el-GR") }),
     },
     {
       n: "02",
-      title: "Επίσημη αντιπροσώπευση",
-      body: `${stats.brands} brands με ενεργά προϊόντα, εγγύηση και τεχνική υποστήριξη.`,
+      title: t("episimi_antiprosopeysi"),
+      body: t("brands_me_energa_proionta_eggyisi", { brands: stats.brands }),
     },
     {
       n: "03",
-      title: "Τιμές συνεργάτη B2B",
-      body: "Σταθερή τιμολόγηση ανά λογαριασμό, χωρίς διαπραγμάτευση σε κάθε παραγγελία.",
+      title: t("times_synergati_b2b"),
+      body: t("statheri_timologisi_ana_logariasmo_choris"),
     },
   ];
 

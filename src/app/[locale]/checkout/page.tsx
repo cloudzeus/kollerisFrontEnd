@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import type { Metadata } from "next";
 import Image from "next/image";
 import { redirect } from "next/navigation";
@@ -20,10 +21,20 @@ import { isVivaConfigured } from "@/lib/payment/viva";
 
 export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = {
-  title: "Ολοκλήρωση παραγγελίας",
-  robots: { index: false, follow: false },
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: Locale }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  // Explicit locale: `setRequestLocale` belongs to the render pass, and
+  // metadata is generated outside it.
+  const t = await getTranslations({ locale, namespace: "checkout.page" });
+  return {
+    title: t("titlos_oloklirosi_paraggelias"),
+    robots: { index: false, follow: false },
+  };
+}
 
 /**
  * Checkout.
@@ -38,6 +49,7 @@ export default async function CheckoutPage({
 }: {
   params: Promise<{ locale: Locale }>;
 }) {
+  const t = await getTranslations("checkout.page");
   const { locale } = await params;
   setRequestLocale(locale);
 
@@ -71,9 +83,9 @@ export default async function CheckoutPage({
         <div className="shell-x flex flex-col gap-3 py-3 sm:flex-row sm:items-center sm:justify-between">
           <ol className="flex">
             {[
-              { n: "01", label: "ΚΑΛΑΘΙ", done: true },
-              { n: "02", label: "ΣΤΟΙΧΕΙΑ", active: true },
-              { n: "03", label: "ΠΛΗΡΩΜΗ" },
+              { n: "01", label: t("kalathi"), done: true },
+              { n: "02", label: t("stoicheia"), active: true },
+              { n: "03", label: t("pliromi") },
             ].map((step) => (
               <li
                 key={step.n}
@@ -92,7 +104,7 @@ export default async function CheckoutPage({
           </ol>
 
           <Link href="/kalathi" className="t-link-mono text-k-text-3 hover:text-k-red">
-            ‹ {upGreek("Πίσω στο καλάθι")}
+            ‹ {upGreek(t("piso_sto_kalathi"))}
           </Link>
         </div>
       </div>
@@ -101,8 +113,7 @@ export default async function CheckoutPage({
         <div className="min-w-0 border-k-line px-4 py-8 lg:border-r lg:px-10 lg:py-10">
           {!isVivaConfigured() && (
             <p className="mb-6 border-l-[3px] border-k-amber bg-k-surface-2 px-4 py-3 text-[12.5px] leading-[1.55] text-k-text-2">
-              Η πληρωμή με κάρτα δεν είναι ενεργή σε αυτό το περιβάλλον. Επιλέξτε
-              τραπεζική κατάθεση.
+              {t("i_pliromi_me_karta_den")}
             </p>
           )}
 
@@ -113,7 +124,7 @@ export default async function CheckoutPage({
         <aside className="lg:sticky lg:top-0">
           <div className="border-b border-k-line px-4 py-6 lg:px-8">
             <p className="t-footer-col mb-4 text-k-text-4">
-              {upGreek(`Η παραγγελία σας · ${totals.itemCount} προϊόντα`)}
+              {upGreek(t("i_paraggelia_sas_proionta", { itemCount: totals.itemCount }))}
             </p>
 
             <div className="max-h-[280px] overflow-y-auto">
@@ -156,15 +167,15 @@ export default async function CheckoutPage({
           <div className="bg-k-ink px-4 py-6 lg:px-8">
             <dl className="flex flex-col gap-2.5">
               {[
-                { k: "Καθαρή αξία", v: formatMoney(totals.subtotalNet) },
+                { k: t("kathari_axia"), v: formatMoney(totals.subtotalNet) },
                 {
-                  k: "Μεταφορικά",
+                  k: t("metaforika"),
                   v:
                     totals.shippingGross === 0
-                      ? upGreek("Δωρεάν")
+                      ? upGreek(t("dorean"))
                       : formatMoney(totals.shippingGross),
                 },
-                { k: "ΦΠΑ", v: formatMoney(totals.vatAmount) },
+                { k: t("fpa"), v: formatMoney(totals.vatAmount) },
               ].map((row) => (
                 <div key={row.k} className="flex items-baseline justify-between gap-4">
                   <dt className="text-[12.5px] text-white/55">{row.k}</dt>
@@ -177,15 +188,15 @@ export default async function CheckoutPage({
               <p className="mt-2.5 text-[11px] leading-[1.5] text-white/45">
                 {totals.postage.carrier} · {totals.postage.zoneLabel} ·{" "}
                 {totals.postage.chargeableKg} kg
-                {totals.postage.estimated && " (εκτίμηση)"}
-                {" — "}οριστικοποιείται με το Τ.Κ. σας
+                {totals.postage.estimated && t("ektimisi")}
+                {" — "}{t("oristikopoieitai_me_to_t_k")}
               </p>
             )}
 
             <div className="mt-4 flex items-end justify-between gap-4 border-t border-white/16 pt-4">
               <div>
-                <p className="t-footer-col text-white/50">{upGreek("Σύνολο")}</p>
-                <p className="t-account-label mt-1.5 text-white/40">{upGreek("Με ΦΠΑ")}</p>
+                <p className="t-footer-col text-white/50">{upGreek(t("synolo"))}</p>
+                <p className="t-account-label mt-1.5 text-white/40">{upGreek(t("me_fpa"))}</p>
               </div>
               <p className="font-mono text-[30px] leading-none font-semibold tracking-[-0.03em] text-white lg:text-[36px]">
                 {formatMoney(totals.totalGross)}

@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { setRequestLocale } from "next-intl/server";
@@ -49,6 +50,9 @@ export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
   const { kathgoria, locale } = await params;
+  // Explicit locale: `setRequestLocale` belongs to the render pass, and metadata
+  // is generated outside it.
+  const t = await getTranslations({ locale, namespace: "katalogos.page" });
   const category = await getCategory(kathgoria);
   if (!category) return {};
   const name =
@@ -59,7 +63,7 @@ export async function generateMetadata({
         : category.nameEl;
   return {
     title: name,
-    description: `${category.productCount} κωδικοί σε ${category.childCount} υποκατηγορίες. Άμεση διαθεσιμότητα, παράδοση 24-48 ώρες.`,
+    description: t("kodikoi_se_ypokatigories_amesi_diathesimotita", { productCount: category.productCount, childCount: category.childCount }),
   };
 }
 
@@ -67,6 +71,7 @@ export default async function CategoryPage({
   params,
   searchParams,
 }: PageProps) {
+  const t = await getTranslations("katalogos.page");
   const { locale, kathgoria } = await params;
   setRequestLocale(locale);
 
@@ -152,14 +157,14 @@ export default async function CategoryPage({
             className="t-util flex h-11 items-center gap-2.5 text-white/45"
           >
             <Link href="/" className="text-white/60 hover:text-white">
-              {upGreek("Αρχική")}
+              {upGreek(t("archiki"))}
             </Link>
             <span className="text-k-red">/</span>
             <Link
               href="/katalogos"
               className="hidden text-white/60 hover:text-white sm:inline"
             >
-              {upGreek("Κατάλογος")}
+              {upGreek(t("katalogos"))}
             </Link>
             <span className="hidden text-k-red sm:inline">/</span>
             <span className="truncate text-white">{upGreek(name)}</span>
@@ -170,9 +175,8 @@ export default async function CategoryPage({
               {upGreek(name)}
             </h1>
             <p className="mt-3.5 max-w-[640px] text-[13px] leading-[1.68] text-white/60 lg:text-sm">
-              {category.productCount.toLocaleString("el-GR")} κωδικοί σε{" "}
-              {category.childCount} υποκατηγορίες. Φιλτράρετε αριστερά — όλες οι
-              τιμές με ΦΠΑ, διαθεσιμότητα σε πραγματικό χρόνο.
+              {category.productCount.toLocaleString("el-GR")} {t("kodikoi_se")}{" "}
+              {category.childCount} {t("ypokatigories_filtrarete_aristera_oles_oi")}
             </p>
           </div>
         </div>
@@ -238,17 +242,16 @@ export default async function CategoryPage({
             {data.products.length === 0 ? (
               <div className="flex flex-col items-center justify-center border border-k-line bg-k-surface-2 px-6 py-20 text-center">
                 <p className="font-artegra text-lg text-k-ink">
-                  {upGreek("Κανένα προϊόν με αυτά τα φίλτρα")}
+                  {upGreek(t("kanena_proion_me_ayta_ta"))}
                 </p>
                 <p className="mt-2 max-w-md text-[13px] text-k-text-3">
-                  Δοκιμάστε να αφαιρέσετε ένα φίλτρο, ή καλέστε μας στο 210 411
-                  1355 — βρίσκουμε τον κωδικό μαζί.
+                  {t("dokimaste_na_afairesete_ena_filtro")}
                 </p>
                 <Link
                   href={`/katalogos/${kathgoria}`}
                   className="t-btn-sm mt-6 border-[1.5px] border-k-ink px-7 py-3 text-k-ink transition-colors hover:bg-k-ink hover:text-white"
                 >
-                  {upGreek("Καθαρισμός φίλτρων")}
+                  {upGreek(t("katharismos_filtron"))}
                 </Link>
               </div>
             ) : (

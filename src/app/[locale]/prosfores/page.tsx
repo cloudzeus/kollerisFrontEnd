@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import type { Metadata } from "next";
 import { setRequestLocale } from "next-intl/server";
 import { SectionHead } from "@/components/chrome/SectionHead";
@@ -23,11 +24,20 @@ import {
 } from "@/lib/compare/compare";
 import { upGreek } from "@/lib/greek";
 
-export const metadata: Metadata = {
-  title: "Προσφορές",
-  description:
-    "Πραγματικές μειώσεις τιμής σε επαγγελματικά εργαλεία. Όλες οι τιμές με ΦΠΑ, διαθεσιμότητα σε πραγματικό χρόνο.",
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: Locale }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  // Explicit locale: `setRequestLocale` belongs to the render pass, and
+  // metadata is generated outside it.
+  const t = await getTranslations({ locale, namespace: "prosfores.page" });
+  return {
+    title: t("titlos_prosfores"),
+    description: t("perigrafi_pragmatikes_meioseis_timis_se"),
+  };
+}
 
 /**
  * Offers.
@@ -51,6 +61,7 @@ export default async function OffersPage({
 }: {
   params: Promise<{ locale: Locale }>;
 }) {
+  const t = await getTranslations("prosfores.page");
   const { locale } = await params;
   setRequestLocale(locale);
 
@@ -108,15 +119,15 @@ export default async function OffersPage({
             className="t-util flex h-11 items-center gap-2.5 text-white/45"
           >
             <Link href="/" className="text-white/60 hover:text-white">
-              {upGreek("Αρχική")}
+              {upGreek(t("archiki"))}
             </Link>
             <span className="text-k-red">/</span>
-            <span className="text-white">{upGreek("Προσφορές")}</span>
+            <span className="text-white">{upGreek(t("prosfores"))}</span>
           </nav>
 
           <div className="pt-2.5 pb-8">
             <h1 className="font-artegra text-[22px] leading-[1.16] font-medium text-balance text-white lg:text-[30px]">
-              {upGreek("Προσφορές")}
+              {upGreek(t("prosfores"))}
             </h1>
             <p className="mt-3.5 max-w-[640px] text-[13px] leading-[1.68] text-white/60 lg:text-sm">
               {hasOffers ? (
@@ -124,14 +135,14 @@ export default async function OffersPage({
                   <strong className="font-semibold text-white">
                     {offers.total}
                   </strong>{" "}
-                  κωδικοί σε μειωμένη τιμή
+                  {t("kodikoi_se_meiomeni_timi")}
                   {offers.bestPercent != null && (
-                    <>, με μεγαλύτερη μείωση −{offers.bestPercent}%</>
+                    <>{t("me_megalyteri_meiosi")}{offers.bestPercent}%</>
                   )}
-                  . Όλες οι τιμές με ΦΠΑ.
+                  {t("oles_oi_times_me_fpa")}
                 </>
               ) : (
-                "Δεν τρέχει προσφορά αυτή τη στιγμή — και δεν θα βρείτε εδώ μόνιμες «εκπτώσεις» που δεν είναι εκπτώσεις."
+                t("den_trechei_prosfora_ayti_ti")
               )}
             </p>
           </div>
@@ -164,70 +175,63 @@ export default async function OffersPage({
                 <div className="max-w-3xl">
                   <p className="t-eyebrow flex items-center gap-2.5 text-k-red">
                     <span aria-hidden className="rule-accent block shrink-0" />
-                    {upGreek("Καμία ενεργή προσφορά")}
+                    {upGreek(t("kamia_energi_prosfora"))}
                   </p>
                   <h2 className="font-artegra mt-3 text-[21px] leading-[1.2] text-balance text-k-ink lg:text-[28px]">
-                    {upGreek("Μια έκπτωση που τρέχει πάντα δεν είναι έκπτωση")}
+                    {upGreek(t("mia_ekptosi_poy_trechei_panta"))}
                   </h2>
                   <p className="mt-4 text-[13.5px] leading-[1.75] text-k-text-2">
-                    Θα μπορούσαμε να δείχνουμε διαγραμμένη τιμή στα δύο τρίτα
-                    του καταλόγου — η διαφορά ανάμεσα στη λιανική τιμή και στην
-                    τιμή του eshop υπάρχει σε 3.600 από τους 5.305 κωδικούς μας.
-                    Δεν το κάνουμε, γιατί δεν είναι μείωση: είναι η μόνιμη
-                    διαφορά δύο τιμοκαταλόγων.
+                    {t("tha_mporoysame_na_deichnoyme_diagrammeni")}
                   </p>
                   <p className="mt-3 text-[13.5px] leading-[1.75] text-k-text-2">
-                    Όταν κάνουμε πραγματική προσφορά, θα τη δείτε εδώ — με την
-                    προηγούμενη τιμή και το πόσο κερδίζετε.
+                    {t("otan_kanoyme_pragmatiki_prosfora_tha")}
                   </p>
                 </div>
 
                 <div className="mt-8 grid gap-px border border-k-line bg-k-line lg:mt-10 lg:grid-cols-2">
                   <div className="flex flex-col gap-3 border-l-[3px] border-k-red bg-white p-5 lg:p-7">
                     <p className="t-eyebrow text-k-red">
-                      {upGreek("Η πραγματική έκπτωση")}
+                      {upGreek(t("i_pragmatiki_ekptosi"))}
                     </p>
                     <p className="font-artegra text-[17px] leading-[1.3] text-k-ink lg:text-xl">
-                      {upGreek("Τιμή συνεργάτη για επαγγελματίες")}
+                      {upGreek(t("timi_synergati_gia_epaggelmaties"))}
                     </p>
                     <p className="text-[12.5px] leading-[1.65] text-k-text-3">
-                      Αν αγοράζετε για εταιρεία, η έκπτωση δεν είναι εποχιακή —
-                      είναι μόνιμη και ισχύει σε όλο τον κατάλογο. Συν τιμολόγιο
-                      και πληρωμή επί πιστώσει.
+                      {t("an_agorazete_gia_etaireia_i")}
                     </p>
                     <Link
                       href="/eggrafi"
                       className="t-btn-sm mt-auto self-start bg-k-ink px-6 py-3.5 text-white transition-colors hover:bg-k-red"
                     >
-                      {upGreek("Αίτηση B2B")} →
+                      {upGreek(t("aitisi_b2b"))} →
                     </Link>
                   </div>
 
                   <div className="flex flex-col gap-3 bg-white p-5 lg:p-7">
                     <p className="t-eyebrow text-k-text-4">
-                      {upGreek("Ό,τι κινήθηκε τελευταία")}
+                      {upGreek(t("o_ti_kinithike_teleytaia"))}
                     </p>
                     <p className="font-artegra text-[17px] leading-[1.3] text-k-ink lg:text-xl">
                       {upGreek(
                         latest
                           ? `${latest.count.toLocaleString("el-GR")} ${
                               latest.count === 1
-                                ? "νέος κωδικός"
-                                : "νέοι κωδικοί"
+                                ? t("neos_kodikos")
+                                : t("neoi_kodikoi")
                             }`
-                          : "Νέες αφίξεις",
+                          : t("nees_afixeis"),
                       )}
                     </p>
                     <p className="text-[12.5px] leading-[1.65] text-k-text-3">
                       {latest
-                        ? `Μπήκαν στην αποθήκη τον ${latest.label.toLowerCase()}. Δείτε τι άλλαξε στη γκάμα, μήνα προς μήνα.`
-                        : "Δείτε τι μπήκε τελευταία στην αποθήκη, μήνα προς μήνα."}
+                        ? t("mpikan_stin_apothiki_ton_deite", { n: latest.label.toLowerCase() })
+                        : t("deite_ti_mpike_teleytaia_stin")}
                     </p>
                     <Link
                       href="/nees-afixeis"
                       className="t-btn-sm mt-auto self-start border-[1.5px] border-k-ink px-6 py-3.5 text-k-ink transition-colors hover:bg-k-ink hover:text-white"
                     >
-                      {upGreek("Νέες αφίξεις")} →
+                      {upGreek(t("nees_afixeis"))} →
                     </Link>
                   </div>
                 </div>
@@ -239,13 +243,13 @@ export default async function OffersPage({
                 <div className="shell-x py-8 lg:py-12">
                   <SectionHead
                     eyebrow={latest.label}
-                    title="Πιο πρόσφατα στην αποθήκη"
+                    title={t("pio_prosfata_stin_apothiki")}
                     meta={
                       <Link
                         href="/nees-afixeis"
                         className="t-btn-sm inline-block border-[1.5px] border-k-ink px-6 py-3.5 text-k-ink transition-colors hover:bg-k-ink hover:text-white"
                       >
-                        {upGreek("Όλες οι αφίξεις")} →
+                        {upGreek(t("oles_oi_afixeis"))} →
                       </Link>
                     }
                   />

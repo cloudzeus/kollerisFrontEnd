@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import type { Metadata } from "next";
 import Image from "next/image";
 import { notFound } from "next/navigation";
@@ -33,6 +34,9 @@ export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
   const { slug, locale } = await params;
+  // Explicit locale: `setRequestLocale` belongs to the render pass, and metadata
+  // is generated outside it.
+  const t = await getTranslations({ locale, namespace: "proion.page" });
   const product = await getProductBySlug(slug, locale);
   if (!product) return {};
 
@@ -40,7 +44,7 @@ export async function generateMetadata({
     title: product.name,
     description:
       product.shortDescription ??
-      `${product.name}${product.brand ? ` — ${product.brand.name}` : ""}. Κωδικός ${product.sku}. Άμεση διαθεσιμότητα, παράδοση 24-48 ώρες.`,
+      t("kodikos_amesi_diathesimotita_paradosi_24", { name: product.name, n: product.brand ? ` — ${product.brand.name}` : "", sku: product.sku }),
     openGraph: {
       title: product.name,
       images: product.images[0] ? [product.images[0].url] : undefined,
@@ -49,6 +53,7 @@ export async function generateMetadata({
 }
 
 export default async function ProductPage({ params }: PageProps) {
+  const t = await getTranslations("proion.page");
   const { locale, slug } = await params;
   setRequestLocale(locale);
 
@@ -85,17 +90,17 @@ export default async function ProductPage({ params }: PageProps) {
   const glance = (
     [
       {
-        k: "Διαθεσιμότητα",
-        v: product.inStock ? `${product.qty} τεμ.` : "Κατόπιν",
+        k: t("diathesimotita"),
+        v: product.inStock ? t("tem", { qty: product.qty }) : t("katopin"),
       },
-      product.weight != null ? { k: "Βάρος", v: `${product.weight} kg` } : null,
+      product.weight != null ? { k: t("varos"), v: `${product.weight} kg` } : null,
       product.guaranteeMonths
-        ? { k: "Εγγύηση", v: `${product.guaranteeMonths} μήνες` }
+        ? { k: t("eggyisi"), v: t("mines", { guaranteeMonths: product.guaranteeMonths }) }
         : null,
-      dimensions ? { k: "Διαστάσεις (cm)", v: dimensions } : null,
-      product.length != null ? { k: "Μήκος", v: `${product.length} cm` } : null,
-      product.brand ? { k: "Κατασκευαστής", v: product.brand.name } : null,
-      { k: "Κωδικός", v: product.sku },
+      dimensions ? { k: t("diastaseis_cm"), v: dimensions } : null,
+      product.length != null ? { k: t("mikos"), v: `${product.length} cm` } : null,
+      product.brand ? { k: t("kataskeyastis"), v: product.brand.name } : null,
+      { k: t("kodikos"), v: product.sku },
     ].filter(Boolean) as Array<{ k: string; v: string }>
   ).slice(0, 4);
 
@@ -148,7 +153,7 @@ export default async function ProductPage({ params }: PageProps) {
             className="t-util flex min-h-11 flex-wrap items-center gap-x-2.5 gap-y-1 py-2 text-white/45"
           >
             <Link href="/" className="shrink-0 text-white/60 hover:text-white">
-              {upGreek("Αρχική")}
+              {upGreek(t("archiki"))}
             </Link>
             <span className="text-k-red">/</span>
             {product.category && (
@@ -232,12 +237,10 @@ export default async function ProductPage({ params }: PageProps) {
                       )}
                       <div className="min-w-0">
                         <p className="text-[13px] font-semibold text-k-ink">
-                          Επίσημη αντιπροσώπευση {product.brand.name} στην
-                          Ελλάδα
+                          {t("episimi_antiprosopeysi")} {product.brand.name} {t("stin_ellada")}
                         </p>
                         <p className="mt-1 text-[12.5px] leading-[1.55] text-k-text-3">
-                          Γνήσιο προϊόν, εγγύηση κατασκευαστή, σέρβις και
-                          ανταλλακτικά από την Kolleris.
+                          {t("gnisio_proion_eggyisi_kataskeyasti_servis")}
                         </p>
                       </div>
                     </div>
@@ -245,7 +248,7 @@ export default async function ProductPage({ params }: PageProps) {
                       href={`/brands/${product.brand.slug}`}
                       className="t-link-mono shrink-0 border-b-[1.5px] border-k-red pb-[3px] text-k-ink transition-colors hover:text-k-red"
                     >
-                      {upGreek(`Όλα τα ${product.brand.name}`)} →
+                      {upGreek(t("ola_ta", { name: product.brand.name }))} →
                     </Link>
                   </div>
                 )}
@@ -255,16 +258,15 @@ export default async function ProductPage({ params }: PageProps) {
                     <p className="t-account-label text-k-text-4">
                       {upGreek(
                         product.category
-                          ? `Υπεύθυνος κατηγορίας · ${product.category.name}`
-                          : "Υπεύθυνος κατηγορίας",
+                          ? t("ypeythynos_katigorias", { name: product.category.name })
+                          : t("ypeythynos_katigorias"),
                       )}
                     </p>
                     <p className="mt-1.5 text-[14px] font-semibold text-k-ink">
-                      Δεν ξέρετε αν κάνει για τη δουλειά σας;
+                      {t("den_xerete_an_kanei_gia")}
                     </p>
                     <p className="mt-1 text-[12px] leading-[1.55] text-k-text-3">
-                      Καλέστε μας — 46 χρόνια στα εργαλεία, σηκώνουμε το
-                      τηλέφωνο.
+                      {t("kaleste_mas_46_chronia_sta")}
                     </p>
                   </div>
                   <a
@@ -301,7 +303,7 @@ export default async function ProductPage({ params }: PageProps) {
                       aria-hidden
                       className="block h-1.5 w-1.5 bg-k-green"
                     />
-                    {upGreek("Επίσημη αντιπροσώπευση")}
+                    {upGreek(t("episimi_antiprosopeysi"))}
                   </span>
                 </div>
               )}
@@ -317,8 +319,8 @@ export default async function ProductPage({ params }: PageProps) {
               */}
               <dl className="mt-3.5 flex flex-wrap items-baseline gap-x-5 gap-y-1.5">
                 {[
-                  { label: "Κωδικός", value: product.sku },
-                  { label: "Κωδ. κατασκευαστή", value: product.mpn },
+                  { label: t("kodikos"), value: product.sku },
+                  { label: t("kod_kataskeyasti"), value: product.mpn },
                   { label: "EAN", value: product.ean },
                 ]
                   .filter((item) => item.value && item.value !== "—")
@@ -374,8 +376,8 @@ export default async function ProductPage({ params }: PageProps) {
               <div className="grid flex-1 auto-rows-fr grid-cols-2 gap-px border border-t-0 border-k-line bg-k-line">
                 {[
                   {
-                    t: "Παράδοση 24-48ω",
-                    d: "Πανελλαδικά με courier",
+                    t: t("paradosi_24_48o"),
+                    d: t("panelladika_me_courier"),
                     tone: "ink" as const,
                     icon: (
                       <>
@@ -387,8 +389,8 @@ export default async function ProductPage({ params }: PageProps) {
                     ),
                   },
                   {
-                    t: "Δωρεάν άνω 150 €",
-                    d: "Καθαρή αξία παραγγελίας",
+                    t: t("dorean_ano_150"),
+                    d: t("kathari_axia_paraggelias"),
                     tone: "red" as const,
                     icon: (
                       <>
@@ -398,8 +400,8 @@ export default async function ProductPage({ params }: PageProps) {
                     ),
                   },
                   {
-                    t: "Επιστροφή 14 ημερών",
-                    d: "Αμεταχείριστο, με παραστατικό",
+                    t: t("epistrofi_14_imeron"),
+                    d: t("ametacheiristo_me_parastatiko"),
                     tone: "ink" as const,
                     icon: (
                       <>
@@ -410,9 +412,9 @@ export default async function ProductPage({ params }: PageProps) {
                   },
                   {
                     t: product.guaranteeMonths
-                      ? `Εγγύηση ${product.guaranteeMonths} μηνών`
-                      : "Επίσημη εγγύηση",
-                    d: "Σέρβις & ανταλλακτικά",
+                      ? t("eggyisi_minon", { guaranteeMonths: product.guaranteeMonths })
+                      : t("episimi_eggyisi"),
+                    d: t("servis_antallaktika"),
                     tone: "green" as const,
                     icon: (
                       <>
@@ -485,18 +487,18 @@ export default async function ProductPage({ params }: PageProps) {
                 <SectionHead
                   eyebrow={
                     product.category
-                      ? `Στην ίδια κατηγορία · ${product.category.name}`
-                      : "Στην ίδια κατηγορία"
+                      ? t("stin_idia_katigoria", { name: product.category.name })
+                      : t("stin_idia_katigoria")
                   }
-                  title="Σχετικά προϊόντα"
-                  lead="Ίδια χρήση, διαφορετικό μέγεθος ή brand. Όλες οι τιμές με ΦΠΑ, διαθεσιμότητα σε πραγματικό χρόνο."
+                  title={t("schetika_proionta")}
+                  lead={t("idia_chrisi_diaforetiko_megethos_i")}
                   meta={
                     product.category && (
                       <Link
                         href={`/katalogos/${product.category.slug}`}
                         className="t-btn-sm inline-block border-[1.5px] border-k-ink px-6 py-3.5 text-k-ink transition-colors hover:bg-k-ink hover:text-white"
                       >
-                        {upGreek("Όλη η κατηγορία")} →
+                        {upGreek(t("oli_i_katigoria"))} →
                       </Link>
                     )
                   }

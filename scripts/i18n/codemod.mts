@@ -86,6 +86,27 @@ function componentBody(node: ts.Node): ts.Block | null {
   return null;
 }
 
+/**
+ * Does this component already bind the name `t` to something of its own?
+ *
+ * Parameters and top-level declarations only — a `t` inside a nested callback
+ * is that callback's business. Nothing descends into another function.
+ */
+function declaresT(body: ts.Block): boolean {
+  const fn = body.parent as ts.FunctionLikeDeclaration;
+
+  const bindsT = (name: ts.BindingName): boolean => {
+    if (ts.isIdentifier(name)) return name.text === "t";
+    return name.elements.some((el) => ts.isBindingElement(el) && bindsT(el.name));
+  };
+
+  if (fn.parameters?.some((p) => bindsT(p.name))) return true;
+
+  return body.statements.some(
+    (stmt) => ts.isVariableStatement(stmt) && stmt.declarationList.declarations.some((d) => bindsT(d.name)),
+  );
+}
+
 export function transform(file: string): FileResult {
   const original = readFileSync(file, "utf8");
   const source = ts.createSourceFile(file, original, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
@@ -111,8 +132,20 @@ export function transform(file: string): FileResult {
     return key;
   };
 
-  /** Is this node inside a component body — i.e. can it reach `t`? */
-  const inComponent = (node: ts.Node) => bodies.some((b) => node.getStart() > b.getStart() && node.getEnd() < b.getEnd());
+  const encloses = (b: ts.Block, node: ts.Node) => node.getStart() > b.getStart() && node.getEnd() < b.getEnd();
+
+  /**
+   * Is this node inside a component that can reach `t`?
+   *
+   * A component already binding `t` to its own value is off limits entirely —
+   * not merely denied the declaration. Rewriting its strings to `t("…")` while
+   * leaving `t` pointing at a URL token produces code that calls a string:
+   * broken, and broken in a way the codemod caused.
+   */
+  const inComponent = (node: ts.Node) =>
+    bodies.some((b) => encloses(b, node) && !declaresT(b));
+
+  const inTakenScope = (node: ts.Node) => bodies.some((b) => encloses(b, node) && declaresT(b));
 
   // First pass: find the component bodies, so scope is known before rewriting.
   const findBodies = (node: ts.Node) => {
@@ -126,7 +159,7 @@ export function transform(file: string): FileResult {
     if (ts.isJsxText(node)) {
       const value = node.text.trim();
       if (GREEK.test(value)) {
-        if (!inComponent(node)) skipped.push({ line: line(node.getStart()), value, why: "εκτός component" });
+        if (!inComponent(node)) skipped.push({ line: line(node.getStart()), value, why: inTakenScope(node) ? "το component δεσμεύει ήδη το όνομα `t`" : "εκτός component" });
         else {
           const key = register(value);
           // Keep the surrounding whitespace: JSX text carries the line breaks
@@ -163,7 +196,7 @@ export function transform(file: string): FileResult {
 
       if (isAttr || swappable) {
         if (!inComponent(node)) {
-          skipped.push({ line: line(node.getStart()), value: node.text, why: "εκτός component" });
+          skipped.push({ line: line(node.getStart()), value: node.text, why: inTakenScope(node) ? "το component δεσμεύει ήδη το όνομα `t`" : "εκτός component" });
         } else {
           const key = register(node.text);
           const call = `t("${key}")`;
@@ -176,7 +209,7 @@ export function transform(file: string): FileResult {
           });
         }
       } else if (!inComponent(node)) {
-        skipped.push({ line: line(node.getStart()), value: node.text, why: "εκτός component" });
+        skipped.push({ line: line(node.getStart()), value: node.text, why: inTakenScope(node) ? "το component δεσμεύει ήδη το όνομα `t`" : "εκτός component" });
       } else {
         skipped.push({ line: line(node.getStart()), value: node.text, why: ts.SyntaxKind[parent.kind] });
       }
@@ -203,6 +236,25 @@ export function transform(file: string): FileResult {
   for (const body of touched) {
     // A second pass over an already-converted file must not declare `t` twice.
     if (/\bconst t = (await )?(useTranslations|getTranslations)\(/.test(body.getText())) continue;
+
+    /*
+     * Somebody else may already own the name.
+     *
+     * The confirmation page bound `t` to the guest token from the URL — the
+     * value that keeps a stranger's address off the screen. Shadowing it broke
+     * the page loudly, which was luck: a collision with a differently-typed
+     * value is a type error, but a collision with another string would have
+     * compiled and quietly changed what the check compared.
+     */
+    if (declaresT(body)) {
+      skipped.push({
+        line: line(body.getStart()),
+        value: "—",
+        why: "το component δεσμεύει ήδη το όνομα `t`",
+      });
+      continue;
+    }
+
     const fn = body.parent as ts.FunctionLikeDeclaration;
     const isAsync = fn.modifiers?.some((m) => m.kind === ts.SyntaxKind.AsyncKeyword) ?? false;
     // A server component is async and gets the awaited helper; a client one

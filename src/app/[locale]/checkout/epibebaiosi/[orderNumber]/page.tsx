@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import type { Metadata } from "next";
 import Image from "next/image";
 import { notFound } from "next/navigation";
@@ -19,26 +20,40 @@ import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = {
-  title: "Η παραγγελία σας",
-  robots: { index: false, follow: false },
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: Locale }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  // Explicit locale: `setRequestLocale` belongs to the render pass, and
+  // metadata is generated outside it.
+  const t = await getTranslations({ locale, namespace: "epibebaiosi.page" });
+  return {
+    title: t("titlos_i_paraggelia_sas"),
+    robots: { index: false, follow: false },
+  };
+}
 
 type PageProps = {
   params: Promise<{ locale: Locale; orderNumber: string }>;
   searchParams: Promise<{ t?: string; s?: string }>;
 };
 
+/** `label` is a message key, resolved at the render site. */
 const STEPS = [
-  { key: "PENDING_PAYMENT", label: "Καταχωρήθηκε" },
-  { key: "CONFIRMED", label: "Επιβεβαιώθηκε" },
-  { key: "SHIPPED", label: "Απεστάλη" },
-  { key: "DELIVERED", label: "Παραδόθηκε" },
+  { key: "PENDING_PAYMENT", label: "vima_katachorithike" },
+  { key: "CONFIRMED", label: "vima_epivevaiothike" },
+  { key: "SHIPPED", label: "vima_apestali" },
+  { key: "DELIVERED", label: "vima_paradothike" },
 ] as const;
 
 export default async function ConfirmationPage({ params, searchParams }: PageProps) {
+  const t = await getTranslations("epibebaiosi.page");
   const { locale, orderNumber } = await params;
-  const { t } = await searchParams;
+  // Named on destructuring: the URL contract stays `?t=…`, but `t` alone is
+  // both meaningless for a security token and the name every translator uses.
+  const { t: guestToken } = await searchParams;
   setRequestLocale(locale);
 
   const [order, miniCart, menuTree, brands, stats, rootCategories] = await Promise.all([
@@ -55,7 +70,7 @@ export default async function ConfirmationPage({ params, searchParams }: PagePro
    * — which is sequential and therefore guessable — would expose a stranger's
    * name, address and phone. Accounts (Phase 6) will add a second way in.
    */
-  if (!order || !t || t !== order.guestToken) notFound();
+  if (!order || !guestToken || guestToken !== order.guestToken) notFound();
 
   const currentStep = STEPS.findIndex((s) => s.key === order.status);
   const stepIndex = currentStep === -1 ? 0 : currentStep;
@@ -79,24 +94,24 @@ export default async function ConfirmationPage({ params, searchParams }: PagePro
         <div className="shell-x bg-k-ink-deep py-10 lg:py-14">
           <p className="t-eyebrow mb-3.5 text-k-red">
             {awaitingPayment
-              ? upGreek("Αναμονή πληρωμής")
-              : upGreek("Ευχαριστούμε για την παραγγελία")}
+              ? upGreek(t("anamoni_pliromis"))
+              : upGreek(t("eycharistoyme_gia_tin_paraggelia"))}
           </p>
           <h1 className="font-artegra text-[26px] leading-[1.14] font-medium text-white lg:text-[34px]">
             {awaitingPayment
-              ? upGreek("Η παραγγελία σας κρατήθηκε")
-              : upGreek("Η παραγγελία σας καταχωρήθηκε")}
+              ? upGreek(t("i_paraggelia_sas_kratithike"))
+              : upGreek(t("i_paraggelia_sas_katachorithike"))}
           </h1>
           <p className="mt-4 flex flex-wrap items-center gap-3">
-            <span className="t-account-label text-white/50">{upGreek("Αριθμός")}</span>
+            <span className="t-account-label text-white/50">{upGreek(t("arithmos"))}</span>
             <span className="border border-white/20 px-3 py-2 font-mono text-[15px] font-semibold text-white">
               {order.orderNumber}
             </span>
           </p>
           <p className="mt-4 max-w-[560px] text-[13.5px] leading-[1.65] text-white/60">
-            Στείλαμε επιβεβαίωση στο {order.email}.
+            {t("steilame_epivevaiosi_sto")} {order.email}.
             {awaitingPayment &&
-              " Μόλις ολοκληρωθεί η πληρωμή, η παραγγελία περνά αυτόματα σε επεξεργασία."}
+              t("molis_oloklirothei_i_pliromi_i")}
           </p>
         </div>
 
@@ -116,7 +131,7 @@ export default async function ConfirmationPage({ params, searchParams }: PagePro
                     done ? "text-k-ink" : "text-k-text-4"
                   }`}
                 >
-                  {step.label}
+                  {t(step.label)}
                 </p>
                 <span
                   className={`mt-2.5 block h-1 ${done ? "bg-k-red" : "bg-k-line"}`}
@@ -130,7 +145,7 @@ export default async function ConfirmationPage({ params, searchParams }: PagePro
           <div className="min-w-0 border-k-line px-4 py-8 lg:border-r lg:px-10">
             {/* Details */}
             <div className="grid gap-px border border-k-line bg-k-line sm:grid-cols-2">
-              <Block title="Παράδοση">
+              <Block title={t("paradosi")}>
                 {order.firstName} {order.lastName}
                 <br />
                 {order.shipLine1}
@@ -141,57 +156,57 @@ export default async function ConfirmationPage({ params, searchParams }: PagePro
                 {order.phone}
               </Block>
 
-              <Block title="Τιμολόγηση">
+              <Block title={t("timologisi")}>
                 {order.wantsInvoice ? (
                   <>
                     {order.companyName}
                     <br />
-                    ΑΦΜ {order.vatNumber}
-                    {order.taxOffice && <> · ΔΟΥ {order.taxOffice}</>}
+                    {t("afm")} {order.vatNumber}
+                    {order.taxOffice && <> {t("doy")} {order.taxOffice}</>}
                   </>
                 ) : (
-                  <>Απόδειξη λιανικής</>
+                  <>{t("apodeixi_lianikis")}</>
                 )}
               </Block>
 
-              <Block title="Αποστολή">
+              <Block title={t("apostoli")}>
                 {order.shippingMethod === "pickup"
-                  ? "Παραλαβή από Πειραιά"
+                  ? t("paralavi_apo_peiraia")
                   : `ACS · ${quote?.zoneLabel ?? "—"}`}
                 {quote?.chargeableKg != null && (
                   <>
                     <br />
-                    {quote.chargeableKg} kg χρεώσιμο βάρος
+                    {quote.chargeableKg} {t("kg_chreosimo_varos")}
                   </>
                 )}
                 {quote?.etaDays && (
                   <>
                     <br />
-                    {quote.etaDays} εργάσιμες
+                    {quote.etaDays} {t("ergasimes")}
                   </>
                 )}
               </Block>
 
-              <Block title="Πληρωμή">
+              <Block title={t("pliromi")}>
                 {
                   {
-                    card: "Κάρτα (Viva Wallet)",
+                    card: t("karta_viva_wallet"),
                     iris: "IRIS",
-                    bank: "Τραπεζική κατάθεση",
+                    bank: t("trapeziki_katathesi"),
                     // Kept although the method is no longer offered: this map renders orders that
   // were already placed, and a missing entry would show a raw "cod".
-  cod: "Αντικαταβολή",
-                    credit: "Επί πιστώσει",
+  cod: t("antikatavoli"),
+                    credit: t("epi_pistosei"),
                   }[order.paymentMethod] ?? order.paymentMethod
                 }
                 <br />
                 {
                   {
-                    PENDING: "Σε αναμονή",
-                    PAID: "Εξοφλήθηκε",
-                    FAILED: "Απέτυχε",
-                    REFUNDED: "Επιστράφηκε",
-                    ON_DELIVERY: "Κατά την παράδοση",
+                    PENDING: t("se_anamoni"),
+                    PAID: t("exoflithike"),
+                    FAILED: t("apetyche"),
+                    REFUNDED: t("epistrafike"),
+                    ON_DELIVERY: t("kata_tin_paradosi"),
                   }[order.paymentStatus]
                 }
               </Block>
@@ -200,14 +215,14 @@ export default async function ConfirmationPage({ params, searchParams }: PagePro
             {order.notes && (
               <p className="mt-5 border-l-[3px] border-k-line-2 bg-k-surface-2 px-4 py-3 text-[12.5px] text-k-text-2">
                 <span className="t-account-label mb-1 block text-k-text-4">
-                  {upGreek("Σχόλια")}
+                  {upGreek(t("scholia"))}
                 </span>
                 {order.notes}
               </p>
             )}
 
             {/* Items */}
-            <h2 className="t-footer-col mt-8 mb-3 text-k-text-4">{upGreek("Προϊόντα")}</h2>
+            <h2 className="t-footer-col mt-8 mb-3 text-k-text-4">{upGreek(t("proionta"))}</h2>
             <div className="border border-k-line">
               {order.lines.map((line) => (
                 <div
@@ -231,7 +246,7 @@ export default async function ConfirmationPage({ params, searchParams }: PagePro
                       {line.name}
                     </span>
                     <span className="t-card-sku mt-0.5 block text-k-text-4">
-                      {line.sku} · {line.quantity} τεμ.
+                      {line.sku} · {line.quantity} {t("tem")}
                     </span>
                   </span>
                   <span className="shrink-0 font-mono text-[14px] font-semibold text-k-ink">
@@ -247,15 +262,15 @@ export default async function ConfirmationPage({ params, searchParams }: PagePro
             <div className="bg-k-ink px-5 py-6">
               <dl className="flex flex-col gap-2.5">
                 {[
-                  { k: "Καθαρή αξία", v: formatMoney(Number(order.subtotalNet)) },
+                  { k: t("kathari_axia"), v: formatMoney(Number(order.subtotalNet)) },
                   {
-                    k: "Μεταφορικά",
+                    k: t("metaforika"),
                     v:
                       Number(order.shippingGross) === 0
-                        ? upGreek("Δωρεάν")
+                        ? upGreek(t("dorean"))
                         : formatMoney(Number(order.shippingGross)),
                   },
-                  { k: "ΦΠΑ", v: formatMoney(Number(order.vatAmount)) },
+                  { k: t("fpa"), v: formatMoney(Number(order.vatAmount)) },
                 ].map((row) => (
                   <div key={row.k} className="flex items-baseline justify-between gap-4">
                     <dt className="text-[12.5px] text-white/55">{row.k}</dt>
@@ -264,7 +279,7 @@ export default async function ConfirmationPage({ params, searchParams }: PagePro
                 ))}
               </dl>
               <div className="mt-4 flex items-end justify-between gap-4 border-t border-white/16 pt-4">
-                <p className="t-footer-col text-white/50">{upGreek("Σύνολο")}</p>
+                <p className="t-footer-col text-white/50">{upGreek(t("synolo"))}</p>
                 <p className="font-mono text-[30px] leading-none font-semibold tracking-[-0.03em] text-white">
                   {formatMoney(Number(order.totalGross))}
                 </p>
@@ -275,7 +290,7 @@ export default async function ConfirmationPage({ params, searchParams }: PagePro
               href="/katalogos"
               className="t-btn-sm mt-4 flex h-12 items-center justify-center border-[1.5px] border-k-ink text-k-ink transition-colors hover:bg-k-ink hover:text-white"
             >
-              {upGreek("Συνεχίστε τις αγορές")} →
+              {upGreek(t("synechiste_tis_agores"))} →
             </Link>
           </aside>
         </div>

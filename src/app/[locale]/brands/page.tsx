@@ -1,3 +1,5 @@
+import { useTranslations } from "next-intl";
+import { getTranslations } from "next-intl/server";
 import type { Metadata } from "next";
 import Image from "next/image";
 import { setRequestLocale } from "next-intl/server";
@@ -24,11 +26,12 @@ export async function generateMetadata({
 }: {
   params: Promise<{ locale: Locale }>;
 }): Promise<Metadata> {
-  await params;
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "brands.page" });
   const { brandCount, productCount } = await getBrandsStats();
   return {
     title: "Brands",
-    description: `${brandCount} brands με ${productCount.toLocaleString("el-GR")} κωδικούς σε απόθεμα. Επίσημη αντιπροσώπευση, γνήσια ανταλλακτικά, τεχνική υποστήριξη.`,
+    description: t("brands_me_kodikoys_se_apothema", { brandCount: brandCount, n: productCount.toLocaleString("el-GR") }),
   };
 }
 
@@ -37,6 +40,7 @@ export default async function BrandsPage({
 }: {
   params: Promise<{ locale: Locale }>;
 }) {
+  const t = await getTranslations("brands.page");
   const { locale } = await params;
   setRequestLocale(locale);
 
@@ -63,13 +67,13 @@ export default async function BrandsPage({
   const featured = brands.slice(0, 8);
 
   const kpis = [
-    { v: String(brandStats.brandCount), k: "BRANDS ΜΕ ΕΝΕΡΓΑ ΠΡΟΪΟΝΤΑ" },
-    { v: String(brandStats.inStockBrandCount), k: "BRANDS ΜΕ ΑΠΟΘΕΜΑ ΤΩΡΑ" },
+    { v: String(brandStats.brandCount), k: t("brands_me_energa_proionta") },
+    { v: String(brandStats.inStockBrandCount), k: t("brands_me_apothema_tora") },
     {
       v: brandStats.productCount.toLocaleString("el-GR"),
-      k: "ΚΩΔΙΚΟΙ ΣΤΟΝ ΚΑΤΑΛΟΓΟ",
+      k: t("kodikoi_ston_katalogo"),
     },
-    { v: "1978", k: "ΑΠΟ ΤΟ ΠΡΩΤΟ ΜΑΣ ΣΥΜΒΟΛΑΙΟ" },
+    { v: "1978", k: t("apo_to_proto_mas_symvolaio") },
   ];
 
   return (
@@ -98,7 +102,7 @@ export default async function BrandsPage({
               className="t-util flex h-11 items-center gap-2.5 text-white/45"
             >
               <Link href="/" className="text-white/60 hover:text-white">
-                {upGreek("Αρχική")}
+                {upGreek(t("archiki"))}
               </Link>
               <span className="text-k-red">/</span>
               <span className="text-white">BRANDS</span>
@@ -111,14 +115,12 @@ export default async function BrandsPage({
                   EXCLUSIVE PARTNERSHIPS
                 </p>
                 <h1 className="font-artegra text-[26px] leading-[1.14] font-medium text-white lg:text-[36px]">
-                  {upGreek("Τα brands που")}
+                  {upGreek(t("ta_brands_poy"))}
                   <br />
-                  {upGreek("αντιπροσωπεύουμε")}
+                  {upGreek(t("antiprosopeyoyme"))}
                 </h1>
                 <p className="t-body mt-4 max-w-[620px] text-white/60">
-                  Από το 1978 συνεργαζόμαστε απευθείας με τους κατασκευαστές. Αυτό
-                  σημαίνει ακριβής διαθεσιμότητα, γνήσια ανταλλακτικά και τεχνική
-                  υποστήριξη από εμάς — όχι από ένα call center στο εξωτερικό.
+                  {t("apo_to_1978_synergazomaste_apeytheias")}
                 </p>
               </div>
 
@@ -142,19 +144,19 @@ export default async function BrandsPage({
         <section className="shell-x border-b border-k-line bg-white py-8 lg:pt-14 lg:pb-15">
           <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between lg:gap-8">
             <div>
-              <p className="t-eyebrow mb-3 text-k-red">{upGreek("Επίσημες αντιπροσωπεύσεις")}</p>
+              <p className="t-eyebrow mb-3 text-k-red">{upGreek(t("episimes_antiprosopeyseis"))}</p>
               <h2 className="t-h2 text-k-ink">
-                {upGreek(`Τα ${featured.length} brands που μας ζητάτε περισσότερο`)}
+                {upGreek(t("ta_brands_poy_mas_zitate", { length: featured.length }))}
               </h2>
             </div>
             <p className="t-body-sm max-w-[360px] text-k-text-3 lg:text-right">
-              Για αυτά κρατάμε το μεγαλύτερο απόθεμα και δίνουμε τεχνική υποστήριξη από
-              εξειδικευμένο προσωπικό.
+              {t("gia_ayta_kratame_to_megalytero")}
             </p>
           </div>
 
           <div className="grid grid-cols-2 gap-px border border-k-line bg-k-line lg:grid-cols-4">
             {featured.map((brand, index) => {
+  const t = useTranslations("brands.page");
               const dark = index % 2 === 1;
               return (
                 <Link
@@ -170,7 +172,7 @@ export default async function BrandsPage({
                         dark ? "bg-k-red text-white" : "bg-k-surface-3 text-k-text-3"
                       }`}
                     >
-                      {upGreek("Αντιπροσωπεία")}
+                      {upGreek(t("antiprosopeia"))}
                     </span>
                     <span
                       className={`t-cat-num ${dark ? "text-white/35" : "text-k-text-5"}`}
@@ -217,7 +219,7 @@ export default async function BrandsPage({
                           dark ? "text-white/45" : "text-k-text-4"
                         }`}
                       >
-                        {upGreek("Κωδικοί σε απόθεμα")}
+                        {upGreek(t("kodikoi_se_apothema"))}
                       </p>
                     </div>
                     <span
@@ -246,14 +248,14 @@ export default async function BrandsPage({
           <section className="shell-x border-y border-k-line bg-k-surface-3 py-10 lg:py-13">
             <div className="mb-5 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
               <div>
-                <p className="t-eyebrow mb-3 text-k-red">{upGreek("Ανά ειδικότητα")}</p>
-                <h2 className="t-h2 text-k-ink">{upGreek("Ποιο brand για ποια δουλειά")}</h2>
+                <p className="t-eyebrow mb-3 text-k-red">{upGreek(t("ana_eidikotita"))}</p>
+                <h2 className="t-h2 text-k-ink">{upGreek(t("poio_brand_gia_poia_doyleia"))}</h2>
               </div>
               <Link
                 href="/katalogos"
                 className="t-link-mono self-start border-b-[1.5px] border-k-red pb-[3px] text-k-ink hover:text-k-red"
               >
-                {upGreek("Όλος ο κατάλογος")} →
+                {upGreek(t("olos_o_katalogos"))} →
               </Link>
             </div>
 
@@ -279,7 +281,7 @@ export default async function BrandsPage({
                     {upGreek(group.categoryName)}
                   </Link>
                   <p className="mt-1.5 text-[12px] leading-[1.6] text-k-text-3">
-                    {group.productCount.toLocaleString("el-GR")} κωδικοί από{" "}
+                    {group.productCount.toLocaleString("el-GR")} {t("kodikoi_apo")}{" "}
                     {group.brands.length} brands.
                   </p>
 

@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import type { Metadata } from "next";
 import Image from "next/image";
 import { setRequestLocale } from "next-intl/server";
@@ -16,11 +17,20 @@ import {
 } from "@/lib/catalog/queries";
 import { upGreek } from "@/lib/greek";
 
-export const metadata: Metadata = {
-  title: "Η εταιρεία",
-  description:
-    "46 χρόνια στα βιομηχανικά εργαλεία. Δείτε τα νούμερα της αποθήκης μας ζωντανά — κωδικοί, απόθεμα, τόνοι στο ράφι.",
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: Locale }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  // Explicit locale: `setRequestLocale` belongs to the render pass, and
+  // metadata is generated outside it.
+  const t = await getTranslations({ locale, namespace: "etaireia.page" });
+  return {
+    title: t("titlos_i_etaireia"),
+    description: t("perigrafi_46_chronia_sta_viomichanika"),
+  };
+}
 
 const FOUNDED = 1978;
 
@@ -38,6 +48,7 @@ const FOUNDED = 1978;
  * figures — so the figures are the page.
  */
 export default async function CompanyPage({ params }: { params: Promise<{ locale: Locale }> }) {
+  const t = await getTranslations("etaireia.page");
   const { locale } = await params;
   setRequestLocale(locale);
 
@@ -60,82 +71,82 @@ export default async function CompanyPage({ params }: { params: Promise<{ locale
    */
   const proofRows = [
     {
-      claim: "Μεγάλη γκάμα",
+      claim: t("megali_gkama"),
       evidence: proof.products.toLocaleString("el-GR"),
-      unit: "κωδικοί online",
-      note: `σε ${proof.categories} κατηγορίες και ${proof.nodes.toLocaleString("el-GR")} υποκατηγορίες`,
+      unit: t("kodikoi_online"),
+      note: t("se_katigories_kai_ypokatigories", { categories: proof.categories, n: proof.nodes.toLocaleString("el-GR") }),
     },
     {
-      claim: "Άμεση διαθεσιμότητα",
+      claim: t("amesi_diathesimotita"),
       evidence: proof.inStock.toLocaleString("el-GR"),
-      unit: "κωδικοί στο ράφι",
-      note: `${proof.units.toLocaleString("el-GR")} τεμάχια, τώρα, στον Πειραιά`,
+      unit: t("kodikoi_sto_rafi"),
+      note: t("temachia_tora_ston_peiraia", { n: proof.units.toLocaleString("el-GR") }),
     },
     {
-      claim: "Πραγματικό απόθεμα",
+      claim: t("pragmatiko_apothema"),
       evidence: tonnes.toLocaleString("el-GR"),
-      unit: "τόνοι εργαλείων",
-      note: "υπολογισμένοι από το βάρος κάθε κωδικού επί το απόθεμά του",
+      unit: t("tonoi_ergaleion"),
+      note: t("ypologismenoi_apo_to_varos_kathe"),
     },
     {
-      claim: "Τεχνική τεκμηρίωση",
+      claim: t("techniki_tekmiriosi"),
       evidence: proof.specs.toLocaleString("el-GR"),
-      unit: "χαρακτηριστικά",
-      note: `και ${proof.images.toLocaleString("el-GR")} φωτογραφίες προϊόντων`,
+      unit: t("charaktiristika"),
+      note: t("kai_fotografies_proionton", { n: proof.images.toLocaleString("el-GR") }),
     },
     {
-      claim: "Επίσημη αντιπροσώπευση",
+      claim: t("episimi_antiprosopeysi"),
       evidence: String(proof.brands),
       unit: "brands",
-      note: "με εγγύηση κατασκευαστή, σέρβις και ανταλλακτικά",
+      note: t("me_eggyisi_kataskeyasti_servis_kai"),
     },
     {
-      claim: "Συνέπεια στον χρόνο",
+      claim: t("synepeia_ston_chrono"),
       evidence: String(years),
-      unit: "χρόνια",
-      note: `από το ${FOUNDED}, στην ίδια δουλειά`,
+      unit: t("chronia"),
+      note: t("apo_to_stin_idia_doyleia", { FOUNDED: FOUNDED }),
     },
   ];
 
   const timeline = [
     {
       year: "1978",
-      title: "Η αρχή, στον Πειραιά",
-      body: "Η Kolleris ξεκινά προμηθεύοντας εργαλεία σε ναυπηγεία και ναυτιλιακές εταιρείες. Η ίδια πόλη, η ίδια δουλειά, μέχρι σήμερα.",
+      title: t("i_archi_ston_peiraia"),
+      body: t("i_kolleris_xekina_promitheyontas_ergaleia"),
     },
     {
       year: "1990s",
-      title: "Από τα ναυπηγεία στη βιομηχανία",
-      body: "Εργοστάσια, συνεργεία και τεχνικές εταιρείες. Η γκάμα ανοίγει από τα εργαλεία χειρός στα ηλεκτρικά και τα μηχανήματα.",
+      title: t("apo_ta_naypigeia_sti_viomichania"),
+      body: t("ergostasia_synergeia_kai_technikes_etaireies"),
     },
     {
       year: "2000s",
-      title: "Επίσημες αντιπροσωπείες",
-      body: `Συνεργασίες με κατασκευαστές που κρατούν μέχρι σήμερα — ${proof.brands} brands με εγγύηση, σέρβις και ανταλλακτικά από εμάς.`,
+      title: t("episimes_antiprosopeies"),
+      body: t("synergasies_me_kataskeyastes_poy_kratoyn", { brands: proof.brands }),
     },
     {
-      year: "Σήμερα",
-      title: "Ο κατάλογος online",
-      body: `Ολόκληρο το απόθεμα, με τιμές και διαθεσιμότητα σε πραγματικό χρόνο. ${proof.products.toLocaleString("el-GR")} κωδικοί, ενημερωμένοι από το ERP μας.`,
+      year: t("simera"),
+      title: t("o_katalogos_online"),
+      body: t("olokliro_to_apothema_me_times", { n: proof.products.toLocaleString("el-GR") }),
     },
   ];
 
   const promises = [
     {
-      title: "Σηκώνουμε το τηλέφωνο",
-      body: "Δεν υπάρχει chatbot ανάμεσα. Ρωτάτε για μια δουλειά, απαντά κάποιος που την έχει κάνει.",
+      title: t("sikonoyme_to_tilefono"),
+      body: t("den_yparchei_chatbot_anamesa_rotate"),
     },
     {
-      title: "Ό,τι λέει διαθέσιμο, είναι",
-      body: "Η διαθεσιμότητα στο site είναι το ERP μας. Αν λέει 3 τεμάχια, υπάρχουν 3 τεμάχια.",
+      title: t("o_ti_leei_diathesimo_einai"),
+      body: t("i_diathesimotita_sto_site_einai"),
     },
     {
-      title: "Γνήσιο, με εγγύηση",
-      body: "Επίσημη αντιπροσώπευση σημαίνει εγγύηση κατασκευαστή και ανταλλακτικά — όχι παράλληλη εισαγωγή.",
+      title: t("gnisio_me_eggyisi"),
+      body: t("episimi_antiprosopeysi_simainei_eggyisi_kataskeyasti"),
     },
     {
-      title: "Φεύγει σήμερα",
-      body: "Παραγγελία πριν τις 15:00 φεύγει αυθημερόν. Παράδοση 24-48 ώρες πανελλαδικά.",
+      title: t("feygei_simera"),
+      body: t("paraggelia_prin_tis_15_00"),
     },
   ];
 
@@ -154,28 +165,25 @@ export default async function CompanyPage({ params }: { params: Promise<{ locale
         <div className="shell-x bg-k-ink-deep">
           <nav aria-label="Breadcrumb" className="t-util flex h-11 items-center gap-2.5 text-white/45">
             <Link href="/" className="text-white/60 hover:text-white">
-              {upGreek("Αρχική")}
+              {upGreek(t("archiki"))}
             </Link>
             <span className="text-k-red">/</span>
-            <span className="text-white">{upGreek("Η εταιρεία")}</span>
+            <span className="text-white">{upGreek(t("i_etaireia"))}</span>
           </nav>
 
           <div className="grid gap-8 pt-2.5 pb-9 lg:grid-cols-[1fr_360px] lg:items-end lg:gap-16 lg:pb-12">
             <div className="min-w-0">
               <p className="t-eyebrow flex items-center gap-2.5 text-k-red">
                 <span aria-hidden className="rule-accent block shrink-0" />
-                {upGreek(`Πειραιάς · από το ${FOUNDED}`)}
+                {upGreek(t("peiraias_apo_to", { FOUNDED: FOUNDED }))}
               </p>
               <h1 className="font-artegra mt-3.5 text-[26px] leading-[1.12] font-medium text-balance text-white lg:text-[42px]">
-                {upGreek("Δεν σας ζητάμε να μας πιστέψετε.")}
+                {upGreek(t("den_sas_zitame_na_mas"))}
                 <br />
-                <span className="text-k-red">{upGreek("Δείτε τα νούμερα.")}</span>
+                <span className="text-k-red">{upGreek(t("deite_ta_noymera"))}</span>
               </h1>
               <p className="mt-5 max-w-[600px] text-[13.5px] leading-[1.7] text-white/60 lg:text-[15px]">
-                Κάθε προμηθευτής εργαλείων γράφει «μεγάλη γκάμα» και «άμεση διαθεσιμότητα».
-                Παρακάτω δεν θα βρείτε επίθετα — θα βρείτε τι ακριβώς υπάρχει στην αποθήκη
-                μας αυτή τη στιγμή, διαβασμένο από το ERP μας τη στιγμή που φορτώνει η
-                σελίδα.
+                {t("kathe_promitheytis_ergaleion_grafei_megali")}
               </p>
             </div>
 
@@ -184,11 +192,10 @@ export default async function CompanyPage({ params }: { params: Promise<{ locale
                 {years}
               </p>
               <p className="t-account-label mt-2 text-white/50">
-                {upGreek("χρόνια στα εργαλεία")}
+                {upGreek(t("chronia_sta_ergaleia"))}
               </p>
               <p className="mt-3 text-[12.5px] leading-[1.6] text-white/45">
-                Ναυπηγεία, εργοστάσια, συνεργεία. Οι ίδιοι πελάτες επί δεκαετίες — αυτό
-                είναι το μόνο νούμερο που δεν μπορούμε να σας δείξουμε σε πίνακα.
+                {t("naypigeia_ergostasia_synergeia_oi_idioi")}
               </p>
             </div>
           </div>
@@ -198,9 +205,9 @@ export default async function CompanyPage({ params }: { params: Promise<{ locale
         <section className="band-base">
           <div className="shell-x py-9 lg:py-14">
             <SectionHead
-              eyebrow="Ζωντανά από την αποθήκη"
-              title="Κάθε ισχυρισμός, με το νούμερό του"
-              lead="Οι τιμές δεξιά δεν είναι γραμμένες σε κείμενο. Διαβάζονται από τη βάση σε κάθε επίσκεψη — αν αύριο αλλάξει το απόθεμα, αλλάζει και η σελίδα."
+              eyebrow={t("zontana_apo_tin_apothiki")}
+              title={t("kathe_ischyrismos_me_to_noymero")}
+              lead={t("oi_times_dexia_den_einai")}
             />
 
             <dl className="mt-8 grid gap-px border border-k-line bg-k-line lg:mt-10 lg:grid-cols-2">
@@ -230,14 +237,14 @@ export default async function CompanyPage({ params }: { params: Promise<{ locale
             {proof.heaviestCategory && (
               <p className="mt-5 flex flex-wrap items-center gap-2 text-[12.5px] text-k-text-3">
                 <span aria-hidden className="block h-1.5 w-1.5 bg-k-red" />
-                Η μεγαλύτερη κατηγορία μας είναι{" "}
+                {t("i_megalyteri_katigoria_mas_einai")}{" "}
                 <Link
                   href={`/katalogos/${proof.heaviestCategory.slug}`}
                   className="font-semibold text-k-ink underline underline-offset-4 hover:text-k-red"
                 >
                   {proof.heaviestCategory.name}
                 </Link>{" "}
-                με {proof.heaviestCategory.count.toLocaleString("el-GR")} κωδικούς.
+                {t("me")} {proof.heaviestCategory.count.toLocaleString("el-GR")} {t("kodikoys")}
               </p>
             )}
           </div>
@@ -246,7 +253,7 @@ export default async function CompanyPage({ params }: { params: Promise<{ locale
         {/* Timeline */}
         <section className="band-alt border-t border-k-line">
           <div className="shell-x py-9 lg:py-14">
-            <SectionHead eyebrow="Η διαδρομή" title={`Από το ${FOUNDED} μέχρι σήμερα`} />
+            <SectionHead eyebrow={t("i_diadromi")} title={t("apo_to_mechri_simera", { FOUNDED: FOUNDED })} />
 
             <ol className="mt-8 grid gap-px border border-k-line bg-k-line lg:mt-10 lg:grid-cols-4">
               {timeline.map((step, index) => (
@@ -270,8 +277,8 @@ export default async function CompanyPage({ params }: { params: Promise<{ locale
         <section className="band-base border-t border-k-line">
           <div className="shell-x py-9 lg:py-14">
             <SectionHead
-              eyebrow="Τι σημαίνει να αγοράζετε από εμάς"
-              title="Τέσσερα πράγματα που δεν αλλάζουν"
+              eyebrow={t("ti_simainei_na_agorazete_apo")}
+              title={t("tessera_pragmata_poy_den_allazoyn")}
             />
             <div className="mt-8 grid gap-px border border-k-line bg-k-line sm:grid-cols-2 lg:mt-10 lg:grid-cols-4">
               {promises.map((item) => (
@@ -291,15 +298,15 @@ export default async function CompanyPage({ params }: { params: Promise<{ locale
           <section className="band-alt border-t border-k-line">
             <div className="shell-x py-9 lg:py-14">
               <SectionHead
-                eyebrow="Επίσημη αντιπροσώπευση"
-                title="Τα brands που εκπροσωπούμε"
-                lead="Γνήσιο προϊόν, εγγύηση κατασκευαστή, σέρβις και ανταλλακτικά από εμάς — όχι παράλληλη εισαγωγή."
+                eyebrow={t("episimi_antiprosopeysi")}
+                title={t("ta_brands_poy_ekprosopoyme")}
+                lead={t("gnisio_proion_eggyisi_kataskeyasti_servis")}
                 meta={
                   <Link
                     href="/brands"
                     className="t-btn-sm inline-block border-[1.5px] border-k-ink px-6 py-3.5 text-k-ink transition-colors hover:bg-k-ink hover:text-white"
                   >
-                    {upGreek("Όλα τα brands")} →
+                    {upGreek(t("ola_ta_brands"))} →
                   </Link>
                 }
               />
@@ -337,9 +344,9 @@ export default async function CompanyPage({ params }: { params: Promise<{ locale
               <div className="min-w-0">
                 <SectionHead
                   tone="dark"
-                  eyebrow="Μιλήστε μας"
-                  title="Πείτε μας τη δουλειά, όχι τον κωδικό"
-                  lead="Δεν ξέρετε ποιο εργαλείο κάνει; Περιγράψτε τι θέλετε να κάνετε. Σε 46 χρόνια το έχουμε ξανακούσει."
+                  eyebrow={t("miliste_mas")}
+                  title={t("peite_mas_ti_doyleia_ochi")}
+                  lead={t("den_xerete_poio_ergaleio_kanei")}
                 />
               </div>
               <div className="flex flex-wrap gap-3">
@@ -353,7 +360,7 @@ export default async function CompanyPage({ params }: { params: Promise<{ locale
                   href="/epikoinonia"
                   className="t-btn-outline border-[1.5px] border-white/34 px-7 py-4 text-white transition-colors hover:border-white hover:bg-white hover:text-k-ink"
                 >
-                  {upGreek("Επικοινωνία")}
+                  {upGreek(t("epikoinonia"))}
                 </Link>
               </div>
             </div>

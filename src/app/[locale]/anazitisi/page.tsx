@@ -1,3 +1,5 @@
+import { useTranslations } from "next-intl";
+import { getTranslations } from "next-intl/server";
 import type { Metadata } from "next";
 import Image from "next/image";
 import { setRequestLocale } from "next-intl/server";
@@ -36,12 +38,17 @@ type PageProps = {
 };
 
 export async function generateMetadata({
+  params,
   searchParams,
 }: PageProps): Promise<Metadata> {
+  const { locale } = await params;
+  // Explicit locale: `setRequestLocale` belongs to the render pass, and
+  // metadata is generated outside it.
+  const t = await getTranslations({ locale, namespace: "anazitisi.page" });
   const raw = await searchParams;
   const q = (Array.isArray(raw.q) ? raw.q[0] : raw.q)?.trim() ?? "";
   return {
-    title: q ? `Αναζήτηση: ${q}` : "Αναζήτηση",
+    title: q ? t("anazitisi", { q }) : t("anazitisi_titlos"),
     // A results page is a view over the catalogue, not a page that should
     // compete in search with the products it lists.
     robots: { index: false, follow: true },
@@ -62,6 +69,7 @@ export async function generateMetadata({
  * number wants that part, not position nine of 340.
  */
 export default async function SearchPage({ params, searchParams }: PageProps) {
+  const t = await getTranslations("anazitisi.page");
   const { locale } = await params;
   setRequestLocale(locale);
 
@@ -140,10 +148,10 @@ export default async function SearchPage({ params, searchParams }: PageProps) {
             className="t-util flex h-11 items-center gap-2.5 text-white/45"
           >
             <Link href="/" className="text-white/60 hover:text-white">
-              {upGreek("Αρχική")}
+              {upGreek(t("archiki"))}
             </Link>
             <span className="text-k-red">/</span>
-            <span className="text-white">{upGreek("Αναζήτηση")}</span>
+            <span className="text-white">{upGreek(t("anazitisi"))}</span>
           </nav>
 
           <div className="flex flex-col gap-5 pt-2.5 pb-7 lg:flex-row lg:items-end lg:justify-between lg:gap-12">
@@ -151,11 +159,11 @@ export default async function SearchPage({ params, searchParams }: PageProps) {
               <h1 className="font-artegra text-[22px] leading-[1.16] font-medium text-balance text-white lg:text-[30px]">
                 {query ? (
                   <>
-                    {upGreek("Αποτελέσματα για")}{" "}
+                    {upGreek(t("apotelesmata_gia"))}{" "}
                     <span className="text-k-red">«{query}»</span>
                   </>
                 ) : (
-                  upGreek("Αναζήτηση")
+                  upGreek(t("anazitisi"))
                 )}
               </h1>
 
@@ -166,30 +174,28 @@ export default async function SearchPage({ params, searchParams }: PageProps) {
                       <strong className="font-semibold text-white">
                         {data!.total.toLocaleString("el-GR")}
                       </strong>{" "}
-                      {data!.total === 1 ? "προϊόν" : "προϊόντα"}
+                      {data!.total === 1 ? t("proion") : t("proionta")}
                       {brandCount > 0 && (
                         <>
                           {" "}
-                          από {brandCount}{" "}
+                          {t("apo")} {brandCount}{" "}
                           {brandCount === 1 ? "brand" : "brands"}
                         </>
                       )}
                       {inStockCount > 0 && (
                         <>
-                          , {inStockCount.toLocaleString("el-GR")} άμεσα
-                          διαθέσιμα
+                          , {inStockCount.toLocaleString("el-GR")} {t("amesa_diathesima")}
                         </>
                       )}
-                      . Φιλτράρετε αριστερά — όλες οι τιμές με ΦΠΑ.
+                      {t("filtrarete_aristera_oles_oi_times")}
                     </>
                   ) : (
-                    "Δεν βρέθηκε προϊόν με αυτούς τους όρους."
+                    t("den_vrethike_proion_me_aytoys")
                   )}
                 </p>
               ) : (
                 <p className="mt-3.5 max-w-[640px] text-[13px] leading-[1.68] text-white/60 lg:text-sm">
-                  Γράψτε τουλάχιστον {SUGGEST_MIN_LENGTH} χαρακτήρες — κωδικό,
-                  όνομα προϊόντος ή brand.
+                  {t("grapste_toylachiston")} {SUGGEST_MIN_LENGTH} {t("charaktires_kodiko_onoma_proiontos_i")}
                 </p>
               )}
             </div>
@@ -201,7 +207,7 @@ export default async function SearchPage({ params, searchParams }: PageProps) {
           <section className="shell-x border-b-[3px] border-k-red bg-k-surface-2 py-5 lg:py-6">
             <p className="t-eyebrow mb-3.5 flex items-center gap-2.5 text-k-red">
               <span aria-hidden className="rule-accent block shrink-0" />
-              {upGreek("Ακριβής κωδικός")}
+              {upGreek(t("akrivis_kodikos"))}
             </p>
             <div className="flex flex-wrap items-center gap-5 border border-k-line bg-white p-4 lg:p-5">
               <Link
@@ -253,8 +259,8 @@ export default async function SearchPage({ params, searchParams }: PageProps) {
                     className="rounded-pill block h-1.5 w-1.5 bg-current"
                   />
                   {exact.inStock
-                    ? `${exact.qty} ${upGreek("τεμ.")}`
-                    : upGreek("Κατόπιν")}
+                    ? `${exact.qty} ${upGreek(t("tem"))}`
+                    : upGreek(t("katopin"))}
                 </p>
               </div>
 
@@ -324,22 +330,23 @@ export default async function SearchPage({ params, searchParams }: PageProps) {
  * answered by people who have been selling these tools for 46 years.
  */
 function NoResults({ query }: { query: string }) {
+  const t = useTranslations("anazitisi.page");
   const tips = [
     {
-      title: "Δοκιμάστε τον κωδικό του κατασκευαστή",
-      body: "Ψάχνουμε σε κωδικό Kolleris, κωδικό κατασκευαστή και EAN.",
+      title: t("dokimaste_ton_kodiko_toy_kataskeyasti"),
+      body: t("psachnoyme_se_kodiko_kolleris_kodiko"),
     },
     {
-      title: "Λιγότερες λέξεις",
-      body: "«τρυπάνι μπετόν 8» → «τρυπάνι 8». Οι λιγότεροι όροι φέρνουν περισσότερα.",
+      title: t("ligoteres_lexeis"),
+      body: t("trypani_mpeton_8_trypani_8"),
     },
     {
-      title: "Δοκιμάστε λατινικά ή ελληνικά",
-      body: "Τα brands είναι καταχωρημένα λατινικά — «knipex» αντί για «κνιπεξ».",
+      title: t("dokimaste_latinika_i_ellinika"),
+      body: t("ta_brands_einai_katachorimena_latinika"),
     },
     {
-      title: "Ψάξτε στον κατάλογο",
-      body: "23 κατηγορίες με φίλτρα σε μέγεθος, brand και διαθεσιμότητα.",
+      title: t("psaxte_ston_katalogo"),
+      body: t("23_katigories_me_filtra_se"),
     },
   ];
 
@@ -348,14 +355,13 @@ function NoResults({ query }: { query: string }) {
       <div className="max-w-2xl">
         <p className="t-eyebrow flex items-center gap-2.5 text-k-red">
           <span aria-hidden className="rule-accent block shrink-0" />
-          {upGreek("Καμία αντιστοιχία")}
+          {upGreek(t("kamia_antistoichia"))}
         </p>
         <h2 className="font-artegra mt-2.5 text-[20px] leading-[1.25] text-k-ink lg:text-[26px]">
-          {upGreek(`Δεν βρέθηκε κάτι για «${query}»`)}
+          {upGreek(t("den_vrethike_kati_gia", { query: query }))}
         </h2>
         <p className="mt-3 text-[13.5px] leading-[1.65] text-k-text-3">
-          Πιθανόν να το έχουμε και να μην το βρήκε η αναζήτηση. Δοκιμάστε τα
-          παρακάτω, ή σηκώστε το τηλέφωνο — το βρίσκουμε μαζί σε ένα λεπτό.
+          {t("pithanon_na_to_echoyme_kai")}
         </p>
       </div>
 
@@ -377,13 +383,13 @@ function NoResults({ query }: { query: string }) {
           href="/katalogos"
           className="t-btn-sm bg-k-ink px-7 py-4 text-white transition-colors hover:bg-k-red"
         >
-          {upGreek("Στον κατάλογο")} →
+          {upGreek(t("ston_katalogo"))} →
         </Link>
         <a
           href="tel:+302104111355"
           className="t-btn-sm border-[1.5px] border-k-ink px-7 py-4 text-k-ink transition-colors hover:bg-k-ink hover:text-white"
         >
-          {upGreek("Τ. 210 411 1355")}
+          {upGreek(t("t_210_411_1355"))}
         </a>
       </div>
     </section>

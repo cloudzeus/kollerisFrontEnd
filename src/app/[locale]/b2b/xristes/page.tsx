@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { setRequestLocale } from "next-intl/server";
@@ -14,10 +15,20 @@ import { getCustomerToken } from "@/lib/account/session";
 import { companyCan } from "@/lib/account/contract";
 import { upGreek } from "@/lib/greek";
 
-export const metadata: Metadata = {
-  title: "Χρήστες & ρόλοι",
-  robots: { index: false, follow: false },
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: Locale }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  // Explicit locale: `setRequestLocale` belongs to the render pass, and
+  // metadata is generated outside it.
+  const t = await getTranslations({ locale, namespace: "xristes.page" });
+  return {
+    title: t("titlos_christes_roloi"),
+    robots: { index: false, follow: false },
+  };
+}
 
 /**
  * Company users, roles and spend limits.
@@ -31,6 +42,7 @@ export default async function CompanyUsersPage({
 }: {
   params: Promise<{ locale: Locale }>;
 }) {
+  const t = await getTranslations("xristes.page");
   const { locale } = await params;
   setRequestLocale(locale);
 
@@ -50,8 +62,8 @@ export default async function CompanyUsersPage({
       <AccountShell
         user={user}
         active="/b2b/xristes"
-        title="Χρήστες & ρόλοι"
-        lead="Ποιος παραγγέλνει για λογαριασμό της εταιρείας, με ποιον ρόλο και μέχρι ποιο ποσό."
+        title={t("christes_roloi")}
+        lead={t("poios_paraggelnei_gia_logariasmo_tis")}
       >
         <>
           {!canManage && (
@@ -60,8 +72,7 @@ export default async function CompanyUsersPage({
                 aria-hidden
                 className="mt-1 block h-1.5 w-1.5 shrink-0 bg-k-text-5"
               />
-              Βλέπετε τους χρήστες της εταιρείας. Η προσθήκη και η αλλαγή ρόλων
-              γίνεται από τον διαχειριστή.
+              {t("vlepete_toys_christes_tis_etaireias")}
             </p>
           )}
 
@@ -73,7 +84,7 @@ export default async function CompanyUsersPage({
 
           {members.length === 0 && (
             <p className="border border-k-line bg-k-surface-2 px-5 py-10 text-center text-[13px] text-k-text-3">
-              {upGreek("Δεν υπάρχουν άλλοι χρήστες ακόμη.")}
+              {upGreek(t("den_yparchoyn_alloi_christes_akomi"))}
             </p>
           )}
 

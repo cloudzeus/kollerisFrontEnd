@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import type { Metadata } from "next";
 import Image from "next/image";
 import { setRequestLocale } from "next-intl/server";
@@ -22,16 +23,27 @@ import { upGreek } from "@/lib/greek";
 /** Always fresh: a cached cart is a wrong cart. */
 export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = {
-  title: "Το καλάθι σας",
-  robots: { index: false, follow: false },
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: Locale }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  // Explicit locale: `setRequestLocale` belongs to the render pass, and
+  // metadata is generated outside it.
+  const t = await getTranslations({ locale, namespace: "kalathi.page" });
+  return {
+    title: t("titlos_to_kalathi_sas"),
+    robots: { index: false, follow: false },
+  };
+}
 
 export default async function CartPage({
   params,
 }: {
   params: Promise<{ locale: Locale }>;
 }) {
+  const t = await getTranslations("kalathi.page");
   const { locale } = await params;
   setRequestLocale(locale);
 
@@ -49,9 +61,9 @@ export default async function CartPage({
   ]);
 
   const steps = [
-    { n: "01", label: "ΚΑΛΑΘΙ", active: true },
-    { n: "02", label: "ΣΤΟΙΧΕΙΑ", active: false },
-    { n: "03", label: "ΠΛΗΡΩΜΗ", active: false },
+    { n: "01", label: t("kalathi"), active: true },
+    { n: "02", label: t("stoicheia"), active: false },
+    { n: "03", label: t("pliromi"), active: false },
   ];
 
   return (
@@ -71,10 +83,10 @@ export default async function CartPage({
             className="t-util flex h-11 items-center gap-2.5 text-white/45"
           >
             <Link href="/" className="text-white/60 hover:text-white">
-              {upGreek("Αρχική")}
+              {upGreek(t("archiki"))}
             </Link>
             <span className="text-k-red">/</span>
-            <span className="text-white">{upGreek("Καλάθι")}</span>
+            <span className="text-white">{upGreek(t("kalathi_2"))}</span>
           </nav>
 
           <div className="flex flex-col gap-6 pt-3 pb-8 lg:flex-row lg:items-end lg:justify-between lg:gap-12">
@@ -82,11 +94,11 @@ export default async function CartPage({
               <p className="t-eyebrow mb-3.5 flex items-center gap-[11px] text-k-red">
                 <span className="hidden h-[1.5px] w-[26px] bg-k-red lg:block" />
                 {isEmpty
-                  ? upGreek("Κανένα προϊόν")
-                  : `${cart!.totals.itemCount} ${upGreek("προϊόντα")} · ${cart!.totals.unitCount} ${upGreek("τεμάχια")}`}
+                  ? upGreek(t("kanena_proion"))
+                  : `${cart!.totals.itemCount} ${upGreek(t("proionta"))} · ${cart!.totals.unitCount} ${upGreek(t("temachia"))}`}
               </p>
               <h1 className="font-artegra text-[26px] leading-[1.14] font-medium text-white lg:text-[34px]">
-                {upGreek("Το καλάθι σας")}
+                {upGreek(t("to_kalathi_sas"))}
               </h1>
             </div>
 
@@ -123,17 +135,16 @@ export default async function CartPage({
               className="mx-auto block opacity-35"
             />
             <p className="font-artegra mt-5 text-xl leading-[1.3] text-k-ink">
-              {upGreek("Το καλάθι είναι άδειο")}
+              {upGreek(t("to_kalathi_einai_adeio"))}
             </p>
             <p className="mt-2.5 text-[13.5px] text-k-text-3">
-              {stats.products.toLocaleString("el-GR")} κωδικοί σας περιμένουν στον
-              κατάλογο.
+              {stats.products.toLocaleString("el-GR")} {t("kodikoi_sas_perimenoyn_ston_katalogo")}
             </p>
             <Link
               href="/katalogos"
               className="t-btn-sm mt-5 inline-block bg-k-ink px-7 py-4 text-white transition-colors hover:bg-k-red"
             >
-              {upGreek("Στον κατάλογο")} →
+              {upGreek(t("ston_katalogo"))} →
             </Link>
           </div>
         ) : (
@@ -141,7 +152,7 @@ export default async function CartPage({
             <div className="min-w-0 border-k-line lg:border-r">
               {/* Column headings — desktop only; each mobile row labels itself. */}
               <div className="hidden grid-cols-[1fr_150px_150px_140px_52px] gap-5 border-b border-k-ink px-10 py-4 lg:grid">
-                {["Προϊόν", "Τιμή μονάδας", "Ποσότητα", "Σύνολο", ""].map((label, i) => (
+                {[t("proion"), t("timi_monadas"), t("posotita"), t("synolo"), ""].map((label, i) => (
                   <span
                     key={label || i}
                     className={`t-footer-col text-k-text-4 ${

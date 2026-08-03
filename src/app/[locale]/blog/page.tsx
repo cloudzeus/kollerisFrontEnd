@@ -1,3 +1,5 @@
+import { useTranslations } from "next-intl";
+import { getTranslations } from "next-intl/server";
 import type { Metadata } from "next";
 import Image from "next/image";
 import { setRequestLocale } from "next-intl/server";
@@ -17,10 +19,20 @@ import {
 } from "@/lib/catalog/queries";
 import { upGreek } from "@/lib/greek";
 
-export const metadata: Metadata = {
-  title: "Blog",
-  description: "Οδηγοί, δοκιμές και τεχνικά άρθρα για επαγγελματικά εργαλεία.",
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: Locale }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  // Explicit locale: `setRequestLocale` belongs to the render pass, and
+  // metadata is generated outside it.
+  const t = await getTranslations({ locale, namespace: "blog.page" });
+  return {
+    title: "Blog",
+    description: t("perigrafi_odigoi_dokimes_kai_technika"),
+  };
+}
 
 /** Reading order: newest first, one lead article, the rest in a grid. */
 export default async function BlogPage({
@@ -30,6 +42,7 @@ export default async function BlogPage({
   params: Promise<{ locale: Locale }>;
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
+  const t = await getTranslations("blog.page");
   const { locale } = await params;
   setRequestLocale(locale);
 
@@ -68,18 +81,17 @@ export default async function BlogPage({
         <div className="shell-x bg-k-ink-deep">
           <nav aria-label="Breadcrumb" className="t-util flex h-11 items-center gap-2.5 text-white/45">
             <Link href="/" className="text-white/60 hover:text-white">
-              {upGreek("Αρχική")}
+              {upGreek(t("archiki"))}
             </Link>
             <span className="text-k-red">/</span>
             <span className="text-white">BLOG</span>
           </nav>
           <div className="pt-2.5 pb-8">
             <h1 className="font-artegra text-[22px] leading-[1.16] font-medium text-balance text-white lg:text-[30px]">
-              {upGreek("Οδηγοί και δοκιμές")}
+              {upGreek(t("odigoi_kai_dokimes"))}
             </h1>
             <p className="mt-3.5 max-w-[600px] text-[13px] leading-[1.68] text-white/60 lg:text-sm">
-              Τι δουλεύει, τι όχι, και γιατί. Γραμμένα από ανθρώπους που πουλάνε αυτά τα
-              εργαλεία 46 χρόνια.
+              {t("ti_doyleyei_ti_ochi_kai")}
             </p>
           </div>
         </div>
@@ -90,7 +102,7 @@ export default async function BlogPage({
               <BlogMissingNotice endpoint={missing} />
             ) : !lead ? (
               <p className="border border-k-line bg-k-surface-2 px-5 py-16 text-center text-[13px] text-k-text-3">
-                {upGreek("Δεν υπάρχουν ακόμη δημοσιευμένα άρθρα.")}
+                {upGreek(t("den_yparchoyn_akomi_dimosieymena_arthra"))}
               </p>
             ) : (
               <>
@@ -106,7 +118,7 @@ export default async function BlogPage({
 
                 {data && data.totalPages > 1 && (
                   <nav
-                    aria-label="Σελίδες"
+                    aria-label={t("selides")}
                     className="mt-8 flex flex-wrap items-center justify-center gap-1.5"
                   >
                     {Array.from({ length: data.totalPages }, (_, i) => i + 1).map((n) => (
@@ -137,6 +149,7 @@ export default async function BlogPage({
 }
 
 function LeadCard({ post }: { post: import("@/lib/blog/contract").BlogPostSummary }) {
+  const t = useTranslations("blog.page");
   return (
     <Link
       href={`/blog/${post.slug}`}
@@ -146,7 +159,7 @@ function LeadCard({ post }: { post: import("@/lib/blog/contract").BlogPostSummar
         <div>
           <p className="t-eyebrow flex items-center gap-2.5 text-k-red">
             <span aria-hidden className="rule-accent block shrink-0" />
-            {upGreek("Πιο πρόσφατο")}
+            {upGreek(t("pio_prosfato"))}
           </p>
           <h2 className="font-artegra mt-3.5 text-[20px] leading-[1.22] text-balance text-k-ink transition-colors group-hover/lead:text-k-red lg:text-[27px]">
             {post.title}
@@ -176,6 +189,7 @@ function LeadCard({ post }: { post: import("@/lib/blog/contract").BlogPostSummar
 }
 
 function PostCard({ post }: { post: import("@/lib/blog/contract").BlogPostSummary }) {
+  const t = useTranslations("blog.page");
   return (
     <Link
       href={`/blog/${post.slug}`}
@@ -192,7 +206,7 @@ function PostCard({ post }: { post: import("@/lib/blog/contract").BlogPostSummar
           />
         ) : (
           <span className="t-brand-count flex h-full items-center justify-center text-k-text-5">
-            {upGreek("Χωρίς εικόνα")}
+            {upGreek(t("choris_eikona"))}
           </span>
         )}
       </span>
@@ -214,7 +228,10 @@ function PostCard({ post }: { post: import("@/lib/blog/contract").BlogPostSummar
   );
 }
 
-function PostMeta({ post }: { post: import("@/lib/blog/contract").BlogPostSummary }) {
+// Async because it needs `t`, and a server component may be awaited where it is
+// rendered — cheaper than threading the one label down from both call sites.
+async function PostMeta({ post }: { post: import("@/lib/blog/contract").BlogPostSummary }) {
+  const t = await getTranslations("blog.page");
   const date = new Date(post.publishedAt);
   return (
     <span className="t-brand-count flex flex-wrap items-center gap-2.5 text-k-text-4">
@@ -226,7 +243,7 @@ function PostMeta({ post }: { post: import("@/lib/blog/contract").BlogPostSummar
       {post.readingMinutes != null && (
         <>
           <span aria-hidden className="block h-[12px] w-px bg-k-line-2" />
-          <span>{upGreek(`${post.readingMinutes}′ ανάγνωση`)}</span>
+          <span>{upGreek(t("anagnosi", { readingMinutes: post.readingMinutes }))}</span>
         </>
       )}
     </span>

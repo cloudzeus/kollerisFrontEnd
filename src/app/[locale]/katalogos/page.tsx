@@ -1,3 +1,5 @@
+import { useTranslations } from "next-intl";
+import { getTranslations } from "next-intl/server";
 import type { Metadata } from "next";
 import Image from "next/image";
 import { setRequestLocale } from "next-intl/server";
@@ -19,11 +21,20 @@ import {
 } from "@/lib/catalog/queries";
 import { upGreek } from "@/lib/greek";
 
-export const metadata: Metadata = {
-  title: "Κατάλογος",
-  description:
-    "Όλες οι κατηγορίες εργαλείων — 23 κατηγορίες, 467 υποκατηγορίες, με πλήθος κωδικών σε κάθε επίπεδο.",
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: Locale }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  // Explicit locale: `setRequestLocale` belongs to the render pass, and
+  // metadata is generated outside it.
+  const t = await getTranslations({ locale, namespace: "katalogos.page" });
+  return {
+    title: t("titlos_katalogos"),
+    description: t("perigrafi_oles_oi_katigories_ergaleion"),
+  };
+}
 
 /**
  * Catalogue index.
@@ -50,6 +61,7 @@ export default async function CataloguePage({
 }: {
   params: Promise<{ locale: Locale }>;
 }) {
+  const t = await getTranslations("katalogos.page");
   const { locale } = await params;
   setRequestLocale(locale);
 
@@ -80,21 +92,20 @@ export default async function CataloguePage({
         <div className="shell-x bg-k-ink-deep">
           <nav aria-label="Breadcrumb" className="t-util flex h-11 items-center gap-2.5 text-white/45">
             <Link href="/" className="text-white/60 hover:text-white">
-              {upGreek("Αρχική")}
+              {upGreek(t("archiki"))}
             </Link>
             <span className="text-k-red">/</span>
-            <span className="text-white">{upGreek("Κατάλογος")}</span>
+            <span className="text-white">{upGreek(t("katalogos"))}</span>
           </nav>
 
           <div className="pt-2.5 pb-8">
             <h1 className="font-artegra text-[22px] leading-[1.16] font-medium text-balance text-white lg:text-[30px]">
-              {upGreek("Όλος ο κατάλογος")}
+              {upGreek(t("olos_o_katalogos"))}
             </h1>
             <p className="mt-3.5 max-w-[660px] text-[13px] leading-[1.68] text-white/60 lg:text-sm">
-              {index.totals.products.toLocaleString("el-GR")} κωδικοί σε{" "}
-              {index.totals.categories} κατηγορίες, {index.totals.groups} ομάδες και{" "}
-              {index.totals.subgroups} υποκατηγορίες. Είναι πολλά — γι&apos; αυτό ξεκινήστε
-              γράφοντας τι ψάχνετε.
+              {index.totals.products.toLocaleString("el-GR")} {t("kodikoi_se")}{" "}
+              {index.totals.categories} {t("katigories")} {index.totals.groups} {t("omades_kai")}{" "}
+              {index.totals.subgroups} {t("ypokatigories_einai_polla_gi_apos")}
             </p>
           </div>
         </div>
@@ -111,13 +122,13 @@ export default async function CataloguePage({
           <section className="band-base">
             <div className="shell-x py-8 lg:py-12">
               <SectionHead
-                eyebrow="Ο κύριος όγκος"
+                eyebrow={t("o_kyrios_ogkos")}
                 title={
                   feature.length === 1
-                    ? `Τα ${index.totals.topShare}% του καταλόγου`
-                    : "Οι μεγάλες κατηγορίες"
+                    ? t("ta_toy_katalogoy", { topShare: index.totals.topShare })
+                    : t("oi_megales_katigories")
                 }
-                lead="Μία κατηγορία κρατά τα περισσότερα. Παρακάτω είναι οι μεγαλύτερες υποκατηγορίες της — πηγαίνετε απευθείας, χωρίς ενδιάμεσο βήμα."
+                lead={t("mia_katigoria_krata_ta_perissotera")}
               />
               <div className="mt-7 flex flex-col gap-px border border-k-line bg-k-line lg:mt-9">
                 {feature.map((root) => (
@@ -133,9 +144,9 @@ export default async function CataloguePage({
           <section className="band-alt border-t border-k-line">
             <div className="shell-x py-8 lg:py-12">
               <SectionHead
-                eyebrow={`${standard.length} κατηγορίες`}
-                title="Οι υπόλοιπες κατηγορίες"
-                lead="Κάθε πλακίδιο δείχνει τις τέσσερις μεγαλύτερες υποκατηγορίες του."
+                eyebrow={t("katigories", { length: standard.length })}
+                title={t("oi_ypoloipes_katigories")}
+                lead={t("kathe_plakidio_deichnei_tis_tesseris")}
               />
               <div className="mt-7 grid gap-px border border-k-line bg-k-line sm:grid-cols-2 lg:mt-9 lg:grid-cols-3 xl:grid-cols-4">
                 {standard.map((root) => (
@@ -151,9 +162,9 @@ export default async function CataloguePage({
           <section className="band-base border-t border-k-line">
             <div className="shell-x py-8 lg:py-12">
               <SectionHead
-                eyebrow="Μικρές κατηγορίες"
-                title="Λίγοι κωδικοί, αλλά υπάρχουν"
-                lead="Κατηγορίες με λιγότερους από 55 κωδικούς. Τις δείχνουμε σε λίστα και όχι σε πλακίδια — ένα πλακίδιο για ένα προϊόν είναι λευκός χώρος, όχι σχεδιασμός."
+                eyebrow={t("mikres_katigories")}
+                title={t("ligoi_kodikoi_alla_yparchoyn")}
+                lead={t("katigories_me_ligoteroys_apo_55")}
               />
               <ul className="mt-7 grid gap-px border border-k-line bg-k-line sm:grid-cols-2 lg:mt-9 lg:grid-cols-3">
                 {tail.map((root) => (
@@ -182,15 +193,15 @@ export default async function CataloguePage({
           <div className="shell-x py-9 lg:py-12">
             <SectionHead
               tone="dark"
-              eyebrow="Ο άλλος δρόμος"
-              title="Ψάχνετε με brand;"
-              lead="Αν ξέρετε τον κατασκευαστή αλλά όχι την κατηγορία, ξεκινήστε από εκεί."
+              eyebrow={t("o_allos_dromos")}
+              title={t("psachnete_me_brand")}
+              lead={t("an_xerete_ton_kataskeyasti_alla")}
               meta={
                 <Link
                   href="/brands"
                   className="t-btn-sm inline-block bg-k-red px-7 py-4 text-white transition-colors hover:bg-k-red-hover"
                 >
-                  {upGreek("Όλα τα brands")} →
+                  {upGreek(t("ola_ta_brands"))} →
                 </Link>
               }
             />
@@ -211,6 +222,7 @@ export default async function CataloguePage({
  * drops you into a page where you still have to choose.
  */
 function FeatureTile({ root, nodes }: { root: CatalogueRoot; nodes: CatalogueNode[] }) {
+  const t = useTranslations("katalogos.page");
   return (
     <div className="grid bg-white lg:grid-cols-[minmax(0,380px)_minmax(0,1fr)]">
       <Link
@@ -220,13 +232,13 @@ function FeatureTile({ root, nodes }: { root: CatalogueRoot; nodes: CatalogueNod
         <div className="min-w-0">
           <p className="t-eyebrow flex items-center gap-2.5 text-k-red">
             <span aria-hidden className="rule-accent block shrink-0" />
-            {upGreek("Κατηγορία")}
+            {upGreek(t("katigoria"))}
           </p>
           <p className="font-artegra mt-3 text-[19px] leading-[1.2] text-balance text-k-ink transition-colors group-hover/feat:text-k-red lg:text-[24px]">
             {upGreek(root.name)}
           </p>
           <p className="mt-3 text-[12.5px] leading-[1.6] text-k-text-3">
-            {root.groupCount} ομάδες · {root.subgroupCount} υποκατηγορίες
+            {root.groupCount} {t("omades")} {root.subgroupCount} {t("ypokatigories")}
           </p>
         </div>
 
@@ -236,7 +248,7 @@ function FeatureTile({ root, nodes }: { root: CatalogueRoot; nodes: CatalogueNod
               {root.count.toLocaleString("el-GR")}
             </span>
             <span className="t-account-label mt-1.5 block text-k-text-4">
-              {upGreek("κωδικοί")}
+              {upGreek(t("kodikoi"))}
             </span>
           </span>
           {root.image && (
@@ -252,7 +264,7 @@ function FeatureTile({ root, nodes }: { root: CatalogueRoot; nodes: CatalogueNod
       </Link>
 
       <div className="p-5 lg:p-7">
-        <p className="t-account-label text-k-text-4">{upGreek("Πηγαίνετε απευθείας σε")}</p>
+        <p className="t-account-label text-k-text-4">{upGreek(t("pigainete_apeytheias_se"))}</p>
         <ul className="mt-3.5 grid gap-px bg-k-line sm:grid-cols-2 xl:grid-cols-4">
           {root.children.map((child) => (
             <li key={child.slug}>
@@ -264,7 +276,7 @@ function FeatureTile({ root, nodes }: { root: CatalogueRoot; nodes: CatalogueNod
                   {child.name}
                 </span>
                 <span className="t-brand-count font-mono text-k-text-4">
-                  {child.count.toLocaleString("el-GR")} {upGreek("κωδ.")}
+                  {child.count.toLocaleString("el-GR")} {upGreek(t("kod"))}
                 </span>
               </Link>
             </li>
@@ -279,13 +291,13 @@ function FeatureTile({ root, nodes }: { root: CatalogueRoot; nodes: CatalogueNod
           <CategoryPicker
             root={root.name}
             nodes={nodes}
-            label={`Και οι υπόλοιπες ${root.groupCount + root.subgroupCount - root.children.length}`}
+            label={t("kai_oi_ypoloipes", { n: root.groupCount + root.subgroupCount - root.children.length })}
           />
           <Link
             href={`/katalogos/${root.slug}`}
             className="t-brand-count text-k-text-4 underline underline-offset-4 transition-colors hover:text-k-ink"
           >
-            {upGreek("Ή δείτε όλα τα προϊόντα της κατηγορίας")} →
+            {upGreek(t("i_deite_ola_ta_proionta"))} →
           </Link>
         </div>
       </div>
@@ -295,6 +307,7 @@ function FeatureTile({ root, nodes }: { root: CatalogueRoot; nodes: CatalogueNod
 
 /** A working-middle category, with its four biggest children inline. */
 function StandardTile({ root, nodes }: { root: CatalogueRoot; nodes: CatalogueNode[] }) {
+  const t = useTranslations("katalogos.page");
   const remaining = root.groupCount + root.subgroupCount - Math.min(4, root.children.length);
 
   return (
@@ -305,8 +318,8 @@ function StandardTile({ root, nodes }: { root: CatalogueRoot; nodes: CatalogueNo
             {root.name}
           </span>
           <span className="t-brand-count mt-1.5 block text-k-text-4">
-            {root.count.toLocaleString("el-GR")} {upGreek("κωδ.")} ·{" "}
-            {root.subgroupCount || root.groupCount} {upGreek("υποκατηγορίες")}
+            {root.count.toLocaleString("el-GR")} {upGreek(t("kod"))} ·{" "}
+            {root.subgroupCount || root.groupCount} {upGreek(t("ypokatigories"))}
           </span>
         </span>
         {root.image && (
@@ -338,7 +351,7 @@ function StandardTile({ root, nodes }: { root: CatalogueRoot; nodes: CatalogueNo
 
           {remaining > 0 && (
             <div className="mt-3">
-              <CategoryPicker root={root.name} nodes={nodes} label={`+ ${remaining} ακόμη`} />
+              <CategoryPicker root={root.name} nodes={nodes} label={t("akomi", { remaining: remaining })} />
             </div>
           )}
         </>

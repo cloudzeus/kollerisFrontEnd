@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import type { Metadata } from "next";
 import { setRequestLocale } from "next-intl/server";
 import { SectionHead } from "@/components/chrome/SectionHead";
@@ -15,12 +16,21 @@ import {
 } from "@/lib/catalog/queries";
 import { upGreek } from "@/lib/greek";
 
-export const metadata: Metadata = {
-  title: "Εντοπισμός παραγγελίας",
-  description:
-    "Δείτε πού βρίσκεται η παραγγελία σας με τον αριθμό και το email σας. Δεν χρειάζεται λογαριασμός.",
-  robots: { index: true, follow: true },
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: Locale }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  // Explicit locale: `setRequestLocale` belongs to the render pass, and
+  // metadata is generated outside it.
+  const t = await getTranslations({ locale, namespace: "entopismos.page" });
+  return {
+    title: t("titlos_entopismos_paraggelias"),
+    description: t("perigrafi_deite_poy_vrisketai_i"),
+    robots: { index: true, follow: true },
+  };
+}
 
 /**
  * Order tracking.
@@ -40,6 +50,7 @@ export default async function TrackOrderPage({
   params: Promise<{ locale: Locale }>;
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
+  const t = await getTranslations("entopismos.page");
   const { locale } = await params;
   setRequestLocale(locale);
 
@@ -69,18 +80,18 @@ export default async function TrackOrderPage({
         <div className="shell-x bg-k-ink-deep">
           <nav aria-label="Breadcrumb" className="t-util flex h-11 items-center gap-2.5 text-white/45">
             <Link href="/" className="text-white/60 hover:text-white">
-              {upGreek("Αρχική")}
+              {upGreek(t("archiki"))}
             </Link>
             <span className="text-k-red">/</span>
-            <span className="text-white">{upGreek("Εντοπισμός παραγγελίας")}</span>
+            <span className="text-white">{upGreek(t("entopismos_paraggelias"))}</span>
           </nav>
 
           <div className="pt-2.5 pb-8">
             <h1 className="font-artegra text-[22px] leading-[1.16] font-medium text-balance text-white lg:text-[30px]">
-              {upGreek("Πού είναι η παραγγελία μου")}
+              {upGreek(t("poy_einai_i_paraggelia_moy"))}
             </h1>
             <p className="mt-3.5 max-w-[600px] text-[13px] leading-[1.68] text-white/60 lg:text-sm">
-              Αριθμός παραγγελίας και το email που δώσατε. Χωρίς λογαριασμό, χωρίς κωδικό.
+              {t("arithmos_paraggelias_kai_to_email")}
             </p>
           </div>
         </div>
@@ -94,9 +105,9 @@ export default async function TrackOrderPage({
         <section className="band-alt border-t border-k-line">
           <div className="shell-x py-8 lg:py-12">
             <SectionHead
-              eyebrow="Αν κάτι δεν βγαίνει"
-              title="Δεν βρίσκετε τον αριθμό;"
-              lead="Είναι στο email επιβεβαίωσης, στη μορφή KOL-ΗΗΜΜΕΕ-0000. Αν το email χάθηκε, καλέστε μας με το ονοματεπώνυμο και την ημερομηνία — το βρίσκουμε."
+              eyebrow={t("an_kati_den_vgainei")}
+              title={t("den_vriskete_ton_arithmo")}
+              lead={t("einai_sto_email_epivevaiosis_sti")}
               meta={
                 <div className="flex flex-wrap gap-3">
                   <a
@@ -109,7 +120,7 @@ export default async function TrackOrderPage({
                     href="/syxnes-erotiseis#apostoli"
                     className="t-btn-sm border-[1.5px] border-k-ink px-7 py-4 text-k-ink transition-colors hover:bg-k-ink hover:text-white"
                   >
-                    {upGreek("Ερωτήσεις αποστολής")}
+                    {upGreek(t("erotiseis_apostolis"))}
                   </Link>
                 </div>
               }

@@ -1,1 +1,50 @@
-[]
+[
+  {
+    "file": "components/offers/OfferWidget.tsx",
+    "line": 286,
+    "value": "Λωρίδα",
+    "why": "PropertyAssignment"
+  },
+  {
+    "file": "components/offers/OfferWidget.tsx",
+    "line": 287,
+    "value": "Κάρτα",
+    "why": "PropertyAssignment"
+  },
+  {
+    "file": "components/offers/OfferWidget.tsx",
+    "line": 288,
+    "value": "Ταινία",
+    "why": "PropertyAssignment"
+  },
+  {
+    "file": "components/offers/OfferWidget.tsx",
+    "line": 289,
+    "value": "Αντίστροφη μέτρηση",
+    "why": "PropertyAssignment"
+  },
+  {
+    "file": "components/offers/OfferWidget.tsx",
+    "line": 293,
+    "value": "Πλήρες πλάτος. Διαβάζεται σε κάθε οθόνη — η ασφαλής επιλογή.",
+    "why": "PropertyAssignment"
+  },
+  {
+    "file": "components/offers/OfferWidget.tsx",
+    "line": 294,
+    "value": "Πλακίδιο 4:5 με την εικόνα από πίσω. Για πλέγματα και στήλες.",
+    "why": "PropertyAssignment"
+  },
+  {
+    "file": "components/offers/OfferWidget.tsx",
+    "line": 295,
+    "value": "Τρέχουσα γραμμή. Δυνατή, αλλά μόνο μία ανά σελίδα.",
+    "why": "PropertyAssignment"
+  },
+  {
+    "file": "components/offers/OfferWidget.tsx",
+    "line": 296,
+    "value": "Δείχνει πόσο μένει. Χρειάζεται ημερομηνία λήξης.",
+    "why": "PropertyAssignment"
+  }
+]

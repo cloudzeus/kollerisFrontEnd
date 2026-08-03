@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { setRequestLocale } from "next-intl/server";
@@ -8,10 +9,20 @@ import type { Locale } from "@/i18n/routing";
 import { getCustomerSession } from "@/lib/account/session";
 import { upGreek } from "@/lib/greek";
 
-export const metadata: Metadata = {
-  title: "Σύνδεση",
-  robots: { index: false, follow: false },
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: Locale }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  // Explicit locale: `setRequestLocale` belongs to the render pass, and
+  // metadata is generated outside it.
+  const t = await getTranslations({ locale, namespace: "eisodos.page" });
+  return {
+    title: t("titlos_syndesi"),
+    robots: { index: false, follow: false },
+  };
+}
 
 /**
  * Sign in.
@@ -26,6 +37,7 @@ export default async function SignInPage({
   params: Promise<{ locale: Locale }>;
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
+  const t = await getTranslations("eisodos.page");
   const { locale } = await params;
   setRequestLocale(locale);
 
@@ -41,18 +53,17 @@ export default async function SignInPage({
         <div className="shell-x bg-k-ink-deep">
           <nav aria-label="Breadcrumb" className="t-util flex h-11 items-center gap-2.5 text-white/45">
             <Link href="/" className="text-white/60 hover:text-white">
-              {upGreek("Αρχική")}
+              {upGreek(t("archiki"))}
             </Link>
             <span className="text-k-red">/</span>
-            <span className="text-white">{upGreek("Σύνδεση")}</span>
+            <span className="text-white">{upGreek(t("syndesi"))}</span>
           </nav>
           <div className="pt-2.5 pb-7">
             <h1 className="font-artegra text-[22px] leading-[1.16] font-medium text-white lg:text-[30px]">
-              {upGreek("Σύνδεση")}
+              {upGreek(t("syndesi"))}
             </h1>
             <p className="mt-3.5 max-w-[560px] text-[13px] leading-[1.68] text-white/60 lg:text-sm">
-              Παραγγελίες, εγγυήσεις και διευθύνσεις σε ένα σημείο. Οι εταιρικοί
-              λογαριασμοί βλέπουν τιμές συνεργάτη και πληρώνουν επί πιστώσει.
+              {t("paraggelies_eggyiseis_kai_dieythynseis_se")}
             </p>
           </div>
         </div>
@@ -65,16 +76,16 @@ export default async function SignInPage({
           </div>
 
           <aside className="border-t border-k-line bg-k-surface-2 px-4 py-8 lg:border-t-0 lg:border-l lg:px-8 lg:py-12">
-            <p className="t-eyebrow text-k-red">{upGreek("Εταιρικός λογαριασμός")}</p>
+            <p className="t-eyebrow text-k-red">{upGreek(t("etairikos_logariasmos"))}</p>
             <p className="font-artegra mt-2.5 text-[18px] leading-[1.28] text-k-ink">
-              {upGreek("Αγοράζετε για εταιρεία;")}
+              {upGreek(t("agorazete_gia_etaireia"))}
             </p>
             <ul className="mt-4 flex flex-col gap-2.5">
               {[
-                "Τιμές συνεργάτη σε όλο τον κατάλογο",
-                "Πληρωμή επί πιστώσει και τιμολόγιο",
-                "Πολλοί χρήστες με ρόλους και όρια δαπάνης",
-                "Ιστορικό παραγγελιών όλης της εταιρείας",
+                t("times_synergati_se_olo_ton"),
+                t("pliromi_epi_pistosei_kai_timologio"),
+                t("polloi_christes_me_roloys_kai"),
+                t("istoriko_paraggelion_olis_tis_etaireias"),
               ].map((item) => (
                 <li key={item} className="flex items-start gap-2.5 text-[12.5px] leading-[1.55] text-k-text-2">
                   <span aria-hidden className="mt-1.5 block h-1.5 w-1.5 shrink-0 bg-k-red" />
@@ -86,7 +97,7 @@ export default async function SignInPage({
               href="/eggrafi"
               className="t-btn-sm mt-6 inline-block border-[1.5px] border-k-ink px-7 py-3.5 text-k-ink transition-colors hover:bg-k-ink hover:text-white"
             >
-              {upGreek("Αίτηση B2B")} →
+              {upGreek(t("aitisi_b2b"))} →
             </Link>
           </aside>
         </div>

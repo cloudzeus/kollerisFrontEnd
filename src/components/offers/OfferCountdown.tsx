@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 
 /**
@@ -14,7 +15,7 @@ import { useEffect, useState } from "react";
  * a forgotten campaign is actually in.
  */
 
-const UNITS = ["ημέρες", "ώρες", "λεπτά", "δευτ."] as const;
+const UNITS = ["imeres", "ores", "lepta", "deyt"] as const;
 
 function split(target: number, now: number): number[] | null {
   const ms = target - now;
@@ -28,6 +29,7 @@ function split(target: number, now: number): number[] | null {
 }
 
 export function OfferCountdown({ endsAt }: { endsAt: string | null }) {
+  const t = useTranslations("offers.OfferCountdown");
   const target = endsAt ? new Date(endsAt).getTime() : null;
   const [parts, setParts] = useState<number[] | null>(() =>
     target ? split(target, Date.now()) : null,
@@ -43,11 +45,11 @@ export function OfferCountdown({ endsAt }: { endsAt: string | null }) {
 
   if (!target) {
     return (
-      <p className="text-[12.5px] text-white/50">Χωρίς ημερομηνία λήξης — δεν υπάρχει μέτρηση.</p>
+      <p className="text-[12.5px] text-white/50">{t("choris_imerominia_lixis_den_yparchei")}</p>
     );
   }
 
-  if (!parts) return <p className="text-[13px] font-medium text-white/70">Η προσφορά έληξε.</p>;
+  if (!parts) return <p className="text-[13px] font-medium text-white/70">{t("i_prosfora_elixe")}</p>;
 
   return (
     <ul className="flex items-start gap-2 motion-safe:animate-[offer-rise_.6s_cubic-bezier(.22,1,.36,1)_both] motion-safe:[animation-delay:120ms]">
@@ -57,7 +59,7 @@ export function OfferCountdown({ endsAt }: { endsAt: string | null }) {
             {String(value).padStart(2, "0")}
           </span>
           <span className="mt-1 block text-[9.5px] uppercase tracking-[0.1em] text-white/45">
-            {UNITS[i]}
+            {t(UNITS[i])}
           </span>
         </li>
       ))}

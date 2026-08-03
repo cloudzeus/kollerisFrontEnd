@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import type { Metadata } from "next";
 import { setRequestLocale } from "next-intl/server";
 import { SectionHead } from "@/components/chrome/SectionHead";
@@ -16,11 +17,20 @@ import {
 import { HOURS, openState } from "@/lib/contact/hours";
 import { upGreek } from "@/lib/greek";
 
-export const metadata: Metadata = {
-  title: "Επικοινωνία",
-  description:
-    "Τηλέφωνο, email και φόρμα επικοινωνίας. Πειραιάς, Δευτέρα–Παρασκευή 08:00–16:30. Σηκώνει άνθρωπος.",
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: Locale }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  // Explicit locale: `setRequestLocale` belongs to the render pass, and
+  // metadata is generated outside it.
+  const t = await getTranslations({ locale, namespace: "epikoinonia.page" });
+  return {
+    title: t("titlos_epikoinonia"),
+    description: t("perigrafi_tilefono_email_kai_forma"),
+  };
+}
 
 /**
  * Contact.
@@ -39,6 +49,7 @@ export default async function ContactPage({
 }: {
   params: Promise<{ locale: Locale }>;
 }) {
+  const t = await getTranslations("epikoinonia.page");
   const { locale } = await params;
   setRequestLocale(locale);
 
@@ -56,37 +67,37 @@ export default async function ContactPage({
 
   const channels = [
     {
-      label: "Τηλέφωνο",
+      label: t("tilefono"),
       value: "210 411 1355",
       href: "tel:+302104111355",
-      note: "Σηκώνει άνθρωπος, όχι μενού.",
+      note: t("sikonei_anthropos_ochi_menoy"),
       primary: true,
     },
     {
       label: "Email",
       value: "info@kolleris.com",
       href: "mailto:info@kolleris.com",
-      note: "Απάντηση την ίδια εργάσιμη.",
+      note: t("apantisi_tin_idia_ergasimi"),
     },
     {
-      label: "Κατάστημα",
-      value: "Κ. Μαυρομιχάλη 4, Πειραιάς",
-      href: "https://maps.google.com/?q=Κ.+Μαυρομιχάλη+4,+Πειραιάς",
-      note: "Παραλαβή παραγγελίας σε 2 ώρες.",
+      label: t("katastima"),
+      value: t("k_mayromichali_4_peiraias"),
+      href: t("https_maps_google_com_q"),
+      note: t("paralavi_paraggelias_se_2_ores"),
       external: true,
     },
     {
-      label: "Ωράριο",
-      value: `Δευ–Παρ ${String(HOURS.weekday.open).padStart(2, "0")}:00–16:30`,
-      note: "Σάββατο και Κυριακή κλειστά.",
+      label: t("orario"),
+      value: t("dey_par_00_16_30", { n: String(HOURS.weekday.open).padStart(2, "0") }),
+      note: t("savvato_kai_kyriaki_kleista"),
     },
   ];
 
   const direct = [
-    { area: "Τεχνική υποστήριξη", body: "Ποιο εργαλείο κάνει για τη δουλειά, συμβατότητες, ανταλλακτικά." },
-    { area: "Προσφορές & ποσότητες", body: "Τιμή για ποσότητα, σετ, εξοπλισμός συνεργείου." },
-    { area: "Παραγγελίες & αποστολές", body: "Εντοπισμός, τιμολόγια, επιστροφές, εγγυήσεις." },
-    { area: "Συνεργασίες B2B", body: "Εταιρικός λογαριασμός, τιμή συνεργάτη, πληρωμή επί πιστώσει." },
+    { area: t("techniki_ypostirixi"), body: t("poio_ergaleio_kanei_gia_ti") },
+    { area: t("prosfores_posotites"), body: t("timi_gia_posotita_set_exoplismos") },
+    { area: t("paraggelies_apostoles"), body: t("entopismos_timologia_epistrofes_eggyiseis") },
+    { area: t("synergasies_b2b"), body: t("etairikos_logariasmos_timi_synergati_pliromi") },
   ];
 
   return (
@@ -103,20 +114,19 @@ export default async function ContactPage({
         <div className="shell-x bg-k-ink-deep">
           <nav aria-label="Breadcrumb" className="t-util flex h-11 items-center gap-2.5 text-white/45">
             <Link href="/" className="text-white/60 hover:text-white">
-              {upGreek("Αρχική")}
+              {upGreek(t("archiki"))}
             </Link>
             <span className="text-k-red">/</span>
-            <span className="text-white">{upGreek("Επικοινωνία")}</span>
+            <span className="text-white">{upGreek(t("epikoinonia"))}</span>
           </nav>
 
           <div className="grid gap-6 pt-2.5 pb-9 lg:grid-cols-[1fr_auto] lg:items-end lg:gap-16">
             <div className="min-w-0">
               <h1 className="font-artegra text-[22px] leading-[1.16] font-medium text-balance text-white lg:text-[30px]">
-                {upGreek("Πείτε μας τη δουλειά, όχι τον κωδικό")}
+                {upGreek(t("peite_mas_ti_doyleia_ochi"))}
               </h1>
               <p className="mt-3.5 max-w-[620px] text-[13px] leading-[1.68] text-white/60 lg:text-sm">
-                Δεν χρειάζεται να ξέρετε τι ακριβώς ζητάτε. Περιγράψτε τι θέλετε να κάνετε —
-                σε 46 χρόνια το έχουμε ξανακούσει.
+                {t("den_chreiazetai_na_xerete_ti")}
               </p>
             </div>
 
@@ -133,11 +143,11 @@ export default async function ContactPage({
                 {upGreek(now.label)}
               </p>
               <p className="t-brand-count mt-2 font-mono text-white/45">
-                {upGreek(`Ώρα Ελλάδας ${now.now}`)}
+                {upGreek(t("ora_elladas", { now: now.now }))}
               </p>
               {closingSoon && (
                 <p className="mt-2 text-[12px] leading-[1.5] text-white/70">
-                  Κλείνουμε σε {now.minutesUntilChange}′ — προλαβαίνετε ένα τηλέφωνο.
+                  {t("kleinoyme_se")} {now.minutesUntilChange}{t("prolavainete_ena_tilefono")}
                 </p>
               )}
             </div>
@@ -184,9 +194,9 @@ export default async function ContactPage({
             <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_clamp(300px,30%,400px)] lg:gap-16">
               <div className="min-w-0">
                 <SectionHead
-                  eyebrow="Φόρμα"
-                  title="Γράψτε μας"
-                  lead="Διαλέξτε θέμα και τα πεδία προσαρμόζονται. Απαντάμε συνήθως την ίδια εργάσιμη."
+                  eyebrow={t("forma")}
+                  title={t("grapste_mas")}
+                  lead={t("dialexte_thema_kai_ta_pedia")}
                 />
                 <div className="mt-8 lg:mt-10">
                   <ContactForm locale={locale} pagePath="/epikoinonia" />
@@ -196,7 +206,7 @@ export default async function ContactPage({
               <aside className="self-start border border-k-line bg-white">
                 <p className="flex items-center gap-2.5 border-b border-k-line px-5 py-3.5">
                   <span aria-hidden className="rule-accent block shrink-0" />
-                  <span className="t-eyebrow text-k-red">{upGreek("Ποιος απαντά τι")}</span>
+                  <span className="t-eyebrow text-k-red">{upGreek(t("poios_apanta_ti"))}</span>
                 </p>
                 <ul>
                   {direct.map((item) => (
@@ -208,7 +218,7 @@ export default async function ContactPage({
                 </ul>
                 <div className="border-t border-k-line bg-k-surface-2 px-5 py-4">
                   <p className="text-[12.5px] leading-[1.6] text-k-text-2">
-                    Όλα περνούν από το ίδιο τηλέφωνο. Δεν σας μεταφέρουμε σε τμήματα.
+                    {t("ola_pernoyn_apo_to_idio")}
                   </p>
                   <a
                     href="tel:+302104111355"
@@ -226,29 +236,29 @@ export default async function ContactPage({
         <section className="band-alt border-t border-k-line">
           <div className="shell-x py-9 lg:py-12">
             <SectionHead
-              eyebrow="Πριν μας γράψετε"
-              title="Ίσως το βρείτε πιο γρήγορα μόνοι σας"
-              lead="Τα τρία πράγματα που μας ρωτούν περισσότερο έχουν απάντηση χωρίς τηλέφωνο."
+              eyebrow={t("prin_mas_grapsete")}
+              title={t("isos_to_vreite_pio_grigora")}
+              lead={t("ta_tria_pragmata_poy_mas")}
             />
             <div className="mt-7 grid gap-px border border-k-line bg-k-line sm:grid-cols-3 lg:mt-9">
               {[
                 {
-                  title: "Διαθεσιμότητα και τιμή",
-                  body: "Ό,τι βλέπετε στο site είναι το ERP μας. Αν λέει 3 τεμάχια, υπάρχουν 3.",
+                  title: t("diathesimotita_kai_timi"),
+                  body: t("o_ti_vlepete_sto_site"),
                   href: "/katalogos",
-                  cta: "Στον κατάλογο",
+                  cta: t("ston_katalogo"),
                 },
                 {
-                  title: "Ψάχνετε κωδικό",
-                  body: "Η αναζήτηση δέχεται κωδικό Kolleris, κωδικό κατασκευαστή και EAN.",
+                  title: t("psachnete_kodiko"),
+                  body: t("i_anazitisi_dechetai_kodiko_kolleris"),
                   href: "/anazitisi",
-                  cta: "Αναζήτηση",
+                  cta: t("anazitisi"),
                 },
                 {
-                  title: "Τιμή συνεργάτη",
-                  body: "Εταιρικός λογαριασμός με μόνιμη έκπτωση, τιμολόγιο και πληρωμή επί πιστώσει.",
+                  title: t("timi_synergati"),
+                  body: t("etairikos_logariasmos_me_monimi_ekptosi"),
                   href: "/eggrafi",
-                  cta: "Αίτηση B2B",
+                  cta: t("aitisi_b2b"),
                 },
               ].map((item) => (
                 <div key={item.title} className="flex flex-col gap-2.5 bg-white p-5 lg:p-6">

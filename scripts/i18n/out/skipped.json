@@ -1,206 +1,692 @@
 [
   {
-    "file": "components/ui/Expandable.tsx",
-    "line": 27,
-    "value": "Περισσότερα",
+    "file": "components/offers/OfferCountdown.tsx",
+    "line": 17,
+    "value": "ημέρες",
     "why": "εκτός component"
   },
   {
-    "file": "components/ui/Expandable.tsx",
-    "line": 28,
-    "value": "Λιγότερα",
+    "file": "components/offers/OfferCountdown.tsx",
+    "line": 17,
+    "value": "ώρες",
     "why": "εκτός component"
   },
   {
-    "file": "components/product/ProductCard.tsx",
-    "line": 131,
-    "value": "`με ΦΠΑ ${product.vatRate}%`",
-    "why": "template literal"
+    "file": "components/offers/OfferCountdown.tsx",
+    "line": 17,
+    "value": "λεπτά",
+    "why": "εκτός component"
   },
   {
-    "file": "components/product/QuickViewProvider.tsx",
-    "line": 226,
-    "value": "`με ΦΠΑ ${product.vatRate}%`",
-    "why": "template literal"
+    "file": "components/offers/OfferCountdown.tsx",
+    "line": 17,
+    "value": "δευτ.",
+    "why": "εκτός component"
   },
   {
-    "file": "components/plp/MobileFilterSheet.tsx",
-    "line": 100,
-    "value": "`Εμφάνιση ${total.toLocaleString(\"el-GR\")} προϊόντων`",
-    "why": "template literal"
+    "file": "components/offers/OfferWidget.tsx",
+    "line": 284,
+    "value": "Λωρίδα",
+    "why": "εκτός component"
   },
   {
-    "file": "components/pdp/ProductGallery.tsx",
-    "line": 141,
-    "value": "`Εικόνα ${index + 1}`",
-    "why": "template literal"
+    "file": "components/offers/OfferWidget.tsx",
+    "line": 285,
+    "value": "Κάρτα",
+    "why": "εκτός component"
   },
   {
-    "file": "components/pdp/ProductGallery.tsx",
-    "line": 174,
-    "value": "`${alt} — εικόνα ${active + 1} από ${images.length}`",
-    "why": "template literal"
+    "file": "components/offers/OfferWidget.tsx",
+    "line": 286,
+    "value": "Ταινία",
+    "why": "εκτός component"
   },
   {
-    "file": "components/pdp/ProductGallery.tsx",
-    "line": 367,
-    "value": "`Εικόνα ${index + 1}`",
-    "why": "template literal"
+    "file": "components/offers/OfferWidget.tsx",
+    "line": 287,
+    "value": "Αντίστροφη μέτρηση",
+    "why": "εκτός component"
   },
   {
-    "file": "components/home/BrandWall.tsx",
-    "line": 69,
-    "value": "`Όλα τα ${totalBrands} brands`",
-    "why": "template literal"
+    "file": "components/offers/OfferWidget.tsx",
+    "line": 291,
+    "value": "Πλήρες πλάτος. Διαβάζεται σε κάθε οθόνη — η ασφαλής επιλογή.",
+    "why": "εκτός component"
   },
   {
-    "file": "components/home/CategoryGrid.tsx",
-    "line": 33,
-    "value": "`Όλες οι ${totalCategories} κατηγορίες`",
-    "why": "template literal"
+    "file": "components/offers/OfferWidget.tsx",
+    "line": 292,
+    "value": "Πλακίδιο 4:5 με την εικόνα από πίσω. Για πλέγματα και στήλες.",
+    "why": "εκτός component"
   },
   {
-    "file": "components/home/ReviewsBand.tsx",
-    "line": 49,
-    "value": "`${rating} στα 5`",
-    "why": "template literal"
+    "file": "components/offers/OfferWidget.tsx",
+    "line": 293,
+    "value": "Τρέχουσα γραμμή. Δυνατή, αλλά μόνο μία ανά σελίδα.",
+    "why": "εκτός component"
   },
   {
-    "file": "components/home/ReviewsBand.tsx",
-    "line": 58,
-    "value": "`${rating} στα 5`",
-    "why": "template literal"
+    "file": "components/offers/OfferWidget.tsx",
+    "line": 294,
+    "value": "Δείχνει πόσο μένει. Χρειάζεται ημερομηνία λήξης.",
+    "why": "εκτός component"
   },
   {
-    "file": "components/faq/FaqAccordion.tsx",
-    "line": 73,
-    "value": "`${shown} από ${total}`",
-    "why": "template literal"
+    "file": "app/layout.tsx",
+    "line": 56,
+    "value": "Kolleris — Εργαλεία & Επαγγελματικός Εξοπλισμός",
+    "why": "εκτός component"
   },
   {
-    "file": "components/faq/FaqAccordion.tsx",
-    "line": 73,
-    "value": "`${total} ερωτήσεις`",
-    "why": "template literal"
-  },
-  {
-    "file": "components/compare/CompareMatrix.tsx",
-    "line": 174,
-    "value": "`Αφαίρεση ${column.name} από τη σύγκριση`",
-    "why": "template literal"
-  },
-  {
-    "file": "components/compare/CompareMatrix.tsx",
-    "line": 221,
-    "value": "`με ΦΠΑ ${column.vatRate}%`",
-    "why": "template literal"
-  },
-  {
-    "file": "components/compare/CompareToolbar.tsx",
-    "line": 63,
-    "value": "`από ${totalRows} γραμμές`",
-    "why": "template literal"
-  },
-  {
-    "file": "components/compare/CompareTray.tsx",
-    "line": 87,
-    "value": "`Αφαίρεση ${item.name} από τη σύγκριση`",
-    "why": "template literal"
-  },
-  {
-    "file": "components/chrome/MegaMenu.tsx",
-    "line": 227,
-    "value": "`Όλα τα ${totalBrands}`",
-    "why": "template literal"
-  },
-  {
-    "file": "components/chrome/MobileMenu.tsx",
-    "line": 163,
-    "value": "`${isOpen ? t(\"apokrypsi\") : t(\"emfanisi\")} υποκατηγοριών ${",
-    "why": "template literal"
-  },
-  {
-    "file": "components/chrome/MobileMenu.tsx",
-    "line": 199,
-    "value": "`Όλες οι ${category.childCount} υποκατηγορίες`",
-    "why": "template literal"
-  },
-  {
-    "file": "components/chrome/SearchSuggest.tsx",
-    "line": 95,
-    "value": "`Όλα τα ${data.totalProducts} αποτελέσματα`",
-    "why": "template literal"
-  },
-  {
-    "file": "components/chrome/SearchSuggest.tsx",
-    "line": 281,
-    "value": "`${data.totalProducts} αποτελέσματα για ${data.query}`",
-    "why": "template literal"
-  },
-  {
-    "file": "components/chrome/SearchSuggest.tsx",
-    "line": 399,
-    "value": "`Όλα τα ${data.totalProducts} αποτελέσματα`",
-    "why": "template literal"
-  },
-  {
-    "file": "components/catalogue/CategoryPicker.tsx",
-    "line": 112,
-    "value": "`Υποκατηγορίες — ${root}`",
-    "why": "template literal"
-  },
-  {
-    "file": "components/catalogue/CategoryPicker.tsx",
-    "line": 209,
-    "value": "`${shown} υποκατηγορίες σε ${groups.length} ομάδες`",
-    "why": "template literal"
-  },
-  {
-    "file": "components/catalogue/TaxonomyFinder.tsx",
-    "line": 84,
-    "value": "`${results.length}${results.length === 24 ? \"+\" : \"\"} αποτελ",
-    "why": "template literal"
-  },
-  {
-    "file": "components/catalogue/TaxonomyFinder.tsx",
-    "line": 85,
-    "value": "`${nodes.length} κατηγορίες σε 3 επίπεδα`",
-    "why": "template literal"
-  },
-  {
-    "file": "components/cart/CartLineRow.tsx",
-    "line": 91,
-    "value": "`Διαθέσιμα ${line.availableQty} — τα υπόλοιπα κατόπιν παραγγ",
-    "why": "template literal"
-  },
-  {
-    "file": "components/cart/CartLineRow.tsx",
-    "line": 111,
-    "value": "`με ΦΠΑ ${line.vatRate}%`",
-    "why": "template literal"
-  },
-  {
-    "file": "components/cart/CartLineRow.tsx",
-    "line": 160,
-    "value": "`Αφαίρεση ${line.name}`",
-    "why": "template literal"
-  },
-  {
-    "file": "components/cart/MiniCart.tsx",
-    "line": 83,
-    "value": "`Καλάθι, ${count} τεμάχια`",
-    "why": "template literal"
-  },
-  {
-    "file": "components/cart/MiniCart.tsx",
-    "line": 210,
-    "value": "`Ακόμη ${formatMoney(cart.freeShippingRemaining)} για δωρεάν",
-    "why": "template literal"
-  },
-  {
-    "file": "components/brands/BrandSearchGrid.tsx",
+    "file": "app/layout.tsx",
     "line": 60,
-    "value": "`${filtered.length} από ${brands.length}`",
+    "value": "Επαγγελματικά εργαλεία, μηχανήματα και αναλώσιμα. Άμεση διαθεσιμότητα, τιμές συνεργάτη.",
+    "why": "εκτός component"
+  },
+  {
+    "file": "app/[locale]/page.tsx",
+    "line": 137,
+    "value": "`${stats.inStock.toLocaleString(\"el-GR\")} κωδικοί σε άμεση δ",
+    "why": "template literal"
+  },
+  {
+    "file": "app/[locale]/page.tsx",
+    "line": 142,
+    "value": "`${stats.brands} brands με ενεργά προϊόντα, εγγύηση και τεχν",
+    "why": "template literal"
+  },
+  {
+    "file": "app/[locale]/syxnes-erotiseis/page.tsx",
+    "line": 20,
+    "value": "Συχνές ερωτήσεις",
+    "why": "εκτός component"
+  },
+  {
+    "file": "app/[locale]/syxnes-erotiseis/page.tsx",
+    "line": 22,
+    "value": "Αποστολή, τιμές, εγγύηση, επιστροφές και εταιρικοί λογαριασμοί — οι απαντήσεις που ζητούνται περισσότερο.",
+    "why": "εκτός component"
+  },
+  {
+    "file": "app/[locale]/sygkrisi/page.tsx",
+    "line": 34,
+    "value": "Σύγκριση προϊόντων",
+    "why": "εκτός component"
+  },
+  {
+    "file": "app/[locale]/sygkrisi/page.tsx",
+    "line": 36,
+    "value": "Συγκρίνετε έως 4 προϊόντα της ίδιας κατηγορίας — τιμή, διαθεσιμότητα, εγγύηση και πλήρη τεχνικά χαρακτηριστικά δίπλα-δίπλα.",
+    "why": "εκτός component"
+  },
+  {
+    "file": "app/[locale]/sygkrisi/page.tsx",
+    "line": 124,
+    "value": "` από «${view.scopeLabel}»`",
+    "why": "template literal"
+  },
+  {
+    "file": "app/[locale]/sygkrisi/page.tsx",
+    "line": 225,
+    "value": "`Περισσότερα σε ${view.scopeLabel}`",
+    "why": "template literal"
+  },
+  {
+    "file": "app/[locale]/sygkrisi/page.tsx",
+    "line": 234,
+    "value": "`Η σύγκριση χωράει ${COMPARE_MAX} προϊόντα — αφαιρέστε ένα π",
+    "why": "template literal"
+  },
+  {
+    "file": "app/[locale]/prosfores/page.tsx",
+    "line": 27,
+    "value": "Προσφορές",
+    "why": "εκτός component"
+  },
+  {
+    "file": "app/[locale]/prosfores/page.tsx",
+    "line": 29,
+    "value": "Πραγματικές μειώσεις τιμής σε επαγγελματικά εργαλεία. Όλες οι τιμές με ΦΠΑ, διαθεσιμότητα σε πραγματικό χρόνο.",
+    "why": "εκτός component"
+  },
+  {
+    "file": "app/[locale]/prosfores/page.tsx",
+    "line": 134,
+    "value": "Δεν τρέχει προσφορά αυτή τη στιγμή — και δεν θα βρείτε εδώ μόνιμες «εκπτώσεις» που δεν είναι εκπτώσεις.",
+    "why": "ParenthesizedExpression"
+  },
+  {
+    "file": "app/[locale]/prosfores/page.tsx",
+    "line": 213,
+    "value": "`${latest.count.toLocaleString(\"el-GR\")} ${\n                ",
+    "why": "template literal"
+  },
+  {
+    "file": "app/[locale]/prosfores/page.tsx",
+    "line": 223,
+    "value": "`Μπήκαν στην αποθήκη τον ${latest.label.toLowerCase()}. Δείτ",
+    "why": "template literal"
+  },
+  {
+    "file": "app/[locale]/proion/[slug]/page.tsx",
+    "line": 43,
+    "value": "`${product.name}${product.brand ? ` — ${product.brand.name}`",
+    "why": "template literal"
+  },
+  {
+    "file": "app/[locale]/proion/[slug]/page.tsx",
+    "line": 89,
+    "value": "`${product.qty} τεμ.`",
+    "why": "template literal"
+  },
+  {
+    "file": "app/[locale]/proion/[slug]/page.tsx",
+    "line": 93,
+    "value": "`${product.guaranteeMonths} μήνες`",
+    "why": "template literal"
+  },
+  {
+    "file": "app/[locale]/proion/[slug]/page.tsx",
+    "line": 248,
+    "value": "`Όλα τα ${product.brand.name}`",
+    "why": "template literal"
+  },
+  {
+    "file": "app/[locale]/proion/[slug]/page.tsx",
+    "line": 258,
+    "value": "`Υπεύθυνος κατηγορίας · ${product.category.name}`",
+    "why": "template literal"
+  },
+  {
+    "file": "app/[locale]/proion/[slug]/page.tsx",
+    "line": 413,
+    "value": "`Εγγύηση ${product.guaranteeMonths} μηνών`",
+    "why": "template literal"
+  },
+  {
+    "file": "app/[locale]/proion/[slug]/page.tsx",
+    "line": 488,
+    "value": "`Στην ίδια κατηγορία · ${product.category.name}`",
+    "why": "template literal"
+  },
+  {
+    "file": "app/[locale]/nees-afixeis/page.tsx",
+    "line": 27,
+    "value": "Νέες αφίξεις",
+    "why": "εκτός component"
+  },
+  {
+    "file": "app/[locale]/nees-afixeis/page.tsx",
+    "line": 29,
+    "value": "Τι μπήκε στην αποθήκη και πότε — ανά μήνα, με ημερομηνία καταχώρησης, από το ERP μας.",
+    "why": "εκτός component"
+  },
+  {
+    "file": "app/[locale]/nees-afixeis/page.tsx",
+    "line": 255,
+    "value": "`+ ${(period.count - period.products.length).toLocaleString(",
+    "why": "template literal"
+  },
+  {
+    "file": "app/[locale]/logariasmos/page.tsx",
+    "line": 13,
+    "value": "Ο λογαριασμός μου",
+    "why": "εκτός component"
+  },
+  {
+    "file": "app/[locale]/logariasmos/page.tsx",
+    "line": 40,
+    "value": "`Καλώς ήρθατε, ${user.firstName}`",
+    "why": "template literal"
+  },
+  {
+    "file": "app/[locale]/logariasmos/page.tsx",
+    "line": 60,
+    "value": "`Τελευταία σύνδεση ${formatDate(user.lastLoginAt)}`",
+    "why": "template literal"
+  },
+  {
+    "file": "app/[locale]/logariasmos/page.tsx",
+    "line": 75,
+    "value": "`Όριο ${formatMoney(user.spendLimit)} ανά παραγγελία`",
+    "why": "template literal"
+  },
+  {
+    "file": "app/[locale]/logariasmos/page.tsx",
+    "line": 84,
+    "value": "`${formatMoney(company.creditLimit - company.creditUsed)} δι",
+    "why": "template literal"
+  },
+  {
+    "file": "app/[locale]/logariasmos/stoicheia/page.tsx",
+    "line": 11,
+    "value": "Στοιχεία λογαριασμού",
+    "why": "εκτός component"
+  },
+  {
+    "file": "app/[locale]/logariasmos/entopismos/page.tsx",
+    "line": 19,
+    "value": "Εντοπισμός παραγγελίας",
+    "why": "εκτός component"
+  },
+  {
+    "file": "app/[locale]/logariasmos/entopismos/page.tsx",
+    "line": 21,
+    "value": "Δείτε πού βρίσκεται η παραγγελία σας με τον αριθμό και το email σας. Δεν χρειάζεται λογαριασμός.",
+    "why": "εκτός component"
+  },
+  {
+    "file": "app/[locale]/katalogos/page.tsx",
+    "line": 23,
+    "value": "Κατάλογος",
+    "why": "εκτός component"
+  },
+  {
+    "file": "app/[locale]/katalogos/page.tsx",
+    "line": 25,
+    "value": "Όλες οι κατηγορίες εργαλείων — 23 κατηγορίες, 467 υποκατηγορίες, με πλήθος κωδικών σε κάθε επίπεδο.",
+    "why": "εκτός component"
+  },
+  {
+    "file": "app/[locale]/katalogos/page.tsx",
+    "line": 117,
+    "value": "`Τα ${index.totals.topShare}% του καταλόγου`",
+    "why": "template literal"
+  },
+  {
+    "file": "app/[locale]/katalogos/page.tsx",
+    "line": 136,
+    "value": "`${standard.length} κατηγορίες`",
+    "why": "template literal"
+  },
+  {
+    "file": "app/[locale]/katalogos/page.tsx",
+    "line": 282,
+    "value": "`Και οι υπόλοιπες ${root.groupCount + root.subgroupCount - r",
+    "why": "template literal"
+  },
+  {
+    "file": "app/[locale]/katalogos/page.tsx",
+    "line": 341,
+    "value": "`+ ${remaining} ακόμη`",
+    "why": "template literal"
+  },
+  {
+    "file": "app/[locale]/katalogos/[kathgoria]/page.tsx",
+    "line": 62,
+    "value": "`${category.productCount} κωδικοί σε ${category.childCount} ",
+    "why": "template literal"
+  },
+  {
+    "file": "app/[locale]/kalathi/page.tsx",
+    "line": 26,
+    "value": "Το καλάθι σας",
+    "why": "εκτός component"
+  },
+  {
+    "file": "app/[locale]/kalathi/page.tsx",
+    "line": 86,
+    "value": "`${cart!.totals.itemCount} ${upGreek(\"προϊόντα\")} · ${cart!.",
+    "why": "template literal"
+  },
+  {
+    "file": "app/[locale]/etaireia/page.tsx",
+    "line": 20,
+    "value": "Η εταιρεία",
+    "why": "εκτός component"
+  },
+  {
+    "file": "app/[locale]/etaireia/page.tsx",
+    "line": 22,
+    "value": "46 χρόνια στα βιομηχανικά εργαλεία. Δείτε τα νούμερα της αποθήκης μας ζωντανά — κωδικοί, απόθεμα, τόνοι στο ράφι.",
+    "why": "εκτός component"
+  },
+  {
+    "file": "app/[locale]/etaireia/page.tsx",
+    "line": 66,
+    "value": "`σε ${proof.categories} κατηγορίες και ${proof.nodes.toLocal",
+    "why": "template literal"
+  },
+  {
+    "file": "app/[locale]/etaireia/page.tsx",
+    "line": 72,
+    "value": "`${proof.units.toLocaleString(\"el-GR\")} τεμάχια, τώρα, στον ",
+    "why": "template literal"
+  },
+  {
+    "file": "app/[locale]/etaireia/page.tsx",
+    "line": 84,
+    "value": "`και ${proof.images.toLocaleString(\"el-GR\")} φωτογραφίες προ",
+    "why": "template literal"
+  },
+  {
+    "file": "app/[locale]/etaireia/page.tsx",
+    "line": 96,
+    "value": "`από το ${FOUNDED}, στην ίδια δουλειά`",
+    "why": "template literal"
+  },
+  {
+    "file": "app/[locale]/etaireia/page.tsx",
+    "line": 114,
+    "value": "`Συνεργασίες με κατασκευαστές που κρατούν μέχρι σήμερα — ${p",
+    "why": "template literal"
+  },
+  {
+    "file": "app/[locale]/etaireia/page.tsx",
+    "line": 119,
+    "value": "`Ολόκληρο το απόθεμα, με τιμές και διαθεσιμότητα σε πραγματι",
+    "why": "template literal"
+  },
+  {
+    "file": "app/[locale]/etaireia/page.tsx",
+    "line": 167,
+    "value": "`Πειραιάς · από το ${FOUNDED}`",
+    "why": "template literal"
+  },
+  {
+    "file": "app/[locale]/etaireia/page.tsx",
+    "line": 249,
+    "value": "`Από το ${FOUNDED} μέχρι σήμερα`",
+    "why": "template literal"
+  },
+  {
+    "file": "app/[locale]/epikoinonia/page.tsx",
+    "line": 20,
+    "value": "Επικοινωνία",
+    "why": "εκτός component"
+  },
+  {
+    "file": "app/[locale]/epikoinonia/page.tsx",
+    "line": 22,
+    "value": "Τηλέφωνο, email και φόρμα επικοινωνίας. Πειραιάς, Δευτέρα–Παρασκευή 08:00–16:30. Σηκώνει άνθρωπος.",
+    "why": "εκτός component"
+  },
+  {
+    "file": "app/[locale]/epikoinonia/page.tsx",
+    "line": 80,
+    "value": "`Δευ–Παρ ${String(HOURS.weekday.open).padStart(2, \"0\")}:00–1",
+    "why": "template literal"
+  },
+  {
+    "file": "app/[locale]/epikoinonia/page.tsx",
+    "line": 136,
+    "value": "`Ώρα Ελλάδας ${now.now}`",
+    "why": "template literal"
+  },
+  {
+    "file": "app/[locale]/eisodos/page.tsx",
+    "line": 12,
+    "value": "Σύνδεση",
+    "why": "εκτός component"
+  },
+  {
+    "file": "app/[locale]/eggrafi/page.tsx",
+    "line": 12,
+    "value": "Εγγραφή",
+    "why": "εκτός component"
+  },
+  {
+    "file": "app/[locale]/eggrafi/page.tsx",
+    "line": 14,
+    "value": "Δημιουργήστε λογαριασμό ιδιώτη ή αίτηση εταιρικού λογαριασμού B2B με τιμές συνεργάτη.",
+    "why": "εκτός component"
+  },
+  {
+    "file": "app/[locale]/eggrafi/page.tsx",
+    "line": 18,
+    "value": "Παραγγελίες και ιστορικό",
+    "why": "εκτός component"
+  },
+  {
+    "file": "app/[locale]/eggrafi/page.tsx",
+    "line": 19,
+    "value": "Διευθύνσεις και εγγυήσεις",
+    "why": "εκτός component"
+  },
+  {
+    "file": "app/[locale]/eggrafi/page.tsx",
+    "line": 20,
+    "value": "Τιμές συνεργάτη",
+    "why": "εκτός component"
+  },
+  {
+    "file": "app/[locale]/eggrafi/page.tsx",
+    "line": 21,
+    "value": "Πληρωμή επί πιστώσει",
+    "why": "εκτός component"
+  },
+  {
+    "file": "app/[locale]/eggrafi/page.tsx",
+    "line": 22,
+    "value": "Τιμολόγιο με στοιχεία εταιρείας",
+    "why": "εκτός component"
+  },
+  {
+    "file": "app/[locale]/eggrafi/page.tsx",
+    "line": 23,
+    "value": "Πολλοί χρήστες με ρόλους",
+    "why": "εκτός component"
+  },
+  {
+    "file": "app/[locale]/eggrafi/page.tsx",
+    "line": 24,
+    "value": "Όρια δαπάνης ανά χρήστη",
+    "why": "εκτός component"
+  },
+  {
+    "file": "app/[locale]/eggrafi/page.tsx",
+    "line": 25,
+    "value": "Λίστες υλικών για επαναπαραγγελία",
+    "why": "εκτός component"
+  },
+  {
+    "file": "app/[locale]/eggrafi/anamoni/page.tsx",
+    "line": 9,
+    "value": "Η αίτησή σας καταχωρήθηκε",
+    "why": "εκτός component"
+  },
+  {
+    "file": "app/[locale]/eggrafi/anamoni/page.tsx",
+    "line": 16,
+    "value": "Λάβαμε την αίτησή σας",
+    "why": "εκτός component"
+  },
+  {
+    "file": "app/[locale]/eggrafi/anamoni/page.tsx",
+    "line": 17,
+    "value": "Τα στοιχεία της εταιρείας ήρθαν από το μητρώο της ΑΑΔΕ και καταχωρήθηκαν.",
+    "why": "εκτός component"
+  },
+  {
+    "file": "app/[locale]/eggrafi/anamoni/page.tsx",
+    "line": 22,
+    "value": "Έλεγχος στοιχείων",
+    "why": "εκτός component"
+  },
+  {
+    "file": "app/[locale]/eggrafi/anamoni/page.tsx",
+    "line": 23,
+    "value": "Ελέγχουμε ΑΦΜ, δραστηριότητα και υπάρχουσα συνεργασία. Συνήθως 2 εργάσιμες.",
+    "why": "εκτός component"
+  },
+  {
+    "file": "app/[locale]/eggrafi/anamoni/page.tsx",
+    "line": 28,
+    "value": "Ενεργοποίηση και τιμές συνεργάτη",
+    "why": "εκτός component"
+  },
+  {
+    "file": "app/[locale]/eggrafi/anamoni/page.tsx",
+    "line": 29,
+    "value": "Θα λάβετε email. Από εκείνη τη στιγμή βλέπετε τιμές συνεργάτη σε όλο τον κατάλογο.",
+    "why": "εκτός component"
+  },
+  {
+    "file": "app/[locale]/checkout/page.tsx",
+    "line": 24,
+    "value": "Ολοκλήρωση παραγγελίας",
+    "why": "εκτός component"
+  },
+  {
+    "file": "app/[locale]/checkout/page.tsx",
+    "line": 116,
+    "value": "`Η παραγγελία σας · ${totals.itemCount} προϊόντα`",
+    "why": "template literal"
+  },
+  {
+    "file": "app/[locale]/checkout/epibebaiosi/[orderNumber]/page.tsx",
+    "line": 23,
+    "value": "Η παραγγελία σας",
+    "why": "εκτός component"
+  },
+  {
+    "file": "app/[locale]/checkout/epibebaiosi/[orderNumber]/page.tsx",
+    "line": 33,
+    "value": "Καταχωρήθηκε",
+    "why": "εκτός component"
+  },
+  {
+    "file": "app/[locale]/checkout/epibebaiosi/[orderNumber]/page.tsx",
+    "line": 34,
+    "value": "Επιβεβαιώθηκε",
+    "why": "εκτός component"
+  },
+  {
+    "file": "app/[locale]/checkout/epibebaiosi/[orderNumber]/page.tsx",
+    "line": 35,
+    "value": "Απεστάλη",
+    "why": "εκτός component"
+  },
+  {
+    "file": "app/[locale]/checkout/epibebaiosi/[orderNumber]/page.tsx",
+    "line": 36,
+    "value": "Παραδόθηκε",
+    "why": "εκτός component"
+  },
+  {
+    "file": "app/[locale]/brands/page.tsx",
+    "line": 31,
+    "value": "`${brandCount} brands με ${productCount.toLocaleString(\"el-G",
+    "why": "template literal"
+  },
+  {
+    "file": "app/[locale]/brands/page.tsx",
+    "line": 147,
+    "value": "`Τα ${featured.length} brands που μας ζητάτε περισσότερο`",
+    "why": "template literal"
+  },
+  {
+    "file": "app/[locale]/brands/[slug]/page.tsx",
+    "line": 44,
+    "value": "`${brand.productCount.toLocaleString(\"el-GR\")} κωδικοί ${bra",
+    "why": "template literal"
+  },
+  {
+    "file": "app/[locale]/blog/page.tsx",
+    "line": 22,
+    "value": "Οδηγοί, δοκιμές και τεχνικά άρθρα για επαγγελματικά εργαλεία.",
+    "why": "εκτός component"
+  },
+  {
+    "file": "app/[locale]/blog/page.tsx",
+    "line": 229,
+    "value": "`${post.readingMinutes}′ ανάγνωση`",
+    "why": "template literal"
+  },
+  {
+    "file": "app/[locale]/blog/[slug]/page.tsx",
+    "line": 125,
+    "value": "`${post.readingMinutes}′ ανάγνωση`",
+    "why": "template literal"
+  },
+  {
+    "file": "app/[locale]/b2b/page.tsx",
+    "line": 14,
+    "value": "Εταιρικός λογαριασμός",
+    "why": "εκτός component"
+  },
+  {
+    "file": "app/[locale]/b2b/page.tsx",
+    "line": 47,
+    "value": "`ΑΦΜ ${company.afm}${company.doy ? ` · ΔΟΥ ${company.doy}` :",
+    "why": "template literal"
+  },
+  {
+    "file": "app/[locale]/b2b/page.tsx",
+    "line": 47,
+    "value": "` · ΔΟΥ ${company.doy}`",
+    "why": "template literal"
+  },
+  {
+    "file": "app/[locale]/b2b/page.tsx",
+    "line": 89,
+    "value": "` Το όριό σας είναι ${formatMoney(user.spendLimit)} ανά παρα",
+    "why": "template literal"
+  },
+  {
+    "file": "app/[locale]/b2b/page.tsx",
+    "line": 139,
+    "value": "Παραγγελίες",
+    "why": "εκτός component"
+  },
+  {
+    "file": "app/[locale]/b2b/page.tsx",
+    "line": 140,
+    "value": "Τιμές συνεργάτη",
+    "why": "εκτός component"
+  },
+  {
+    "file": "app/[locale]/b2b/page.tsx",
+    "line": 141,
+    "value": "Παραγγελίες εταιρείας",
+    "why": "εκτός component"
+  },
+  {
+    "file": "app/[locale]/b2b/page.tsx",
+    "line": 142,
+    "value": "Διαχείριση χρηστών",
+    "why": "εκτός component"
+  },
+  {
+    "file": "app/[locale]/b2b/page.tsx",
+    "line": 143,
+    "value": "Στοιχεία εταιρείας",
+    "why": "εκτός component"
+  },
+  {
+    "file": "app/[locale]/b2b/xristes/page.tsx",
+    "line": 18,
+    "value": "Χρήστες & ρόλοι",
+    "why": "εκτός component"
+  },
+  {
+    "file": "app/[locale]/anazitisi/page.tsx",
+    "line": 44,
+    "value": "`Αναζήτηση: ${q}`",
+    "why": "template literal"
+  },
+  {
+    "file": "app/[locale]/anazitisi/page.tsx",
+    "line": 44,
+    "value": "Αναζήτηση",
+    "why": "εκτός component"
+  },
+  {
+    "file": "app/[locale]/anazitisi/page.tsx",
+    "line": 186,
+    "value": "Δεν βρέθηκε προϊόν με αυτούς τους όρους.",
+    "why": "ParenthesizedExpression"
+  },
+  {
+    "file": "app/[locale]/anazitisi/page.tsx",
+    "line": 256,
+    "value": "`${exact.qty} ${upGreek(\"τεμ.\")}`",
+    "why": "template literal"
+  },
+  {
+    "file": "app/[locale]/anazitisi/page.tsx",
+    "line": 354,
+    "value": "`Δεν βρέθηκε κάτι για «${query}»`",
     "why": "template literal"
   }
 ]

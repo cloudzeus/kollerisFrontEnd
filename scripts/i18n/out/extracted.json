@@ -1,71 +1,68 @@
 {
-  "product.ProductCard": {
-    "me_fpa": "με ΦΠΑ {vatRate}%"
+  "syxnes-erotiseis.page": {
+    "titlos_sychnes_erotiseis": "Συχνές ερωτήσεις",
+    "perigrafi_apostoli_times_eggyisi_epistrofes": "Αποστολή, τιμές, εγγύηση, επιστροφές και εταιρικοί λογαριασμοί — οι απαντήσεις που ζητούνται περισσότερο."
   },
-  "product.QuickViewProvider": {
-    "me_fpa": "με ΦΠΑ {vatRate}%"
+  "sygkrisi.page": {
+    "titlos_sygkrisi_proionton": "Σύγκριση προϊόντων",
+    "perigrafi_sygkrinete_eos_4_proionta": "Συγκρίνετε έως 4 προϊόντα της ίδιας κατηγορίας — τιμή, διαθεσιμότητα, εγγύηση και πλήρη τεχνικά χαρακτηριστικά δίπλα-δίπλα."
   },
-  "plp.MobileFilterSheet": {
-    "emfanisi_proionton": "Εμφάνιση {n} προϊόντων"
+  "prosfores.page": {
+    "titlos_prosfores": "Προσφορές",
+    "perigrafi_pragmatikes_meioseis_timis_se": "Πραγματικές μειώσεις τιμής σε επαγγελματικά εργαλεία. Όλες οι τιμές με ΦΠΑ, διαθεσιμότητα σε πραγματικό χρόνο."
   },
-  "pdp.ProductGallery": {
-    "eikona": "Εικόνα {n}",
-    "eikona_apo": "{alt} — εικόνα {n} από {length}",
-    "eikona_2": "Εικόνα {n}"
+  "nees-afixeis.page": {
+    "titlos_nees_afixeis": "Νέες αφίξεις",
+    "perigrafi_ti_mpike_stin_apothiki": "Τι μπήκε στην αποθήκη και πότε — ανά μήνα, με ημερομηνία καταχώρησης, από το ERP μας."
   },
-  "home.BrandWall": {
-    "ola_ta_brands": "Όλα τα {totalBrands} brands"
+  "logariasmos.page": {
+    "titlos_o_logariasmos_moy": "Ο λογαριασμός μου"
   },
-  "home.CategoryGrid": {
-    "oles_oi_katigories": "Όλες οι {totalCategories} κατηγορίες"
+  "stoicheia.page": {
+    "titlos_stoicheia_logariasmoy": "Στοιχεία λογαριασμού"
   },
-  "home.ReviewsBand": {
-    "sta_5": "{rating} στα 5",
-    "sta_5_2": "{rating} στα 5"
+  "entopismos.page": {
+    "titlos_entopismos_paraggelias": "Εντοπισμός παραγγελίας",
+    "perigrafi_deite_poy_vrisketai_i": "Δείτε πού βρίσκεται η παραγγελία σας με τον αριθμό και το email σας. Δεν χρειάζεται λογαριασμός."
   },
-  "faq.FaqAccordion": {
-    "apo": "{shown} από {total}",
-    "erotiseis": "{total} ερωτήσεις"
+  "katalogos.page": {
+    "titlos_katalogos": "Κατάλογος",
+    "perigrafi_oles_oi_katigories_ergaleion": "Όλες οι κατηγορίες εργαλείων — 23 κατηγορίες, 467 υποκατηγορίες, με πλήθος κωδικών σε κάθε επίπεδο."
   },
-  "compare.CompareMatrix": {
-    "afairesi_apo_ti_sygkrisi": "Αφαίρεση {name} από τη σύγκριση",
-    "me_fpa": "με ΦΠΑ {vatRate}%"
+  "kalathi.page": {
+    "titlos_to_kalathi_sas": "Το καλάθι σας"
   },
-  "compare.CompareToolbar": {
-    "apo_grammes": "από {totalRows} γραμμές"
+  "etaireia.page": {
+    "titlos_i_etaireia": "Η εταιρεία",
+    "perigrafi_46_chronia_sta_viomichanika": "46 χρόνια στα βιομηχανικά εργαλεία. Δείτε τα νούμερα της αποθήκης μας ζωντανά — κωδικοί, απόθεμα, τόνοι στο ράφι."
   },
-  "compare.CompareTray": {
-    "afairesi_apo_ti_sygkrisi": "Αφαίρεση {name} από τη σύγκριση"
+  "epikoinonia.page": {
+    "titlos_epikoinonia": "Επικοινωνία",
+    "perigrafi_tilefono_email_kai_forma": "Τηλέφωνο, email και φόρμα επικοινωνίας. Πειραιάς, Δευτέρα–Παρασκευή 08:00–16:30. Σηκώνει άνθρωπος."
   },
-  "chrome.MegaMenu": {
-    "ola_ta": "Όλα τα {totalBrands}"
+  "eisodos.page": {
+    "titlos_syndesi": "Σύνδεση"
   },
-  "chrome.MobileMenu": {
-    "oles_oi_ypokatigories": "Όλες οι {childCount} υποκατηγορίες"
+  "eggrafi.page": {
+    "titlos_eggrafi": "Εγγραφή",
+    "perigrafi_dimioyrgiste_logariasmo_idioti_i": "Δημιουργήστε λογαριασμό ιδιώτη ή αίτηση εταιρικού λογαριασμού B2B με τιμές συνεργάτη."
   },
-  "chrome.SearchSuggest": {
-    "ola_ta_apotelesmata": "Όλα τα {totalProducts} αποτελέσματα",
-    "apotelesmata_gia": "{totalProducts} αποτελέσματα για {query}",
-    "ola_ta_apotelesmata_2": "Όλα τα {totalProducts} αποτελέσματα"
+  "anamoni.page": {
+    "titlos_i_aitisi_sas_katachorithike": "Η αίτησή σας καταχωρήθηκε"
   },
-  "catalogue.CategoryPicker": {
-    "ypokatigories": "Υποκατηγορίες — {root}",
-    "ypokatigories_se_omades": "{shown} υποκατηγορίες σε {length} ομάδες"
+  "checkout.page": {
+    "titlos_oloklirosi_paraggelias": "Ολοκλήρωση παραγγελίας"
   },
-  "catalogue.TaxonomyFinder": {
-    "apotelesmata": "{length}{n} αποτελέσματα",
-    "katigories_se_3_epipeda": "{length} κατηγορίες σε 3 επίπεδα"
+  "epibebaiosi.page": {
+    "titlos_i_paraggelia_sas": "Η παραγγελία σας"
   },
-  "cart.CartLineRow": {
-    "diathesima_ta_ypoloipa_katopin_paraggelias": "Διαθέσιμα {availableQty} — τα υπόλοιπα κατόπιν παραγγελίας",
-    "me_fpa": "με ΦΠΑ {vatRate}%",
-    "afairesi": "Αφαίρεση {name}"
+  "blog.page": {
+    "perigrafi_odigoi_dokimes_kai_technika": "Οδηγοί, δοκιμές και τεχνικά άρθρα για επαγγελματικά εργαλεία."
   },
-  "cart.MiniCart": {
-    "kalathi_temachia": "Καλάθι, {count} τεμάχια",
-    "akomi_gia_dorean_metaforika": "Ακόμη {n} για δωρεάν μεταφορικά."
+  "b2b.page": {
+    "titlos_etairikos_logariasmos": "Εταιρικός λογαριασμός"
   },
-  "brands.BrandSearchGrid": {
-    "apo": "{length} από {length2}"
+  "xristes.page": {
+    "titlos_christes_roloi": "Χρήστες & ρόλοι"
   }
 }

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { IBM_Plex_Sans, Noto_Sans_Mono } from "next/font/google";
 import localFont from "next/font/local";
-import { getLocale } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import "./globals.css";
 
 /*
@@ -51,14 +51,24 @@ const mono = Noto_Sans_Mono({
   display: "swap",
 });
 
-export const metadata: Metadata = {
-  title: {
-    default: "Kolleris — Εργαλεία & Επαγγελματικός Εξοπλισμός",
-    template: "%s | Kolleris",
-  },
-  description:
-    "Επαγγελματικά εργαλεία, μηχανήματα και αναλώσιμα. Άμεση διαθεσιμότητα, τιμές συνεργάτη.",
-};
+/*
+ * The site-wide default title and description.
+ *
+ * Every page sets its own, so this is what shows on the ones that do not — and
+ * it is what a share preview quotes. Left static it was Greek in all three
+ * languages, which is the one string a visitor sees before any page renders.
+ */
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getLocale();
+  const t = await getTranslations({ locale, namespace: "layout" });
+  return {
+    title: {
+      default: t("titlos_kolleris_ergaleia_epaggelmatikos"),
+      template: "%s | Kolleris",
+    },
+    description: t("perigrafi_epaggelmatika_ergaleia_michanimata"),
+  };
+}
 
 export default async function RootLayout({
   children,

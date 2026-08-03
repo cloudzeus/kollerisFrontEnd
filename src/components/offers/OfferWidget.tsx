@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { upGreek } from "@/lib/greek";
 import { cn } from "@/lib/utils";
@@ -104,6 +105,7 @@ type WidgetProps = { offer: OfferView; locale: Locale; className?: string; inter
 /* ───────────────────────────── Λωρίδα ───────────────────────────── */
 
 function Strip({ offer, className, interactive }: WidgetProps) {
+  const t = useTranslations("offers.OfferWidget");
   const saving = savingLabel(offer);
 
   return (
@@ -141,7 +143,7 @@ function Strip({ offer, className, interactive }: WidgetProps) {
       </span>
 
       <span className="motion-safe:animate-[offer-rise_.6s_cubic-bezier(.22,1,.36,1)_both] motion-safe:[animation-delay:160ms] inline-flex shrink-0 items-center gap-1.5 border-b-[1.5px] border-k-red pb-0.5 text-[12.5px] font-medium tracking-wide text-white transition-colors group-hover:border-white">
-        {upGreek(offer.badge || "Δείτε την προσφορά")}
+        {upGreek(offer.badge || t("deite_tin_prosfora"))}
         <span aria-hidden>→</span>
       </span>
     </Shell>

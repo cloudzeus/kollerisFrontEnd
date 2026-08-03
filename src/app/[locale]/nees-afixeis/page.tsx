@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import type { Metadata } from "next";
 import { setRequestLocale } from "next-intl/server";
 import { SectionHead } from "@/components/chrome/SectionHead";
@@ -23,11 +24,20 @@ import {
 } from "@/lib/compare/compare";
 import { upGreek } from "@/lib/greek";
 
-export const metadata: Metadata = {
-  title: "Νέες αφίξεις",
-  description:
-    "Τι μπήκε στην αποθήκη και πότε — ανά μήνα, με ημερομηνία καταχώρησης, από το ERP μας.",
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: Locale }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  // Explicit locale: `setRequestLocale` belongs to the render pass, and
+  // metadata is generated outside it.
+  const t = await getTranslations({ locale, namespace: "nees-afixeis.page" });
+  return {
+    title: t("titlos_nees_afixeis"),
+    description: t("perigrafi_ti_mpike_stin_apothiki"),
+  };
+}
 
 /**
  * New arrivals, as a TIMELINE rather than a grid.
@@ -47,6 +57,7 @@ export default async function NewArrivalsPage({
 }: {
   params: Promise<{ locale: Locale }>;
 }) {
+  const t = await getTranslations("nees-afixeis.page");
   const { locale } = await params;
   setRequestLocale(locale);
 
@@ -95,7 +106,7 @@ export default async function NewArrivalsPage({
   const windows = [
     lastArrival
       ? {
-          label: "Τελευταία άφιξη",
+          label: t("teleytaia_afixi"),
           value: lastArrival.toLocaleDateString("el-GR", {
             day: "2-digit",
             month: "short",
@@ -103,24 +114,24 @@ export default async function NewArrivalsPage({
           unit: String(lastArrival.getFullYear()),
         }
       : {
-          label: "Τελευταίες 30 ημέρες",
+          label: t("teleytaies_30_imeres"),
           value: arrivals.last30.toLocaleString("el-GR"),
-          unit: "κωδ.",
+          unit: t("kod"),
         },
     {
-      label: "Τελευταίο τρίμηνο",
+      label: t("teleytaio_trimino"),
       value: arrivals.last90.toLocaleString("el-GR"),
-      unit: "κωδ.",
+      unit: t("kod"),
     },
     {
-      label: "Τελευταίος χρόνος",
+      label: t("teleytaios_chronos"),
       value: arrivals.lastYear.toLocaleString("el-GR"),
-      unit: "κωδ.",
+      unit: t("kod"),
     },
     {
-      label: "Σύνολο καταλόγου",
+      label: t("synolo_katalogoy"),
       value: arrivals.total.toLocaleString("el-GR"),
-      unit: "κωδ.",
+      unit: t("kod"),
     },
   ];
 
@@ -141,20 +152,18 @@ export default async function NewArrivalsPage({
             className="t-util flex h-11 items-center gap-2.5 text-white/45"
           >
             <Link href="/" className="text-white/60 hover:text-white">
-              {upGreek("Αρχική")}
+              {upGreek(t("archiki"))}
             </Link>
             <span className="text-k-red">/</span>
-            <span className="text-white">{upGreek("Νέες αφίξεις")}</span>
+            <span className="text-white">{upGreek(t("nees_afixeis"))}</span>
           </nav>
 
           <div className="pt-2.5 pb-8">
             <h1 className="font-artegra text-[22px] leading-[1.16] font-medium text-balance text-white lg:text-[30px]">
-              {upGreek("Τι μπήκε στην αποθήκη")}
+              {upGreek(t("ti_mpike_stin_apothiki"))}
             </h1>
             <p className="mt-3.5 max-w-[620px] text-[13px] leading-[1.68] text-white/60 lg:text-sm">
-              Όχι μια λίστα με «νέο» από πάνω. Κάθε κωδικός εδώ είναι με την
-              ημερομηνία που μπήκε στο σύστημά μας — μήνα προς μήνα, όπως
-              κινήθηκε η γκάμα.
+              {t("ochi_mia_lista_me_neo")}
             </p>
           </div>
         </div>
@@ -179,7 +188,7 @@ export default async function NewArrivalsPage({
         {arrivals.periods.length === 0 ? (
           <section className="shell-x bg-white py-16 text-center">
             <p className="font-artegra text-xl text-k-ink">
-              {upGreek("Δεν υπάρχουν ακόμη καταχωρημένες ημερομηνίες")}
+              {upGreek(t("den_yparchoyn_akomi_katachorimenes_imerominies"))}
             </p>
           </section>
         ) : (
@@ -214,11 +223,11 @@ export default async function NewArrivalsPage({
                       </time>
                       <span className="t-brand-count font-mono text-k-ink">
                         {period.count.toLocaleString("el-GR")}{" "}
-                        {upGreek(period.count === 1 ? "κωδικός" : "κωδικοί")}
+                        {upGreek(period.count === 1 ? t("kodikos") : t("kodikoi"))}
                       </span>
                       {index === 0 && (
                         <span className="t-badge bg-k-red px-[7px] py-[3px] text-white">
-                          {upGreek("Πιο πρόσφατα")}
+                          {upGreek(t("pio_prosfata"))}
                         </span>
                       )}
                     </div>
@@ -252,11 +261,9 @@ export default async function NewArrivalsPage({
                     {period.count > period.products.length && (
                       <p className="t-brand-count mt-3.5 text-k-text-4">
                         {upGreek(
-                          `+ ${(period.count - period.products.length).toLocaleString("el-GR")} ${
-                            period.count - period.products.length === 1
-                              ? "ακόμη"
-                              : "ακόμη"
-                          } αυτόν τον μήνα`,
+                          t("akomi_ayton_ton_mina", {
+                            n: (period.count - period.products.length).toLocaleString("el-GR"),
+                          }),
                         )}
                       </p>
                     )}
@@ -270,15 +277,15 @@ export default async function NewArrivalsPage({
         <section className="band-alt border-t border-k-line">
           <div className="shell-x py-8 lg:py-12">
             <SectionHead
-              eyebrow="Δεν το βρήκατε εδώ;"
-              title="Ο κατάλογος είναι μεγαλύτερος από τις νέες αφίξεις"
-              lead="Οι αφίξεις δείχνουν τι κινήθηκε τελευταία. Ο κατάλογος έχει όλα τα υπόλοιπα, με φίλτρα σε μέγεθος, brand και διαθεσιμότητα."
+              eyebrow={t("den_to_vrikate_edo")}
+              title={t("o_katalogos_einai_megalyteros_apo")}
+              lead={t("oi_afixeis_deichnoyn_ti_kinithike")}
               meta={
                 <Link
                   href="/katalogos"
                   className="t-btn-sm inline-block bg-k-ink px-7 py-4 text-white transition-colors hover:bg-k-red"
                 >
-                  {upGreek("Στον κατάλογο")} →
+                  {upGreek(t("ston_katalogo"))} →
                 </Link>
               }
             />

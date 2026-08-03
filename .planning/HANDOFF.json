@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-08-03T05:33:06.169Z",
+  "timestamp": "2026-08-03T05:53:32.464Z",
   "source": "auto-postool",
   "partial": false,
   "phase": null,
@@ -22,11 +22,139 @@
     },
     {
       "status": "M",
-      "path": "package-lock.json"
+      "path": "scripts/i18n/codemod.mts"
     },
     {
       "status": "M",
-      "path": "package.json"
+      "path": "scripts/i18n/out/extracted.json"
+    },
+    {
+      "status": "M",
+      "path": "scripts/i18n/out/remaining.json"
+    },
+    {
+      "status": "M",
+      "path": "scripts/i18n/out/skipped.json"
+    },
+    {
+      "status": "M",
+      "path": "scripts/i18n/verify.ts"
+    },
+    {
+      "status": "M",
+      "path": "src/app/[locale]/anazitisi/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/app/[locale]/b2b/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/app/[locale]/b2b/xristes/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/app/[locale]/blog/[slug]/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/app/[locale]/blog/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/app/[locale]/brands/[slug]/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/app/[locale]/brands/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/app/[locale]/checkout/epibebaiosi/[orderNumber]/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/app/[locale]/checkout/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/app/[locale]/eggrafi/anamoni/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/app/[locale]/eggrafi/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/app/[locale]/eisodos/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/app/[locale]/epikoinonia/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/app/[locale]/etaireia/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/app/[locale]/kalathi/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/app/[locale]/katalogos/[kathgoria]/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/app/[locale]/katalogos/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/app/[locale]/logariasmos/entopismos/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/app/[locale]/logariasmos/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/app/[locale]/logariasmos/stoicheia/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/app/[locale]/nees-afixeis/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/app/[locale]/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/app/[locale]/proion/[slug]/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/app/[locale]/prosfores/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/app/[locale]/sygkrisi/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/app/[locale]/syxnes-erotiseis/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/app/layout.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/components/offers/OfferCountdown.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/components/offers/OfferWidget.tsx"
     },
     {
       "status": "M",
@@ -42,17 +170,9 @@
     },
     {
       "status": "??",
-      "path": "scripts/i18n/_scan.ts"
-    },
-    {
-      "status": "??",
-      "path": "scripts/i18n/verify.ts"
-    },
-    {
-      "status": "??",
-      "path": "src/lib/__tests__/messages.test.ts"
+      "path": "scripts/i18n/metadata.mts"
     }
   ],
   "next_action": null,
-  "context_notes": "Recent commits:\nceefd2e feat(offers): four animated widgets, previewed in the wizard\na2581ea feat(offers): a campaign wizard, and offers that carry their own terms\n9bbdc48 feat(i18n): no Greek left hardcoded in the storefront\n048dcfc feat(i18n): lift 369 interface strings into the message files\nbd9cba6 feat(i18n): translation coverage screen, and translated categories"
+  "context_notes": "Recent commits:\n08799cb fix(i18n): recover the sixteen PriceBox keys, and check keys on every commit\nceefd2e feat(offers): four animated widgets, previewed in the wizard\na2581ea feat(offers): a campaign wizard, and offers that carry their own terms\n9bbdc48 feat(i18n): no Greek left hardcoded in the storefront\n048dcfc feat(i18n): lift 369 interface strings into the message files"
 }

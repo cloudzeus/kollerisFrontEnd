@@ -1,3 +1,5 @@
+import { useTranslations } from "next-intl";
+import { getTranslations } from "next-intl/server";
 import type { Metadata } from "next";
 import { setRequestLocale } from "next-intl/server";
 import { CompareAdviceBand } from "@/components/compare/CompareAdviceBand";
@@ -30,14 +32,21 @@ type PageProps = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
 
-export const metadata: Metadata = {
-  title: "Σύγκριση προϊόντων",
-  description:
-    "Συγκρίνετε έως 4 προϊόντα της ίδιας κατηγορίας — τιμή, διαθεσιμότητα, εγγύηση και πλήρη τεχνικά χαρακτηριστικά δίπλα-δίπλα.",
-  // A comparison is a working view over the catalogue, not a page that should
-  // compete with the PDPs it links to.
-  robots: { index: false, follow: true },
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: Locale }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  // Explicit locale: `setRequestLocale` belongs to the render pass, and
+  // metadata is generated outside it.
+  const t = await getTranslations({ locale, namespace: "sygkrisi.page" });
+  return {
+    title: t("titlos_sygkrisi_proionton"),
+    description: t("perigrafi_sygkrinete_eos_4_proionta"),
+    robots: { index: false, follow: true },
+  };
+}
 
 /**
  * Compare — `?ids=` is the source of truth, the cookie is the fallback.
@@ -52,6 +61,7 @@ export const metadata: Metadata = {
  * suggestion cards — two leaves, each taking plain strings.
  */
 export default async function ComparePage({ params, searchParams }: PageProps) {
+  const t = await getTranslations("sygkrisi.page");
   const { locale } = await params;
   setRequestLocale(locale);
 
@@ -98,40 +108,39 @@ export default async function ComparePage({ params, searchParams }: PageProps) {
             className="t-util flex h-11 items-center gap-2.5 text-white/45"
           >
             <Link href="/" className="text-white/60 hover:text-white">
-              {upGreek("Αρχική")}
+              {upGreek(t("archiki"))}
             </Link>
             <span className="text-k-red">/</span>
             <Link
               href="/katalogos"
               className="hidden text-white/60 hover:text-white sm:inline"
             >
-              {upGreek("Κατάλογος")}
+              {upGreek(t("katalogos"))}
             </Link>
             <span className="hidden text-k-red sm:inline">/</span>
-            <span className="text-white">{upGreek("Σύγκριση")}</span>
+            <span className="text-white">{upGreek(t("sygkrisi"))}</span>
           </nav>
 
           <div className="flex flex-col gap-5 pt-2.5 pb-7 lg:flex-row lg:items-end lg:justify-between lg:gap-12">
             <div className="min-w-0">
               <h1 className="font-artegra text-[22px] leading-[1.16] font-medium text-white lg:text-[30px]">
-                {upGreek("Σύγκριση προϊόντων")}
+                {upGreek(t("sygkrisi_proionton"))}
               </h1>
               <p className="mt-3.5 max-w-[640px] text-[13px] leading-[1.68] text-white/60 lg:text-sm">
                 {view.columns.length > 0 ? (
                   <>
                     {view.columns.length}{" "}
-                    {view.columns.length === 1 ? "προϊόν" : "προϊόντα"}
-                    {view.scopeLabel ? ` από «${view.scopeLabel}»` : ""} —{" "}
-                    {view.totalRows} χαρακτηριστικά δίπλα-δίπλα, από τα οποία{" "}
+                    {view.columns.length === 1 ? t("proion") : t("proionta")}
+                    {view.scopeLabel ? t("apo", { scopeLabel: view.scopeLabel }) : ""} —{" "}
+                    {view.totalRows} {t("charaktiristika_dipla_dipla_apo_ta")}{" "}
                     <strong className="font-semibold text-white">
                       {view.differingRows}
                     </strong>{" "}
-                    διαφέρουν. Όλες οι τιμές με ΦΠΑ.
+                    {t("diaferoyn_oles_oi_times_me")}
                   </>
                 ) : (
                   <>
-                    Επιλέξτε έως {COMPARE_MAX} προϊόντα της ίδιας κατηγορίας από
-                    τον κατάλογο και δείτε τα χαρακτηριστικά τους δίπλα-δίπλα.
+                    {t("epilexte_eos")} {COMPARE_MAX} {t("proionta_tis_idias_katigorias_apo")}
                   </>
                 )}
               </p>
@@ -144,11 +153,9 @@ export default async function ComparePage({ params, searchParams }: PageProps) {
                   />
                   {view.dropped.length}{" "}
                   {view.dropped.length === 1
-                    ? "προϊόν αφαιρέθηκε"
-                    : "προϊόντα αφαιρέθηκαν"}{" "}
-                  από τη σύγκριση — η σύγκριση γίνεται μόνο μεταξύ προϊόντων της
-                  ίδιας κατηγορίας, και το προϊόν πρέπει να είναι διαθέσιμο στο
-                  eshop.
+                    ? t("proion_afairethike")
+                    : t("proionta_afairethikan")}{" "}
+                  {t("apo_ti_sygkrisi_i_sygkrisi")}
                 </p>
               )}
             </div>
@@ -156,7 +163,7 @@ export default async function ComparePage({ params, searchParams }: PageProps) {
             {view.scopeLabel && (
               <div className="shrink-0 border-l-[3px] border-k-red pl-4">
                 <span className="t-eyebrow block text-k-red">
-                  {upGreek("Κατηγορία")}
+                  {upGreek(t("katigoria"))}
                 </span>
                 <span className="mt-1.5 block text-[13px] leading-[1.35] text-white lg:text-[15px]">
                   {upGreek(view.scopeLabel)}
@@ -190,19 +197,17 @@ export default async function ComparePage({ params, searchParams }: PageProps) {
 
               {diffOnly && view.differingRows === 0 && (
                 <p className="border border-k-line bg-k-surface-2 px-5 py-10 text-center text-[13px] text-k-text-3">
-                  Τα προϊόντα αυτά έχουν ακριβώς τα ίδια καταχωρημένα
-                  χαρακτηριστικά. Ξεχωρίζουν μόνο στην τιμή και στη
-                  διαθεσιμότητα.
+                  {t("ta_proionta_ayta_echoyn_akrivos")}
                 </p>
               )}
 
               <p className="t-brand-count mt-4 flex flex-wrap items-center gap-2.5 text-k-text-4">
                 <span className="block h-1.5 w-1.5 bg-k-green" />
                 {upGreek(
-                  "Η ένδειξη «καλύτερη τιμή» μπαίνει μόνο σε μεγέθη με σαφή μονάδα και σαφή κατεύθυνση",
+                  t("i_endeixi_kalyteri_timi_mpainei"),
                 )}
                 <span className="block h-[14px] w-px bg-k-line-2" />
-                {upGreek("τιμές με ΦΠΑ · διαθεσιμότητα σε πραγματικό χρόνο")}
+                {upGreek(t("times_me_fpa_diathesimotita_se"))}
               </p>
             </div>
 
@@ -216,14 +221,14 @@ export default async function ComparePage({ params, searchParams }: PageProps) {
               <div>
                 <p className="t-eyebrow text-k-red">
                   {upGreek(
-                    canAddMore ? "Προσθέστε στη σύγκριση" : "Ίδια κατηγορία",
+                    canAddMore ? t("prostheste_sti_sygkrisi") : t("idia_katigoria"),
                   )}
                 </p>
                 <h2 className="font-artegra mt-2 text-[19px] leading-[1.2] font-medium text-k-ink lg:text-[25px]">
                   {upGreek(
                     view.scopeLabel
-                      ? `Περισσότερα σε ${view.scopeLabel}`
-                      : "Σχετικά προϊόντα",
+                      ? t("perissotera_se", { scopeLabel: view.scopeLabel })
+                      : t("schetika_proionta"),
                   )}
                 </h2>
               </div>
@@ -231,7 +236,7 @@ export default async function ComparePage({ params, searchParams }: PageProps) {
               {!canAddMore && (
                 <p className="t-brand-count text-k-text-4">
                   {upGreek(
-                    `Η σύγκριση χωράει ${COMPARE_MAX} προϊόντα — αφαιρέστε ένα πρώτα`,
+                    t("i_sygkrisi_choraei_proionta_afaireste", { COMPARE_MAX: COMPARE_MAX }),
                   )}
                 </p>
               )}
@@ -256,6 +261,7 @@ export default async function ComparePage({ params, searchParams }: PageProps) {
 }
 
 function EmptyCompare() {
+  const t = useTranslations("sygkrisi.page");
   return (
     <div className="shell-x bg-white py-16 text-center lg:py-24">
       <span
@@ -274,18 +280,16 @@ function EmptyCompare() {
         </svg>
       </span>
       <p className="font-artegra mt-5 text-xl leading-[1.25] text-k-ink">
-        {upGreek("Δεν έχετε επιλέξει προϊόντα")}
+        {upGreek(t("den_echete_epilexei_proionta"))}
       </p>
       <p className="mx-auto mt-2.5 max-w-md text-[13.5px] leading-[1.6] text-k-text-3">
-        Στον κατάλογο, πατήστε «Σύγκριση» σε έως {COMPARE_MAX} προϊόντα της
-        ίδιας κατηγορίας. Θα δείτε εδώ τιμή, διαθεσιμότητα, εγγύηση και όλα τα
-        τεχνικά χαρακτηριστικά δίπλα-δίπλα.
+        {t("ston_katalogo_patiste_sygkrisi_se")} {COMPARE_MAX} {t("proionta_tis_idias_katigorias_tha")}
       </p>
       <Link
         href="/katalogos"
         className="t-btn-sm mt-6 inline-block bg-k-ink px-7 py-4 text-white transition-colors hover:bg-k-red"
       >
-        {upGreek("Στον κατάλογο")} →
+        {upGreek(t("ston_katalogo"))} →
       </Link>
     </div>
   );
