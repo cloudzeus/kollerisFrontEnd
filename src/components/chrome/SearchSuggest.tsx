@@ -437,6 +437,7 @@ function ProductRow({
   onSelect: () => void;
   onHover: () => void;
 }) {
+  const locale = useLocale();
   const t = useTranslations("chrome.SearchSuggest");
   return (
     <button
@@ -485,7 +486,7 @@ function ProductRow({
       <span className="shrink-0 text-right">
         <span className="block font-mono text-[13px] font-semibold text-k-ink">
           {product.priceNet != null
-            ? formatPrice(product.priceNet, { vatRate: product.vatRate })
+            ? formatPrice(product.priceNet, locale, { vatRate: product.vatRate })
             : "—"}
         </span>
         <span

@@ -156,7 +156,7 @@ export default async function CheckoutPage({
                     </span>
                   </span>
                   <span className="shrink-0 font-mono text-[13px] font-semibold text-k-ink">
-                    {formatMoney(line.lineGross)}
+                    {formatMoney(line.lineGross, locale)}
                   </span>
                 </div>
               ))}
@@ -167,15 +167,15 @@ export default async function CheckoutPage({
           <div className="bg-k-ink px-4 py-6 lg:px-8">
             <dl className="flex flex-col gap-2.5">
               {[
-                { k: t("kathari_axia"), v: formatMoney(totals.subtotalNet) },
+                { k: t("kathari_axia"), v: formatMoney(totals.subtotalNet, locale) },
                 {
                   k: t("metaforika"),
                   v:
                     totals.shippingGross === 0
                       ? upGreek(t("dorean"))
-                      : formatMoney(totals.shippingGross),
+                      : formatMoney(totals.shippingGross, locale),
                 },
-                { k: t("fpa"), v: formatMoney(totals.vatAmount) },
+                { k: t("fpa"), v: formatMoney(totals.vatAmount, locale) },
               ].map((row) => (
                 <div key={row.k} className="flex items-baseline justify-between gap-4">
                   <dt className="text-[12.5px] text-white/55">{row.k}</dt>
@@ -199,7 +199,7 @@ export default async function CheckoutPage({
                 <p className="t-account-label mt-1.5 text-white/40">{upGreek(t("me_fpa"))}</p>
               </div>
               <p className="font-mono text-[30px] leading-none font-semibold tracking-[-0.03em] text-white lg:text-[36px]">
-                {formatMoney(totals.totalGross)}
+                {formatMoney(totals.totalGross, locale)}
               </p>
             </div>
           </div>

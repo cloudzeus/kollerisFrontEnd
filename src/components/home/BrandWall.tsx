@@ -1,5 +1,4 @@
-import { useTranslations } from "next-intl";
-import { getLocale } from "next-intl/server";
+import { getTranslations, getLocale } from "next-intl/server";
 import Image from "next/image";
 import { Link } from "@/i18n/navigation";
 import type { BrandTile } from "@/lib/catalog/queries";
@@ -22,7 +21,7 @@ export async function BrandWall({
   totalBrands: number;
 }) {
   const locale = await getLocale();
-  const t = useTranslations("home.BrandWall");
+  const t = await getTranslations("home.BrandWall");
   if (brands.length === 0) return null;
 
   return (

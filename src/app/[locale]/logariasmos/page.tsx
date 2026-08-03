@@ -83,16 +83,16 @@ export default async function AccountPage({ params }: { params: Promise<{ locale
                 value={user.role ? COMPANY_ROLE_LABELS[user.role] : "—"}
                 meta={
                   user.spendLimit != null
-                    ? t("orio_ana_paraggelia", { n: formatMoney(user.spendLimit) })
+                    ? t("orio_ana_paraggelia", { n: formatMoney(user.spendLimit, locale) })
                     : t("choris_orio_dapanis")
                 }
               />
               <Card
                 label={t("pistosi")}
-                value={company.creditLimit != null ? formatMoney(company.creditLimit) : "—"}
+                value={company.creditLimit != null ? formatMoney(company.creditLimit, locale) : "—"}
                 meta={
                   company.creditUsed != null && company.creditLimit != null
-                    ? t("diathesima", { n: formatMoney(company.creditLimit - company.creditUsed) })
+                    ? t("diathesima", { n: formatMoney(company.creditLimit - company.creditUsed, locale) })
                     : t("den_echei_energopoiithei_akomi")
                 }
               />

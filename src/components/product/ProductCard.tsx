@@ -1,4 +1,4 @@
-import { useTranslations } from "next-intl";
+import { getTranslations, getLocale } from "next-intl/server";
 import Image from "next/image";
 import { AddToCartButton } from "@/components/cart/AddToCartButton";
 import { BuyNowButton } from "@/components/cart/BuyNowButton";
@@ -26,18 +26,19 @@ import { upGreek } from "@/lib/greek";
  * everywhere else — a "compare" checkbox on the homepage's featured rail would
  * offer to compare a drill against a pair of boots.
  */
-export function ProductCard({
+export async function ProductCard({
   product,
   compare,
 }: {
   product: ProductCardData;
   compare?: { selected: boolean; disabled: boolean };
 }) {
-  const t = useTranslations("product.ProductCard");
+  const locale = await getLocale();
+  const t = await getTranslations("product.ProductCard");
   const ctx = { vatRate: product.vatRate };
   const saving =
     product.priceListNet != null && product.priceNet != null
-      ? savingsOf(product.priceListNet, product.priceNet, ctx)
+      ? savingsOf(product.priceListNet, product.priceNet, locale, ctx)
       : null;
 
   const stock = product.inStock
@@ -121,11 +122,11 @@ export function ProductCard({
           <div>
             {saving && product.priceListNet != null && (
               <div className="t-card-was hidden text-k-text-5 line-through @[240px]:block">
-                {formatPrice(product.priceListNet, ctx)}
+                {formatPrice(product.priceListNet, locale, ctx)}
               </div>
             )}
             <div className="t-card-price whitespace-nowrap text-k-ink">
-              {product.priceNet != null ? formatPrice(product.priceNet, ctx) : "—"}
+              {product.priceNet != null ? formatPrice(product.priceNet, locale, ctx) : "—"}
             </div>
             <div className="t-card-vat mt-0.5 text-k-text-5">
               {upGreek(t("me_fpa", { vatRate: product.vatRate }))}

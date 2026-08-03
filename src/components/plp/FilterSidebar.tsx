@@ -1,3 +1,4 @@
+import type { Locale } from "@/i18n/routing";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import {
@@ -29,11 +30,18 @@ export function FilterSidebar({
   facets,
   basePath,
   params,
+  locale,
   className = "",
 }: {
   facets: PlpFacets;
   basePath: string;
   params: RawParams;
+  /*
+   * A prop rather than `getLocale()`, because `MobileFilterSheet` is a client
+   * component and renders this one — an async server component cannot be
+   * rendered from the client, so the locale has to arrive as data.
+   */
+  locale: Locale;
   className?: string;
 }) {
   const t = useTranslations("plp.FilterSidebar");
@@ -93,8 +101,8 @@ export function FilterSidebar({
             })}
           </div>
           <p className="mt-3 text-[11px] text-k-text-4">
-            {t("eyros_katalogoy")} {formatPrice(facets.priceBounds.min, { vatRate: 24 })} —{" "}
-            {formatPrice(facets.priceBounds.max, { vatRate: 24 })}
+            {t("eyros_katalogoy")} {formatPrice(facets.priceBounds.min, locale, { vatRate: 24 })} —{" "}
+            {formatPrice(facets.priceBounds.max, locale, { vatRate: 24 })}
           </p>
         </Group>
 

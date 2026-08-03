@@ -344,7 +344,7 @@ function buildGroups(
       "price",
       t("timi_me_fpa"),
       columns.map((c) => ({
-        text: c.priceNet != null ? formatPrice(c.priceNet, { vatRate: c.vatRate }) : null,
+        text: c.priceNet != null ? formatPrice(c.priceNet, locale, { vatRate: c.vatRate }) : null,
         value: gross(c),
       })),
       "lower",

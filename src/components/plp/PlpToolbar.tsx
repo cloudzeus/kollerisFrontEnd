@@ -1,5 +1,4 @@
-import { useTranslations } from "next-intl";
-import { getLocale } from "next-intl/server";
+import { getTranslations, getLocale } from "next-intl/server";
 import { MobileFilterSheet } from "@/components/plp/MobileFilterSheet";
 import { Link } from "@/i18n/navigation";
 import {
@@ -39,7 +38,7 @@ export async function PlpToolbar({
   params: RawParams;
 }) {
   const locale = await getLocale();
-  const t = useTranslations("plp.PlpToolbar");
+  const t = await getTranslations("plp.PlpToolbar");
   const chips: Array<{ label: string; href: string }> = [
     ...facets.subcategories
       .filter((s) => s.active)

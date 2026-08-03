@@ -77,12 +77,12 @@ export default async function B2BPage({ params }: { params: Promise<{ locale: Lo
           />
           <Metric
             label={t("orio_pistosis")}
-            value={company.creditLimit != null ? formatMoney(company.creditLimit) : "—"}
+            value={company.creditLimit != null ? formatMoney(company.creditLimit, locale) : "—"}
             meta={company.creditLimit == null ? t("den_echei_energopoiithei") : undefined}
           />
           <Metric
             label={t("diathesimo_ypoloipo")}
-            value={creditAvailable != null ? formatMoney(creditAvailable) : "—"}
+            value={creditAvailable != null ? formatMoney(creditAvailable, locale) : "—"}
             meta={creditAvailable == null ? t("chreiazetai_syndesi_me_softone") : undefined}
           />
           <Metric
@@ -101,7 +101,7 @@ export default async function B2BPage({ params }: { params: Promise<{ locale: Lo
             <p className="mt-2 max-w-xl text-[12.5px] leading-[1.6] text-k-text-3">
               {COMPANY_ROLE_HELP[user.role]}
               {user.spendLimit != null &&
-                t("to_orio_sas_einai_ana", { n: formatMoney(user.spendLimit) })}
+                t("to_orio_sas_einai_ana", { n: formatMoney(user.spendLimit, locale) })}
             </p>
           )}
 

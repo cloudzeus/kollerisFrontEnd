@@ -232,6 +232,7 @@ export default async function CategoryPage({
 
         <div className="shell-w bg-white lg:grid lg:grid-cols-[326px_1fr] lg:items-start">
           <FilterSidebar
+              locale={locale}
             facets={data.facets}
             basePath={`/katalogos/${kathgoria}`}
             params={raw}

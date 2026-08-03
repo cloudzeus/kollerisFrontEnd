@@ -1,5 +1,4 @@
-import { useTranslations } from "next-intl";
-import { getLocale } from "next-intl/server";
+import { getTranslations, getLocale } from "next-intl/server";
 import Image from "next/image";
 import { Link } from "@/i18n/navigation";
 import type { CategoryTile } from "@/lib/catalog/queries";
@@ -24,7 +23,7 @@ export async function CategoryGrid({
   totalCategories: number;
 }) {
   const locale = await getLocale();
-  const t = useTranslations("home.CategoryGrid");
+  const t = await getTranslations("home.CategoryGrid");
   if (categories.length === 0) return null;
 
   return (

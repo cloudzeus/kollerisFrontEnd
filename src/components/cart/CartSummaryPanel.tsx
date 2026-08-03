@@ -1,6 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { useLocale } from "next-intl";
 import { useTransition } from "react";
 import { Link } from "@/i18n/navigation";
 import { applyCoupon, setCartOptions } from "@/lib/cart/actions";
@@ -34,6 +35,7 @@ export function CartSummaryPanel({
   paymentMethod: PaymentMethodId;
   isPartner?: boolean;
 }) {
+  const locale = useLocale();
   const t = useTranslations("cart.CartSummaryPanel");
   const [pending, startTransition] = useTransition();
   const [coupon, setCoupon] = useState("");
@@ -84,7 +86,7 @@ export function CartSummaryPanel({
             <>
               {t("prostheste_akomi")}{" "}
               <strong className="font-mono font-semibold text-k-ink">
-                {formatMoney(totals.freeShippingRemaining)}
+                {formatMoney(totals.freeShippingRemaining, locale)}
               </strong>{" "}
               {t("kathari_axia_gia_dorean_metaforika")}
             </>
@@ -137,7 +139,7 @@ export function CartSummaryPanel({
                   {free || method.expressMultiplier === 0
                     ? upGreek(t("dorean"))
                     : cost != null
-                      ? formatMoney(cost)
+                      ? formatMoney(cost, locale)
                       : upGreek(t("ypologismos"))}
                 </span>
               </button>
@@ -167,7 +169,7 @@ export function CartSummaryPanel({
                 {method.label}
                 {method.feeNet > 0 && (
                   <span className={`t-brand-count ${active ? "text-white/60" : "text-k-text-4"}`}>
-                    +{formatMoney(method.feeNet)}
+                    +{formatMoney(method.feeNet, locale)}
                   </span>
                 )}
               </button>
@@ -219,18 +221,18 @@ export function CartSummaryPanel({
       <div className="bg-k-ink px-4 py-6 lg:px-8">
         <dl className="flex flex-col gap-2.5">
           {[
-            { k: t("kathari_axia"), v: formatMoney(totals.subtotalNet) },
+            { k: t("kathari_axia"), v: formatMoney(totals.subtotalNet, locale) },
             {
               k: t("metaforika"),
               v:
                 totals.shippingGross === 0
                   ? upGreek(t("dorean"))
-                  : formatMoney(totals.shippingGross),
+                  : formatMoney(totals.shippingGross, locale),
             },
             ...(totals.paymentFeeGross > 0
-              ? [{ k: t("epivarynsi_pliromis"), v: formatMoney(totals.paymentFeeGross) }]
+              ? [{ k: t("epivarynsi_pliromis"), v: formatMoney(totals.paymentFeeGross, locale) }]
               : []),
-            { k: t("fpa"), v: formatMoney(totals.vatAmount) },
+            { k: t("fpa"), v: formatMoney(totals.vatAmount, locale) },
           ].map((row) => (
             <div key={row.k} className="flex items-baseline justify-between gap-4">
               <dt className="text-[12.5px] text-white/55">{row.k}</dt>
@@ -257,13 +259,13 @@ export function CartSummaryPanel({
             <p className="t-account-label mt-1.5 text-white/40">{upGreek(t("me_fpa"))}</p>
           </div>
           <p className="font-mono text-[30px] leading-none font-semibold tracking-[-0.03em] whitespace-nowrap text-white lg:text-[38px]">
-            {formatMoney(totals.totalGross)}
+            {formatMoney(totals.totalGross, locale)}
           </p>
         </div>
 
         {totals.savingsGross > 0 && (
           <p className="mt-3.5 border-l-[3px] border-k-red bg-k-red/14 px-3.5 py-2.5 text-[11.5px] font-semibold text-white">
-            {t("kerdizete")} {formatMoney(totals.savingsGross)} {t("se_ayti_tin_paraggelia")}
+            {t("kerdizete")} {formatMoney(totals.savingsGross, locale)} {t("se_ayti_tin_paraggelia")}
           </p>
         )}
 

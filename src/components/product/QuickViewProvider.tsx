@@ -1,6 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { useLocale } from "next-intl";
 import Image from "next/image";
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { AddToCartButton } from "@/components/cart/AddToCartButton";
@@ -168,11 +169,12 @@ function QuickViewBody({
   product: QuickViewProduct;
   onNavigate: () => void;
 }) {
+  const locale = useLocale();
   const t = useTranslations("product.QuickViewProvider");
   const ctx = { vatRate: product.vatRate };
   const saving =
     product.priceListNet != null && product.priceNet != null
-      ? savingsOf(product.priceListNet, product.priceNet, ctx)
+      ? savingsOf(product.priceListNet, product.priceNet, locale, ctx)
       : null;
 
   return (
@@ -215,11 +217,11 @@ function QuickViewBody({
         <div className="mt-4 flex items-end gap-3">
           {saving && product.priceListNet != null && (
             <span className="t-card-was text-k-text-5 line-through">
-              {formatPrice(product.priceListNet, ctx)}
+              {formatPrice(product.priceListNet, locale, ctx)}
             </span>
           )}
           <span className="font-mono text-[28px] leading-none font-semibold text-k-ink">
-            {product.priceNet != null ? formatPrice(product.priceNet, ctx) : "—"}
+            {product.priceNet != null ? formatPrice(product.priceNet, locale, ctx) : "—"}
           </span>
         </div>
         <p className="t-card-vat mt-1 text-k-text-5">

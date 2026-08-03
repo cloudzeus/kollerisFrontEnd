@@ -106,7 +106,7 @@ function Result({ order }: { order: Extract<TrackState, { state: "found" }>["ord
           </p>
           <p className="t-brand-count mt-2 text-k-text-4">
             {date(order.placedAt)} · {order.itemCount} {upGreek(t("tem"))} ·{" "}
-            {formatMoney(order.totalGross)}
+            {formatMoney(order.totalGross, locale)}
           </p>
         </div>
 

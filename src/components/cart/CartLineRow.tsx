@@ -1,6 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { useLocale } from "next-intl";
 import Image from "next/image";
 import { useOptimistic, useTransition } from "react";
 import { Link } from "@/i18n/navigation";
@@ -18,6 +19,7 @@ import { upGreek } from "@/lib/greek";
  * server then disagrees with. The spec calls this out explicitly.
  */
 export function CartLineRow({ line }: { line: CartLineView }) {
+  const locale = useLocale();
   const t = useTranslations("cart.CartLineRow");
   const [pending, startTransition] = useTransition();
   const [optimisticQty, setOptimisticQty] = useOptimistic(line.quantity);
@@ -101,11 +103,11 @@ export function CartLineRow({ line }: { line: CartLineView }) {
         </span>
         {line.unitListNet != null && (
           <span className="t-card-was block whitespace-nowrap text-k-text-5 line-through">
-            {formatPrice(line.unitListNet, ctx)}
+            {formatPrice(line.unitListNet, locale, ctx)}
           </span>
         )}
         <span className="block font-mono text-[15px] font-semibold whitespace-nowrap text-k-ink">
-          {formatPrice(line.unitNet, ctx)}
+          {formatPrice(line.unitNet, locale, ctx)}
         </span>
         <span className="t-card-vat mt-0.5 block text-k-text-5">
           {upGreek(t("me_fpa", { vatRate: line.vatRate }))}
@@ -148,7 +150,7 @@ export function CartLineRow({ line }: { line: CartLineView }) {
       <div className="flex items-center justify-between lg:block lg:text-right">
         <span className="t-account-label text-k-text-4 lg:hidden">{upGreek(t("synolo"))}</span>
         <span className="font-mono text-[19px] font-semibold whitespace-nowrap text-k-ink">
-          {formatPrice(line.unitNet * optimisticQty, ctx)}
+          {formatPrice(line.unitNet * optimisticQty, locale, ctx)}
         </span>
       </div>
 

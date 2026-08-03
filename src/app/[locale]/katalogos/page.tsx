@@ -1,4 +1,3 @@
-import { useTranslations } from "next-intl";
 import { getLocale } from "next-intl/server";
 import { getTranslations } from "next-intl/server";
 import type { Metadata } from "next";
@@ -224,7 +223,7 @@ export default async function CataloguePage({
  */
 async function FeatureTile({ root, nodes }: { root: CatalogueRoot; nodes: CatalogueNode[] }) {
   const locale = await getLocale();
-  const t = useTranslations("katalogos.page");
+  const t = await getTranslations("katalogos.page");
   return (
     <div className="grid bg-white lg:grid-cols-[minmax(0,380px)_minmax(0,1fr)]">
       <Link
@@ -310,7 +309,7 @@ async function FeatureTile({ root, nodes }: { root: CatalogueRoot; nodes: Catalo
 /** A working-middle category, with its four biggest children inline. */
 async function StandardTile({ root, nodes }: { root: CatalogueRoot; nodes: CatalogueNode[] }) {
   const locale = await getLocale();
-  const t = useTranslations("katalogos.page");
+  const t = await getTranslations("katalogos.page");
   const remaining = root.groupCount + root.subgroupCount - Math.min(4, root.children.length);
 
   return (

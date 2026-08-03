@@ -87,6 +87,7 @@ export function MobileFilterSheet({
             className="absolute inset-x-0 bottom-0 flex max-h-[88vh] flex-col bg-white"
           >
             <FilterSidebar
+              locale={locale}
               facets={facets}
               basePath={basePath}
               params={params}

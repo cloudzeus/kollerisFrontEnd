@@ -250,7 +250,7 @@ export default async function ConfirmationPage({ params, searchParams }: PagePro
                     </span>
                   </span>
                   <span className="shrink-0 font-mono text-[14px] font-semibold text-k-ink">
-                    {formatMoney(Number(line.lineGross))}
+                    {formatMoney(Number(line.lineGross), locale)}
                   </span>
                 </div>
               ))}
@@ -262,15 +262,15 @@ export default async function ConfirmationPage({ params, searchParams }: PagePro
             <div className="bg-k-ink px-5 py-6">
               <dl className="flex flex-col gap-2.5">
                 {[
-                  { k: t("kathari_axia"), v: formatMoney(Number(order.subtotalNet)) },
+                  { k: t("kathari_axia"), v: formatMoney(Number(order.subtotalNet), locale) },
                   {
                     k: t("metaforika"),
                     v:
                       Number(order.shippingGross) === 0
                         ? upGreek(t("dorean"))
-                        : formatMoney(Number(order.shippingGross)),
+                        : formatMoney(Number(order.shippingGross), locale),
                   },
-                  { k: t("fpa"), v: formatMoney(Number(order.vatAmount)) },
+                  { k: t("fpa"), v: formatMoney(Number(order.vatAmount), locale) },
                 ].map((row) => (
                   <div key={row.k} className="flex items-baseline justify-between gap-4">
                     <dt className="text-[12.5px] text-white/55">{row.k}</dt>
@@ -281,7 +281,7 @@ export default async function ConfirmationPage({ params, searchParams }: PagePro
               <div className="mt-4 flex items-end justify-between gap-4 border-t border-white/16 pt-4">
                 <p className="t-footer-col text-white/50">{upGreek(t("synolo"))}</p>
                 <p className="font-mono text-[30px] leading-none font-semibold tracking-[-0.03em] text-white">
-                  {formatMoney(Number(order.totalGross))}
+                  {formatMoney(Number(order.totalGross), locale)}
                 </p>
               </div>
             </div>

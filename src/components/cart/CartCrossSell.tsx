@@ -1,6 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { useLocale } from "next-intl";
 import Image from "next/image";
 import { useTransition } from "react";
 import { Link } from "@/i18n/navigation";
@@ -16,6 +17,7 @@ import { upGreek } from "@/lib/greek";
  * decision taken on the PLP.
  */
 export function CartCrossSell({ items }: { items: CrossSellItem[] }) {
+  const locale = useLocale();
   const t = useTranslations("cart.CartCrossSell");
   const [pending, startTransition] = useTransition();
 
@@ -79,7 +81,7 @@ export function CartCrossSell({ items }: { items: CrossSellItem[] }) {
 
               <div className="flex items-center justify-between gap-2">
                 <span className="font-mono text-[15px] font-semibold whitespace-nowrap text-white">
-                  {formatPrice(item.priceNet, { vatRate: item.vatRate })}
+                  {formatPrice(item.priceNet, locale, { vatRate: item.vatRate })}
                 </span>
                 <button
                   type="button"

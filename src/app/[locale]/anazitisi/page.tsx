@@ -246,7 +246,7 @@ export default async function SearchPage({ params, searchParams }: PageProps) {
               <div className="shrink-0 text-right">
                 <p className="font-mono text-[19px] leading-none font-semibold text-k-ink">
                   {exact.priceNet != null
-                    ? formatPrice(exact.priceNet, { vatRate: exact.vatRate })
+                    ? formatPrice(exact.priceNet, locale, { vatRate: exact.vatRate })
                     : "—"}
                 </p>
                 <p
@@ -285,6 +285,7 @@ export default async function SearchPage({ params, searchParams }: PageProps) {
 
             <div className="shell-w bg-white lg:grid lg:grid-cols-[326px_1fr] lg:items-start">
               <FilterSidebar
+              locale={locale}
                 facets={data.facets}
                 basePath="/anazitisi"
                 params={raw}

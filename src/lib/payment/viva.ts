@@ -1,3 +1,4 @@
+import type { Locale } from "@/i18n/routing";
 import "server-only";
 
 /**
@@ -98,6 +99,20 @@ async function getAccessToken(): Promise<string> {
   return data.access_token;
 }
 
+/**
+ * Viva's own culture codes.
+ *
+ * The payment page is the last screen of the purchase and it was Greek for
+ * everyone — an English customer who read the whole shop in English arrived at
+ * a Greek card form. Viva names its languages as full culture codes, so the
+ * site's two-letter locale has to be mapped rather than passed through.
+ */
+const VIVA_LANGUAGE: Record<Locale, string> = {
+  el: "el-GR",
+  en: "en-US",
+  it: "it-IT",
+};
+
 export type CreatePaymentOrderInput = {
   /** GROSS amount in euros. Converted to cents here — Viva works in minor units. */
   amountGross: number;
@@ -110,6 +125,8 @@ export type CreatePaymentOrderInput = {
   };
   /** Free text shown on the Viva checkout page and the statement. */
   description: string;
+  /** The language the customer was shopping in. */
+  locale: Locale;
   /** Minutes the payment link stays valid. */
   expiryMinutes?: number;
 };
@@ -144,7 +161,7 @@ export async function createPaymentOrder(
         fullName: input.customer.fullName,
         phone: input.customer.phone ?? undefined,
         countryCode: input.customer.countryCode ?? "GR",
-        requestLang: "el-GR",
+        requestLang: VIVA_LANGUAGE[input.locale] ?? VIVA_LANGUAGE.el,
       },
       paymentTimeout: (input.expiryMinutes ?? 30) * 60,
       preauth: false,

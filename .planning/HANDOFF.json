@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-08-03T06:11:23.747Z",
+  "timestamp": "2026-08-03T11:22:31.079Z",
   "source": "auto-postool",
   "partial": false,
   "phase": null,
@@ -22,15 +22,15 @@
     },
     {
       "status": "M",
+      "path": "scripts/i18n/verify.ts"
+    },
+    {
+      "status": "M",
       "path": "src/app/[locale]/anazitisi/page.tsx"
     },
     {
       "status": "M",
-      "path": "src/app/[locale]/blog/[slug]/page.tsx"
-    },
-    {
-      "status": "M",
-      "path": "src/app/[locale]/blog/page.tsx"
+      "path": "src/app/[locale]/b2b/page.tsx"
     },
     {
       "status": "M",
@@ -38,19 +38,11 @@
     },
     {
       "status": "M",
-      "path": "src/app/[locale]/brands/page.tsx"
+      "path": "src/app/[locale]/checkout/epibebaiosi/[orderNumber]/page.tsx"
     },
     {
       "status": "M",
-      "path": "src/app/[locale]/epikoinonia/page.tsx"
-    },
-    {
-      "status": "M",
-      "path": "src/app/[locale]/etaireia/page.tsx"
-    },
-    {
-      "status": "M",
-      "path": "src/app/[locale]/kalathi/page.tsx"
+      "path": "src/app/[locale]/checkout/page.tsx"
     },
     {
       "status": "M",
@@ -66,35 +58,35 @@
     },
     {
       "status": "M",
-      "path": "src/app/[locale]/nees-afixeis/page.tsx"
+      "path": "src/app/[locale]/proion/[slug]/page.tsx"
     },
     {
       "status": "M",
-      "path": "src/app/[locale]/page.tsx"
+      "path": "src/app/admin/(protected)/page.tsx"
     },
     {
       "status": "M",
-      "path": "src/app/[locale]/prosfores/page.tsx"
+      "path": "src/components/account/MemberAdmin.tsx"
     },
     {
       "status": "M",
-      "path": "src/components/brands/BrandSearchGrid.tsx"
+      "path": "src/components/admin/OrdersTable.tsx"
     },
     {
       "status": "M",
-      "path": "src/components/catalogue/CategoryPicker.tsx"
+      "path": "src/components/cart/CartCrossSell.tsx"
     },
     {
       "status": "M",
-      "path": "src/components/catalogue/TaxonomyFinder.tsx"
+      "path": "src/components/cart/CartLineRow.tsx"
     },
     {
       "status": "M",
-      "path": "src/components/chrome/MegaMenu.tsx"
+      "path": "src/components/cart/CartSummaryPanel.tsx"
     },
     {
       "status": "M",
-      "path": "src/components/chrome/MobileMenu.tsx"
+      "path": "src/components/cart/MiniCart.tsx"
     },
     {
       "status": "M",
@@ -102,7 +94,7 @@
     },
     {
       "status": "M",
-      "path": "src/components/chrome/UtilityBar.tsx"
+      "path": "src/components/compare/CompareMatrix.tsx"
     },
     {
       "status": "M",
@@ -122,6 +114,14 @@
     },
     {
       "status": "M",
+      "path": "src/components/pdp/PriceBox.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/components/plp/FilterSidebar.tsx"
+    },
+    {
+      "status": "M",
       "path": "src/components/plp/MobileFilterSheet.tsx"
     },
     {
@@ -130,15 +130,23 @@
     },
     {
       "status": "M",
-      "path": "src/lib/banners/resolve.ts"
+      "path": "src/components/product/ProductCard.tsx"
     },
     {
       "status": "M",
-      "path": "src/lib/catalog/editorial.ts"
+      "path": "src/components/product/QuickViewProvider.tsx"
     },
     {
       "status": "M",
-      "path": "src/lib/catalog/pdp.ts"
+      "path": "src/lib/__tests__/format.test.ts"
+    },
+    {
+      "status": "M",
+      "path": "src/lib/__tests__/messages.test.ts"
+    },
+    {
+      "status": "M",
+      "path": "src/lib/checkout/actions.ts"
     },
     {
       "status": "M",
@@ -146,37 +154,25 @@
     },
     {
       "status": "M",
-      "path": "src/lib/contact/hours.test.ts"
-    },
-    {
-      "status": "M",
-      "path": "src/lib/contact/hours.ts"
-    },
-    {
-      "status": "M",
       "path": "src/lib/faq/faq.ts"
     },
     {
       "status": "M",
-      "path": "src/messages/el.json"
+      "path": "src/lib/format.ts"
     },
     {
       "status": "M",
-      "path": "src/messages/en.json"
-    },
-    {
-      "status": "M",
-      "path": "src/messages/it.json"
+      "path": "src/lib/payment/viva.ts"
     },
     {
       "status": "??",
-      "path": "scripts/i18n/faq.mts"
+      "path": "scripts/i18n/money.mts"
     },
     {
       "status": "??",
-      "path": "scripts/i18n/locale-format.mts"
+      "path": "src/types/next-intl.d.ts"
     }
   ],
   "next_action": null,
-  "context_notes": "Recent commits:\n3eea85e feat(i18n): the 35 page files the scan never reached\n08799cb fix(i18n): recover the sixteen PriceBox keys, and check keys on every commit\nceefd2e feat(offers): four animated widgets, previewed in the wizard\na2581ea feat(offers): a campaign wizard, and offers that carry their own terms\n9bbdc48 feat(i18n): no Greek left hardcoded in the storefront"
+  "context_notes": "Recent commits:\nf95e5ca feat(i18n): the Greek that was never in a .tsx file\n3eea85e feat(i18n): the 35 page files the scan never reached\n08799cb fix(i18n): recover the sixteen PriceBox keys, and check keys on every commit\nceefd2e feat(offers): four animated widgets, previewed in the wizard\na2581ea feat(offers): a campaign wizard, and offers that carry their own terms"
 }

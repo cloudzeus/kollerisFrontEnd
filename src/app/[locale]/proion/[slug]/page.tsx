@@ -74,7 +74,7 @@ export default async function ProductPage({ params }: PageProps) {
   const ctx = { vatRate: product.vatRate };
   const saving =
     product.priceListNet != null && product.priceNet != null
-      ? savingsOf(product.priceListNet, product.priceNet, ctx)
+      ? savingsOf(product.priceListNet, product.priceNet, locale, ctx)
       : null;
 
   /*

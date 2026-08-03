@@ -1,5 +1,4 @@
-import { useTranslations } from "next-intl";
-import { getLocale } from "next-intl/server";
+import { getTranslations, getLocale } from "next-intl/server";
 import Image from "next/image";
 import { Link } from "@/i18n/navigation";
 import { upGreek } from "@/lib/greek";
@@ -47,7 +46,7 @@ export async function HeroBanner({
   }>;
 }) {
   const locale = await getLocale();
-  const t = useTranslations("home.HeroBanner");
+  const t = await getTranslations("home.HeroBanner");
   const formatted = productCount.toLocaleString(locale);
 
   // The mobile lead is the one line marketing can write with live figures in

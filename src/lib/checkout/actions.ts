@@ -234,6 +234,7 @@ export async function placeOrder(
       amountGross: Number(order.totalGross),
       orderNumber: order.orderNumber,
       description: `Kolleris ${order.orderNumber}`,
+      locale,
       customer: {
         email: input.email,
         fullName: `${input.firstName} ${input.lastName}`,

@@ -69,7 +69,7 @@ export const getFaq = cache(async (locale: Locale): Promise<FaqSection[]> => {
       entries: [
         {
           q: t("erotisi_poso_kostizei_i_apostoli"),
-          a: t("apantisi_ypologizetai_apo_to_chreosimo_varos_kai", { formatMoneyFREE_SHIPPING_THRESHOLD_NET: formatMoney(FREE_SHIPPING_THRESHOLD_NET) }),
+          a: t("apantisi_ypologizetai_apo_to_chreosimo_varos_kai", { formatMoneyFREE_SHIPPING_THRESHOLD_NET: formatMoney(FREE_SHIPPING_THRESHOLD_NET, locale) }),
         },
         {
           q: t("erotisi_pote_tha_ftasei"),

@@ -1,6 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { useLocale } from "next-intl";
 import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "@/i18n/navigation";
@@ -30,6 +31,7 @@ export function MiniCart({
   cart: MiniCartSummary | null;
   variant?: "desktop" | "mobile";
 }) {
+  const locale = useLocale();
   const t = useTranslations("cart.MiniCart");
   const [open, setOpen] = useState(false);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -103,7 +105,7 @@ export function MiniCart({
           <span className="block text-left">
             <span className="t-account-label block text-k-text-4">{upGreek(t("kalathi"))}</span>
             <span className="t-account-value mt-0.5 block text-k-ink">
-              {cart ? formatMoney(cart.subtotalGross) : upGreek(t("adeio"))}
+              {cart ? formatMoney(cart.subtotalGross, locale) : upGreek(t("adeio"))}
             </span>
           </span>
         )}
@@ -173,7 +175,7 @@ export function MiniCart({
                     </span>
 
                     <span className="shrink-0 font-mono text-[13px] font-semibold whitespace-nowrap text-k-ink">
-                      {formatMoney(line.lineGross)}
+                      {formatMoney(line.lineGross, locale)}
                     </span>
                   </Link>
                 ))}
@@ -189,7 +191,7 @@ export function MiniCart({
                 <div className="flex items-baseline justify-between">
                   <span className="text-[12px] text-k-text-3">{t("yposynolo")}</span>
                   <span className="font-mono text-[19px] font-semibold whitespace-nowrap text-k-ink">
-                    {formatMoney(cart.subtotalGross)}
+                    {formatMoney(cart.subtotalGross, locale)}
                   </span>
                 </div>
 
@@ -207,7 +209,7 @@ export function MiniCart({
                 <p className="mt-2 text-[11px] leading-[1.5] text-k-text-3">
                   {cart.freeShippingReached
                     ? t("dorean_metaforika_energa")
-                    : t("akomi_gia_dorean_metaforika", { n: formatMoney(cart.freeShippingRemaining) })}
+                    : t("akomi_gia_dorean_metaforika", { n: formatMoney(cart.freeShippingRemaining, locale) })}
                 </p>
               </div>
 

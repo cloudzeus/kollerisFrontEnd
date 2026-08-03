@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { findProblems, findUntranslated } from "../../../scripts/i18n/verify";
+import { findHookMisuse, findProblems, findUntranslated } from "../../../scripts/i18n/verify";
 
 /**
  * The message files, checked against the code that reads them.
@@ -15,6 +15,15 @@ describe("messages", () => {
     expect(
       problems.map((p) => `${p.detail}   (${p.file})`),
       "λείπουν κλειδιά από το src/messages/el.json",
+    ).toEqual([]);
+  });
+
+  // Not a message problem, but the same shape of failure: invisible to tsc,
+  // visible only as a red overlay when somebody opens the page.
+  it("calls next-intl hooks only where they are hooks", () => {
+    expect(
+      findHookMisuse().map((p) => `${p.detail}   (${p.file})`),
+      "async server components must await getTranslations/getLocale",
     ).toEqual([]);
   });
 

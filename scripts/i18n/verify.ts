@@ -171,6 +171,71 @@ export function findProblems(): Problem[] {
 }
 
 /**
+ * next-intl hooks called inside an async server component.
+ *
+ * `useTranslations` and `useLocale` are the synchronous API; an async component
+ * must await `getTranslations` / `getLocale`. Mixing them throws "Invalid hook
+ * call" at render time and is invisible to `tsc` — both are ordinary function
+ * calls with the right signature. Eight of these shipped the moment six
+ * components were made async to reach the request locale.
+ */
+export function findHookMisuse(): Problem[] {
+  const problems: Problem[] = [];
+  const files = globSync("src/**/*.tsx").filter((f) => !f.endsWith(".d.ts"));
+
+  for (const file of files) {
+    const text = readFileSync(file, "utf8");
+    // Client components are where these hooks belong.
+    if (/^\s*["']use client["']/m.test(text)) continue;
+    if (!/\buse(Translations|Locale|Formatter)\b/.test(text)) continue;
+
+    const source = ts.createSourceFile(file, text, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
+    const where = path.relative("src", file);
+
+    const visit = (node: ts.Node) => {
+      if (
+        ts.isCallExpression(node) &&
+        ts.isIdentifier(node.expression) &&
+        /^use(Translations|Locale|Formatter)$/.test(node.expression.text)
+      ) {
+        /*
+         * Climb past callbacks to the component that owns this call.
+         *
+         * A `.map` callback is not a component: it runs inside its parent's
+         * render, so if that parent is async the dispatcher is already null and
+         * the hook throws — even though the callback itself is not async.
+         * Stopping at the first enclosing function missed exactly this.
+         */
+        for (let current: ts.Node | undefined = node; current; current = current.parent) {
+          if (
+            !ts.isFunctionDeclaration(current) &&
+            !ts.isArrowFunction(current) &&
+            !ts.isFunctionExpression(current)
+          )
+            continue;
+          const fn = current as ts.FunctionLikeDeclaration;
+          const isCallback = fn.parent && ts.isCallExpression(fn.parent);
+          if (isCallback) continue;
+          if (fn.modifiers?.some((m) => m.kind === ts.SyntaxKind.AsyncKeyword)) {
+            const name = ts.isFunctionDeclaration(fn) && fn.name ? fn.name.text : "(ανώνυμη)";
+            const line = source.getLineAndCharacterOfPosition(node.getStart()).line + 1;
+            problems.push({
+              file: where,
+              detail: `${node.expression.text} σε async ${name} — χρειάζεται await get${node.expression.text.slice(3)} (γρ. ${line})`,
+            });
+          }
+          break;
+        }
+      }
+      ts.forEachChild(node, visit);
+    };
+    visit(source);
+  }
+
+  return problems;
+}
+
+/**
  * Keys present in Greek but absent from another locale.
  *
  * next-intl falls back to the default locale, so this never throws — it just
@@ -198,11 +263,15 @@ if (process.argv[1]?.endsWith("verify.ts")) {
   console.log(problems.length === 0 ? "  κλειδιά: όλα βρέθηκαν" : `  προβλήματα: ${problems.length}`);
   for (const p of problems) console.log(`    ${p.detail}   (${p.file})`);
 
+  const hooks = findHookMisuse();
+  console.log(hooks.length === 0 ? "  hooks: σωστά" : `  hooks σε async components: ${hooks.length}`);
+  for (const h of hooks) console.log(`    ${h.detail}   (${h.file})`);
+
   for (const locale of ["en", "it"] as const) {
     const gaps = findUntranslated(locale);
     console.log(`  ${locale}: ${gaps.length === 0 ? "πλήρες" : `${gaps.length} χωρίς μετάφραση`}`);
     for (const g of gaps.slice(0, 10)) console.log(`    ${g}`);
   }
 
-  process.exitCode = problems.length ? 1 : 0;
+  process.exitCode = problems.length + hooks.length ? 1 : 0;
 }

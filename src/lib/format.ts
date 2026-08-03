@@ -16,6 +16,7 @@
  * storefront by forgetting a flag.
  * ────────────────────────────────────────────────────────────────────────────
  */
+import type { Locale } from "@/i18n/routing";
 
 /** Fallback when a product carries no resolvable VAT code. */
 export const DEFAULT_VAT_RATE = 24;
@@ -60,34 +61,54 @@ export function grossAmount(
 }
 
 /**
- * Format an already-resolved amount in el-GR convention: `1.234,56 €`
- * (dot thousands, comma decimals, NBSP before the symbol).
+ * How each language writes an amount of euros.
  *
- * Formatted manually rather than via `Intl.NumberFormat` because ICU output
- * differs across Node and browser versions, which would produce React
- * hydration mismatches on every price on the page.
+ * Greek and Italian agree — `1.234,56 €`, dot thousands, comma decimals, the
+ * symbol last behind a non-breaking space. English puts the symbol first and
+ * swaps the separators, so `1.234,56 €` reads to an English customer as one
+ * euro and change on a €1,234.56 order.
+ *
+ * Written out rather than taken from `Intl.NumberFormat` because ICU output
+ * differs across Node and browser versions — the space before € is NBSP in some
+ * and NNBSP in others — which produces a React hydration mismatch on every
+ * price on the page. A table of three entries cannot drift between runtimes.
  */
-export function formatMoney(amount: number): string {
+const MONEY: Record<Locale, { thousands: string; decimals: string; wrap: (amount: string) => string }> = {
+  el: { thousands: ".", decimals: ",", wrap: (amount) => `${amount}${NBSP}€` },
+  it: { thousands: ".", decimals: ",", wrap: (amount) => `${amount}${NBSP}€` },
+  en: { thousands: ",", decimals: ".", wrap: (amount) => `€${amount}` },
+};
+
+/**
+ * Format an already-resolved amount in the reader's convention.
+ *
+ * `locale` is required, not defaulted: a default is a silent Greek price on an
+ * English page, and the whole point of this change was that nobody noticed the
+ * last one.
+ */
+export function formatMoney(amount: number, locale: Locale): string {
+  const style = MONEY[locale] ?? MONEY.el;
   const negative = amount < 0;
-  const [whole, decimals] = roundCents(Math.abs(amount)).toFixed(2).split(".");
-  const grouped = whole.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-  return `${negative ? "-" : ""}${grouped},${decimals}${NBSP}€`;
+  const [whole, cents] = roundCents(Math.abs(amount)).toFixed(2).split(".");
+  const grouped = whole.replace(/\B(?=(\d{3})+(?!\d))/g, style.thousands);
+  return `${negative ? "-" : ""}${style.wrap(`${grouped}${style.decimals}${cents}`)}`;
 }
 
 /**
  * The storefront entry point. Always VAT-inclusive.
  *
- *   formatPrice(100)                        → '124,00 €'
- *   formatPrice(100, { vatRate: 13 })       → '113,00 €'
- *   formatPrice(100, { partnerFactor: .88 })→ '109,12 €'
+ *   formatPrice(100, "el")                        → '124,00 €'
+ *   formatPrice(100, "en")                        → '€124.00'
+ *   formatPrice(100, "el", { vatRate: 13 })       → '113,00 €'
+ *   formatPrice(100, "el", { partnerFactor: .88 })→ '109,12 €'
  */
-export function formatPrice(net: number, ctx: PriceContext = {}): string {
-  return formatMoney(grossAmount(net, ctx));
+export function formatPrice(net: number, locale: Locale, ctx: PriceContext = {}): string {
+  return formatMoney(grossAmount(net, ctx), locale);
 }
 
 /** Net formatting for ERP payloads and /admin. Never for the storefront. */
-export function formatNet(net: number, ctx: PriceContext = {}): string {
-  return formatMoney(netAmount(net, ctx));
+export function formatNet(net: number, locale: Locale, ctx: PriceContext = {}): string {
+  return formatMoney(netAmount(net, ctx), locale);
 }
 
 /**
@@ -98,6 +119,7 @@ export function formatNet(net: number, ctx: PriceContext = {}): string {
 export function savingsOf(
   netWas: number,
   netNow: number,
+  locale: Locale,
   ctx: PriceContext = {},
 ): { amount: number; percent: number; formatted: string } | null {
   if (!(netWas > netNow)) return null;
@@ -110,7 +132,7 @@ export function savingsOf(
   return {
     amount,
     percent: Math.round((amount / was) * 100),
-    formatted: formatMoney(amount),
+    formatted: formatMoney(amount, locale),
   };
 }
 

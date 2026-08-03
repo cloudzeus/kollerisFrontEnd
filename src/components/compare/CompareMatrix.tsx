@@ -1,4 +1,5 @@
 import { useTranslations } from "next-intl";
+import { getTranslations, getLocale } from "next-intl/server";
 import Image from "next/image";
 import { Fragment } from "react";
 import { Link } from "@/i18n/navigation";
@@ -148,12 +149,13 @@ export function CompareMatrix({
   );
 }
 
-function ColumnHead({ column, ids }: { column: CompareColumn; ids: string[] }) {
-  const t = useTranslations("compare.CompareMatrix");
+async function ColumnHead({ column, ids }: { column: CompareColumn; ids: string[] }) {
+  const locale = await getLocale();
+  const t = await getTranslations("compare.CompareMatrix");
   const ctx = { vatRate: column.vatRate };
   const saving =
     column.priceListNet != null && column.priceNet != null
-      ? savingsOf(column.priceListNet, column.priceNet, ctx)
+      ? savingsOf(column.priceListNet, column.priceNet, locale, ctx)
       : null;
 
   // Removing a column rewrites `?ids=` — the comparison stays shareable and the
@@ -215,7 +217,7 @@ function ColumnHead({ column, ids }: { column: CompareColumn; ids: string[] }) {
       <span className="t-card-sku mt-1 block text-k-text-5">{column.sku}</span>
 
       <span className="mt-2.5 block font-mono text-[15px] leading-none font-semibold text-k-ink lg:text-[17px]">
-        {column.priceNet != null ? formatPrice(column.priceNet, ctx) : "—"}
+        {column.priceNet != null ? formatPrice(column.priceNet, locale, ctx) : "—"}
       </span>
       <span className="t-card-vat mt-1 block text-k-text-5">
         {upGreek(t("me_fpa", { vatRate: column.vatRate }))}

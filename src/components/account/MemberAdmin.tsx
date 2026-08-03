@@ -1,6 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { useLocale } from "next-intl";
 import { useActionState, useState } from "react";
 import { inviteMember, removeMember, updateMember, type AuthState } from "@/lib/account/actions";
 import {
@@ -72,6 +73,7 @@ function MemberRow({
   canManage: boolean;
   isSelf: boolean;
 }) {
+  const locale = useLocale();
   const t = useTranslations("account.MemberAdmin");
   const [updateState, update, updating] = useActionState<AuthState, FormData>(updateMember, {});
   const [removeState, remove, removing] = useActionState<AuthState, FormData>(removeMember, {});
@@ -101,13 +103,13 @@ function MemberRow({
           {member.spendLimit == null ? (
             <span className="text-k-text-4">{upGreek(t("choris_orio"))}</span>
           ) : (
-            formatMoney(member.spendLimit)
+            formatMoney(member.spendLimit, locale)
           )}
         </td>
 
         <td className="px-3 py-3.5 lg:px-4">
           <span className="block font-mono text-[12.5px] text-k-ink">
-            {formatMoney(member.spentThisYear)}
+            {formatMoney(member.spentThisYear, locale)}
           </span>
           <span className="t-brand-count mt-0.5 block text-k-text-4">
             {member.ordersThisYear} {upGreek(t("paraggelies"))}

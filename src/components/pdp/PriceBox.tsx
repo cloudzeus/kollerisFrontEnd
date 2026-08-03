@@ -1,6 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { useLocale } from "next-intl";
 import { useEffect, useState } from "react";
 import { AddToCartButton } from "@/components/cart/AddToCartButton";
 import { BuyNowButton } from "@/components/cart/BuyNowButton";
@@ -33,6 +34,7 @@ export function PriceBox({
   qty: number;
   inStock: boolean;
 }) {
+  const locale = useLocale();
   const t = useTranslations("pdp.PriceBox");
   const [quantity, setQuantity] = useState(1);
   const [tick, setTick] = useState<number | null>(null);
@@ -55,7 +57,7 @@ export function PriceBox({
 
   const ctx = { vatRate };
   const saving =
-    priceListNet != null && priceNet != null ? savingsOf(priceListNet, priceNet, ctx) : null;
+    priceListNet != null && priceNet != null ? savingsOf(priceListNet, priceNet, locale, ctx) : null;
   const cutoff = tick != null ? nextCutoff(new Date(tick)) : null;
 
   const stockRatio = Math.min(1, qty / 20);
@@ -76,7 +78,7 @@ export function PriceBox({
           <div className="flex flex-wrap items-baseline gap-x-2.5 gap-y-1">
             <span className="t-account-label text-white/40">{upGreek(t("timi_katalogoy"))}</span>
             <span className="font-mono text-[13px] font-medium text-white/45 line-through">
-              {formatPrice(priceListNet, ctx)}
+              {formatPrice(priceListNet, locale, ctx)}
             </span>
             <span className="t-badge bg-k-red px-[7px] py-[3px] text-white">
               −{saving.percent}% · {saving.formatted}
@@ -87,7 +89,7 @@ export function PriceBox({
         )}
 
         <p className="mt-2 font-mono text-[38px] leading-[1.02] font-semibold tracking-[-0.03em] text-white lg:text-[44px]">
-          {priceNet != null ? formatPrice(priceNet, ctx) : "—"}
+          {priceNet != null ? formatPrice(priceNet, locale, ctx) : "—"}
         </p>
 
         <p className="t-account-label mt-2 text-white/50">
@@ -95,7 +97,7 @@ export function PriceBox({
           {priceNet != null && (
             <>
               {" · "}
-              {upGreek(t("choris_fpa"))} {formatMoney(priceNet)}
+              {upGreek(t("choris_fpa"))} {formatMoney(priceNet, locale)}
             </>
           )}
         </p>

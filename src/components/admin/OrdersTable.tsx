@@ -1,6 +1,7 @@
 "use client";
 
 import { Fragment, useMemo, useState } from "react";
+import { useLocale } from "next-intl";
 import Link from "next/link";
 import {
   ArrowDownUp,
@@ -90,6 +91,7 @@ export function OrdersTable({
   orders: RecentOrder[];
   showSearch?: boolean;
 }) {
+  const locale = useLocale();
   const [query, setQuery] = useState("");
   const [sort, setSort] = useState<{ key: SortKey; desc: boolean }>({ key: "date", desc: true });
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
@@ -229,7 +231,7 @@ export function OrdersTable({
                     <Badge className={s.className}>{s.label}</Badge>
                   </td>
                   <td className="numeral px-3 py-2.5 text-right text-[12.5px] text-k-ink">
-                    {formatMoney(o.totalGross)}
+                    {formatMoney(o.totalGross, locale)}
                   </td>
                   <td className="px-2 py-2.5 text-center">
                     {o.erpPushed ? (
@@ -319,7 +321,7 @@ export function OrdersTable({
                                     {l.quantity}
                                   </td>
                                   <td className="numeral px-3 py-1.5 text-right text-[12px] text-k-ink">
-                                    {formatMoney(l.lineGross)}
+                                    {formatMoney(l.lineGross, locale)}
                                   </td>
                                 </tr>
                               ))}
