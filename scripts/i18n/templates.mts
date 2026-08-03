@@ -53,7 +53,7 @@ function paramName(expr: ts.Expression, taken: Set<string>): string {
   return `${base}${i}`;
 }
 
-const files = globSync("src/{app/[locale],components}/**/*.tsx").filter(
+const files = globSync("src/**/*.tsx").filter((f: string) => f.startsWith("src/app/") || f.startsWith("src/components/")).filter(
   (f) => !f.includes("/admin/") && !f.includes("components/admin"),
 );
 

@@ -132,7 +132,23 @@
       "day_6": "sabato",
       "today": "oggi",
       "tomorrow": "domani",
-      "me_fpa": "IVA inclusa {rate}%"
+      "me_fpa": "IVA inclusa {rate}%",
+      "agora_tora_apeytheias_tameio": "Acquista ora — pagamento diretto",
+      "ayxisi_posotitas": "Aumenta quantità",
+      "choris_fpa": "IVA esclusa",
+      "diathesimo": "Disponibile",
+      "eiste_epaggelmatias": "Sei un professionista?",
+      "kai_feygei": "e parte",
+      "katopin_paraggelias": "Su ordinazione",
+      "meiosi_posotitas": "Riduci quantità",
+      "paraggeilete_mesa_se": "Ordina entro",
+      "paraggeilete_mesa_se_00_00": "Ordina entro 00:00:00",
+      "prosthiki_sto_kalathi": "Aggiungi al carrello",
+      "syndesi": "Accedi",
+      "syndetheite_kai_deite_tin_timi": "Accedi e vedi il tuo prezzo partner",
+      "tem": "pz.",
+      "timi_eshop": "Prezzo eshop",
+      "timi_katalogoy": "Prezzo di listino"
     }
   },
   "orders": {

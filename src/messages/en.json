@@ -132,7 +132,23 @@
       "day_6": "Saturday",
       "today": "today",
       "tomorrow": "tomorrow",
-      "me_fpa": "with VAT {rate}%"
+      "me_fpa": "with VAT {rate}%",
+      "agora_tora_apeytheias_tameio": "Buy now — direct checkout",
+      "ayxisi_posotitas": "Increase quantity",
+      "choris_fpa": "excl. VAT",
+      "diathesimo": "In stock",
+      "eiste_epaggelmatias": "Are you a professional?",
+      "kai_feygei": "and ships",
+      "katopin_paraggelias": "On order",
+      "meiosi_posotitas": "Decrease quantity",
+      "paraggeilete_mesa_se": "Order within",
+      "paraggeilete_mesa_se_00_00": "Order within 00:00:00",
+      "prosthiki_sto_kalathi": "Add to cart",
+      "syndesi": "Login",
+      "syndetheite_kai_deite_tin_timi": "Log in to view your partner price",
+      "tem": "pcs.",
+      "timi_eshop": "Eshop price",
+      "timi_katalogoy": "List price"
     }
   },
   "orders": {

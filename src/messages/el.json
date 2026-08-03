@@ -123,6 +123,9 @@
       "eggyisi_mines": "{months} μήνες εγγύηση, σέρβις και ανταλλακτικά από την Kolleris."
     },
     "PriceBox": {
+      "agora_tora_apeytheias_tameio": "Αγορά τώρα — απευθείας ταμείο",
+      "ayxisi_posotitas": "Αύξηση ποσότητας",
+      "choris_fpa": "χωρίς ΦΠΑ",
       "day_0": "την Κυριακή",
       "day_1": "τη Δευτέρα",
       "day_2": "την Τρίτη",
@@ -130,9 +133,22 @@
       "day_4": "την Πέμπτη",
       "day_5": "την Παρασκευή",
       "day_6": "το Σάββατο",
+      "diathesimo": "Διαθέσιμο",
+      "eiste_epaggelmatias": "Είστε επαγγελματίας;",
+      "kai_feygei": "και φεύγει",
+      "katopin_paraggelias": "Κατόπιν παραγγελίας",
+      "me_fpa": "με ΦΠΑ {rate}%",
+      "meiosi_posotitas": "Μείωση ποσότητας",
+      "paraggeilete_mesa_se": "Παραγγείλετε μέσα σε",
+      "paraggeilete_mesa_se_00_00": "Παραγγείλετε μέσα σε 00:00:00",
+      "prosthiki_sto_kalathi": "Προσθήκη στο καλάθι",
+      "syndesi": "Σύνδεση",
+      "syndetheite_kai_deite_tin_timi": "Συνδεθείτε και δείτε την τιμή συνεργάτη σας",
+      "tem": "τεμ.",
+      "timi_eshop": "Τιμή eshop",
+      "timi_katalogoy": "Τιμή καταλόγου",
       "today": "σήμερα",
-      "tomorrow": "αύριο",
-      "me_fpa": "με ΦΠΑ {rate}%"
+      "tomorrow": "αύριο"
     }
   },
   "orders": {

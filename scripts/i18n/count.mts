@@ -1,7 +1,7 @@
 import ts from "typescript";
 import { readFileSync, globSync } from "node:fs";
 const GREEK = /[Ͱ-Ͽἀ-῿]/;
-const files = globSync("src/{app/[locale],components}/**/*.tsx").filter(f => !f.includes("/admin/") && !f.includes("components/admin"));
+const files = globSync("src/**/*.tsx").filter((f: string) => f.startsWith("src/app/") || f.startsWith("src/components/")).filter(f => !f.includes("/admin/") && !f.includes("components/admin"));
 let text=0, attr=0, other=0, template=0;
 const buckets = new Map<string, number>();
 for (const f of files) {

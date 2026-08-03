@@ -2,7 +2,7 @@ import ts from "typescript";
 import { readFileSync, globSync, writeFileSync } from "node:fs";
 import path from "node:path";
 const GREEK = /[Ͱ-Ͽἀ-῿]/;
-const files = globSync("src/{app/[locale],components}/**/*.tsx").filter(f => !f.includes("/admin/") && !f.includes("components/admin"));
+const files = globSync("src/**/*.tsx").filter((f: string) => f.startsWith("src/app/") || f.startsWith("src/components/")).filter(f => !f.includes("/admin/") && !f.includes("components/admin"));
 const out: Array<{file:string;line:number;value:string;why:string}> = [];
 for (const f of files) {
   const sf = ts.createSourceFile(f, readFileSync(f,"utf8"), ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);

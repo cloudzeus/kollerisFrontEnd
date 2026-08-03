@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-08-02T12:24:42.442Z",
+  "timestamp": "2026-08-03T05:33:06.169Z",
   "source": "auto-postool",
   "partial": false,
   "phase": null,
@@ -22,33 +22,37 @@
     },
     {
       "status": "M",
-      "path": "prisma/schema.prisma"
+      "path": "package-lock.json"
     },
     {
       "status": "M",
-      "path": "src/app/globals.css"
+      "path": "package.json"
     },
     {
       "status": "M",
-      "path": "src/components/admin/offers/OfferWizard.tsx"
+      "path": "src/messages/el.json"
     },
     {
       "status": "M",
-      "path": "src/lib/offers/offer-types.ts"
+      "path": "src/messages/en.json"
     },
     {
       "status": "M",
-      "path": "src/lib/offers/offers.ts"
+      "path": "src/messages/it.json"
     },
     {
       "status": "??",
-      "path": "prisma/migrations/20260802151640_offer_widget/"
+      "path": "scripts/i18n/_scan.ts"
     },
     {
       "status": "??",
-      "path": "src/components/offers/"
+      "path": "scripts/i18n/verify.ts"
+    },
+    {
+      "status": "??",
+      "path": "src/lib/__tests__/messages.test.ts"
     }
   ],
   "next_action": null,
-  "context_notes": "Recent commits:\na2581ea feat(offers): a campaign wizard, and offers that carry their own terms\n9bbdc48 feat(i18n): no Greek left hardcoded in the storefront\n048dcfc feat(i18n): lift 369 interface strings into the message files\nbd9cba6 feat(i18n): translation coverage screen, and translated categories\n3825617 fix(banners): an entrance animation could hide text permanently"
+  "context_notes": "Recent commits:\nceefd2e feat(offers): four animated widgets, previewed in the wizard\na2581ea feat(offers): a campaign wizard, and offers that carry their own terms\n9bbdc48 feat(i18n): no Greek left hardcoded in the storefront\n048dcfc feat(i18n): lift 369 interface strings into the message files\nbd9cba6 feat(i18n): translation coverage screen, and translated categories"
 }

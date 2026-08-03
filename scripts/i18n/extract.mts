@@ -69,7 +69,7 @@ export function scan(file: string): Found[] {
 }
 
 if (process.argv[1]?.endsWith("extract.mts")) {
-  const files = globSync("src/{app/[locale],components}/**/*.tsx").filter(
+  const files = globSync("src/**/*.tsx").filter((f: string) => f.startsWith("src/app/") || f.startsWith("src/components/")).filter(
     (f) => !f.includes("/admin/") && !f.includes("components/admin"),
   );
   let total = 0;

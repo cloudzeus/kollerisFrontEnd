@@ -247,7 +247,7 @@ export function transform(file: string): FileResult {
 
 if (process.argv[1]?.endsWith("codemod.mts")) {
   const only = process.argv.slice(2);
-  const files = globSync("src/{app/[locale],components}/**/*.tsx")
+  const files = globSync("src/**/*.tsx").filter((f: string) => f.startsWith("src/app/") || f.startsWith("src/components/"))
     .filter((f) => !f.includes("/admin/") && !f.includes("components/admin"))
     .filter((f) => only.length === 0 || only.some((o) => f.includes(o)));
 
