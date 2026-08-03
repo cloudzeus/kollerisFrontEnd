@@ -175,7 +175,7 @@ export default async function CategoryPage({
               {upGreek(name)}
             </h1>
             <p className="mt-3.5 max-w-[640px] text-[13px] leading-[1.68] text-white/60 lg:text-sm">
-              {category.productCount.toLocaleString("el-GR")} {t("kodikoi_se")}{" "}
+              {category.productCount.toLocaleString(locale)} {t("kodikoi_se")}{" "}
               {category.childCount} {t("ypokatigories_filtrarete_aristera_oles_oi")}
             </p>
           </div>

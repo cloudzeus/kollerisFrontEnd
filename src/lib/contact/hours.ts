@@ -12,20 +12,27 @@ export const HOURS = {
   timezone: "Europe/Athens",
 } as const;
 
-const DAY_NAMES = [
-  "Κυριακή",
-  "Δευτέρα",
-  "Τρίτη",
-  "Τετάρτη",
-  "Πέμπτη",
-  "Παρασκευή",
-  "Σάββατο",
-];
+/**
+ * What to say, not the words to say it in.
+ *
+ * The function stays pure and language-free: it decides *that* the shop opens
+ * tomorrow at 08:00, and the page decides how to phrase that in Greek, English
+ * or Italian. A formatted Greek sentence in here was a translation nobody could
+ * reach — and the tests are better for asserting the decision instead of the
+ * wording.
+ */
+export type OpenLabel =
+  | { state: "open"; until: string }
+  // One literal per member, so `when` actually discriminates the union — with
+  // `"today" | "tomorrow"` on a single member, ruling out "today" leaves the
+  // member itself in play and `day` stays unreachable.
+  | { state: "opens"; when: "today"; at: string }
+  | { state: "opens"; when: "tomorrow"; at: string }
+  | { state: "opens"; when: "day"; day: number; at: string };
 
 export type OpenState = {
   open: boolean;
-  /** "Ανοιχτά τώρα" / "Ανοίγει αύριο 08:00" — ready to render. */
-  label: string;
+  label: OpenLabel;
   /** Local Athens time the state was computed at, `HH:MM`. */
   now: string;
   /** Minutes until the state flips, for the "κλείνει σε 20'" nudge. */
@@ -72,7 +79,7 @@ export function openState(at: Date): OpenState {
   if (isOpen) {
     return {
       open: true,
-      label: `Ανοιχτά τώρα · μέχρι ${fmt(to)}`,
+      label: { state: "open", until: fmt(to) },
       now: `${pad(hour)}:${pad(minute)}`,
       minutesUntilChange: Math.round((to - now) * 60),
     };
@@ -87,12 +94,18 @@ export function openState(at: Date): OpenState {
     daysAhead += 1;
   }
 
-  const when =
-    daysAhead === 0 ? "σήμερα" : daysAhead === 1 ? "αύριο" : `τη ${DAY_NAMES[(day + daysAhead) % 7]}`;
+  // Not `at` — that is this function's own parameter, the clock it was given.
+  const opensAt = fmt(from);
+  const label: OpenLabel =
+    daysAhead === 0
+      ? { state: "opens", when: "today", at: opensAt }
+      : daysAhead === 1
+        ? { state: "opens", when: "tomorrow", at: opensAt }
+        : { state: "opens", when: "day", day: (day + daysAhead) % 7, at: opensAt };
 
   return {
     open: false,
-    label: `Κλειστά · ανοίγει ${when} ${fmt(from)}`,
+    label,
     now: `${pad(hour)}:${pad(minute)}`,
     minutesUntilChange: Math.round((daysAhead * 24 + from - now) * 60),
   };

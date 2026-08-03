@@ -1,5 +1,6 @@
 "use client";
 
+import { useLocale } from "next-intl";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
 import { useActionState } from "react";
@@ -83,11 +84,12 @@ export function OrderTracker({ initialOrderNumber }: { initialOrderNumber?: stri
 }
 
 function Result({ order }: { order: Extract<TrackState, { state: "found" }>["order"] }) {
+  const locale = useLocale();
   const t = useTranslations("orders.OrderTracker");
   const halted = order.status === "CANCELLED" || order.status === "FAILED";
   const date = (iso: string | null) =>
     iso
-      ? new Date(iso).toLocaleDateString("el-GR", {
+      ? new Date(iso).toLocaleDateString(locale, {
           day: "2-digit",
           month: "short",
           year: "numeric",

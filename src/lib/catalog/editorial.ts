@@ -106,20 +106,16 @@ export type NewArrivals = {
   newestAt: string | null;
 };
 
-const MONTHS = [
-  "Ιανουάριος",
-  "Φεβρουάριος",
-  "Μάρτιος",
-  "Απρίλιος",
-  "Μάιος",
-  "Ιούνιος",
-  "Ιούλιος",
-  "Αύγουστος",
-  "Σεπτέμβριος",
-  "Οκτώβριος",
-  "Νοέμβριος",
-  "Δεκέμβριος",
-];
+/**
+ * Month names in the visitor's language.
+ *
+ * A hardcoded Greek list is a translation nobody remembers to make — and one
+ * `Intl` already ships for every locale, correctly capitalised per language.
+ */
+const monthNames = (locale: Locale): string[] => {
+  const format = new Intl.DateTimeFormat(locale, { month: "long", timeZone: "UTC" });
+  return Array.from({ length: 12 }, (_, m) => format.format(Date.UTC(2000, m, 1)));
+};
 
 /**
  * Arrivals grouped by the month they entered the ERP.
@@ -132,6 +128,7 @@ const MONTHS = [
  */
 export const getNewArrivals = cache(
   async (locale: Locale, periodLimit = 6, perPeriod = 10): Promise<NewArrivals> => {
+    const MONTHS = monthNames(locale);
     const now = new Date();
     const daysAgo = (n: number) => new Date(now.getTime() - n * 86_400_000);
 

@@ -68,7 +68,7 @@ export default async function AccountPage({ params }: { params: Promise<{ locale
           <Card
             label={t("tilefono")}
             value={user.phone ?? "—"}
-            meta={user.lastLoginAt ? t("teleytaia_syndesi", { n: formatDate(user.lastLoginAt) }) : undefined}
+            meta={user.lastLoginAt ? t("teleytaia_syndesi", { n: formatDate(user.lastLoginAt, locale) }) : undefined}
           />
           {isCompany && company ? (
             <>
@@ -162,9 +162,9 @@ function Card({
   );
 }
 
-function formatDate(iso: string): string {
+function formatDate(iso: string, locale: string): string {
   const date = new Date(iso);
   return Number.isNaN(date.getTime())
     ? "—"
-    : date.toLocaleDateString("el-GR", { day: "2-digit", month: "2-digit", year: "numeric" });
+    : date.toLocaleDateString(locale, { day: "2-digit", month: "2-digit", year: "numeric" });
 }

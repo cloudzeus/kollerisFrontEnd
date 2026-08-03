@@ -138,7 +138,7 @@ export default async function CartPage({
               {upGreek(t("to_kalathi_einai_adeio"))}
             </p>
             <p className="mt-2.5 text-[13.5px] text-k-text-3">
-              {stats.products.toLocaleString("el-GR")} {t("kodikoi_sas_perimenoyn_ston_katalogo")}
+              {stats.products.toLocaleString(locale)} {t("kodikoi_sas_perimenoyn_ston_katalogo")}
             </p>
             <Link
               href="/katalogos"

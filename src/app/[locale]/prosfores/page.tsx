@@ -214,7 +214,7 @@ export default async function OffersPage({
                     <p className="font-artegra text-[17px] leading-[1.3] text-k-ink lg:text-xl">
                       {upGreek(
                         latest
-                          ? `${latest.count.toLocaleString("el-GR")} ${
+                          ? `${latest.count.toLocaleString(locale)} ${
                               latest.count === 1
                                 ? t("neos_kodikos")
                                 : t("neoi_kodikoi")

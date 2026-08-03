@@ -1,5 +1,6 @@
 "use client";
 
+import { useLocale } from "next-intl";
 import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 import { Link } from "@/i18n/navigation";
@@ -23,6 +24,7 @@ import { searchKey, upGreek } from "@/lib/greek";
  * maze than the one it is meant to solve.
  */
 export function TaxonomyFinder({ nodes }: { nodes: CatalogueNode[] }) {
+  const locale = useLocale();
   const t = useTranslations("catalogue.TaxonomyFinder");
   const [query, setQuery] = useState("");
 
@@ -124,7 +126,7 @@ export function TaxonomyFinder({ nodes }: { nodes: CatalogueNode[] }) {
 
                 <span className="shrink-0 text-right">
                   <span className="block font-mono text-[12.5px] font-semibold text-k-ink">
-                    {node.count.toLocaleString("el-GR")}
+                    {node.count.toLocaleString(locale)}
                   </span>
                   <span className="t-brand-count block text-k-text-5">{upGreek(t("kod"))}</span>
                 </span>

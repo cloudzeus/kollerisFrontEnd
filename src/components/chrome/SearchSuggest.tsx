@@ -1,5 +1,6 @@
 "use client";
 
+import { useLocale } from "next-intl";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
@@ -519,6 +520,7 @@ function TaxonomyRow({
   onSelect: () => void;
   onHover: () => void;
 }) {
+  const locale = useLocale();
   return (
     <button
       type="button"
@@ -548,7 +550,7 @@ function TaxonomyRow({
         <Highlight text={name} query={query} />
       </span>
       <span className="t-brand-count shrink-0 font-mono text-k-text-4">
-        {count.toLocaleString("el-GR")}
+        {count.toLocaleString(locale)}
       </span>
     </button>
   );

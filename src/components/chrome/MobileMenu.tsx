@@ -1,5 +1,6 @@
 "use client";
 
+import { useLocale } from "next-intl";
 import { useTranslations } from "next-intl";
 import { useEffect, useId, useState } from "react";
 import { Link } from "@/i18n/navigation";
@@ -28,6 +29,7 @@ export function MobileMenu({
   totalSubcategories: number;
   totalProducts: number;
 }) {
+  const locale = useLocale();
   const t = useTranslations("chrome.MobileMenu");
   const [open, setOpen] = useState(false);
   const [expanded, setExpanded] = useState<string | null>(null);
@@ -152,7 +154,7 @@ export function MobileMenu({
                               {upGreek(category.name)}
                             </span>
                             <span className="t-card-was shrink-0 text-k-text-5">
-                              {category.productCount.toLocaleString("el-GR")}
+                              {category.productCount.toLocaleString(locale)}
                             </span>
                           </Link>
 
@@ -187,7 +189,7 @@ export function MobileMenu({
                                 <span className="block h-px w-3 shrink-0 bg-k-line-2" />
                                 <span className="min-w-0 flex-1">{child.name}</span>
                                 <span className="t-brand-count text-k-text-5">
-                                  {child.productCount.toLocaleString("el-GR")}
+                                  {child.productCount.toLocaleString(locale)}
                                 </span>
                               </Link>
                             ))}
@@ -206,7 +208,7 @@ export function MobileMenu({
 
                   <p className="px-4 py-4 text-[12px] text-k-text-3">
                     {totalCategories} {t("katigories_2")} {totalSubcategories} {t("ypokatigories")}{" "}
-                    {totalProducts.toLocaleString("el-GR")} {t("kodikoi")}
+                    {totalProducts.toLocaleString(locale)} {t("kodikoi")}
                   </p>
                 </>
               ) : (
@@ -220,7 +222,7 @@ export function MobileMenu({
                     >
                       <span className="t-brand-name text-k-ink">{brand.name}</span>
                       <span className="t-brand-count text-k-text-5">
-                        {brand.productCount.toLocaleString("el-GR")} {upGreek(t("kod"))}
+                        {brand.productCount.toLocaleString(locale)} {upGreek(t("kod"))}
                       </span>
                     </Link>
                   ))}

@@ -1,4 +1,5 @@
 import { useTranslations } from "next-intl";
+import { getLocale } from "next-intl/server";
 import { getTranslations } from "next-intl/server";
 import type { Metadata } from "next";
 import Image from "next/image";
@@ -231,6 +232,7 @@ function PostCard({ post }: { post: import("@/lib/blog/contract").BlogPostSummar
 // Async because it needs `t`, and a server component may be awaited where it is
 // rendered — cheaper than threading the one label down from both call sites.
 async function PostMeta({ post }: { post: import("@/lib/blog/contract").BlogPostSummary }) {
+  const locale = await getLocale();
   const t = await getTranslations("blog.page");
   const date = new Date(post.publishedAt);
   return (
@@ -238,7 +240,7 @@ async function PostMeta({ post }: { post: import("@/lib/blog/contract").BlogPost
       <time dateTime={post.publishedAt}>
         {Number.isNaN(date.getTime())
           ? "—"
-          : date.toLocaleDateString("el-GR", { day: "2-digit", month: "long", year: "numeric" })}
+          : date.toLocaleDateString(locale, { day: "2-digit", month: "long", year: "numeric" })}
       </time>
       {post.readingMinutes != null && (
         <>

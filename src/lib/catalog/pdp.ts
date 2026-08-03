@@ -1,5 +1,6 @@
 import "server-only";
 import { cache } from "react";
+import { getTranslations } from "next-intl/server";
 import { Prisma } from "@/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
 import type { Locale } from "@/i18n/routing";
@@ -42,12 +43,8 @@ export type ProductDetail = {
   specGroups: Array<{ group: string; label: string; rows: ProductSpecRow[] }>;
 };
 
-const SPEC_GROUP_LABELS: Record<string, string> = {
-  identification: "Ταυτότητα",
-  physical: "Φυσικά χαρακτηριστικά",
-  technical: "Τεχνικά χαρακτηριστικά",
-  performance: "Απόδοση",
-};
+/** The four headings above the spec table — message keys, not words. */
+const SPEC_GROUPS = ["identification", "physical", "technical", "performance"] as const;
 
 function num(value: unknown): number | null {
   if (value == null) return null;
@@ -107,10 +104,11 @@ export const getProductBySlug = cache(
       unit: s.unit,
     }));
 
-    const specGroups = Object.entries(SPEC_GROUP_LABELS)
-      .map(([group, label]) => ({
+    const t = await getTranslations({ locale, namespace: "pdp.specGroups" });
+    const specGroups = SPEC_GROUPS
+      .map((group) => ({
         group,
-        label,
+        label: t(group),
         rows: specRows.filter((r) => r.fieldGroup === group),
       }))
       .filter((g) => g.rows.length > 0);

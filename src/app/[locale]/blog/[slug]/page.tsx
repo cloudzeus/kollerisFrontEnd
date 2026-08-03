@@ -114,7 +114,7 @@ export default async function BlogPostPage({ params }: PageProps) {
               <p className="t-brand-count mt-5 flex flex-wrap items-center gap-2.5 text-white/45">
                 {date && !Number.isNaN(date.getTime()) && (
                   <time dateTime={post.publishedAt}>
-                    {date.toLocaleDateString("el-GR", {
+                    {date.toLocaleDateString(locale, {
                       day: "2-digit",
                       month: "long",
                       year: "numeric",

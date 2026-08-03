@@ -22,7 +22,7 @@ export function UtilityBar({
   brandCount: number;
 }) {
   const t = useTranslations("chrome.UtilityBar");
-  const counts = `${productCount.toLocaleString("el-GR")}+ ${upGreek(t("kodikoi"))} · ${brandCount} BRANDS`;
+  const counts = `${productCount.toLocaleString(locale)}+ ${upGreek(t("kodikoi"))} · ${brandCount} BRANDS`;
 
   return (
     <>

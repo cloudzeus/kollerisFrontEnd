@@ -62,6 +62,26 @@ export default async function ContactPage({
   ]);
 
   const now = openState(new Date());
+  /*
+   * The opening-hours badge, phrased here.
+   *
+   * `openState` decides what is true; this decides how to say it. The weekday
+   * name comes from `Intl` rather than a list, so it is correct — and correctly
+   * capitalised — in whichever language is being read.
+   */
+  const hoursLabel =
+    now.label.state === "open"
+      ? t("anoichta_tora_mechri", { time: now.label.until })
+      : now.label.when === "today"
+        ? t("kleista_anoigei_simera", { time: now.label.at })
+        : now.label.when === "tomorrow"
+          ? t("kleista_anoigei_ayrio", { time: now.label.at })
+          : t("kleista_anoigei_imera", {
+              day: new Intl.DateTimeFormat(locale, { weekday: "long", timeZone: "UTC" })
+                // 2024-01-07 was a Sunday, so the index lines up with getDay().
+                .format(Date.UTC(2024, 0, 7 + now.label.day)),
+              time: now.label.at,
+            });
   /** Under half an hour to close is worth saying out loud. */
   const closingSoon = now.open && now.minutesUntilChange <= 30;
 
@@ -140,7 +160,7 @@ export default async function ContactPage({
                 }`}
               >
                 <span aria-hidden className="rounded-pill block h-2 w-2 bg-current" />
-                {upGreek(now.label)}
+                {upGreek(hoursLabel)}
               </p>
               <p className="t-brand-count mt-2 font-mono text-white/45">
                 {upGreek(t("ora_elladas", { now: now.now }))}

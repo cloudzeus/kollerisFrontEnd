@@ -21,10 +21,10 @@ export { applyTokens } from "@/lib/banners/resolve-tokens";
  * failure than a gap.
  */
 
-const format = (value: number): string =>
-  new Intl.NumberFormat("el-GR", { style: "currency", currency: "EUR" }).format(value);
-
-const money = format;
+// The locale decides the separators and where the € sits — "1.234,50 €" in
+// Greek and Italian, "€1,234.50" in English.
+const format = (value: number, locale: string): string =>
+  new Intl.NumberFormat(locale, { style: "currency", currency: "EUR" }).format(value);
 
 /** How long until a date, in words. Printed once at render — a banner is not a
  *  checkout timer, and a second hand costs a client component per cell. */
@@ -132,10 +132,10 @@ export async function resolveCells(
           "{title}": p.translations[0]?.name ?? p.name,
           "{brand}": p.mtrmark != null ? (brandByMark.get(p.mtrmark) ?? "") : "",
           "{code}": p.code,
-          "{price}": net == null ? "" : money(net * vat),
+          "{price}": net == null ? "" : format(net * vat, locale),
           // Only when there genuinely is one above the selling price — a
           // compare price equal to the price is a discount that does not exist.
-          "{compare}": list != null && net != null && list > net ? money(list * vat) : "",
+          "{compare}": list != null && net != null && list > net ? format(list * vat, locale) : "",
           "{desc}": p.translations[0]?.shortDescription ?? "",
           "{image}": p.images[0]?.url ?? "",
         },
@@ -151,7 +151,7 @@ export async function resolveCells(
       const money = (p: (typeof products)[number]) => {
         const net = p.priceNet == null ? null : Number(p.priceNet);
         if (net == null) return "";
-        return format(net * (1 + Number(p.vatRate ?? 24) / 100));
+        return format(net * (1 + Number(p.vatRate ?? 24) / 100), locale);
       };
 
       // Kept in the order they were chosen — the rotation is a running order,

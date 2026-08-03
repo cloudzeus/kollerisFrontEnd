@@ -1,4 +1,5 @@
 import { useTranslations } from "next-intl";
+import { getLocale } from "next-intl/server";
 import Image from "next/image";
 import { Link } from "@/i18n/navigation";
 import type { CategoryTile } from "@/lib/catalog/queries";
@@ -15,13 +16,14 @@ import { upGreek } from "@/lib/greek";
  * Categories with no listed products are filtered out in `getRootCategories` —
  * the ERP tree carries several, and a tile reading "0 ΚΩΔ." is worse than none.
  */
-export function CategoryGrid({
+export async function CategoryGrid({
   categories,
   totalCategories,
 }: {
   categories: CategoryTile[];
   totalCategories: number;
 }) {
+  const locale = await getLocale();
   const t = useTranslations("home.CategoryGrid");
   if (categories.length === 0) return null;
 
@@ -45,7 +47,7 @@ export function CategoryGrid({
                 {String(index + 1).padStart(2, "0")}
               </span>
               <span className="t-cat-count text-k-text-4">
-                {category.productCount.toLocaleString("el-GR")} {upGreek(t("kod"))}
+                {category.productCount.toLocaleString(locale)} {upGreek(t("kod"))}
               </span>
             </div>
 

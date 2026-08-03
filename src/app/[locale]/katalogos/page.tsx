@@ -1,4 +1,5 @@
 import { useTranslations } from "next-intl";
+import { getLocale } from "next-intl/server";
 import { getTranslations } from "next-intl/server";
 import type { Metadata } from "next";
 import Image from "next/image";
@@ -103,7 +104,7 @@ export default async function CataloguePage({
               {upGreek(t("olos_o_katalogos"))}
             </h1>
             <p className="mt-3.5 max-w-[660px] text-[13px] leading-[1.68] text-white/60 lg:text-sm">
-              {index.totals.products.toLocaleString("el-GR")} {t("kodikoi_se")}{" "}
+              {index.totals.products.toLocaleString(locale)} {t("kodikoi_se")}{" "}
               {index.totals.categories} {t("katigories")} {index.totals.groups} {t("omades_kai")}{" "}
               {index.totals.subgroups} {t("ypokatigories_einai_polla_gi_apos")}
             </p>
@@ -221,7 +222,8 @@ export default async function CataloguePage({
  * subgroups under it, the alternative is a tile that says "3.797 κωδικοί" and
  * drops you into a page where you still have to choose.
  */
-function FeatureTile({ root, nodes }: { root: CatalogueRoot; nodes: CatalogueNode[] }) {
+async function FeatureTile({ root, nodes }: { root: CatalogueRoot; nodes: CatalogueNode[] }) {
+  const locale = await getLocale();
   const t = useTranslations("katalogos.page");
   return (
     <div className="grid bg-white lg:grid-cols-[minmax(0,380px)_minmax(0,1fr)]">
@@ -245,7 +247,7 @@ function FeatureTile({ root, nodes }: { root: CatalogueRoot; nodes: CatalogueNod
         <div className="flex items-end justify-between gap-4">
           <span>
             <span className="block font-mono text-[30px] leading-none font-semibold text-k-ink lg:text-[38px]">
-              {root.count.toLocaleString("el-GR")}
+              {root.count.toLocaleString(locale)}
             </span>
             <span className="t-account-label mt-1.5 block text-k-text-4">
               {upGreek(t("kodikoi"))}
@@ -276,7 +278,7 @@ function FeatureTile({ root, nodes }: { root: CatalogueRoot; nodes: CatalogueNod
                   {child.name}
                 </span>
                 <span className="t-brand-count font-mono text-k-text-4">
-                  {child.count.toLocaleString("el-GR")} {upGreek(t("kod"))}
+                  {child.count.toLocaleString(locale)} {upGreek(t("kod"))}
                 </span>
               </Link>
             </li>
@@ -306,7 +308,8 @@ function FeatureTile({ root, nodes }: { root: CatalogueRoot; nodes: CatalogueNod
 }
 
 /** A working-middle category, with its four biggest children inline. */
-function StandardTile({ root, nodes }: { root: CatalogueRoot; nodes: CatalogueNode[] }) {
+async function StandardTile({ root, nodes }: { root: CatalogueRoot; nodes: CatalogueNode[] }) {
+  const locale = await getLocale();
   const t = useTranslations("katalogos.page");
   const remaining = root.groupCount + root.subgroupCount - Math.min(4, root.children.length);
 
@@ -318,7 +321,7 @@ function StandardTile({ root, nodes }: { root: CatalogueRoot; nodes: CatalogueNo
             {root.name}
           </span>
           <span className="t-brand-count mt-1.5 block text-k-text-4">
-            {root.count.toLocaleString("el-GR")} {upGreek(t("kod"))} ·{" "}
+            {root.count.toLocaleString(locale)} {upGreek(t("kod"))} ·{" "}
             {root.subgroupCount || root.groupCount} {upGreek(t("ypokatigories"))}
           </span>
         </span>

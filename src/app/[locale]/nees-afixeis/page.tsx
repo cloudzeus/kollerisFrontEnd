@@ -107,7 +107,7 @@ export default async function NewArrivalsPage({
     lastArrival
       ? {
           label: t("teleytaia_afixi"),
-          value: lastArrival.toLocaleDateString("el-GR", {
+          value: lastArrival.toLocaleDateString(locale, {
             day: "2-digit",
             month: "short",
           }),
@@ -115,22 +115,22 @@ export default async function NewArrivalsPage({
         }
       : {
           label: t("teleytaies_30_imeres"),
-          value: arrivals.last30.toLocaleString("el-GR"),
+          value: arrivals.last30.toLocaleString(locale),
           unit: t("kod"),
         },
     {
       label: t("teleytaio_trimino"),
-      value: arrivals.last90.toLocaleString("el-GR"),
+      value: arrivals.last90.toLocaleString(locale),
       unit: t("kod"),
     },
     {
       label: t("teleytaios_chronos"),
-      value: arrivals.lastYear.toLocaleString("el-GR"),
+      value: arrivals.lastYear.toLocaleString(locale),
       unit: t("kod"),
     },
     {
       label: t("synolo_katalogoy"),
-      value: arrivals.total.toLocaleString("el-GR"),
+      value: arrivals.total.toLocaleString(locale),
       unit: t("kod"),
     },
   ];
@@ -222,7 +222,7 @@ export default async function NewArrivalsPage({
                         {upGreek(period.label)}
                       </time>
                       <span className="t-brand-count font-mono text-k-ink">
-                        {period.count.toLocaleString("el-GR")}{" "}
+                        {period.count.toLocaleString(locale)}{" "}
                         {upGreek(period.count === 1 ? t("kodikos") : t("kodikoi"))}
                       </span>
                       {index === 0 && (
@@ -262,7 +262,7 @@ export default async function NewArrivalsPage({
                       <p className="t-brand-count mt-3.5 text-k-text-4">
                         {upGreek(
                           t("akomi_ayton_ton_mina", {
-                            n: (period.count - period.products.length).toLocaleString("el-GR"),
+                            n: (period.count - period.products.length).toLocaleString(locale),
                           }),
                         )}
                       </p>

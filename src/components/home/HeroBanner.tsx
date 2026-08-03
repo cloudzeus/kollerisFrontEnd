@@ -1,4 +1,5 @@
 import { useTranslations } from "next-intl";
+import { getLocale } from "next-intl/server";
 import Image from "next/image";
 import { Link } from "@/i18n/navigation";
 import { upGreek } from "@/lib/greek";
@@ -19,7 +20,7 @@ import { upGreek } from "@/lib/greek";
  * Everything numeric is live from the projection, never editable — a count that
  * marketing could type would drift from the catalogue within a day.
  */
-export function HeroBanner({
+export async function HeroBanner({
   productCount,
   brandCount,
   featuredTiles,
@@ -45,8 +46,9 @@ export function HeroBanner({
     dark?: boolean;
   }>;
 }) {
+  const locale = await getLocale();
   const t = useTranslations("home.HeroBanner");
-  const formatted = productCount.toLocaleString("el-GR");
+  const formatted = productCount.toLocaleString(locale);
 
   // The mobile lead is the one line marketing can write with live figures in
   // it. Anything else would mean either a stale number or no number at all.

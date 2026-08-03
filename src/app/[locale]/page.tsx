@@ -71,7 +71,7 @@ export default async function HomePage({
   // per widget: the numbers are already here, and a widget should not be able
   // to put a query on the page.
   const zoneContext = {
-    products: stats.products.toLocaleString("el-GR"),
+    products: stats.products.toLocaleString(locale),
     brands: String(stats.brands),
     categories: String(stats.categories),
     freeShipping: `${FREE_SHIPPING_THRESHOLD_NET}\u00A0€`,
@@ -136,7 +136,7 @@ export default async function HomePage({
     {
       n: "01",
       title: t("pragmatiko_apothema_ochi_yposcheseis"),
-      body: t("kodikoi_se_amesi_diathesimotita_ayti", { n: stats.inStock.toLocaleString("el-GR") }),
+      body: t("kodikoi_se_amesi_diathesimotita_ayti", { n: stats.inStock.toLocaleString(locale) }),
     },
     {
       n: "02",

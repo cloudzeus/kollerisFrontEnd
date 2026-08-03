@@ -172,7 +172,7 @@ export default async function SearchPage({ params, searchParams }: PageProps) {
                   {hasResults ? (
                     <>
                       <strong className="font-semibold text-white">
-                        {data!.total.toLocaleString("el-GR")}
+                        {data!.total.toLocaleString(locale)}
                       </strong>{" "}
                       {data!.total === 1 ? t("proion") : t("proionta")}
                       {brandCount > 0 && (
@@ -184,7 +184,7 @@ export default async function SearchPage({ params, searchParams }: PageProps) {
                       )}
                       {inStockCount > 0 && (
                         <>
-                          , {inStockCount.toLocaleString("el-GR")} {t("amesa_diathesima")}
+                          , {inStockCount.toLocaleString(locale)} {t("amesa_diathesima")}
                         </>
                       )}
                       {t("filtrarete_aristera_oles_oi_times")}

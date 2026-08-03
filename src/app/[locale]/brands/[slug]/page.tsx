@@ -45,7 +45,7 @@ export async function generateMetadata({
   if (!brand) return {};
   return {
     title: brand.name,
-    description: t("kodikoi_se_apothema_episimi_antiprosopeysi", { n: brand.productCount.toLocaleString("el-GR"), name: brand.name }),
+    description: t("kodikoi_se_apothema_episimi_antiprosopeysi", { n: brand.productCount.toLocaleString(locale), name: brand.name }),
   };
 }
 
@@ -163,11 +163,11 @@ export default async function BrandPage({ params, searchParams }: PageProps) {
             <dl className="grid grid-cols-2 gap-px border border-white/12 bg-white/12 lg:shrink-0">
               {[
                 {
-                  v: brand.productCount.toLocaleString("el-GR"),
+                  v: brand.productCount.toLocaleString(locale),
                   k: t("kodikoi_ston_katalogo"),
                 },
                 {
-                  v: brand.inStockCount.toLocaleString("el-GR"),
+                  v: brand.inStockCount.toLocaleString(locale),
                   k: t("se_amesi_diathesimotita"),
                 },
               ].map((kpi) => (

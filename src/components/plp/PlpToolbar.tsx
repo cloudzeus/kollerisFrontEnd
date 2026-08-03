@@ -1,4 +1,5 @@
 import { useTranslations } from "next-intl";
+import { getLocale } from "next-intl/server";
 import { MobileFilterSheet } from "@/components/plp/MobileFilterSheet";
 import { Link } from "@/i18n/navigation";
 import {
@@ -24,7 +25,7 @@ import { upGreek } from "@/lib/greek";
  * Chips are derived from the facets rather than read straight from the URL, so
  * a stale slug can never render as a chip nobody can identify.
  */
-export function PlpToolbar({
+export async function PlpToolbar({
   total,
   facets,
   perRow,
@@ -37,6 +38,7 @@ export function PlpToolbar({
   basePath: string;
   params: RawParams;
 }) {
+  const locale = await getLocale();
   const t = useTranslations("plp.PlpToolbar");
   const chips: Array<{ label: string; href: string }> = [
     ...facets.subcategories
@@ -83,7 +85,7 @@ export function PlpToolbar({
         <div className="flex min-w-0 flex-wrap items-center gap-3">
           <MobileFilterSheet facets={facets} total={total} basePath={basePath} params={params} />
           <span className="shrink-0 text-[13px] font-semibold whitespace-nowrap text-k-ink">
-            {total.toLocaleString("el-GR")} {t("proionta")}
+            {total.toLocaleString(locale)} {t("proionta")}
           </span>
 
           <div className="flex min-w-0 flex-wrap items-center gap-1.5">

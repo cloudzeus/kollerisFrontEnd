@@ -14,28 +14,31 @@ describe("openState", () => {
     const state = at("2026-07-31T10:00:00Z");
     expect(state.open).toBe(true);
     expect(state.now).toBe("13:00");
-    expect(state.label).toContain("Ανοιχτά");
+    // The decision, not the wording — the sentence is assembled on the page in
+    // whichever of the three languages is being read.
+    expect(state.label).toEqual({ state: "open", until: "16:30" });
   });
 
   it("is closed before opening, and says when it opens", () => {
     // Fri 06:00 Athens.
     const state = at("2026-07-31T03:00:00Z");
     expect(state.open).toBe(false);
-    expect(state.label).toContain("σήμερα");
+    expect(state.label).toEqual({ state: "opens", when: "today", at: "08:00" });
   });
 
   it("is closed after 16:30 and points at the next day", () => {
     // Thu 17:00 Athens.
     const state = at("2026-07-30T14:00:00Z");
     expect(state.open).toBe(false);
-    expect(state.label).toContain("αύριο");
+    expect(state.label).toEqual({ state: "opens", when: "tomorrow", at: "08:00" });
   });
 
   it("skips the weekend from Friday evening", () => {
     // Fri 20:00 Athens → next opening is Monday.
     const state = at("2026-07-31T17:00:00Z");
     expect(state.open).toBe(false);
-    expect(state.label).toContain("Δευτέρα");
+    // 1 = Monday, in `Date#getDay` numbering.
+    expect(state.label).toEqual({ state: "opens", when: "day", day: 1, at: "08:00" });
   });
 
   it("is closed all Saturday and Sunday", () => {

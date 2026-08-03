@@ -149,6 +149,12 @@
       "tem": "pcs.",
       "timi_eshop": "Eshop price",
       "timi_katalogoy": "List price"
+    },
+    "specGroups": {
+      "identification": "Identity",
+      "physical": "Physical characteristics",
+      "technical": "Technical characteristics",
+      "performance": "Performance"
     }
   },
   "orders": {
@@ -220,7 +226,50 @@
       "rotiste_mas_apeytheias_apantame_tin": "Ask us directly — we reply the same business day, and your question will likely\n            be added here for the next one.",
       "apo": "{shown} of {total}",
       "erotiseis": "{total} questions"
-    }
+    },
+    "enotita_paraggelia": "Order",
+    "erotisi_chreiazetai_logariasmos_gia_na_paraggeilo": "Do I need an account to order?",
+    "apantisi_ochi_mporeite_na_oloklirosete_tin_paraggelia": "No. You can complete your order as a guest — we only ask for what's needed to ship it to you. An account is required if you want order history or, for companies, partner pricing and credit payment.",
+    "erotisi_mporo_na_paraggeilo_me_tilefono": "Can I order by phone?",
+    "apantisi_nai_sto_210_411_1355_deytera": "Yes, at 210 411 1355, Monday to Friday 08:00–16:30. If you have a list of codes, you can also paste them in bulk into the cart.",
+    "erotisi_pos_xero_oti_yparchei_pragmatika": "How do I know stock is real?",
+    "apantisi_i_diathesimotita_sto_site_einai_to": "Availability on the site is our ERP, not an estimate. Right now {inStock} out of {products} codes are immediately available. If it says \"3 pcs.\", there are 3.",
+    "erotisi_den_vrisko_ton_kodiko_poy": "I can't find the code I'm looking for.",
+    "apantisi_i_anazitisi_dechetai_kodiko_kolleris_kodiko": "Search accepts Kolleris code, manufacturer code, and EAN. If you can't find it, we probably source it on order — give us a call. The online catalog is {products} codes from {brandslength} brands, but we represent more.",
+    "enotita_apostoli": "Shipping",
+    "erotisi_poso_kostizei_i_apostoli": "How much does shipping cost?",
+    "apantisi_ypologizetai_apo_to_chreosimo_varos_kai": "It's calculated by chargeable weight and your postal code zone, not a flat fee. The exact amount is shown in the cart before you pay. Over {formatMoneyFREE_SHIPPING_THRESHOLD_NET} net value, shipping is free.",
+    "erotisi_pote_tha_ftasei": "When will it arrive?",
+    "apantisi_paraggelia_prin_tis_15_00_ergasimi": "Orders before 15:00 on a business day ship the same day. Attica {etaAttica} business day, mainland Greece {etaMainland}, islands {etaIsland}, remote areas {etaRemote} business days.",
+    "erotisi_mporo_na_paralavo_apo_to": "Can I pick up from the store?",
+    "apantisi_nai_apo_ton_peiraia_k_mayromichali": "Yes, from Piraeus (K. Mavromichali 4). Choose \"Pick up from Piraeus\" at checkout — the order is ready in 2 hours within business hours.",
+    "erotisi_pos_parakoloytho_tin_paraggelia_moy": "How do I track my order?",
+    "apantisi_me_ton_arithmo_paraggelias_kai_to": "With your order number and email, on the tracking page — no account needed. Once the parcel ships, the ACS tracking number also appears.",
+    "enotita_times_kai_pliromi": "Prices and payment",
+    "erotisi_oi_times_einai_me_fpa": "Are prices VAT included?",
+    "apantisi_nai_oles_kathe_timi_sto_site": "Yes, all of them. Every price on the site is final, with VAT {DEFAULT_VAT_RATE}% (or the rate applicable to the item). The net value is shown below, for those who invoice.",
+    "erotisi_pos_mporo_na_pliroso": "How can I pay?",
+    "apantisi_karta_kai_iris_meso_viva_wallet": "Card and IRIS via Viva Wallet, or bank transfer. Your card details never pass through our store. Approved corporate accounts can also pay on credit.",
+    "erotisi_echete_timi_gia_epaggelmaties": "Do you have a professional price?",
+    "apantisi_nai_o_etairikos_logariasmos_dinei_monimi": "Yes. A corporate account gives a permanent discount on the entire catalog — not a seasonal offer — along with invoicing and credit payment. The application is reviewed and usually activated within 2 business days.",
+    "erotisi_giati_den_vlepo_ekptoseis": "Why don't I see discounts?",
+    "apantisi_giati_den_trechei_prosfora_tha_mporoysame": "Because there's no promotion running. We could show a struck-through price on two-thirds of the catalog — the difference between retail and eshop price exists — but a \"discount\" that always applies isn't a discount. When we run a real offer, you'll see it with the previous price next to it.",
+    "erotisi_ekdidete_timologio": "Do you issue invoices?",
+    "apantisi_nai_sto_tameio_epilexte_thelo_timologio": "Yes. At checkout select \"I want an invoice\" and provide the tax ID — we pull the rest of the details automatically from the AADE registry.",
+    "enotita_eggyisi_kai_epistrofes": "Warranty and returns",
+    "erotisi_ti_eggyisi_echoyn_ta_ergaleia": "What warranty do the tools have?",
+    "apantisi_episimi_eggyisi_kataskeyasti_i_diarkeia_diaferei": "Official manufacturer warranty. The duration varies by product and is listed on its page. Since we're an official distributor, service and parts go through us — not parallel import.",
+    "erotisi_mporo_na_epistrepso_kati": "Can I return something?",
+    "apantisi_entos_14_imeron_ametacheiristo_sti_syskeyasia": "Within 14 days, unused, in its packaging and with the purchase receipt. Call us first for instructions — you'll save on shipping and time.",
+    "erotisi_irthe_lathos_i_elattomatiko_ti": "It arrived wrong or defective. What do I do?",
+    "apantisi_tilefoniste_tin_idia_mera_sto_210": "Call the same day at 210 411 1355. We cover the shipping costs for the replacement.",
+    "enotita_logariasmos": "Account",
+    "erotisi_poia_i_diafora_idioti_kai": "What's the difference between a personal and corporate account?",
+    "apantisi_o_idiotis_echei_paraggelies_dieythynseis_eggyiseis": "A private individual has orders, addresses, warranties, and returns. A corporate account adds partner pricing, invoicing, credit payment, and multiple users with roles and spending limits.",
+    "erotisi_poso_kanei_na_egkrithei_o": "How long does it take for the corporate account to be approved?",
+    "apantisi_synithos_2_ergasimes_elegchoyme_afm_drastiriotita": "Usually 2 business days. We check the VAT number, business activity, and any existing cooperation. Until then, you can place orders normally at retail prices.",
+    "erotisi_mporoyn_polloi_ypalliloi_na_paraggelnoyn": "Can multiple employees place orders?",
+    "apantisi_nai_o_diacheiristis_tis_etaireias_proskalei": "Yes. The company administrator invites users and assigns each one a role and a limit per order."
   },
   "contact": {
     "ContactForm": {
@@ -284,6 +333,29 @@
       "idia_katigoria": "Same category",
       "katharismos": "Clear",
       "afairesi_apo_ti_sygkrisi": "Remove {name} from comparison"
+    },
+    "compare": {
+      "amesa_diathesimo": "In stock",
+      "katopin_paraggelias": "Made to order",
+      "timi_me_fpa": "Price (incl. VAT)",
+      "diathesimotita": "Availability",
+      "apothema": "Stock",
+      "temachia": "{n} pcs.",
+      "eggyisi": "Warranty",
+      "mines": "{n} months",
+      "kodikos_kolleris": "Kolleris code",
+      "kodikos_kataskeyasti": "Manufacturer code",
+      "varos": "Weight",
+      "diastaseis": "Dimensions (W × H × D)",
+      "oikonomikotero": "Best price",
+      "logos_oikonomikotero": "{price} incl. VAT — the lowest price in the comparison.",
+      "logos_diathesimo": "{n} pcs. in stock — ships today.",
+      "megalyteri_eggyisi": "Longest warranty",
+      "logos_eggyisi": "{value} manufacturer warranty.",
+      "ischyrotero": "Strongest",
+      "logos_ischyrotero": "{label}: {value} — the highest in the comparison.",
+      "elafrytero": "Lightest",
+      "logos_elafrytero": "{value} — less fatigue during use."
     }
   },
   "chrome": {
@@ -1115,7 +1187,11 @@
       "dey_par_00_16_30": "Mon–Fri {n}:00–16:30",
       "ora_elladas": "Greek time {now}",
       "titlos_epikoinonia": "Contact",
-      "perigrafi_tilefono_email_kai_forma": "Phone, email, and contact form. Piraeus, Monday–Friday 08:00–16:30. A human answers."
+      "perigrafi_tilefono_email_kai_forma": "Phone, email, and contact form. Piraeus, Monday–Friday 08:00–16:30. A human answers.",
+      "anoichta_tora_mechri": "Open now · until {time}",
+      "kleista_anoigei_simera": "Closed · opens today at {time}",
+      "kleista_anoigei_ayrio": "Closed · opens tomorrow at {time}",
+      "kleista_anoigei_imera": "Closed · opens on {day} at {time}"
     }
   },
   "eisodos": {

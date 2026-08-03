@@ -149,6 +149,12 @@
       "tem": "pz.",
       "timi_eshop": "Prezzo eshop",
       "timi_katalogoy": "Prezzo di listino"
+    },
+    "specGroups": {
+      "identification": "Identità",
+      "physical": "Caratteristiche fisiche",
+      "technical": "Caratteristiche tecniche",
+      "performance": "Prestazioni"
     }
   },
   "orders": {
@@ -220,7 +226,50 @@
       "rotiste_mas_apeytheias_apantame_tin": "Scrivici direttamente — rispondiamo lo stesso giorno lavorativo, e la tua domanda probabilmente\n            verrà aggiunta qui per il prossimo.",
       "apo": "{shown} di {total}",
       "erotiseis": "{total} domande"
-    }
+    },
+    "enotita_paraggelia": "Ordine",
+    "erotisi_chreiazetai_logariasmos_gia_na_paraggeilo": "Serve un account per ordinare?",
+    "apantisi_ochi_mporeite_na_oloklirosete_tin_paraggelia": "No. Puoi completare l'ordine come ospite — chiediamo solo il necessario per la spedizione. L'account serve se vuoi lo storico ordini o, per le aziende, prezzo partner e pagamento a credito.",
+    "erotisi_mporo_na_paraggeilo_me_tilefono": "Posso ordinare per telefono?",
+    "apantisi_nai_sto_210_411_1355_deytera": "Sì, al 210 411 1355, dal lunedì al venerdì 08:00–16:30. Se hai una lista di codici, puoi anche incollarli in massa nel carrello.",
+    "erotisi_pos_xero_oti_yparchei_pragmatika": "Come faccio a sapere se il prodotto è davvero disponibile?",
+    "apantisi_i_diathesimotita_sto_site_einai_to": "La disponibilità sul sito è il nostro ERP, non una stima. In questo momento {inStock} su {products} codici sono immediatamente disponibili. Se dice «3 pezzi», ce ne sono 3.",
+    "erotisi_den_vrisko_ton_kodiko_poy": "Non trovo il codice che cerco.",
+    "apantisi_i_anazitisi_dechetai_kodiko_kolleris_kodiko": "La ricerca accetta codice Kolleris, codice produttore ed EAN. Se non lo trovi, probabilmente lo ordiniamo su richiesta — chiamaci. Il catalogo online è di {products} codici di {brandslength} brand, ma rappresentiamo molti di più.",
+    "enotita_apostoli": "Spedizione",
+    "erotisi_poso_kostizei_i_apostoli": "Quanto costa la spedizione?",
+    "apantisi_ypologizetai_apo_to_chreosimo_varos_kai": "Viene calcolata in base al peso imponibile e alla zona del CAP, non con una tariffa fissa. L'importo esatto è visibile nel carrello prima del pagamento. Oltre {formatMoneyFREE_SHIPPING_THRESHOLD_NET} di valore netto, la spedizione è gratuita.",
+    "erotisi_pote_tha_ftasei": "Quando arriverà?",
+    "apantisi_paraggelia_prin_tis_15_00_ergasimi": "Ordine prima delle 15:00 in un giorno lavorativo parte lo stesso giorno. Attica {etaAttica} giorni lavorativi, Grecia continentale {etaMainland}, isole {etaIsland}, zone remote {etaRemote} giorni lavorativi.",
+    "erotisi_mporo_na_paralavo_apo_to": "Posso ritirare in negozio?",
+    "apantisi_nai_apo_ton_peiraia_k_mayromichali": "Sì, al Pireo (K. Mavromichali 4). Seleziona «Ritiro al Pireo» al checkout — l'ordine è pronto in 2 ore entro l'orario di apertura.",
+    "erotisi_pos_parakoloytho_tin_paraggelia_moy": "Come traccio il mio ordine?",
+    "apantisi_me_ton_arithmo_paraggelias_kai_to": "Con numero ordine e la tua email, nella pagina di tracciamento — non serve account. Appena il pacco parte, appare anche il numero di spedizione ACS.",
+    "enotita_times_kai_pliromi": "Prezzi e pagamento",
+    "erotisi_oi_times_einai_me_fpa": "I prezzi includono l'IVA?",
+    "apantisi_nai_oles_kathe_timi_sto_site": "Sì, tutti. Ogni prezzo sul sito è finale, con IVA {DEFAULT_VAT_RATE}% (o l'aliquota applicabile al prodotto). Il valore netto è indicato sotto, per chi emette fattura.",
+    "erotisi_pos_mporo_na_pliroso": "Come posso pagare?",
+    "apantisi_karta_kai_iris_meso_viva_wallet": "Carta e IRIS tramite Viva Wallet, o bonifico bancario. I dati della tua carta non passano mai dal nostro negozio. Gli account aziendali approvati possono pagare anche a credito.",
+    "erotisi_echete_timi_gia_epaggelmaties": "Avete un prezzo per i professionisti?",
+    "apantisi_nai_o_etairikos_logariasmos_dinei_monimi": "Sì. L'account aziendale offre uno sconto permanente su tutto il catalogo — non un'offerta stagionale — insieme a fattura e pagamento a credito. La richiesta viene verificata e attivata di solito entro 2 giorni lavorativi.",
+    "erotisi_giati_den_vlepo_ekptoseis": "Perché non vedo sconti?",
+    "apantisi_giati_den_trechei_prosfora_tha_mporoysame": "Perché non c'è una promozione in corso. Potremmo mostrare un prezzo barrato su due terzi del catalogo — la differenza tra prezzo al dettaglio e prezzo eshop esiste — ma uno «sconto» sempre attivo non è uno sconto. Quando facciamo una vera offerta, la vedrai con il prezzo precedente accanto.",
+    "erotisi_ekdidete_timologio": "Emettete fattura?",
+    "apantisi_nai_sto_tameio_epilexte_thelo_timologio": "Sì. Al checkout seleziona «Voglio fattura» e inserisci la partita IVA — il resto lo recuperiamo automaticamente dal registro AADE.",
+    "enotita_eggyisi_kai_epistrofes": "Garanzia e resi",
+    "erotisi_ti_eggyisi_echoyn_ta_ergaleia": "Che garanzia hanno gli utensili?",
+    "apantisi_episimi_eggyisi_kataskeyasti_i_diarkeia_diaferei": "Garanzia ufficiale del produttore. La durata varia per prodotto ed è indicata nella sua pagina. Essendo rappresentanza ufficiale, assistenza e ricambi passano da noi — non da importazioni parallele.",
+    "erotisi_mporo_na_epistrepso_kati": "Posso restituire qualcosa?",
+    "apantisi_entos_14_imeron_ametacheiristo_sti_syskeyasia": "Entro 14 giorni, non usato, nella confezione originale e con il documento d'acquisto. Chiamaci prima per le istruzioni — risparmi spedizione e tempo.",
+    "erotisi_irthe_lathos_i_elattomatiko_ti": "È arrivato sbagliato o difettoso. Cosa faccio?",
+    "apantisi_tilefoniste_tin_idia_mera_sto_210": "Chiama lo stesso giorno al 210 411 1355. Le spese di spedizione per la sostituzione sono a nostro carico.",
+    "enotita_logariasmos": "Account",
+    "erotisi_poia_i_diafora_idioti_kai": "Qual è la differenza tra account privato e aziendale?",
+    "apantisi_o_idiotis_echei_paraggelies_dieythynseis_eggyiseis": "Il privato ha ordini, indirizzi, garanzie e resi. L'aziendale aggiunge prezzo partner, fattura, pagamento a credito e più utenti con ruoli e limiti di spesa.",
+    "erotisi_poso_kanei_na_egkrithei_o": "Quanto tempo richiede l'approvazione dell'account aziendale?",
+    "apantisi_synithos_2_ergasimes_elegchoyme_afm_drastiriotita": "Di solito 2 giorni lavorativi. Verifichiamo partita IVA, attività e eventuali collaborazioni esistenti. Nel frattempo, puoi ordinare normalmente ai prezzi al dettaglio.",
+    "erotisi_mporoyn_polloi_ypalliloi_na_paraggelnoyn": "Possono ordinare più dipendenti?",
+    "apantisi_nai_o_diacheiristis_tis_etaireias_proskalei": "Sì. L'amministratore dell'azienda invita gli utenti e assegna a ciascuno un ruolo e un limite per ordine."
   },
   "contact": {
     "ContactForm": {
@@ -284,6 +333,29 @@
       "idia_katigoria": "Stessa categoria",
       "katharismos": "Pulisci",
       "afairesi_apo_ti_sygkrisi": "Rimuovi {name} dal confronto"
+    },
+    "compare": {
+      "amesa_diathesimo": "Disponibile subito",
+      "katopin_paraggelias": "Su ordinazione",
+      "timi_me_fpa": "Prezzo (IVA inclusa)",
+      "diathesimotita": "Disponibilità",
+      "apothema": "Giacenza",
+      "temachia": "{n} pz.",
+      "eggyisi": "Garanzia",
+      "mines": "{n} mesi",
+      "kodikos_kolleris": "Codice Kolleris",
+      "kodikos_kataskeyasti": "Codice produttore",
+      "varos": "Peso",
+      "diastaseis": "Dimensioni (L × P × A)",
+      "oikonomikotero": "Più economico",
+      "logos_oikonomikotero": "{price} IVA inclusa — il prezzo più basso nel confronto.",
+      "logos_diathesimo": "{n} pz. in magazzino — parte oggi.",
+      "megalyteri_eggyisi": "Garanzia più lunga",
+      "logos_eggyisi": "{value} garanzia del produttore.",
+      "ischyrotero": "Più robusto",
+      "logos_ischyrotero": "{label}: {value} — il più alto del confronto.",
+      "elafrytero": "Più leggero",
+      "logos_elafrytero": "{value} — meno affaticamento nell'uso."
     }
   },
   "chrome": {
@@ -1115,7 +1187,11 @@
       "dey_par_00_16_30": "Lun–Ven {n}:00–16:30",
       "ora_elladas": "Ora della Grecia {now}",
       "titlos_epikoinonia": "Contatti",
-      "perigrafi_tilefono_email_kai_forma": "Telefono, email e modulo di contatto. Il Pireo, lunedì–venerdì 08:00–16:30. Risponde una persona."
+      "perigrafi_tilefono_email_kai_forma": "Telefono, email e modulo di contatto. Il Pireo, lunedì–venerdì 08:00–16:30. Risponde una persona.",
+      "anoichta_tora_mechri": "Aperto ora · fino alle {time}",
+      "kleista_anoigei_simera": "Chiuso · apre oggi alle {time}",
+      "kleista_anoigei_ayrio": "Chiuso · apre domani alle {time}",
+      "kleista_anoigei_imera": "Chiuso · apre {day} alle {time}"
     }
   },
   "eisodos": {

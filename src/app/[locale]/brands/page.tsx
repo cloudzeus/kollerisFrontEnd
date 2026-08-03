@@ -1,4 +1,3 @@
-import { useTranslations } from "next-intl";
 import { getTranslations } from "next-intl/server";
 import type { Metadata } from "next";
 import Image from "next/image";
@@ -31,7 +30,7 @@ export async function generateMetadata({
   const { brandCount, productCount } = await getBrandsStats();
   return {
     title: "Brands",
-    description: t("brands_me_kodikoys_se_apothema", { brandCount: brandCount, n: productCount.toLocaleString("el-GR") }),
+    description: t("brands_me_kodikoys_se_apothema", { brandCount: brandCount, n: productCount.toLocaleString(locale) }),
   };
 }
 
@@ -70,7 +69,7 @@ export default async function BrandsPage({
     { v: String(brandStats.brandCount), k: t("brands_me_energa_proionta") },
     { v: String(brandStats.inStockBrandCount), k: t("brands_me_apothema_tora") },
     {
-      v: brandStats.productCount.toLocaleString("el-GR"),
+      v: brandStats.productCount.toLocaleString(locale),
       k: t("kodikoi_ston_katalogo"),
     },
     { v: "1978", k: t("apo_to_proto_mas_symvolaio") },
@@ -156,7 +155,6 @@ export default async function BrandsPage({
 
           <div className="grid grid-cols-2 gap-px border border-k-line bg-k-line lg:grid-cols-4">
             {featured.map((brand, index) => {
-  const t = useTranslations("brands.page");
               const dark = index % 2 === 1;
               return (
                 <Link
@@ -212,7 +210,7 @@ export default async function BrandsPage({
                           dark ? "text-white" : "text-k-ink"
                         }`}
                       >
-                        {brand.productCount.toLocaleString("el-GR")}
+                        {brand.productCount.toLocaleString(locale)}
                       </p>
                       <p
                         className={`t-brand-count mt-1.5 ${
@@ -281,7 +279,7 @@ export default async function BrandsPage({
                     {upGreek(group.categoryName)}
                   </Link>
                   <p className="mt-1.5 text-[12px] leading-[1.6] text-k-text-3">
-                    {group.productCount.toLocaleString("el-GR")} {t("kodikoi_apo")}{" "}
+                    {group.productCount.toLocaleString(locale)} {t("kodikoi_apo")}{" "}
                     {group.brands.length} brands.
                   </p>
 

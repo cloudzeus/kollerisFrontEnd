@@ -72,27 +72,27 @@ export default async function CompanyPage({ params }: { params: Promise<{ locale
   const proofRows = [
     {
       claim: t("megali_gkama"),
-      evidence: proof.products.toLocaleString("el-GR"),
+      evidence: proof.products.toLocaleString(locale),
       unit: t("kodikoi_online"),
-      note: t("se_katigories_kai_ypokatigories", { categories: proof.categories, n: proof.nodes.toLocaleString("el-GR") }),
+      note: t("se_katigories_kai_ypokatigories", { categories: proof.categories, n: proof.nodes.toLocaleString(locale) }),
     },
     {
       claim: t("amesi_diathesimotita"),
-      evidence: proof.inStock.toLocaleString("el-GR"),
+      evidence: proof.inStock.toLocaleString(locale),
       unit: t("kodikoi_sto_rafi"),
-      note: t("temachia_tora_ston_peiraia", { n: proof.units.toLocaleString("el-GR") }),
+      note: t("temachia_tora_ston_peiraia", { n: proof.units.toLocaleString(locale) }),
     },
     {
       claim: t("pragmatiko_apothema"),
-      evidence: tonnes.toLocaleString("el-GR"),
+      evidence: tonnes.toLocaleString(locale),
       unit: t("tonoi_ergaleion"),
       note: t("ypologismenoi_apo_to_varos_kathe"),
     },
     {
       claim: t("techniki_tekmiriosi"),
-      evidence: proof.specs.toLocaleString("el-GR"),
+      evidence: proof.specs.toLocaleString(locale),
       unit: t("charaktiristika"),
-      note: t("kai_fotografies_proionton", { n: proof.images.toLocaleString("el-GR") }),
+      note: t("kai_fotografies_proionton", { n: proof.images.toLocaleString(locale) }),
     },
     {
       claim: t("episimi_antiprosopeysi"),
@@ -127,7 +127,7 @@ export default async function CompanyPage({ params }: { params: Promise<{ locale
     {
       year: t("simera"),
       title: t("o_katalogos_online"),
-      body: t("olokliro_to_apothema_me_times", { n: proof.products.toLocaleString("el-GR") }),
+      body: t("olokliro_to_apothema_me_times", { n: proof.products.toLocaleString(locale) }),
     },
   ];
 
@@ -244,7 +244,7 @@ export default async function CompanyPage({ params }: { params: Promise<{ locale
                 >
                   {proof.heaviestCategory.name}
                 </Link>{" "}
-                {t("me")} {proof.heaviestCategory.count.toLocaleString("el-GR")} {t("kodikoys")}
+                {t("me")} {proof.heaviestCategory.count.toLocaleString(locale)} {t("kodikoys")}
               </p>
             )}
           </div>

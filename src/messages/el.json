@@ -149,6 +149,12 @@
       "timi_katalogoy": "Τιμή καταλόγου",
       "today": "σήμερα",
       "tomorrow": "αύριο"
+    },
+    "specGroups": {
+      "identification": "Ταυτότητα",
+      "physical": "Φυσικά χαρακτηριστικά",
+      "technical": "Τεχνικά χαρακτηριστικά",
+      "performance": "Απόδοση"
     }
   },
   "orders": {
@@ -210,6 +216,49 @@
     }
   },
   "faq": {
+    "enotita_paraggelia": "Παραγγελία",
+    "erotisi_chreiazetai_logariasmos_gia_na_paraggeilo": "Χρειάζεται λογαριασμός για να παραγγείλω;",
+    "apantisi_ochi_mporeite_na_oloklirosete_tin_paraggelia": "Όχι. Μπορείτε να ολοκληρώσετε την παραγγελία ως επισκέπτης — ζητάμε μόνο όσα χρειάζονται για να σας τη στείλουμε. Λογαριασμός χρειάζεται αν θέλετε ιστορικό παραγγελιών ή, για εταιρείες, τιμή συνεργάτη και πληρωμή επί πιστώσει.",
+    "erotisi_mporo_na_paraggeilo_me_tilefono": "Μπορώ να παραγγείλω με τηλέφωνο;",
+    "apantisi_nai_sto_210_411_1355_deytera": "Ναι, στο 210 411 1355, Δευτέρα έως Παρασκευή 08:00–16:30. Αν έχετε λίστα κωδικών, μπορείτε επίσης να τους επικολλήσετε μαζικά στο καλάθι.",
+    "erotisi_pos_xero_oti_yparchei_pragmatika": "Πώς ξέρω ότι υπάρχει πραγματικά απόθεμα;",
+    "apantisi_i_diathesimotita_sto_site_einai_to": "Η διαθεσιμότητα στο site είναι το ERP μας, όχι εκτίμηση. Αυτή τη στιγμή {inStock} από τους {products} κωδικούς είναι άμεσα διαθέσιμοι. Αν λέει «3 τεμ.», υπάρχουν 3.",
+    "erotisi_den_vrisko_ton_kodiko_poy": "Δεν βρίσκω τον κωδικό που ψάχνω.",
+    "apantisi_i_anazitisi_dechetai_kodiko_kolleris_kodiko": "Η αναζήτηση δέχεται κωδικό Kolleris, κωδικό κατασκευαστή και EAN. Αν δεν τον βρίσκετε, μάλλον τον προμηθευόμαστε κατά παραγγελία — καλέστε μας. Ο online κατάλογος είναι {products} κωδικοί από {brandslength} brands, αλλά αντιπροσωπεύουμε περισσότερα.",
+    "enotita_apostoli": "Αποστολή",
+    "erotisi_poso_kostizei_i_apostoli": "Πόσο κοστίζει η αποστολή;",
+    "apantisi_ypologizetai_apo_to_chreosimo_varos_kai": "Υπολογίζεται από το χρεώσιμο βάρος και τη ζώνη του Τ.Κ. σας, όχι με σταθερή χρέωση. Το ακριβές ποσό φαίνεται στο καλάθι πριν πληρώσετε. Άνω των {formatMoneyFREE_SHIPPING_THRESHOLD_NET} καθαρής αξίας τα μεταφορικά είναι δωρεάν.",
+    "erotisi_pote_tha_ftasei": "Πότε θα φτάσει;",
+    "apantisi_paraggelia_prin_tis_15_00_ergasimi": "Παραγγελία πριν τις 15:00 εργάσιμη φεύγει αυθημερόν. Αττική {etaAttica} εργάσιμη, ηπειρωτική Ελλάδα {etaMainland}, νησιά {etaIsland}, δυσπρόσιτες περιοχές {etaRemote} εργάσιμες.",
+    "erotisi_mporo_na_paralavo_apo_to": "Μπορώ να παραλάβω από το κατάστημα;",
+    "apantisi_nai_apo_ton_peiraia_k_mayromichali": "Ναι, από τον Πειραιά (Κ. Μαυρομιχάλη 4). Επιλέξτε «Παραλαβή από Πειραιά» στο ταμείο — η παραγγελία είναι έτοιμη σε 2 ώρες μέσα στο ωράριο.",
+    "erotisi_pos_parakoloytho_tin_paraggelia_moy": "Πώς παρακολουθώ την παραγγελία μου;",
+    "apantisi_me_ton_arithmo_paraggelias_kai_to": "Με τον αριθμό παραγγελίας και το email σας, στη σελίδα εντοπισμού — δεν χρειάζεται λογαριασμός. Μόλις φύγει το δέμα, εμφανίζεται και ο αριθμός αποστολής της ACS.",
+    "enotita_times_kai_pliromi": "Τιμές και πληρωμή",
+    "erotisi_oi_times_einai_me_fpa": "Οι τιμές είναι με ΦΠΑ;",
+    "apantisi_nai_oles_kathe_timi_sto_site": "Ναι, όλες. Κάθε τιμή στο site είναι τελική, με ΦΠΑ {DEFAULT_VAT_RATE}% (ή τον συντελεστή που ισχύει για το είδος). Η καθαρή αξία φαίνεται από κάτω, για όσους τιμολογούν.",
+    "erotisi_pos_mporo_na_pliroso": "Πώς μπορώ να πληρώσω;",
+    "apantisi_karta_kai_iris_meso_viva_wallet": "Κάρτα και IRIS μέσω Viva Wallet, ή τραπεζική κατάθεση. Τα στοιχεία της κάρτας σας δεν περνούν ποτέ από το κατάστημά μας. Οι εγκεκριμένοι εταιρικοί λογαριασμοί πληρώνουν και επί πιστώσει.",
+    "erotisi_echete_timi_gia_epaggelmaties": "Έχετε τιμή για επαγγελματίες;",
+    "apantisi_nai_o_etairikos_logariasmos_dinei_monimi": "Ναι. Ο εταιρικός λογαριασμός δίνει μόνιμη έκπτωση σε όλο τον κατάλογο — όχι εποχιακή προσφορά — μαζί με τιμολόγιο και πληρωμή επί πιστώσει. Η αίτηση ελέγχεται και ενεργοποιείται συνήθως σε 2 εργάσιμες.",
+    "erotisi_giati_den_vlepo_ekptoseis": "Γιατί δεν βλέπω εκπτώσεις;",
+    "apantisi_giati_den_trechei_prosfora_tha_mporoysame": "Γιατί δεν τρέχει προσφορά. Θα μπορούσαμε να δείχνουμε διαγραμμένη τιμή στα δύο τρίτα του καταλόγου — η διαφορά λιανικής και τιμής eshop υπάρχει — αλλά μια «έκπτωση» που ισχύει πάντα δεν είναι έκπτωση. Όταν κάνουμε πραγματική προσφορά, θα τη δείτε με την προηγούμενη τιμή δίπλα.",
+    "erotisi_ekdidete_timologio": "Εκδίδετε τιμολόγιο;",
+    "apantisi_nai_sto_tameio_epilexte_thelo_timologio": "Ναι. Στο ταμείο επιλέξτε «Θέλω τιμολόγιο» και δώστε το ΑΦΜ — τα υπόλοιπα στοιχεία τα φέρνουμε αυτόματα από το μητρώο της ΑΑΔΕ.",
+    "enotita_eggyisi_kai_epistrofes": "Εγγύηση και επιστροφές",
+    "erotisi_ti_eggyisi_echoyn_ta_ergaleia": "Τι εγγύηση έχουν τα εργαλεία;",
+    "apantisi_episimi_eggyisi_kataskeyasti_i_diarkeia_diaferei": "Επίσημη εγγύηση κατασκευαστή. Η διάρκεια διαφέρει ανά προϊόν και αναγράφεται στη σελίδα του. Επειδή είμαστε επίσημη αντιπροσωπεία, το σέρβις και τα ανταλλακτικά περνούν από εμάς — όχι από παράλληλη εισαγωγή.",
+    "erotisi_mporo_na_epistrepso_kati": "Μπορώ να επιστρέψω κάτι;",
+    "apantisi_entos_14_imeron_ametacheiristo_sti_syskeyasia": "Εντός 14 ημερών, αμεταχείριστο, στη συσκευασία του και με το παραστατικό αγοράς. Καλέστε μας πρώτα για να σας δώσουμε οδηγίες — γλιτώνετε μεταφορικά και χρόνο.",
+    "erotisi_irthe_lathos_i_elattomatiko_ti": "Ήρθε λάθος ή ελαττωματικό. Τι κάνω;",
+    "apantisi_tilefoniste_tin_idia_mera_sto_210": "Τηλεφωνήστε την ίδια μέρα στο 210 411 1355. Τα μεταφορικά της αντικατάστασης τα αναλαμβάνουμε εμείς.",
+    "enotita_logariasmos": "Λογαριασμός",
+    "erotisi_poia_i_diafora_idioti_kai": "Ποια η διαφορά ιδιώτη και εταιρικού λογαριασμού;",
+    "apantisi_o_idiotis_echei_paraggelies_dieythynseis_eggyiseis": "Ο ιδιώτης έχει παραγγελίες, διευθύνσεις, εγγυήσεις και επιστροφές. Ο εταιρικός προσθέτει τιμή συνεργάτη, τιμολόγιο, πληρωμή επί πιστώσει, και πολλούς χρήστες με ρόλους και όρια δαπάνης.",
+    "erotisi_poso_kanei_na_egkrithei_o": "Πόσο κάνει να εγκριθεί ο εταιρικός λογαριασμός;",
+    "apantisi_synithos_2_ergasimes_elegchoyme_afm_drastiriotita": "Συνήθως 2 εργάσιμες. Ελέγχουμε ΑΦΜ, δραστηριότητα και τυχόν υπάρχουσα συνεργασία. Μέχρι τότε μπορείτε να παραγγέλνετε κανονικά με λιανικές τιμές.",
+    "erotisi_mporoyn_polloi_ypalliloi_na_paraggelnoyn": "Μπορούν πολλοί υπάλληλοι να παραγγέλνουν;",
+    "apantisi_nai_o_diacheiristis_tis_etaireias_proskalei": "Ναι. Ο διαχειριστής της εταιρείας προσκαλεί χρήστες και ορίζει σε καθέναν ρόλο και όριο ανά παραγγελία.",
     "FaqAccordion": {
       "anazitisi_stis_erotiseis": "Αναζήτηση στις ερωτήσεις",
       "psaxte_mia_erotisi_p_ch": "Ψάξτε μια ερώτηση — π.χ. μεταφορικά, εγγύηση, τιμολόγιο",
@@ -284,6 +333,29 @@
       "idia_katigoria": "Ίδια κατηγορία",
       "katharismos": "Καθαρισμός",
       "afairesi_apo_ti_sygkrisi": "Αφαίρεση {name} από τη σύγκριση"
+    },
+    "compare": {
+      "amesa_diathesimo": "Άμεσα διαθέσιμο",
+      "katopin_paraggelias": "Κατόπιν παραγγελίας",
+      "timi_me_fpa": "Τιμή (με ΦΠΑ)",
+      "diathesimotita": "Διαθεσιμότητα",
+      "apothema": "Απόθεμα",
+      "temachia": "{n} τεμ.",
+      "eggyisi": "Εγγύηση",
+      "mines": "{n} μήνες",
+      "kodikos_kolleris": "Κωδικός Kolleris",
+      "kodikos_kataskeyasti": "Κωδικός κατασκευαστή",
+      "varos": "Βάρος",
+      "diastaseis": "Διαστάσεις (Π × Μ × Υ)",
+      "oikonomikotero": "Οικονομικότερο",
+      "logos_oikonomikotero": "{price} με ΦΠΑ — η χαμηλότερη τιμή στη σύγκριση.",
+      "logos_diathesimo": "{n} τεμ. σε απόθεμα — φεύγει σήμερα.",
+      "megalyteri_eggyisi": "Μεγαλύτερη εγγύηση",
+      "logos_eggyisi": "{value} εγγύηση κατασκευαστή.",
+      "ischyrotero": "Ισχυρότερο",
+      "logos_ischyrotero": "{label}: {value} — το υψηλότερο της σύγκρισης.",
+      "elafrytero": "Ελαφρύτερο",
+      "logos_elafrytero": "{value} — λιγότερη κούραση στη χρήση."
     }
   },
   "chrome": {
@@ -1115,7 +1187,11 @@
       "dey_par_00_16_30": "Δευ–Παρ {n}:00–16:30",
       "ora_elladas": "Ώρα Ελλάδας {now}",
       "titlos_epikoinonia": "Επικοινωνία",
-      "perigrafi_tilefono_email_kai_forma": "Τηλέφωνο, email και φόρμα επικοινωνίας. Πειραιάς, Δευτέρα–Παρασκευή 08:00–16:30. Σηκώνει άνθρωπος."
+      "perigrafi_tilefono_email_kai_forma": "Τηλέφωνο, email και φόρμα επικοινωνίας. Πειραιάς, Δευτέρα–Παρασκευή 08:00–16:30. Σηκώνει άνθρωπος.",
+      "anoichta_tora_mechri": "Ανοιχτά τώρα · μέχρι {time}",
+      "kleista_anoigei_simera": "Κλειστά · ανοίγει σήμερα {time}",
+      "kleista_anoigei_ayrio": "Κλειστά · ανοίγει αύριο {time}",
+      "kleista_anoigei_imera": "Κλειστά · ανοίγει τη {day} {time}"
     }
   },
   "eisodos": {

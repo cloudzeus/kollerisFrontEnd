@@ -1,5 +1,6 @@
 "use client";
 
+import { useLocale } from "next-intl";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
 import { useCallback, useRef, useState } from "react";
@@ -56,6 +57,7 @@ export function MegaMenu({
   totalProducts: number;
   totalBrands: number;
 }) {
+  const locale = useLocale();
   const t = useTranslations("chrome.MegaMenu");
   const [open, setOpen] = useState<Panel>(null);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -188,7 +190,7 @@ export function MegaMenu({
             <div className="mt-1 flex items-center justify-between border-t border-[#F0F0F2] py-4">
               <p className="text-[12px] text-k-text-3">
                 {totalCategories} {t("vasikes_katigories")} {totalSubcategories}{" "}
-                {t("ypokatigories")} {totalProducts.toLocaleString("el-GR")} {t("kodikoi")}
+                {t("ypokatigories")} {totalProducts.toLocaleString(locale)} {t("kodikoi")}
               </p>
               <Link href="/katalogos" className="t-link-mono text-k-ink hover:text-k-red">
                 {upGreek(t("oles_oi_katigories"))} →

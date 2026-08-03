@@ -1,8 +1,13 @@
 import "server-only";
 import { cookies } from "next/headers";
 import { cache } from "react";
+import { getTranslations } from "next-intl/server";
 import { prisma } from "@/lib/prisma";
 import type { Locale } from "@/i18n/routing";
+
+/** What `getTranslations` returns — the comparison table is built server-side,
+ *  so its labels have to arrive rather than be looked up in a component. */
+type Translator = Awaited<ReturnType<typeof getTranslations>>;
 import { formatPrice, grossAmount } from "@/lib/format";
 import type { ProductCardData } from "@/lib/catalog/queries";
 import { comparableNumber } from "@/lib/compare/numeric";
@@ -243,10 +248,10 @@ function buildRow(
   return { key, label, cells: built, differs, bestIndex, direction };
 }
 
-function dimensionsOf(p: Loaded): string | null {
+function dimensionsOf(p: Loaded, locale: Locale): string | null {
   const parts = [num(p.width), num(p.length), num(p.height)];
   if (parts.some((v) => v == null || v === 0)) return null;
-  return `${parts.map((v) => v!.toLocaleString("el-GR")).join(" × ")} cm`;
+  return `${parts.map((v) => v!.toLocaleString(locale)).join(" × ")} cm`;
 }
 
 /**
@@ -308,7 +313,8 @@ export async function getCompareView(
     };
   });
 
-  const groups = buildGroups(kept, columns);
+  const t = await getTranslations({ locale, namespace: "compare.compare" });
+  const groups = buildGroups(kept, columns, t, locale);
   const totalRows = groups.reduce((n, g) => n + g.rows.length, 0);
   const differingRows = groups.reduce((n, g) => n + g.differingRows, 0);
 
@@ -319,19 +325,24 @@ export async function getCompareView(
     differingRows,
     scopeKey: scope?.key ?? null,
     scopeLabel: scope ? await scopeLabel(scope.key, locale) : null,
-    advice: buildAdvice(kept, columns, groups),
+    advice: buildAdvice(kept, columns, groups, t, locale),
     dropped: [...new Set(dropped)],
   };
 }
 
-function buildGroups(products: Loaded[], columns: CompareColumn[]): CompareRowGroup[] {
+function buildGroups(
+  products: Loaded[],
+  columns: CompareColumn[],
+  t: Translator,
+  locale: Locale,
+): CompareRowGroup[] {
   const gross = (c: CompareColumn) =>
     c.priceNet != null ? grossAmount(c.priceNet, { vatRate: c.vatRate }) : null;
 
   const commercial: CompareRow[] = [
     buildRow(
       "price",
-      "Τιμή (με ΦΠΑ)",
+      t("timi_me_fpa"),
       columns.map((c) => ({
         text: c.priceNet != null ? formatPrice(c.priceNet, { vatRate: c.vatRate }) : null,
         value: gross(c),
@@ -340,26 +351,26 @@ function buildGroups(products: Loaded[], columns: CompareColumn[]): CompareRowGr
     ),
     buildRow(
       "availability",
-      "Διαθεσιμότητα",
+      t("diathesimotita"),
       columns.map((c) => ({
-        text: c.inStock ? "Άμεσα διαθέσιμο" : "Κατόπιν παραγγελίας",
+        text: c.inStock ? t("amesa_diathesimo") : t("katopin_paraggelias"),
       })),
       null,
     ),
     buildRow(
       "qty",
-      "Απόθεμα",
+      t("apothema"),
       columns.map((c) => ({
-        text: c.inStock ? `${c.qty.toLocaleString("el-GR")} τεμ.` : "—",
+        text: c.inStock ? t("temachia", { n: c.qty.toLocaleString(locale) }) : "—",
         value: c.inStock ? c.qty : null,
       })),
       "higher",
     ),
     buildRow(
       "warranty",
-      "Εγγύηση",
+      t("eggyisi"),
       products.map((p) => ({
-        text: p.guaranteeMonths ? `${p.guaranteeMonths} μήνες` : null,
+        text: p.guaranteeMonths ? t("mines", { n: p.guaranteeMonths }) : null,
         value: p.guaranteeMonths ?? null,
       })),
       "higher",
@@ -367,22 +378,22 @@ function buildGroups(products: Loaded[], columns: CompareColumn[]): CompareRowGr
   ];
 
   const identification: CompareRow[] = [
-    buildRow("sku", "Κωδικός Kolleris", products.map((p) => ({ text: p.code || null })), null),
-    buildRow("mpn", "Κωδικός κατασκευαστή", products.map((p) => ({ text: p.code2 || null })), null),
+    buildRow("sku", t("kodikos_kolleris"), products.map((p) => ({ text: p.code || null })), null),
+    buildRow("mpn", t("kodikos_kataskeyasti"), products.map((p) => ({ text: p.code2 || null })), null),
     buildRow("ean", "EAN", products.map((p) => ({ text: p.code1 || null })), null),
   ];
 
   const physical: CompareRow[] = [
     buildRow(
       "weight",
-      "Βάρος",
+      t("varos"),
       products.map((p) => {
         const w = num(p.weight);
-        return { text: w ? `${w.toLocaleString("el-GR")} kg` : null, value: w || null };
+        return { text: w ? `${w.toLocaleString(locale)} kg` : null, value: w || null };
       }),
       "lower",
     ),
-    buildRow("dimensions", "Διαστάσεις (Π × Μ × Υ)", products.map((p) => ({ text: dimensionsOf(p) })), null),
+    buildRow("dimensions", t("diastaseis"), products.map((p) => ({ text: dimensionsOf(p, locale) })), null),
   ];
 
   const extra: Record<string, CompareRow[]> = {
@@ -455,6 +466,8 @@ function buildAdvice(
   products: Loaded[],
   columns: CompareColumn[],
   groups: CompareRowGroup[],
+  t: Translator,
+  locale: Locale,
 ): CompareAdvice[] {
   if (columns.length < 2) return [];
 
@@ -465,9 +478,9 @@ function buildAdvice(
   if (price?.bestIndex != null && price.differs) {
     advice.push({
       key: "cheapest",
-      badge: "Οικονομικότερο",
+      badge: t("oikonomikotero"),
       title: columns[price.bestIndex].name,
-      reason: `${price.cells[price.bestIndex].text} με ΦΠΑ — η χαμηλότερη τιμή στη σύγκριση.`,
+      reason: t("logos_oikonomikotero", { price: price.cells[price.bestIndex].text ?? "" }),
       columnIndex: price.bestIndex,
     });
   }
@@ -478,9 +491,9 @@ function buildAdvice(
     const pick = inStock.reduce((a, b) => (b.c.qty > a.c.qty ? b : a));
     advice.push({
       key: "available",
-      badge: "Άμεσα διαθέσιμο",
+      badge: t("amesa_diathesimo"),
       title: pick.c.name,
-      reason: `${pick.c.qty.toLocaleString("el-GR")} τεμ. σε απόθεμα — φεύγει σήμερα.`,
+      reason: t("logos_diathesimo", { n: pick.c.qty.toLocaleString(locale) }),
       columnIndex: pick.i,
     });
   }
@@ -489,9 +502,9 @@ function buildAdvice(
   if (warranty?.bestIndex != null && warranty.differs) {
     advice.push({
       key: "warranty",
-      badge: "Μεγαλύτερη εγγύηση",
+      badge: t("megalyteri_eggyisi"),
       title: columns[warranty.bestIndex].name,
-      reason: `${warranty.cells[warranty.bestIndex].text} εγγύηση κατασκευαστή.`,
+      reason: t("logos_eggyisi", { value: warranty.cells[warranty.bestIndex].text ?? "" }),
       columnIndex: warranty.bestIndex,
     });
   }
@@ -503,9 +516,9 @@ function buildAdvice(
   if (spec?.bestIndex != null) {
     advice.push({
       key: "performance",
-      badge: "Ισχυρότερο",
+      badge: t("ischyrotero"),
       title: columns[spec.bestIndex].name,
-      reason: `${spec.label}: ${spec.cells[spec.bestIndex].text} — το υψηλότερο της σύγκρισης.`,
+      reason: t("logos_ischyrotero", { label: spec.label, value: spec.cells[spec.bestIndex].text ?? "" }),
       columnIndex: spec.bestIndex,
     });
   }
@@ -514,9 +527,9 @@ function buildAdvice(
   if (advice.length < 4 && weight?.bestIndex != null && weight.differs) {
     advice.push({
       key: "lightest",
-      badge: "Ελαφρύτερο",
+      badge: t("elafrytero"),
       title: columns[weight.bestIndex].name,
-      reason: `${weight.cells[weight.bestIndex].text} — λιγότερη κούραση στη χρήση.`,
+      reason: t("logos_elafrytero", { value: weight.cells[weight.bestIndex].text ?? "" }),
       columnIndex: weight.bestIndex,
     });
   }

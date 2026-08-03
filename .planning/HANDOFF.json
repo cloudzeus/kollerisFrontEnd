@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-08-03T05:53:32.464Z",
+  "timestamp": "2026-08-03T06:11:23.747Z",
   "source": "auto-postool",
   "partial": false,
   "phase": null,
@@ -22,35 +22,7 @@
     },
     {
       "status": "M",
-      "path": "scripts/i18n/codemod.mts"
-    },
-    {
-      "status": "M",
-      "path": "scripts/i18n/out/extracted.json"
-    },
-    {
-      "status": "M",
-      "path": "scripts/i18n/out/remaining.json"
-    },
-    {
-      "status": "M",
-      "path": "scripts/i18n/out/skipped.json"
-    },
-    {
-      "status": "M",
-      "path": "scripts/i18n/verify.ts"
-    },
-    {
-      "status": "M",
       "path": "src/app/[locale]/anazitisi/page.tsx"
-    },
-    {
-      "status": "M",
-      "path": "src/app/[locale]/b2b/page.tsx"
-    },
-    {
-      "status": "M",
-      "path": "src/app/[locale]/b2b/xristes/page.tsx"
     },
     {
       "status": "M",
@@ -67,26 +39,6 @@
     {
       "status": "M",
       "path": "src/app/[locale]/brands/page.tsx"
-    },
-    {
-      "status": "M",
-      "path": "src/app/[locale]/checkout/epibebaiosi/[orderNumber]/page.tsx"
-    },
-    {
-      "status": "M",
-      "path": "src/app/[locale]/checkout/page.tsx"
-    },
-    {
-      "status": "M",
-      "path": "src/app/[locale]/eggrafi/anamoni/page.tsx"
-    },
-    {
-      "status": "M",
-      "path": "src/app/[locale]/eggrafi/page.tsx"
-    },
-    {
-      "status": "M",
-      "path": "src/app/[locale]/eisodos/page.tsx"
     },
     {
       "status": "M",
@@ -110,15 +62,7 @@
     },
     {
       "status": "M",
-      "path": "src/app/[locale]/logariasmos/entopismos/page.tsx"
-    },
-    {
-      "status": "M",
       "path": "src/app/[locale]/logariasmos/page.tsx"
-    },
-    {
-      "status": "M",
-      "path": "src/app/[locale]/logariasmos/stoicheia/page.tsx"
     },
     {
       "status": "M",
@@ -130,31 +74,87 @@
     },
     {
       "status": "M",
-      "path": "src/app/[locale]/proion/[slug]/page.tsx"
-    },
-    {
-      "status": "M",
       "path": "src/app/[locale]/prosfores/page.tsx"
     },
     {
       "status": "M",
-      "path": "src/app/[locale]/sygkrisi/page.tsx"
+      "path": "src/components/brands/BrandSearchGrid.tsx"
     },
     {
       "status": "M",
-      "path": "src/app/[locale]/syxnes-erotiseis/page.tsx"
+      "path": "src/components/catalogue/CategoryPicker.tsx"
     },
     {
       "status": "M",
-      "path": "src/app/layout.tsx"
+      "path": "src/components/catalogue/TaxonomyFinder.tsx"
     },
     {
       "status": "M",
-      "path": "src/components/offers/OfferCountdown.tsx"
+      "path": "src/components/chrome/MegaMenu.tsx"
     },
     {
       "status": "M",
-      "path": "src/components/offers/OfferWidget.tsx"
+      "path": "src/components/chrome/MobileMenu.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/components/chrome/SearchSuggest.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/components/chrome/UtilityBar.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/components/home/BrandWall.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/components/home/CategoryGrid.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/components/home/HeroBanner.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/components/orders/OrderTracker.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/components/plp/MobileFilterSheet.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/components/plp/PlpToolbar.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/lib/banners/resolve.ts"
+    },
+    {
+      "status": "M",
+      "path": "src/lib/catalog/editorial.ts"
+    },
+    {
+      "status": "M",
+      "path": "src/lib/catalog/pdp.ts"
+    },
+    {
+      "status": "M",
+      "path": "src/lib/compare/compare.ts"
+    },
+    {
+      "status": "M",
+      "path": "src/lib/contact/hours.test.ts"
+    },
+    {
+      "status": "M",
+      "path": "src/lib/contact/hours.ts"
+    },
+    {
+      "status": "M",
+      "path": "src/lib/faq/faq.ts"
     },
     {
       "status": "M",
@@ -170,9 +170,13 @@
     },
     {
       "status": "??",
-      "path": "scripts/i18n/metadata.mts"
+      "path": "scripts/i18n/faq.mts"
+    },
+    {
+      "status": "??",
+      "path": "scripts/i18n/locale-format.mts"
     }
   ],
   "next_action": null,
-  "context_notes": "Recent commits:\n08799cb fix(i18n): recover the sixteen PriceBox keys, and check keys on every commit\nceefd2e feat(offers): four animated widgets, previewed in the wizard\na2581ea feat(offers): a campaign wizard, and offers that carry their own terms\n9bbdc48 feat(i18n): no Greek left hardcoded in the storefront\n048dcfc feat(i18n): lift 369 interface strings into the message files"
+  "context_notes": "Recent commits:\n3eea85e feat(i18n): the 35 page files the scan never reached\n08799cb fix(i18n): recover the sixteen PriceBox keys, and check keys on every commit\nceefd2e feat(offers): four animated widgets, previewed in the wizard\na2581ea feat(offers): a campaign wizard, and offers that carry their own terms\n9bbdc48 feat(i18n): no Greek left hardcoded in the storefront"
 }

@@ -1,5 +1,6 @@
 import "server-only";
 import { cache } from "react";
+import { getTranslations } from "next-intl/server";
 import { prisma } from "@/lib/prisma";
 import type { Locale } from "@/i18n/routing";
 import { FREE_SHIPPING_THRESHOLD_NET } from "@/lib/cart/options";
@@ -34,117 +35,115 @@ export const getFaq = cache(async (locale: Locale): Promise<FaqSection[]> => {
     }),
   ]);
 
-  const n = (value: number) => value.toLocaleString("el-GR");
+  const n = (value: number) => value.toLocaleString(locale);
   const eta = (id: keyof typeof ZONES) => ZONES[id].etaDays;
 
-  // Locale is threaded through for when the copy is translated; the answers
-  // below are Greek only today, which is the site's default.
-  void locale;
+  const t = await getTranslations({ locale, namespace: "faq" });
 
   const sections: Array<Omit<FaqSection, "entries"> & { entries: Array<Omit<FaqEntry, "key">> }> = [
     {
       id: "paraggelia",
-      title: "Παραγγελία",
+      title: t("enotita_paraggelia"),
       entries: [
         {
-          q: "Χρειάζεται λογαριασμός για να παραγγείλω;",
-          a: `Όχι. Μπορείτε να ολοκληρώσετε την παραγγελία ως επισκέπτης — ζητάμε μόνο όσα χρειάζονται για να σας τη στείλουμε. Λογαριασμός χρειάζεται αν θέλετε ιστορικό παραγγελιών ή, για εταιρείες, τιμή συνεργάτη και πληρωμή επί πιστώσει.`,
+          q: t("erotisi_chreiazetai_logariasmos_gia_na_paraggeilo"),
+          a: t("apantisi_ochi_mporeite_na_oloklirosete_tin_paraggelia"),
         },
         {
-          q: "Μπορώ να παραγγείλω με τηλέφωνο;",
-          a: `Ναι, στο 210 411 1355, Δευτέρα έως Παρασκευή 08:00–16:30. Αν έχετε λίστα κωδικών, μπορείτε επίσης να τους επικολλήσετε μαζικά στο καλάθι.`,
+          q: t("erotisi_mporo_na_paraggeilo_me_tilefono"),
+          a: t("apantisi_nai_sto_210_411_1355_deytera"),
         },
         {
-          q: "Πώς ξέρω ότι υπάρχει πραγματικά απόθεμα;",
-          a: `Η διαθεσιμότητα στο site είναι το ERP μας, όχι εκτίμηση. Αυτή τη στιγμή ${n(inStock)} από τους ${n(products)} κωδικούς είναι άμεσα διαθέσιμοι. Αν λέει «3 τεμ.», υπάρχουν 3.`,
+          q: t("erotisi_pos_xero_oti_yparchei_pragmatika"),
+          a: t("apantisi_i_diathesimotita_sto_site_einai_to", { inStock: n(inStock), products: n(products) }),
         },
         {
-          q: "Δεν βρίσκω τον κωδικό που ψάχνω.",
-          a: `Η αναζήτηση δέχεται κωδικό Kolleris, κωδικό κατασκευαστή και EAN. Αν δεν τον βρίσκετε, μάλλον τον προμηθευόμαστε κατά παραγγελία — καλέστε μας. Ο online κατάλογος είναι ${n(products)} κωδικοί από ${brands.length} brands, αλλά αντιπροσωπεύουμε περισσότερα.`,
+          q: t("erotisi_den_vrisko_ton_kodiko_poy"),
+          a: t("apantisi_i_anazitisi_dechetai_kodiko_kolleris_kodiko", { products: n(products), brandslength: brands.length }),
         },
       ],
     },
     {
       id: "apostoli",
-      title: "Αποστολή",
+      title: t("enotita_apostoli"),
       entries: [
         {
-          q: "Πόσο κοστίζει η αποστολή;",
-          a: `Υπολογίζεται από το χρεώσιμο βάρος και τη ζώνη του Τ.Κ. σας, όχι με σταθερή χρέωση. Το ακριβές ποσό φαίνεται στο καλάθι πριν πληρώσετε. Άνω των ${formatMoney(FREE_SHIPPING_THRESHOLD_NET)} καθαρής αξίας τα μεταφορικά είναι δωρεάν.`,
+          q: t("erotisi_poso_kostizei_i_apostoli"),
+          a: t("apantisi_ypologizetai_apo_to_chreosimo_varos_kai", { formatMoneyFREE_SHIPPING_THRESHOLD_NET: formatMoney(FREE_SHIPPING_THRESHOLD_NET) }),
         },
         {
-          q: "Πότε θα φτάσει;",
-          a: `Παραγγελία πριν τις 15:00 εργάσιμη φεύγει αυθημερόν. Αττική ${eta("attica")} εργάσιμη, ηπειρωτική Ελλάδα ${eta("mainland")}, νησιά ${eta("island")}, δυσπρόσιτες περιοχές ${eta("remote")} εργάσιμες.`,
+          q: t("erotisi_pote_tha_ftasei"),
+          a: t("apantisi_paraggelia_prin_tis_15_00_ergasimi", { etaAttica: eta("attica"), etaMainland: eta("mainland"), etaIsland: eta("island"), etaRemote: eta("remote") }),
         },
         {
-          q: "Μπορώ να παραλάβω από το κατάστημα;",
-          a: `Ναι, από τον Πειραιά (Κ. Μαυρομιχάλη 4). Επιλέξτε «Παραλαβή από Πειραιά» στο ταμείο — η παραγγελία είναι έτοιμη σε 2 ώρες μέσα στο ωράριο.`,
+          q: t("erotisi_mporo_na_paralavo_apo_to"),
+          a: t("apantisi_nai_apo_ton_peiraia_k_mayromichali"),
         },
         {
-          q: "Πώς παρακολουθώ την παραγγελία μου;",
-          a: `Με τον αριθμό παραγγελίας και το email σας, στη σελίδα εντοπισμού — δεν χρειάζεται λογαριασμός. Μόλις φύγει το δέμα, εμφανίζεται και ο αριθμός αποστολής της ACS.`,
+          q: t("erotisi_pos_parakoloytho_tin_paraggelia_moy"),
+          a: t("apantisi_me_ton_arithmo_paraggelias_kai_to"),
         },
       ],
     },
     {
       id: "times",
-      title: "Τιμές και πληρωμή",
+      title: t("enotita_times_kai_pliromi"),
       entries: [
         {
-          q: "Οι τιμές είναι με ΦΠΑ;",
-          a: `Ναι, όλες. Κάθε τιμή στο site είναι τελική, με ΦΠΑ ${DEFAULT_VAT_RATE}% (ή τον συντελεστή που ισχύει για το είδος). Η καθαρή αξία φαίνεται από κάτω, για όσους τιμολογούν.`,
+          q: t("erotisi_oi_times_einai_me_fpa"),
+          a: t("apantisi_nai_oles_kathe_timi_sto_site", { DEFAULT_VAT_RATE }),
         },
         {
-          q: "Πώς μπορώ να πληρώσω;",
-          a: `Κάρτα και IRIS μέσω Viva Wallet, ή τραπεζική κατάθεση. Τα στοιχεία της κάρτας σας δεν περνούν ποτέ από το κατάστημά μας. Οι εγκεκριμένοι εταιρικοί λογαριασμοί πληρώνουν και επί πιστώσει.`,
+          q: t("erotisi_pos_mporo_na_pliroso"),
+          a: t("apantisi_karta_kai_iris_meso_viva_wallet"),
         },
         {
-          q: "Έχετε τιμή για επαγγελματίες;",
-          a: `Ναι. Ο εταιρικός λογαριασμός δίνει μόνιμη έκπτωση σε όλο τον κατάλογο — όχι εποχιακή προσφορά — μαζί με τιμολόγιο και πληρωμή επί πιστώσει. Η αίτηση ελέγχεται και ενεργοποιείται συνήθως σε 2 εργάσιμες.`,
+          q: t("erotisi_echete_timi_gia_epaggelmaties"),
+          a: t("apantisi_nai_o_etairikos_logariasmos_dinei_monimi"),
         },
         {
-          q: "Γιατί δεν βλέπω εκπτώσεις;",
-          a: `Γιατί δεν τρέχει προσφορά. Θα μπορούσαμε να δείχνουμε διαγραμμένη τιμή στα δύο τρίτα του καταλόγου — η διαφορά λιανικής και τιμής eshop υπάρχει — αλλά μια «έκπτωση» που ισχύει πάντα δεν είναι έκπτωση. Όταν κάνουμε πραγματική προσφορά, θα τη δείτε με την προηγούμενη τιμή δίπλα.`,
+          q: t("erotisi_giati_den_vlepo_ekptoseis"),
+          a: t("apantisi_giati_den_trechei_prosfora_tha_mporoysame"),
         },
         {
-          q: "Εκδίδετε τιμολόγιο;",
-          a: `Ναι. Στο ταμείο επιλέξτε «Θέλω τιμολόγιο» και δώστε το ΑΦΜ — τα υπόλοιπα στοιχεία τα φέρνουμε αυτόματα από το μητρώο της ΑΑΔΕ.`,
+          q: t("erotisi_ekdidete_timologio"),
+          a: t("apantisi_nai_sto_tameio_epilexte_thelo_timologio"),
         },
       ],
     },
     {
       id: "eggyisi",
-      title: "Εγγύηση και επιστροφές",
+      title: t("enotita_eggyisi_kai_epistrofes"),
       entries: [
         {
-          q: "Τι εγγύηση έχουν τα εργαλεία;",
-          a: `Επίσημη εγγύηση κατασκευαστή. Η διάρκεια διαφέρει ανά προϊόν και αναγράφεται στη σελίδα του. Επειδή είμαστε επίσημη αντιπροσωπεία, το σέρβις και τα ανταλλακτικά περνούν από εμάς — όχι από παράλληλη εισαγωγή.`,
+          q: t("erotisi_ti_eggyisi_echoyn_ta_ergaleia"),
+          a: t("apantisi_episimi_eggyisi_kataskeyasti_i_diarkeia_diaferei"),
         },
         {
-          q: "Μπορώ να επιστρέψω κάτι;",
-          a: `Εντός 14 ημερών, αμεταχείριστο, στη συσκευασία του και με το παραστατικό αγοράς. Καλέστε μας πρώτα για να σας δώσουμε οδηγίες — γλιτώνετε μεταφορικά και χρόνο.`,
+          q: t("erotisi_mporo_na_epistrepso_kati"),
+          a: t("apantisi_entos_14_imeron_ametacheiristo_sti_syskeyasia"),
         },
         {
-          q: "Ήρθε λάθος ή ελαττωματικό. Τι κάνω;",
-          a: `Τηλεφωνήστε την ίδια μέρα στο 210 411 1355. Τα μεταφορικά της αντικατάστασης τα αναλαμβάνουμε εμείς.`,
+          q: t("erotisi_irthe_lathos_i_elattomatiko_ti"),
+          a: t("apantisi_tilefoniste_tin_idia_mera_sto_210"),
         },
       ],
     },
     {
       id: "logariasmos",
-      title: "Λογαριασμός",
+      title: t("enotita_logariasmos"),
       entries: [
         {
-          q: "Ποια η διαφορά ιδιώτη και εταιρικού λογαριασμού;",
-          a: `Ο ιδιώτης έχει παραγγελίες, διευθύνσεις, εγγυήσεις και επιστροφές. Ο εταιρικός προσθέτει τιμή συνεργάτη, τιμολόγιο, πληρωμή επί πιστώσει, και πολλούς χρήστες με ρόλους και όρια δαπάνης.`,
+          q: t("erotisi_poia_i_diafora_idioti_kai"),
+          a: t("apantisi_o_idiotis_echei_paraggelies_dieythynseis_eggyiseis"),
         },
         {
-          q: "Πόσο κάνει να εγκριθεί ο εταιρικός λογαριασμός;",
-          a: `Συνήθως 2 εργάσιμες. Ελέγχουμε ΑΦΜ, δραστηριότητα και τυχόν υπάρχουσα συνεργασία. Μέχρι τότε μπορείτε να παραγγέλνετε κανονικά με λιανικές τιμές.`,
+          q: t("erotisi_poso_kanei_na_egkrithei_o"),
+          a: t("apantisi_synithos_2_ergasimes_elegchoyme_afm_drastiriotita"),
         },
         {
-          q: "Μπορούν πολλοί υπάλληλοι να παραγγέλνουν;",
-          a: `Ναι. Ο διαχειριστής της εταιρείας προσκαλεί χρήστες και ορίζει σε καθέναν ρόλο και όριο ανά παραγγελία.`,
+          q: t("erotisi_mporoyn_polloi_ypalliloi_na_paraggelnoyn"),
+          a: t("apantisi_nai_o_diacheiristis_tis_etaireias_proskalei"),
         },
       ],
     },

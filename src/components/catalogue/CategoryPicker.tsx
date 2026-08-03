@@ -1,5 +1,6 @@
 "use client";
 
+import { useLocale } from "next-intl";
 import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "@/i18n/navigation";
@@ -31,6 +32,7 @@ export function CategoryPicker({
   nodes: CatalogueNode[];
   label: string;
 }) {
+  const locale = useLocale();
   const t = useTranslations("catalogue.CategoryPicker");
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
@@ -176,7 +178,7 @@ export function CategoryPicker({
                           </span>
                         )}
                         <span className="t-brand-count shrink-0 font-mono text-k-text-5">
-                          {group.total.toLocaleString("el-GR")}
+                          {group.total.toLocaleString(locale)}
                         </span>
                       </p>
 

@@ -1,4 +1,5 @@
 import { useTranslations } from "next-intl";
+import { getLocale } from "next-intl/server";
 import Image from "next/image";
 import { Link } from "@/i18n/navigation";
 import type { BrandTile } from "@/lib/catalog/queries";
@@ -13,13 +14,14 @@ import { upGreek } from "@/lib/greek";
  * Handoff: 8 columns / 92px cells on desktop. Mobile 390 has no brand wall in
  * the handoff, so this collapses to a 3-up grid rather than inventing one.
  */
-export function BrandWall({
+export async function BrandWall({
   brands,
   totalBrands,
 }: {
   brands: BrandTile[];
   totalBrands: number;
 }) {
+  const locale = await getLocale();
   const t = useTranslations("home.BrandWall");
   if (brands.length === 0) return null;
 
@@ -55,7 +57,7 @@ export function BrandWall({
               <span className="t-brand-name text-k-text-2">{brand.name}</span>
             )}
             <span className="t-brand-count text-k-text-6">
-              {brand.productCount.toLocaleString("el-GR")} {upGreek(t("kod"))}
+              {brand.productCount.toLocaleString(locale)} {upGreek(t("kod"))}
             </span>
           </Link>
         ))}

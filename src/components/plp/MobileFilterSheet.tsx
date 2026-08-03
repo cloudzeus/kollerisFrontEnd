@@ -1,5 +1,6 @@
 "use client";
 
+import { useLocale } from "next-intl";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { FilterSidebar } from "@/components/plp/FilterSidebar";
@@ -29,6 +30,7 @@ export function MobileFilterSheet({
   basePath: string;
   params: RawParams;
 }) {
+  const locale = useLocale();
   const t = useTranslations("plp.MobileFilterSheet");
   const [open, setOpen] = useState(false);
 
@@ -97,7 +99,7 @@ export function MobileFilterSheet({
                 onClick={() => setOpen(false)}
                 className="t-btn h-12 w-full bg-k-red text-white"
               >
-                {upGreek(t("emfanisi_proionton", { n: total.toLocaleString("el-GR") }))}
+                {upGreek(t("emfanisi_proionton", { n: total.toLocaleString(locale) }))}
               </button>
             </div>
           </div>

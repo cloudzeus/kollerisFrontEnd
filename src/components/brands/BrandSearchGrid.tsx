@@ -1,5 +1,6 @@
 "use client";
 
+import { useLocale } from "next-intl";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
 import { useMemo, useState } from "react";
@@ -16,6 +17,7 @@ import { searchKey, upGreek } from "@/lib/greek";
  * finds Wera regardless of accents or case.
  */
 export function BrandSearchGrid({ brands }: { brands: BrandListItem[] }) {
+  const locale = useLocale();
   const t = useTranslations("brands.BrandSearchGrid");
   const [query, setQuery] = useState("");
 
@@ -121,7 +123,7 @@ export function BrandSearchGrid({ brands }: { brands: BrandListItem[] }) {
 
               <span className="flex items-baseline gap-1.5">
                 <span className="font-mono text-[13px] font-semibold text-k-ink">
-                  {brand.productCount.toLocaleString("el-GR")}
+                  {brand.productCount.toLocaleString(locale)}
                 </span>
                 <span className="t-brand-count text-k-text-5">{upGreek(t("kod"))}</span>
               </span>
