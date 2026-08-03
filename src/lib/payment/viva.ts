@@ -16,6 +16,13 @@ import "server-only";
  * letting the checkout appear to work and die at the redirect.
  */
 
+/*
+ * Demo unless told otherwise — the safe default for a file that can charge a
+ * card. A demo account is a separate registration with its own credentials, so
+ * flipping this without swapping the keys fails authentication rather than
+ * quietly charging anyone. Test cards and the amounts that force each decline
+ * are in TESTING.md next to this file.
+ */
 const ENVIRONMENT = (process.env.VIVA_ENVIRONMENT ?? "demo").toLowerCase();
 const IS_PRODUCTION = ENVIRONMENT === "production";
 
