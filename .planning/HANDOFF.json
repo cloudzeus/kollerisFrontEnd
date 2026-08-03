@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-08-03T17:03:27.460Z",
+  "timestamp": "2026-08-03T17:30:51.427Z",
   "source": "auto-postool",
   "partial": false,
   "phase": null,
@@ -22,9 +22,17 @@
     },
     {
       "status": "M",
+      "path": "src/app/globals.css"
+    },
+    {
+      "status": "M",
       "path": "src/components/pdp/ProductGallery.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/components/product/ProductRail.tsx"
     }
   ],
   "next_action": null,
-  "context_notes": "Recent commits:\nff7535d docs(payment): what testing Viva actually requires\na61ed56 feat(i18n): prices and the payment page speak the visitor's language\nf95e5ca feat(i18n): the Greek that was never in a .tsx file\n3eea85e feat(i18n): the 35 page files the scan never reached\n08799cb fix(i18n): recover the sixteen PriceBox keys, and check keys on every commit"
+  "context_notes": "Recent commits:\ndb9c3d8 fix(pdp): the photo of a one-image product rendered 0px wide\nff7535d docs(payment): what testing Viva actually requires\na61ed56 feat(i18n): prices and the payment page speak the visitor's language\nf95e5ca feat(i18n): the Greek that was never in a .tsx file\n3eea85e feat(i18n): the 35 page files the scan never reached"
 }

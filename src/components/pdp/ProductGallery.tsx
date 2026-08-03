@@ -146,7 +146,18 @@ export function ProductGallery({
             <div
               ref={rail}
               onScroll={syncRail}
-              className="scroll-slim flex flex-wrap gap-2.5 lg:max-h-[540px] lg:flex-col lg:flex-nowrap lg:overflow-y-auto lg:pr-1"
+              /*
+               * No painted scrollbar, and no horizontal one at all.
+               *
+               * The thumbs are exactly as wide as the column that holds them,
+               * so the `pr-1` that used to leave room for a scrollbar pushed
+               * the content 4px past the edge. `overflow-y-auto` alone then
+               * turns the other axis into `auto` too — CSS will not leave one
+               * axis visible while the other scrolls — so hovering the rail
+               * raised a vertical bar AND a horizontal one for those 4px.
+               * The rail has arrows; it does not need either.
+               */
+              className="scroll-none flex flex-wrap gap-2.5 lg:max-h-[540px] lg:flex-col lg:flex-nowrap lg:overflow-x-hidden lg:overflow-y-auto"
             >
               {images.map((image, index) => (
                 <button

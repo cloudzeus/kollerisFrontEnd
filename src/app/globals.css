@@ -447,6 +447,22 @@
   .scroll-slim:hover::-webkit-scrollbar-thumb:hover {
     background: var(--color-k-text-5);
   }
+
+  /*
+   * Scrolls, shows nothing.
+   *
+   * For rails that already carry arrows: the scrollbar is a second control for
+   * the same job, and `scroll-slim` reveals it on hover — so pointing at a
+   * thumbnail made a bar appear next to it. Keyboard and wheel scrolling are
+   * untouched; only the painted bar goes.
+   */
+  .scroll-none {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .scroll-none::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 /*

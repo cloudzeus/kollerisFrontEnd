@@ -62,7 +62,9 @@ export function ProductRail({ children }: { children: React.ReactNode }) {
       <div
         ref={rail}
         onScroll={sync}
-        className="scroll-slim -mx-1 flex snap-x snap-mandatory gap-3 overflow-x-auto px-1 pb-2 lg:gap-4"
+        // `scroll-none`, not `scroll-slim`: this rail has arrows, and a
+        // scrollbar underneath them is a second control for the same job.
+        className="scroll-none -mx-1 flex snap-x snap-mandatory gap-3 overflow-x-auto px-1 pb-2 lg:gap-4"
       >
         {children}
       </div>
