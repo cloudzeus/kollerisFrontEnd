@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-08-03T11:51:41.779Z",
+  "timestamp": "2026-08-03T17:03:27.460Z",
   "source": "auto-postool",
   "partial": false,
   "phase": null,
@@ -19,8 +19,12 @@
     {
       "status": "M",
       "path": ".planning/HANDOFF.json"
+    },
+    {
+      "status": "M",
+      "path": "src/components/pdp/ProductGallery.tsx"
     }
   ],
   "next_action": null,
-  "context_notes": "Recent commits:\na61ed56 feat(i18n): prices and the payment page speak the visitor's language\nf95e5ca feat(i18n): the Greek that was never in a .tsx file\n3eea85e feat(i18n): the 35 page files the scan never reached\n08799cb fix(i18n): recover the sixteen PriceBox keys, and check keys on every commit\nceefd2e feat(offers): four animated widgets, previewed in the wizard"
+  "context_notes": "Recent commits:\nff7535d docs(payment): what testing Viva actually requires\na61ed56 feat(i18n): prices and the payment page speak the visitor's language\nf95e5ca feat(i18n): the Greek that was never in a .tsx file\n3eea85e feat(i18n): the 35 page files the scan never reached\n08799cb fix(i18n): recover the sixteen PriceBox keys, and check keys on every commit"
 }

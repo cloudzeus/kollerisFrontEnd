@@ -105,7 +105,22 @@ export function ProductGallery({
 
   return (
     <>
-      <div className="grid gap-4 lg:grid-cols-[88px_1fr] lg:gap-5">
+      {/*
+        The thumb column exists only when there are thumbs.
+        ─────────────────────────────────────────────────────────────────────
+        Reserving `88px` unconditionally put the single image of a one-photo
+        product INTO the thumbnail column: grid auto-placement fills the first
+        track, and `lg:order-2` cannot move a lone item elsewhere because there
+        is nothing to order it against. `max-w-full` then squeezed a 640px photo
+        to 0px wide, so the page rendered a correctly-loaded image inside an
+        empty grey box — which is what it was doing on every product with one
+        photo.
+      */}
+      <div
+        className={`grid gap-4 lg:gap-5 ${
+          images.length > 1 ? "lg:grid-cols-[88px_1fr]" : "lg:grid-cols-1"
+        }`}
+      >
         {images.length > 1 && (
           /*
            * Thumb rail.
