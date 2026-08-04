@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { randomBytes } from "node:crypto";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
-import { getCart, getCartToken } from "@/lib/cart/cart";
+import { computeTotals, getCart, getCartToken } from "@/lib/cart/cart";
 import { PAYMENT_METHODS, SHIPPING_METHODS } from "@/lib/cart/options";
 import { quoteLivePostage } from "@/lib/shipping/acs-live";
 import { createPaymentOrder, isVivaConfigured } from "@/lib/payment/viva";
@@ -44,6 +44,15 @@ const checkoutSchema = z.object({
   terms: z.union([z.literal("on"), z.literal("")]).optional(),
   locale: z.string().max(5).optional(),
 });
+
+/**
+ * How long a bank-transfer payment code stays valid.
+ *
+ * Seven days. A SEPA credit between Greek banks clears in one working day, and
+ * the customer has to reach a banking app first; the 30 minutes a card payment
+ * gets would expire before the transfer was made.
+ */
+const BANK_TRANSFER_WINDOW_MINUTES = 7 * 24 * 60;
 
 export type CheckoutState = {
   error?: string;
@@ -123,7 +132,21 @@ export async function placeOrder(
     return { error: "Ο τρόπος πληρωμής δεν είναι διαθέσιμος για τον λογαριασμό σας." };
   }
 
-  const totals = cart.totals;
+  /*
+   * Priced on what was SUBMITTED, not on what the cart row remembers.
+   *
+   * `getCart` reads the shipping and payment method from the Cart row, which is
+   * written by the basket page. The checkout form has its own controls and did
+   * not write back, so choosing "collect from the shop" here produced an order
+   * stamped `pickup` and charged the courier rate that was still sitting in the
+   * database. The customer was billed for delivery on an order they came to
+   * fetch.
+   *
+   * The form is the last word and the ids above are already validated against
+   * the offered list, so the totals are recomputed from them.
+   */
+  const totals = await computeTotals(cart.lines, shipping.id, payment.id, input.shipPostcode);
+
   const quote =
     shipping.expressMultiplier > 0
       ? await quoteLivePostage({
@@ -210,7 +233,56 @@ export async function placeOrder(
   // leave the customer with their basket intact.
   await prisma.cartLine.deleteMany({ where: { cart: { token: cartToken } } });
 
-  // Cash on delivery and bank transfer need no redirect.
+  /*
+   * Bank transfer: accepted now, reconciled later, and it needs a reference.
+   *
+   * The order used to be confirmed with nothing tying a future deposit to it,
+   * so matching a bank statement line to an order was a manual search by name
+   * and amount. Asking Viva for a payment order gives the customer a code to
+   * quote on the transfer, and when the money lands Viva notifies
+   * `/api/webhooks/viva` with our order number in `merchantTrns` — the same
+   * path a card payment already takes. Reconciliation stops being clerical.
+   *
+   * Deliberately NOT fatal. The order is placed and the goods are reserved; a
+   * Viva outage must not undo that. Without a code the confirmation page simply
+   * asks the customer to quote the order number, which is what happened before.
+   *
+   * The window is long because a transfer is not a card: SEPA credit between
+   * Greek banks routinely takes a working day, and a code that expires in half
+   * an hour would expire before anyone reached a banking app.
+   */
+  if (payment.id === "bank") {
+    if (isVivaConfigured()) {
+      try {
+        const paymentOrder = await createPaymentOrder({
+          amountGross: Number(order.totalGross),
+          orderNumber: order.orderNumber,
+          description: `Kolleris ${order.orderNumber}`,
+          locale,
+          customer: {
+            email: input.email,
+            fullName: `${input.firstName} ${input.lastName}`,
+            phone: input.phone,
+          },
+          expiryMinutes: BANK_TRANSFER_WINDOW_MINUTES,
+        });
+        await prisma.order.update({
+          where: { id: order.id },
+          data: { vivaOrderCode: paymentOrder.orderCode },
+        });
+      } catch (error) {
+        console.error(`[checkout] no Viva code for ${order.orderNumber}`, error);
+      }
+    }
+
+    await prisma.order.update({
+      where: { id: order.id },
+      data: { status: "CONFIRMED" },
+    });
+    redirect(`/checkout/epibebaiosi/${order.orderNumber}?t=${order.guestToken}`);
+  }
+
+  // Anything else that settles off-site needs no redirect and no code.
   if (payment.id !== "card" && payment.id !== "iris") {
     await prisma.order.update({
       where: { id: order.id },

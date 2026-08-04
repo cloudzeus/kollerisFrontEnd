@@ -1309,7 +1309,9 @@
       "vima_katachorithike": "Registrato",
       "vima_epivevaiothike": "Confermato",
       "vima_apestali": "Spedito",
-      "vima_paradothike": "Consegnato"
+      "vima_paradothike": "Consegnato",
+      "kodikos_pliromis_titlos": "Codice di pagamento",
+      "kodikos_pliromis_odigia": "Indica questo codice come causale del bonifico. È così che il pagamento viene abbinato automaticamente all'ordine."
     }
   },
   "b2b": {

@@ -1,10 +1,11 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { useActionState, useState } from "react";
+import { useActionState, useState, useTransition } from "react";
 import { CompanyVatFields } from "@/components/account/CompanyVatFields";
 import { placeOrder, type CheckoutState } from "@/lib/checkout/actions";
 import { PAYMENT_METHODS, SHIPPING_METHODS } from "@/lib/cart/options";
+import { setCartOptions } from "@/lib/cart/actions";
 import { AddressAutocomplete } from "@/components/checkout/AddressAutocomplete";
 import { upGreek } from "@/lib/greek";
 
@@ -21,17 +22,44 @@ export function CheckoutForm({
   locale,
   postcode,
   isPartner = false,
+  shippingMethod,
+  paymentMethod,
 }: {
   locale: string;
   postcode: string;
   isPartner?: boolean;
+  /** What the basket page already recorded. Seeds the controls below. */
+  shippingMethod: string;
+  paymentMethod: string;
 }) {
   const t = useTranslations("checkout.CheckoutForm");
   const [state, action, pending] = useActionState<CheckoutState, FormData>(placeOrder, {});
   const [wantsInvoice, setWantsInvoice] = useState(false);
-  const [shipping, setShipping] = useState<string>("courier");
-  const [payment, setPayment] = useState<string>("card");
+  /*
+   * Seeded from the cart, not from a hardcoded default.
+   *
+   * These used to start at "courier" and "card" whatever the customer had
+   * chosen one page earlier, so picking bank transfer in the basket and
+   * arriving here showed card again. It read as the site changing its mind.
+   */
+  const [shipping, setShipping] = useState<string>(shippingMethod);
+  const [payment, setPayment] = useState<string>(paymentMethod);
   const [terms, setTerms] = useState(false);
+  const [, startTransition] = useTransition();
+
+  /*
+   * Written back to the cart on every change.
+   *
+   * The order summary beside this form is server-rendered from the cart row, so
+   * without this the two disagree: the form says "collect from the shop" and
+   * the panel next to it still charges for a courier. Persisting re-renders the
+   * summary from the same source the action prices against.
+   */
+  const remember = (patch: { shippingMethod?: string; paymentMethod?: string }) => {
+    startTransition(async () => {
+      await setCartOptions(patch);
+    });
+  };
 
   const payments = PAYMENT_METHODS.filter((m) => !m.partnerOnly || isPartner);
 
@@ -139,7 +167,10 @@ export function CheckoutForm({
                 name="shippingMethod"
                 value={method.id}
                 checked={shipping === method.id}
-                onChange={() => setShipping(method.id)}
+                onChange={() => {
+                  setShipping(method.id);
+                  remember({ shippingMethod: method.id });
+                }}
                 className="h-4 w-4 accent-k-red"
               />
               <span className="min-w-0 flex-1">
@@ -172,7 +203,10 @@ export function CheckoutForm({
                 name="paymentMethod"
                 value={method.id}
                 checked={payment === method.id}
-                onChange={() => setPayment(method.id)}
+                onChange={() => {
+                  setPayment(method.id);
+                  remember({ paymentMethod: method.id });
+                }}
                 className="sr-only"
               />
               {method.label}

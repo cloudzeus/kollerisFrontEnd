@@ -80,6 +80,20 @@ export default async function ConfirmationPage({ params, searchParams }: PagePro
 
   const awaitingPayment = order.paymentStatus === "PENDING";
 
+  /*
+   * The payment code for a bank transfer.
+   *
+   * Quoting it on the transfer is what lets the deposit be matched to this
+   * order automatically instead of by hand from a statement line. Shown only
+   * while the money is still outstanding; once paid it is noise.
+   *
+   * Absent when Viva could not be reached at checkout, which is not an error
+   * here: the order stands, and the fallback is the order number, which is
+   * what the customer quoted before this existed.
+   */
+  const depositCode =
+    order.paymentMethod === "bank" && awaitingPayment ? order.vivaOrderCode : null;
+
   return (
     <>
       <SiteChrome
@@ -114,6 +128,28 @@ export default async function ConfirmationPage({ params, searchParams }: PagePro
               t("molis_oloklirothei_i_pliromi_i")}
           </p>
         </div>
+
+        {depositCode && (
+          <div className="border-b border-k-line bg-k-surface-2">
+            <div className="shell-x py-6 lg:py-7">
+              <div className="flex flex-col gap-4 border-l-[3px] border-k-red bg-white px-5 py-5 sm:flex-row sm:items-center sm:justify-between lg:px-6">
+                <div className="min-w-0">
+                  <p className="text-[13px] font-semibold text-k-ink">
+                    {t("kodikos_pliromis_titlos")}
+                  </p>
+                  <p className="mt-1.5 max-w-[52ch] text-[12.5px] leading-[1.6] text-k-text-2">
+                    {t("kodikos_pliromis_odigia")}
+                  </p>
+                </div>
+                {/* Tabular figures: a reference that is going to be copied by
+                    hand should not have digits of different widths. */}
+                <p className="shrink-0 border border-k-ink px-4 py-3 font-mono text-[18px] font-semibold tracking-[0.08em] tabular-nums text-k-ink">
+                  {depositCode}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Tracking */}
         <div className="grid gap-px border-b border-k-line bg-k-line sm:grid-cols-4">

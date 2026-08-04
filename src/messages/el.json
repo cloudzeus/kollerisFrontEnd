@@ -1309,7 +1309,9 @@
       "vima_katachorithike": "Καταχωρήθηκε",
       "vima_epivevaiothike": "Επιβεβαιώθηκε",
       "vima_apestali": "Απεστάλη",
-      "vima_paradothike": "Παραδόθηκε"
+      "vima_paradothike": "Παραδόθηκε",
+      "kodikos_pliromis_titlos": "Κωδικός πληρωμής",
+      "kodikos_pliromis_odigia": "Αναγράψτε τον κωδικό στην αιτιολογία της κατάθεσης. Έτσι η πληρωμή σας αντιστοιχίζεται αυτόματα με την παραγγελία."
     }
   },
   "b2b": {

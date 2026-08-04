@@ -117,7 +117,12 @@ export default async function CheckoutPage({
             </p>
           )}
 
-          <CheckoutForm locale={locale} postcode="" />
+          <CheckoutForm
+            locale={locale}
+            postcode=""
+            shippingMethod={cart.shippingMethod}
+            paymentMethod={cart.paymentMethod}
+          />
         </div>
 
         {/* Summary */}
