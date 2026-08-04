@@ -1,3 +1,5 @@
+import { tileBounds } from "@/lib/geo/shop";
+
 /**
  * One map tile, fetched with our key rather than the visitor's browser.
  *
@@ -11,9 +13,16 @@
  */
 
 const KEY = process.env.MAPTILER_API_KEY;
-/** Around the shop only. An open tile proxy is a free map service billed to us. */
-const ZOOM = 16;
-const BOUNDS = { x: [37069, 37073], y: [25288, 25292] } as const;
+
+/*
+ * Around the shop only. An open tile proxy is a free map service billed to us.
+ *
+ * Derived rather than written down. These were literals computed by hand for
+ * zoom 16, so changing the zoom turned every tile into a 404 with nothing to
+ * say why. They now come from the same module the component composes its frame
+ * from, and the two cannot disagree.
+ */
+const { zoom: ZOOM, x: X, y: Y } = tileBounds();
 
 export async function GET(
   _request: Request,
@@ -25,8 +34,8 @@ export async function GET(
   if (!KEY) return new Response("map not configured", { status: 503 });
   if (
     zn !== ZOOM ||
-    !(xn >= BOUNDS.x[0] && xn <= BOUNDS.x[1]) ||
-    !(yn >= BOUNDS.y[0] && yn <= BOUNDS.y[1])
+    !(xn >= X[0] && xn <= X[1]) ||
+    !(yn >= Y[0] && yn <= Y[1])
   ) {
     return new Response("out of bounds", { status: 404 });
   }
