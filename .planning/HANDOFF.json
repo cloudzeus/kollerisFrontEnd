@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-08-04T04:59:16.403Z",
+  "timestamp": "2026-08-04T05:04:05.564Z",
   "source": "auto-postool",
   "partial": false,
   "phase": null,
@@ -19,8 +19,12 @@
     {
       "status": "M",
       "path": ".planning/HANDOFF.json"
+    },
+    {
+      "status": "M",
+      "path": "src/app/globals.css"
     }
   ],
   "next_action": null,
-  "context_notes": "Recent commits:\n4bd356f feat(shop): a max width for the site, and a banner that respects it\n5618318 feat(banners): one arrangement per width band, worked out per banner\n24f0480 feat(banners): a wide, capped banner puts its cells in one row\na739494 fix(banners): a capped banner keeps the full width of its zone\n3ccb2e8 feat(banners): each banner sets its own maximum height"
+  "context_notes": "Recent commits:\n063181d fix(a11y): the navigation was below the contrast floor\n4bd356f feat(shop): a max width for the site, and a banner that respects it\n5618318 feat(banners): one arrangement per width band, worked out per banner\n24f0480 feat(banners): a wide, capped banner puts its cells in one row\na739494 fix(banners): a capped banner keeps the full width of its zone"
 }

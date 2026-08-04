@@ -609,27 +609,24 @@
    drawn in is the only ordering the template carries.
    ───────────────────────────────────────────────────────────────────────── */
 /*
- * The banner obeys the site's width cap, and centres in what is left.
+ * A banner is a band, and a band is full-bleed.
+ * ─────────────────────────────────────────────────────────────────────────────
+ * The reviews strip, the red CTA and the footer all run their background to the
+ * edge of the screen and inset only the text inside them. The banner is the
+ * same kind of element, except its content IS its background, so it takes the
+ * full width and nothing else.
  *
- * Bands are full-bleed so their backgrounds run edge to edge, which is right —
- * but the grid inside one was running edge to edge too, so on a wide monitor
- * the banner was wider than the catalogue under it and the two did not line up.
- * The cap is `--shell-max`, the same one `.shell-x` centres content at, so
- * changing it in the settings moves both together.
+ * Constraining it looked like the right call twice and was wrong twice. Given
+ * the content gutter it sat 40px narrower than every band around it; given the
+ * site's width cap it narrowed on wide screens while its neighbours stayed
+ * edge to edge. Either way it became the one element on the page that floated,
+ * which reads as a broken card rather than a section.
+ *
+ * `--shell-max` still caps everything it should: `.shell-x` and `.shell-w`
+ * cap the CONTENT inside every band, which is where a width limit belongs.
  */
 .banner-shell {
   container-type: inline-size;
-  margin-inline: auto;
-  width: 100%;
-  /*
-   * The same width `.shell-x` gives its content, written the other way round.
-   * `.shell-x` turns the surplus into padding — `max(2.5rem, (100% -
-   * --shell-max) / 2)` — which comes to a content box of exactly this. Sharing
-   * the formula rather than the value means the banner tracks the gutter as
-   * well as the cap: at `--shell-max: 2500px` the cap never bit, and the banner
-   * still sat 40px wider than everything under it on every screen.
-   */
-  max-width: min(var(--shell-max), calc(100% - 5rem));
 }
 .banner-grid {
   display: grid;
