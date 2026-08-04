@@ -111,3 +111,39 @@ describe("quotePostage", () => {
     ).toBe(true);
   });
 });
+
+/**
+ * Five catalogue rows hold millimetres in the centimetre field. They name
+ * themselves — "ΕΞΩΛΚΕΑΣ 1000mm" is stored as 1000×150×50 — and unguarded they
+ * price at 1.500 volumetric kilos, which quoted about 1.900 EUR of postage on a
+ * 98 EUR tool. The repair belongs in SoftOne; this is what stops the storefront
+ * quoting it meanwhile.
+ */
+describe("implausible dimensions", () => {
+  it("refuses a dimension no courier could carry and charges the real weight", () => {
+    const result = chargeableWeight([
+      { quantity: 1, weight: 3.5, width: 1000, length: 150, height: 50 },
+    ]);
+    expect(result.volumetricKg).toBe(0);
+    expect(result.chargeableKg).toBe(3.5);
+    expect(result.implausibleItems).toBe(1);
+  });
+
+  it("still charges a long but possible item on its volume", () => {
+    // 180 cm is within what ACS will carry, so it must not be discarded.
+    const result = chargeableWeight([
+      { quantity: 1, weight: 4, width: 180, length: 20, height: 10 },
+    ]);
+    expect(result.volumetricKg).toBe(7.2);
+    expect(result.chargeableKg).toBe(7.2);
+    expect(result.implausibleItems).toBe(0);
+  });
+
+  it("leaves ordinary items untouched", () => {
+    const result = chargeableWeight([
+      { quantity: 1, weight: 2.7, width: 37, length: 9, height: 26 },
+    ]);
+    expect(result.implausibleItems).toBe(0);
+    expect(result.chargeableKg).toBe(2.7);
+  });
+});

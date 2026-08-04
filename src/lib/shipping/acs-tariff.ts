@@ -38,6 +38,15 @@ export const ZONES: Record<ShippingZone, ZoneInfo> = {
  */
 const VOLUMETRIC_DIVISOR = 5000;
 
+/**
+ * The largest dimension a courier parcel can plausibly have, in centimetres.
+ *
+ * ACS refuses anything over 150 cm on the longest side for a standard parcel,
+ * so 200 leaves room for a genuinely long item while still being far below the
+ * 1.000 that a millimetre value lands on.
+ */
+const MAX_PLAUSIBLE_CM = 200;
+
 /** Contract tariff, EUR net. `base` covers `baseKg`; each extra kg adds `perExtraKg`. */
 /**
  * MEASURED from the live ACS pricelist on 2026-07-31, not estimated. Each row
@@ -128,11 +137,14 @@ export function chargeableWeight(items: ParcelItem[]): {
   volumetricKg: number;
   chargeableKg: number;
   estimatedItems: number;
+  /** Lines whose dimensions were refused as impossible. Worth surfacing. */
+  implausibleItems: number;
 } {
   const FALLBACK_KG = 0.3;
   let actualKg = 0;
   let volumetricKg = 0;
   let estimatedItems = 0;
+  let implausibleItems = 0;
 
   for (const item of items) {
     const qty = Math.max(1, item.quantity);
@@ -145,7 +157,31 @@ export function chargeableWeight(items: ParcelItem[]): {
     }
 
     if (item.width && item.length && item.height) {
-      volumetricKg += ((item.width * item.length * item.height) / VOLUMETRIC_DIVISOR) * qty;
+      /*
+       * A dimension a courier could not carry is a data error, not a big parcel.
+       *
+       * Five catalogue rows hold millimetres in the centimetre field, and they
+       * say so in their own names: "ΕΞΩΛΚΕΑΣ 1000mm" is stored as 1000×150×50,
+       * which is 1.500 volumetric kilos and quotes about 1.900 EUR of postage
+       * on a 98 EUR tool. The catalogue is otherwise in centimetres - the 99th
+       * percentile of width is 100 cm - so this is five bad rows, not a unit
+       * mismatch, and the repair belongs in SoftOne.
+       *
+       * Meanwhile the storefront must not quote a number like that. Beyond the
+       * limit the dimensions are discarded and the item is charged on its real
+       * weight, which is the honest fallback: too low is a cost we absorb, too
+       * high is a sale we lose and a customer who never comes back.
+       */
+      const oversize =
+        item.width > MAX_PLAUSIBLE_CM ||
+        item.length > MAX_PLAUSIBLE_CM ||
+        item.height > MAX_PLAUSIBLE_CM;
+
+      if (oversize) {
+        implausibleItems += qty;
+      } else {
+        volumetricKg += ((item.width * item.length * item.height) / VOLUMETRIC_DIVISOR) * qty;
+      }
     }
   }
 
@@ -155,6 +191,7 @@ export function chargeableWeight(items: ParcelItem[]): {
     volumetricKg: round(volumetricKg),
     chargeableKg: round(chargeableKg),
     estimatedItems,
+    implausibleItems,
   };
 }
 
