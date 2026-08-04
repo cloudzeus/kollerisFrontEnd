@@ -26,7 +26,10 @@ export const SHOP = {
   country: "GR",
   lat: 37.949726,
   lon: 23.642506,
-  founded: "1980",
+  // 1978 everywhere a visitor can see it — the footer, /etaireia, /brands, the
+  // copywriter's own prompt. This said 1980, which is the one number a machine
+  // reads for business identity, disagreeing with the seven a person reads.
+  founded: "1978",
 } as const;
 
 /**
