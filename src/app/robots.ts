@@ -32,6 +32,10 @@ export default function robots(): MetadataRoute.Robots {
       },
     ],
     sitemap: `${siteOrigin()}/sitemap.xml`,
+    // The Merchant Center feed is fetched by Google on a schedule it is given
+    // in the Merchant Center account, not discovered here — it is listed so a
+    // person reading robots.txt can find it, and left crawlable so a fetch does
+    // not have to be whitelisted.
     host: siteOrigin(),
   };
 }
