@@ -1,6 +1,7 @@
 import "server-only";
 import { prisma } from "@/lib/prisma";
 import { absoluteUrl } from "@/lib/seo/urls";
+import { isPlausibleWeightKg } from "@/lib/shipping/acs-tariff";
 import type { Locale } from "@/i18n/routing";
 
 /**
@@ -66,7 +67,7 @@ export async function buildMerchantFeed(locale: Locale = "el"): Promise<string> 
     },
     select: {
       mtrl: true, code: true, code1: true, code2: true, slug: true, name: true,
-      priceNet: true, vatRate: true, inStock: true, mtrmark: true,
+      priceNet: true, vatRate: true, inStock: true, mtrmark: true, weight: true,
       mtrcategory: true, mtrgroup: true, cccSubgroup2: true,
       images: {
         orderBy: [{ isFeature: "desc" }, { order: "asc" }],
@@ -149,6 +150,24 @@ export async function buildMerchantFeed(locale: Locale = "el"): Promise<string> 
     ];
 
     if (brand) lines.push(`<g:brand>${xml(brand)}</g:brand>`);
+    /*
+     * Shipping weight, and only when it can be believed.
+     *
+     * Merchant Center reported this missing on every item, because it was never
+     * emitted. It cannot simply be emitted either: part of the catalogue holds
+     * grams in the kilogram column — a 5 EUR Allen key recorded at 140 kg — and
+     * Google would price postage from that. `isPlausibleWeightKg` is the same
+     * rule the ACS quote applies, imported rather than restated so the feed and
+     * the checkout cannot come to different conclusions about one product.
+     *
+     * Omitted rather than guessed when it fails: Google then falls back to the
+     * shipping rules configured in Merchant Center, which is the correct answer
+     * for an item whose weight we do not actually know.
+     */
+    const weightKg = product.weight == null ? null : Number(product.weight);
+    if (isPlausibleWeightKg(weightKg)) {
+      lines.push(`<g:shipping_weight>${weightKg!.toFixed(3)} kg</g:shipping_weight>`);
+    }
     // Only when it survives its own check digit.
     if (isValidGtin(product.code1)) lines.push(`<g:gtin>${xml(product.code1.replace(/\D/g, ""))}</g:gtin>`);
     // A plain ">" here: `xml()` escapes it once. Writing "&gt;" and then escaping
