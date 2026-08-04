@@ -1,4 +1,5 @@
 import { getTranslations } from "next-intl/server";
+import { alternatesFor } from "@/lib/seo/urls";
 import type { Metadata } from "next";
 import Image from "next/image";
 import { setRequestLocale } from "next-intl/server";
@@ -29,6 +30,10 @@ export async function generateMetadata({
   const t = await getTranslations({ locale, namespace: "brands.page" });
   const { brandCount, productCount } = await getBrandsStats();
   return {
+    // Each language is a page in its own right: its own canonical, and the
+    // other two declared as alternates so they are read as translations
+    // rather than as duplicates competing with each other.
+    alternates: alternatesFor("/brands", locale),
     title: "Brands",
     description: t("brands_me_kodikoys_se_apothema", { brandCount: brandCount, n: productCount.toLocaleString(locale) }),
   };

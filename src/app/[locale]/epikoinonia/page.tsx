@@ -1,4 +1,5 @@
 import { getTranslations } from "next-intl/server";
+import { alternatesFor } from "@/lib/seo/urls";
 import type { Metadata } from "next";
 import { setRequestLocale } from "next-intl/server";
 import { SectionHead } from "@/components/chrome/SectionHead";
@@ -29,6 +30,10 @@ export async function generateMetadata({
   // metadata is generated outside it.
   const t = await getTranslations({ locale, namespace: "epikoinonia.page" });
   return {
+    // Each language is a page in its own right: its own canonical, and the
+    // other two declared as alternates so they are read as translations
+    // rather than as duplicates competing with each other.
+    alternates: alternatesFor("/epikoinonia", locale),
     title: t("titlos_epikoinonia"),
     description: t("perigrafi_tilefono_email_kai_forma"),
   };

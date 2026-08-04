@@ -1,4 +1,5 @@
 import { getTranslations } from "next-intl/server";
+import { alternatesFor } from "@/lib/seo/urls";
 import type { Metadata } from "next";
 import Image from "next/image";
 import { notFound } from "next/navigation";
@@ -44,6 +45,10 @@ export async function generateMetadata({
   const brand = await getBrandBySlug(slug, locale);
   if (!brand) return {};
   return {
+    // Each language is a page in its own right: its own canonical, and the
+    // other two declared as alternates so they are read as translations
+    // rather than as duplicates competing with each other.
+    alternates: alternatesFor(`/brands/${slug}`, locale),
     title: brand.name,
     description: t("kodikoi_se_apothema_episimi_antiprosopeysi", { n: brand.productCount.toLocaleString(locale), name: brand.name }),
   };

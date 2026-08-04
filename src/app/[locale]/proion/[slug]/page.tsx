@@ -1,4 +1,5 @@
 import { getTranslations } from "next-intl/server";
+import { alternatesFor } from "@/lib/seo/urls";
 import type { Metadata } from "next";
 import Image from "next/image";
 import { notFound } from "next/navigation";
@@ -41,6 +42,14 @@ export async function generateMetadata({
   if (!product) return {};
 
   return {
+
+    // Each language is a page in its own right: its own canonical, and the
+
+    // other two declared as alternates so they are read as translations
+
+    // rather than as duplicates competing with each other.
+
+    alternates: alternatesFor(`/proion/${slug}`, locale),
     title: product.name,
     description:
       product.shortDescription ??

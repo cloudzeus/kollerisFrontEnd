@@ -3,6 +3,8 @@ import { IBM_Plex_Sans, Noto_Sans_Mono } from "next/font/google";
 import localFont from "next/font/local";
 import { getLocale, getTranslations } from "next-intl/server";
 import "./globals.css";
+import { alternatesFor } from "@/lib/seo/urls";
+import type { Locale } from "@/i18n/routing";
 
 /*
  * Root layout owns <html>/<body> for BOTH trees — the localised storefront
@@ -74,6 +76,17 @@ export async function generateMetadata(): Promise<Metadata> {
     metadataBase: new URL(
       process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
     ),
+    /*
+     * The root canonical and the language alternates for `/`.
+     *
+     * Set here because the home page has no `generateMetadata` of its own, and
+     * because with an unprefixed default locale `/` and `/en` and `/it` are
+     * three addresses for one page. Without the alternates a crawler reads them
+     * as duplicates competing with each other, and the two prefixed ones lose.
+     *
+     * Deeper pages override this with their own path.
+     */
+    alternates: alternatesFor("/", locale as Locale),
     title: {
       default: t("titlos_kolleris_ergaleia_epaggelmatikos"),
       template: "%s | Kolleris",
