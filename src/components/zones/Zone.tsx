@@ -24,6 +24,21 @@ import type { Locale } from "@/i18n/routing";
  * unfilled zone should look like a page without that zone, not like one with a
  * gap in it.
  */
+/**
+ * Does this zone actually have something to render?
+ *
+ * `<Zone/>` is a React element, so it is truthy even when it renders nothing.
+ * A caller that writes `zone ? zone : fallback` therefore always picks the
+ * zone — which is how the homepage hero came to show a 400px column of empty
+ * white beside it, with a perfectly good fallback sitting unreachable in the
+ * same file. Callers that need to choose have to ask.
+ */
+export async function zoneHasContent(id: string): Promise<boolean> {
+  if (!ZONES_BY_ID.has(id)) return false;
+  if (await getPublishedBanner(id)) return true;
+  return (await getZone(id)).length > 0;
+}
+
 export async function Zone({
   id,
   locale,

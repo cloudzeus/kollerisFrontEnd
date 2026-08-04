@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-08-04T05:20:45.365Z",
+  "timestamp": "2026-08-04T05:28:53.346Z",
   "source": "auto-postool",
   "partial": false,
   "phase": null,
@@ -22,17 +22,13 @@
     },
     {
       "status": "M",
-      "path": "src/messages/el.json"
+      "path": "src/app/[locale]/page.tsx"
     },
     {
       "status": "M",
-      "path": "src/messages/en.json"
-    },
-    {
-      "status": "M",
-      "path": "src/messages/it.json"
+      "path": "src/components/zones/Zone.tsx"
     }
   ],
   "next_action": null,
-  "context_notes": "Recent commits:\n2e33dfe fix(pdp): \"N/A\" is spelled two hundred and sixty-eight ways\n738b007 fix(home): the banner is a band, not a card floating between bands\n063181d fix(a11y): the navigation was below the contrast floor\n4bd356f feat(shop): a max width for the site, and a banner that respects it\n5618318 feat(banners): one arrangement per width band, worked out per banner"
+  "context_notes": "Recent commits:\n41ef428 fix(copy): official distributor, not official representative\n2e33dfe fix(pdp): \"N/A\" is spelled two hundred and sixty-eight ways\n738b007 fix(home): the banner is a band, not a card floating between bands\n063181d fix(a11y): the navigation was below the contrast floor\n4bd356f feat(shop): a max width for the site, and a banner that respects it"
 }

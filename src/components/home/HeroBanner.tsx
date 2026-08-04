@@ -116,7 +116,13 @@ export async function HeroBanner({
           fallback, so an empty zone is not an empty column and the page looks
           the same the day the builder ships as the day before. */}
       {aside ? (
-        <div className="hidden grid-rows-2 gap-0.5 lg:grid">{aside}</div>
+        /*
+         * One row, not two. `grid-rows-2` is shaped for the pair of hardcoded
+         * tiles below; a zone is a single child, so on that grid it would take
+         * the top half and leave 260px of white underneath. The zone brings its
+         * own internal layout and gets the whole column to put it in.
+         */
+        <div className="hidden gap-0.5 lg:grid lg:grid-rows-1">{aside}</div>
       ) : (
         <div className="hidden grid-rows-2 gap-0.5 lg:grid">
           {featuredTiles.map((tile) => (

@@ -14,7 +14,7 @@ import { StatStrip } from "@/components/home/StatStrip";
 import type { Locale } from "@/i18n/routing";
 import { getMiniCart } from "@/lib/cart/cart";
 import { getSection } from "@/lib/content/content";
-import { Zone } from "@/components/zones/Zone";
+import { Zone, zoneHasContent } from "@/components/zones/Zone";
 import { FREE_SHIPPING_THRESHOLD_NET } from "@/lib/cart/options";
 import {
   getCatalogueStats,
@@ -66,6 +66,16 @@ export default async function HomePage({
       getSection("about", locale),
       getSection("reviews", locale),
     ]);
+
+  /*
+   * Whether the hero's right-hand column has anything to show.
+   *
+   * Asked separately from rendering because `<Zone/>` cannot answer it: it is a
+   * React element, truthy whether it renders a banner or nothing at all. Both
+   * reads it performs are already cached for this request, so asking costs
+   * nothing beyond the call.
+   */
+  const asideFilled = await zoneHasContent("home.aside");
 
   // Live figures for {tokens} in widget copy. Passed in rather than looked up
   // per widget: the numbers are already here, and a widget should not be able
@@ -167,7 +177,14 @@ export default async function HomePage({
           brandCount={stats.brands}
           featuredTiles={promoTiles}
           copy={heroCopy}
-          aside={<Zone id="home.aside" locale={locale} context={zoneContext} />}
+          /*
+             Only when the zone has something in it. `<Zone/>` is truthy even
+             when it renders nothing, so passing it unconditionally left the
+             hero's 400px column empty and made its own fallback unreachable.
+          */
+          aside={
+            asideFilled ? <Zone id="home.aside" locale={locale} context={zoneContext} /> : null
+          }
         />
         <StatStrip stats={statCards} />
         <CategoryGrid
