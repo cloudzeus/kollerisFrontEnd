@@ -21,7 +21,7 @@
  * prints "6 unverifiable" and exits 0 is how the gap survived the first time.
  */
 import ts from "typescript";
-import { readFileSync, globSync } from "node:fs";
+import { readFileSync, globSync, existsSync } from "node:fs";
 import path from "node:path";
 
 type Tree = { [k: string]: string | Tree };
@@ -235,23 +235,129 @@ export function findHookMisuse(): Problem[] {
   return problems;
 }
 
+/** `@/x` to a real file on disk, or null for anything not ours. */
+function resolveImport(spec: string): string | null {
+  if (!spec.startsWith("@/")) return null;
+  const base = path.join("src", spec.slice(2));
+  for (const ext of [".tsx", ".ts", "/index.tsx", "/index.ts"]) {
+    if (existsSync(base + ext)) return base + ext;
+  }
+  return null;
+}
+
+const isAdminPath = (file: string) =>
+  file.includes("/admin/") || file.includes("components/admin");
+
 /**
- * next-intl used anywhere under `/admin`.
+ * Everything `/admin` can reach, not just everything inside it.
+ *
+ * The path-only version of this check missed the case that keeps happening: a
+ * storefront component that translates itself, imported into an admin screen
+ * for a preview. `OfferWizard` renders the real `OfferWidget`, which renders
+ * `OfferCountdown`, and both call `useTranslations` — two levels below any file
+ * with "admin" in its name. React then reports the crash at the leaf, which is
+ * the last place anyone looks for an import problem.
+ *
+ * So the walk starts at every admin file and follows `@/` imports.
+ */
+function adminReachableFiles(): Map<string, string[]> {
+  const seen = new Map<string, string[]>();
+  const queue: Array<[string, string[]]> = globSync("src/**/*.{ts,tsx}")
+    .filter((f) => isAdminPath(f) && !f.endsWith(".d.ts"))
+    .map((f) => [f, [f]]);
+
+  while (queue.length > 0) {
+    const [file, trail] = queue.shift()!;
+    if (seen.has(file)) continue;
+    seen.set(file, trail);
+
+    const text = readFileSync(file, "utf8");
+    for (const match of text.matchAll(/from\s+["'](@\/[^"']+)["']/g)) {
+      const next = resolveImport(match[1]);
+      if (next && !seen.has(next)) queue.push([next, [...trail, next]]);
+    }
+  }
+  return seen;
+}
+
+/**
+ * next-intl reachable from `/admin`.
  *
  * The back office sits outside the `[locale]` segment, so the provider is not
- * mounted and every next-intl entry point throws "No intl context found" at
- * render time. It has broken three features that way — banner button links, the
- * offer widget preview, and the orders table once prices took a locale — always
- * because storefront code was reused or a codemod treated `/admin` like the
- * rest of the app. Anything there that needs a locale takes `ADMIN_LOCALE`.
+ * mounted and every next-intl entry point throws "the context from
+ * NextIntlClientProvider was not found" at render time. It has broken four
+ * features that way — banner button links, the orders table once prices took a
+ * locale, and twice the offer widget preview — always because storefront code
+ * was reused or a codemod treated `/admin` like the rest of the app.
+ *
+ * Two different faults, two different fixes:
+ *
+ *   admin file imports next-intl        use ADMIN_LOCALE
+ *   storefront file, reached from admin wrap the preview in StorefrontPreview
+ *     and add its namespace there
  */
 export function findAdminIntlUse(): Problem[] {
   const problems: Problem[] = [];
-  const files = globSync("src/**/*.{ts,tsx}").filter(
-    (f) => (f.includes("/admin/") || f.includes("components/admin")) && !f.endsWith(".d.ts"),
+  const reachable = adminReachableFiles();
+
+  /*
+   * Namespaces the preview provider already carries. A storefront component
+   * reached from admin is fine as long as its namespace is mounted there, so
+   * this reads the list rather than restating it — one place to add to.
+   */
+  const providerSource = existsSync("src/components/admin/StorefrontPreview.tsx")
+    ? readFileSync("src/components/admin/StorefrontPreview.tsx", "utf8")
+    : "";
+  const provided = new Set(
+    [...providerSource.matchAll(/PREVIEW_NAMESPACES\s*=\s*\[([^\]]*)\]/g)]
+      .flatMap((m) => [...m[1].matchAll(/["']([^"']+)["']/g)].map((n) => n[1])),
   );
 
-  for (const file of files) {
+  for (const [file, trail] of reachable) {
+    if (file.endsWith(".d.ts")) continue;
+    // The provider is the fix, not the fault.
+    if (file.endsWith("components/admin/StorefrontPreview.tsx")) continue;
+
+    /*
+     * A storefront component reached from admin is only a problem if the
+     * provider does not carry what it asks for. `useTranslations("offers.X")`
+     * is answered by the `offers` namespace being mounted.
+     */
+    if (!isAdminPath(file)) {
+      const text = readFileSync(file, "utf8");
+      if (!/from\s+["']next-intl/.test(text)) continue;
+
+      /*
+       * Only a call to a hook can throw. `i18n/routing.ts` and
+       * `i18n/navigation.ts` import next-intl to build configuration and
+       * navigation helpers; they render nothing and read no context. Flagging
+       * every import instead of every call is what made the first version of
+       * this check name the fix as the fault.
+       */
+      const namespaces = [
+        ...text.matchAll(/useTranslations\s*\(\s*["']([^."']+)/g),
+      ].map((m) => m[1]);
+      const bare = /use(?:Translations|Locale|Formatter|Now|TimeZone)\s*\(\s*\)/.test(text);
+      if (namespaces.length === 0 && !bare) continue;
+
+      const missing = namespaces.filter((n) => !provided.has(n));
+      if (missing.length === 0 && !bare) continue;
+      if (bare && missing.length === 0) {
+        // A hook with no namespace reads whatever the provider holds, so a
+        // mounted provider is enough — it cannot be checked more precisely.
+        if (provided.size > 0) continue;
+      }
+
+      problems.push({
+        file: path.relative("src", file),
+        detail:
+          `συστατικό βιτρίνας προσβάσιμο από το /admin ζητά ${[...new Set(missing)].join(", ")} — ` +
+          `μέσω ${trail.slice(0, 3).map((t) => path.relative("src", t)).join(" → ")}· ` +
+          `προσθέστε το namespace στο StorefrontPreview`,
+      });
+      continue;
+    }
+
     const text = readFileSync(file, "utf8");
     const source = ts.createSourceFile(file, text, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
     const where = path.relative("src", file);

@@ -3,6 +3,7 @@ import { Toaster } from "sonner";
 import { auth, signOut } from "@/auth";
 import { capabilitiesOf, type Capability } from "@/lib/rbac";
 import { AdminNav, type NavGroup } from "@/components/admin/AdminNav";
+import { StorefrontPreview } from "@/components/admin/StorefrontPreview";
 
 /**
  * /admin is Greek-only staff UI and deliberately sits OUTSIDE the [locale]
@@ -80,7 +81,13 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         signOutAction={signOutAction}
       />
       <main id="main" className="min-w-0 flex-1">
-        {children}
+        {/*
+          Several admin screens preview real storefront components so the editor
+          sees what the customer will. Those components translate themselves and
+          /admin has no next-intl provider, so one is mounted here. It carries
+          only the namespaces the previews use.
+        */}
+        <StorefrontPreview>{children}</StorefrontPreview>
       </main>
       <Toaster position="bottom-right" richColors closeButton />
     </div>
