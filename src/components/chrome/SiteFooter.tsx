@@ -4,8 +4,21 @@ import { Link } from "@/i18n/navigation";
 import type { CategoryTile } from "@/lib/catalog/queries";
 import { upGreek } from "@/lib/greek";
 
-const SOCIALS = ["FB", "IG", "IN"];
 const PAYMENTS = ["VISA", "MC", "MAESTRO", "IRIS", "PAYPAL"];
+
+/**
+ * The legal small print. Every one of these 404'd or didn't exist until now —
+ * which is most of what Google's Merchant Center flagged as Misrepresentation:
+ * a machine reading the site for "can this business be trusted" found a
+ * returns link and a warranty link that both led nowhere, and no terms, no
+ * privacy policy, no stated payment methods or shipping policy at all.
+ */
+const LEGAL_LINKS = [
+  { href: "/oroi-chrisis", key: "oroi_chrisis" },
+  { href: "/aporrito", key: "aporrito" },
+  { href: "/tropoi-pliromis", key: "tropoi_pliromis" },
+  { href: "/apostoli-paradosi", key: "apostoli_paradosi" },
+] as const;
 
 /**
  * Footer. Handoff: four columns on desktop; on mobile the link columns collapse
@@ -28,8 +41,8 @@ export function SiteFooter({ categories }: { categories: CategoryTile[] }) {
       title: upGreek(t("exypiretisi")),
       links: [
         { href: "/logariasmos/entopismos", label: t("entopismos_paraggelias") },
-        { href: "/logariasmos/epistrofes", label: t("epistrofes") },
-        { href: "/logariasmos/eggyiseis", label: t("eggyiseis") },
+        { href: "/epistrofes", label: t("epistrofes") },
+        { href: "/eggyiseis", label: t("eggyiseis") },
         { href: "/syxnes-erotiseis", label: t("sychnes_erotiseis") },
         { href: "/epikoinonia", label: t("epikoinonia") },
       ],
@@ -60,18 +73,9 @@ export function SiteFooter({ categories }: { categories: CategoryTile[] }) {
           <p className="t-footer-tag mt-3 text-white/40 lg:mt-4">
             PROFESSIONAL TOOLS · SINCE 1978
           </p>
-          <div className="mt-5 hidden gap-2.5 lg:flex">
-            {SOCIALS.map((social) => (
-              <a
-                key={social}
-                href="#"
-                aria-label={social}
-                className="t-social flex h-9 w-9 items-center justify-center border border-white/18 text-white/72 transition-colors hover:border-k-red hover:text-white"
-              >
-                {social}
-              </a>
-            ))}
-          </div>
+          {/* No social row: there are no live accounts to link to. A row of
+              icons pointing at "#" is worse than no row — it reads as the
+              kind of unverifiable business identity Google flags. */}
         </div>
 
         {/* Mobile: collapsible sections. `<details>` needs no JavaScript. */}
@@ -115,22 +119,38 @@ export function SiteFooter({ categories }: { categories: CategoryTile[] }) {
         ))}
       </div>
 
-      <div className="mt-5 flex flex-wrap items-center justify-between gap-4 lg:mt-0 lg:border-t lg:border-white/10 lg:py-[22px]">
-        <p className="t-footer-legal text-white/40">
-          © {new Date().getFullYear()} Kolleris Bros IKE
-          <br className="lg:hidden" />
-          <span className="hidden lg:inline"> · </span>
-          {t("k_mayromichali_4_18545_peiraias")}
-        </p>
-        <div className="hidden items-center gap-2 lg:flex">
-          {PAYMENTS.map((payment) => (
-            <span
-              key={payment}
-              className="t-pay flex h-[26px] items-center border border-white/16 px-[9px] text-white/55"
+      <div className="mt-5 flex flex-col gap-3 lg:mt-0 lg:border-t lg:border-white/10 lg:py-[18px]">
+        <nav aria-label={upGreek(t("nomika"))} className="flex flex-wrap gap-x-5 gap-y-2">
+          {LEGAL_LINKS.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              className="t-footer-legal text-white/45 underline-offset-4 transition-colors hover:text-white hover:underline"
             >
-              {payment}
-            </span>
+              {t(link.key)}
+            </Link>
           ))}
+        </nav>
+
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <p className="t-footer-legal text-white/40">
+            {/* The registered legal entity, not a marketing name — it must
+                match what HDCtool and every order document say. */}
+            © {new Date().getFullYear()} ΑΦΟΙ ΚΟΛΛΕΡΗ ΙΚΕ
+            <br className="lg:hidden" />
+            <span className="hidden lg:inline"> · </span>
+            {t("k_mayromichali_4_18545_peiraias")}
+          </p>
+          <div className="hidden items-center gap-2 lg:flex">
+            {PAYMENTS.map((payment) => (
+              <span
+                key={payment}
+                className="t-pay flex h-[26px] items-center border border-white/16 px-[9px] text-white/55"
+              >
+                {payment}
+              </span>
+            ))}
+          </div>
         </div>
       </div>
     </footer>

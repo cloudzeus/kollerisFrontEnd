@@ -433,7 +433,12 @@
       "epikoinonia": "Contatti",
       "poioi_eimaste": "Chi siamo",
       "prosfores": "Offerte",
-      "logariasmos_b2b": "Account B2B"
+      "logariasmos_b2b": "Account B2B",
+      "oroi_chrisis": "Termini e Condizioni",
+      "aporrito": "Informativa sulla Privacy",
+      "tropoi_pliromis": "Metodi di Pagamento",
+      "apostoli_paradosi": "Spedizione e Consegna",
+      "nomika": "Legale"
     },
     "SiteHeader": {
       "logariasmos": "Account",
@@ -1427,5 +1432,10 @@
       "apothikeysi_se_exelixi": "Salvataggio…",
       "akyro": "Annulla"
     }
+  },
+  "policies": {
+    "archiki": "Home",
+    "teleftaia_enimerosi": "Ultimo aggiornamento",
+    "miliste_mas": "Parliamone"
   }
 }

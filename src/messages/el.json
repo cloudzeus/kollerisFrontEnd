@@ -433,7 +433,12 @@
       "epikoinonia": "Επικοινωνία",
       "poioi_eimaste": "Ποιοι είμαστε",
       "prosfores": "Προσφορές",
-      "logariasmos_b2b": "Λογαριασμός B2B"
+      "logariasmos_b2b": "Λογαριασμός B2B",
+      "oroi_chrisis": "Όροι Χρήσης",
+      "aporrito": "Πολιτική Απορρήτου",
+      "tropoi_pliromis": "Τρόποι Πληρωμής",
+      "apostoli_paradosi": "Αποστολή & Παράδοση",
+      "nomika": "Νομικά"
     },
     "SiteHeader": {
       "logariasmos": "Λογαριασμός",
@@ -1427,5 +1432,10 @@
       "apothikeysi_se_exelixi": "Αποθήκευση…",
       "akyro": "Άκυρο"
     }
+  },
+  "policies": {
+    "archiki": "Αρχική",
+    "teleftaia_enimerosi": "Τελευταία ενημέρωση",
+    "miliste_mas": "Μιλήστε μας"
   }
 }
