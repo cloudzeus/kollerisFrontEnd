@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-08-04T04:47:02.768Z",
+  "timestamp": "2026-08-04T04:52:21.988Z",
   "source": "auto-postool",
   "partial": false,
   "phase": null,
@@ -22,25 +22,17 @@
     },
     {
       "status": "M",
+      "path": "src/app/[locale]/layout.tsx"
+    },
+    {
+      "status": "M",
       "path": "src/app/globals.css"
     },
     {
       "status": "M",
-      "path": "src/components/admin/banners/BannerEditor.tsx"
-    },
-    {
-      "status": "M",
-      "path": "src/components/banners/BannerRenderer.tsx"
-    },
-    {
-      "status": "M",
-      "path": "src/lib/banners/__tests__/contract.test.ts"
-    },
-    {
-      "status": "M",
-      "path": "src/lib/banners/contract.ts"
+      "path": "src/lib/settings/registry.ts"
     }
   ],
   "next_action": null,
-  "context_notes": "Recent commits:\n24f0480 feat(banners): a wide, capped banner puts its cells in one row\na739494 fix(banners): a capped banner keeps the full width of its zone\n3ccb2e8 feat(banners): each banner sets its own maximum height\na98fe4e fix(admin): next-intl has no provider under /admin, for the third time\n47c76d3 fix(pdp): a spec that says \"N/A\" is not a spec"
+  "context_notes": "Recent commits:\n5618318 feat(banners): one arrangement per width band, worked out per banner\n24f0480 feat(banners): a wide, capped banner puts its cells in one row\na739494 fix(banners): a capped banner keeps the full width of its zone\n3ccb2e8 feat(banners): each banner sets its own maximum height\na98fe4e fix(admin): next-intl has no provider under /admin, for the third time"
 }

@@ -161,6 +161,17 @@ export const SETTINGS: ReadonlyArray<SettingDef> = [
 
   // ── Κατάστημα ──
   {
+    key: "shop.maxWidth",
+    group: "shop",
+    label: "Μέγιστο πλάτος ιστοσελίδας (px)",
+    help:
+      "Πάνω από αυτό το πλάτος η σελίδα σταματά να απλώνεται και κεντράρεται. " +
+      "Ορίζει και τι θεωρείται «πλατιά οθόνη» για τη διάταξη των banner.",
+    kind: "number",
+    envVar: "SITE_MAX_WIDTH",
+    placeholder: "2500",
+  },
+  {
     key: "shop.freeShippingNet",
     group: "shop",
     label: "Δωρεάν μεταφορικά από (καθαρή αξία)",

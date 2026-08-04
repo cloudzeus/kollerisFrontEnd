@@ -593,8 +593,28 @@
    a twelve-column layout at 390px is unreadable, and the order cells were
    drawn in is the only ordering the template carries.
    ───────────────────────────────────────────────────────────────────────── */
+/*
+ * The banner obeys the site's width cap, and centres in what is left.
+ *
+ * Bands are full-bleed so their backgrounds run edge to edge, which is right —
+ * but the grid inside one was running edge to edge too, so on a wide monitor
+ * the banner was wider than the catalogue under it and the two did not line up.
+ * The cap is `--shell-max`, the same one `.shell-x` centres content at, so
+ * changing it in the settings moves both together.
+ */
 .banner-shell {
   container-type: inline-size;
+  margin-inline: auto;
+  width: 100%;
+  /*
+   * The same width `.shell-x` gives its content, written the other way round.
+   * `.shell-x` turns the surplus into padding — `max(2.5rem, (100% -
+   * --shell-max) / 2)` — which comes to a content box of exactly this. Sharing
+   * the formula rather than the value means the banner tracks the gutter as
+   * well as the cap: at `--shell-max: 2500px` the cap never bit, and the banner
+   * still sat 40px wider than everything under it on every screen.
+   */
+  max-width: min(var(--shell-max), calc(100% - 5rem));
 }
 .banner-grid {
   display: grid;
