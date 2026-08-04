@@ -1,0 +1,23 @@
+# What must never reach the build context.
+#
+# The first two are the point: .env holds every live credential, and node_modules
+# holds macOS-native binaries (@node-rs/argon2, sharp) that would silently
+# replace the Linux ones the image installs and fail at runtime, not at build.
+.env
+.env.*
+!.env.example
+node_modules
+.next
+.git
+.claude
+
+# Build and test output — regenerated in the image, and only slows the upload.
+coverage
+*.tsbuildinfo
+next-env.d.ts
+
+# Local scratch
+.DS_Store
+*.log
+.s1session.json
+.planning

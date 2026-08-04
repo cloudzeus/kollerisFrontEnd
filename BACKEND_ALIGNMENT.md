@@ -539,3 +539,42 @@ Wire shapes: `src/lib/pim/contract.ts`. Client: `src/lib/pim/pim-client.ts`.
 
 `slug` + `Redirect` (URL είναι έννοια του eshop) · ζώνες αρχικής και banners ·
 FAQ · inbox επικοινωνίας · παραγγελίες eshop · `isFeatured` / badges.
+
+---
+
+## Deployment (Coolify → Dockerfile)
+
+Nixpacks is not used. It chose Node 22.11.0, and `npm ci` failed: the lock was
+resolved by npm 11 (which ships with Node 24) and npm 10.9 computes a different
+tree from the same `package.json` — `@swc/helpers` nested under next-intl's
+`@swc/core`, because `next` pins 0.5.15 while `@swc/core` wants ≥0.5.17.
+Verified both ways locally: `npm ci` against this exact lock succeeds under npm
+11 (848 packages) and fails under npm 10.9. **No dependency was changed.** The
+`Dockerfile` pins `NODE_VERSION=24.10.0`, matching development.
+
+Two things the container build caught that development never would:
+
+**1. `AUTH_URL` breaks the Greek storefront in production.** NextAuth rebases the
+request origin on it, so next-intl's rewrite of `/` → `/el` becomes an absolute
+URL on that origin. If it is not exactly the origin being served, Next treats its
+own rewrite as external and proxies it: every unprefixed route 500s and `/`
+redirects to itself forever. `/en` and `/it` keep working, which makes it look
+like a Greek content bug. **Leave `AUTH_URL` unset and set `AUTH_TRUST_HOST=true`**
+— behind a proxy the origin comes from the headers and cannot be wrong. Measured:
+with `AUTH_URL` present and mismatched, `/` `/katalogos` `/epikoinonia` = 500;
+without it, all 200, including under `Host: web.kolleris.com`.
+
+**2. Secrets must be runtime variables, not build arguments.** The nixpacks build
+passed every credential as `ARG`/`ENV` — 39 Docker warnings, and each one is a
+secret written into the image's layer history where anyone with the image can
+read it. This Dockerfile takes exactly one build argument, `NEXT_PUBLIC_SITE_URL`,
+because it is compiled into the browser bundle and is public by definition.
+
+Set in Coolify (runtime): `DATABASE_URL`, `AUTH_SECRET`, `AUTH_TRUST_HOST=true`,
+`NEXT_PUBLIC_SITE_URL=https://web.kolleris.com`, `HDCTOOL_*`, `HDCTOOL_WEBHOOK_SECRET`,
+`VIVA_*`, `ACS_*`, `BUNNY_*`, `MAPTILER_API_KEY`, `SETTINGS_ENCRYPTION_KEY`,
+`DEEPSEEK_API_KEY`, `CLAID_API_KEY`.
+
+Verified by building and running the image: 475 MB, container reports `healthy`,
+and `/` `/en` `/it` `/katalogos` `/epikoinonia` `/prosfores` `/admin/login` and a
+real product page all return 200 against the live database.

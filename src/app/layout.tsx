@@ -62,6 +62,18 @@ export async function generateMetadata(): Promise<Metadata> {
   const locale = await getLocale();
   const t = await getTranslations({ locale, namespace: "layout" });
   return {
+    /*
+     * What every relative URL in metadata resolves against — canonical links,
+     * share-preview images, `og:url`.
+     *
+     * Product pages already emit absolute CDN image URLs and so look fine
+     * without it, which is exactly why this is easy to leave missing: the first
+     * page that reaches for a relative path silently produces a broken preview.
+     * The domain is written down once, in NEXT_PUBLIC_SITE_URL, and nowhere else.
+     */
+    metadataBase: new URL(
+      process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
+    ),
     title: {
       default: t("titlos_kolleris_ergaleia_epaggelmatikos"),
       template: "%s | Kolleris",
