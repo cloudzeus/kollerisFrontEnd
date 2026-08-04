@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-08-04T05:46:22.935Z",
+  "timestamp": "2026-08-04T06:01:16.312Z",
   "source": "auto-postool",
   "partial": false,
   "phase": null,
@@ -26,6 +26,10 @@
     },
     {
       "status": "M",
+      "path": "src/components/checkout/CheckoutForm.tsx"
+    },
+    {
+      "status": "M",
       "path": "src/messages/el.json"
     },
     {
@@ -38,9 +42,25 @@
     },
     {
       "status": "??",
-      "path": "src/components/contact/StorePhotos.tsx"
+      "path": "src/app/api/address/"
+    },
+    {
+      "status": "??",
+      "path": "src/app/api/map/"
+    },
+    {
+      "status": "??",
+      "path": "src/components/checkout/AddressAutocomplete.tsx"
+    },
+    {
+      "status": "??",
+      "path": "src/components/contact/StoreMap.tsx"
+    },
+    {
+      "status": "??",
+      "path": "src/lib/geo/"
     }
   ],
   "next_action": null,
-  "context_notes": "Recent commits:\nd500512 feat(contact): motion where the page has something true to say\n5f81874 fix(home): the hero's right column was 400px of nothing\n41ef428 fix(copy): official distributor, not official representative\n2e33dfe fix(pdp): \"N/A\" is spelled two hundred and sixty-eight ways\n738b007 fix(home): the banner is a band, not a card floating between bands"
+  "context_notes": "Recent commits:\nc2f6cab feat(contact): a place for the two photographs of the shop\nd500512 feat(contact): motion where the page has something true to say\n5f81874 fix(home): the hero's right column was 400px of nothing\n41ef428 fix(copy): official distributor, not official representative\n2e33dfe fix(pdp): \"N/A\" is spelled two hundred and sixty-eight ways"
 }

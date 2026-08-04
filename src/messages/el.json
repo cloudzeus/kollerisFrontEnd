@@ -492,6 +492,9 @@
       "me_fpa": "Με ΦΠΑ",
       "i_paraggelia_sas_proionta": "Η παραγγελία σας · {itemCount} προϊόντα",
       "titlos_oloklirosi_paraggelias": "Ολοκλήρωση παραγγελίας"
+    },
+    "AddressAutocomplete": {
+      "voitheia": "Γράψτε την οδό και διαλέξτε από τη λίστα. Συμπληρώνεται και ο ΤΚ."
     }
   },
   "catalogue": {
@@ -1197,6 +1200,10 @@
       "alt_prosopsi": "Η πρόσοψη του καταστήματος Κολλέρης στον Πειραιά, με τη βιτρίνα FACOM και Festool",
       "alt_esoteriko": "Τοίχος με εργαλεία Wera μέσα στο κατάστημα",
       "parking": "Πάρκινγκ δίπλα στο κατάστημα"
+    },
+    "StoreMap": {
+      "alt": "Χάρτης με τη θέση του καταστήματος στην Κ. Μαυρομιχάλη 4, Πειραιάς",
+      "attribution": "© MapTiler © OpenStreetMap"
     }
   },
   "eisodos": {

@@ -5,6 +5,7 @@ import { useActionState, useState } from "react";
 import { CompanyVatFields } from "@/components/account/CompanyVatFields";
 import { placeOrder, type CheckoutState } from "@/lib/checkout/actions";
 import { PAYMENT_METHODS, SHIPPING_METHODS } from "@/lib/cart/options";
+import { AddressAutocomplete } from "@/components/checkout/AddressAutocomplete";
 import { upGreek } from "@/lib/greek";
 
 /**
@@ -73,10 +74,11 @@ export function CheckoutForm({
       <Step n="02" title={t("dieythynsi_paradosis")}>
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="sm:col-span-2">
-            <Field
+            {/* Suggestions fill the postcode as well, which is the field that
+                decides the ACS zone and the one customers most often get wrong. */}
+            <AddressAutocomplete
               label={t("odos_kai_arithmos")}
               name="shipLine1"
-              autoComplete="address-line1"
               error={state.fieldErrors?.shipLine1}
               required
             />

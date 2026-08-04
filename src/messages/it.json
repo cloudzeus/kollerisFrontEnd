@@ -492,6 +492,9 @@
       "me_fpa": "Con IVA",
       "i_paraggelia_sas_proionta": "Il tuo ordine · {itemCount} prodotti",
       "titlos_oloklirosi_paraggelias": "Completa l'ordine"
+    },
+    "AddressAutocomplete": {
+      "voitheia": "Digita la via e scegli dalla lista. Si compila anche il CAP."
     }
   },
   "catalogue": {
@@ -1197,6 +1200,10 @@
       "alt_prosopsi": "La vetrina del negozio Kolleris al Pireo, con FACOM e Festool",
       "alt_esoteriko": "Una parete di utensili Wera all'interno del negozio",
       "parking": "Parcheggio accanto al negozio"
+    },
+    "StoreMap": {
+      "alt": "Mappa con la posizione del negozio in K. Mavromichali 4, Pireo",
+      "attribution": "© MapTiler © OpenStreetMap"
     }
   },
   "eisodos": {

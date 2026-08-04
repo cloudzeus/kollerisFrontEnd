@@ -492,6 +492,9 @@
       "me_fpa": "With VAT",
       "i_paraggelia_sas_proionta": "Your order · {itemCount} products",
       "titlos_oloklirosi_paraggelias": "Checkout"
+    },
+    "AddressAutocomplete": {
+      "voitheia": "Type the street and pick from the list. The postcode fills in too."
     }
   },
   "catalogue": {
@@ -1197,6 +1200,10 @@
       "alt_prosopsi": "The Kolleris storefront in Piraeus, with the FACOM and Festool window",
       "alt_esoteriko": "A wall of Wera tools inside the shop",
       "parking": "Parking next to the shop"
+    },
+    "StoreMap": {
+      "alt": "Map showing the shop at K. Mavromichali 4, Piraeus",
+      "attribution": "© MapTiler © OpenStreetMap"
     }
   },
   "eisodos": {
