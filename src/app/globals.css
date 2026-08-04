@@ -642,6 +642,29 @@
   }
 }
 
+/*
+ * One row, once there is room for one.
+ * ─────────────────────────────────────────────────────────────────────────────
+ * Opt-in per banner. A capped banner on a wide monitor is very wide and very
+ * short, and a cell stacked two-high in that space gets half of an already
+ * short height — 225px to hold a title, a price and a button, which is what
+ * pushes text out of its box. Side by side each cell gets the full height.
+ *
+ * Each cell keeps the share of the width its column span already described, so
+ * an 8/4/4 template reads 50/25/25 and the operator changes the proportions by
+ * changing the grid, not by learning a second set of numbers.
+ */
+@container (min-width: 88rem) {
+  .banner-grid[data-wide="row"] {
+    grid-template-columns: repeat(var(--bn-span-total), minmax(0, 1fr));
+    grid-template-rows: minmax(0, 1fr);
+  }
+  .banner-grid[data-wide="row"] > * {
+    grid-column: span var(--bn-w);
+    grid-row: 1;
+  }
+}
+
 /* A slow drift on a banner background. Purely decorative, so it stops dead for
    anyone who asked for less motion. */
 @keyframes banner-ken-burns {

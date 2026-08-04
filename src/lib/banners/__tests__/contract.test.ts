@@ -2,6 +2,8 @@ import { describe, expect, it } from "vitest";
 import {
   bannerState,
   maxHeightCss,
+  resolveWideLayout,
+  spanTotal,
   cellStyle,
   emptyComposition,
   newLayer,
@@ -216,5 +218,46 @@ describe("maxHeightCss", () => {
 
   it("rounds, because a fractional pixel is a rendering artefact", () => {
     expect(maxHeightCss({ value: 520.6, unit: "px" })).toBe("521px");
+  });
+});
+
+describe("resolveWideLayout", () => {
+  // 8/4/4 on a 12×6 grid: the big cell spans all six rows, the two small ones
+  // three each — so they stack, and get half the height.
+  const cells = [
+    { id: "a", name: "A", x: 0, y: 0, w: 8, h: 6 },
+    { id: "b", name: "B", x: 8, y: 0, w: 4, h: 3 },
+    { id: "c", name: "C", x: 8, y: 3, w: 4, h: 3 },
+  ];
+
+  it("keeps the grid when nothing caps the height", () => {
+    // Without a ceiling the banner grows with the screen; nothing is cramped.
+    expect(resolveWideLayout(cells, 6, null, "auto")).toBe("grid");
+  });
+
+  it("goes to one row when the ceiling leaves a stacked cell under 240px", () => {
+    // 450 × 3/6 = 225px to hold a title, a price and a button.
+    expect(resolveWideLayout(cells, 6, { value: 450, unit: "px" }, "auto")).toBe("row");
+  });
+
+  it("keeps the grid when the ceiling is generous enough", () => {
+    // 700 × 3/6 = 350px — room to stack.
+    expect(resolveWideLayout(cells, 6, { value: 700, unit: "px" }, "auto")).toBe("grid");
+  });
+
+  it("reads a vh ceiling against a laptop, the case worth being right about", () => {
+    // 40vh of 900px is 360px; halved, 180px — cramped.
+    expect(resolveWideLayout(cells, 6, { value: 40, unit: "vh" }, "auto")).toBe("row");
+    expect(resolveWideLayout(cells, 6, { value: 90, unit: "vh" }, "auto")).toBe("grid");
+  });
+
+  it("obeys the operator over its own arithmetic", () => {
+    expect(resolveWideLayout(cells, 6, { value: 450, unit: "px" }, "grid")).toBe("grid");
+    expect(resolveWideLayout(cells, 6, null, "row")).toBe("row");
+  });
+
+  it("divides the width by the spans the template already describes", () => {
+    // 8/4/4 of sixteen reads 50/25/25 — no second set of numbers to learn.
+    expect(spanTotal(cells)).toBe(16);
   });
 });

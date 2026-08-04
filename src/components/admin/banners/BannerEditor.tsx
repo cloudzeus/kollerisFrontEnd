@@ -18,6 +18,7 @@ import {
   bannerState,
   cellVars,
   gridVars,
+  resolveWideLayout,
   sameContent,
   type BannerContent,
   type BannerView,
@@ -255,7 +256,8 @@ export function BannerEditor({
 
             {/* Στόχοι κλικ, στην ίδια γεωμετρία με τον renderer */}
             <div className="banner-shell absolute inset-0">
-              <div className="banner-grid" style={gridVars(template, content.maxHeight)}>
+              <div className="banner-grid" style={gridVars(template, content.maxHeight)}
+        data-wide={resolveWideLayout(template.cells, template.rows, content.maxHeight, content.wideLayout)}>
                 {template.cells.map((cell, index) => {
                   const has = Boolean(content.cells[cell.id]);
                   return (
@@ -381,6 +383,31 @@ export function BannerEditor({
                 <p className="text-[11px] leading-[1.5] text-k-text-4">
                   Η αναλογία του πλέγματος βγάζει το ύψος από το πλάτος, οπότε σε πλατιά
                   οθόνη το banner μεγαλώνει χωρίς όριο. Κενό = χωρίς όριο.
+                </p>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-[11.5px] text-k-text-3">Σε πλατιές οθόνες</label>
+                <Select
+                  value={content.wideLayout ?? "auto"}
+                  onValueChange={(v) =>
+                    setContent((c) => ({ ...c, wideLayout: v as "auto" | "grid" | "row" }))
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="auto">Αυτόματα</SelectItem>
+                    <SelectItem value="grid">Όπως το πλέγμα</SelectItem>
+                    <SelectItem value="row">Όλα σε μία σειρά</SelectItem>
+                  </SelectContent>
+                </Select>
+                <p className="text-[11px] leading-[1.5] text-k-text-4">
+                  Πάνω από 1408px. Στο «Αυτόματα» μπαίνουν σε μία σειρά μόνο όταν το
+                  ταβάνι ύψους αφήνει τα στοιβαγμένα κελιά κάτω από 240px. Κάθε κελί
+                  παίρνει το πλάτος που του δίνουν οι στήλες του — ένα 8/4/4 γίνεται
+                  50/25/25.
                 </p>
               </div>
 

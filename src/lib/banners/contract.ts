@@ -285,6 +285,53 @@ export type CellComposition = {
  */
 export type BannerHeight = { value: number; unit: "px" | "vh" };
 
+/**
+ * What the grid does once the screen is wide.
+ *
+ * `grid` keeps the template's arrangement at every width. `row` lays every cell
+ * out in a single line above 88rem, each as wide as the columns it spans — an
+ * 8/4/4 template becomes 50/25/25.
+ *
+ * It exists because a capped banner on a wide monitor is very wide and very
+ * short, and a cell stacked two-high in that space gets half of an already
+ * short height: 225px for a title, a price and a button. Side by side they each
+ * get the full height instead.
+ */
+export type WideLayout = "auto" | "grid" | "row";
+
+/** A stacked cell needs about this much height to hold a heading, a line of
+ *  copy and a button without the text leaving its box. */
+const CRAMPED_CELL = 240;
+
+/**
+ * The arrangement to actually use on a wide screen.
+ *
+ * `auto` — the default — works it out. A height ceiling fixes the banner's
+ * height, so the height each cell gets is arithmetic: `cap × rows spanned ÷
+ * total rows`. If the shortest cell lands under what a heading, a price and a
+ * button need, stacking is the wrong answer at that size and the cells go side
+ * by side instead.
+ *
+ * Deliberately decided here rather than measured in the browser: it depends on
+ * the ceiling and the template, both known before anything renders, so it costs
+ * no JavaScript and cannot flicker.
+ */
+export function resolveWideLayout(
+  cells: GridCell[],
+  rows: number,
+  maxHeight: BannerHeight | null | undefined,
+  choice: WideLayout | undefined,
+): "grid" | "row" {
+  if (choice === "grid" || choice === "row") return choice;
+  // Without a ceiling the banner grows with the screen and nothing is cramped.
+  if (!maxHeight?.value || cells.length < 2) return "grid";
+  // A vh ceiling is a share of a window this side cannot measure; a laptop is
+  // the case worth being right about.
+  const capPx = maxHeight.unit === "vh" ? (maxHeight.value / 100) * 900 : maxHeight.value;
+  const shortest = Math.min(...cells.map((c) => (capPx * c.h) / rows));
+  return shortest < CRAMPED_CELL ? "row" : "grid";
+}
+
 /** The editable body of a banner: one composition per cell, keyed by cell id. */
 export type BannerContent = {
   cells: Record<string, CellComposition>;
@@ -296,6 +343,8 @@ export type BannerContent = {
    * everything else.
    */
   maxHeight?: BannerHeight | null;
+  /** Arrangement above 88rem. Defaults to keeping the template's grid. */
+  wideLayout?: WideLayout;
 };
 
 /** The CSS length a banner's ceiling amounts to, or none. */
@@ -755,6 +804,10 @@ export function cellStyle(cell: GridCell): React.CSSProperties {
   };
 }
 
+/** How many columns a template's cells span in total — the denominator the
+ *  single-row layout divides the width by. */
+export const spanTotal = (cells: GridCell[]) => cells.reduce((n, c) => n + c.w, 0);
+
 /**
  * The same placement, as custom properties.
  *
@@ -767,17 +820,22 @@ export function cellVars(cell: GridCell): React.CSSProperties {
   return {
     "--bn-col": `${cell.x + 1} / span ${cell.w}`,
     "--bn-row": `${cell.y + 1} / span ${cell.h}`,
+    /* Its share of the width when the cells are laid out in a single row. */
+    "--bn-w": cell.w,
   } as React.CSSProperties;
 }
 
 /** Grid-level variables: the template's own dimensions and shape. */
 export function gridVars(
-  template: Pick<GridTemplateView, "columns" | "rows" | "aspect">,
+  template: Pick<GridTemplateView, "columns" | "rows" | "aspect" | "cells">,
   maxHeight?: BannerHeight | null,
 ) {
   return {
     "--bn-cols": template.columns,
     "--bn-rows": template.rows,
+    /* The single-row layout divides the width by this, so each cell keeps the
+       share of the width its column span already gave it. */
+    "--bn-span-total": spanTotal(template.cells),
     "--bn-aspect": template.aspect ?? "auto",
     /*
      * `aspect-ratio` derives height from width, so a 21/9 hero on a 2560px
@@ -836,6 +894,21 @@ export function layerStyle(layer: Layer): React.CSSProperties {
   if (layer.kind === "text" || layer.kind === "badge" || layer.kind === "button") {
     const style = layer.style;
     base.fontFamily = FONT_STACK[style.font];
+    /*
+     * Sized by the cell's width.
+     *
+     * Note what this cannot see: the cell's HEIGHT. `cqw` resolves against
+     * `.banner-shell`, the only container in the tree, so type keeps a
+     * composition's proportions as the banner gets wider and knows nothing
+     * about it getting shorter. A layer whose box is a percentage of a short
+     * cell will overflow, which is why the single-row layout above matters —
+     * it fixes the cause rather than shrinking the symptom.
+     *
+     * Capping this by the box height needs `cqh`, which needs a size container
+     * on the cell, which would also change what `cqw` resolves to — from the
+     * banner's width to the cell's — and resize the type in every composition
+     * already built. That is a deliberate change, not a bug fix.
+     */
     base.fontSize = `max(10px, ${style.size / 10}cqw)`;
     base.fontWeight = style.weight;
     base.letterSpacing = `${style.tracking / 100}em`;
