@@ -979,6 +979,7 @@ model GridTemplate {
   /// Null lets the content decide the height.
   aspect String? @db.VarChar(12)
 
+
   updatedBy String?  @db.VarChar(120)
   updatedAt DateTime @updatedAt
   createdAt DateTime @default(now())

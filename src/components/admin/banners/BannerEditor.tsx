@@ -255,7 +255,7 @@ export function BannerEditor({
 
             {/* Στόχοι κλικ, στην ίδια γεωμετρία με τον renderer */}
             <div className="banner-shell absolute inset-0">
-              <div className="banner-grid" style={gridVars(template)}>
+              <div className="banner-grid" style={gridVars(template, content.maxHeight)}>
                 {template.cells.map((cell, index) => {
                   const has = Boolean(content.cells[cell.id]);
                   return (
@@ -329,6 +329,61 @@ export function BannerEditor({
                   {banner.publishedBy ? ` · ${banner.publishedBy}` : ""}
                 </p>
               )}
+              {/*
+                Height, per banner.
+                ───────────────────────────────────────────────────────────
+                The grid gives the arrangement; how tall it may get is this
+                banner's own business — the same three-cell hero is 520px in
+                one zone and 40vh in another. It sits in the draft, so it is
+                previewed and published like every other edit.
+              */}
+              <div className="space-y-1.5">
+                <label htmlFor="bn-maxh" className="text-[11.5px] text-k-text-3">
+                  Μέγιστο ύψος
+                </label>
+                <div className="flex gap-2">
+                  <Input
+                    id="bn-maxh"
+                    type="number"
+                    min={content.maxHeight?.unit === "vh" ? 10 : 120}
+                    max={content.maxHeight?.unit === "vh" ? 100 : 2000}
+                    step={content.maxHeight?.unit === "vh" ? 5 : 10}
+                    placeholder="Χωρίς όριο"
+                    value={content.maxHeight?.value ?? ""}
+                    onChange={(e) =>
+                      setContent((c) => ({
+                        ...c,
+                        maxHeight: Number(e.target.value)
+                          ? { value: Number(e.target.value), unit: c.maxHeight?.unit ?? "px" }
+                          : null,
+                      }))
+                    }
+                  />
+                  <Select
+                    value={content.maxHeight?.unit ?? "px"}
+                    onValueChange={(unit) =>
+                      setContent((c) =>
+                        c.maxHeight
+                          ? { ...c, maxHeight: { ...c.maxHeight, unit: unit as "px" | "vh" } }
+                          : c,
+                      )
+                    }
+                  >
+                    <SelectTrigger className="w-[92px] shrink-0">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="px">px</SelectItem>
+                      <SelectItem value="vh">% οθόνης</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <p className="text-[11px] leading-[1.5] text-k-text-4">
+                  Η αναλογία του πλέγματος βγάζει το ύψος από το πλάτος, οπότε σε πλατιά
+                  οθόνη το banner μεγαλώνει χωρίς όριο. Κενό = χωρίς όριο.
+                </p>
+              </div>
+
               {state === "modified" && (
                 <Button variant="outline" onClick={discard} disabled={busy} className="w-full">
                   <Undo2 className="size-3.5" />

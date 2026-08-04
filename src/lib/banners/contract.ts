@@ -276,10 +276,42 @@ export type CellComposition = {
   href: string;
 };
 
+/**
+ * How tall a banner is allowed to get.
+ *
+ * `px` is an absolute ceiling; `vh` is a share of the window, which is what
+ * "no more than half the screen" means and what keeps a hero from swallowing
+ * the fold on a laptop while still filling a large monitor.
+ */
+export type BannerHeight = { value: number; unit: "px" | "vh" };
+
 /** The editable body of a banner: one composition per cell, keyed by cell id. */
 export type BannerContent = {
   cells: Record<string, CellComposition>;
+  /**
+   * Ceiling on the rendered height. Lives on the banner rather than the grid
+   * template because the template is a reusable shape — the same three-cell
+   * hero is 520px in one zone and 40vh in another — and because changing the
+   * height is an edit, so it belongs in the draft and gets published with
+   * everything else.
+   */
+  maxHeight?: BannerHeight | null;
 };
+
+/** The CSS length a banner's ceiling amounts to, or none. */
+export function maxHeightCss(height: BannerHeight | null | undefined): string {
+  if (!height || !height.value) return NO_CEILING;
+  const value = Math.round(height.value);
+  if (height.unit === "vh") return `${Math.min(100, Math.max(10, value))}vh`;
+  return `${Math.min(2000, Math.max(120, value))}px`;
+}
+
+/**
+ * A length rather than `none`, so the grid's floor can be written as
+ * `min(floor, ceiling)`. `min()` with the keyword `none` is invalid and would
+ * throw the whole declaration away, taking the floor with it.
+ */
+const NO_CEILING = "9999px";
 
 /* ────────────────────────── Banner ────────────────────────── */
 
@@ -739,11 +771,26 @@ export function cellVars(cell: GridCell): React.CSSProperties {
 }
 
 /** Grid-level variables: the template's own dimensions and shape. */
-export function gridVars(template: Pick<GridTemplateView, "columns" | "rows" | "aspect">) {
+export function gridVars(
+  template: Pick<GridTemplateView, "columns" | "rows" | "aspect">,
+  maxHeight?: BannerHeight | null,
+) {
   return {
     "--bn-cols": template.columns,
     "--bn-rows": template.rows,
     "--bn-aspect": template.aspect ?? "auto",
+    /*
+     * `aspect-ratio` derives height from width, so a 21/9 hero on a 2560px
+     * screen is 1100px tall and pushes everything below it off the fold. This
+     * caps it; `none` is the CSS default, so a template without one behaves
+     * exactly as before.
+     */
+    /*
+     * `aspect-ratio` derives height from width, so a 21/9 hero on a 2560px
+     * screen is 1100px tall and the catalogue starts below the fold. This is
+     * the banner's own ceiling on that.
+     */
+    "--bn-max-h": maxHeightCss(maxHeight),
   } as React.CSSProperties;
 }
 

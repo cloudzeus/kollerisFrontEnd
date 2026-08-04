@@ -46,7 +46,7 @@ export function BannerRenderer({
 }) {
   return (
     <div className={cn("banner-shell", className)}>
-      <div className="banner-grid bg-k-line" style={gridVars(template)} data-banner-grid>
+      <div className="banner-grid bg-k-line" style={gridVars(template, content.maxHeight)} data-banner-grid>
         {template.cells.map((cell, index) => {
           const composition = content.cells?.[cell.id];
           const cellResolved = resolved.get(cell.id);

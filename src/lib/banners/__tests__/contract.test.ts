@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   bannerState,
+  maxHeightCss,
   cellStyle,
   emptyComposition,
   newLayer,
@@ -189,5 +190,31 @@ describe("newLayer", () => {
   it("starts every layer unanimated", () => {
     // An entrance nobody asked for is the default that makes a page feel cheap.
     expect(newLayer("text").anim.preset).toBe("none");
+  });
+});
+
+describe("maxHeightCss", () => {
+  it("is a length, never `none` — the grid floor is written as min(floor, this)", () => {
+    // `min()` with the keyword `none` is invalid and would discard the whole
+    // declaration, taking the floor with it.
+    expect(maxHeightCss(null)).toMatch(/px$/);
+    expect(maxHeightCss(undefined)).toMatch(/px$/);
+    expect(maxHeightCss({ value: 0, unit: "px" })).toMatch(/px$/);
+  });
+
+  it("passes through a sane ceiling in either unit", () => {
+    expect(maxHeightCss({ value: 520, unit: "px" })).toBe("520px");
+    expect(maxHeightCss({ value: 40, unit: "vh" })).toBe("40vh");
+  });
+
+  it("clamps rather than rendering a banner nobody can see", () => {
+    expect(maxHeightCss({ value: 12, unit: "px" })).toBe("120px");
+    expect(maxHeightCss({ value: 99999, unit: "px" })).toBe("2000px");
+    expect(maxHeightCss({ value: 3, unit: "vh" })).toBe("10vh");
+    expect(maxHeightCss({ value: 400, unit: "vh" })).toBe("100vh");
+  });
+
+  it("rounds, because a fractional pixel is a rendering artefact", () => {
+    expect(maxHeightCss({ value: 520.6, unit: "px" })).toBe("521px");
   });
 });

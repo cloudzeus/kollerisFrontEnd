@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-08-04T04:06:21.663Z",
+  "timestamp": "2026-08-04T04:21:07.071Z",
   "source": "auto-postool",
   "partial": false,
   "phase": null,
@@ -22,25 +22,45 @@
     },
     {
       "status": "M",
-      "path": "scripts/i18n/verify.ts"
+      "path": "prisma/schema.prisma"
     },
     {
       "status": "M",
-      "path": "src/app/admin/(protected)/page.tsx"
+      "path": "src/app/globals.css"
     },
     {
       "status": "M",
-      "path": "src/components/admin/OrdersTable.tsx"
+      "path": "src/components/admin/banners/BannerEditor.tsx"
     },
     {
       "status": "M",
-      "path": "src/lib/__tests__/messages.test.ts"
+      "path": "src/components/admin/banners/GridBuilder.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/components/banners/BannerRenderer.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/lib/banners/__tests__/contract.test.ts"
+    },
+    {
+      "status": "M",
+      "path": "src/lib/banners/contract.ts"
+    },
+    {
+      "status": "M",
+      "path": "src/lib/cart/actions.ts"
     },
     {
       "status": "??",
-      "path": "src/lib/admin/locale.ts"
+      "path": "prisma/migrations/20260803210000_grid_max_height/"
+    },
+    {
+      "status": "??",
+      "path": "prisma/migrations/20260803213000_banner_max_height/"
     }
   ],
   "next_action": null,
-  "context_notes": "Recent commits:\n47c76d3 fix(pdp): a spec that says \"N/A\" is not a spec\ne6e77a9 fix(pdp): no scrollbars on the two rails that already have arrows\ndb9c3d8 fix(pdp): the photo of a one-image product rendered 0px wide\nff7535d docs(payment): what testing Viva actually requires\na61ed56 feat(i18n): prices and the payment page speak the visitor's language"
+  "context_notes": "Recent commits:\na98fe4e fix(admin): next-intl has no provider under /admin, for the third time\n47c76d3 fix(pdp): a spec that says \"N/A\" is not a spec\ne6e77a9 fix(pdp): no scrollbars on the two rails that already have arrows\ndb9c3d8 fix(pdp): the photo of a one-image product rendered 0px wide\nff7535d docs(payment): what testing Viva actually requires"
 }

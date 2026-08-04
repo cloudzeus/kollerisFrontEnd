@@ -859,6 +859,7 @@ export function GridBuilder({
             </p>
           </div>
 
+
           <div className="flex gap-2 pt-1">
             <Button onClick={save} disabled={pending || !check.ok || !name.trim()} className="flex-1">
               {pending ? <Loader2 className="size-3.5 animate-spin" /> : null}

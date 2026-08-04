@@ -612,7 +612,16 @@
     /* A template with no aspect ratio has `aspect-ratio: auto`, so its height
        would come from its content — and an empty cell has none. This is what
        gives a row its height in that case, and a floor in every other. */
-    min-height: calc(var(--bn-rows) * 3.25rem);
+    /* Never taller than the template asks for. `aspect-ratio` reads height off
+       width, so without this a 21/9 hero on a 2560px screen is 1100px tall and
+       the catalogue starts below the fold. Unset templates get 9999px, which is
+       no ceiling in practice. */
+    max-height: var(--bn-max-h, 9999px);
+    /* The floor yields to it. `min-height` beats `max-height` in CSS, so a
+       six-row template asked to cap at 200px would sit at 312px and look like
+       the setting was ignored — an explicit ceiling has to win over a default
+       floor. */
+    min-height: min(calc(var(--bn-rows) * 3.25rem), var(--bn-max-h, 9999px));
   }
   .banner-grid > * {
     grid-column: var(--bn-col);

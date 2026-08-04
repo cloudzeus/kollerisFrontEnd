@@ -110,7 +110,9 @@ export async function addToCart(input: unknown): Promise<CartActionResult> {
  * would be a second place for the total to be computed — and to disagree.
  */
 export async function buyNow(input: unknown): Promise<CartActionResult> {
-  const parsed = z.object({ locale: z.string().max(5).optional() }).safeParse(input);
+  // Validated against the real locales, not `z.string()`: this value is handed
+  // straight to `redirect`, and "de" would route to a page that does not exist.
+  const parsed = z.object({ locale: z.enum(routing.locales).optional() }).safeParse(input);
   const result = await addToCart(input);
   if (!result.ok) return result;
 
