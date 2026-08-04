@@ -22,7 +22,22 @@
   --color-k-ink-deep: #101012;
   --color-k-text-2: #55555a;
   --color-k-text-3: #6e6e73;
-  --color-k-text-4: #8a8a8e;
+  /*
+   * `text-4` carries the main navigation, the account and cart labels and most
+   * small metadata — 144 places. At #8a8a8e it measured 3.44:1 on white, under
+   * the 4.5:1 WCAG AA floor for text this size (9.5-10.5px). #76767a is the
+   * LIGHTEST grey that clears it, so the hierarchy against `text-3` (5.07:1)
+   * survives while the labels become readable.
+   */
+  --color-k-text-4: #76767a;
+  /*
+   * These two do not clear AA — 2.37:1 and 2.06:1 — and 41 of the 43 `text-5`
+   * uses are small text on white (product SKUs, struck-through prices, the VAT
+   * note). Fixing them by darkening is not possible without collapsing them
+   * into `text-4`: the window between 4.5:1 and `text-3`'s 5.07:1 is a single
+   * shade wide. Merging the two roles is a palette decision, not a fix, so it
+   * is written down here rather than made quietly.
+   */
   --color-k-text-5: #a8a8ad;
   --color-k-text-6: #b4b4b9;
 

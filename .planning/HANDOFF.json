@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-08-04T04:52:21.988Z",
+  "timestamp": "2026-08-04T04:59:16.403Z",
   "source": "auto-postool",
   "partial": false,
   "phase": null,
@@ -19,20 +19,8 @@
     {
       "status": "M",
       "path": ".planning/HANDOFF.json"
-    },
-    {
-      "status": "M",
-      "path": "src/app/[locale]/layout.tsx"
-    },
-    {
-      "status": "M",
-      "path": "src/app/globals.css"
-    },
-    {
-      "status": "M",
-      "path": "src/lib/settings/registry.ts"
     }
   ],
   "next_action": null,
-  "context_notes": "Recent commits:\n5618318 feat(banners): one arrangement per width band, worked out per banner\n24f0480 feat(banners): a wide, capped banner puts its cells in one row\na739494 fix(banners): a capped banner keeps the full width of its zone\n3ccb2e8 feat(banners): each banner sets its own maximum height\na98fe4e fix(admin): next-intl has no provider under /admin, for the third time"
+  "context_notes": "Recent commits:\n4bd356f feat(shop): a max width for the site, and a banner that respects it\n5618318 feat(banners): one arrangement per width band, worked out per banner\n24f0480 feat(banners): a wide, capped banner puts its cells in one row\na739494 fix(banners): a capped banner keeps the full width of its zone\n3ccb2e8 feat(banners): each banner sets its own maximum height"
 }
