@@ -64,6 +64,9 @@ async function withRun<T extends SyncResult>(
           processed: result.processed,
           created: result.created,
           updated: result.updated,
+          // The column has always existed; only the reconcile has ever had a
+          // number to put in it.
+          removed: "removed" in result ? (result as { removed: number }).removed : 0,
           failed: result.failed,
           errors: result.errors.length ? result.errors.slice(0, 50) : undefined,
         },
@@ -628,6 +631,210 @@ export async function recomputeCounts(): Promise<{
   `;
 
   return { categories, brands };
+}
+
+// ─── Targeted sync (webhook + reconcile) ────────────────────────────────────
+
+export type TargetedSyncResult = SyncResult & { removed: number };
+
+/**
+ * Bring a named set of products up to date.
+ *
+ * The hot path now: HDCtool says which ERP ids moved and this fetches exactly
+ * those. A typical delivery is a handful of products and a few hundred
+ * milliseconds, against the ~9 minutes and 5.301 UPDATE statements the full
+ * walk cost to express, on most runs, no change at all.
+ *
+ * De-listing needs no flag on the wire. HDCtool only returns products that are
+ * still eshop-listed, so an id that was asked for and did not come back is one
+ * the storefront should stop showing — absence IS the signal. Deactivated
+ * rather than deleted, because orders, wishlists and reviews still point at it.
+ */
+export async function syncProductsByMtrl(mtrls: number[]): Promise<TargetedSyncResult> {
+  const startedAt = Date.now();
+  const wanted = [...new Set(mtrls.filter((m) => Number.isInteger(m) && m > 0))];
+
+  const empty: TargetedSyncResult = {
+    processed: 0, created: 0, updated: 0, removed: 0, failed: 0,
+    durationMs: 0, errors: [],
+  };
+  if (wanted.length === 0) return empty;
+
+  // Slugs are allocated before any concurrent write, because `taken` is shared
+  // state and two tasks racing on it would hand out the same slug twice.
+  const [allSlugs, mine] = await Promise.all([
+    prisma.product.findMany({ select: { slug: true } }),
+    prisma.product.findMany({
+      where: { mtrl: { in: wanted } },
+      select: { mtrl: true, slug: true },
+    }),
+  ]);
+  const taken = new Set(allSlugs.map((p) => p.slug));
+  const existingSlugs = new Map(mine.map((p) => [p.mtrl, p.slug]));
+
+  let created = 0;
+  let updated = 0;
+  let processed = 0;
+  const errors: string[] = [];
+  const seen = new Set<number>();
+
+  for (let i = 0; i < wanted.length; i += HDCTOOL_MAX_LIMIT) {
+    const chunk = wanted.slice(i, i + HDCTOOL_MAX_LIMIT);
+    const response = await hdctool.products({ mtrl: chunk, limit: HDCTOOL_MAX_LIMIT });
+
+    /*
+     * Did HDCtool actually honour the filter?
+     *
+     * An older build ignores an unknown `mtrl` parameter and answers with the
+     * first page of the catalogue instead. Every id we asked for would then be
+     * "missing", and the de-listing step below would switch off exactly the
+     * products this call was meant to refresh — from a deploy landing in the
+     * wrong order. A stranger in the response is the tell, and it is cheap to
+     * look for.
+     */
+    const asked = new Set(chunk);
+    const stranger = response.products.find((p) => !asked.has(p.mtrl));
+    if (stranger) {
+      throw new Error(
+        `HDCtool ignored the mtrl filter (asked for ${chunk.length}, got mtrl ${stranger.mtrl} back). ` +
+          `Refusing to de-list — deploy the catalog/delta build on HDCtool first.`,
+      );
+    }
+
+    const prepared = response.products.map((p) => ({
+      product: p,
+      slug:
+        existingSlugs.get(p.mtrl) ??
+        uniqueSlug(`${displayName(p)}-${p.code2 || p.code}`, `p-${p.mtrl}`, taken),
+    }));
+
+    for (let j = 0; j < prepared.length; j += WRITE_CONCURRENCY) {
+      const batch = prepared.slice(j, j + WRITE_CONCURRENCY);
+      const outcomes = await Promise.allSettled(
+        batch.map(({ product, slug }) => upsertProduct(product, slug)),
+      );
+      outcomes.forEach((outcome, index) => {
+        const { product } = batch[index];
+        processed++;
+        if (outcome.status === "fulfilled") {
+          if (outcome.value === "created") created++;
+          else updated++;
+          seen.add(product.mtrl);
+        } else {
+          errors.push(
+            `mtrl ${product.mtrl}: ${
+              outcome.reason instanceof Error ? outcome.reason.message : outcome.reason
+            }`,
+          );
+        }
+      });
+    }
+  }
+
+  /*
+   * Only ids we asked about and did not get back — never a blanket "anything
+   * not seen", which is what the full walk did and what would empty the
+   * catalogue the first time a delivery covered three products.
+   *
+   * Skipped when a fetch failed, because a timeout looks exactly like an empty
+   * answer from here and must not be read as "these products are gone".
+   */
+  let removed = 0;
+  if (errors.length === 0) {
+    const missing = wanted.filter((m) => !seen.has(m));
+    if (missing.length > 0) {
+      const result = await prisma.product.updateMany({
+        where: { mtrl: { in: missing }, isActive: true },
+        data: { isActive: false, inStock: false },
+      });
+      removed = result.count;
+    }
+  }
+
+  return {
+    processed, created, updated, removed,
+    failed: errors.length,
+    durationMs: Date.now() - startedAt,
+    errors: errors.slice(0, 50),
+  };
+}
+
+/**
+ * The backstop.
+ *
+ * A push feed is fast and, on its own, lossy: a delivery that lands while this
+ * app is redeploying is a change nobody ever hears about again. The sequence
+ * check catches most of that, but it cannot catch what was never queued —
+ * HDCtool's collector scans for listed products, so a product that stops being
+ * listed produces no event at all. Something has to ask the whole question
+ * periodically, and this is it.
+ *
+ * It asks for ids, not products. HDCtool answers with about 5.300 integers in
+ * one query; the comparison is set arithmetic here. Only the differences are
+ * fetched in full. That is the difference between a nightly reconcile that
+ * costs seconds and the one it replaces, which walked every product and spent
+ * nine minutes to conclude nothing had changed.
+ */
+export async function reconcileCatalog(): Promise<TargetedSyncResult> {
+  return withRun("catalog-reconcile", async () => {
+    const startedAt = Date.now();
+
+    const remote = new Set<number>();
+    let afterMtrl: number | undefined;
+    // Bounded: at 5.000 ids a page this is one or two requests today, and the
+    // guard is there so a malformed cursor cannot spin forever.
+    for (let page = 0; page < 50; page++) {
+      const response = await hdctool.catalogDelta({ op: "ids", afterMtrl });
+      for (const id of response.mtrl) remote.add(id);
+      if (response.nextAfterMtrl == null) break;
+      afterMtrl = response.nextAfterMtrl;
+    }
+
+    /*
+     * An empty answer is refused rather than obeyed.
+     *
+     * "HDCtool listed nothing" and "the query failed in a way that returned an
+     * empty array" are indistinguishable from here, and acting on the first
+     * would deactivate the entire catalogue. A real catalogue emptying is a
+     * decision somebody makes deliberately, not something a reconcile discovers.
+     */
+    if (remote.size === 0) {
+      throw new Error("Reconcile refused: HDCtool returned no eshop-listed products");
+    }
+
+    const local = await prisma.product.findMany({
+      select: { mtrl: true, isActive: true },
+    });
+    const localActive = new Set(local.filter((p) => p.isActive).map((p) => p.mtrl));
+    const localAll = new Set(local.map((p) => p.mtrl));
+
+    // Listed there, missing or switched off here.
+    const toSync = [...remote].filter((m) => !localActive.has(m));
+    // Live here, not listed there.
+    const toRemove = [...localActive].filter((m) => !remote.has(m));
+
+    let result: TargetedSyncResult = {
+      processed: 0, created: 0, updated: 0, removed: 0, failed: 0,
+      durationMs: 0, errors: [],
+    };
+    if (toSync.length > 0) result = await syncProductsByMtrl(toSync);
+
+    let removed = result.removed;
+    if (toRemove.length > 0) {
+      const off = await prisma.product.updateMany({
+        where: { mtrl: { in: toRemove } },
+        data: { isActive: false, inStock: false },
+      });
+      removed += off.count;
+    }
+
+    console.log(
+      `[catalog-reconcile] HDCtool ${remote.size} listed, here ${localAll.size} known / ` +
+        `${localActive.size} active → synced ${result.processed}, de-listed ${removed}`,
+    );
+
+    return { ...result, removed, durationMs: Date.now() - startedAt };
+  });
 }
 
 export async function syncAll() {

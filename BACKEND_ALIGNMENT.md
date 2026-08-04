@@ -323,7 +323,25 @@ Two things the real data revealed, both worth a decision:
 Sync notes:
 - The first implementation was serial and latency-bound at ~1 product/sec over the VPN. Now batched at 8 concurrent writes.
 - `recomputeCounts` originally issued 714 `category.update` calls inside one `$transaction` and blew Prisma's 5s interactive-transaction limit. Rewritten as three set-based SQL statements.
-- **Next: HDCtool webhook.** Per the client's decision, HDCtool will push changes to the eshop rather than the eshop polling. That replaces the scheduled full walk and supersedes H1/H2 as originally specced — the endpoint moves to this side (`POST /api/webhooks/hdctool`) and HDCtool becomes the caller.
+- ~~Next: HDCtool webhook~~ — **built, both sides.** See "Change feed" below.
+
+### Change feed (replaces the scheduled full walk)
+
+Measured before building, from the `SyncRun` history: a full walk was **5.305 products, 8,5–11,5 minutes, 5.301 UPDATE statements** — and in the seven days before the change, **zero** products had a newer `erpUpdatedAt`. Every one of those writes expressed nothing. The ERP touches ~1.339 products a month; a push feed sends ~45 a day.
+
+HDCtool is the only side that knows what changed, because it is the side doing the writing.
+
+| | |
+|---|---|
+| **Detection** | `MTRL`, `MTRLFile`, `MTRAN`, `ProductSpecifications` scanned on `updatedAt`. Not per-cron instrumentation — Prisma's `@updatedAt` moves on every write through the client, so a cron added later cannot forget to announce itself. Four new indexes make each scan a range read that usually returns nothing. |
+| **Queue** | `eshop_change_outbox`. The eshop being down for an hour must not lose an hour of changes. |
+| **Delivery** | `POST /api/webhooks/hdctool`, HMAC-SHA256 over `${timestamp}.${rawBody}`, raw bytes. Ids only — never product data. |
+| **Gap detection** | Each delivery carries `seq` + `prevSeq`; the eshop stores the last seq it applied. A mismatch means a delivery was lost, and it pulls **H1 delta** rather than diverging in silence. |
+| **Reconcile** | `npm run reconcile:catalog`, nightly. Compares **id lists** (~5.300 integers, one query) and fetches only the differences — seconds, not nine minutes. Catches de-listings, which produce no event because the collector scans listed products only. |
+
+**Deploy order matters: HDCtool first.** The eshop asks `/api/public/products` for specific ids; an older build ignores the unknown `mtrl` filter and returns the first page instead, which would make every requested id look de-listed. `syncProductsByMtrl` detects that (a product it did not ask for in the response) and refuses to de-list, so the wrong order fails loudly instead of emptying the storefront — but it does fail until HDCtool ships.
+
+**Drift found on the first reconcile read (not yet applied):** 113 products live here that HDCtool no longer lists, and 61 listed there that are missing or inactive here. That is the projection having quietly gone stale — the thing this exists to stop.
 
 **Known issues:**
 - `npm audit` reports 15 high advisories against Next 16.2.x. The fix range resolves above `16.3.0-preview.7`, i.e. **no stable release carries the fix yet**. Not actionable while the spec pins 16.2.7 — revisit when 16.3 ships.

@@ -396,6 +396,30 @@ model SyncRun {
   @@map("sync_runs")
 }
 
+/// Every webhook delivery we have accepted, by the sender's own id.
+///
+/// This is the replay guard. A signed body stays valid for as long as its
+/// timestamp is inside the skew window, so a delivery captured in that window
+/// could be sent again — and a retry from a sender that never saw our 200 is
+/// the same shape as an attack. Both are answered the same way: the id is
+/// already here, so acknowledge and do nothing.
+///
+/// Recording it BEFORE the work is deliberate. A crash halfway through leaves
+/// the delivery marked seen and its changes unapplied, which the sequence check
+/// then reports as a gap and the delta pull repairs. The other order — work
+/// first, record after — turns a crash into an infinite retry loop.
+model WebhookDelivery {
+  /// The sender's delivery id, not ours. That is what makes it a replay guard.
+  id     String @id @db.VarChar(64)
+  source String @db.VarChar(32)
+  seq    Int?
+
+  receivedAt DateTime @default(now())
+
+  @@index([source, receivedAt])
+  @@map("webhook_deliveries")
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Cart
 //

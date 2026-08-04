@@ -229,6 +229,17 @@ export type HdctoolCategory = {
 // ── Methods ─────────────────────────────────────────────────────────────────
 
 /** Max the API accepts (PUBLIC_ESHOP_MAX_LIMIT). */
+export type HdctoolDeltaResponse = {
+  success: boolean;
+  op: "changed" | "ids";
+  mtrl: number[];
+  /** Non-null when the page was capped — ask again from here. */
+  nextAfterMtrl: number | null;
+  /** `changed` only. Safe to store as the new cursor once paging is done. */
+  upTo?: string;
+  since?: string;
+};
+
 export const HDCTOOL_MAX_LIMIT = 200;
 
 export const hdctool = {
@@ -246,8 +257,34 @@ export const hdctool = {
     categoryId?: string;
     groupId?: string;
     subgroupId?: string;
+    /** Specific ERP ids. Capped at `HDCTOOL_MAX_LIMIT` server-side. */
+    mtrl?: number[];
   }): Promise<HdctoolProductsResponse> {
     return request<HdctoolProductsResponse>("/api/public/products", params);
+  },
+
+  /**
+   * H1 — the ids the projection should be holding.
+   *
+   * Two questions, both answered with plain integers:
+   *
+   *   changed   what moved since a timestamp — the catch-up after a lost push
+   *   ids       every listed id — the reconcile
+   *
+   * Ids rather than products, so `products({ mtrl })` stays the single way a
+   * product crosses between the two systems. It is also what makes the
+   * reconcile affordable: the whole id list is one query and about 40 KB,
+   * against the nine-minute full walk it replaces.
+   */
+  catalogDelta(
+    // A union rather than two overloads: an object literal cannot carry
+    // overload signatures, and this gets the same thing at the call site —
+    // `since` required for "changed", rejected for "ids".
+    params:
+      | { op: "changed"; since: string; afterMtrl?: number }
+      | { op: "ids"; afterMtrl?: number },
+  ): Promise<HdctoolDeltaResponse> {
+    return request<HdctoolDeltaResponse>("/api/public/catalog/delta", params);
   },
 
   brands(): Promise<{ brands: HdctoolBrand[] }> {

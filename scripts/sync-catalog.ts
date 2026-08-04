@@ -1,10 +1,19 @@
 /**
  * Full catalogue sync: HDCtool → local projection.
  *
- *   npx tsx scripts/sync-catalog.ts
+ *   npm run sync:catalog
  *
- * Belongs on a schedule (every 15 min once H1's delta feed exists; hourly full
- * walk until then). Never call it from a request path.
+ * NOT the routine sync any more, and no longer belongs on a schedule. HDCtool
+ * pushes changes to `/api/webhooks/hdctool` as they happen, and
+ * `reconcile-catalog.ts` checks the whole picture nightly for a fraction of the
+ * cost. This walks all 5.305 products and takes about nine minutes to do it.
+ *
+ * Keep it for the three jobs it is still the right tool for: a first load into
+ * an empty database, a rebuild after the projection is deliberately dropped,
+ * and refreshing categories and brands — which the change feed does not carry,
+ * because they move a few times a year.
+ *
+ * Never call it from a request path.
  */
 import { syncAll } from "../src/lib/sync/catalog-sync";
 import { prisma } from "../src/lib/prisma";
