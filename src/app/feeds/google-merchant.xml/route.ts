@@ -12,7 +12,21 @@ import { buildMerchantFeed } from "@/lib/feeds/google-merchant";
  * cost one query rather than three.
  */
 export const runtime = "nodejs";
-export const revalidate = 3600;
+
+/*
+ * Rendered per request, never at build.
+ *
+ * `revalidate` here made Next treat this as a static route and run it during
+ * `next build` - where there is no database, because the build runs in a
+ * container that cannot reach one and should not be able to. The build failed
+ * exactly where the Dockerfile said it would: something querying the database
+ * at build time.
+ *
+ * The caching that matters is on the response instead. Merchant Center fetches
+ * once a day and the header holds the answer at the edge for an hour, which is
+ * what the `revalidate` was for anyway.
+ */
+export const dynamic = "force-dynamic";
 
 export async function GET() {
   const xml = await buildMerchantFeed("el");

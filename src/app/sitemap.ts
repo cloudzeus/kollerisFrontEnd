@@ -37,6 +37,16 @@ const STATIC_PATHS: Array<{ path: string; priority: number; changeFrequency: Met
   { path: "/logariasmos/entopismos", priority: 0.4, changeFrequency: "monthly" },
 ];
 
+/*
+ * Built per request, not at deploy time.
+ *
+ * Next generates a sitemap during `next build` by default, and this one reads
+ * 5.821 rows from a database the build container cannot reach. It is also the
+ * wrong moment: a sitemap frozen at deploy is stale for every product added
+ * between deploys, which is about 45 a day.
+ */
+export const dynamic = "force-dynamic";
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
 
