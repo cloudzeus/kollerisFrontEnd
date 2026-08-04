@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { findHookMisuse, findProblems, findUntranslated } from "../../../scripts/i18n/verify";
+import {
+  findAdminIntlUse,
+  findHookMisuse,
+  findProblems,
+  findUntranslated,
+} from "../../../scripts/i18n/verify";
 
 /**
  * The message files, checked against the code that reads them.
@@ -24,6 +29,15 @@ describe("messages", () => {
     expect(
       findHookMisuse().map((p) => `${p.detail}   (${p.file})`),
       "async server components must await getTranslations/getLocale",
+    ).toEqual([]);
+  });
+
+  // Three features have shipped broken this way. The provider is not mounted
+  // under /admin, so any next-intl import there throws on render.
+  it("keeps next-intl out of the back office", () => {
+    expect(
+      findAdminIntlUse().map((p) => `${p.detail}   (${p.file})`),
+      "το /admin είναι ελληνικό: χρησιμοποιήστε ADMIN_LOCALE",
     ).toEqual([]);
   });
 

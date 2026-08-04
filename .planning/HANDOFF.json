@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-08-03T17:39:47.712Z",
+  "timestamp": "2026-08-04T04:06:21.663Z",
   "source": "auto-postool",
   "partial": false,
   "phase": null,
@@ -22,21 +22,25 @@
     },
     {
       "status": "M",
-      "path": "src/lib/catalog/pdp.ts"
+      "path": "scripts/i18n/verify.ts"
     },
     {
       "status": "M",
-      "path": "src/lib/catalog/spec-format.test.ts"
+      "path": "src/app/admin/(protected)/page.tsx"
     },
     {
       "status": "M",
-      "path": "src/lib/catalog/spec-format.ts"
+      "path": "src/components/admin/OrdersTable.tsx"
     },
     {
       "status": "M",
-      "path": "src/lib/compare/compare.ts"
+      "path": "src/lib/__tests__/messages.test.ts"
+    },
+    {
+      "status": "??",
+      "path": "src/lib/admin/locale.ts"
     }
   ],
   "next_action": null,
-  "context_notes": "Recent commits:\ne6e77a9 fix(pdp): no scrollbars on the two rails that already have arrows\ndb9c3d8 fix(pdp): the photo of a one-image product rendered 0px wide\nff7535d docs(payment): what testing Viva actually requires\na61ed56 feat(i18n): prices and the payment page speak the visitor's language\nf95e5ca feat(i18n): the Greek that was never in a .tsx file"
+  "context_notes": "Recent commits:\n47c76d3 fix(pdp): a spec that says \"N/A\" is not a spec\ne6e77a9 fix(pdp): no scrollbars on the two rails that already have arrows\ndb9c3d8 fix(pdp): the photo of a one-image product rendered 0px wide\nff7535d docs(payment): what testing Viva actually requires\na61ed56 feat(i18n): prices and the payment page speak the visitor's language"
 }

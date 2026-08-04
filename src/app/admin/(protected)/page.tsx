@@ -1,5 +1,5 @@
+import { ADMIN_LOCALE } from "@/lib/admin/locale";
 import Link from "next/link";
-import { getLocale } from "next-intl/server";
 import { ArrowRight, Check, CircleAlert, ExternalLink, TriangleAlert } from "lucide-react";
 import { auth } from "@/auth";
 import { formatMoney } from "@/lib/format";
@@ -23,7 +23,6 @@ const dt = new Intl.DateTimeFormat("el-GR", {
  * shown — an "0 προβλήματα" panel reads as broken, its absence reads as calm.
  */
 export default async function AdminDashboard() {
-  const locale = await getLocale();
   const session = await auth();
   const data = await getDashboard();
 
@@ -82,13 +81,13 @@ export default async function AdminDashboard() {
           <Stat label="Παραγγελίες · 7 ημέρες" value={String(data.orders.last7)} />
           <Stat
             label="Τζίρος · 7 ημέρες"
-            value={formatMoney(data.orders.revenue7, locale)}
+            value={formatMoney(data.orders.revenue7, ADMIN_LOCALE)}
             hint="μόνο πληρωμένες"
           />
           <Stat label="Παραγγελίες · 30 ημέρες" value={String(data.orders.last30)} />
           <Stat
             label="Τζίρος · 30 ημέρες"
-            value={formatMoney(data.orders.revenue30, locale)}
+            value={formatMoney(data.orders.revenue30, ADMIN_LOCALE)}
             hint="μόνο πληρωμένες"
           />
         </div>

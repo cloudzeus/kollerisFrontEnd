@@ -236,6 +236,48 @@ export function findHookMisuse(): Problem[] {
 }
 
 /**
+ * next-intl used anywhere under `/admin`.
+ *
+ * The back office sits outside the `[locale]` segment, so the provider is not
+ * mounted and every next-intl entry point throws "No intl context found" at
+ * render time. It has broken three features that way — banner button links, the
+ * offer widget preview, and the orders table once prices took a locale — always
+ * because storefront code was reused or a codemod treated `/admin` like the
+ * rest of the app. Anything there that needs a locale takes `ADMIN_LOCALE`.
+ */
+export function findAdminIntlUse(): Problem[] {
+  const problems: Problem[] = [];
+  const files = globSync("src/**/*.{ts,tsx}").filter(
+    (f) => (f.includes("/admin/") || f.includes("components/admin")) && !f.endsWith(".d.ts"),
+  );
+
+  for (const file of files) {
+    const text = readFileSync(file, "utf8");
+    const source = ts.createSourceFile(file, text, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
+    const where = path.relative("src", file);
+
+    for (const statement of source.statements) {
+      if (!ts.isImportDeclaration(statement)) continue;
+      const from = (statement.moduleSpecifier as ts.StringLiteral).text;
+      if (!/^next-intl/.test(from)) continue;
+
+      const named = statement.importClause?.namedBindings;
+      const names =
+        named && ts.isNamedImports(named) ? named.elements.map((e) => e.name.text) : ["*"];
+      // The navigation helpers are a separate, equally fatal case: a localised
+      // `Link` needs the same provider.
+      const line = source.getLineAndCharacterOfPosition(statement.getStart()).line + 1;
+      problems.push({
+        file: where,
+        detail: `εισάγει ${names.join(", ")} από «${from}» (γρ. ${line}) — το /admin δεν έχει provider· χρησιμοποιήστε ADMIN_LOCALE`,
+      });
+    }
+  }
+
+  return problems;
+}
+
+/**
  * Keys present in Greek but absent from another locale.
  *
  * next-intl falls back to the default locale, so this never throws — it just
@@ -267,11 +309,15 @@ if (process.argv[1]?.endsWith("verify.ts")) {
   console.log(hooks.length === 0 ? "  hooks: σωστά" : `  hooks σε async components: ${hooks.length}`);
   for (const h of hooks) console.log(`    ${h.detail}   (${h.file})`);
 
+  const admin = findAdminIntlUse();
+  console.log(admin.length === 0 ? "  /admin: χωρίς next-intl" : `  next-intl στο /admin: ${admin.length}`);
+  for (const a of admin) console.log(`    ${a.detail}   (${a.file})`);
+
   for (const locale of ["en", "it"] as const) {
     const gaps = findUntranslated(locale);
     console.log(`  ${locale}: ${gaps.length === 0 ? "πλήρες" : `${gaps.length} χωρίς μετάφραση`}`);
     for (const g of gaps.slice(0, 10)) console.log(`    ${g}`);
   }
 
-  process.exitCode = problems.length + hooks.length ? 1 : 0;
+  process.exitCode = problems.length + hooks.length + admin.length ? 1 : 0;
 }
