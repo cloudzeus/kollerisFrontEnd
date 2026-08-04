@@ -16,6 +16,9 @@ import {
 } from "@/lib/catalog/queries";
 import { formatMoney } from "@/lib/format";
 import { paymentPageUrl } from "@/lib/payment/viva";
+import { isValidGtin } from "@/lib/feeds/google-merchant";
+import { GoogleReviewsOptIn } from "@/components/seo/GoogleReviewsOptIn";
+import { estimatedDeliveryDate } from "@/lib/seo/google-reviews";
 import { upGreek } from "@/lib/greek";
 import { prisma } from "@/lib/prisma";
 
@@ -108,6 +111,32 @@ export default async function ConfirmationPage({ params, searchParams }: PagePro
    */
   const payUrl = depositCode ? paymentPageUrl(depositCode) : null;
 
+  /*
+   * GTINs for the Google Customer Reviews opt-in, which uses them to tie the
+   * survey to specific products.
+   *
+   * Looked up rather than read off the order: `OrderLine` is a deliberate
+   * snapshot that never re-reads the catalogue, and a GTIN was never part of
+   * it. Optional in Google's schema, so a delisted product simply contributes
+   * nothing — and only codes that survive their own check digit are sent, the
+   * same rule the Merchant Center feed applies.
+   */
+  const orderedMtrl = order.lines
+    .map((line) => line.mtrl)
+    .filter((mtrl): mtrl is number => mtrl != null);
+
+  const gtins = orderedMtrl.length
+    ? (
+        await prisma.product.findMany({
+          where: { mtrl: { in: orderedMtrl } },
+          select: { code1: true },
+        })
+      )
+        .map((p) => p.code1)
+        .filter(isValidGtin)
+        .map((code) => code.replace(/\D/g, ""))
+    : [];
+
   return (
     <>
       <SiteChrome
@@ -117,6 +146,28 @@ export default async function ConfirmationPage({ params, searchParams }: PagePro
         brands={brands}
         stats={stats}
       />
+
+      {/*
+        Asks the customer's permission for Google to email them a survey about
+        this order, around the time it should have arrived. Their answers are
+        what the seller rating in search results is built from.
+
+        Not shown while payment is outstanding: an order that may never be paid
+        is not one to schedule a delivery survey for.
+      */}
+      {!awaitingPayment && (
+        <GoogleReviewsOptIn
+          orderId={order.orderNumber}
+          email={order.email}
+          deliveryCountry={order.shipCountry}
+          estimatedDeliveryDate={estimatedDeliveryDate(
+            order.createdAt,
+            quote?.etaDays,
+            order.shippingMethod,
+          )}
+          gtins={gtins}
+        />
+      )}
 
       <main id="main">
         <div className="shell-x bg-k-ink-deep py-10 lg:py-14">

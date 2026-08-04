@@ -2,6 +2,7 @@ import { useTranslations } from "next-intl";
 import Image from "next/image";
 import { Link } from "@/i18n/navigation";
 import type { CategoryTile } from "@/lib/catalog/queries";
+import { GoogleReviewsBadge } from "@/components/seo/GoogleReviewsBadge";
 import { upGreek } from "@/lib/greek";
 
 const PAYMENTS = ["VISA", "MC", "MAESTRO", "IRIS", "PAYPAL"];
@@ -176,6 +177,14 @@ export function SiteFooter({ categories }: { categories: CategoryTile[] }) {
           </div>
         </div>
       </div>
+
+      {/*
+        The Google seller rating. Renders as a floating badge in the bottom
+        corner rather than here in the flow — that is the widget's own
+        behaviour, not a layout choice; see the component. Mounted from the
+        footer so it appears on storefront pages only, never in /admin.
+      */}
+      <GoogleReviewsBadge />
     </footer>
   );
 }
