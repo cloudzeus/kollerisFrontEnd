@@ -609,6 +609,18 @@
     grid-template-columns: repeat(var(--bn-cols), minmax(0, 1fr));
     grid-template-rows: repeat(var(--bn-rows), minmax(0, 1fr));
     aspect-ratio: var(--bn-aspect);
+    /*
+     * Pinned, or the ceiling eats the width.
+     * ───────────────────────────────────────────────────────────────────────
+     * A box with `aspect-ratio` and an auto width resolves a `max-height` by
+     * SHRINKING — 450px against 21/9 gives a 1050px-wide banner in a 1715px
+     * zone, left-aligned, with 665px of white beside it. Stating the width
+     * makes the ratio yield instead: the banner keeps the full width of its
+     * zone and the rows get shorter, which is what capping a height means.
+     * The cells keep their proportions to each other either way; it is the
+     * banner's overall ratio that gives.
+     */
+    width: 100%;
     /* A template with no aspect ratio has `aspect-ratio: auto`, so its height
        would come from its content — and an empty cell has none. This is what
        gives a row its height in that case, and a floor in every other. */
