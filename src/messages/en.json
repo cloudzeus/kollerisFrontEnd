@@ -1192,6 +1192,11 @@
       "kleista_anoigei_simera": "Closed · opens today at {time}",
       "kleista_anoigei_ayrio": "Closed · opens tomorrow at {time}",
       "kleista_anoigei_imera": "Closed · opens on {day} at {time}"
+    },
+    "StorePhotos": {
+      "alt_prosopsi": "The Kolleris storefront in Piraeus, with the FACOM and Festool window",
+      "alt_esoteriko": "A wall of Wera tools inside the shop",
+      "parking": "Parking next to the shop"
     }
   },
   "eisodos": {

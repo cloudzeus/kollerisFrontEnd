@@ -1192,6 +1192,11 @@
       "kleista_anoigei_simera": "Κλειστά · ανοίγει σήμερα {time}",
       "kleista_anoigei_ayrio": "Κλειστά · ανοίγει αύριο {time}",
       "kleista_anoigei_imera": "Κλειστά · ανοίγει τη {day} {time}"
+    },
+    "StorePhotos": {
+      "alt_prosopsi": "Η πρόσοψη του καταστήματος Κολλέρης στον Πειραιά, με τη βιτρίνα FACOM και Festool",
+      "alt_esoteriko": "Τοίχος με εργαλεία Wera μέσα στο κατάστημα",
+      "parking": "Πάρκινγκ δίπλα στο κατάστημα"
     }
   },
   "eisodos": {

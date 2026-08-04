@@ -5,6 +5,7 @@ import { SectionHead } from "@/components/chrome/SectionHead";
 import { SiteChrome } from "@/components/chrome/SiteChrome";
 import { SiteFooter } from "@/components/chrome/SiteFooter";
 import { ContactForm } from "@/components/contact/ContactForm";
+import { StorePhotos } from "@/components/contact/StorePhotos";
 import { Link } from "@/i18n/navigation";
 import type { Locale } from "@/i18n/routing";
 import { getMiniCart } from "@/lib/cart/cart";
@@ -211,6 +212,8 @@ export default async function ContactPage({
             );
           })}
         </dl>
+
+        <StorePhotos />
 
         {/* Form + who answers what */}
         <section className="band-base">

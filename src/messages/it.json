@@ -1192,6 +1192,11 @@
       "kleista_anoigei_simera": "Chiuso · apre oggi alle {time}",
       "kleista_anoigei_ayrio": "Chiuso · apre domani alle {time}",
       "kleista_anoigei_imera": "Chiuso · apre {day} alle {time}"
+    },
+    "StorePhotos": {
+      "alt_prosopsi": "La vetrina del negozio Kolleris al Pireo, con FACOM e Festool",
+      "alt_esoteriko": "Una parete di utensili Wera all'interno del negozio",
+      "parking": "Parcheggio accanto al negozio"
     }
   },
   "eisodos": {
