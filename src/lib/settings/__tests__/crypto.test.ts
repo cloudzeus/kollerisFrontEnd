@@ -21,6 +21,10 @@ beforeAll(async () => {
 });
 
 describe("secret storage", () => {
+  // Shaped like a payment key — same length and alphabet, so the tests below
+  // exercise the same ciphertext sizes — but invented. A test fixture is a
+  // published string: it lives in the repository forever and travels wherever
+  // the repository does.
   const SECRET = "Xk2mQ9vT4pL7wRc0bN5hJ8dF3sYaGe";
 
   it("round-trips", () => {
