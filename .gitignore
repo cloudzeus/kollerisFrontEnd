@@ -32,6 +32,10 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+# The template is the exception, and the reason for it: it is the only record of
+# which variables a deployment needs. Names, defaults and comments only — every
+# value in it is either public (a base URL, a locale list) or a placeholder.
+!.env.example
 
 # vercel
 .vercel
