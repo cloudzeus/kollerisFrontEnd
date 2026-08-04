@@ -7,6 +7,18 @@ import { upGreek } from "@/lib/greek";
 const PAYMENTS = ["VISA", "MC", "MAESTRO", "IRIS", "PAYPAL"];
 
 /**
+ * Real accounts, not placeholders — the same four Google's own Merchant
+ * Center "social profiles" panel asks for, so this list and that panel stay
+ * in step by construction rather than by remembering to update both.
+ */
+const SOCIALS = [
+  { label: "TikTok", short: "TT", href: "https://www.tiktok.com/@kolleris_tools_official" },
+  { label: "Facebook", short: "FB", href: "https://www.facebook.com/kolleristools/" },
+  { label: "Instagram", short: "IG", href: "https://www.instagram.com/kolleris_tools/" },
+  { label: "LinkedIn", short: "IN", href: "https://gr.linkedin.com/company/kolleris-bros-ike" },
+] as const;
+
+/**
  * The legal small print. Every one of these 404'd or didn't exist until now —
  * which is most of what Google's Merchant Center flagged as Misrepresentation:
  * a machine reading the site for "can this business be trusted" found a
@@ -73,9 +85,20 @@ export function SiteFooter({ categories }: { categories: CategoryTile[] }) {
           <p className="t-footer-tag mt-3 text-white/40 lg:mt-4">
             PROFESSIONAL TOOLS · SINCE 1978
           </p>
-          {/* No social row: there are no live accounts to link to. A row of
-              icons pointing at "#" is worse than no row — it reads as the
-              kind of unverifiable business identity Google flags. */}
+          <div className="mt-5 hidden gap-2.5 lg:flex">
+            {SOCIALS.map((social) => (
+              <a
+                key={social.href}
+                href={social.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={social.label}
+                className="t-social flex h-9 w-9 items-center justify-center border border-white/18 text-white/72 transition-colors hover:border-k-red hover:text-white"
+              >
+                {social.short}
+              </a>
+            ))}
+          </div>
         </div>
 
         {/* Mobile: collapsible sections. `<details>` needs no JavaScript. */}

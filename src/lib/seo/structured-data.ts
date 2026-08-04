@@ -30,6 +30,18 @@ export const SHOP = {
   // copywriter's own prompt. This said 1980, which is the one number a machine
   // reads for business identity, disagreeing with the seven a person reads.
   founded: "1978",
+  /**
+   * `sameAs` — the standard Schema.org way to say "this business and that
+   * social profile are the same entity". The same four accounts as the
+   * footer and Merchant Center's own "social profiles" panel, kept in one
+   * place so the three cannot drift.
+   */
+  sameAs: [
+    "https://www.facebook.com/kolleristools/",
+    "https://www.instagram.com/kolleris_tools/",
+    "https://www.tiktok.com/@kolleris_tools_official",
+    "https://gr.linkedin.com/company/kolleris-bros-ike",
+  ],
 } as const;
 
 /**
@@ -56,6 +68,7 @@ export function siteJsonLd(locale: Locale) {
         telephone: SHOP.phone,
         email: SHOP.email,
         foundingDate: SHOP.founded,
+        sameAs: SHOP.sameAs,
         priceRange: "€€",
         currenciesAccepted: "EUR",
         address: {
