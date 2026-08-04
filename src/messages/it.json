@@ -1203,7 +1203,14 @@
     },
     "StoreMap": {
       "alt": "Mappa con la posizione del negozio in K. Mavromichali 4, Pireo",
-      "attribution": "© MapTiler © OpenStreetMap"
+      "attribution": "© MapTiler © OpenStreetMap",
+      "parking_free": "Gratuito",
+      "parking_word": "Parcheggio",
+      "parking_where": "Accanto al negozio.",
+      "parking_pickup": "Ritiro dell'ordine",
+      "parking_pickup_body": "Per tutto il tempo necessario a ritirare il tuo ordine in negozio.",
+      "parking_receipt": "Scontrino o fattura",
+      "parking_receipt_body": "Mostra lo scontrino o la fattura del tuo acquisto e il parcheggio non viene addebitato."
     }
   },
   "eisodos": {

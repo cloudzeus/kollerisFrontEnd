@@ -3,87 +3,116 @@ import { upGreek } from "@/lib/greek";
 import { TILE, VIEW, ZOOM, frameTiles } from "@/lib/geo/shop";
 
 /**
- * Where the shop is, as a picture.
+ * Where the shop is, and what it costs to park there.
  *
- * No map library, no canvas, no third-party JavaScript and no cookies, so there
- * is nothing here to ask consent about. Composed from tiles because neither
- * vendor's static-map endpoint is enabled on these accounts, and a static map
- * is a grid of tiles with the right offset.
+ * The map alone left 400px of white beside it doing nothing, which read as an
+ * unfinished row rather than as restraint. What fills it is not decoration: free
+ * parking is a real reason to drive to Piraeus instead of ordering elsewhere,
+ * and it was previously one grey nine-pixel line under the map.
  *
- * It used to be a full-width band 560px tall: a fifth of the whole contact
- * page, spent on an address written in full directly above it. At that width
- * and zoom 16 it showed half of Piraeus, so the shop was a small red dot among
- * competing labels for other companies, and it was by some distance the loudest
- * thing on a page that is otherwise black, white and one red. It answered "here
- * is the city" and looked like a banner.
+ * The panel is ink, not another white card, for two reasons. The page already
+ * speaks that language (`band-ink` is used for the hero, the breadcrumb and the
+ * footer), so it is not a new idea. And a dark block beside a greyscale map
+ * makes the pair read as composed, where a grey map next to white read as a
+ * mistake.
  *
- * Three changes, each with a reason:
+ * Colour comes from the red the brand already owns. Not green, which is spoken
+ * for: it means in-stock and open-now everywhere else on the site, and a green
+ * "free" badge here would quietly break that. One accent, used with conviction,
+ * beats a second accent used decoratively.
  *
- *   smaller   420px wide instead of 1345 — a locator, not a band
- *   closer    zoom 17 shows the block; 16 showed the district
- *   greyscale the tiles carry no colour, so the only colour in the frame is the
- *             marker. The eye lands on the shop instead of on a petrol station.
- *
- * The marker keeps the brand red because it is the one thing here worth
- * pointing at.
+ * No icons, deliberately. The storefront has none: it is a typographic system
+ * with rules and one red, and a parking glyph next to it would be the only
+ * pictogram on the page. Size and colour carry the emphasis instead.
  */
 export async function StoreMap() {
   if (!process.env.MAPTILER_API_KEY) return null;
   const t = await getTranslations("epikoinonia.StoreMap");
-  const photos = await getTranslations("epikoinonia.StorePhotos");
   const tiles = frameTiles();
+
+  const terms = [
+    { title: t("parking_pickup"), body: t("parking_pickup_body") },
+    { title: t("parking_receipt"), body: t("parking_receipt_body") },
+  ];
 
   return (
     <section className="reveal border-b border-k-line bg-white">
       <div className="shell-x py-7 lg:py-9">
-        {/*
-          The caption sits under the map at the map's own width, not beside it.
-          Given its own column it became a two-line paragraph floating alone in
-          400px of white, which reads as a layout accident rather than as
-          restraint. The empty space to the right is deliberate; an orphaned
-          sentence in the middle of it is not.
-        */}
-        <div className="max-w-[420px]">
-          <div
-            className="relative overflow-hidden bg-k-surface-3"
-            style={{ aspectRatio: `${VIEW.w} / ${VIEW.h}` }}
-            role="img"
-            aria-label={t("alt")}
-          >
-            {/* Percentages, not pixels: the frame is fluid and the tiles have to
-                scale with it rather than sit at a fixed size. */}
-            {tiles.map((tile) => (
-              <img
-                key={`${tile.x}-${tile.y}`}
-                src={`/api/map/tile/${ZOOM}/${tile.x}/${tile.y}`}
-                alt=""
-                aria-hidden
-                loading="lazy"
-                className="absolute max-w-none grayscale contrast-[1.12] brightness-[0.97]"
-                style={{
-                  left: `${(tile.left / VIEW.w) * 100}%`,
-                  top: `${(tile.top / VIEW.h) * 100}%`,
-                  width: `${(TILE / VIEW.w) * 100}%`,
-                }}
-              />
-            ))}
+        <div className="grid gap-6 lg:grid-cols-[minmax(0,420px)_1fr] lg:items-stretch lg:gap-8">
+          {/* The map, quiet on purpose. See lib/geo/shop.ts for zoom and frame. */}
+          <div>
+            <div
+              className="relative overflow-hidden bg-k-surface-3"
+              style={{ aspectRatio: `${VIEW.w} / ${VIEW.h}` }}
+              role="img"
+              aria-label={t("alt")}
+            >
+              {/* Percentages, not pixels: the frame is fluid and the tiles have
+                  to scale with it rather than sit at a fixed size. */}
+              {tiles.map((tile) => (
+                <img
+                  key={`${tile.x}-${tile.y}`}
+                  src={`/api/map/tile/${ZOOM}/${tile.x}/${tile.y}`}
+                  alt=""
+                  aria-hidden
+                  loading="lazy"
+                  className="absolute max-w-none grayscale contrast-[1.12] brightness-[0.97]"
+                  style={{
+                    left: `${(tile.left / VIEW.w) * 100}%`,
+                    top: `${(tile.top / VIEW.h) * 100}%`,
+                    width: `${(TILE / VIEW.w) * 100}%`,
+                  }}
+                />
+              ))}
 
-            {/* The shop. Centred by construction, so no arithmetic here. */}
-            <span
-              aria-hidden
-              className="absolute top-1/2 left-1/2 block h-3 w-3 -translate-x-1/2 -translate-y-1/2 border-2 border-white bg-k-red shadow-[0_2px_8px_rgba(0,0,0,0.35)]"
-            />
+              {/* The shop. Centred by construction, so no arithmetic here. */}
+              <span
+                aria-hidden
+                className="absolute top-1/2 left-1/2 block h-3 w-3 -translate-x-1/2 -translate-y-1/2 border-2 border-white bg-k-red shadow-[0_2px_8px_rgba(0,0,0,0.35)]"
+              />
+            </div>
+
+            <p className="t-brand-count mt-2 text-k-text-4">{t("attribution")}</p>
           </div>
 
           {/*
-            The one fact about arriving that is not already in the details bar
-            above. It was written for the photographs section, which does not
-            render until those files exist, so it has been sitting unused.
+            Stretched to the map's height and laid out top-and-bottom, so the
+            column is filled by the content rather than by padding.
           */}
-          <p className="t-brand-count mt-3 text-k-text-3">
-            {upGreek(photos("parking"))}
-            <span className="mt-1 block text-k-text-4">{t("attribution")}</span>
-          </p>
+          <div className="band-ink flex flex-col justify-between gap-7 p-6 lg:p-8">
+            <div>
+              <p className="font-[family-name:var(--font-artegra-face)] text-[26px] leading-[1.05] font-medium tracking-[0.01em] lg:text-[32px]">
+                <span className="text-k-red">{upGreek(t("parking_free"))}</span>{" "}
+                <span className="text-white">{upGreek(t("parking_word"))}</span>
+              </p>
+              <p className="t-usp-body mt-2 max-w-[46ch] text-k-text-6">
+                {t("parking_where")}
+              </p>
+            </div>
+
+            {/*
+              Two terms, so two rows and exactly one hairline between them. A
+              border on every row is the spec-table reflex and there is no table
+              here.
+            */}
+            <dl className="grid gap-4 sm:grid-cols-2 sm:gap-6">
+              {terms.map((term, index) => (
+                <div
+                  key={term.title}
+                  className={
+                    index === 1
+                      ? "border-t border-white/12 pt-4 sm:border-t-0 sm:border-l sm:pt-0 sm:pl-6"
+                      : ""
+                  }
+                >
+                  <dt className="t-stat-label text-k-red uppercase">
+                    {upGreek(term.title)}
+                  </dt>
+                  <dd className="t-usp-body mt-1.5 text-white/85">{term.body}</dd>
+                </div>
+              ))}
+            </dl>
+          </div>
         </div>
       </div>
     </section>

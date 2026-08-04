@@ -1203,7 +1203,14 @@
     },
     "StoreMap": {
       "alt": "Χάρτης με τη θέση του καταστήματος στην Κ. Μαυρομιχάλη 4, Πειραιάς",
-      "attribution": "© MapTiler © OpenStreetMap"
+      "attribution": "© MapTiler © OpenStreetMap",
+      "parking_free": "Δωρεάν",
+      "parking_word": "Πάρκινγκ",
+      "parking_where": "Δίπλα στο κατάστημα.",
+      "parking_pickup": "Παραλαβή παραγγελίας",
+      "parking_pickup_body": "Όσο χρειάζεται για να παραλάβετε την παραγγελία σας από το κατάστημα.",
+      "parking_receipt": "Αγορά από το κατάστημα",
+      "parking_receipt_body": "Δείξτε την απόδειξη ή το τιμολόγιο της αγοράς σας και το πάρκινγκ δεν χρεώνεται."
     }
   },
   "eisodos": {

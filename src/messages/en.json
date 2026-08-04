@@ -1203,7 +1203,14 @@
     },
     "StoreMap": {
       "alt": "Map showing the shop at K. Mavromichali 4, Piraeus",
-      "attribution": "© MapTiler © OpenStreetMap"
+      "attribution": "© MapTiler © OpenStreetMap",
+      "parking_free": "Free",
+      "parking_word": "Parking",
+      "parking_where": "Next to the shop.",
+      "parking_pickup": "Order collection",
+      "parking_pickup_body": "For as long as it takes to collect your order from the shop.",
+      "parking_receipt": "Receipt or invoice",
+      "parking_receipt_body": "Show the receipt or invoice for your purchase and parking is not charged."
     }
   },
   "eisodos": {
