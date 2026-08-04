@@ -47,6 +47,43 @@ const VOLUMETRIC_DIVISOR = 5000;
  */
 const MAX_PLAUSIBLE_CM = 200;
 
+/**
+ * The heaviest a single courier-shipped item can plausibly be, in kilograms.
+ *
+ * The same failure as the dimensions, in the other column and far more common:
+ * part of the catalogue holds GRAMS in the kilogram field. It is not subtle —
+ *
+ *   ΛΟΣΤΟΣ 1260.70 FACOM        48 EUR   stored as 1.960 kg   (1,96 kg)
+ *   ΜΕΤΑΛΛΙΚΟ ΠΑΝΕΛ PK.1        61 EUR   stored as 2.323 kg   (2,32 kg)
+ *   ΚΛΕΙΔΙ ΑΛΛΕΝ ΜΑΚΡΥ 83H.10    5 EUR   stored as   140 kg   (140 g)
+ *
+ * — and it was quoting 1.614 EUR of postage on the 48 EUR crowbar and 1.912 EUR
+ * on the 61 EUR panel, from the cheapest zone, for one item. 229 rows of 4.935
+ * are above this limit and every one sampled is a hand tool costing under 45
+ * EUR. The median weight in the catalogue is 0,31 kg.
+ *
+ * 30 kg because a courier parcel is already past what one person carries by
+ * then, and because nothing under 45 EUR in a tool catalogue weighs it. Above
+ * the limit the weight is treated as absent rather than believed, which falls
+ * back to the same estimate an item with no weight at all gets: too low is a
+ * cost we absorb, too high is a sale we lose and a customer who never returns.
+ *
+ * The repair belongs in SoftOne. This only stops the storefront repeating it.
+ */
+const MAX_PLAUSIBLE_KG = 30;
+
+/**
+ * Can this weight be believed?
+ *
+ * Exported so the Merchant Center feed applies the same rule as the quote. If
+ * the two disagreed, Google would compute postage from a weight the checkout
+ * refuses to use — and a shipping cost that changes between the search result
+ * and the basket is its own policy violation.
+ */
+export function isPlausibleWeightKg(kg: number | null | undefined): boolean {
+  return kg != null && kg > 0 && kg <= MAX_PLAUSIBLE_KG;
+}
+
 /** Contract tariff, EUR net. `base` covers `baseKg`; each extra kg adds `perExtraKg`. */
 /**
  * MEASURED from the live ACS pricelist on 2026-07-31, not estimated. Each row
@@ -149,9 +186,15 @@ export function chargeableWeight(items: ParcelItem[]): {
   for (const item of items) {
     const qty = Math.max(1, item.quantity);
 
-    if (item.weight != null && item.weight > 0) {
-      actualKg += item.weight * qty;
+    // A weight in grams is not a heavy item — see MAX_PLAUSIBLE_KG. Refused
+    // and estimated instead, exactly as if the row had no weight at all.
+    const weighable =
+      item.weight != null && item.weight > 0 && item.weight <= MAX_PLAUSIBLE_KG;
+
+    if (weighable) {
+      actualKg += item.weight! * qty;
     } else {
+      if (item.weight != null && item.weight > MAX_PLAUSIBLE_KG) implausibleItems += qty;
       actualKg += FALLBACK_KG * qty;
       estimatedItems += qty;
     }

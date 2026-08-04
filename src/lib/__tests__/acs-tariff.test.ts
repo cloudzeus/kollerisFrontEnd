@@ -147,3 +147,59 @@ describe("implausible dimensions", () => {
     expect(result.chargeableKg).toBe(2.7);
   });
 });
+
+/**
+ * The other unit error, in the weight column.
+ *
+ * Part of the catalogue holds grams where kilograms are expected. Unlike the
+ * dimensions — which only feed the volumetric estimate and are capped by it —
+ * a bad weight is used directly, so it went straight into the quote: 1.614 EUR
+ * of postage on a 48 EUR crowbar, from the cheapest zone, for one item.
+ */
+describe("implausible weight", () => {
+  const one = (weight: number) =>
+    quotePostage({
+      items: [{ quantity: 1, weight, width: null, length: null, height: null }],
+      postcode: "18545",
+    });
+
+  it("refuses a hand tool recorded at 1.960 kg", () => {
+    // ΛΟΣΤΟΣ 1260.70 FACOM, 48 EUR, stored as 1960 — grams.
+    const quote = one(1960);
+    expect(quote.chargeableKg).toBeLessThan(1);
+    expect(quote.totalNet).toBeLessThan(5);
+  });
+
+  it("refuses a 5 EUR Allen key recorded at 140 kg", () => {
+    expect(one(140).totalNet).toBeLessThan(5);
+  });
+
+  it("counts what it refused", () => {
+    const weighed = chargeableWeight([
+      { quantity: 2, weight: 2323, width: null, length: null, height: null },
+    ]);
+    expect(weighed.implausibleItems).toBe(2);
+    expect(weighed.estimatedItems).toBe(2);
+  });
+
+  it("leaves a genuinely heavy item alone", () => {
+    // 12 kg is a real toolbox, not a data error, and must still be charged.
+    const quote = one(12);
+    expect(quote.chargeableKg).toBe(12);
+    expect(quote.totalNet).toBeGreaterThan(9);
+  });
+
+  it("leaves everyday weights alone", () => {
+    // The catalogue median. The floor applies, not the guard.
+    expect(one(0.31).totalNet).toBeCloseTo(2.57, 2);
+    expect(chargeableWeight([
+      { quantity: 1, weight: 0.31, width: null, length: null, height: null },
+    ]).implausibleItems).toBe(0);
+  });
+
+  it("treats the limit itself as valid", () => {
+    expect(chargeableWeight([
+      { quantity: 1, weight: 30, width: null, length: null, height: null },
+    ]).implausibleItems).toBe(0);
+  });
+});
