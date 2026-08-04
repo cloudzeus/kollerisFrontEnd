@@ -578,3 +578,60 @@ Set in Coolify (runtime): `DATABASE_URL`, `AUTH_SECRET`, `AUTH_TRUST_HOST=true`,
 Verified by building and running the image: 475 MB, container reports `healthy`,
 and `/` `/en` `/it` `/katalogos` `/epikoinonia` `/prosfores` `/admin/login` and a
 real product page all return 200 against the live database.
+
+---
+
+## Viva Wallet webhooks
+
+One URL per event. Viva registers and verifies each separately, so a failing
+event can be switched off in the portal without taking payment confirmation down
+with it. All four share one handler (`src/lib/payment/viva-webhook.ts`); the
+route files are three lines each.
+
+| Event | Id | URL | What it does here |
+|---|---|---|---|
+| Transaction Payment Created | 1796 | `/api/webhooks/viva/payment-created` | Marks the order paid. **The one that matters.** |
+| Transaction Failed | 1798 | `/api/webhooks/viva/transaction-failed` | Marks the order failed. |
+| Order Updated | 4865 | `/api/webhooks/viva/order-updated` | Timeline entry only, see below. |
+| Transfer Created | 8448 | `/api/webhooks/viva/transfer-created` | Logged. Nothing to update. |
+
+Production base: `https://web.kolleris.com`. The bare `/api/webhooks/viva` still
+answers and behaves as `payment-created`, because it may already be registered.
+
+**Setting up is back to front.** Viva verifies a URL by GETting it and expecting
+its own key echoed back, so the key has to be fetched from Viva *first*:
+
+```
+curl -u "<client-id>:<client-secret>" https://www.vivapayments.com/api/messages/config/token
+```
+
+(`demo.vivapayments.com` for the demo account.) Put the `Key` it returns into
+`VIVA_WEBHOOK_VERIFICATION_KEY`, redeploy, then register the URLs. Until the
+variable is set every route answers 503, which is deliberate: nothing is wrong
+with the request, this end is not ready, and Viva's portal reports it that way
+rather than as a broken endpoint.
+
+**A POST body is a notification, never evidence.** Anything arriving over HTTP
+can be forged, so 1796 and 1798 read the transaction back from Viva's API before
+believing anything, and the paid branch refuses a captured amount that does not
+match the order total. An event landing on the wrong route is therefore harmless
+and is logged rather than rejected: refusing it would drop a real payment over a
+portal misconfiguration.
+
+**Why 4865 only writes a timeline entry.** It carries an `OrderCode` and no
+transaction, so there is nothing to verify against Viva the way a payment is,
+and changing a payment status on the strength of an unauthenticated POST is
+precisely what the read-back rule exists to prevent. It is how an expired
+bank-transfer code becomes visible on the order instead of being discovered by
+the customer. Payment always arrives as 1796.
+
+**Why 8448 does nothing.** Its payload is wallet-level (`TransferId`,
+`TargetWalletId`, amounts) with no order reference at all, so attributing it to
+a customer order would be a guess. Matching a settlement to the payments inside
+it is accounting, done from Viva's own reporting.
+
+Event ids and payload shapes confirmed against Viva's developer portal on
+2026-08-04. The handlers are verified locally for routing, verification response
+and payload shape; **the Viva API calls inside them are not** — there are no demo
+credentials configured, and exercising them against the production keys would
+move real money.
