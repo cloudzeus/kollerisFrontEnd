@@ -4,6 +4,7 @@ import localFont from "next/font/local";
 import { getLocale, getTranslations } from "next-intl/server";
 import "./globals.css";
 import { alternatesFor } from "@/lib/seo/urls";
+import { siteJsonLd } from "@/lib/seo/structured-data";
 import type { Locale } from "@/i18n/routing";
 
 /*
@@ -105,7 +106,21 @@ export default async function RootLayout({
       lang={locale}
       className={`${plexSans.variable} ${mono.variable} ${artegra.variable} h-full antialiased`}
     >
-      <body className="flex min-h-full flex-col">{children}</body>
+      <body className="flex min-h-full flex-col">
+        {/*
+          Who runs this shop, where it is, and how to search it.
+          The product page already describes one item; this describes the
+          business, which is what a knowledge panel is built from and what a
+          language model has to quote when asked where to buy a tool in Piraeus.
+          In the body rather than the head because Google reads it either way and
+          a script in <head> delays first paint for nothing.
+        */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(siteJsonLd(locale as Locale)) }}
+        />
+        {children}
+      </body>
     </html>
   );
 }
