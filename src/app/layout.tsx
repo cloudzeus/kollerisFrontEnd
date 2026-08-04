@@ -90,12 +90,24 @@ export async function generateMetadata(): Promise<Metadata> {
     alternates: alternatesFor("/", locale as Locale),
     /*
      * Search Console's HTML-tag verification, which is also what claims the
-     * site for Merchant Center. Emitted only when the token is set, so an
-     * unconfigured environment ships no empty meta tag.
+     * site for Merchant Center.
+     *
+     * The token is in the source rather than only in an environment variable,
+     * because it is not a secret: it is published in this very tag for anyone
+     * to read, and it identifies one property of one site — this one, whose
+     * domain is already written into the Dockerfile. Making it a required
+     * setting only added a step to a deployment chain that has already dropped
+     * it three times. The variable still overrides, for a second property or a
+     * staging domain.
      */
-    verification: process.env.GOOGLE_SITE_VERIFICATION
-      ? { google: process.env.GOOGLE_SITE_VERIFICATION }
-      : undefined,
+    verification: {
+      // `||`, not `??`. A variable declared and left blank is the normal state
+      // of a .env line, and `"" ?? fallback` is `""` — which shipped a page with
+      // no verification tag at all while looking like it was configured.
+      google:
+        process.env.GOOGLE_SITE_VERIFICATION ||
+        "wLYJMfxxgEA5dcGtsp19goBte3LVEmPg5mrA3h9sQ3c",
+    },
     title: {
       default: t("titlos_kolleris_ergaleia_epaggelmatikos"),
       template: "%s | Kolleris",
