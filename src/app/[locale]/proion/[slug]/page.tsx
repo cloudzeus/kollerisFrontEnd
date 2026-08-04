@@ -1,5 +1,5 @@
 import { getTranslations } from "next-intl/server";
-import { alternatesFor } from "@/lib/seo/urls";
+import { absoluteUrl, alternatesFor } from "@/lib/seo/urls";
 import type { Metadata } from "next";
 import Image from "next/image";
 import { notFound } from "next/navigation";
@@ -126,15 +126,30 @@ export default async function ProductPage({ params }: PageProps) {
     brand: product.brand
       ? { "@type": "Brand", name: product.brand.name }
       : undefined,
+    /*
+     * The offer, and it has to agree with the Merchant Center feed.
+     *
+     * Google reads this page to keep a feed item current between fetches, so a
+     * page and a feed that disagree is not a cosmetic inconsistency: it
+     * suspends the item. This said `BackOrder` where the feed said
+     * `out_of_stock` for every product without stock, which is two different
+     * claims about the same tool. Out of stock is also the truthful one - a
+     * back order is a promise to supply, and nothing here makes that promise.
+     *
+     * `itemCondition` and the offer `url` are what the automatic updates want
+     * in order to match this page to its feed row at all.
+     */
     offers:
       product.priceNet != null
         ? {
             "@type": "Offer",
+            url: absoluteUrl(`/proion/${product.slug}`, locale),
             price: grossAmount(product.priceNet, ctx).toFixed(2),
             priceCurrency: "EUR",
+            itemCondition: "https://schema.org/NewCondition",
             availability: product.inStock
               ? "https://schema.org/InStock"
-              : "https://schema.org/BackOrder",
+              : "https://schema.org/OutOfStock",
           }
         : undefined,
   };

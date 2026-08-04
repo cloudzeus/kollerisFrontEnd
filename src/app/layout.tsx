@@ -88,6 +88,14 @@ export async function generateMetadata(): Promise<Metadata> {
      * Deeper pages override this with their own path.
      */
     alternates: alternatesFor("/", locale as Locale),
+    /*
+     * Search Console's HTML-tag verification, which is also what claims the
+     * site for Merchant Center. Emitted only when the token is set, so an
+     * unconfigured environment ships no empty meta tag.
+     */
+    verification: process.env.GOOGLE_SITE_VERIFICATION
+      ? { google: process.env.GOOGLE_SITE_VERIFICATION }
+      : undefined,
     title: {
       default: t("titlos_kolleris_ergaleia_epaggelmatikos"),
       template: "%s | Kolleris",
