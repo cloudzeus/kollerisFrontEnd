@@ -11,6 +11,8 @@ import { Link } from "@/i18n/navigation";
 import type { Locale } from "@/i18n/routing";
 import { getMiniCart } from "@/lib/cart/cart";
 import { getNewArrivals, getOffers } from "@/lib/catalog/editorial";
+import { getActiveOffers } from "@/lib/offers/offers";
+import { OfferWidget } from "@/components/offers/OfferWidget";
 import {
   getCatalogueStats,
   getMenuTree,
@@ -67,6 +69,7 @@ export default async function OffersPage({
 
   const [
     offers,
+    campaigns,
     arrivals,
     menuTree,
     brands,
@@ -77,6 +80,7 @@ export default async function OffersPage({
     compareTray,
   ] = await Promise.all([
     getOffers(locale, 24),
+    getActiveOffers(locale),
     getNewArrivals(locale, 1, 5),
     getMenuTree(locale),
     getTopBrands(locale, 16),
@@ -147,6 +151,48 @@ export default async function OffersPage({
             </p>
           </div>
         </div>
+
+        {/*
+          Campaigns, which is what the back office actually builds.
+
+          They are promotions pointing at a set of products, not price cuts:
+          nothing here touches `Product.priceNet`, so a discount is stated as the
+          campaign's own claim and never rendered as a struck-through price the
+          basket would then fail to honour.
+
+          This is also why the page could look permanently empty. It only ever
+          asked `Product.onSale`, which needs `priceList`, which the sync sets to
+          null on purpose — so no campaign, however many were published, could
+          ever reach it.
+        */}
+        {campaigns.length > 0 && (
+          <section className="band-base border-b border-k-line">
+            <div className="shell-x flex flex-col gap-5 py-8 lg:gap-6 lg:py-12">
+              {/*
+                Each widget gets the shape it was drawn for. The card is a 4:5
+                tile meant for a column - the back office says so in its own
+                hint - and given the full width of the page it became 1.826px
+                tall, which is a page of black. Strips and ribbons are the ones
+                that want the full measure.
+              */}
+              {campaigns
+                .filter((c) => c.widget !== "card")
+                .map((campaign) => (
+                  <OfferWidget key={campaign.slug} offer={campaign} locale={locale} />
+                ))}
+
+              {campaigns.some((c) => c.widget === "card") && (
+                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:gap-5">
+                  {campaigns
+                    .filter((c) => c.widget === "card")
+                    .map((campaign) => (
+                      <OfferWidget key={campaign.slug} offer={campaign} locale={locale} />
+                    ))}
+                </div>
+              )}
+            </div>
+          </section>
+        )}
 
         {hasOffers ? (
           <section className="band-base">

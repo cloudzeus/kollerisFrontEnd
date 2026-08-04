@@ -4,6 +4,7 @@ import { chat } from "@/lib/ai/deepseek";
 import type { OfferDraft, OfferRow } from "@/lib/offers/offer-types";
 import { validate } from "@/lib/offers/offer-types";
 import type { Locale } from "@/i18n/routing";
+import type { OfferView } from "@/components/offers/OfferWidget";
 
 /**
  * Reading and writing campaigns.
@@ -183,4 +184,67 @@ export async function rewriteCopy({
   } catch {
     return [];
   }
+}
+
+/**
+ * The campaigns a shopper should see right now.
+ *
+ * `/prosfores` used to ask only `Product.onSale`, which requires `priceList` —
+ * and the catalogue sync sets `priceList` to null on purpose, because the
+ * struck-through price it used to carry was the standing gap between two
+ * SoftOne price lists rather than a reduction. That decision was right and it
+ * left the page structurally empty: guaranteed nothing, forever, no matter how
+ * many campaigns were built in the back office.
+ *
+ * These are campaigns, not prices. A campaign carries its own title, badge,
+ * artwork and link, and the discount it names is not applied to
+ * `Product.priceNet` by anything here — pricing policy belongs to HDCtool. So
+ * they are shown as what they are, a promotion pointing at a set of products,
+ * and never as a per-product price cut the basket would then fail to honour.
+ *
+ * Window is inclusive of open ends: a campaign with no dates runs until it is
+ * switched off.
+ */
+export async function getActiveOffers(locale: Locale, limit = 12): Promise<OfferView[]> {
+  const now = new Date();
+
+  const rows = await prisma.offer.findMany({
+    where: {
+      isActive: true,
+      AND: [
+        { OR: [{ startsAt: null }, { startsAt: { lte: now } }] },
+        { OR: [{ endsAt: null }, { endsAt: { gte: now } }] },
+      ],
+    },
+    // Ending soonest first: the one with a deadline is the one worth reading.
+    orderBy: [{ endsAt: "asc" }, { updatedAt: "desc" }],
+    take: limit,
+  });
+
+  return rows.map((row) => ({
+    slug: row.slug,
+    title:
+      (locale === "en" ? row.titleEn : locale === "it" ? row.titleIt : row.titleEl) ||
+      row.titleEl,
+    description:
+      (locale === "en"
+        ? row.descriptionEn
+        : locale === "it"
+          ? row.descriptionIt
+          : row.descriptionEl) || row.descriptionEl,
+    // The draft type keeps these as empty strings rather than null — a form
+    // field is never absent, it is blank — so the row's nulls are folded back
+    // to match rather than widening the shared type.
+    badge: row.badge ?? "",
+    href: row.href,
+    image: row.image ?? "",
+    imageWide: row.imageWide ?? "",
+    video: row.video ?? "",
+    endsAt: row.endsAt,
+    discount: row.discount,
+    discountValue: row.discountValue == null ? null : Number(row.discountValue),
+    bogoBuy: row.bogoBuy,
+    bogoFree: row.bogoFree,
+    widget: row.widget,
+  }));
 }
