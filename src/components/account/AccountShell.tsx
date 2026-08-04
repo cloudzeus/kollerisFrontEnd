@@ -24,8 +24,8 @@ type Item = { href: string; label: string; ready: boolean; companyOnly?: boolean
 const ITEMS: Item[] = [
   { href: "/logariasmos", label: "nav_logariasmos", ready: true },
   { href: "/logariasmos/stoicheia", label: "nav_logariasmos_stoicheia", ready: true },
-  { href: "/logariasmos/paraggelies", label: "nav_logariasmos_paraggelies", ready: false },
-  { href: "/logariasmos/dieuthynseis", label: "nav_logariasmos_dieuthynseis", ready: false },
+  { href: "/logariasmos/paraggelies", label: "nav_logariasmos_paraggelies", ready: true },
+  { href: "/logariasmos/dieuthynseis", label: "nav_logariasmos_dieuthynseis", ready: true },
   { href: "/logariasmos/eggyiseis", label: "nav_logariasmos_eggyiseis", ready: false },
   { href: "/logariasmos/epistrofes", label: "nav_logariasmos_epistrofes", ready: false },
   { href: "/logariasmos/agapimena", label: "nav_logariasmos_agapimena", ready: false },

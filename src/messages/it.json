@@ -1385,5 +1385,47 @@
   "layout": {
     "titlos_kolleris_ergaleia_epaggelmatikos": "Kolleris — Utensili & Attrezzature Professionali",
     "perigrafi_epaggelmatika_ergaleia_michanimata": "Utensili professionali, macchinari e consumabili. Disponibilità immediata, prezzi da partner."
+  },
+  "paraggelies": {
+    "page": {
+      "titlos": "I miei ordini",
+      "kamia_paraggelia": "Nessun ordine",
+      "kamia_paraggelia_body": "Il tuo primo ordine apparirà qui, insieme al suo stato.",
+      "ston_katalogo": "Vai al catalogo",
+      "kai_alla": "e altri {n}",
+      "status_pending_payment": "In attesa di pagamento",
+      "status_confirmed": "Confermato",
+      "status_packing": "In preparazione",
+      "status_shipped": "Spedito",
+      "status_delivered": "Consegnato",
+      "status_cancelled": "Annullato",
+      "status_failed": "Fallito"
+    }
+  },
+  "dieuthynseis": {
+    "page": {
+      "titlos": "Indirizzi di consegna",
+      "lead": "Salva gli indirizzi che usi, per non riscriverli a ogni ordine.",
+      "proepilogi": "Predefinito",
+      "orise_proepilogi": "Imposta come predefinito",
+      "epexergasia": "Modifica",
+      "diagrafi": "Elimina",
+      "nea_dieuthynsi": "Nuovo indirizzo",
+      "epexergasia_dieuthynsis": "Modifica indirizzo",
+      "onomasia": "Nome",
+      "onomasia_paradeigma": "es. Magazzino Aspropyrgos",
+      "onoma": "Nome",
+      "eponymo": "Cognome",
+      "odos": "Via e numero",
+      "orofos": "Piano, citofono (facoltativo)",
+      "tk": "CAP",
+      "poli": "Città",
+      "nomos": "Provincia",
+      "tilefono": "Telefono del destinatario",
+      "na_einai_proepilogi": "Proponilo per primo alla cassa",
+      "apothikeysi": "Salva",
+      "apothikeysi_se_exelixi": "Salvataggio…",
+      "akyro": "Annulla"
+    }
   }
 }

@@ -9,6 +9,7 @@ import { PAYMENT_METHODS, SHIPPING_METHODS } from "@/lib/cart/options";
 import { quoteLivePostage } from "@/lib/shipping/acs-live";
 import { createPaymentOrder, isVivaConfigured } from "@/lib/payment/viva";
 import { routing, type Locale } from "@/i18n/routing";
+import { getCurrentUser } from "@/lib/account/session";
 
 /**
  * Order placement.
@@ -118,6 +119,16 @@ export async function placeOrder(
   const cartToken = await getCartToken();
   if (!cartToken) return { error: "Το καλάθι σας είναι άδειο." };
 
+  /*
+   * Who is placing this, if anyone.
+   *
+   * The column existed and was never written, so every order ever placed is
+   * orphaned from its account and "my orders" had nothing to list. Guests still
+   * get null and still get a token, which is what makes the confirmation page
+   * work for someone who never registered.
+   */
+  const customer = await getCurrentUser();
+
   // Re-priced against the delivery postcode, not the indicative cart quote.
   const cart = await getCart(locale, input.shipPostcode);
   if (!cart || cart.lines.length === 0) return { error: "Το καλάθι σας είναι άδειο." };
@@ -168,6 +179,7 @@ export async function placeOrder(
     data: {
       orderNumber,
       guestToken,
+      customerId: customer?.id ?? null,
       status: "PENDING_PAYMENT",
       // Every method now settles before or after dispatch, never on it: cash on
       // delivery is not accepted, so ON_DELIVERY can no longer be reached.

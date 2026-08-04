@@ -1385,5 +1385,47 @@
   "layout": {
     "titlos_kolleris_ergaleia_epaggelmatikos": "Kolleris — Tools & Professional Equipment",
     "perigrafi_epaggelmatika_ergaleia_michanimata": "Professional tools, machinery and consumables. Immediate availability, partner prices."
+  },
+  "paraggelies": {
+    "page": {
+      "titlos": "My orders",
+      "kamia_paraggelia": "No orders yet",
+      "kamia_paraggelia_body": "Your first order will appear here, along with its progress.",
+      "ston_katalogo": "Browse the catalogue",
+      "kai_alla": "and {n} more",
+      "status_pending_payment": "Awaiting payment",
+      "status_confirmed": "Confirmed",
+      "status_packing": "Being packed",
+      "status_shipped": "Shipped",
+      "status_delivered": "Delivered",
+      "status_cancelled": "Cancelled",
+      "status_failed": "Failed"
+    }
+  },
+  "dieuthynseis": {
+    "page": {
+      "titlos": "Delivery addresses",
+      "lead": "Save the addresses you use, so you do not retype them on every order.",
+      "proepilogi": "Default",
+      "orise_proepilogi": "Make default",
+      "epexergasia": "Edit",
+      "diagrafi": "Delete",
+      "nea_dieuthynsi": "New address",
+      "epexergasia_dieuthynsis": "Edit address",
+      "onomasia": "Name it",
+      "onomasia_paradeigma": "e.g. Aspropyrgos warehouse",
+      "onoma": "First name",
+      "eponymo": "Last name",
+      "odos": "Street and number",
+      "orofos": "Floor, buzzer (optional)",
+      "tk": "Postcode",
+      "poli": "City",
+      "nomos": "Region",
+      "tilefono": "Recipient phone",
+      "na_einai_proepilogi": "Offer this one first at checkout",
+      "apothikeysi": "Save",
+      "apothikeysi_se_exelixi": "Saving…",
+      "akyro": "Cancel"
+    }
   }
 }

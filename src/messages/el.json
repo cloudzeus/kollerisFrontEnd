@@ -1385,5 +1385,47 @@
   "layout": {
     "titlos_kolleris_ergaleia_epaggelmatikos": "Kolleris — Εργαλεία & Επαγγελματικός Εξοπλισμός",
     "perigrafi_epaggelmatika_ergaleia_michanimata": "Επαγγελματικά εργαλεία, μηχανήματα και αναλώσιμα. Άμεση διαθεσιμότητα, τιμές συνεργάτη."
+  },
+  "paraggelies": {
+    "page": {
+      "titlos": "Οι παραγγελίες μου",
+      "kamia_paraggelia": "Καμία παραγγελία ακόμη",
+      "kamia_paraggelia_body": "Όταν κάνετε την πρώτη σας παραγγελία θα εμφανιστεί εδώ, μαζί με την πορεία της.",
+      "ston_katalogo": "Στον κατάλογο",
+      "kai_alla": "και {n} ακόμη",
+      "status_pending_payment": "Αναμονή πληρωμής",
+      "status_confirmed": "Επιβεβαιώθηκε",
+      "status_packing": "Ετοιμάζεται",
+      "status_shipped": "Απεστάλη",
+      "status_delivered": "Παραδόθηκε",
+      "status_cancelled": "Ακυρώθηκε",
+      "status_failed": "Απέτυχε"
+    }
+  },
+  "dieuthynseis": {
+    "page": {
+      "titlos": "Διευθύνσεις αποστολής",
+      "lead": "Αποθηκεύστε τις διευθύνσεις που χρησιμοποιείτε, για να μην τις ξαναγράφετε σε κάθε παραγγελία.",
+      "proepilogi": "Προεπιλογή",
+      "orise_proepilogi": "Ορισμός ως προεπιλογή",
+      "epexergasia": "Επεξεργασία",
+      "diagrafi": "Διαγραφή",
+      "nea_dieuthynsi": "Νέα διεύθυνση",
+      "epexergasia_dieuthynsis": "Επεξεργασία διεύθυνσης",
+      "onomasia": "Ονομασία",
+      "onomasia_paradeigma": "π.χ. Αποθήκη Ασπροπύργου",
+      "onoma": "Όνομα",
+      "eponymo": "Επώνυμο",
+      "odos": "Οδός και αριθμός",
+      "orofos": "Όροφος, κουδούνι (προαιρετικό)",
+      "tk": "Τ.Κ.",
+      "poli": "Πόλη",
+      "nomos": "Νομός",
+      "tilefono": "Τηλέφωνο παραλήπτη",
+      "na_einai_proepilogi": "Να προτείνεται πρώτη στο ταμείο",
+      "apothikeysi": "Αποθήκευση",
+      "apothikeysi_se_exelixi": "Αποθήκευση…",
+      "akyro": "Άκυρο"
+    }
   }
 }

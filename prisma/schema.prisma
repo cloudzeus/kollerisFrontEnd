@@ -519,10 +519,15 @@ model Order {
   status        OrderStatus   @default(PENDING_PAYMENT)
   paymentStatus PaymentStatus @default(PENDING)
 
-  /// Guest orders have no customer row yet (accounts are Phase 6). The token
-  /// is what lets a guest reopen their own confirmation page and nobody else's.
+  /// Set when the order was placed by someone signed in. Null for guests, and
+  /// null for every order placed before the checkout started recording it —
+  /// which is why "my orders" also matches on email.
+  ///
+  /// The token is what lets a guest reopen their own confirmation page and
+  /// nobody else's, and it keeps working after the customer registers.
   customerId  String?
-  guestToken  String  @unique @db.VarChar(64)
+  customer    Customer? @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  guestToken  String    @unique @db.VarChar(64)
 
   // ── Contact ──
   email     String  @db.VarChar(320)
@@ -770,7 +775,9 @@ model Customer {
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 
-  sessions CustomerSession[]
+  sessions  CustomerSession[]
+  addresses CustomerAddress[]
+  orders    Order[]
 
   @@index([companyId, role])
   @@index([status])
@@ -842,6 +849,49 @@ model CustomerSession {
   @@index([customerId])
   @@index([expiresAt])
   @@map("customer_sessions")
+}
+
+/// A saved delivery address.
+///
+/// Belongs to the person, not to the company: a tradesman ordering for two sites
+/// wants both, and so does an employee who has things sent home. Company members
+/// therefore keep their own book rather than sharing one, which also means
+/// removing someone from a company never deletes an address another order still
+/// refers to.
+///
+/// Deliberately a copy, not a reference. An order records the address it was
+/// actually sent to (`Order.shipLine1` and friends); editing a saved address
+/// later must not rewrite where last month's parcel went.
+model CustomerAddress {
+  id String @id @default(cuid())
+
+  customerId String
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  /// What the customer calls it: "Σπίτι", "Αποθήκη Ασπροπύργου".
+  label String @db.VarChar(80)
+
+  /// Who receives it. Not always the account holder — a site foreman, a spouse.
+  firstName String  @db.VarChar(120)
+  lastName  String  @db.VarChar(120)
+  phone     String? @db.VarChar(64)
+
+  line1    String  @db.VarChar(255)
+  line2    String? @db.VarChar(255)
+  city     String  @db.VarChar(120)
+  postcode String  @db.VarChar(16)
+  region   String? @db.VarChar(120)
+
+  /// Offered first at checkout. At most one per customer, enforced in the action
+  /// rather than by the database, because "exactly one" cannot be expressed as a
+  /// partial unique index in every engine and a half-enforced rule is worse.
+  isDefault Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([customerId, isDefault])
+  @@map("customer_addresses")
 }
 
 /// Pending invitation to join a company account.
