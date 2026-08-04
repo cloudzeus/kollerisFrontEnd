@@ -203,7 +203,10 @@ export function CellCanvas({
     const onKey = (e: KeyboardEvent) => {
       const el = document.activeElement;
       if (el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement) return;
-      if (!e.key.startsWith("Arrow")) return;
+      // Same guard as the header shortcut: this is a window listener, and an
+      // event dispatched by an extension or a password manager can arrive with
+      // no `key` at all.
+      if (typeof e.key !== "string" || !e.key.startsWith("Arrow")) return;
       e.preventDefault();
 
       const step = e.shiftKey ? 5 : 1;

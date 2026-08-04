@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-08-04T06:01:16.312Z",
+  "timestamp": "2026-08-04T06:09:47.449Z",
   "source": "auto-postool",
   "partial": false,
   "phase": null,
@@ -22,45 +22,13 @@
     },
     {
       "status": "M",
-      "path": "src/app/[locale]/epikoinonia/page.tsx"
+      "path": "src/components/admin/banners/CellCanvas.tsx"
     },
     {
       "status": "M",
-      "path": "src/components/checkout/CheckoutForm.tsx"
-    },
-    {
-      "status": "M",
-      "path": "src/messages/el.json"
-    },
-    {
-      "status": "M",
-      "path": "src/messages/en.json"
-    },
-    {
-      "status": "M",
-      "path": "src/messages/it.json"
-    },
-    {
-      "status": "??",
-      "path": "src/app/api/address/"
-    },
-    {
-      "status": "??",
-      "path": "src/app/api/map/"
-    },
-    {
-      "status": "??",
-      "path": "src/components/checkout/AddressAutocomplete.tsx"
-    },
-    {
-      "status": "??",
-      "path": "src/components/contact/StoreMap.tsx"
-    },
-    {
-      "status": "??",
-      "path": "src/lib/geo/"
+      "path": "src/components/chrome/HeaderShell.tsx"
     }
   ],
   "next_action": null,
-  "context_notes": "Recent commits:\nc2f6cab feat(contact): a place for the two photographs of the shop\nd500512 feat(contact): motion where the page has something true to say\n5f81874 fix(home): the hero's right column was 400px of nothing\n41ef428 fix(copy): official distributor, not official representative\n2e33dfe fix(pdp): \"N/A\" is spelled two hundred and sixty-eight ways"
+  "context_notes": "Recent commits:\n0a8d280 feat(geo): a map on the contact page, address suggestions at checkout\nc2f6cab feat(contact): a place for the two photographs of the shop\nd500512 feat(contact): motion where the page has something true to say\n5f81874 fix(home): the hero's right column was 400px of nothing\n41ef428 fix(copy): official distributor, not official representative"
 }

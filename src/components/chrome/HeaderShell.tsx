@@ -61,12 +61,34 @@ export function HeaderShell({ children }: { children: React.ReactNode }) {
         target?.tagName === "TEXTAREA" ||
         target?.isContentEditable;
 
+      /*
+       * `key` is not guaranteed.
+       *
+       * It is always there on a keystroke a person makes, but this listener
+       * sees every keydown on the window, including ones dispatched by password
+       * managers, extensions and autofill. A plain `new Event("keydown")` has no
+       * `key` at all, and `.toLowerCase()` on it took the whole page down with a
+       * TypeError — from a shortcut nobody had pressed.
+       */
+      const key = event.key;
+      if (typeof key !== "string") return;
+
       const wants =
-        (event.key === "/" && !typing) ||
-        (event.key.toLowerCase() === "k" && (event.metaKey || event.ctrlKey));
+        (key === "/" && !typing) ||
+        (key.toLowerCase() === "k" && (event.metaKey || event.ctrlKey));
       if (!wants) return;
 
-      const input = node.querySelector<HTMLInputElement>("[data-search-input]");
+      /*
+       * The VISIBLE one.
+       *
+       * The header carries two search inputs, one for each breakpoint, and only
+       * one is on screen at a time. `querySelector` returns the first in the
+       * document, which on desktop is the hidden mobile field: the shortcut
+       * fired, focused something nobody could see, and looked broken.
+       */
+      const input = [...node.querySelectorAll<HTMLInputElement>("[data-search-input]")].find(
+        (candidate) => candidate.offsetParent !== null,
+      );
       if (!input) return;
       event.preventDefault();
       input.focus();
