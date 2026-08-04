@@ -643,26 +643,143 @@
 }
 
 /*
- * One row, once there is room for one.
+ * One arrangement per width band, chosen by arithmetic.
  * ─────────────────────────────────────────────────────────────────────────────
- * Opt-in per banner. A capped banner on a wide monitor is very wide and very
- * short, and a cell stacked two-high in that space gets half of an already
- * short height — 225px to hold a title, a price and a button, which is what
- * pushes text out of its box. Side by side each cell gets the full height.
+ * `resolveBands` decides, from the template's shape, its aspect ratio and the
+ * banner's height ceiling — all known before render, so nothing measures and
+ * nothing flickers. Each band restates the arrangement in full rather than
+ * patching the one before it, so reading any single block tells you what that
+ * width does.
  *
- * Each cell keeps the share of the width its column span already described, so
- * an 8/4/4 template reads 50/25/25 and the operator changes the proportions by
- * changing the grid, not by learning a second set of numbers.
+ *   grid — the template as drawn
+ *   row  — every cell side by side, each as wide as the columns it spans
+ *
+ * Stacking is not one of the choices: below 704px the grid collapses to one
+ * column anyway, and above it a stacked cell is just its 13rem floor, which is
+ * shorter than the same cell in the template.
  */
-@container (min-width: 88rem) {
-  .banner-grid[data-wide="row"] {
+@container (min-width: 44rem) {
+  .banner-grid[data-b-tablet="grid"] {
+    grid-template-columns: repeat(var(--bn-cols), minmax(0, 1fr));
+    grid-template-rows: repeat(var(--bn-rows), minmax(0, 1fr));
+    /* Restated, not inherited: a narrower band may have been `stack`,
+       which turns these off. Every band says everything it can change. */
+    aspect-ratio: var(--bn-aspect);
+    max-height: var(--bn-max-h, 9999px);
+    min-height: min(calc(var(--bn-rows) * 3.25rem), var(--bn-max-h, 9999px));
+  }
+  .banner-grid[data-b-tablet="grid"] > * {
+    grid-column: var(--bn-col);
+    grid-row: var(--bn-row);
+  }
+
+  .banner-grid[data-b-tablet="row"] {
     grid-template-columns: repeat(var(--bn-span-total), minmax(0, 1fr));
     grid-template-rows: minmax(0, 1fr);
+    /* Restated, not inherited: a narrower band may have been `stack`,
+       which turns these off. Every band says everything it can change. */
+    aspect-ratio: var(--bn-aspect);
+    max-height: var(--bn-max-h, 9999px);
+    min-height: min(calc(var(--bn-rows) * 3.25rem), var(--bn-max-h, 9999px));
   }
-  .banner-grid[data-wide="row"] > * {
+  .banner-grid[data-b-tablet="row"] > * {
     grid-column: span var(--bn-w);
     grid-row: 1;
   }
+
+}
+
+@container (min-width: 64rem) {
+  .banner-grid[data-b-desktop="grid"] {
+    grid-template-columns: repeat(var(--bn-cols), minmax(0, 1fr));
+    grid-template-rows: repeat(var(--bn-rows), minmax(0, 1fr));
+    /* Restated, not inherited: a narrower band may have been `stack`,
+       which turns these off. Every band says everything it can change. */
+    aspect-ratio: var(--bn-aspect);
+    max-height: var(--bn-max-h, 9999px);
+    min-height: min(calc(var(--bn-rows) * 3.25rem), var(--bn-max-h, 9999px));
+  }
+  .banner-grid[data-b-desktop="grid"] > * {
+    grid-column: var(--bn-col);
+    grid-row: var(--bn-row);
+  }
+
+  .banner-grid[data-b-desktop="row"] {
+    grid-template-columns: repeat(var(--bn-span-total), minmax(0, 1fr));
+    grid-template-rows: minmax(0, 1fr);
+    /* Restated, not inherited: a narrower band may have been `stack`,
+       which turns these off. Every band says everything it can change. */
+    aspect-ratio: var(--bn-aspect);
+    max-height: var(--bn-max-h, 9999px);
+    min-height: min(calc(var(--bn-rows) * 3.25rem), var(--bn-max-h, 9999px));
+  }
+  .banner-grid[data-b-desktop="row"] > * {
+    grid-column: span var(--bn-w);
+    grid-row: 1;
+  }
+
+}
+
+@container (min-width: 88rem) {
+  .banner-grid[data-b-wide="grid"] {
+    grid-template-columns: repeat(var(--bn-cols), minmax(0, 1fr));
+    grid-template-rows: repeat(var(--bn-rows), minmax(0, 1fr));
+    /* Restated, not inherited: a narrower band may have been `stack`,
+       which turns these off. Every band says everything it can change. */
+    aspect-ratio: var(--bn-aspect);
+    max-height: var(--bn-max-h, 9999px);
+    min-height: min(calc(var(--bn-rows) * 3.25rem), var(--bn-max-h, 9999px));
+  }
+  .banner-grid[data-b-wide="grid"] > * {
+    grid-column: var(--bn-col);
+    grid-row: var(--bn-row);
+  }
+
+  .banner-grid[data-b-wide="row"] {
+    grid-template-columns: repeat(var(--bn-span-total), minmax(0, 1fr));
+    grid-template-rows: minmax(0, 1fr);
+    /* Restated, not inherited: a narrower band may have been `stack`,
+       which turns these off. Every band says everything it can change. */
+    aspect-ratio: var(--bn-aspect);
+    max-height: var(--bn-max-h, 9999px);
+    min-height: min(calc(var(--bn-rows) * 3.25rem), var(--bn-max-h, 9999px));
+  }
+  .banner-grid[data-b-wide="row"] > * {
+    grid-column: span var(--bn-w);
+    grid-row: 1;
+  }
+
+}
+
+@container (min-width: 120rem) {
+  .banner-grid[data-b-ultra="grid"] {
+    grid-template-columns: repeat(var(--bn-cols), minmax(0, 1fr));
+    grid-template-rows: repeat(var(--bn-rows), minmax(0, 1fr));
+    /* Restated, not inherited: a narrower band may have been `stack`,
+       which turns these off. Every band says everything it can change. */
+    aspect-ratio: var(--bn-aspect);
+    max-height: var(--bn-max-h, 9999px);
+    min-height: min(calc(var(--bn-rows) * 3.25rem), var(--bn-max-h, 9999px));
+  }
+  .banner-grid[data-b-ultra="grid"] > * {
+    grid-column: var(--bn-col);
+    grid-row: var(--bn-row);
+  }
+
+  .banner-grid[data-b-ultra="row"] {
+    grid-template-columns: repeat(var(--bn-span-total), minmax(0, 1fr));
+    grid-template-rows: minmax(0, 1fr);
+    /* Restated, not inherited: a narrower band may have been `stack`,
+       which turns these off. Every band says everything it can change. */
+    aspect-ratio: var(--bn-aspect);
+    max-height: var(--bn-max-h, 9999px);
+    min-height: min(calc(var(--bn-rows) * 3.25rem), var(--bn-max-h, 9999px));
+  }
+  .banner-grid[data-b-ultra="row"] > * {
+    grid-column: span var(--bn-w);
+    grid-row: 1;
+  }
+
 }
 
 /* A slow drift on a banner background. Purely decorative, so it stops dead for

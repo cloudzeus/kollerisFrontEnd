@@ -299,37 +299,106 @@ export type BannerHeight = { value: number; unit: "px" | "vh" };
  */
 export type WideLayout = "auto" | "grid" | "row";
 
-/** A stacked cell needs about this much height to hold a heading, a line of
- *  copy and a button without the text leaving its box. */
-const CRAMPED_CELL = 240;
+/**
+ * One arrangement of the cells.
+ *
+ * No `stack` here on purpose. Stacking is what happens below 704px, where the
+ * CSS collapses the grid to one column — but it is never the better answer
+ * ABOVE that width, because a cell's layers are absolutely positioned and
+ * contribute no height. A stacked cell is exactly its 13rem floor, which is
+ * shorter than the same cell in the template's own arrangement. Choosing it to
+ * relieve a cramped cell made the cramping worse: 208px instead of 386px, and
+ * text overflow up from 1px to 87px.
+ */
+export type BandLayout = "grid" | "row";
 
 /**
- * The arrangement to actually use on a wide screen.
+ * The width bands a banner is allowed to rearrange at.
  *
- * `auto` — the default — works it out. A height ceiling fixes the banner's
- * height, so the height each cell gets is arithmetic: `cap × rows spanned ÷
- * total rows`. If the shortest cell lands under what a heading, a price and a
- * button need, stacking is the wrong answer at that size and the cells go side
- * by side instead.
- *
- * Deliberately decided here rather than measured in the browser: it depends on
- * the ceiling and the template, both known before anything renders, so it costs
- * no JavaScript and cannot flicker.
+ * Container widths, not viewport widths — the preview modal renders a banner at
+ * 390 / 768 / 1440 inside a desktop window, and a media query would show it the
+ * desktop layout at every setting.
  */
-export function resolveWideLayout(
+export const BANDS = [
+  { key: "tablet", from: 704 },
+  { key: "desktop", from: 1024 },
+  { key: "wide", from: 1408 },
+  { key: "ultra", from: 1920 },
+] as const;
+
+export type BandKey = (typeof BANDS)[number]["key"];
+
+/** A stacked cell needs about this to hold a heading, a line and a button. */
+const CRAMPED_CELL = 240;
+/** Below this a cell is a column of wrapped words, whatever its height. */
+const NARROW_CELL = 220;
+
+const aspectOf = (aspect: string | null): number | null => {
+  if (!aspect || aspect === "auto") return null;
+  const [w, h] = aspect.split("/").map((n) => Number(n.trim()));
+  return w > 0 && h > 0 ? w / h : null;
+};
+
+/**
+ * The best arrangement for one width, worked out rather than guessed.
+ *
+ * Everything it needs is known before anything renders: the template's shape,
+ * its aspect ratio and the banner's height ceiling. So it costs no JavaScript,
+ * cannot flicker, and gives the same answer on the server and in the preview.
+ *
+ * It asks two questions in order. Is every cell tall enough as drawn? Then keep
+ * the template — the operator's arrangement wins whenever it works. If not,
+ * would one row give every cell the full height without making any of them too
+ * narrow to read? Then one row. Otherwise stack them, which is the only
+ * arrangement that can always give a cell the room it needs.
+ */
+export function resolveBand(
   cells: GridCell[],
   rows: number,
+  aspect: string | null,
+  maxHeight: BannerHeight | null | undefined,
+  width: number,
+): BandLayout {
+  if (cells.length < 2) return "grid";
+
+  const ratio = aspectOf(aspect);
+  const capPx = !maxHeight?.value
+    ? Infinity
+    : maxHeight.unit === "vh"
+      // A share of a window this side cannot measure; a laptop is the case
+      // worth being right about.
+      ? (maxHeight.value / 100) * 900
+      : maxHeight.value;
+  const height = Math.min(ratio ? width / ratio : Infinity, capPx);
+  // No ratio and no ceiling: the banner is as tall as its rows make it, and
+  // nothing is cramped.
+  if (!Number.isFinite(height)) return "grid";
+
+  const shortestAsDrawn = Math.min(...cells.map((c) => (height * c.h) / rows));
+  if (shortestAsDrawn >= CRAMPED_CELL) return "grid";
+
+  const total = spanTotal(cells);
+  const narrowestInRow = Math.min(...cells.map((c) => (width * c.w) / total));
+  if (height >= CRAMPED_CELL && narrowestInRow >= NARROW_CELL) return "row";
+
+  // Neither is comfortable, so keep the operator's arrangement — it gives the
+  // largest cell the most height, and the alternative helps nothing.
+  return "grid";
+}
+
+/** The arrangement for every band, honouring an explicit choice over its own
+ *  arithmetic. */
+export function resolveBands(
+  cells: GridCell[],
+  rows: number,
+  aspect: string | null,
   maxHeight: BannerHeight | null | undefined,
   choice: WideLayout | undefined,
-): "grid" | "row" {
-  if (choice === "grid" || choice === "row") return choice;
-  // Without a ceiling the banner grows with the screen and nothing is cramped.
-  if (!maxHeight?.value || cells.length < 2) return "grid";
-  // A vh ceiling is a share of a window this side cannot measure; a laptop is
-  // the case worth being right about.
-  const capPx = maxHeight.unit === "vh" ? (maxHeight.value / 100) * 900 : maxHeight.value;
-  const shortest = Math.min(...cells.map((c) => (capPx * c.h) / rows));
-  return shortest < CRAMPED_CELL ? "row" : "grid";
+): Record<BandKey, BandLayout> {
+  const forced = choice === "grid" || choice === "row" ? choice : null;
+  return Object.fromEntries(
+    BANDS.map((b) => [b.key, forced ?? resolveBand(cells, rows, aspect, maxHeight, b.from)]),
+  ) as Record<BandKey, BandLayout>;
 }
 
 /** The editable body of a banner: one composition per cell, keyed by cell id. */

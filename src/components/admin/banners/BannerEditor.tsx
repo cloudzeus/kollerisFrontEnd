@@ -18,7 +18,7 @@ import {
   bannerState,
   cellVars,
   gridVars,
-  resolveWideLayout,
+  resolveBands,
   sameContent,
   type BannerContent,
   type BannerView,
@@ -217,6 +217,21 @@ export function BannerEditor({
 
   const freeZones = ZONES.filter((z) => !banner.placements.includes(z.id));
 
+  /* One data attribute per width band; the CSS picks the arrangement. */
+  const bands = resolveBands(
+    template.cells,
+    template.rows,
+    template.aspect,
+    content.maxHeight,
+    content.wideLayout,
+  );
+  const bandAttrs = {
+    "data-b-tablet": bands.tablet,
+    "data-b-desktop": bands.desktop,
+    "data-b-wide": bands.wide,
+    "data-b-ultra": bands.ultra,
+  };
+
   return (
     <PageShell
       title={banner.name}
@@ -257,7 +272,7 @@ export function BannerEditor({
             {/* Στόχοι κλικ, στην ίδια γεωμετρία με τον renderer */}
             <div className="banner-shell absolute inset-0">
               <div className="banner-grid" style={gridVars(template, content.maxHeight)}
-        data-wide={resolveWideLayout(template.cells, template.rows, content.maxHeight, content.wideLayout)}>
+        {...bandAttrs}>
                 {template.cells.map((cell, index) => {
                   const has = Boolean(content.cells[cell.id]);
                   return (

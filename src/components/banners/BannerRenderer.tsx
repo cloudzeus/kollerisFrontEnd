@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils";
 import {
   cellVars,
   gridVars,
-  resolveWideLayout,
+  resolveBands,
   type BannerContent,
   type GridTemplateView,
 } from "@/lib/banners/contract";
@@ -45,10 +45,25 @@ export function BannerRenderer({
    *  not a preview, it is a distraction. On in the preview modal. */
   motion?: boolean;
 }) {
+  /* One data attribute per width band; the CSS picks the arrangement. */
+  const bands = resolveBands(
+    template.cells,
+    template.rows,
+    template.aspect,
+    content.maxHeight,
+    content.wideLayout,
+  );
+  const bandAttrs = {
+    "data-b-tablet": bands.tablet,
+    "data-b-desktop": bands.desktop,
+    "data-b-wide": bands.wide,
+    "data-b-ultra": bands.ultra,
+  };
+
   return (
     <div className={cn("banner-shell", className)}>
       <div className="banner-grid bg-k-line" style={gridVars(template, content.maxHeight)}
-        data-wide={resolveWideLayout(template.cells, template.rows, content.maxHeight, content.wideLayout)} data-banner-grid>
+        {...bandAttrs} data-banner-grid>
         {template.cells.map((cell, index) => {
           const composition = content.cells?.[cell.id];
           const cellResolved = resolved.get(cell.id);

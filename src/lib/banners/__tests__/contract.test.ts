@@ -2,7 +2,8 @@ import { describe, expect, it } from "vitest";
 import {
   bannerState,
   maxHeightCss,
-  resolveWideLayout,
+  resolveBand,
+  resolveBands,
   spanTotal,
   cellStyle,
   emptyComposition,
@@ -221,39 +222,77 @@ describe("maxHeightCss", () => {
   });
 });
 
-describe("resolveWideLayout", () => {
+describe("resolveBand", () => {
   // 8/4/4 on a 12×6 grid: the big cell spans all six rows, the two small ones
-  // three each — so they stack, and get half the height.
+  // three each — so those two stack and get half the height.
+  const cells = [
+    { id: "a", name: "A", x: 0, y: 0, w: 8, h: 6 },
+    { id: "b", name: "B", x: 8, y: 0, w: 4, h: 3 },
+    { id: "c", name: "C", x: 8, y: 3, w: 4, h: 3 },
+  ];
+  const band = (width: number, cap: number | null) =>
+    resolveBand(cells, 6, "21/9", cap ? { value: cap, unit: "px" as const } : null, width);
+
+  it("keeps the template while every cell is tall enough", () => {
+    // 1920 ÷ 21/9 = 823px tall; the short cells get 411px each.
+    expect(band(1920, null)).toBe("grid");
+  });
+
+  it("goes to one row when a ceiling halves the short cells", () => {
+    // Capped at 450, the stacked cells get 225px — under what a title, a price
+    // and a button need.
+    expect(band(1408, 450)).toBe("row");
+    expect(band(1920, 450)).toBe("row");
+  });
+
+  it("keeps the template when one row would leave the cells too narrow", () => {
+    // At 704px each of sixteen columns is 44px, so the 4-span cells are 176px.
+    expect(band(704, 450)).toBe("grid");
+  });
+
+  it("keeps the template when even a full-height row is too short", () => {
+    // A 200px ceiling gives every cell 200px whichever way they are placed, so
+    // rearranging buys nothing and the operator's arrangement stands.
+    expect(band(1920, 200)).toBe("grid");
+  });
+
+  // Stacking is deliberately not a choice: a stacked cell is its 13rem floor,
+  // shorter than the same cell in the template, so it worsens the very problem
+  // it would be chosen to fix.
+  it("never stacks above the collapse breakpoint", () => {
+    const widths = [704, 900, 1024, 1408, 1920, 2560];
+    const caps = [null, 200, 300, 450, 700];
+    for (const w of widths)
+      for (const c of caps) expect(["grid", "row"]).toContain(band(w, c));
+  });
+
+  it("keeps the template when nothing constrains the height", () => {
+    expect(resolveBand(cells, 6, null, null, 1408)).toBe("grid");
+  });
+
+  it("leaves a single-cell banner alone", () => {
+    const one = [{ id: "a", name: "A", x: 0, y: 0, w: 12, h: 6 }];
+    expect(resolveBand(one, 6, "21/9", { value: 200, unit: "px" }, 1920)).toBe("grid");
+  });
+});
+
+describe("resolveBands", () => {
   const cells = [
     { id: "a", name: "A", x: 0, y: 0, w: 8, h: 6 },
     { id: "b", name: "B", x: 8, y: 0, w: 4, h: 3 },
     { id: "c", name: "C", x: 8, y: 3, w: 4, h: 3 },
   ];
 
-  it("keeps the grid when nothing caps the height", () => {
-    // Without a ceiling the banner grows with the screen; nothing is cramped.
-    expect(resolveWideLayout(cells, 6, null, "auto")).toBe("grid");
+  it("answers for every band", () => {
+    const bands = resolveBands(cells, 6, "21/9", { value: 450, unit: "px" }, "auto");
+    expect(Object.keys(bands)).toEqual(["tablet", "desktop", "wide", "ultra"]);
+    expect(bands.tablet).toBe("grid");
+    expect(bands.wide).toBe("row");
   });
 
-  it("goes to one row when the ceiling leaves a stacked cell under 240px", () => {
-    // 450 × 3/6 = 225px to hold a title, a price and a button.
-    expect(resolveWideLayout(cells, 6, { value: 450, unit: "px" }, "auto")).toBe("row");
-  });
-
-  it("keeps the grid when the ceiling is generous enough", () => {
-    // 700 × 3/6 = 350px — room to stack.
-    expect(resolveWideLayout(cells, 6, { value: 700, unit: "px" }, "auto")).toBe("grid");
-  });
-
-  it("reads a vh ceiling against a laptop, the case worth being right about", () => {
-    // 40vh of 900px is 360px; halved, 180px — cramped.
-    expect(resolveWideLayout(cells, 6, { value: 40, unit: "vh" }, "auto")).toBe("row");
-    expect(resolveWideLayout(cells, 6, { value: 90, unit: "vh" }, "auto")).toBe("grid");
-  });
-
-  it("obeys the operator over its own arithmetic", () => {
-    expect(resolveWideLayout(cells, 6, { value: 450, unit: "px" }, "grid")).toBe("grid");
-    expect(resolveWideLayout(cells, 6, null, "row")).toBe("row");
+  it("obeys the operator over its own arithmetic, in every band", () => {
+    const forced = resolveBands(cells, 6, "21/9", { value: 450, unit: "px" }, "grid");
+    expect(Object.values(forced).every((v) => v === "grid")).toBe(true);
   });
 
   it("divides the width by the spans the template already describes", () => {
