@@ -64,11 +64,28 @@ describe("isEmptySpec", () => {
     expect(isEmptySpec(value)).toBe(true);
   });
 
-  it("drops the phrase in all three languages", () => {
-    expect(isEmptySpec("Δεν ισχύει")).toBe(true);
-    expect(isEmptySpec("Δεν Ισχύει")).toBe(true);
-    expect(isEmptySpec("Not applicable")).toBe(true);
-    expect(isEmptySpec("Non applicabile")).toBe(true);
+  // The projection says this a dozen different ways. Every string below is a
+  // real value from `product_specs`; catching only four of them was the first
+  // pass, and a safety boot still listed a voltage and a battery life.
+  it.each([
+    "Δεν ισχύει", "Δεν Ισχύει", "Μη εφαρμόσιμο", "Μη εφαρμόζεται",
+    "Δεν εφαρμόζεται", "Μη εφαρμοστέο", "Μη απαιτούμενο", "Μη απαιτούμενη",
+    "Δεν καθορίζεται", "Μη διαθέσιμο", "Χωρίς εφαρμογή",
+    "Not applicable", "Not specified", "Not required",
+    "Non applicabile", "Non richiesto", "Non specificato",
+  ])("drops %s", (value) => {
+    expect(isEmptySpec(value)).toBe(true);
+  });
+
+  // The bracket explains WHY the field does not apply, which is not something a
+  // customer needs from a spec table.
+  it.each([
+    "N/A (utensile manuale)",
+    "Δεν ισχύει (συνδεδεμένο στο δίκτυο)",
+    "Not applicable (manual tool)",
+    "Μη απαιτούμενο (χειροκίνητο)",
+  ])("drops %s, parenthesis and all", (value) => {
+    expect(isEmptySpec(value)).toBe(true);
   });
 
   it("drops a bare dash and an empty value", () => {
@@ -78,11 +95,19 @@ describe("isEmptySpec", () => {
     expect(isEmptySpec(undefined)).toBe(true);
   });
 
-  // Matched whole, not as a prefix: these carry a real answer after the phrase,
-  // and dropping them would delete information rather than noise.
-  it("keeps a qualified value that still says something", () => {
-    expect(isEmptySpec("Non applicabile (coppia: 25 Nm)")).toBe(false);
-    expect(isEmptySpec("Δεν ισχύει (συνδεδεμένο στο δίκτυο)")).toBe(false);
+  /*
+   * The match is on the whole string, never a prefix. Each of these starts with
+   * the same word as something that IS dropped, and each is a real answer to
+   * the question its field asks — a prefix rule would delete all of them.
+   */
+  it.each([
+    "Μη ηλεκτρικό",
+    "Μη ηλεκτρικό (χειροκίνητο)",
+    "Χωρίς ηλεκτρικό θόρυβο",
+    "Χωρίς θόρυβο",
+    "Non elettrico",
+  ])("keeps %s", (value) => {
+    expect(isEmptySpec(value)).toBe(false);
   });
 
   it("keeps ordinary values, including ones containing the letters", () => {

@@ -13,37 +13,41 @@
 /**
  * The ways the projection says "this field does not apply to this product".
  *
- * `N/A` alone is 164,000 of the roughly 400,000 spec rows in the catalogue —
- * the single most common value by a wide margin, ahead of every real answer.
- * Each one rendered as a labelled row, so a hand spanner listed a voltage, a
- * wattage and a maximum speed, all of them saying nothing, and the unit was
- * appended on top: "Τάση — Δεν ισχύει V".
+ * `N/A` alone is 164,000 of the roughly 400,000 spec rows in the catalogue, and
+ * it is far from the only spelling: the same idea arrives as `Δεν ισχύει`, `Μη
+ * εφαρμόσιμο`, `Μη εφαρμόζεται`, `Μη εφαρμοστέο`, `Not specified`, `Non
+ * applicabile` and a dozen more. Matching them one at a time is whack-a-mole,
+ * and the first pass shipped having caught only four of them — a safety boot
+ * still listed a voltage, a chuck size and a battery life, all of them saying
+ * nothing.
  */
 const NOT_APPLICABLE = new Set([
-  "n/a",
-  "na",
-  "n.a.",
-  "δεν ισχύει",
-  "δ/υ",
-  "not applicable",
-  "non applicabile",
-  "-",
-  "--",
-  "—",
-  "–",
-  "",
+  "n/a", "na", "n.a.",
+  "δεν ισχύει", "δ/υ", "μη εφαρμόσιμο", "μη εφαρμόζεται", "μη εφαρμοστέο",
+  "δεν εφαρμόζεται", "χωρίς εφαρμογή", "μη διαθέσιμο", "μη διαθέσιμα", "δεν διατίθεται",
+  "μη απαιτούμενο", "μη απαιτούμενη", "μη απαιτείται", "δεν απαιτείται",
+  "δεν καθορίζεται", "δεν εφαρμόζει",
+  "not applicable", "not specified", "not available", "not required",
+  "non applicabile", "non disponibile", "non specificato", "non richiesto",
+  "-", "--", "—", "–", "",
 ]);
 
 /**
  * True when a spec row says nothing and should not be shown at all — no value,
  * and no label either.
  *
- * Matched on the whole trimmed value, not as a prefix: a handful of rows read
- * "Non applicabile (coppia: 25 Nm)" and carry a real number inside the
- * parenthesis, and dropping those would delete information rather than noise.
+ * A trailing parenthesis is dropped before matching, because the catalogue is
+ * full of `N/A (utensile manuale)` and `Δεν ισχύει (συνδεδεμένο στο δίκτυο)`:
+ * the bracket explains WHY the field does not apply, which is not information a
+ * customer needs from a spec table.
+ *
+ * The match is on the whole remaining string, never a prefix. `Χωρίς ηλεκτρικό
+ * θόρυβο` starts with the same word as `Χωρίς εφαρμογή` and is a real answer;
+ * a prefix rule would delete it.
  */
 export function isEmptySpec(value: string | null | undefined): boolean {
-  return NOT_APPLICABLE.has((value ?? "").trim().toLowerCase());
+  const text = (value ?? "").trim().replace(/\s*\([^)]*\)\s*$/, "").trim();
+  return NOT_APPLICABLE.has(text.toLowerCase());
 }
 
 export function formatSpecValue(value: string, unit?: string | null): string {
