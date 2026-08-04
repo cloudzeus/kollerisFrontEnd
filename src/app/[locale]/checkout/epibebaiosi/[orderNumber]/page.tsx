@@ -15,6 +15,7 @@ import {
   getTopBrands,
 } from "@/lib/catalog/queries";
 import { formatMoney } from "@/lib/format";
+import { paymentPageUrl } from "@/lib/payment/viva";
 import { upGreek } from "@/lib/greek";
 import { prisma } from "@/lib/prisma";
 
@@ -94,6 +95,19 @@ export default async function ConfirmationPage({ params, searchParams }: PagePro
   const depositCode =
     order.paymentMethod === "bank" && awaitingPayment ? order.vivaOrderCode : null;
 
+  /*
+   * The same link Viva emails.
+   *
+   * Every payment order here is created with `paymentNotification: true`, so
+   * Viva sends the customer a payment notification with this link in it. It is
+   * repeated on the page because an email is a thing people close, filter or
+   * never receive, and the alternative is a code with nowhere to type it.
+   *
+   * The page behind it offers whatever the account has enabled, Pay By Bank
+   * included where it is available.
+   */
+  const payUrl = depositCode ? paymentPageUrl(depositCode) : null;
+
   return (
     <>
       <SiteChrome
@@ -141,11 +155,23 @@ export default async function ConfirmationPage({ params, searchParams }: PagePro
                     {t("kodikos_pliromis_odigia")}
                   </p>
                 </div>
-                {/* Tabular figures: a reference that is going to be copied by
-                    hand should not have digits of different widths. */}
-                <p className="shrink-0 border border-k-ink px-4 py-3 font-mono text-[18px] font-semibold tracking-[0.08em] tabular-nums text-k-ink">
-                  {depositCode}
-                </p>
+                <div className="flex shrink-0 flex-col items-start gap-2.5 sm:items-end">
+                  {/* Tabular figures: a reference that is going to be copied by
+                      hand should not have digits of different widths. */}
+                  <p className="border border-k-ink px-4 py-3 font-mono text-[18px] font-semibold tracking-[0.08em] tabular-nums text-k-ink">
+                    {depositCode}
+                  </p>
+                  {payUrl && (
+                    <a
+                      href={payUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="t-btn-sm bg-k-ink px-5 py-2.5 text-white transition-colors hover:bg-k-red"
+                    >
+                      {upGreek(t("pliroste_online"))} →
+                    </a>
+                  )}
+                </div>
               </div>
             </div>
           </div>

@@ -1311,7 +1311,8 @@
       "vima_apestali": "Spedito",
       "vima_paradothike": "Consegnato",
       "kodikos_pliromis_titlos": "Codice di pagamento",
-      "kodikos_pliromis_odigia": "Indica questo codice come causale del bonifico. È così che il pagamento viene abbinato automaticamente all'ordine."
+      "kodikos_pliromis_odigia": "Ti abbiamo inviato il link di pagamento anche via email. Se preferisci il bonifico, indica questo codice come causale.",
+      "pliroste_online": "Paga online"
     }
   },
   "b2b": {

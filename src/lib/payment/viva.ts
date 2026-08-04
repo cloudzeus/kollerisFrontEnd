@@ -198,8 +198,24 @@ export async function createPaymentOrder(
 
   return {
     orderCode,
-    checkoutUrl: `${CHECKOUT_URL}/web/checkout?ref=${orderCode}`,
+    checkoutUrl: paymentPageUrl(orderCode),
   };
+}
+
+/**
+ * The Viva payment page for a code we already have.
+ *
+ * Derived rather than stored. `createPaymentOrder` returns this URL, but only
+ * the code is kept on the order — the URL is a pure function of it, and a second
+ * copy in the database is a second thing that can fall out of step when the
+ * environment changes from demo to production.
+ *
+ * Viva emails the same link when the order is created with
+ * `paymentNotification: true`, which every order here is. This is for the
+ * confirmation page, so a customer who closed the email is not stuck.
+ */
+export function paymentPageUrl(orderCode: string): string {
+  return `${CHECKOUT_URL}/web/checkout?ref=${orderCode}`;
 }
 
 export type VivaTransaction = {

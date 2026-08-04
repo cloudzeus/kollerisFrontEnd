@@ -1311,7 +1311,8 @@
       "vima_apestali": "Shipped",
       "vima_paradothike": "Delivered",
       "kodikos_pliromis_titlos": "Payment code",
-      "kodikos_pliromis_odigia": "Quote this code as the reference on your transfer. That is what matches the payment to this order automatically."
+      "kodikos_pliromis_odigia": "We have emailed you the payment link as well. If you prefer a transfer, quote this code as the reference.",
+      "pliroste_online": "Pay online"
     }
   },
   "b2b": {
