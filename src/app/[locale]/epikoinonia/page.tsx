@@ -159,7 +159,11 @@ export default async function ContactPage({
                   now.open ? "text-k-green-2" : "text-k-amber"
                 }`}
               >
-                <span aria-hidden className="rounded-pill block h-2 w-2 bg-current" />
+                {/* Pulses only while open: the dot reports state, it does not decorate. */}
+                <span
+                  aria-hidden
+                  className={`rounded-pill block h-2 w-2 bg-current ${now.open ? "live-dot" : ""}`}
+                />
                 {upGreek(hoursLabel)}
               </p>
               <p className="t-brand-count mt-2 font-mono text-white/45">
@@ -175,7 +179,7 @@ export default async function ContactPage({
         </div>
 
         {/* Channels */}
-        <dl className="shell-w grid grid-cols-2 gap-px border-b border-k-line bg-k-line lg:grid-cols-4">
+        <dl className="reveal shell-w grid grid-cols-2 gap-px border-b border-k-line bg-k-line lg:grid-cols-4">
           {channels.map((channel) => {
             const body = (
               <>
@@ -260,7 +264,7 @@ export default async function ContactPage({
               title={t("isos_to_vreite_pio_grigora")}
               lead={t("ta_tria_pragmata_poy_mas")}
             />
-            <div className="mt-7 grid gap-px border border-k-line bg-k-line sm:grid-cols-3 lg:mt-9">
+            <div className="reveal mt-7 grid gap-px border border-k-line bg-k-line sm:grid-cols-3 lg:mt-9">
               {[
                 {
                   title: t("diathesimotita_kai_timi"),

@@ -907,3 +907,55 @@
   from { transform: translateX(0); }
   to   { transform: translateX(-50%); }
 }
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   Scroll reveal, without a library
+   ─────────────────────────────────────────────────────────────────────────────
+   `animation-timeline: view()` runs the whole thing on the compositor: no
+   IntersectionObserver, no scroll listener, no React state, and nothing added
+   to the bundle. Browsers without support simply show the content, which is the
+   correct fallback for a page whose job is a phone number.
+
+   Only `opacity` and `transform` are animated, so it cannot cost layout.
+   ───────────────────────────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .reveal {
+      animation: reveal-rise linear both;
+      animation-timeline: view();
+      /* Finished by the time the element is a third of the way up the screen —
+         content that is still fading in when you are reading it is worse than
+         content that never moved. */
+      animation-range: entry 0% cover 32%;
+    }
+  }
+}
+
+@keyframes reveal-rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/*
+ * The open sign.
+ *
+ * Pulses only while the shop is actually open, because that is the one thing on
+ * the page that is true right now and changes by itself. A dot that pulsed at
+ * 22:00 next to the word "Κλειστά" would be decoration; this is state.
+ */
+@media (prefers-reduced-motion: no-preference) {
+  .live-dot {
+    animation: live-pulse 2.4s ease-in-out infinite;
+  }
+}
+
+@keyframes live-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.45; transform: scale(0.82); }
+}

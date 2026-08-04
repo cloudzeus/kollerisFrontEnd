@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-08-04T05:28:53.346Z",
+  "timestamp": "2026-08-04T05:39:29.409Z",
   "source": "auto-postool",
   "partial": false,
   "phase": null,
@@ -22,13 +22,13 @@
     },
     {
       "status": "M",
-      "path": "src/app/[locale]/page.tsx"
+      "path": "src/app/[locale]/epikoinonia/page.tsx"
     },
     {
       "status": "M",
-      "path": "src/components/zones/Zone.tsx"
+      "path": "src/app/globals.css"
     }
   ],
   "next_action": null,
-  "context_notes": "Recent commits:\n41ef428 fix(copy): official distributor, not official representative\n2e33dfe fix(pdp): \"N/A\" is spelled two hundred and sixty-eight ways\n738b007 fix(home): the banner is a band, not a card floating between bands\n063181d fix(a11y): the navigation was below the contrast floor\n4bd356f feat(shop): a max width for the site, and a banner that respects it"
+  "context_notes": "Recent commits:\n5f81874 fix(home): the hero's right column was 400px of nothing\n41ef428 fix(copy): official distributor, not official representative\n2e33dfe fix(pdp): \"N/A\" is spelled two hundred and sixty-eight ways\n738b007 fix(home): the banner is a band, not a card floating between bands\n063181d fix(a11y): the navigation was below the contrast floor"
 }
