@@ -175,6 +175,18 @@ export type HdctoolProduct = {
     shortDescription: string | null;
     longDescription: string | null;
   }>;
+  /*
+   * Assigned colours and sizes.
+   *
+   * Optional because HDCtool only started returning them today: the eshop can
+   * be deployed ahead of it, and a required field would turn that ordering into
+   * a crash on every product rather than an absence.
+   *
+   * A size carries its family — "M" under ρούχα and "M" under γάντια are not
+   * the same size.
+   */
+  colors?: Array<{ id: string; name: string }>;
+  sizes?: Array<{ id: string; label: string; category: string | null }>;
   specifications: Array<Record<string, unknown> & { language: "el" | "en" | "it" }>;
   features: Array<{
     language: "el" | "en" | "it";

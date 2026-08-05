@@ -427,6 +427,32 @@ async function upsertProduct(
     }),
     prisma.productSpec.deleteMany({ where: { productId: product.id } }),
     prisma.productSpec.createMany({ data: buildSpecRows(p, product.id) }),
+    /*
+     * Colours and sizes, replaced wholesale like everything else here.
+     *
+     * `?? []` on both: HDCtool only started returning these fields today, and a
+     * deploy where the eshop is ahead of it would otherwise throw on every
+     * product rather than simply having nothing to write.
+     */
+    prisma.productColor.deleteMany({ where: { productId: product.id } }),
+    prisma.productColor.createMany({
+      data: (p.colors ?? []).map((c, i) => ({
+        productId: product.id,
+        externalId: c.id,
+        name: c.name,
+        order: i,
+      })),
+    }),
+    prisma.productSize.deleteMany({ where: { productId: product.id } }),
+    prisma.productSize.createMany({
+      data: (p.sizes ?? []).map((s, i) => ({
+        productId: product.id,
+        externalId: s.id,
+        label: s.label,
+        family: s.category ?? null,
+        order: i,
+      })),
+    }),
   ]);
 
   return product.createdAt.getTime() === product.updatedAt.getTime()

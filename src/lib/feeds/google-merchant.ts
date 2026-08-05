@@ -74,6 +74,8 @@ export async function buildMerchantFeed(locale: Locale = "el"): Promise<string> 
         select: { url: true },
         take: MAX_EXTRA_IMAGES + 1,
       },
+      colors: { orderBy: { order: "asc" }, select: { name: true } },
+      sizes: { orderBy: { order: "asc" }, select: { label: true } },
       translations: {
         where: { locale },
         select: { name: true, shortDescription: true, longDescription: true },
@@ -150,6 +152,22 @@ export async function buildMerchantFeed(locale: Locale = "el"): Promise<string> 
     ];
 
     if (brand) lines.push(`<g:brand>${xml(brand)}</g:brand>`);
+    /*
+     * Colour and size.
+     *
+     * Real Merchant Center attributes and the ones a buyer filters on for
+     * gloves, vests and safety glasses — which is most of what carries them
+     * here. Google takes a single value for each, so the first assigned wins;
+     * a product genuinely sold in several colours belongs in a variant group,
+     * which is a bigger change than this feed.
+     *
+     * `color` is capped at 100 characters by Google.
+     */
+    const color = product.colors[0]?.name?.slice(0, 100);
+    const size = product.sizes[0]?.label;
+    if (color) lines.push(`<g:color>${xml(color)}</g:color>`);
+    if (size) lines.push(`<g:size>${xml(size)}</g:size>`);
+
     /*
      * Shipping weight, and only when it can be believed.
      *

@@ -162,6 +162,8 @@ model Product {
   images       ProductImage[]
   translations ProductTranslation[]
   specs        ProductSpec[]
+  colors       ProductColor[]
+  sizes        ProductSize[]
   override     ProductOverride?
   cartLines    CartLine[]
 
@@ -271,6 +273,52 @@ model ProductImage {
 
   @@index([productId, order])
   @@map("product_images")
+}
+
+/// A colour assigned to a product in HDCtool.
+///
+/// Normalised rather than a JSON column so "show me everything in black" is a
+/// query rather than a scan — 242 products carry one today and the catalogue of
+/// colours is 46, which is exactly the shape a facet wants.
+///
+/// `externalId` is HDCtool's VariantColor id and is what the sync joins on.
+/// Matching by name would merge two colours somebody deliberately kept apart
+/// and would break the moment one is renamed.
+model ProductColor {
+  id        String  @id @default(cuid())
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  externalId String @db.VarChar(64)
+  name       String @db.VarChar(120)
+  order      Int    @default(0)
+
+  @@unique([productId, externalId])
+  @@index([productId, order])
+  /// Facet lookup: every product of one colour.
+  @@index([name])
+  @@map("product_colors")
+}
+
+/// A size assigned to a product in HDCtool.
+///
+/// `family` is the size category ("Ρούχα", "Παπούτσια"). It travels with the
+/// label because "M" under ρούχα and "M" under γάντια are not the same size,
+/// and a facet that merged them would be wrong rather than merely coarse.
+model ProductSize {
+  id        String  @id @default(cuid())
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  externalId String  @db.VarChar(64)
+  label      String  @db.VarChar(64)
+  family     String? @db.VarChar(120)
+  order      Int     @default(0)
+
+  @@unique([productId, externalId])
+  @@index([productId, order])
+  @@index([family, label])
+  @@map("product_sizes")
 }
 
 model ProductTranslation {
