@@ -106,7 +106,7 @@ export async function generateMetadata(): Promise<Metadata> {
       // no verification tag at all while looking like it was configured.
       google:
         process.env.GOOGLE_SITE_VERIFICATION ||
-        "wLYJMfxxgEA5dcGtsp19goBte3LVEmPg5mrA3h9sQ3c",
+        "KQ3VCyEKM40wz6J0F86WUhuE8kOmtOLKo0K7_aW6jl4",
     },
     title: {
       default: t("titlos_kolleris_ergaleia_epaggelmatikos"),
