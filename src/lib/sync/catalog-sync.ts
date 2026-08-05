@@ -866,8 +866,38 @@ export async function reconcileCatalog(): Promise<TargetedSyncResult> {
     };
     if (toSync.length > 0) result = await syncProductsByMtrl(toSync);
 
+    /*
+     * A big de-listing is refused, the same way an empty answer is.
+     *
+     * On 5 Aug 2026 this ran while HDCtool's `eshopListed` flags had briefly
+     * reverted to an older rule, and it did exactly what it was told: it
+     * switched off 237 products, silently, and reported success. The next run
+     * put them back. Nobody would have noticed either.
+     *
+     * The empty-answer guard above already encodes the principle — a catalogue
+     * shrinking is a decision, not a discovery — it just drew the line at zero.
+     * A tenth of the shop disappearing in one pass is the same kind of event and
+     * deserves the same refusal, because the cause is far more often a stale or
+     * half-computed flag upstream than 900 products genuinely going away.
+     *
+     * Below the threshold it proceeds, but the count is stated rather than
+     * folded into a total, so a run that removes 237 products reads as a run
+     * that removed 237 products.
+     */
+    const DELIST_LIMIT = 0.1;
+    if (toRemove.length > localActive.size * DELIST_LIMIT && localActive.size > 0) {
+      throw new Error(
+        `Reconcile refused: would de-list ${toRemove.length} of ${localActive.size} ` +
+          `active products (over ${DELIST_LIMIT * 100}%). HDCtool listed ${remote.size}. ` +
+          `Check eshopListed upstream before re-running.`,
+      );
+    }
+
     let removed = result.removed;
     if (toRemove.length > 0) {
+      console.warn(
+        `[catalog-reconcile] de-listing ${toRemove.length} products no longer listed by HDCtool`,
+      );
       const off = await prisma.product.updateMany({
         where: { mtrl: { in: toRemove } },
         data: { isActive: false, inStock: false },
