@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-08-04T06:09:47.449Z",
+  "timestamp": "2026-08-05T19:34:27.317Z",
   "source": "auto-postool",
   "partial": false,
   "phase": null,
@@ -18,17 +18,17 @@
   "uncommitted_files": [
     {
       "status": "M",
+      "path": ".claude/launch.json"
+    },
+    {
+      "status": "M",
       "path": ".planning/HANDOFF.json"
     },
     {
-      "status": "M",
-      "path": "src/components/admin/banners/CellCanvas.tsx"
-    },
-    {
-      "status": "M",
-      "path": "src/components/chrome/HeaderShell.tsx"
+      "status": "??",
+      "path": "src/lib/offers/coverage.ts"
     }
   ],
   "next_action": null,
-  "context_notes": "Recent commits:\n0a8d280 feat(geo): a map on the contact page, address suggestions at checkout\nc2f6cab feat(contact): a place for the two photographs of the shop\nd500512 feat(contact): motion where the page has something true to say\n5f81874 fix(home): the hero's right column was 400px of nothing\n41ef428 fix(copy): official distributor, not official representative"
+  "context_notes": "Recent commits:\nc5cf8a1 fix(reconcile): refuse to de-list a tenth of the shop in one pass\n84abac3 feat(arrivals): \"new\" means new to the shop, not new to the warehouse\n09e0830 feat(pdp): show colour and size, and say the same thing to Google\n328b001 feat(catalog): colours and sizes reach the storefront and the Merchant feed\nbed9b74 chore(seo): new Google site-verification token"
 }
