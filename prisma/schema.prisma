@@ -156,6 +156,19 @@ model Product {
   erpUpdatedAt  DateTime?
   syncedAt      DateTime @default(now())
 
+  /// When this product first became visible in the shop.
+  ///
+  /// Not the same question as `erpInsertedAt`, which is when it entered the
+  /// ERP. A tool bought into the range in 2019 and published today is new to
+  /// every customer and three years old to the warehouse; the arrivals page
+  /// answers the customer's question, so it reads this.
+  ///
+  /// Set once, on the first sync that creates the row, and never touched again
+  /// — an update must not move it or every nightly run would reset the page.
+  /// Existing rows were backfilled from `erpInsertedAt` so the history the page
+  /// already showed stays intact.
+  firstListedAt DateTime?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -174,6 +187,7 @@ model Product {
   @@index([isActive, inStock])
   @@index([isActive, onSale])
   @@index([isActive, isNew, erpInsertedAt])
+  @@index([isActive, firstListedAt])
   @@index([erpUpdatedAt])
   @@map("products")
 }

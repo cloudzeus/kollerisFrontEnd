@@ -396,9 +396,30 @@ async function upsertProduct(
   const product = await prisma.product.upsert({
     where: { mtrl: p.mtrl },
     update: data,
-    create: { ...data, mtrl: p.mtrl },
+    create: { ...data, mtrl: p.mtrl, firstListedAt: new Date() },
     select: { id: true, createdAt: true, updatedAt: true },
   });
+
+  /*
+   * Stamp `firstListedAt` the first time a product is actually listed.
+   *
+   * `create` alone is not enough, and that is not a hypothetical: the
+   * projection keeps a row for a product after it is de-listed, so the 1.371
+   * products published on 5 Aug 2026 already had rows here and came through
+   * `update` — only 231 of them were genuine creates. Stamping on create only
+   * would have left the other 1.140 dated 2019 and 2022 on the arrivals page.
+   *
+   * `IS NULL` is what makes it safe to run on every sync: the nightly job
+   * touches all 9.000 rows, and an unconditional write would date the whole
+   * catalogue today, every night. A row that has been listed once keeps its
+   * date forever; a row that has never been listed is NULL until the day it is.
+   */
+  if (data.isActive) {
+    await prisma.$executeRaw`
+      UPDATE products SET "firstListedAt" = now()
+       WHERE mtrl = ${p.mtrl} AND "firstListedAt" IS NULL
+    `;
+  }
 
   // Images and translations are small per product; replace wholesale rather
   // than diffing — the sync is not hot-path and this avoids stale rows.

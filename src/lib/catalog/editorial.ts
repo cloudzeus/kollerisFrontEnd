@@ -33,6 +33,7 @@ const CARD = {
   qty: true,
   inStock: true,
   erpInsertedAt: true,
+  firstListedAt: true,
   images: { where: { isFeature: true }, take: 1, select: { url: true } },
   translations: { select: { locale: true, name: true } },
 } as const;
@@ -118,13 +119,23 @@ const monthNames = (locale: Locale): string[] => {
 };
 
 /**
- * Arrivals grouped by the month they entered the ERP.
+ * Arrivals grouped by the month the shop first showed them.
  *
- * `Product.isNew` is false on every row in the projection, so "new" is derived
- * from `erpInsertedAt` — which IS populated, on all 5.305 products, back to
- * 2015. Grouping by month rather than listing newest-first is the whole point
- * of the page: a flat grid of 200 products cannot tell you whether the range
- * moved last week or two years ago.
+ * `Product.isNew` is false on every row in the projection, so "new" has to be
+ * derived from a date. It used to be `erpInsertedAt` — when the product entered
+ * the ERP — and that answered the wrong question. Publishing 1.371 products in
+ * one afternoon put them in the buckets for 2019, 2022 and 2025, because that
+ * is when the warehouse bought them; the page stayed empty while the shop grew
+ * by a sixth. Only 23 live products had an ERP date inside 90 days.
+ *
+ * `firstListedAt` is when a customer could first see the product, which is what
+ * "new arrival" means to the person reading the page. Rows that predate the
+ * column were backfilled from `erpInsertedAt`, so the history it already showed
+ * is unchanged.
+ *
+ * Grouping by month rather than listing newest-first is the whole point of the
+ * page: a flat grid of 200 products cannot tell you whether the range moved
+ * last week or two years ago.
  */
 export const getNewArrivals = cache(
   async (locale: Locale, periodLimit = 6, perPeriod = 10): Promise<NewArrivals> => {
@@ -134,22 +145,22 @@ export const getNewArrivals = cache(
 
     const [rows, brands, last30, last90, lastYear, total] = await Promise.all([
       prisma.product.findMany({
-        where: { isActive: true, erpInsertedAt: { not: null } },
-        orderBy: [{ erpInsertedAt: "desc" }, { mtrl: "desc" }],
+        where: { isActive: true, firstListedAt: { not: null } },
+        orderBy: [{ firstListedAt: "desc" }, { mtrl: "desc" }],
         // Enough rows to fill `periodLimit` months even when one month is thin.
         take: periodLimit * perPeriod * 4,
         select: CARD,
       }),
       brandMap(locale),
-      prisma.product.count({ where: { isActive: true, erpInsertedAt: { gte: daysAgo(30) } } }),
-      prisma.product.count({ where: { isActive: true, erpInsertedAt: { gte: daysAgo(90) } } }),
-      prisma.product.count({ where: { isActive: true, erpInsertedAt: { gte: daysAgo(365) } } }),
-      prisma.product.count({ where: { isActive: true, erpInsertedAt: { not: null } } }),
+      prisma.product.count({ where: { isActive: true, firstListedAt: { gte: daysAgo(30) } } }),
+      prisma.product.count({ where: { isActive: true, firstListedAt: { gte: daysAgo(90) } } }),
+      prisma.product.count({ where: { isActive: true, firstListedAt: { gte: daysAgo(365) } } }),
+      prisma.product.count({ where: { isActive: true, firstListedAt: { not: null } } }),
     ]);
 
     const buckets = new Map<string, Loaded[]>();
     for (const row of rows) {
-      const at = row.erpInsertedAt!;
+      const at = row.firstListedAt!;
       const key = `${at.getFullYear()}-${String(at.getMonth() + 1).padStart(2, "0")}`;
       (buckets.get(key) ?? buckets.set(key, []).get(key)!).push(row);
     }
@@ -157,9 +168,9 @@ export const getNewArrivals = cache(
     // The per-month COUNT has to come from the database: `rows` is capped, so
     // counting it would under-report any month bigger than the cap.
     const monthCounts = await prisma.$queryRaw<Array<{ month: string; n: bigint }>>`
-      SELECT to_char(date_trunc('month', "erpInsertedAt"), 'YYYY-MM') AS month, count(*) AS n
+      SELECT to_char(date_trunc('month', "firstListedAt"), 'YYYY-MM') AS month, count(*) AS n
       FROM products
-      WHERE "isActive" AND "erpInsertedAt" IS NOT NULL
+      WHERE "isActive" AND "firstListedAt" IS NOT NULL
       GROUP BY 1
     `;
     const countByMonth = new Map(monthCounts.map((r) => [r.month, Number(r.n)]));
@@ -171,7 +182,7 @@ export const getNewArrivals = cache(
         return {
           key,
           label: `${MONTHS[month - 1]} ${year}`,
-          date: items[0].erpInsertedAt!.toISOString(),
+          date: items[0].firstListedAt!.toISOString(),
           count: countByMonth.get(key) ?? items.length,
           brands: [
             ...new Set(
@@ -190,7 +201,7 @@ export const getNewArrivals = cache(
       last90,
       lastYear,
       total,
-      newestAt: rows[0]?.erpInsertedAt?.toISOString() ?? null,
+      newestAt: rows[0]?.firstListedAt?.toISOString() ?? null,
     };
   },
 );
