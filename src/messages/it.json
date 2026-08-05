@@ -935,7 +935,9 @@
       "tem": "{qty} pz.",
       "mines": "{guaranteeMonths} mesi",
       "ola_ta": "Tutti i {name}",
-      "eggyisi_minon": "Garanzia di {guaranteeMonths} mesi"
+      "eggyisi_minon": "Garanzia di {guaranteeMonths} mesi",
+      "megethos": "Taglia",
+      "chroma": "Colore"
     }
   },
   "nees-afixeis": {

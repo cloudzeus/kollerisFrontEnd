@@ -935,7 +935,9 @@
       "tem": "{qty} τεμ.",
       "mines": "{guaranteeMonths} μήνες",
       "ola_ta": "Όλα τα {name}",
-      "eggyisi_minon": "Εγγύηση {guaranteeMonths} μηνών"
+      "eggyisi_minon": "Εγγύηση {guaranteeMonths} μηνών",
+      "megethos": "Μέγεθος",
+      "chroma": "Χρώμα"
     }
   },
   "nees-afixeis": {

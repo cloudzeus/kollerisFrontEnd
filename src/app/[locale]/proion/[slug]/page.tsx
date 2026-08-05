@@ -102,6 +102,19 @@ export default async function ProductPage({ params }: PageProps) {
         k: t("diathesimotita"),
         v: product.inStock ? t("tem", { qty: product.qty }) : t("katopin"),
       },
+      /*
+       * Colour and size sit above weight and dimensions on purpose. They are
+       * absent from all but a few hundred products, and where they exist they
+       * are what the product IS — a glove is chosen by size long before anyone
+       * asks what it weighs. Ranking them below would let the four-item slice
+       * drop them in favour of trivia.
+       */
+      product.sizes.length > 0
+        ? { k: t("megethos"), v: product.sizes.map((s) => s.label).join(", ") }
+        : null,
+      product.colors.length > 0
+        ? { k: t("chroma"), v: product.colors.join(", ") }
+        : null,
       product.weight != null ? { k: t("varos"), v: `${product.weight} kg` } : null,
       product.guaranteeMonths
         ? { k: t("eggyisi"), v: t("mines", { guaranteeMonths: product.guaranteeMonths }) }
@@ -126,6 +139,16 @@ export default async function ProductPage({ params }: PageProps) {
     brand: product.brand
       ? { "@type": "Brand", name: product.brand.name }
       : undefined,
+    /*
+     * Colour and size, matching what the Merchant feed emits for this product.
+     *
+     * Google reads this page to keep the feed item current, so the two must
+     * agree — the feed takes the first assigned value of each and so does this.
+     * Omitted rather than empty when absent; an empty string is a claim that
+     * the product has no colour.
+     */
+    color: product.colors[0] ?? undefined,
+    size: product.sizes[0]?.label ?? undefined,
     /*
      * The offer, and it has to agree with the Merchant Center feed.
      *

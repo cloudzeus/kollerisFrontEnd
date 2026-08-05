@@ -42,6 +42,10 @@ export type ProductDetail = {
   guaranteeMonths: number | null;
   specs: ProductSpecRow[];
   specGroups: Array<{ group: string; label: string; rows: ProductSpecRow[] }>;
+  /** Assigned colours, in the order somebody arranged them. Usually empty. */
+  colors: string[];
+  /** Assigned sizes. `family` disambiguates "M" across categories. */
+  sizes: Array<{ label: string; family: string | null }>;
 };
 
 /** The four headings above the spec table — message keys, not words. */
@@ -61,6 +65,10 @@ export const getProductBySlug = cache(
         images: { orderBy: [{ isFeature: "desc" }, { order: "asc" }], take: 8 },
         translations: true,
         specs: { where: { locale }, orderBy: { order: "asc" } },
+        // Only present on 242 and 500 products respectively, but on those it is
+        // the first thing a buyer looks for — a glove is bought by size.
+        colors: { orderBy: { order: "asc" }, select: { name: true } },
+        sizes: { orderBy: { order: "asc" }, select: { label: true, family: true } },
       },
     });
     if (!product) return null;
@@ -144,6 +152,8 @@ export const getProductBySlug = cache(
       guaranteeMonths: product.guaranteeMonths,
       specs: specRows,
       specGroups,
+      colors: product.colors.map((c) => c.name),
+      sizes: product.sizes.map((s) => ({ label: s.label, family: s.family })),
     };
   },
 );
