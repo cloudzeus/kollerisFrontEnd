@@ -2,6 +2,7 @@ import "server-only";
 import { cache } from "react";
 import { Prisma } from "@/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
+import { activeCampaignsWhere } from "@/lib/offers/coverage";
 import type { Locale } from "@/i18n/routing";
 import { scopeKeyOf } from "@/lib/compare/options";
 import { searchKey } from "@/lib/greek";
@@ -200,7 +201,22 @@ async function buildWhere(
   }
 
   if (exclude !== "avail" && params.avail === "in-stock") and.push({ inStock: true });
-  if (params.sale) and.push({ onSale: true });
+  /*
+   * "Με προσφορά" means a live CAMPAIGN, not `onSale`.
+   *
+   * `Product.onSale` follows `priceList`, which is deliberately never set — a
+   * struck-through price derived from the gap between two SoftOne price lists
+   * had 68% of the catalogue permanently reduced. So this filter matched
+   * nothing at all, and ticking it produced an empty grid while two campaigns
+   * were running.
+   *
+   * A null clause means no campaign is live, which has to become "match
+   * nothing". Falling through would show the whole catalogue as on offer.
+   */
+  if (params.sale) {
+    const campaigns = await activeCampaignsWhere();
+    and.push(campaigns ?? { id: { in: [] } });
+  }
   if (params.isNew) and.push({ isNew: true });
 
   if (params.q) {
@@ -380,7 +396,16 @@ async function getFacets(
       }),
       prisma.product.count({ where: { AND: [whereForAvail, { inStock: true }] } }),
       prisma.product.count({ where: whereForAvail }),
-      prisma.product.count({ where: { AND: [whereForBrands, { onSale: true }] } }),
+      /*
+       * Counted the same way the filter selects, or the number beside it is a
+       * lie. It said 0 while the filter would have returned 3.028, because it
+       * counted `onSale` — the column nothing populates.
+       */
+      activeCampaignsWhere().then((campaigns) =>
+        prisma.product.count({
+          where: { AND: [whereForBrands, campaigns ?? { id: { in: [] } }] },
+        }),
+      ),
       prisma.product.count({ where: { AND: [whereForBrands, { isNew: true }] } }),
     ]);
 

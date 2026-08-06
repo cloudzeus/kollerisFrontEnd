@@ -136,3 +136,44 @@ export async function campaignsForProducts(
 
   return marks;
 }
+
+/**
+ * Everything covered by ANY live campaign, as one clause.
+ *
+ * This is what "με προσφορά" on a listing has to mean. It used to mean
+ * `Product.onSale`, which is set from `priceList` — and `priceList` is
+ * deliberately never populated: the client stopped it because deriving a
+ * struck-through "was" price from the gap between two SoftOne price lists put
+ * 68% of the catalogue permanently on sale, 2.192 items at exactly −6%, which
+ * is not a reduction and is the precise thing the Omnibus directive exists to
+ * prevent.
+ *
+ * So the filter matched zero products and the customer who ticked it got an
+ * empty grid — while two real campaigns were running.
+ *
+ * Returns null when nothing is live, which the caller must turn into "match
+ * nothing" rather than "no filter": an empty campaign list means no product is
+ * on offer, not that every product is.
+ */
+export async function activeCampaignsWhere(): Promise<Prisma.ProductWhereInput | null> {
+  const now = new Date();
+  const campaigns = await prisma.offer.findMany({
+    where: {
+      isActive: true,
+      AND: [
+        { OR: [{ startsAt: null }, { startsAt: { lte: now } }] },
+        { OR: [{ endsAt: null }, { endsAt: { gte: now } }] },
+      ],
+    },
+    select: { scope: true, productSlugs: true, brandSlug: true, categorySlug: true },
+  });
+
+  const clauses: Prisma.ProductWhereInput[] = [];
+  for (const campaign of campaigns) {
+    const where = await campaignWhere(campaign);
+    if (where) clauses.push(where);
+  }
+
+  if (clauses.length === 0) return null;
+  return clauses.length === 1 ? clauses[0] : { OR: clauses };
+}
