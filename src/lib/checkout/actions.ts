@@ -175,6 +175,17 @@ export async function placeOrder(
   const orderNumber = await nextOrderNumber();
   const guestToken = randomBytes(24).toString("base64url");
 
+  /*
+   * One query for the whole basket. `products.mtrl` is the ERP id; a line whose
+   * product has since been removed simply keeps null, which is honest — better
+   * an unmapped line the push can report than a wrong id it cannot.
+   */
+  const mtrlRows = await prisma.product.findMany({
+    where: { id: { in: cart.lines.map((line) => line.productId) } },
+    select: { id: true, mtrl: true },
+  });
+  const mtrlByProductId = new Map(mtrlRows.map((row) => [row.id, row.mtrl]));
+
   const order = await prisma.order.create({
     data: {
       orderNumber,
@@ -221,6 +232,21 @@ export async function placeOrder(
       lines: {
         create: cart.lines.map((line) => ({
           productId: line.productId,
+          /*
+           * The ERP's own product id, resolved here and frozen with the line.
+           *
+           * The column existed and nothing ever filled it: 17 order lines, zero
+           * with an MTRL. HDCtool's intake reported every one of them as
+           * `unmappedLines`, so a document issued from an order would have
+           * carried no items — the sale, with nothing sold.
+           *
+           * Resolved at placement rather than at push, and stored rather than
+           * looked up again later, for the same reason as every other value on
+           * this row: a product can be relisted under a different MTRL, and an
+           * order is a record of what was bought, not of what the catalogue
+           * says today.
+           */
+          mtrl: mtrlByProductId.get(line.productId) ?? null,
           sku: line.sku,
           name: line.name,
           brand: line.brandName,

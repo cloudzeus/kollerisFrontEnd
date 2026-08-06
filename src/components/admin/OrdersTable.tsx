@@ -1,7 +1,7 @@
 "use client";
 
 import { ADMIN_LOCALE } from "@/lib/admin/locale";
-import { Fragment, useMemo, useState } from "react";
+import { Fragment, useMemo, useState, useTransition } from "react";
 import Link from "next/link";
 import {
   ArrowDownUp,
@@ -17,6 +17,7 @@ import {
   Truck,
 } from "lucide-react";
 import { toast } from "sonner";
+import { pushOrderToErp } from "@/app/admin/(protected)/orders/actions";
 import type { RecentOrder } from "@/lib/admin/dashboard";
 import { formatMoney } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -92,6 +93,48 @@ export function OrdersTable({
   showSearch?: boolean;
 }) {
   const [query, setQuery] = useState("");
+  /** Which order is mid-flight, so the row can say so and refuse a second click. */
+  const [sending, setSending] = useState<string | null>(null);
+  const [, startTransition] = useTransition();
+
+  /**
+   * Issue the SoftOne document for one order.
+   *
+   * The outcome is reported in full rather than as "done": a push that stored
+   * the order but could not invoice it is a different problem from one that
+   * never reached HDCtool, and the person who clicked is the person who has to
+   * decide what to do about it.
+   */
+  function send(orderNumber: string) {
+    setSending(orderNumber);
+    startTransition(async () => {
+      try {
+        const result = await pushOrderToErp(orderNumber);
+        if (result.ok) {
+          toast.success(
+            result.alreadySent
+              ? `Είχε ήδη σταλεί — FINDOC ${result.findoc}`
+              : result.findoc
+                ? `Στάλθηκε στο SoftOne — FINDOC ${result.findoc}`
+                : "Στάλθηκε στο SoftOne",
+          );
+        } else {
+          toast.error(
+            result.stage === "intake"
+              ? `Δεν αποθηκεύτηκε στο HDCtool: ${result.error}`
+              : result.stage === "push"
+                ? `Δεν εκδόθηκε παραστατικό: ${result.error}`
+                : result.error,
+          );
+        }
+      } catch (error) {
+        toast.error(error instanceof Error ? error.message : "Η αποστολή απέτυχε");
+      } finally {
+        setSending(null);
+      }
+    });
+  }
+
   const [sort, setSort] = useState<{ key: SortKey; desc: boolean }>({ key: "date", desc: true });
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
 
@@ -282,9 +325,21 @@ export function OrdersTable({
                         {!o.erpPushed && o.paymentStatus === "PAID" && (
                           <>
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem className="text-k-red focus:text-k-red">
+                            <DropdownMenuItem
+                              className="text-k-red focus:text-k-red"
+                              disabled={sending === o.orderNumber}
+                              /*
+                               * `onSelect` with the default prevented, not
+                               * `onClick`: the menu closes on select and would
+                               * unmount this before the transition starts.
+                               */
+                              onSelect={(event) => {
+                                event.preventDefault();
+                                send(o.orderNumber);
+                              }}
+                            >
                               <Truck className="size-3.5" />
-                              Αποστολή στο SoftOne
+                              {sending === o.orderNumber ? "Αποστολή…" : "Αποστολή στο SoftOne"}
                             </DropdownMenuItem>
                           </>
                         )}
