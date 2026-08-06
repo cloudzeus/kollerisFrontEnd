@@ -341,3 +341,124 @@ function backendMessage(error: unknown): string {
   console.error("[account]", error);
   return "Κάτι πήγε στραβά. Δοκιμάστε ξανά σε λίγο.";
 }
+
+// ─── Entry points that start in a mailbox ───────────────────────────────────
+
+/**
+ * The three ways somebody gets back into an account they cannot sign into.
+ *
+ * All four actions below share one shape: they take a form, they return a
+ * message, and they never let the answer reveal whether an address is known.
+ * That last part is the reason they live here rather than being called from a
+ * page — a server action can decide what to say; a client that queried a
+ * lookup endpoint could not.
+ */
+
+/** «Έχω παραγγείλει και θέλω λογαριασμό» — email plus an order number. */
+export async function requestAccountLink(
+  _prev: AuthState,
+  formData: FormData,
+): Promise<AuthState & { sent?: boolean }> {
+  const email = String(formData.get("email") ?? "");
+  const orderNumber = String(formData.get("orderNumber") ?? "");
+
+  const { requestRegistrationLink } = await import("@/lib/account/registration-invite");
+  const result = await requestRegistrationLink({ email, orderNumber });
+
+  if (!result.ok) return { error: result.error };
+  /*
+   * `sent` is returned whether or not anything matched. The page says "if the
+   * details are right, the link is on its way", which is true in both cases
+   * and useless to somebody probing for addresses.
+   */
+  return { sent: true };
+}
+
+/** «Ξέχασα τον κωδικό μου». */
+export async function requestReset(
+  _prev: AuthState,
+  formData: FormData,
+): Promise<AuthState & { sent?: boolean }> {
+  const { requestPasswordReset } = await import("@/lib/account/password-reset");
+  const result = await requestPasswordReset(String(formData.get("email") ?? ""));
+  if (!result.ok) return { error: result.error };
+  return { sent: true };
+}
+
+/** Set a new password from a reset link, then send them to sign in. */
+export async function submitNewPassword(
+  _prev: AuthState,
+  formData: FormData,
+): Promise<AuthState & { done?: boolean }> {
+  const token = String(formData.get("token") ?? "");
+  const password = String(formData.get("password") ?? "");
+  const confirm = String(formData.get("confirm") ?? "");
+
+  if (password !== confirm) {
+    return { fieldErrors: { confirm: "Οι κωδικοί δεν ταιριάζουν." } };
+  }
+
+  const { setNewPassword } = await import("@/lib/account/password-reset");
+  const result = await setNewPassword(token, password);
+  if (!result.ok) return { error: result.error };
+  return { done: true };
+}
+
+/**
+ * Accept a registration invitation: create the account and sign them in.
+ *
+ * The session is issued here rather than sending them to the login form. They
+ * have just proved they hold the mailbox and chosen a password; asking them to
+ * type it again immediately is a step that exists only because it was easier
+ * to build.
+ */
+export async function acceptInvitation(
+  _prev: AuthState,
+  formData: FormData,
+): Promise<AuthState> {
+  const token = String(formData.get("token") ?? "");
+  const password = String(formData.get("password") ?? "");
+  const confirm = String(formData.get("confirm") ?? "");
+
+  if (password.length < 8) {
+    return { fieldErrors: { password: "Τουλάχιστον 8 χαρακτήρες." } };
+  }
+  if (password !== confirm) {
+    return { fieldErrors: { confirm: "Οι κωδικοί δεν ταιριάζουν." } };
+  }
+
+  const { resolveInvite, completeInvite } = await import("@/lib/account/registration-invite");
+  const invite = await resolveInvite(token);
+  if (!invite) {
+    return { error: "Ο σύνδεσμος έληξε ή έχει ήδη χρησιμοποιηθεί." };
+  }
+
+  const result = await accountStore.register({
+    email: invite.email,
+    password,
+    firstName: invite.firstName || "—",
+    lastName: invite.lastName || "—",
+    phone: invite.phone || "",
+    accountType: "individual",
+  } as Parameters<typeof accountStore.register>[0]);
+
+  if (!result.ok) {
+    return {
+      error:
+        result.error === "email_taken"
+          ? "Υπάρχει ήδη λογαριασμός με αυτό το email. Συνδεθείτε."
+          : "Η εγγραφή δεν ολοκληρώθηκε. Δοκιμάστε ξανά.",
+    };
+  }
+
+  const adopted = await completeInvite(token, result.user.id, invite.email);
+  console.log(`[invite] ${invite.email} registered, adopted ${adopted.adopted} order(s)`);
+
+  /*
+   * `register` returns a null token for a company awaiting approval. This path
+   * only ever creates `individual` accounts, so a null here would mean the
+   * contract changed under us — send them to sign in rather than pretend.
+   */
+  if (result.token) await setCustomerSession(result.token);
+  redirect(result.token ? "/logariasmos" : "/eisodos");
+}

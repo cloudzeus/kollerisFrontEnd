@@ -72,6 +72,28 @@ export default async function SignInPage({
           <div className="min-w-0 px-4 py-8 lg:px-10 lg:py-12">
             <div className="max-w-md">
               <SignInForm redirectTo={redirectTo} />
+
+              {/*
+                Both ways back in, on the page where somebody discovers they
+                cannot get in. A forgotten password and "I bought as a guest and
+                want an account" feel like one problem to whoever is stuck, so
+                they lead to one page that asks which it is.
+              */}
+              <p className="mt-5 text-[13px] leading-[1.6] text-k-text-3">
+                <Link
+                  href="/eisodos/prosvasi"
+                  className="text-k-ink underline-offset-2 hover:underline"
+                >
+                  Ξεχάσατε τον κωδικό σας;
+                </Link>
+                {" · "}
+                <Link
+                  href="/eisodos/prosvasi"
+                  className="text-k-ink underline-offset-2 hover:underline"
+                >
+                  Έχετε παραγγείλει χωρίς λογαριασμό;
+                </Link>
+              </p>
             </div>
           </div>
 
