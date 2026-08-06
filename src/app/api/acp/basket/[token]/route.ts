@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { siteOrigin, siteOriginConfigured } from "@/lib/seo/urls";
 import { prisma } from "@/lib/prisma";
 import { setCartCookie } from "@/lib/cart/cart";
 
@@ -35,11 +36,21 @@ export async function GET(
   // An unknown or emptied token goes to the basket page rather than a 404: the
   // customer clicked a link they were sent, and a dead end helps nobody.
   if (!cart || cart.lines.length === 0) {
-    return NextResponse.redirect(new URL("/kalathi", request.url));
+    return NextResponse.redirect(new URL("/kalathi", basketBase(request)));
   }
 
   await setCartCookie(token);
   await prisma.cart.update({ where: { id: cart.id }, data: { lastSeenAt: new Date() } });
 
-  return NextResponse.redirect(new URL("/kalathi", request.url));
+  return NextResponse.redirect(new URL("/kalathi", basketBase(request)));
+}
+
+/**
+ * Same reason as the payment return: behind the proxy `request.url` is the
+ * address the Node process is bound to, so a redirect built from it sends the
+ * customer to `https://0.0.0.0:3000`. Configured origin first; `request.url`
+ * only where nothing is configured, which is development.
+ */
+function basketBase(request: { url: string }): string {
+  return siteOriginConfigured() ? siteOrigin() : request.url;
 }

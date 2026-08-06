@@ -41,7 +41,11 @@ const HOSTNAME = /^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?
  * not take the storefront down — but it must not pass silently either, which
  * is what `assertSiteOrigin()` in `instrumentation.ts` is for.
  */
-function resolveOrigin(raw: string | undefined): { origin: string; problem?: string } {
+function resolveOrigin(raw: string | undefined): {
+  origin: string;
+  problem?: string;
+  configured?: boolean;
+} {
   const trimmed = (raw ?? "").trim();
   if (!trimmed) return { origin: DEV_ORIGIN };
 
@@ -68,6 +72,7 @@ function resolveOrigin(raw: string | undefined): { origin: string; problem?: str
 
   // `.origin` normalises the rest: any path, query or fragment is dropped.
   return {
+    configured: true,
     origin: url.origin,
     problem: cleaned === trimmed ? undefined : `trailing characters removed from ${JSON.stringify(trimmed)}`,
   };
@@ -92,6 +97,20 @@ export function siteOrigin(): string {
  */
 export function siteOriginProblem(): string | null {
   return RESOLVED.problem ?? null;
+}
+
+/**
+ * Whether the public address was actually configured, as opposed to defaulted.
+ *
+ * `siteOrigin()` answers with localhost when the setting is missing, which is
+ * right for a canonical URL in development and WRONG for a redirect in
+ * production: a customer returning from a payment would be sent to their own
+ * machine. Callers that navigate a real person need to know the difference,
+ * and `siteOriginProblem()` cannot tell them — an unset variable is not
+ * malformed, so it reports nothing.
+ */
+export function siteOriginConfigured(): boolean {
+  return RESOLVED.configured === true;
 }
 
 /** Exported for the test — everything else should use `siteOrigin()`. */

@@ -31,6 +31,9 @@ describe("resolveOrigin", () => {
     expect(resolveOrigin("https://web.kolleris.com")).toEqual({
       origin: "https://web.kolleris.com",
       problem: undefined,
+      // Set only when a value was actually supplied — the redirect after a
+      // payment needs to tell "configured" apart from "defaulted to localhost".
+      configured: true,
     });
   });
 

@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getTransaction } from "@/lib/payment/viva";
 import { routing, type Locale } from "@/i18n/routing";
+import { siteOrigin, siteOriginConfigured } from "@/lib/seo/urls";
 
 /**
  * Where Viva sends the customer back to.
@@ -72,17 +73,37 @@ export async function GET(
   const order = await resolveOrder(query.get("s"), query.get("t"));
 
   /*
+   * The base is the site's own address, NOT `request.url`.
+   *
+   * Behind the proxy, `request.url` is the address the Node process is bound
+   * to — `https://0.0.0.0:3000` — because the forwarded headers do not reach
+   * `NextRequest.url`. So a customer who had just paid was sent to
+   * `https://0.0.0.0:3000/checkout/epibebaiosi/KOL-20260806-0002`, a page no
+   * browser can open. Their order was fine: CONFIRMED, PAID, the Viva
+   * transaction recorded. They simply could not see it, at the one moment they
+   * most needed to.
+   *
+   * `siteOrigin()` is the configured public address and already survives the
+   * trailing comma that once broke every canonical URL on the site. The test is
+   * `siteOriginConfigured()` and not `siteOriginProblem()`: an unset variable
+   * is not malformed, so it reports no problem while quietly answering
+   * localhost — which would send the customer to their own machine instead.
+   * Unconfigured means development, and there `request.url` is correct.
+   */
+  const base = siteOriginConfigured() ? siteOrigin() : request.url;
+
+  /*
    * Nothing to identify. Sending them to the tracking form is better than a
    * 404: they have their order number in an email, and this is the page that
    * takes it.
    */
   if (!order) {
-    return NextResponse.redirect(new URL(`${prefix}/logariasmos/entopismos`, request.url));
+    return NextResponse.redirect(new URL(`${prefix}/logariasmos/entopismos`, base));
   }
 
   const target = new URL(
     `${prefix}/checkout/epibebaiosi/${order.orderNumber}`,
-    request.url,
+    base,
   );
   target.searchParams.set("t", order.guestToken);
   // Only so the page can say "payment was not completed" rather than leaving

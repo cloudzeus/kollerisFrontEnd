@@ -45,11 +45,13 @@ describe("chargeableWeight", () => {
 
   it("charges volumetric weight when the parcel is bulky but light", () => {
     // 40×30×25 cm = 30,000 cm³ → 6 kg volumetric, against 1 kg actual.
+    // ×1,2 for packing headroom: what the courier weighs is the box we ship,
+    // not the product's own dimensions. See PACKING_FACTOR.
     const result = chargeableWeight([
       { quantity: 1, weight: 1, width: 40, length: 30, height: 25 },
     ]);
-    expect(result.volumetricKg).toBe(6);
-    expect(result.chargeableKg).toBe(6);
+    expect(result.volumetricKg).toBe(7.2);
+    expect(result.chargeableKg).toBe(7.2);
   });
 
   it("estimates items with no recorded weight instead of treating them as free", () => {
@@ -134,8 +136,9 @@ describe("implausible dimensions", () => {
     const result = chargeableWeight([
       { quantity: 1, weight: 4, width: 180, length: 20, height: 10 },
     ]);
-    expect(result.volumetricKg).toBe(7.2);
-    expect(result.chargeableKg).toBe(7.2);
+    // 180×20×10 cm = 36,000 cm³ → 7,2 kg, ×1,2 packing = 8,64.
+    expect(result.volumetricKg).toBe(8.64);
+    expect(result.chargeableKg).toBe(8.64);
     expect(result.implausibleItems).toBe(0);
   });
 
