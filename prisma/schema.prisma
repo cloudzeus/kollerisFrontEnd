@@ -971,6 +971,59 @@ model CustomerAddress {
 }
 
 /// Pending invitation to join a company account.
+/**
+ * An invitation to register, sent to somebody who has already bought from us.
+ *
+ * Every order comes with a name, an email, a phone and an address — a
+ * registration in everything but the password. What it does not come with is
+ * consent to hold an account, and an account created behind somebody's back
+ * with a password nobody chose is not an account; it is a row.
+ *
+ * So the order stays a guest order and this is the offer: one link, which the
+ * customer may accept or ignore. Accepting creates the Customer and adopts
+ * every past order that shares the email, so their history is there the moment
+ * they arrive rather than starting from the next purchase.
+ *
+ * Keyed on EMAIL rather than on a customer id, because at the time it is
+ * written there is no customer. `CustomerInvite` could not serve: it demands a
+ * `companyId`, having been built for a B2B owner adding colleagues.
+ */
+model RetailRegistrationToken {
+  id String @id @default(cuid())
+
+  email String @db.VarChar(320)
+  token String @unique @db.VarChar(64)
+  /// The order that prompted it, for context in the email and in the admin.
+  orderNumber String? @db.VarChar(32)
+
+  /// Which door this link opens, decided from the order that produced it.
+  ///
+  /// A buyer who asked for an invoice and gave a ΑΦΜ is not a retail customer
+  /// and must not be handed a retail account: company accounts carry partner
+  /// pricing, credit terms, multiple users and roles, and they exist only once
+  /// somebody has approved them. Sending one person the wrong link is how a
+  /// private buyer ends up in an approval queue, or a company ends up paying
+  /// list price with no invoice.
+  ///
+  /// `individual` registers and is active at once. `company` registers and
+  /// waits — `AccountStatus.pending` — exactly as it does from /b2b.
+  accountType String @default("individual") @db.VarChar(16)
+
+  expiresAt DateTime
+  /// Set when the customer completes registration. Kept so a second click says
+  /// "already used" instead of silently doing nothing.
+  usedAt DateTime?
+  /// Last time the link was emailed, so resending is visible rather than
+  /// guessed at.
+  sentAt DateTime?
+
+  createdAt DateTime @default(now())
+
+  @@index([email])
+  @@index([expiresAt])
+  @@map("retail_registration_tokens")
+}
+
 model CustomerInvite {
   id String @id @default(cuid())
 

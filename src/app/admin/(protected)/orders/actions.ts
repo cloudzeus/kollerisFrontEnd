@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { sendOrderToErp, type SendToErpResult } from "@/lib/orders/send-to-erp";
 import { createVoucherForOrder, type VoucherResult } from "@/lib/courier/create-for-order";
+import { sendOrderEmail } from "@/lib/mail/order-email";
 
 /**
  * The action behind "Αποστολή στο SoftOne", which until now had none.
@@ -36,4 +37,25 @@ export async function createOrderVoucher(orderNumber: string): Promise<VoucherRe
   revalidatePath("/admin/courier");
   revalidatePath("/admin");
   return result;
+}
+
+/**
+ * Send the order email again, from the server.
+ *
+ * The row already had an envelope icon and it was a `mailto:` — it opened the
+ * operator's own mail client with an empty message, which is not resending
+ * anything. This sends the same email the customer got at checkout, from the
+ * same template, with the bank details and the reference on it if they are
+ * still owed.
+ *
+ * Useful precisely when it matters: an address typo corrected in the ERP, a
+ * customer who deleted it, a bank transfer whose details never arrived because
+ * Mailgun was not configured yet.
+ */
+export async function resendOrderEmail(
+  orderNumber: string,
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  const result = await sendOrderEmail(orderNumber);
+  if (!result.ok) return { ok: false, error: result.error };
+  return { ok: true };
 }

@@ -17,7 +17,7 @@ import {
   Truck,
 } from "lucide-react";
 import { toast } from "sonner";
-import { createOrderVoucher, pushOrderToErp } from "@/app/admin/(protected)/orders/actions";
+import { createOrderVoucher, pushOrderToErp, resendOrderEmail } from "@/app/admin/(protected)/orders/actions";
 import type { RecentOrder } from "@/lib/admin/dashboard";
 import { formatMoney } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -97,6 +97,8 @@ export function OrdersTable({
   const [sending, setSending] = useState<string | null>(null);
   /** Which order is having its ACS voucher issued. */
   const [voucherFor, setVoucherFor] = useState<string | null>(null);
+  /** Which order is having its confirmation email sent again. */
+  const [mailing, setMailing] = useState<string | null>(null);
   const [, startTransition] = useTransition();
 
   /**
@@ -133,6 +135,22 @@ export function OrdersTable({
         toast.error(error instanceof Error ? error.message : "Η αποστολή απέτυχε");
       } finally {
         setSending(null);
+      }
+    });
+  }
+
+  /** Send the customer their order email again — from here, not from Mail.app. */
+  function resend(orderNumber: string) {
+    setMailing(orderNumber);
+    startTransition(async () => {
+      try {
+        const result = await resendOrderEmail(orderNumber);
+        if (result.ok) toast.success("Το email στάλθηκε ξανά");
+        else toast.error(result.error);
+      } catch (error) {
+        toast.error(error instanceof Error ? error.message : "Η αποστολή απέτυχε");
+      } finally {
+        setMailing(null);
       }
     });
   }
@@ -346,6 +364,18 @@ export function OrdersTable({
                             <Phone className="size-3.5" />
                             {o.phone || "—"}
                           </a>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          disabled={mailing === o.orderNumber}
+                          onSelect={(event) => {
+                            event.preventDefault();
+                            resend(o.orderNumber);
+                          }}
+                        >
+                          <Mail className="size-3.5" />
+                          {mailing === o.orderNumber
+                            ? "Αποστολή…"
+                            : "Επαναποστολή email παραγγελίας"}
                         </DropdownMenuItem>
                         {o.paymentStatus === "PAID" && (
                           <>
