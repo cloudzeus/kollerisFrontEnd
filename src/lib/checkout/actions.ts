@@ -1,6 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { hash as hashPassword } from "@node-rs/argon2";
 import { sendOrderEmail } from "@/lib/mail/order-email";
 import { randomBytes } from "node:crypto";
 import { z } from "zod";
@@ -45,6 +46,22 @@ const checkoutSchema = z.object({
   notes: z.string().trim().max(2000).optional().or(z.literal("")),
   terms: z.union([z.literal("on"), z.literal("")]).optional(),
   locale: z.string().max(5).optional(),
+
+  /**
+   * An account, if the customer wants one — optional, and empty for everybody
+   * who does not.
+   *
+   * A guest has already typed their name, phone and address; asking them to
+   * type all of it again later to see what they just bought is asking them to
+   * do our filing. A password here is consent and a credential in one field,
+   * so the account can be created outright — no link, no waiting — because the
+   * person is present and chose it themselves.
+   *
+   * Eight characters is the same floor `setNewPassword` enforces. Kept in step
+   * deliberately: a rule that differs by entrance is a rule somebody discovers
+   * by being refused.
+   */
+  password: z.string().min(8).max(200).optional().or(z.literal("")),
 });
 
 /**
@@ -271,6 +288,58 @@ export async function placeOrder(
   // The cart is emptied only after the order row exists — a failure above must
   // leave the customer with their basket intact.
   await prisma.cartLine.deleteMany({ where: { cart: { token: cartToken } } });
+
+  /*
+   * An account, when the customer asked for one by typing a password.
+   *
+   * Created outright rather than by emailing a link: the person is here, they
+   * chose the password themselves, and everything a registration needs — name,
+   * phone, email — they have just typed. Making them confirm by email what
+   * they did thirty seconds ago on the same screen is ceremony.
+   *
+   * The order is attached, and so is every earlier guest order sharing the
+   * address, so their history is complete from the first visit rather than
+   * starting at this purchase.
+   *
+   * Deliberately NOT fatal and deliberately last. The order exists and is paid
+   * for; an account is a convenience layered on top, and a duplicate email or a
+   * hashing hiccup must never cost somebody the thing they actually came for.
+   */
+  if (input.password) {
+    try {
+      const email = input.email.trim().toLowerCase();
+      const taken = await prisma.customer.findUnique({ where: { email }, select: { id: true } });
+      if (!taken) {
+        const created = await prisma.customer.create({
+          data: {
+            email,
+            passwordHash: await hashPassword(input.password),
+            firstName: input.firstName,
+            lastName: input.lastName,
+            phone: input.phone,
+            /*
+             * Retail, always — even when this order carried a ΑΦΜ.
+             *
+             * A company account grants partner pricing and credit and exists
+             * only once somebody has approved it. Nobody gets one by ticking
+             * "invoice" at checkout; that route is /b2b, and it goes through
+             * a person.
+             */
+            accountType: "individual",
+            status: "active",
+          },
+          select: { id: true },
+        });
+
+        await prisma.order.updateMany({
+          where: { email: { equals: email, mode: "insensitive" }, customerId: null },
+          data: { customerId: created.id },
+        });
+      }
+    } catch (error) {
+      console.error(`[checkout] ${order.orderNumber}: account not created`, error);
+    }
+  }
 
   /*
    * Bank transfer: accepted now, reconciled later, and it needs a reference.

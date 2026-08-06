@@ -481,7 +481,11 @@
       "ginetai_katachorisi": "Registrazione in corso…",
       "pliromi_me_asfaleia": "Pagamento sicuro",
       "oloklirosi_paraggelias": "Completamento ordine",
-      "kathorizei_ti_zoni_acs_kai": "Determina la zona ACS e il costo di spedizione."
+      "kathorizei_ti_zoni_acs_kai": "Determina la zona ACS e il costo di spedizione.",
+      "logariasmos_proairetika": "Account (facoltativo)",
+      "kodikos_prosvasis": "Password",
+      "toylachiston_8_charaktires": "Almeno 8 caratteri",
+      "symplirose_kodiko_gia_logariasmo": "Scegli una password per creare il tuo account e seguire i tuoi ordini. Lascia vuoto per acquistare come ospite."
     },
     "page": {
       "kalathi": "CARRELLO",

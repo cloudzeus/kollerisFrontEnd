@@ -22,12 +22,15 @@ export function CheckoutForm({
   locale,
   postcode,
   isPartner = false,
+  signedIn = false,
   shippingMethod,
   paymentMethod,
 }: {
   locale: string;
   postcode: string;
   isPartner?: boolean;
+  /** Somebody with an account does not need to be offered one. */
+  signedIn?: boolean;
   /** What the basket page already recorded. Seeds the controls below. */
   shippingMethod: string;
   paymentMethod: string;
@@ -225,6 +228,37 @@ export function CheckoutForm({
           </p>
         )}
       </Step>
+
+      {/*
+        An account, offered rather than imposed.
+        ─────────────────────────────────────────────────────────────────────
+        Everything a registration needs has already been typed a few fields
+        above. What was missing was consent and a password, and this is both —
+        one optional box. Left empty, the order stays a guest order and nothing
+        is created; a link can still be requested later from /eisodos.
+
+        Not shown to somebody already signed in: they have an account.
+      */}
+      {!signedIn && (
+        <Step n="04b" title={upGreek(t("logariasmos_proairetika"))}>
+          <label className="block">
+            <span className="t-account-label mb-1.5 block text-k-text-4">
+              {upGreek(t("kodikos_prosvasis"))}
+            </span>
+            <input
+              type="password"
+              name="password"
+              autoComplete="new-password"
+              minLength={8}
+              placeholder={t("toylachiston_8_charaktires")}
+              className="t-input w-full border border-k-line-2 px-3.5 py-3 text-k-ink outline-none focus:border-k-ink"
+            />
+            <span className="mt-1.5 block text-[12px] leading-[1.5] text-k-text-3">
+              {t("symplirose_kodiko_gia_logariasmo")}
+            </span>
+          </label>
+        </Step>
+      )}
 
       <Step n="05" title={t("scholia_kai_oloklirosi")}>
         <label className="block">

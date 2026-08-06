@@ -481,7 +481,11 @@
       "ginetai_katachorisi": "Submitting…",
       "pliromi_me_asfaleia": "Pay securely",
       "oloklirosi_paraggelias": "Complete order",
-      "kathorizei_ti_zoni_acs_kai": "Defines the ACS zone and shipping cost."
+      "kathorizei_ti_zoni_acs_kai": "Defines the ACS zone and shipping cost.",
+      "logariasmos_proairetika": "Account (optional)",
+      "kodikos_prosvasis": "Password",
+      "toylachiston_8_charaktires": "At least 8 characters",
+      "symplirose_kodiko_gia_logariasmo": "Choose a password to create your account and follow your orders. Leave it empty to check out as a guest."
     },
     "page": {
       "kalathi": "CART",

@@ -481,7 +481,11 @@
       "ginetai_katachorisi": "Γίνεται καταχώρηση…",
       "pliromi_me_asfaleia": "Πληρωμή με ασφάλεια",
       "oloklirosi_paraggelias": "Ολοκλήρωση παραγγελίας",
-      "kathorizei_ti_zoni_acs_kai": "Καθορίζει τη ζώνη ACS και το κόστος αποστολής."
+      "kathorizei_ti_zoni_acs_kai": "Καθορίζει τη ζώνη ACS και το κόστος αποστολής.",
+      "logariasmos_proairetika": "Λογαριασμός (προαιρετικά)",
+      "kodikos_prosvasis": "Κωδικός πρόσβασης",
+      "toylachiston_8_charaktires": "Τουλάχιστον 8 χαρακτήρες",
+      "symplirose_kodiko_gia_logariasmo": "Συμπληρώστε κωδικό για να δημιουργηθεί ο λογαριασμός σας και να παρακολουθείτε τις παραγγελίες σας. Αφήστε το κενό για αγορά ως επισκέπτης."
     },
     "page": {
       "kalathi": "ΚΑΛΑΘΙ",

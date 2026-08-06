@@ -994,7 +994,16 @@ model RetailRegistrationToken {
   email String @db.VarChar(320)
   token String @unique @db.VarChar(64)
   /// The order that prompted it, for context in the email and in the admin.
+  /// Null for a password reset, which no order prompted.
   orderNumber String? @db.VarChar(32)
+
+  /// `register` — the holder has no account and this link creates one.
+  /// `reset`    — the holder has an account and forgot the password.
+  ///
+  /// One table because the two are the same object with different intent: a
+  /// single-use, expiring proof that whoever holds it controls the mailbox.
+  /// Two tables would be the same three columns twice and two ways to expire.
+  purpose String @default("register") @db.VarChar(16)
 
   /// Which door this link opens, decided from the order that produced it.
   ///
