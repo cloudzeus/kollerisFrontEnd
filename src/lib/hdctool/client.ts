@@ -216,6 +216,20 @@ export type HdctoolProductsResponse = {
 
 export type HdctoolBrand = {
   id: string;
+  /**
+   * The ERP code products reference, added to the API on 6 Aug 2026.
+   *
+   * `super_product_brands` is keyed by cuid; MTRMARK lives on `soft_brands`.
+   * Without this the eshop could not connect a brand to its products, and had
+   * been inventing placeholder rows called "mtrmark-1029" — 136 of them, with
+   * no logo, while the real branded rows sat beside them with no products.
+   *
+   * Nullable because a brand may have no ERP counterpart, and optional because
+   * this client may be talking to a HDCtool that predates the field.
+   */
+  mtrmark?: number | null;
+  /** Every code, when the same maker was entered more than once in the ERP. */
+  mtrmarks?: number[];
   brandNameGreek: string;
   brandNameEnglish: string;
   brandNameItalian: string;

@@ -196,15 +196,65 @@ export async function syncBrands(): Promise<SyncResult> {
 
     for (const brand of brands) {
       try {
+        /*
+         * Keep the slug a brand already has — it is in URLs — with one
+         * exception: slugs of the form `mtrmark-1029`.
+         *
+         * Those were minted when the sync knew a number and no name, and they
+         * are what the storefront ends up showing: "mtrmark-1029" where BOSCH
+         * belongs. The name is known now, so the slug is rewritten once. Safe
+         * because nothing links to a URL that reads like an internal id, and
+         * the alternative is carrying it forever.
+         */
+        const current = existing.get(brand.id);
+        /*
+         * A name that is really an ERP code wearing a name's clothes.
+         *
+         * BOSCH arrives with `brandNameEnglish: "MTRMARK 1029"` — a placeholder
+         * left by some earlier import upstream. Slugging from it produced
+         * `mtrmark-1029`, which is precisely the string the storefront was
+         * showing where the brand belongs. The Greek name was "BOSCH" all
+         * along; the English one just sorted first.
+         *
+         * Space or hyphen: the first version of this checked only the hyphen,
+         * matched nothing, and made the slug worse.
+         */
+        const isCode = (value: string) => /^\s*mtrmark[\s-]*\d+\s*$/i.test(value);
+        const english = brand.brandNameEnglish?.trim() ?? "";
+        const greek = brand.brandNameGreek?.trim() ?? "";
+        const name =
+          (!isCode(english) && english) || (!isCode(greek) && greek) || english || greek;
+        const placeholder = current != null && /^mtrmark-[\d-]+$/.test(current);
         const slug =
-          existing.get(brand.id) ??
-          uniqueSlug(brand.brandNameEnglish || brand.brandNameGreek, brand.id, taken);
+          current && !placeholder
+            ? current
+            : uniqueSlug(name, brand.id, taken);
 
         const data = {
           slug,
-          nameEl: brand.brandNameGreek || brand.brandNameEnglish,
-          nameEn: brand.brandNameEnglish || brand.brandNameGreek,
-          nameIt: brand.brandNameItalian || brand.brandNameGreek,
+          /*
+           * The ERP code, now that the API supplies it.
+           *
+           * This is what joins a brand to its products. It used to arrive only
+           * as a by-product of the product walk, and only for brands that had
+           * already been created — so a brand synced today and its products
+           * synced tomorrow never met, and the storefront fell back to a
+           * placeholder named after the number.
+           */
+          mtrmark: brand.mtrmark ?? undefined,
+          /*
+           * The same guard on the names themselves, not just the slug.
+           *
+           * An English visitor was going to be shown "MTRMARK 1029" as the
+           * brand. A code is not a translation, so a field holding one is
+           * treated as empty and the other language fills in.
+           */
+          nameEl: (!isCode(greek) && greek) || name,
+          nameEn: (!isCode(english) && english) || name,
+          nameIt:
+            (brand.brandNameItalian && !isCode(brand.brandNameItalian)
+              ? brand.brandNameItalian.trim()
+              : "") || name,
           logo: brand.brandLogo || null,
           image: brand.brandImage || null,
           isEshop: Boolean(brand.eshop),

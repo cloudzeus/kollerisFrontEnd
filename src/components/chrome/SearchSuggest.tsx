@@ -189,7 +189,29 @@ export function SearchSuggest({
       <form
         role="search"
         aria-label={t("anazitisi_proionton")}
+        /*
+         * `action="/anazitisi"` sent an English visitor to the Greek page.
+         *
+         * With `localePrefix: "as-needed"` the unprefixed path IS the Greek
+         * route, so a plain form action can only ever submit to Greek. The
+         * locale-aware router is already imported here for the suggestions; the
+         * form has to go through it too.
+         *
+         * `action` stays as the no-JavaScript fallback — Greek results beat no
+         * results — and the handler takes over whenever JavaScript is running.
+         */
         action="/anazitisi"
+        onSubmit={(event) => {
+          event.preventDefault();
+          const form = new FormData(event.currentTarget);
+          const query = String(form.get("q") ?? "").trim();
+          if (!query) return;
+          const scope = String(form.get("cat") ?? "").trim();
+          const params = new URLSearchParams({ q: query });
+          if (scope) params.set("cat", scope);
+          setOpen(false);
+          router.push(`/anazitisi?${params.toString()}`);
+        }}
         className={
           desktop
             ? "search-shell flex h-[50px] min-w-0 border-[1.5px] border-k-ink transition-shadow"
