@@ -2,6 +2,7 @@ import "server-only";
 import { prisma } from "@/lib/prisma";
 import { sendMail, mailConfigured } from "@/lib/mail/client";
 import { siteOrigin } from "@/lib/seo/urls";
+import { block, esc, renderEmail } from "@/lib/mail/layout";
 
 /**
  * The order email the checkout has been promising and never sending.
@@ -42,14 +43,6 @@ function bankConfigured(): boolean {
 const money = (value: unknown) =>
   `${Number(value).toFixed(2).replace(".", ",")} €`;
 
-function escapeHtml(value: string): string {
-  return value
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
-}
-
 export type OrderEmailOutcome =
   | { ok: true; id: string }
   | { ok: false; error: string };
@@ -79,15 +72,21 @@ export async function sendOrderEmail(orderNumber: string): Promise<OrderEmailOut
     .map(
       (line) =>
         `<tr>
-          <td style="padding:8px 0;border-bottom:1px solid #eee">
-            <div style="font-size:14px">${escapeHtml(line.name)}</div>
-            <div style="font-size:12px;color:#777">${escapeHtml(line.sku)}</div>
+          <td style="padding:9px 0;border-bottom:1px solid #e6e6e3;">
+            <div style="font-size:14px;color:#111111;">${esc(line.name)}</div>
+            <div style="font-size:11px;color:#767672;">${esc(line.sku)}</div>
           </td>
-          <td style="padding:8px 0;border-bottom:1px solid #eee;text-align:center;font-size:14px">${line.quantity}</td>
-          <td style="padding:8px 0;border-bottom:1px solid #eee;text-align:right;font-size:14px">${money(line.lineGross)}</td>
+          <td align="center" style="padding:9px 8px;border-bottom:1px solid #e6e6e3;font-size:14px;color:#333333;">${line.quantity}</td>
+          <td align="right" style="padding:9px 0;border-bottom:1px solid #e6e6e3;font-size:14px;color:#111111;">${money(line.lineGross)}</td>
         </tr>`,
     )
     .join("");
+
+  const heading = paid
+    ? "Η παραγγελία σας επιβεβαιώθηκε"
+    : awaitingTransfer
+      ? "Λάβαμε την παραγγελία σας"
+      : "Η παραγγελία σας καταχωρήθηκε";
 
   /*
    * The deposit block, or an honest substitute.
@@ -96,86 +95,68 @@ export async function sendOrderEmail(orderNumber: string): Promise<OrderEmailOut
    * what the shop matches the money against, and it is why this email exists
    * for bank transfers at all.
    */
-  const deposit = awaitingTransfer
-    ? bankConfigured()
-      ? `<div style="margin:24px 0;padding:16px;background:#f7f7f5;border-left:3px solid #111">
-           <div style="font-weight:600;margin-bottom:8px">Στοιχεία κατάθεσης</div>
-           ${BANK.bank ? `<div style="font-size:14px">Τράπεζα: ${escapeHtml(BANK.bank)}</div>` : ""}
-           ${BANK.holder ? `<div style="font-size:14px">Δικαιούχος: ${escapeHtml(BANK.holder)}</div>` : ""}
-           <div style="font-size:14px">IBAN: <strong>${escapeHtml(BANK.iban)}</strong></div>
-           <div style="font-size:14px;margin-top:8px">
-             Ποσό: <strong>${money(order.totalGross)}</strong>
-           </div>
-           <div style="font-size:14px;margin-top:8px">
-             Αιτιολογία: <strong>${escapeHtml(order.orderNumber)}</strong>
-           </div>
-           <div style="font-size:12px;color:#777;margin-top:10px">
-             Γράψτε τον κωδικό στην αιτιολογία, αλλιώς δεν μπορούμε να αντιστοιχίσουμε
-             την κατάθεση με την παραγγελία σας. Η παραγγελία δεσμεύεται για 3 εργάσιμες.
-           </div>
-         </div>`
-      : `<div style="margin:24px 0;padding:16px;background:#fff4f4;border-left:3px solid #c00">
-           <div style="font-weight:600;margin-bottom:6px">Στοιχεία κατάθεσης</div>
-           <div style="font-size:14px">
-             Θα σας τα στείλουμε αμέσως — επικοινωνήστε μαζί μας αναφέροντας τον κωδικό
-             <strong>${escapeHtml(order.orderNumber)}</strong>.
-           </div>
-         </div>`
-    : "";
+  const deposit = !awaitingTransfer
+    ? ""
+    : bankConfigured()
+      ? block.panel(
+          "Στοιχεία κατάθεσης",
+          [
+            BANK.bank ? `<div style="font-size:14px;color:#333;">Τράπεζα: ${esc(BANK.bank)}</div>` : "",
+            BANK.holder ? `<div style="font-size:14px;color:#333;">Δικαιούχος: ${esc(BANK.holder)}</div>` : "",
+            `<div style="font-size:14px;color:#111;">IBAN: <strong>${esc(BANK.iban)}</strong></div>`,
+            `<div style="font-size:14px;color:#111;margin-top:8px;">Ποσό: <strong>${money(order.totalGross)}</strong></div>`,
+            `<div style="font-size:14px;color:#111;">Αιτιολογία: <strong>${esc(order.orderNumber)}</strong></div>`,
+            `<div style="font-size:12px;color:#767672;margin-top:10px;line-height:1.6;">Γράψτε τον κωδικό στην αιτιολογία, αλλιώς δεν μπορούμε να αντιστοιχίσουμε την κατάθεση με την παραγγελία σας. Η παραγγελία δεσμεύεται για 3 εργάσιμες.</div>`,
+          ]
+            .filter(Boolean)
+            .join(""),
+        )
+      : block.panel(
+          "Στοιχεία κατάθεσης",
+          `<div style="font-size:14px;color:#333;line-height:1.6;">Θα σας τα στείλουμε αμέσως — επικοινωνήστε μαζί μας αναφέροντας τον κωδικό <strong>${esc(order.orderNumber)}</strong>.</div>`,
+          "#c0392b",
+        );
 
-  const heading = paid
-    ? "Η παραγγελία σας επιβεβαιώθηκε"
-    : awaitingTransfer
-      ? "Λάβαμε την παραγγελία σας"
-      : "Η παραγγελία σας καταχωρήθηκε";
-
-  const html = `<div style="font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;max-width:600px;margin:0 auto;color:#111">
-  <div style="padding:24px 0;border-bottom:2px solid #111">
-    <div style="font-size:20px;font-weight:700;letter-spacing:-0.02em">KOLLERIS</div>
-  </div>
-
-  <h1 style="font-size:22px;margin:24px 0 4px">${heading}</h1>
-  <div style="font-size:14px;color:#777">Κωδικός παραγγελίας <strong style="color:#111">${escapeHtml(order.orderNumber)}</strong></div>
-
-  ${deposit}
-
-  <table style="width:100%;border-collapse:collapse;margin-top:24px">
-    <thead>
-      <tr>
-        <th style="text-align:left;font-size:12px;color:#777;padding-bottom:8px;border-bottom:1px solid #111">ΠΡΟΪΟΝ</th>
-        <th style="text-align:center;font-size:12px;color:#777;padding-bottom:8px;border-bottom:1px solid #111">ΤΕΜ.</th>
-        <th style="text-align:right;font-size:12px;color:#777;padding-bottom:8px;border-bottom:1px solid #111">ΑΞΙΑ</th>
-      </tr>
-    </thead>
-    <tbody>${lines}</tbody>
-  </table>
-
-  <table style="width:100%;margin-top:16px;font-size:14px">
-    <tr><td style="padding:3px 0;color:#555">Μερικό σύνολο</td><td style="text-align:right">${money(order.subtotalGross)}</td></tr>
-    <tr><td style="padding:3px 0;color:#555">Μεταφορικά</td><td style="text-align:right">${money(order.shippingGross)}</td></tr>
-    ${Number(order.paymentFeeGross) > 0 ? `<tr><td style="padding:3px 0;color:#555">Έξοδα πληρωμής</td><td style="text-align:right">${money(order.paymentFeeGross)}</td></tr>` : ""}
-    <tr><td style="padding:10px 0 0;font-weight:700;border-top:1px solid #111">Σύνολο</td><td style="text-align:right;padding:10px 0 0;font-weight:700;border-top:1px solid #111">${money(order.totalGross)}</td></tr>
-  </table>
-
-  <div style="margin-top:24px;font-size:14px">
-    <div style="color:#777;font-size:12px;margin-bottom:4px">ΑΠΟΣΤΟΛΗ</div>
-    ${escapeHtml(order.firstName)} ${escapeHtml(order.lastName)}<br>
-    ${escapeHtml(order.shipLine1)}${order.shipLine2 ? `, ${escapeHtml(order.shipLine2)}` : ""}<br>
-    ${escapeHtml(order.shipPostcode)} ${escapeHtml(order.shipCity)}<br>
-    ${escapeHtml(order.phone)}
-  </div>
-
-  <div style="margin-top:28px">
-    <a href="${link}" style="display:inline-block;background:#111;color:#fff;padding:12px 20px;text-decoration:none;font-size:14px">
-      Παρακολούθηση παραγγελίας
-    </a>
-  </div>
-
-  <div style="margin-top:32px;padding-top:16px;border-top:1px solid #eee;font-size:12px;color:#777">
-    Κολλέρης — εργαλεία και εξοπλισμός<br>
-    Για οτιδήποτε, απαντήστε σε αυτό το email.
-  </div>
-</div>`;
+  const html = renderEmail({
+    preheader: paid
+      ? `Παραγγελία ${order.orderNumber} · ${money(order.totalGross)}`
+      : awaitingTransfer
+        ? `Στοιχεία κατάθεσης για την παραγγελία ${order.orderNumber}`
+        : `Παραγγελία ${order.orderNumber}`,
+    body: [
+      block.heading(heading),
+      block.sub(`Κωδικός παραγγελίας ${esc(order.orderNumber)}`),
+      deposit,
+      `<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom:14px;">
+        <tr>
+          <th align="left" style="padding-bottom:8px;border-bottom:1px solid #111111;font-size:11px;letter-spacing:0.08em;color:#767672;font-weight:600;">ΠΡΟΪΟΝ</th>
+          <th align="center" style="padding-bottom:8px;border-bottom:1px solid #111111;font-size:11px;letter-spacing:0.08em;color:#767672;font-weight:600;">ΤΕΜ.</th>
+          <th align="right" style="padding-bottom:8px;border-bottom:1px solid #111111;font-size:11px;letter-spacing:0.08em;color:#767672;font-weight:600;">ΑΞΙΑ</th>
+        </tr>
+        ${lines}
+      </table>`,
+      block.row("Μερικό σύνολο", money(order.subtotalGross)),
+      block.row("Μεταφορικά", money(order.shippingGross)),
+      Number(order.paymentFeeGross) > 0 ? block.row("Έξοδα πληρωμής", money(order.paymentFeeGross)) : "",
+      `<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-top:6px;border-top:1px solid #111111;">
+        <tr>
+          <td style="padding-top:9px;font-size:15px;font-weight:600;color:#111111;">Σύνολο</td>
+          <td align="right" style="padding-top:9px;font-size:15px;font-weight:600;color:#111111;">${money(order.totalGross)}</td>
+        </tr>
+      </table>`,
+      block.space(22),
+      block.panel(
+        "ΑΠΟΣΤΟΛΗ",
+        `<div style="font-size:14px;color:#333;line-height:1.6;">
+          ${esc(order.firstName)} ${esc(order.lastName)}<br>
+          ${esc(order.shipLine1)}${order.shipLine2 ? `, ${esc(order.shipLine2)}` : ""}<br>
+          ${esc(order.shipPostcode)} ${esc(order.shipCity)}<br>
+          ${esc(order.phone)}
+        </div>`,
+      ),
+      block.button(link, "Παρακολούθηση παραγγελίας"),
+    ],
+  });
 
   const text = [
     heading,
