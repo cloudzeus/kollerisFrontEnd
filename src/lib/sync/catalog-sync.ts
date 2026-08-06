@@ -325,11 +325,31 @@ const SPEC_FIELDS: Array<{ key: string; group: string; label: string; unit?: str
 ];
 
 /** Leading number in a spec value, so range facets and compare can sort on it. */
+/**
+ * `valueNumeric` is `Decimal(14, 4)` — ten digits before the point, no more.
+ *
+ * A spec value is free text and the number pulled out of it is whatever the
+ * supplier typed. An EAN, an order number or a date written without separators
+ * all parse as perfectly good numbers and all exceed ten digits, and Postgres
+ * answers that with `numeric field overflow` — which aborts the transaction, so
+ * ONE such value stops the whole catalogue sync. That is what happened on
+ * 6 Aug 2026: 1.478 newly-published products could not reach the storefront
+ * because of a single spec row.
+ *
+ * Out-of-range values become null rather than being clamped. `valueNumeric`
+ * exists to sort and filter by ("torque over 50 Nm"); a 13-digit number that is
+ * really a barcode has no place in that ordering, and storing 9.999.999.999,9999
+ * instead would put it confidently at the top of every such list. The text value
+ * is kept in `value` either way, so nothing is lost from the page itself.
+ */
+const NUMERIC_LIMIT = 10_000_000_000; // Decimal(14, 4) → |value| < 10^10
+
 function parseNumeric(value: string): number | null {
   const match = value.replace(",", ".").match(/-?\d+(\.\d+)?/);
   if (!match) return null;
   const n = Number.parseFloat(match[0]);
-  return Number.isFinite(n) ? n : null;
+  if (!Number.isFinite(n)) return null;
+  return Math.abs(n) < NUMERIC_LIMIT ? n : null;
 }
 
 /** Greek name wins for display; MTRAN el falls back to the raw MTRL name. */
