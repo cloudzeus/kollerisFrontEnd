@@ -4,6 +4,7 @@ import Image from "next/image";
 import { redirect } from "next/navigation";
 import { setRequestLocale } from "next-intl/server";
 import { CheckoutForm } from "@/components/checkout/CheckoutForm";
+import { getViewer } from "@/lib/account/session";
 import { SiteChrome } from "@/components/chrome/SiteChrome";
 import { SiteFooter } from "@/components/chrome/SiteFooter";
 import { Link } from "@/i18n/navigation";
@@ -53,13 +54,15 @@ export default async function CheckoutPage({
   const { locale } = await params;
   setRequestLocale(locale);
 
-  const [cart, miniCart, menuTree, brands, stats, rootCategories] = await Promise.all([
+  const [cart, miniCart, menuTree, brands, stats, rootCategories, viewer] = await Promise.all([
     getCart(locale),
     getMiniCart(locale),
     getMenuTree(locale),
     getTopBrands(locale, 16),
     getCatalogueStats(),
     getRootCategories(locale),
+      // Somebody with an account is not offered another one.
+    getViewer(),
   ]);
 
   // An empty cart has nothing to check out; bouncing back is kinder than an
@@ -120,6 +123,7 @@ export default async function CheckoutPage({
           <CheckoutForm
             locale={locale}
             postcode=""
+            signedIn={viewer.user != null}
             shippingMethod={cart.shippingMethod}
             paymentMethod={cart.paymentMethod}
           />
