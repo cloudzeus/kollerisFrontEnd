@@ -4,6 +4,8 @@ import { assertCan } from "@/lib/rbac";
 import { listPickupLists, listVouchers } from "@/lib/courier/acs";
 import { PageShell } from "@/components/admin/PageShell";
 import { CourierBoard } from "@/components/admin/CourierBoard";
+import { DispatchQueue } from "@/components/admin/DispatchQueue";
+import { listDispatchQueue } from "@/lib/courier/dispatch-queue";
 
 export const dynamic = "force-dynamic";
 
@@ -44,7 +46,16 @@ export default async function CourierPage({
   const { date: requested } = await searchParams;
   const date = /^\d{4}-\d{2}-\d{2}$/.test(requested ?? "") ? requested! : todayInAthens();
 
-  const [vouchers, lists] = await Promise.all([listVouchers(date), listPickupLists(date)]);
+  /*
+   * Three reads, one wait. The queue comes from our own database and answers
+   * even when ACS does not — which matters, because "ACS is down" and "nothing
+   * to ship" must not look the same on this screen.
+   */
+  const [vouchers, lists, queue] = await Promise.all([
+    listVouchers(date),
+    listPickupLists(date),
+    listDispatchQueue(),
+  ]);
 
   // One failure is enough to explain the empty board; showing two copies of the
   // same "ACS is down" is noise.
@@ -73,6 +84,7 @@ export default async function CourierPage({
         </div>
       }
     >
+      <DispatchQueue orders={queue} />
       <CourierBoard
         date={date}
         vouchers={vouchers.ok ? vouchers.data.vouchers : []}
