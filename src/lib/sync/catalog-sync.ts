@@ -505,16 +505,36 @@ async function upsertProduct(
     }),
     prisma.productTranslation.deleteMany({ where: { productId: product.id } }),
     prisma.productTranslation.createMany({
+      /*
+       * A translation is worth keeping for its DESCRIPTION, not only its name.
+       *
+       * This used to filter on `t.name`, and the Greek name is empty by
+       * design: HDCtool never writes one, because the Greek name is
+       * `MTRL.NAME` from the ERP and `displayName()` twenty lines above falls
+       * back to exactly that. So every Greek row arrived with an empty name,
+       * was dropped whole, and took its description with it.
+       *
+       * 1.538 live products reached the storefront with no text at all while
+       * HDCtool held a full description for each — including every product
+       * written by the AI passes, whose entire output is description.
+       *
+       * The name now falls back to the product's own, which is what the page
+       * renders anyway, so nothing displays differently and the description
+       * survives.
+       */
       data: p.translations
-        .filter((t) => t.name)
-        .map((t) => ({
-          productId: product.id,
-          locale: t.language,
-          name: t.name!,
-          shortDescription: t.shortDescription,
-          longDescription: t.longDescription,
-          searchKey: normaliseSearchKey(t.name!),
-        })),
+        .filter((t) => t.name || t.shortDescription || t.longDescription)
+        .map((t) => {
+          const name = t.name?.trim() || p.name;
+          return {
+            productId: product.id,
+            locale: t.language,
+            name,
+            shortDescription: t.shortDescription,
+            longDescription: t.longDescription,
+            searchKey: normaliseSearchKey(name),
+          };
+        }),
     }),
     prisma.productSpec.deleteMany({ where: { productId: product.id } }),
     prisma.productSpec.createMany({ data: buildSpecRows(p, product.id) }),
