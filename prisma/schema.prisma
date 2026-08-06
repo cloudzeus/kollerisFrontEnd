@@ -648,6 +648,20 @@ model Order {
   /// TRDR resolved from the ΑΦΜ at checkout, when the ΑΦΜ lookup found the
   /// company already registered as a Kolleris customer. Carried so the order
   /// push reuses that customer instead of creating a second SoftOne record.
+  /**
+   * The method Viva reports, which can differ from `paymentMethod`.
+   *
+   * `paymentMethod` is what the customer chose at OUR checkout. Viva's page
+   * then offers its own alternatives — IRIS, instalments, another card — and
+   * the shopper chooses again. The ERP needs a different code for each, so the
+   * document has to follow what happened rather than what was intended.
+   *
+   * Stored raw rather than translated. We do not yet know Viva's number for
+   * every method, and recording the value we were given is what lets the next
+   * real payment tell us, instead of a guess hardening into a mapping.
+   */
+  vivaPaymentMethodId Int?
+
   erpTrdr       Int?
   erpFindoc     Int?
   erpPushedAt   DateTime?

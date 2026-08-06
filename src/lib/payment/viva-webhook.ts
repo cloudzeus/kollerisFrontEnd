@@ -199,11 +199,23 @@ async function handleTransaction(payload: Body, event: VivaEventName) {
         paymentStatus: "PAID",
         paidAt: new Date(),
         vivaTransactionId: transactionId,
+        /*
+         * What Viva says was used, not what was chosen here.
+         *
+         * The shopper picks again inside Viva's page — IRIS, instalments,
+         * another card — and the ERP needs a different payment code for each.
+         * Recorded raw and logged, so the first payment through each method
+         * teaches us its number instead of a guess hardening into a mapping.
+         */
+        vivaPaymentMethodId: transaction.paymentMethodId,
         history: {
           create: { status: "CONFIRMED", actor: "viva-webhook", note: "Payment captured" },
         },
       },
     });
+    console.log(
+      `[viva] ${orderNumber} paid · chosen at checkout, Viva paymentMethodId=${transaction.paymentMethodId ?? "—"}`,
+    );
     return NextResponse.json({ ok: true, paid: true });
   }
 

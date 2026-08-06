@@ -1,6 +1,7 @@
 import "server-only";
 import { prisma } from "@/lib/prisma";
 import { hdctoolRequest } from "@/lib/hdctool/client";
+import { resolvePaymentMethod } from "@/lib/orders/viva-payment-method";
 
 /**
  * Sending a paid order to SoftOne — the half that was missing.
@@ -106,7 +107,19 @@ export async function sendOrderToErp(orderNumber: string): Promise<SendToErpResu
     billPostcode: order.billPostcode,
 
     shippingMethod: order.shippingMethod,
-    paymentMethod: order.paymentMethod,
+    /*
+     * What was actually used, not what was chosen here.
+     *
+     * Viva's page lets the shopper pick again, so an order that says "card"
+     * may have been paid with IRIS — and the ERP has a different code for
+     * each. `resolvePaymentMethod` prefers Viva's own answer and falls back to
+     * the checkout choice when Viva's id is one we have not identified yet.
+     */
+    paymentMethod: resolvePaymentMethod(
+      order.paymentMethod,
+      order.vivaPaymentMethodId,
+      order.orderNumber,
+    ).method,
     notes: order.notes,
 
     subtotalNet: money(order.subtotalNet),

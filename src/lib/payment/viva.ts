@@ -223,6 +223,8 @@ export type VivaTransaction = {
   amount: number;
   merchantTrns: string | null;
   orderCode: number | null;
+  /** Viva's own identifier for the method used. Null when it did not say. */
+  paymentMethodId: number | null;
 };
 
 /**
@@ -252,6 +254,16 @@ export async function getTransaction(transactionId: string): Promise<VivaTransac
     amount: number;
     merchantTrns?: string;
     orderCode?: number;
+    /**
+     * WHICH method the customer actually used, which is not what they chose here.
+     *
+     * Viva's page offers its own alternatives — IRIS, instalments, a different
+     * card — and the shopper picks again inside it. Our order still says what
+     * they selected at our checkout, so a customer who chose "κάρτα" and paid
+     * with IRIS produced a document with the card payment code. Viva knows the
+     * truth and returns it; we were discarding it.
+     */
+    paymentMethodId?: number;
   };
 
   return {
@@ -259,6 +271,7 @@ export async function getTransaction(transactionId: string): Promise<VivaTransac
     amount: data.amount,
     merchantTrns: data.merchantTrns ?? null,
     orderCode: data.orderCode ?? null,
+    paymentMethodId: typeof data.paymentMethodId === "number" ? data.paymentMethodId : null,
   };
 }
 
