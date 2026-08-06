@@ -17,7 +17,7 @@ import {
   Truck,
 } from "lucide-react";
 import { toast } from "sonner";
-import { pushOrderToErp } from "@/app/admin/(protected)/orders/actions";
+import { createOrderVoucher, pushOrderToErp } from "@/app/admin/(protected)/orders/actions";
 import type { RecentOrder } from "@/lib/admin/dashboard";
 import { formatMoney } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -95,6 +95,8 @@ export function OrdersTable({
   const [query, setQuery] = useState("");
   /** Which order is mid-flight, so the row can say so and refuse a second click. */
   const [sending, setSending] = useState<string | null>(null);
+  /** Which order is having its ACS voucher issued. */
+  const [voucherFor, setVoucherFor] = useState<string | null>(null);
   const [, startTransition] = useTransition();
 
   /**
@@ -131,6 +133,29 @@ export function OrdersTable({
         toast.error(error instanceof Error ? error.message : "Η αποστολή απέτυχε");
       } finally {
         setSending(null);
+      }
+    });
+  }
+
+  /** Issue the parcel. The voucher number is what the dispatch board lists. */
+  function voucher(orderNumber: string) {
+    setVoucherFor(orderNumber);
+    startTransition(async () => {
+      try {
+        const result = await createOrderVoucher(orderNumber);
+        if (result.ok) {
+          toast.success(
+            result.alreadyIssued
+              ? `Υπάρχει ήδη αποστολή — ${result.voucherNo}`
+              : `Εκδόθηκε αποστολή ACS — ${result.voucherNo}`,
+          );
+        } else {
+          toast.error(result.error);
+        }
+      } catch (error) {
+        toast.error(error instanceof Error ? error.message : "Η έκδοση απέτυχε");
+      } finally {
+        setVoucherFor(null);
       }
     });
   }
@@ -322,6 +347,23 @@ export function OrdersTable({
                             {o.phone || "—"}
                           </a>
                         </DropdownMenuItem>
+                        {o.paymentStatus === "PAID" && (
+                          <>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem
+                              disabled={voucherFor === o.orderNumber}
+                              onSelect={(event) => {
+                                event.preventDefault();
+                                voucher(o.orderNumber);
+                              }}
+                            >
+                              <Truck className="size-3.5" />
+                              {voucherFor === o.orderNumber
+                                ? "Έκδοση…"
+                                : "Έκδοση αποστολής ACS"}
+                            </DropdownMenuItem>
+                          </>
+                        )}
                         {!o.erpPushed && o.paymentStatus === "PAID" && (
                           <>
                             <DropdownMenuSeparator />

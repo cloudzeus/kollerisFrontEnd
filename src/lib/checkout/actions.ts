@@ -1,6 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { sendOrderEmail } from "@/lib/mail/order-email";
 import { randomBytes } from "node:crypto";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
@@ -317,6 +318,24 @@ export async function placeOrder(
       where: { id: order.id },
       data: { status: "CONFIRMED" },
     });
+
+    /*
+     * The email the payment step promises: "Θα λάβετε τα στοιχεία κατάθεσης".
+     *
+     * For a bank transfer this is not a courtesy — it carries the IBAN and the
+     * reference to write on the deposit, without which the money arrives and
+     * nobody can tell whose it is. Sent here rather than from the webhook,
+     * because the whole point is that it goes out BEFORE the customer pays.
+     *
+     * Never fatal, and never awaited into the redirect's way for longer than it
+     * takes: the order exists and is confirmed. A mail failure is logged and
+     * the confirmation page still shows the details on screen.
+     */
+    const mail = await sendOrderEmail(order.orderNumber);
+    if (!mail.ok) {
+      console.error(`[checkout] ${order.orderNumber} email not sent: ${mail.error}`);
+    }
+
     redirect(`/checkout/epibebaiosi/${order.orderNumber}?t=${order.guestToken}`);
   }
 

@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { sendOrderToErp, type SendToErpResult } from "@/lib/orders/send-to-erp";
+import { createVoucherForOrder, type VoucherResult } from "@/lib/courier/create-for-order";
 
 /**
  * The action behind "Αποστολή στο SoftOne", which until now had none.
@@ -19,5 +20,20 @@ export async function pushOrderToErp(orderNumber: string): Promise<SendToErpResu
   revalidatePath("/admin/orders");
   revalidatePath("/admin");
 
+  return result;
+}
+
+/**
+ * Issue the ACS voucher for one order.
+ *
+ * Lives beside the ERP push because they are the two things an order needs
+ * after it is paid, and both were missing their wire. The dispatch board at
+ * `/admin/courier` reads what this produces.
+ */
+export async function createOrderVoucher(orderNumber: string): Promise<VoucherResult> {
+  const result = await createVoucherForOrder(orderNumber);
+  revalidatePath("/admin/orders");
+  revalidatePath("/admin/courier");
+  revalidatePath("/admin");
   return result;
 }

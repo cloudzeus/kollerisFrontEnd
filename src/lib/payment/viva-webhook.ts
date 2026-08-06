@@ -2,6 +2,7 @@ import "server-only";
 import { NextResponse, type NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { VIVA_STATUS_PAID, getTransaction } from "@/lib/payment/viva";
+import { sendOrderEmail } from "@/lib/mail/order-email";
 
 /**
  * The one implementation behind every Viva webhook route.
@@ -216,6 +217,19 @@ async function handleTransaction(payload: Body, event: VivaEventName) {
     console.log(
       `[viva] ${orderNumber} paid · chosen at checkout, Viva paymentMethodId=${transaction.paymentMethodId ?? "—"}`,
     );
+
+    /*
+     * The receipt goes out from HERE, not from the return URL.
+     *
+     * The browser coming back proves only that a browser came back; this runs
+     * after the transaction has been read from Viva's API. And it is awaited
+     * but never allowed to fail the response: the money has moved, and telling
+     * Viva the webhook failed — which makes it retry — because a mail server
+     * was slow would turn a sent receipt into a duplicate one.
+     */
+    const mail = await sendOrderEmail(orderNumber);
+    if (!mail.ok) console.error(`[viva] ${orderNumber} receipt not sent: ${mail.error}`);
+
     return NextResponse.json({ ok: true, paid: true });
   }
 
