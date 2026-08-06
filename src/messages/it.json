@@ -400,7 +400,8 @@
       "syndesi_b2b": "Accesso B2B",
       "oles_oi_ypokatigories": "Tutte le {childCount} sottocategorie",
       "show_subcategories": "Mostra sottocategorie di {name}",
-      "hide_subcategories": "Nascondi sottocategorie di {name}"
+      "hide_subcategories": "Nascondi sottocategorie di {name}",
+      "syndesi_logariasmoy": "Accedi"
     },
     "SearchSuggest": {
       "anazitisi_proionton": "Cerca prodotti",
@@ -443,7 +444,8 @@
     "SiteHeader": {
       "logariasmos": "Account",
       "glossa": "Lingua",
-      "syndesi_b2b": "Accesso B2B"
+      "syndesi_b2b": "Accesso B2B",
+      "syndesi_logariasmoy": "Accedi"
     },
     "UtilityBar": {
       "kodikoi": "codici",
@@ -1063,7 +1065,11 @@
       "akomi": "+ {remaining} altri",
       "kodikoi_se_ypokatigories_amesi_diathesimotita": "{productCount} codici in {childCount} sottocategorie. Disponibilità immediata, consegna 24-48 ore.",
       "titlos_katalogos": "Catalogo",
-      "perigrafi_oles_oi_katigories_ergaleion": "Tutte le categorie di utensili — 23 categorie, 467 sottocategorie, con numerosi codici a ogni livello."
+      "perigrafi_oles_oi_katigories_ergaleion": "Tutte le categorie di utensili — 23 categorie, 467 sottocategorie, con numerosi codici a ogni livello.",
+      "ola_ta_proionta": "Tutti i prodotti",
+      "olos_o_katalogos_se_mia_lista": "L'intero catalogo in un unico elenco, con filtri per marca, categoria, prezzo e disponibilità.",
+      "kodikoi_filtrarete_aristera": "articoli. Filtra a sinistra o restringi per categoria.",
+      "prosfores": "Offerte"
     }
   },
   "kalathi": {

@@ -102,6 +102,27 @@ function Shell({
 
 type WidgetProps = { offer: OfferView; locale: Locale; className?: string; interactive: boolean };
 
+
+/**
+ * Where an offer's tile goes.
+ *
+ * Its own campaign page, listing the products it covers — which is what a
+ * customer clicking "-30% σε δισκοπρίονα" is asking to see. The stored `href`
+ * was a free-text field typed in the mini admin and in practice pointed at
+ * `/katalogos`, so the click landed on a grid of categories and left the
+ * shopper to work out which products were meant.
+ *
+ * `href` is still honoured when it points somewhere OUTSIDE the campaign — an
+ * external page, a landing page written for the campaign. Anything internal is
+ * superseded, because the campaign page knows the answer and a hand-typed path
+ * cannot keep up with a campaign whose product list changes.
+ */
+function offerHref(offer: OfferView): string {
+  const typed = (offer.href ?? "").trim();
+  if (/^https?:\/\//i.test(typed)) return typed;
+  return `/prosfores/${offer.slug}`;
+}
+
 /* ───────────────────────────── Λωρίδα ───────────────────────────── */
 
 function Strip({ offer, className, interactive }: WidgetProps) {
@@ -110,7 +131,7 @@ function Strip({ offer, className, interactive }: WidgetProps) {
 
   return (
     <Shell
-      href={offer.href}
+      href={offerHref(offer)}
       interactive={interactive}
       className={cn(
         "group relative isolate flex flex-wrap items-center gap-x-6 gap-y-3 overflow-hidden bg-k-ink px-5 py-6 lg:px-12 lg:py-8",
@@ -157,7 +178,7 @@ function Card({ offer, className, interactive }: WidgetProps) {
 
   return (
     <Shell
-      href={offer.href}
+      href={offerHref(offer)}
       interactive={interactive}
       className={cn(
         "group relative isolate flex aspect-[4/5] flex-col justify-end overflow-hidden bg-k-ink p-5",
@@ -215,7 +236,7 @@ function Marquee({ offer, className, interactive }: WidgetProps) {
 
   return (
     <Shell
-      href={offer.href}
+      href={offerHref(offer)}
       interactive={interactive}
       className={cn("group relative block overflow-hidden bg-k-red py-3", className)}
     >
@@ -244,7 +265,7 @@ function Countdown({ offer, className, interactive }: WidgetProps) {
 
   return (
     <Shell
-      href={offer.href}
+      href={offerHref(offer)}
       interactive={interactive}
       className={cn(
         "group relative isolate flex flex-col items-center gap-4 overflow-hidden bg-k-ink px-5 py-8 text-center lg:py-12",

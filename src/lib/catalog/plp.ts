@@ -147,8 +147,19 @@ function scopeClause(scope: Scope): Prisma.ProductWhereInput | null {
 async function buildWhere(
   params: PlpParams,
   exclude?: "brand" | "sub" | "price" | "avail",
+  /*
+   * An outer scope the params cannot express.
+   *
+   * A campaign selects its products three ways — a list of slugs, a brand, a
+   * category — and only the last is a URL parameter. Passing the clause in lets
+   * a campaign page reuse this whole apparatus (facets, sorting, paging, and
+   * the counts that stay meaningful when a facet is excluded) instead of
+   * growing a second listing that drifts from it.
+   */
+  extraWhere?: Prisma.ProductWhereInput | null,
 ): Promise<Prisma.ProductWhereInput> {
   const and: Prisma.ProductWhereInput[] = [{ isActive: true }];
+  if (extraWhere) and.push(extraWhere);
 
   const categoryScope = await resolveCategoryScope(params.categorySlug);
   if (categoryScope) {
@@ -254,11 +265,13 @@ export type PlpResult = {
 export async function getPlpData(
   params: PlpParams,
   locale: Locale,
+  /** See `buildWhere`: the campaign scope, when this listing has one. */
+  extraWhere?: Prisma.ProductWhereInput | null,
 ): Promise<PlpResult | null> {
   const scope = await resolveCategoryScope(params.categorySlug);
   if (scope === null) return null; // unknown category slug → 404
 
-  const where = await buildWhere(params);
+  const where = await buildWhere(params, undefined, extraWhere);
   const perPage = params.perPage ?? 24;
   const page = params.page ?? 1;
 
@@ -308,7 +321,7 @@ export async function getPlpData(
     };
   });
 
-  const facets = await getFacets(params, locale, brandByMtrmark);
+  const facets = await getFacets(params, locale, brandByMtrmark, extraWhere);
 
   return {
     products,
@@ -324,13 +337,18 @@ async function getFacets(
   params: PlpParams,
   locale: Locale,
   brandByMtrmark: Map<number, { slug: string; name: string }>,
+  extraWhere?: Prisma.ProductWhereInput | null,
 ): Promise<PlpFacets> {
   // Each group is counted against a where clause that drops its own filter.
   const [whereForBrands, whereForSubs, whereForPrice, whereForAvail] = await Promise.all([
-    buildWhere(params, "brand"),
-    buildWhere(params, "sub"),
-    buildWhere(params, "price"),
-    buildWhere(params, "avail"),
+    // The campaign scope goes into every facet query too. Without it the
+    // counts beside each filter would describe the whole catalogue while the
+    // grid shows one campaign — numbers that are wrong in the most confusing
+    // possible way, because they look authoritative.
+    buildWhere(params, "brand", extraWhere),
+    buildWhere(params, "sub", extraWhere),
+    buildWhere(params, "price", extraWhere),
+    buildWhere(params, "avail", extraWhere),
   ]);
 
   const [byBrand, bySubgroup, byGroup, byCategory, priceAgg, inStockCount, allCount, saleCount, newCount] =

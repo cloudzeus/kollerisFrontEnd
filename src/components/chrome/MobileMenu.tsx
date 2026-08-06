@@ -249,7 +249,7 @@ export function MobileMenu({
                 onClick={() => setOpen(false)}
                 className="t-btn-sm flex min-h-12 items-center justify-center bg-k-ink text-white"
               >
-                {upGreek(t("syndesi_b2b"))}
+                {upGreek(t("syndesi_logariasmoy"))}
               </Link>
             </div>
           </div>

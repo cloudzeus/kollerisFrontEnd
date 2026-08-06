@@ -93,8 +93,14 @@ export async function HeroBanner({
             >
               {upGreek(copy.ctaPrimary)} →
             </Link>
+            {/*
+              Πάει στα ΠΡΟΪΟΝΤΑ, όχι στις κατηγορίες.
+              Το κουμπί υπόσχεται έναν αριθμό κωδικών και οδηγούσε σε πλέγμα
+              κατηγοριών — ο πελάτης πατούσε «14.000+ κωδικοί» και έβλεπε
+              δεκαέξι πλακίδια. Τώρα δείχνει τους κωδικούς.
+            */}
             <Link
-              href="/katalogos"
+              href="/proionta"
               className="t-btn-outline hidden border-[1.5px] border-white/34 px-7 py-[15px] text-white transition-colors hover:border-white lg:block"
             >
               {upGreek(copy.ctaSecondary)} {formatted}+ {upGreek(t("kodikon"))}

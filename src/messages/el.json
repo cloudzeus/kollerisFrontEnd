@@ -400,7 +400,8 @@
       "syndesi_b2b": "Σύνδεση B2B",
       "oles_oi_ypokatigories": "Όλες οι {childCount} υποκατηγορίες",
       "show_subcategories": "Εμφάνιση υποκατηγοριών {name}",
-      "hide_subcategories": "Απόκρυψη υποκατηγοριών {name}"
+      "hide_subcategories": "Απόκρυψη υποκατηγοριών {name}",
+      "syndesi_logariasmoy": "Σύνδεση"
     },
     "SearchSuggest": {
       "anazitisi_proionton": "Αναζήτηση προϊόντων",
@@ -443,7 +444,8 @@
     "SiteHeader": {
       "logariasmos": "Λογαριασμός",
       "glossa": "Γλώσσα",
-      "syndesi_b2b": "Σύνδεση B2B"
+      "syndesi_b2b": "Σύνδεση B2B",
+      "syndesi_logariasmoy": "Σύνδεση"
     },
     "UtilityBar": {
       "kodikoi": "κωδικοί",
@@ -1063,7 +1065,11 @@
       "akomi": "+ {remaining} ακόμη",
       "kodikoi_se_ypokatigories_amesi_diathesimotita": "{productCount} κωδικοί σε {childCount} υποκατηγορίες. Άμεση διαθεσιμότητα, παράδοση 24-48 ώρες.",
       "titlos_katalogos": "Κατάλογος",
-      "perigrafi_oles_oi_katigories_ergaleion": "Όλες οι κατηγορίες εργαλείων — 23 κατηγορίες, 467 υποκατηγορίες, με πλήθος κωδικών σε κάθε επίπεδο."
+      "perigrafi_oles_oi_katigories_ergaleion": "Όλες οι κατηγορίες εργαλείων — 23 κατηγορίες, 467 υποκατηγορίες, με πλήθος κωδικών σε κάθε επίπεδο.",
+      "ola_ta_proionta": "Όλα τα προϊόντα",
+      "olos_o_katalogos_se_mia_lista": "Ολόκληρος ο κατάλογος σε μία λίστα, με φίλτρα για μάρκα, κατηγορία, τιμή και διαθεσιμότητα.",
+      "kodikoi_filtrarete_aristera": "κωδικοί. Φιλτράρετε αριστερά ή περιορίστε με κατηγορία.",
+      "prosfores": "Προσφορές"
     }
   },
   "kalathi": {

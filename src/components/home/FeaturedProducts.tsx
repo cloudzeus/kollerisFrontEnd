@@ -22,7 +22,7 @@ export function FeaturedProducts({ products }: { products: ProductCardData[] }) 
       <SectionHeading
         eyebrow={t("epilegmenoi_kodikoi")}
         title={t("ta_pio_dimofili_ergaleia")}
-        action={{ href: "/katalogos", label: t("deite_ola_ta_proionta") }}
+        action={{ href: "/proionta", label: t("deite_ola_ta_proionta") }}
       >
         <p className="t-stat-label mt-2 text-k-text-4">{upGreek(t("oles_oi_times_me_fpa"))}</p>
       </SectionHeading>
@@ -35,7 +35,7 @@ export function FeaturedProducts({ products }: { products: ProductCardData[] }) 
 
       <div className="mt-6 flex justify-center lg:mt-[34px]">
         <Link
-          href="/katalogos"
+          href="/proionta"
           className="t-btn-sm border-[1.5px] border-k-ink px-[34px] py-[15px] text-k-ink transition-colors hover:bg-k-ink hover:text-white"
         >
           {upGreek(t("deite_ola_ta_proionta"))} →

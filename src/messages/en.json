@@ -400,7 +400,8 @@
       "syndesi_b2b": "B2B login",
       "oles_oi_ypokatigories": "All {childCount} subcategories",
       "show_subcategories": "Show subcategories {name}",
-      "hide_subcategories": "Hide subcategories {name}"
+      "hide_subcategories": "Hide subcategories {name}",
+      "syndesi_logariasmoy": "Sign in"
     },
     "SearchSuggest": {
       "anazitisi_proionton": "Search products",
@@ -443,7 +444,8 @@
     "SiteHeader": {
       "logariasmos": "Account",
       "glossa": "Language",
-      "syndesi_b2b": "B2B Login"
+      "syndesi_b2b": "B2B Login",
+      "syndesi_logariasmoy": "Sign in"
     },
     "UtilityBar": {
       "kodikoi": "codes",
@@ -1063,7 +1065,11 @@
       "akomi": "+ {remaining} more",
       "kodikoi_se_ypokatigories_amesi_diathesimotita": "{productCount} codes in {childCount} subcategories. Immediate availability, delivery in 24-48 hours.",
       "titlos_katalogos": "Catalog",
-      "perigrafi_oles_oi_katigories_ergaleion": "All tool categories — 23 categories, 467 subcategories, with a wealth of codes at every level."
+      "perigrafi_oles_oi_katigories_ergaleion": "All tool categories — 23 categories, 467 subcategories, with a wealth of codes at every level.",
+      "ola_ta_proionta": "All products",
+      "olos_o_katalogos_se_mia_lista": "The whole catalogue in one list, filtered by brand, category, price and availability.",
+      "kodikoi_filtrarete_aristera": "items. Filter on the left, or narrow by category.",
+      "prosfores": "Offers"
     }
   },
   "kalathi": {

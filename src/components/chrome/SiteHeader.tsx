@@ -139,6 +139,15 @@ export function SiteHeader({
         <SearchSuggest locale={locale} categories={suggestCategories} />
 
         <div className="flex shrink-0 items-center gap-[26px]">
+          {/*
+            «Σύνδεση», όχι «Σύνδεση B2B».
+            ────────────────────────────────────────────────────────────────
+            Η φόρμα στο /eisodos δέχεται όλους — ο τύπος λογαριασμού είναι ήδη
+            γνωστός στο σύστημα (`AccountUser.accountType`) και καθορίζει τι
+            βλέπει κανείς ΜΕΤΑ τη σύνδεση, όχι από πού μπαίνει. Η ετικέτα «B2B»
+            έλεγε σε κάθε ιδιώτη ότι δεν τον αφορά, τη στιγμή που το ίδιο κουμπί
+            ήταν η μοναδική είσοδος στο προφίλ του.
+          */}
           <Link
             href="/eisodos"
             className="group/acc flex items-center gap-2.5 transition-colors hover:text-k-red"
@@ -149,7 +158,7 @@ export function SiteHeader({
                 {upGreek(t("logariasmos"))}
               </span>
               <span className="t-account-value mt-0.5 block text-k-ink transition-colors group-hover/acc:text-k-red">
-                {t("syndesi_b2b")}
+                {t("syndesi_logariasmoy")}
               </span>
             </span>
           </Link>
