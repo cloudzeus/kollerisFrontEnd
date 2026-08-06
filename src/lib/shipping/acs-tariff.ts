@@ -39,6 +39,29 @@ export const ZONES: Record<ShippingZone, ZoneInfo> = {
 const VOLUMETRIC_DIVISOR = 5000;
 
 /**
+ * The box around the goods, which nobody was paying for.
+ *
+ * The volumetric sum adds product cubes together as if they tessellated
+ * perfectly and shipped naked. They do not: ACS measures the OUTER carton, and
+ * between the goods and that carton sit walls, tape and void fill. Three
+ * 30×20×10 boxes are not a 30×20×30 parcel.
+ *
+ * 1,2 is the allowance — a fifth on top — which is the ordinary range for
+ * corrugated packing and dunnage. It is applied to the volumetric total only,
+ * never to real weight: a heavy compact order is charged on its mass and gains
+ * nothing from a bigger imaginary box.
+ *
+ * Deliberately modest. Understating postage costs margin on one order;
+ * overstating loses the order and the customer with it. Override with
+ * SHIPPING_PACKING_FACTOR if the real invoices from ACS say otherwise — which
+ * is the only evidence that should move this number.
+ */
+const PACKING_FACTOR = (() => {
+  const raw = Number(process.env.SHIPPING_PACKING_FACTOR);
+  return Number.isFinite(raw) && raw >= 1 && raw <= 2 ? raw : 1.2;
+})();
+
+/**
  * The largest dimension a courier parcel can plausibly have, in centimetres.
  *
  * ACS refuses anything over 150 cm on the longest side for a standard parcel,
@@ -227,6 +250,11 @@ export function chargeableWeight(items: ParcelItem[]): {
       }
     }
   }
+
+  // The carton, added once at the end rather than per line: the allowance is
+  // for the parcel, and charging it per item would tax a ten-line order ten
+  // times for one box.
+  volumetricKg *= PACKING_FACTOR;
 
   const chargeableKg = Math.max(MIN_CHARGEABLE_KG, actualKg, volumetricKg);
   return {
