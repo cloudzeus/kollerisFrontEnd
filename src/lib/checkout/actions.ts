@@ -6,6 +6,7 @@ import { sendOrderEmail } from "@/lib/mail/order-email";
 import { randomBytes } from "node:crypto";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
+import { STOCK_HOLD_HOURS, holdExpiry } from "@/lib/orders/hold";
 import { computeTotals, getCart, getCartToken } from "@/lib/cart/cart";
 import { PAYMENT_METHODS, SHIPPING_METHODS } from "@/lib/cart/options";
 import { quoteLivePostage } from "@/lib/shipping/acs-live";
@@ -68,20 +69,14 @@ const checkoutSchema = z.object({
 });
 
 /**
- * How long a bank-transfer order holds its stock — and therefore how long the
- * payment code stays valid.
+ * How long the Viva payment code stays valid: exactly as long as the hold.
  *
- * Three hours, and ONE number for both on purpose. It used to be two: the Viva
- * code was given seven days while the checkout and the email each told the
- * customer «3 εργάσιμες», so a shop holding goods for three hours was promising
- * three days and issuing a link that outlived both. Three answers to one
- * question, and the only one the software actually enforced was the wrong one.
- *
- * A payment link that outlives the hold is worse than a short one: it invites a
- * transfer for goods that were released to somebody else days ago, and the money
- * arrives for an order that cannot be filled.
+ * Derived from `STOCK_HOLD_HOURS` rather than chosen separately. It used to be
+ * seven days while the hold was three hours, and a payment link that outlives
+ * the hold is worse than a short one — it invites a transfer for goods released
+ * to somebody else days earlier, so the money arrives for an order that cannot
+ * be filled.
  */
-const STOCK_HOLD_HOURS = 3;
 const BANK_TRANSFER_WINDOW_MINUTES = STOCK_HOLD_HOURS * 60;
 
 export type CheckoutState = {
@@ -384,7 +379,7 @@ export async function placeOrder(
      * first means the shop always knows what it committed to, even for an order
      * whose payment link never got created.
      */
-    const reservedUntil = new Date(Date.now() + STOCK_HOLD_HOURS * 60 * 60 * 1000);
+    const reservedUntil = holdExpiry();
     await prisma.order.update({
       where: { id: order.id },
       data: { reservedUntil },

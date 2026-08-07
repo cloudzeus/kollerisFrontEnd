@@ -21,7 +21,7 @@ import { isValidGtin } from "@/lib/feeds/google-merchant";
 import { GoogleReviewsOptIn } from "@/components/seo/GoogleReviewsOptIn";
 import { estimatedDeliveryDate } from "@/lib/seo/google-reviews";
 import { upGreek } from "@/lib/greek";
-import { holdDeadline } from "@/lib/orders/hold";
+import { holdHours } from "@/lib/orders/hold";
 import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
@@ -208,15 +208,18 @@ export default async function ConfirmationPage({ params, searchParams }: PagePro
                     {t("kodikos_pliromis_odigia")}
                   </p>
                   {/*
-                    The deadline the order was actually given, read off the
-                    order rather than recomputed from a constant here. This
-                    page, the email and the checkout promise all have to say
-                    one number, and the only way three places agree is if none
-                    of them decides it.
+                    The window THIS order was given, measured from its own
+                    stamps rather than from the constant. This page, the email
+                    and the checkout promise all have to say one number, and
+                    the only way three places agree is if none of them decides
+                    it — and an order placed under an older policy keeps saying
+                    what its customer was actually promised.
                   */}
                   {order.reservedUntil && (
                     <p className="mt-2 text-[12.5px] leading-[1.6] text-k-ink">
-                      {t("kratame_ta_proionta_eos", { deadline: holdDeadline(order.reservedUntil) })}
+                      {t("kratame_ta_proionta_eos", {
+                        hours: holdHours(order.createdAt, order.reservedUntil),
+                      })}
                     </p>
                   )}
                 </div>

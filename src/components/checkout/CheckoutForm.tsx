@@ -7,6 +7,7 @@ import { placeOrder, type CheckoutState } from "@/lib/checkout/actions";
 import { PAYMENT_METHODS, SHIPPING_METHODS } from "@/lib/cart/options";
 import { setCartOptions } from "@/lib/cart/actions";
 import { AddressAutocomplete } from "@/components/checkout/AddressAutocomplete";
+import { STOCK_HOLD_HOURS } from "@/lib/orders/hold";
 import { upGreek } from "@/lib/greek";
 
 /**
@@ -259,7 +260,10 @@ export function CheckoutForm({
         )}
         {payment === "bank" && (
           <p className="mt-3 border-l-[3px] border-k-ink bg-k-surface-2 px-4 py-3 text-[12px] leading-[1.55] text-k-text-2">
-            {t("tha_lavete_ta_stoicheia_katathesis")}
+            {/* The number comes from the constant the checkout enforces, not
+                from the sentence. A hardcoded «3 ώρες» here is a promise that
+                keeps being made after somebody changes the policy. */}
+            {t("tha_lavete_ta_stoicheia_katathesis", { hours: STOCK_HOLD_HOURS })}
           </p>
         )}
       </Step>

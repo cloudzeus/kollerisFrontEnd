@@ -1,37 +1,32 @@
 /**
- * The stock-hold deadline, phrased for a person.
+ * How long an unpaid bank-transfer order holds its stock.
  *
- * Shared by the confirmation page and the order email, because the two are read
- * minutes apart by the same customer and a difference between them reads as a
- * mistake — which, until now, it was: the checkout said «3 εργάσιμες», the email
- * said the same, and the payment link Viva issued lasted seven days.
- *
- * «Σε 3 ώρες» would make the reader work out when the email was sent and do the
- * arithmetic, and an email is read whenever it is read. An absolute time does
- * not decay.
- *
- * Athens time, always: the order was placed in a Greek shop and will be paid
- * from a Greek banking app. The server's timezone would be right about the
- * instant and useless about the deadline.
+ * One number, in one place, used by everything that either enforces the hold or
+ * mentions it. It used to be three: the checkout said «3 εργάσιμες», the deposit
+ * email repeated it, and the Viva payment code was issued with a seven-day
+ * timeout — three answers to one question, and the only one the software
+ * enforced was the wrong one.
  */
-export function holdDeadline(until: Date, locale = "el-GR"): string {
-  const at = (opts: Intl.DateTimeFormatOptions) =>
-    new Intl.DateTimeFormat(locale, { timeZone: "Europe/Athens", ...opts }).format(until);
+export const STOCK_HOLD_HOURS = 3;
 
-  const day = new Intl.DateTimeFormat(locale, {
-    timeZone: "Europe/Athens",
-    dateStyle: "short",
-  });
-  /*
-   * 24-hour, explicitly.
-   *
-   * `el-GR` defaults to a 12-hour clock and renders "04:17 μ.μ." — which is
-   * both unlike every Greek opening-hours sign and, ending in a full stop,
-   * produces "…στις 04:17 μ.μ.." wherever the sentence adds its own.
-   */
-  const time = at({ hour: "2-digit", minute: "2-digit", hour12: false });
+/** When a hold starting now lapses. */
+export function holdExpiry(from: Date = new Date()): Date {
+  return new Date(from.getTime() + STOCK_HOLD_HOURS * 60 * 60 * 1000);
+}
 
-  return day.format(until) === day.format(new Date())
-    ? `σήμερα στις ${time}`
-    : `${at({ day: "numeric", month: "long" })} στις ${time}`;
+/**
+ * How many hours THIS order was held for.
+ *
+ * Measured from the order rather than read off the constant, and that is the
+ * whole reason `reservedUntil` is a column. The window is a commercial decision
+ * that will change; when it does, an order placed under the old one must keep
+ * saying what its customer was actually promised. A constant in the copy would
+ * silently rewrite history for every order already in the database.
+ *
+ * Rounded to the nearest hour, because the stamp is taken a few milliseconds
+ * after `createdAt` and «3 ώρες» is the promise, not 2.9997.
+ */
+export function holdHours(createdAt: Date, reservedUntil: Date): number {
+  const hours = (reservedUntil.getTime() - createdAt.getTime()) / 3_600_000;
+  return Math.max(1, Math.round(hours));
 }

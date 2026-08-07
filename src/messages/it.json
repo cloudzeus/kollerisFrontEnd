@@ -471,7 +471,7 @@
       "to_kostos_ypologizetai_apo_to": "Il costo è calcolato in base al peso addebitabile e alla zona ACS del tuo CAP —\n          consulta il riepilogo a destra.",
       "tropos_pliromis": "Metodo di pagamento",
       "tha_metafertheite_stin_asfali_selida": "Verrai reindirizzato alla pagina di pagamento sicura di Viva Wallet. I dati\n            della tua carta non passano mai dal nostro negozio.",
-      "tha_lavete_ta_stoicheia_katathesis": "Riceverai i dati per il bonifico via email. Teniamo l'ordine e la merce per 3 ore.",
+      "tha_lavete_ta_stoicheia_katathesis": "Riceverai i dati per il bonifico via email. Teniamo l'ordine e la merce per {hours} ore.",
       "scholia_kai_oloklirosi": "Commenti e completamento",
       "scholia_paraggelias": "Commenti sull'ordine",
       "odigies_paradosis_ores_paralavis": "Istruzioni di consegna, orari di ritiro…",
@@ -1329,7 +1329,7 @@
       "kodikos_pliromis_titlos": "Codice di pagamento",
       "kodikos_pliromis_odigia": "Ti abbiamo inviato il link di pagamento anche via email. Se preferisci il bonifico, indica questo codice come causale.",
       "pliroste_online": "Paga online",
-      "kratame_ta_proionta_eos": "Teniamo i tuoi articoli fino a {deadline}."
+      "kratame_ta_proionta_eos": "Teniamo l'ordine e la merce per {hours} ore."
     }
   },
   "b2b": {

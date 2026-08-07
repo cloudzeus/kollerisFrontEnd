@@ -471,7 +471,7 @@
       "to_kostos_ypologizetai_apo_to": "Cost is calculated based on chargeable weight and the ACS zone of your postal code — see the summary on the right.",
       "tropos_pliromis": "Payment method",
       "tha_metafertheite_stin_asfali_selida": "You will be redirected to Viva Wallet's secure payment page. Your card details never pass through our store.",
-      "tha_lavete_ta_stoicheia_katathesis": "You will receive the deposit details by email. We hold the order and the stock for 3 hours.",
+      "tha_lavete_ta_stoicheia_katathesis": "You will receive the deposit details by email. We hold the order and the stock for {hours} hours.",
       "scholia_kai_oloklirosi": "Comments and checkout",
       "scholia_paraggelias": "Order comments",
       "odigies_paradosis_ores_paralavis": "Delivery instructions, pickup hours…",
@@ -1329,7 +1329,7 @@
       "kodikos_pliromis_titlos": "Payment code",
       "kodikos_pliromis_odigia": "We have emailed you the payment link as well. If you prefer a transfer, quote this code as the reference.",
       "pliroste_online": "Pay online",
-      "kratame_ta_proionta_eos": "We hold your items until {deadline}."
+      "kratame_ta_proionta_eos": "We hold the order and the stock for {hours} hours."
     }
   },
   "b2b": {
