@@ -602,7 +602,10 @@ model Order {
   shipLine2    String? @db.VarChar(255)
   shipCity     String  @db.VarChar(120)
   shipPostcode String  @db.VarChar(16)
+  /// Νομός — the regional unit. "Πειραιώς".
   shipRegion   String? @db.VarChar(120)
+  /// Περιφέρεια — the administrative region above it. "Αττικής".
+  shipAdminRegion String? @db.VarChar(120)
   shipCountry  String  @default("GR") @db.VarChar(2)
 
   // ── Invoice (ΤΙΜΟΛΟΓΙΟ) — only when the customer asks for one ──
@@ -967,7 +970,10 @@ model CustomerAddress {
   line2    String? @db.VarChar(255)
   city     String  @db.VarChar(120)
   postcode String  @db.VarChar(16)
+  /// Νομός — the regional unit. "Πειραιώς".
   region   String? @db.VarChar(120)
+  /// Περιφέρεια — the administrative region above it. "Αττικής".
+  adminRegion String? @db.VarChar(120)
 
   /// Offered first at checkout. At most one per customer, enforced in the action
   /// rather than by the database, because "exactly one" cannot be expressed as a

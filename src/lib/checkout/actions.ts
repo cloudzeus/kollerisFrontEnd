@@ -31,7 +31,10 @@ const checkoutSchema = z.object({
   shipLine2: z.string().trim().max(255).optional().or(z.literal("")),
   shipCity: z.string().trim().min(2).max(120),
   shipPostcode: z.string().trim().min(4).max(16),
+  /** Νομός. */
   shipRegion: z.string().trim().max(120).optional().or(z.literal("")),
+  /** Περιφέρεια. */
+  shipAdminRegion: z.string().trim().max(120).optional().or(z.literal("")),
 
   wantsInvoice: z.union([z.literal("on"), z.literal("")]).optional(),
   companyName: z.string().trim().max(255).optional().or(z.literal("")),
@@ -228,6 +231,7 @@ export async function placeOrder(
       shipCity: input.shipCity,
       shipPostcode: input.shipPostcode,
       shipRegion: input.shipRegion || null,
+      shipAdminRegion: input.shipAdminRegion || null,
 
       wantsInvoice,
       companyName: wantsInvoice ? input.companyName || null : null,

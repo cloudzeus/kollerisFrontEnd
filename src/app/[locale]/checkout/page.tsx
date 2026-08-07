@@ -96,6 +96,7 @@ export default async function CheckoutPage({
         shipCity: defaultAddress?.city ?? "",
         shipPostcode: defaultAddress?.postcode ?? "",
         shipRegion: defaultAddress?.region ?? "",
+        shipAdminRegion: defaultAddress?.adminRegion ?? "",
       }
     : null;
 

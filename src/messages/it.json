@@ -464,7 +464,6 @@
       "dieythynsi_paradosis": "Indirizzo di consegna",
       "odos_kai_arithmos": "Via e numero",
       "orofos_koydoyni": "Piano / citofono",
-      "periochi": "Zona",
       "poli": "Città",
       "t_k": "CAP",
       "thelo_timologio_chreiazontai_afm_kai": "Voglio fattura (servono Partita IVA e Ufficio delle Entrate)",
@@ -485,7 +484,9 @@
       "logariasmos_proairetika": "Account (facoltativo)",
       "kodikos_prosvasis": "Password",
       "toylachiston_8_charaktires": "Almeno 8 caratteri",
-      "symplirose_kodiko_gia_logariasmo": "Scegli una password per creare il tuo account e seguire i tuoi ordini. Lascia vuoto per acquistare come ospite."
+      "symplirose_kodiko_gia_logariasmo": "Scegli una password per creare il tuo account e seguire i tuoi ordini. Lascia vuoto per acquistare come ospite.",
+      "nomos": "Unità regionale",
+      "perifereia": "Regione"
     },
     "page": {
       "kalathi": "CARRELLO",
@@ -1438,7 +1439,9 @@
       "na_einai_proepilogi": "Proponilo per primo alla cassa",
       "apothikeysi": "Salva",
       "apothikeysi_se_exelixi": "Salvataggio…",
-      "akyro": "Annulla"
+      "akyro": "Annulla",
+      "perifereia": "Regione",
+      "odos_voitheia": "Scrivi 3 caratteri e scegli — CAP, città, unità regionale e regione si compilano."
     }
   },
   "policies": {

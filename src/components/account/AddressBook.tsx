@@ -2,6 +2,7 @@
 
 import { useActionState, useEffect, useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
+import { AddressAutocomplete } from "@/components/checkout/AddressAutocomplete";
 import { deleteAddress, makeDefault, saveAddress, type AddressState } from "@/lib/account/addresses";
 import { upGreek } from "@/lib/greek";
 
@@ -28,7 +29,10 @@ export type Address = {
   line2: string | null;
   city: string;
   postcode: string;
+  /** Νομός. */
   region: string | null;
+  /** Περιφέρεια. */
+  adminRegion: string | null;
   isDefault: boolean;
 };
 
@@ -173,13 +177,39 @@ export function AddressBook({ addresses }: { addresses: Address[] }) {
             <Field name="lastName" label={t("eponymo")} defaultValue={editing?.lastName} error={state.fieldErrors?.lastName} required autoComplete="family-name" />
           </div>
 
-          <Field name="line1" label={t("odos")} defaultValue={editing?.line1} error={state.fieldErrors?.line1} required autoComplete="address-line1" />
+          {/*
+            The same suggestion field as checkout, pointed at this form's names.
+            ──────────────────────────────────────────────────────────────────
+            This was a plain input, so the address book — the one screen whose
+            entire job is entering an address — was the one place with no
+            suggestions. Picking one now fills the four fields below it, which
+            is the point: the postcode decides the ACS zone, and it is the field
+            people leave blank or get wrong.
+          */}
+          <AddressAutocomplete
+            name="line1"
+            label={t("odos")}
+            defaultValue={editing?.line1}
+            error={state.fieldErrors?.line1}
+            required
+            fields={{
+              postcode: "postcode",
+              city: "city",
+              region: "region",
+              adminRegion: "adminRegion",
+            }}
+            help={t("odos_voitheia")}
+          />
           <Field name="line2" label={t("orofos")} defaultValue={editing?.line2 ?? ""} autoComplete="address-line2" />
 
-          <div className="grid gap-4 sm:grid-cols-[140px_1fr_1fr]">
+          <div className="grid gap-4 sm:grid-cols-[140px_1fr]">
             <Field name="postcode" label={t("tk")} defaultValue={editing?.postcode} error={state.fieldErrors?.postcode} required inputMode="numeric" autoComplete="postal-code" />
             <Field name="city" label={t("poli")} defaultValue={editing?.city} error={state.fieldErrors?.city} required autoComplete="address-level2" />
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-2">
             <Field name="region" label={t("nomos")} defaultValue={editing?.region ?? ""} autoComplete="address-level1" />
+            <Field name="adminRegion" label={t("perifereia")} defaultValue={editing?.adminRegion ?? ""} />
           </div>
 
           <Field name="phone" label={t("tilefono")} defaultValue={editing?.phone ?? ""} type="tel" autoComplete="tel" />

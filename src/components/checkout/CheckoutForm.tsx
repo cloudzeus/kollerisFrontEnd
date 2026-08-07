@@ -50,6 +50,7 @@ export function CheckoutForm({
     shipCity: string;
     shipPostcode: string;
     shipRegion: string;
+    shipAdminRegion: string;
   } | null;
   /** What the basket page already recorded. Seeds the controls below. */
   shippingMethod: string;
@@ -138,7 +139,10 @@ export function CheckoutForm({
             />
           </div>
           <Field label={t("orofos_koydoyni")} name="shipLine2" defaultValue={prefill?.shipLine2} autoComplete="address-line2" />
-          <Field label={t("periochi")} name="shipRegion" defaultValue={prefill?.shipRegion} />
+          {/* Νομός and περιφέρεια, both filled by a chosen suggestion. Two
+              administrative levels, so one field could only ever hold one. */}
+          <Field label={t("nomos")} name="shipRegion" defaultValue={prefill?.shipRegion} autoComplete="address-level1" />
+          <Field label={t("perifereia")} name="shipAdminRegion" defaultValue={prefill?.shipAdminRegion} />
           <Field
             label={t("poli")}
             name="shipCity"

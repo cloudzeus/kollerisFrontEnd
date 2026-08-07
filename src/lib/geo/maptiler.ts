@@ -29,12 +29,49 @@ export type AddressSuggestion = {
   city: string;
   /** Five digits, no space. Greek postcodes arrive as "185 45". */
   postcode: string;
+  /** Νομός — the regional unit. "Πειραιώς", "Θεσσαλονίκης". */
   region: string;
+  /** Περιφέρεια — the administrative region above it. "Αττικής". */
+  adminRegion: string;
 };
 
 /** The first context entry of a given kind. MapTiler ids are `kind.number`. */
 const context = (feature: MapTilerFeature, kind: string): string =>
   feature.context?.find((c) => c.id.startsWith(`${kind}.`))?.text ?? "";
+
+/**
+ * Which MapTiler context level is which Greek administrative unit.
+ *
+ * Not guessable from the names, and getting it wrong is silent — every value is
+ * a plausible-looking Greek place name, so a field filled from the wrong level
+ * looks filled rather than wrong. For «Μαυρομιχάλη 4, Πειραιάς» MapTiler answers:
+ *
+ *   county    → Περιφερειακή Ενότητα Πειραιώς   ← the ΝΟΜΟΣ
+ *   subregion → Περιφέρεια Αττικής              ← the ΠΕΡΙΦΕΡΕΙΑ
+ *   region    → Αποκεντρωμένη Διοίκηση Αττικής  ← neither; not an address field
+ *
+ * This is what the previous mapping got wrong: it read `subregion` into the
+ * field labelled Νομός, so picking a suggestion in Piraeus wrote "Περιφέρεια
+ * Αττικής" under «Νομός» — the right country, the wrong administrative level,
+ * and nothing on screen to say so.
+ */
+const NOMOS = "county";
+const PERIFEREIA = "subregion";
+
+/**
+ * Drop the prefix that repeats the field's own label.
+ *
+ * The field says «Νομός» and the value says "Περιφερειακή Ενότητα Πειραιώς";
+ * together they read as a sentence nobody writes on an envelope. Stripped, the
+ * form reads Νομός: Πειραιώς — which is how it is written by hand. A value that
+ * arrives without the prefix is left exactly as it came.
+ */
+const shorten = (value: string): string =>
+  value
+    // «Μητροπολιτική Ενότητα» is what Athens and Thessaloniki come back as —
+    // found by asking for a Thessaloniki street, not by reading a spec.
+    .replace(/^(Μητροπολιτική Ενότητα|Περιφερειακή Ενότητα|Περιφέρεια|Νομός|Νομ\.)\s+/u, "")
+    .trim();
 
 type MapTilerFeature = {
   place_name?: string;
@@ -82,7 +119,8 @@ export async function suggestAddresses(
           line1: number ? `${street} ${number}` : street,
           city,
           postcode,
-          region: context(feature, "subregion"),
+          region: shorten(context(feature, NOMOS)),
+          adminRegion: shorten(context(feature, PERIFEREIA)),
         },
       ];
     });

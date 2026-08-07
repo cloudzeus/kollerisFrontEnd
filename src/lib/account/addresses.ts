@@ -34,7 +34,10 @@ const schema = z.object({
   line2: z.string().trim().max(255).optional(),
   city: z.string().trim().min(1).max(120),
   postcode: z.string().trim().regex(/^\d{5}$/),
+  /** Νομός. */
   region: z.string().trim().max(120).optional(),
+  /** Περιφέρεια. */
+  adminRegion: z.string().trim().max(120).optional(),
   isDefault: z.union([z.literal("on"), z.literal("")]).optional(),
 });
 
@@ -74,6 +77,7 @@ export async function saveAddress(
     city: input.city,
     postcode: input.postcode,
     region: input.region || null,
+    adminRegion: input.adminRegion || null,
   };
 
   /*

@@ -464,7 +464,6 @@
       "dieythynsi_paradosis": "Delivery address",
       "odos_kai_arithmos": "Street and number",
       "orofos_koydoyni": "Floor / buzzer",
-      "periochi": "Area",
       "poli": "City",
       "t_k": "Postal code",
       "thelo_timologio_chreiazontai_afm_kai": "I want an invoice (VAT number and tax office required)",
@@ -485,7 +484,9 @@
       "logariasmos_proairetika": "Account (optional)",
       "kodikos_prosvasis": "Password",
       "toylachiston_8_charaktires": "At least 8 characters",
-      "symplirose_kodiko_gia_logariasmo": "Choose a password to create your account and follow your orders. Leave it empty to check out as a guest."
+      "symplirose_kodiko_gia_logariasmo": "Choose a password to create your account and follow your orders. Leave it empty to check out as a guest.",
+      "nomos": "Regional unit",
+      "perifereia": "Region"
     },
     "page": {
       "kalathi": "CART",
@@ -1438,7 +1439,9 @@
       "na_einai_proepilogi": "Offer this one first at checkout",
       "apothikeysi": "Save",
       "apothikeysi_se_exelixi": "Saving…",
-      "akyro": "Cancel"
+      "akyro": "Cancel",
+      "perifereia": "Region",
+      "odos_voitheia": "Type 3 characters and pick one — postcode, city, regional unit and region fill in."
     }
   },
   "policies": {

@@ -25,7 +25,38 @@ type Suggestion = {
   line1: string;
   city: string;
   postcode: string;
+  /** Νομός. */
   region: string;
+  /** Περιφέρεια. */
+  adminRegion: string;
+};
+
+/**
+ * Which sibling inputs a chosen suggestion fills.
+ *
+ * A parameter rather than the checkout's own field names, because the same
+ * street field belongs on any address form and the account's address book
+ * calls these `postcode`, `city`, `region`. Hard-coded names made the component
+ * usable on exactly one form — which is why the address book had no suggestions
+ * at all, and typing a street there filled nothing.
+ */
+export type AddressFieldNames = {
+  postcode: string;
+  city: string;
+  /** Νομός. */
+  region: string;
+  /** Περιφέρεια. Omit on a form that has no such field. */
+  adminRegion?: string;
+};
+
+/** Stable identity, so the derived list does not change reference each render. */
+const EMPTY: Suggestion[] = [];
+
+const CHECKOUT_FIELDS: AddressFieldNames = {
+  postcode: "shipPostcode",
+  city: "shipCity",
+  region: "shipRegion",
+  adminRegion: "shipAdminRegion",
 };
 
 /** Writes a value into a sibling field the way React will notice. */
@@ -47,6 +78,8 @@ export function AddressAutocomplete({
   error,
   required,
   defaultValue,
+  fields = CHECKOUT_FIELDS,
+  help,
 }: {
   label: string;
   name: string;
@@ -54,22 +87,36 @@ export function AddressAutocomplete({
   required?: boolean;
   /** A signed-in customer's saved street. Seeds the field, never locks it. */
   defaultValue?: string;
+  /** The sibling inputs a chosen suggestion fills. */
+  fields?: AddressFieldNames;
+  /** Overrides the checkout's own hint, for a form with different wording. */
+  help?: string;
 }) {
   const locale = useLocale();
   const t = useTranslations("checkout.AddressAutocomplete");
   const listId = useId();
 
   const input = useRef<HTMLInputElement>(null);
-  const [items, setItems] = useState<Suggestion[]>([]);
+  const [fetched, setFetched] = useState<Suggestion[]>([]);
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(-1);
-  const [query, setQuery] = useState(defaultValue ?? "");
+  const [query, setQuery] = useState("");
 
   useEffect(() => {
-    if (query.trim().length < 3) {
-      setItems([]);
-      return;
-    }
+    /*
+     * Nothing is looked up until somebody types.
+     *
+     * `query` starts empty even when the field is prefilled, and that is
+     * deliberate: seeding it with a saved address made this effect fire on
+     * mount, so a returning customer's own street was sent to the geocoder and
+     * a suggestion list opened over a form they had not touched.
+     *
+     * Below three characters it simply returns. What was fetched for a longer
+     * prefix stays in state and is not shown — see `items` — rather than being
+     * cleared here, which would be a setState in an effect body and a render
+     * cascade for a list nobody can see.
+     */
+    if (query.trim().length < 3) return;
     // Debounced, and the previous request is abandoned rather than raced: two
     // in flight can land out of order and show suggestions for a prefix the
     // customer has already typed past.
@@ -82,7 +129,7 @@ export function AddressAutocomplete({
         );
         if (!response.ok) return;
         const data = (await response.json()) as { suggestions?: Suggestion[] };
-        setItems(data.suggestions ?? []);
+        setFetched(data.suggestions ?? []);
         setOpen((data.suggestions ?? []).length > 0);
         setActive(-1);
       } catch {
@@ -96,6 +143,15 @@ export function AddressAutocomplete({
     };
   }, [query, locale]);
 
+  /*
+   * What is actually offered.
+   *
+   * Derived rather than stored: a query shorter than three characters has no
+   * suggestions by definition, and deriving that says so once instead of
+   * needing every path that shortens the query to remember to clear the list.
+   */
+  const items = query.trim().length < 3 ? EMPTY : fetched;
+
   function choose(item: Suggestion) {
     const field = input.current;
     if (field) {
@@ -104,12 +160,13 @@ export function AddressAutocomplete({
       field.dispatchEvent(new Event("input", { bubbles: true }));
     }
     const form = field?.form ?? null;
-    setSibling(form, "shipPostcode", item.postcode);
-    setSibling(form, "shipCity", item.city);
-    setSibling(form, "shipRegion", item.region);
+    setSibling(form, fields.postcode, item.postcode);
+    setSibling(form, fields.city, item.city);
+    setSibling(form, fields.region, item.region);
+    if (fields.adminRegion) setSibling(form, fields.adminRegion, item.adminRegion);
 
     setQuery("");
-    setItems([]);
+    setFetched(EMPTY);
     setOpen(false);
   }
 
@@ -142,6 +199,10 @@ export function AddressAutocomplete({
         ref={input}
         name={name}
         type="text"
+        // Uncontrolled, so this is what actually puts a saved street on screen.
+        // Seeding state alone did not: nothing rendered `query` into the input,
+        // so a prefilled address was invisible and submitted empty.
+        defaultValue={defaultValue}
         required={required}
         autoComplete="address-line1"
         role="combobox"
@@ -192,7 +253,7 @@ export function AddressAutocomplete({
       {error ? (
         <span className="mt-1.5 block text-[11.5px] text-k-red">{error}</span>
       ) : (
-        <span className="mt-1.5 block text-[11px] text-k-text-3">{t("voitheia")}</span>
+        <span className="mt-1.5 block text-[11px] text-k-text-3">{help ?? t("voitheia")}</span>
       )}
     </label>
   );

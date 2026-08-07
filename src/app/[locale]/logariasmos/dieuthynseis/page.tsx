@@ -47,7 +47,7 @@ export default async function AddressesPage({
     orderBy: [{ isDefault: "desc" }, { updatedAt: "desc" }],
     select: {
       id: true, label: true, firstName: true, lastName: true, phone: true,
-      line1: true, line2: true, city: true, postcode: true, region: true,
+      line1: true, line2: true, city: true, postcode: true, region: true, adminRegion: true,
       isDefault: true,
     },
   });
