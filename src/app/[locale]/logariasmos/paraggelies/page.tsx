@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { setRequestLocale } from "next-intl/server";
 import { AccountChrome } from "@/components/account/AccountChrome";
 import { AccountShell } from "@/components/account/AccountShell";
+import { Truck } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import type { Locale } from "@/i18n/routing";
 import { requireCustomer } from "@/lib/account/guard";
@@ -85,7 +86,7 @@ export default async function OrdersPage({
               {t("kamia_paraggelia_body")}
             </p>
             <Link
-              href="/katalogos"
+              href="/proionta"
               className="t-btn-sm mt-5 inline-block bg-k-ink px-6 py-3.5 text-white transition-colors hover:bg-k-red"
             >
               {upGreek(t("ston_katalogo"))} →
@@ -101,6 +102,19 @@ export default async function OrdersPage({
                   href={`/checkout/epibebaiosi/${order.orderNumber}?t=${order.guestToken}`}
                   className="flex flex-col gap-3 px-4 py-4 transition-colors hover:bg-k-surface-2 sm:flex-row sm:items-center sm:gap-6 lg:px-6 lg:py-5"
                 >
+                  {/* The picture first. An order number is a string nobody
+                      memorised; the tool in the box is what they remember. */}
+                  {order.image ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={order.image}
+                      alt=""
+                      className="size-12 shrink-0 border border-k-line object-contain"
+                    />
+                  ) : (
+                    <span className="size-12 shrink-0 border border-k-line bg-k-surface-2" />
+                  )}
+
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
                       <span className="font-mono text-[13px] font-semibold tabular-nums text-k-ink">
@@ -120,6 +134,13 @@ export default async function OrdersPage({
                       {order.itemCount > order.preview.length &&
                         ` ${t("kai_alla", { n: order.itemCount - order.preview.length })}`}
                     </p>
+                    {/* The courier reference, where the question is asked. */}
+                    {order.voucherNo && (
+                      <p className="mt-1 flex items-center gap-1.5 text-[11.5px] text-k-text-3">
+                        <Truck className="size-3" aria-hidden />
+                        <span className="font-mono tabular-nums">ACS {order.voucherNo}</span>
+                      </p>
+                    )}
                   </div>
 
                   <div className="flex items-center gap-4 sm:gap-6">

@@ -28,6 +28,16 @@ export type AccountOrder = {
   itemCount: number;
   /** First few product names, for a line the customer can recognise. */
   preview: string[];
+  /** The first product's picture — what somebody actually recognises. */
+  image: string | null;
+  /**
+   * The courier reference, when the parcel exists.
+   *
+   * Shown on the row rather than only inside the order: "has it shipped" is the
+   * question this list is scanned for, and a customer who has to open three
+   * orders to find out has been made to do the software's work.
+   */
+  voucherNo: string | null;
 };
 
 export async function listCustomerOrders(
@@ -52,7 +62,8 @@ export async function listCustomerOrders(
       shippingMethod: true,
       totalGross: true,
       createdAt: true,
-      lines: { select: { name: true, quantity: true } },
+      acsVoucherNo: true,
+      lines: { select: { name: true, quantity: true, imageUrl: true } },
     },
   });
 
@@ -68,6 +79,8 @@ export async function listCustomerOrders(
     createdAt: order.createdAt,
     itemCount: order.lines.reduce((sum, line) => sum + line.quantity, 0),
     preview: order.lines.slice(0, 3).map((line) => line.name),
+    image: order.lines.find((l) => l.imageUrl)?.imageUrl ?? null,
+    voucherNo: order.acsVoucherNo,
   }));
 }
 
