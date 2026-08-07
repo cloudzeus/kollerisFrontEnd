@@ -23,6 +23,7 @@ export function CheckoutForm({
   postcode,
   isPartner = false,
   signedIn = false,
+  prefill,
   shippingMethod,
   paymentMethod,
 }: {
@@ -31,6 +32,25 @@ export function CheckoutForm({
   isPartner?: boolean;
   /** Somebody with an account does not need to be offered one. */
   signedIn?: boolean;
+  /**
+   * What we already know about a signed-in customer.
+   *
+   * Their name and email come from the account; the address from whichever one
+   * they marked as default. Prefilled rather than locked: the account holder is
+   * not always the recipient — a site foreman, a spouse, a different branch —
+   * and a checkout that cannot be corrected is a checkout somebody abandons.
+   */
+  prefill?: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone: string;
+    shipLine1: string;
+    shipLine2: string;
+    shipCity: string;
+    shipPostcode: string;
+    shipRegion: string;
+  } | null;
   /** What the basket page already recorded. Seeds the controls below. */
   shippingMethod: string;
   paymentMethod: string;
@@ -81,13 +101,14 @@ export function CheckoutForm({
 
       <Step n="01" title={t("stoicheia_epikoinonias")}>
         <div className="grid gap-4 sm:grid-cols-2">
-          <Field label={t("onoma")} name="firstName" error={state.fieldErrors?.firstName} required />
-          <Field label={t("eponymo")} name="lastName" error={state.fieldErrors?.lastName} required />
+          <Field label={t("onoma")} name="firstName" defaultValue={prefill?.firstName} error={state.fieldErrors?.firstName} required />
+          <Field label={t("eponymo")} name="lastName" defaultValue={prefill?.lastName} error={state.fieldErrors?.lastName} required />
           <Field
             label="Email"
             name="email"
             type="email"
             autoComplete="email"
+            defaultValue={prefill?.email}
             error={state.fieldErrors?.email}
             required
           />
@@ -96,6 +117,7 @@ export function CheckoutForm({
             name="phone"
             type="tel"
             autoComplete="tel"
+            defaultValue={prefill?.phone}
             error={state.fieldErrors?.phone}
             required
           />
@@ -110,16 +132,18 @@ export function CheckoutForm({
             <AddressAutocomplete
               label={t("odos_kai_arithmos")}
               name="shipLine1"
+              defaultValue={prefill?.shipLine1}
               error={state.fieldErrors?.shipLine1}
               required
             />
           </div>
-          <Field label={t("orofos_koydoyni")} name="shipLine2" autoComplete="address-line2" />
-          <Field label={t("periochi")} name="shipRegion" />
+          <Field label={t("orofos_koydoyni")} name="shipLine2" defaultValue={prefill?.shipLine2} autoComplete="address-line2" />
+          <Field label={t("periochi")} name="shipRegion" defaultValue={prefill?.shipRegion} />
           <Field
             label={t("poli")}
             name="shipCity"
             autoComplete="address-level2"
+            defaultValue={prefill?.shipCity}
             error={state.fieldErrors?.shipCity}
             required
           />
@@ -127,7 +151,7 @@ export function CheckoutForm({
             label={t("t_k")}
             name="shipPostcode"
             autoComplete="postal-code"
-            defaultValue={postcode}
+            defaultValue={prefill?.shipPostcode || postcode}
             error={state.fieldErrors?.shipPostcode}
             required
             help={t("kathorizei_ti_zoni_acs_kai")}

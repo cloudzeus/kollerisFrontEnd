@@ -8,6 +8,7 @@ import { getViewer } from "@/lib/account/session";
 import { SiteChrome } from "@/components/chrome/SiteChrome";
 import { SiteFooter } from "@/components/chrome/SiteFooter";
 import { Link } from "@/i18n/navigation";
+import { prisma } from "@/lib/prisma";
 import type { Locale } from "@/i18n/routing";
 import { getCart, getMiniCart } from "@/lib/cart/cart";
 import {
@@ -65,6 +66,39 @@ export default async function CheckoutPage({
     getViewer(),
   ]);
 
+  /*
+   * What we already know about them.
+   *
+   * The account holds the name, the email and the phone; the default address
+   * holds the rest. Read here rather than in the form so the fields render
+   * filled on the first paint — a form that populates a beat later reads as a
+   * glitch, and on a checkout it reads as one that lost your details.
+   *
+   * Null for a guest, which is most people, and the form is unchanged for them.
+   */
+  const defaultAddress = viewer.user
+    ? await prisma.customerAddress.findFirst({
+        where: { customerId: viewer.user.id },
+        orderBy: [{ isDefault: "desc" }, { updatedAt: "desc" }],
+      })
+    : null;
+
+  const prefill = viewer.user
+    ? {
+        // The recipient may differ from the account holder — a foreman, a
+        // spouse — so the address's own name wins where it has one.
+        firstName: defaultAddress?.firstName || viewer.user.firstName,
+        lastName: defaultAddress?.lastName || viewer.user.lastName,
+        email: viewer.user.email,
+        phone: defaultAddress?.phone || viewer.user.phone || "",
+        shipLine1: defaultAddress?.line1 ?? "",
+        shipLine2: defaultAddress?.line2 ?? "",
+        shipCity: defaultAddress?.city ?? "",
+        shipPostcode: defaultAddress?.postcode ?? "",
+        shipRegion: defaultAddress?.region ?? "",
+      }
+    : null;
+
   // An empty cart has nothing to check out; bouncing back is kinder than an
   // empty form that fails on submit.
   if (!cart || cart.lines.length === 0) redirect("/kalathi");
@@ -120,9 +154,28 @@ export default async function CheckoutPage({
             </p>
           )}
 
+          {/*
+            A way in, for somebody who has an account and is about to retype
+            everything in it. Not a wall — the form below still works for a
+            guest, and always will.
+          */}
+          {!viewer.user && (
+            <p className="mb-6 border-l-[3px] border-k-line-2 bg-k-surface-2 px-4 py-3 text-[12.5px] leading-[1.55] text-k-text-2">
+              Έχετε λογαριασμό;{" "}
+              <Link
+                href={{ pathname: "/eisodos", query: { redirectTo: "/checkout" } }}
+                className="text-k-ink underline-offset-2 hover:underline"
+              >
+                Συνδεθείτε
+              </Link>{" "}
+              και τα στοιχεία σας συμπληρώνονται μόνα τους.
+            </p>
+          )}
+
           <CheckoutForm
             locale={locale}
             postcode=""
+            prefill={prefill}
             signedIn={viewer.user != null}
             shippingMethod={cart.shippingMethod}
             paymentMethod={cart.paymentMethod}

@@ -46,11 +46,14 @@ export function AddressAutocomplete({
   name,
   error,
   required,
+  defaultValue,
 }: {
   label: string;
   name: string;
   error?: string;
   required?: boolean;
+  /** A signed-in customer's saved street. Seeds the field, never locks it. */
+  defaultValue?: string;
 }) {
   const locale = useLocale();
   const t = useTranslations("checkout.AddressAutocomplete");
@@ -60,7 +63,7 @@ export function AddressAutocomplete({
   const [items, setItems] = useState<Suggestion[]>([]);
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(-1);
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState(defaultValue ?? "");
 
   useEffect(() => {
     if (query.trim().length < 3) {
