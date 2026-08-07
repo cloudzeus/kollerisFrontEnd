@@ -77,6 +77,20 @@ COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/public ./public
 
+# Next writes its image-optimiser cache under .next/cache AT RUNTIME.
+#
+# Everything above was copied as root, so the directory tree belongs to uid 0
+# while the server runs as uid 1000 — and `mkdir /app/.next/cache` fails with
+# EACCES on the first optimised image. Next does not treat that as fatal: it
+# logs an unhandledRejection per image and serves on, so production filled with
+# thousands of identical errors and every image was re-optimised on every
+# request, which is the part that costs CPU.
+#
+# Created and handed over here rather than at first use, because a directory
+# that has to exist before the first request is not something to leave to the
+# first request.
+RUN mkdir -p /app/.next/cache && chown -R node:node /app/.next
+
 # `node` exists in the base image with uid 1000. Running as root would let a
 # flaw in a dependency write to the application it is serving.
 USER node
