@@ -58,7 +58,19 @@ export const PAYMENT_METHODS = [
   // 2026-07-31), and it was listed here — with a 2.50 € net ACS fee — until
   // that came to light. Do not reinstate without the fee, the FAQ answer and
   // the SoftOne expense code all going back together.
-  { id: "credit", label: "Επί πιστώσει", feeNet: 0, partnerOnly: true },
+  /*
+   * "Επί πιστώσει" is NOT offered, and is not mentioned anywhere on the site.
+   *
+   * It sat here as `partnerOnly: true` while the server refused it for
+   * everybody — `if (payment.partnerOnly) return error`, with no partner check
+   * at all — so an approved partner was shown a method that could not complete.
+   * Removed rather than fixed: the client's decision is that credit is not a
+   * web payment method, and an option nobody can use is worse than one that
+   * does not exist.
+   *
+   * `partnerOnly` stays on the remaining three as `false` so the shape does not
+   * change under the filters that read it.
+   */
 ] as const;
 
 export type ShippingMethodId = (typeof SHIPPING_METHODS)[number]["id"];

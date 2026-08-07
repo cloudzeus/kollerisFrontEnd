@@ -730,7 +730,7 @@
       "idiotis": "Individual",
       "paraggelies_dieythynseis_eggyiseis_kai_epistrofes": "Orders, addresses, warranties and returns.",
       "etaireia_b2b": "Company (B2B)",
-      "times_synergati_pliromi_epi_pistosei": "Partner pricing, credit terms, multiple users with roles and limits.",
+      "times_synergati_pliromi_epi_pistosei": "Partner pricing across the catalogue, with an invoice",
       "toylachiston_8_charaktires_me_grammata": "At least 8 characters, with letters and numbers."
     },
     "CompanyVatFields": {
@@ -1307,7 +1307,6 @@
       "karta_viva_wallet": "Card (Viva Wallet)",
       "trapeziki_katathesi": "Bank transfer",
       "antikatavoli": "Cash on delivery",
-      "epi_pistosei": "On credit",
       "se_anamoni": "Pending",
       "exoflithike": "Paid",
       "apetyche": "Failed",

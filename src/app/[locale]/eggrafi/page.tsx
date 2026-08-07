@@ -29,7 +29,6 @@ const COMPARISON = [
   { feature: "paraggelies_kai_istoriko", individual: true, company: true },
   { feature: "dieuthynseis_kai_eggyiseis", individual: true, company: true },
   { feature: "times_synergati", individual: false, company: true },
-  { feature: "pliromi_epi_pistosei", individual: false, company: true },
   { feature: "timologio_me_stoicheia_etaireias", individual: false, company: true },
   { feature: "polloi_christes_me_roloys", individual: false, company: true },
   { feature: "oria_dapanis_ana_christi", individual: false, company: true },

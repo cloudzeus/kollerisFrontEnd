@@ -309,7 +309,6 @@ export default async function ConfirmationPage({ params, searchParams }: PagePro
                     // Kept although the method is no longer offered: this map renders orders that
   // were already placed, and a missing entry would show a raw "cod".
   cod: t("antikatavoli"),
-                    credit: t("epi_pistosei"),
                   }[order.paymentMethod] ?? order.paymentMethod
                 }
                 <br />

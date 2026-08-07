@@ -156,7 +156,11 @@ export async function placeOrder(
   const payment =
     PAYMENT_METHODS.find((m) => m.id === input.paymentMethod) ?? PAYMENT_METHODS[0];
 
-  // "Επί πιστώσει" is partner-only; guests must not reach it by posting the id.
+  /*
+   * Kept as a guard even though nothing is `partnerOnly` any more: the field
+   * exists, and the day something is added to it this is what stops a guest
+   * reaching it by posting the id.
+   */
   if (payment.partnerOnly) {
     return { error: "Ο τρόπος πληρωμής δεν είναι διαθέσιμος για τον λογαριασμό σας." };
   }
