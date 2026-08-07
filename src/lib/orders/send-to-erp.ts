@@ -1,5 +1,6 @@
 import "server-only";
 import { prisma } from "@/lib/prisma";
+import type { Prisma } from "@/generated/prisma/client";
 import { hdctoolRequest } from "@/lib/hdctool/client";
 import { resolvePaymentMethod } from "@/lib/orders/viva-payment-method";
 
@@ -59,40 +60,19 @@ type PushResponse = {
   needsConfiguration?: boolean;
 };
 
-/** `12.30`, not `12.3` — see the note above about comparing stored figures. */
-function money(value: { toFixed: (n: number) => string } | null | undefined): string | undefined {
-  return value == null ? undefined : value.toFixed(2);
-}
+type OrderWithLines = Prisma.OrderGetPayload<{ include: { lines: true } }>;
 
-export async function sendOrderToErp(orderNumber: string): Promise<SendToErpResult> {
-  const order = await prisma.order.findUnique({
-    where: { orderNumber },
-    include: { lines: true },
-  });
-
-  if (!order) return { ok: false, stage: "order", error: "Η παραγγελία δεν βρέθηκε." };
-
-  /*
-   * Already done. Not an error, and deliberately not a re-push: a second
-   * document for one sale is the failure this whole path exists to avoid, and
-   * HDCtool's own idempotence should never be the only thing standing between
-   * a double click and a double invoice.
-   */
-  if (order.erpFindoc) {
-    return { ok: true, findoc: order.erpFindoc, alreadySent: true };
-  }
-
-  /*
-   * Unpaid orders are not documents.
-   *
-   * The admin only offers the action on a PAID order, but the check belongs
-   * here too: a menu is a suggestion and this issues a financial record.
-   */
-  if (order.paymentStatus !== "PAID") {
-    return { ok: false, stage: "order", error: "Η παραγγελία δεν είναι πληρωμένη." };
-  }
-
-  const body = {
+/**
+ * The intake payload, built in one place.
+ *
+ * Shared by the two things that post it: issuing the document, and telling
+ * HDCtool that the money arrived. They send the same order; a second copy of
+ * this object would be a second place for a field to be forgotten, and the
+ * fields most likely to be forgotten are the payment ones — the whole reason
+ * the payment sync exists.
+ */
+function buildIntakeBody(order: OrderWithLines) {
+  return {
     orderNumber: order.orderNumber,
     orderId: order.id,
     status: order.status,
@@ -174,6 +154,43 @@ export async function sendOrderToErp(orderNumber: string): Promise<SendToErpResu
     })),
   };
 
+}
+
+/** `12.30`, not `12.3` — see the note above about comparing stored figures. */
+function money(value: { toFixed: (n: number) => string } | null | undefined): string | undefined {
+  return value == null ? undefined : value.toFixed(2);
+}
+
+export async function sendOrderToErp(orderNumber: string): Promise<SendToErpResult> {
+  const order = await prisma.order.findUnique({
+    where: { orderNumber },
+    include: { lines: true },
+  });
+
+  if (!order) return { ok: false, stage: "order", error: "Η παραγγελία δεν βρέθηκε." };
+
+  /*
+   * Already done. Not an error, and deliberately not a re-push: a second
+   * document for one sale is the failure this whole path exists to avoid, and
+   * HDCtool's own idempotence should never be the only thing standing between
+   * a double click and a double invoice.
+   */
+  if (order.erpFindoc) {
+    return { ok: true, findoc: order.erpFindoc, alreadySent: true };
+  }
+
+  /*
+   * Unpaid orders are not documents.
+   *
+   * The admin only offers the action on a PAID order, but the check belongs
+   * here too: a menu is a suggestion and this issues a financial record.
+   */
+  if (order.paymentStatus !== "PAID") {
+    return { ok: false, stage: "order", error: "Η παραγγελία δεν είναι πληρωμένη." };
+  }
+
+  const body = buildIntakeBody(order);
+
   try {
     await hdctoolRequest<{ success?: boolean }>("/api/public/orders", body);
   } catch (error) {
@@ -237,4 +254,43 @@ async function recordFailure(orderId: string, message: string): Promise<void> {
       // The push already failed; losing the note is worse but not worth a
       // second failure on top of it.
     });
+}
+
+/**
+ * Tell HDCtool the money arrived.
+ *
+ * A payment is not a single moment that happens before the order is filed. A
+ * bank transfer lands hours later, a card can be captured after the fact, and
+ * an order may well have reached HDCtool — and SoftOne — while it was still
+ * unpaid. Without this, the copy in HDCtool keeps saying PENDING with an empty
+ * `paidAt` for the rest of its life, and anybody reconciling from that screen
+ * is reconciling against a snapshot taken before the customer paid.
+ *
+ * Intake only. It re-posts the same body the document push uses, so HDCtool's
+ * upsert refreshes `paymentStatus`, `paidAt` and the Viva identifiers — and it
+ * deliberately does NOT issue a document. Confirming a payment and invoicing a
+ * sale are different decisions with different consequences, and the second one
+ * belongs to whoever presses the button.
+ *
+ * Failure is recorded on the order rather than swallowed. A payment that
+ * reached the shop and not the ERP is exactly the kind of divergence that is
+ * invisible until somebody chases a missing invoice.
+ */
+export async function syncPaymentToErp(
+  orderNumber: string,
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  const order = await prisma.order.findUnique({
+    where: { orderNumber },
+    include: { lines: true },
+  });
+  if (!order) return { ok: false, error: "Η παραγγελία δεν βρέθηκε." };
+
+  try {
+    await hdctoolRequest<{ success?: boolean }>("/api/public/orders", buildIntakeBody(order));
+    return { ok: true };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    await recordFailure(order.id, `Ενημέρωση πληρωμής στο HDCtool: ${message}`);
+    return { ok: false, error: message };
+  }
 }

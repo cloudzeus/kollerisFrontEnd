@@ -3,6 +3,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { VIVA_STATUS_PAID, getTransaction } from "@/lib/payment/viva";
 import { sendOrderEmail } from "@/lib/mail/order-email";
+import { syncPaymentToErp } from "@/lib/orders/send-to-erp";
 
 /**
  * The one implementation behind every Viva webhook route.
@@ -229,6 +230,21 @@ async function handleTransaction(payload: Body, event: VivaEventName) {
      */
     const mail = await sendOrderEmail(orderNumber);
     if (!mail.ok) console.error(`[viva] ${orderNumber} receipt not sent: ${mail.error}`);
+
+    /*
+     * And tell HDCtool, if the order ever got there.
+     *
+     * The copy in HDCtool was written at checkout, when this order was
+     * PENDING with no `paidAt` — a bank transfer lands hours later, and
+     * nothing was updating it. Anybody reconciling from that screen was
+     * reading a snapshot taken before the customer paid.
+     *
+     * Same rule as the receipt: awaited, logged, never allowed to fail the
+     * response. Reporting a failed webhook to Viva makes it retry, and the
+     * money has already moved.
+     */
+    const synced = await syncPaymentToErp(orderNumber);
+    if (!synced.ok) console.error(`[viva] ${orderNumber} payment not synced to HDCtool: ${synced.error}`);
 
     return NextResponse.json({ ok: true, paid: true });
   }
