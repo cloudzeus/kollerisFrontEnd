@@ -23,6 +23,8 @@ import { sendOrderEmail } from "../src/lib/mail/order-email";
 
 const AMOUNT = 0.5;
 const VAT_RATE = 24;
+/** Mirrors the checkout's own hold. Kept here so the test order is honest. */
+const STOCK_HOLD_HOURS = 3;
 
 function token(): string {
   return Array.from({ length: 32 }, () =>
@@ -73,6 +75,7 @@ async function main() {
       shippingGross: 0,
       vatAmount: Math.round((AMOUNT - net) * 100) / 100,
       totalGross: AMOUNT,
+      reservedUntil: new Date(Date.now() + STOCK_HOLD_HOURS * 60 * 60 * 1000),
       notes: "TEST — δοκιμαστική παραγγελία για έλεγχο email κατάθεσης. Δεν αποστέλλεται.",
       lines: {
         create: [
@@ -102,7 +105,7 @@ async function main() {
       description: `Kolleris ${order.orderNumber} (δοκιμή)`,
       locale: "el",
       customer: { email: to, fullName: "Δοκιμή Κατάθεσης" },
-      expiryMinutes: 7 * 24 * 60,
+      expiryMinutes: STOCK_HOLD_HOURS * 60,
     });
     await prisma.order.update({
       where: { id: order.id },

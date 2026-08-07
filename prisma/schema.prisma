@@ -643,6 +643,19 @@ model Order {
   vivaTransactionId String?   @db.VarChar(64)
   paidAt            DateTime?
 
+  /// When the stock hold on this order lapses.
+  ///
+  /// Stored rather than derived from `createdAt + 3h`, because the window is a
+  /// commercial decision that will change and every order already placed was
+  /// promised the window it was placed under. A constant in the code can only
+  /// ever describe today's policy; this column remembers what each customer
+  /// was actually told.
+  ///
+  /// Only set where a hold means anything — a bank transfer, where the goods
+  /// wait for money that has not arrived. Card and IRIS are paid before the
+  /// order exists.
+  reservedUntil     DateTime?
+
   // ── ACS ──
   acsVoucherNo String?   @db.VarChar(64)
   shippedAt    DateTime?

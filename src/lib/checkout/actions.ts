@@ -68,13 +68,21 @@ const checkoutSchema = z.object({
 });
 
 /**
- * How long a bank-transfer payment code stays valid.
+ * How long a bank-transfer order holds its stock — and therefore how long the
+ * payment code stays valid.
  *
- * Seven days. A SEPA credit between Greek banks clears in one working day, and
- * the customer has to reach a banking app first; the 30 minutes a card payment
- * gets would expire before the transfer was made.
+ * Three hours, and ONE number for both on purpose. It used to be two: the Viva
+ * code was given seven days while the checkout and the email each told the
+ * customer «3 εργάσιμες», so a shop holding goods for three hours was promising
+ * three days and issuing a link that outlived both. Three answers to one
+ * question, and the only one the software actually enforced was the wrong one.
+ *
+ * A payment link that outlives the hold is worse than a short one: it invites a
+ * transfer for goods that were released to somebody else days ago, and the money
+ * arrives for an order that cannot be filled.
  */
-const BANK_TRANSFER_WINDOW_MINUTES = 7 * 24 * 60;
+const STOCK_HOLD_HOURS = 3;
+const BANK_TRANSFER_WINDOW_MINUTES = STOCK_HOLD_HOURS * 60;
 
 export type CheckoutState = {
   error?: string;
@@ -368,6 +376,20 @@ export async function placeOrder(
    * an hour would expire before anyone reached a banking app.
    */
   if (payment.id === "bank") {
+    /*
+     * Stamp the hold BEFORE anything that can fail.
+     *
+     * Viva may be unreachable and the email may not send; neither changes the
+     * fact that this order is holding stock from now. Writing the deadline
+     * first means the shop always knows what it committed to, even for an order
+     * whose payment link never got created.
+     */
+    const reservedUntil = new Date(Date.now() + STOCK_HOLD_HOURS * 60 * 60 * 1000);
+    await prisma.order.update({
+      where: { id: order.id },
+      data: { reservedUntil },
+    });
+
     if (isVivaConfigured()) {
       try {
         const paymentOrder = await createPaymentOrder({

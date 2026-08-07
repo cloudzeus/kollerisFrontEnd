@@ -4,6 +4,7 @@ import { paymentPageUrl } from "@/lib/payment/viva";
 import { sendMail, mailConfigured } from "@/lib/mail/client";
 import { siteOrigin } from "@/lib/seo/urls";
 import { block, esc, renderEmail } from "@/lib/mail/layout";
+import { holdDeadline } from "@/lib/orders/hold";
 
 /**
  * The order email the checkout has been promising and never sending.
@@ -71,11 +72,13 @@ function depositCard({
   reference,
   orderNumber,
   payUrl,
+  reservedUntil,
 }: {
   amount: string;
   reference: string;
   orderNumber: string;
   payUrl: string | null;
+  reservedUntil: Date | null;
 }): string {
   const label = (text: string) =>
     `<div style="font-size:10px;letter-spacing:0.12em;font-weight:600;color:#767672;padding-bottom:3px;">${text}</div>`;
@@ -103,8 +106,15 @@ function depositCard({
       <div style="font-size:12px;line-height:1.6;color:#767672;padding-top:10px;">
         Χωρίς αυτόν τον κωδικό η κατάθεση φτάνει χωρίς όνομα και δεν μπορούμε να τη
         συνδέσουμε με την παραγγελία σας${reference === orderNumber ? "" : ` <span style="color:#333333;">(${esc(orderNumber)})</span>`}.
-        Η παραγγελία δεσμεύεται για 3 εργάσιμες.
       </div>
+
+      ${
+        reservedUntil
+          ? `<div style="font-size:12px;line-height:1.6;color:#111111;padding-top:8px;">
+               Κρατάμε τα προϊόντα σας <strong>έως ${esc(holdDeadline(reservedUntil))}</strong>.
+             </div>`
+          : ""
+      }
 
       ${
         payUrl
@@ -200,6 +210,7 @@ export async function buildOrderEmail(
           reference,
           orderNumber: order.orderNumber,
           payUrl: order.vivaOrderCode ? paymentPageUrl(order.vivaOrderCode) : null,
+          reservedUntil: order.reservedUntil,
         })
       : block.panel(
           "Στοιχεία κατάθεσης",
@@ -262,6 +273,9 @@ export async function buildOrderEmail(
           // The same reference the card shows. Two channels disagreeing about
           // what to write on a transfer is how money arrives unmatched.
           `Αιτιολογία: ${order.vivaOrderCode || order.orderNumber}`,
+          ...(order.reservedUntil
+            ? [`Κρατάμε τα προϊόντα σας έως ${holdDeadline(order.reservedUntil)}.`]
+            : []),
           "",
         ].filter(Boolean)
       : []),

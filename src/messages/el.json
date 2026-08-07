@@ -471,7 +471,7 @@
       "to_kostos_ypologizetai_apo_to": "Το κόστος υπολογίζεται από το χρεώσιμο βάρος και τη ζώνη ACS του Τ.Κ. σας —\n          δείτε τη σύνοψη δεξιά.",
       "tropos_pliromis": "Τρόπος πληρωμής",
       "tha_metafertheite_stin_asfali_selida": "Θα μεταφερθείτε στην ασφαλή σελίδα πληρωμής της Viva Wallet. Τα στοιχεία\n            της κάρτας σας δεν περνούν ποτέ από το κατάστημά μας.",
-      "tha_lavete_ta_stoicheia_katathesis": "Θα λάβετε τα στοιχεία κατάθεσης με email. Η παραγγελία δεσμεύεται για 3\n            εργάσιμες.",
+      "tha_lavete_ta_stoicheia_katathesis": "Θα λάβετε τα στοιχεία κατάθεσης με email. Κρατάμε την παραγγελία και το απόθεμα για 3 ώρες.",
       "scholia_kai_oloklirosi": "Σχόλια και ολοκλήρωση",
       "scholia_paraggelias": "Σχόλια παραγγελίας",
       "odigies_paradosis_ores_paralavis": "Οδηγίες παράδοσης, ώρες παραλαβής…",
@@ -1328,7 +1328,8 @@
       "vima_paradothike": "Παραδόθηκε",
       "kodikos_pliromis_titlos": "Κωδικός πληρωμής",
       "kodikos_pliromis_odigia": "Στείλαμε τον σύνδεσμο πληρωμής και στο email σας. Αν προτιμάτε κατάθεση, αναγράψτε τον κωδικό στην αιτιολογία.",
-      "pliroste_online": "Πληρώστε online"
+      "pliroste_online": "Πληρώστε online",
+      "kratame_ta_proionta_eos": "Κρατάμε τα προϊόντα σας έως {deadline}."
     }
   },
   "b2b": {

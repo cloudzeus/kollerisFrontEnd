@@ -21,6 +21,7 @@ import { isValidGtin } from "@/lib/feeds/google-merchant";
 import { GoogleReviewsOptIn } from "@/components/seo/GoogleReviewsOptIn";
 import { estimatedDeliveryDate } from "@/lib/seo/google-reviews";
 import { upGreek } from "@/lib/greek";
+import { holdDeadline } from "@/lib/orders/hold";
 import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
@@ -206,6 +207,18 @@ export default async function ConfirmationPage({ params, searchParams }: PagePro
                   <p className="mt-1.5 max-w-[52ch] text-[12.5px] leading-[1.6] text-k-text-2">
                     {t("kodikos_pliromis_odigia")}
                   </p>
+                  {/*
+                    The deadline the order was actually given, read off the
+                    order rather than recomputed from a constant here. This
+                    page, the email and the checkout promise all have to say
+                    one number, and the only way three places agree is if none
+                    of them decides it.
+                  */}
+                  {order.reservedUntil && (
+                    <p className="mt-2 text-[12.5px] leading-[1.6] text-k-ink">
+                      {t("kratame_ta_proionta_eos", { deadline: holdDeadline(order.reservedUntil) })}
+                    </p>
+                  )}
                 </div>
                 <div className="flex shrink-0 flex-col items-start gap-2.5 sm:items-end">
                   {/* Tabular figures: a reference that is going to be copied by
