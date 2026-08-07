@@ -6,8 +6,8 @@
  * at OUR checkout, and Viva's page then offers its own alternatives. A shopper
  * who selected "κάρτα" here and paid with IRIS there produced an order that
  * says card and a payment that was not. The ERP has a separate code for each —
- * 1025 card, 1024 IRIS, 1007 bank transfer — so the document was going to be
- * wrong about how the money arrived.
+ * 1025 κάρτα, 1024 IRIS, 1007 τραπεζική κατάθεση, 1027 PayPal — so the document
+ * was going to be wrong about how the money arrived.
  *
  * ── What is known, and what is not ──────────────────────────────────────────
  *
@@ -43,8 +43,30 @@ const IRIS_IDS = new Set(
     .filter(Number.isFinite),
 );
 
+/**
+ * PayPal, and bank transfer chosen inside Viva's page.
+ *
+ * Both are offered there regardless of what the customer picked here, and both
+ * have their own ERP code — PayPal 1027, τραπεζική 1007. Empty by default for
+ * the same reason as IRIS: the ids are not documented in this codebase and a
+ * plausible constant that is wrong is worse than a fallback that is honest.
+ */
+const PAYPAL_IDS = new Set(
+  (process.env.VIVA_PAYMENT_METHOD_PAYPAL ?? "")
+    .split(",")
+    .map((s) => Number(s.trim()))
+    .filter(Number.isFinite),
+);
+
+const BANK_IDS = new Set(
+  (process.env.VIVA_PAYMENT_METHOD_BANK ?? "")
+    .split(",")
+    .map((s) => Number(s.trim()))
+    .filter(Number.isFinite),
+);
+
 export type ResolvedPaymentMethod = {
-  /** What to tell the ERP: "card" | "iris" | "bank". */
+  /** What to tell the ERP: "card" | "iris" | "bank" | "paypal". */
   method: string;
   /** True when Viva's own id decided it, rather than the checkout choice. */
   fromViva: boolean;
@@ -62,6 +84,8 @@ export function resolvePaymentMethod(
   if (vivaId == null) return { method: chosen, fromViva: false };
 
   if (IRIS_IDS.has(vivaId)) return { method: "iris", fromViva: true };
+  if (PAYPAL_IDS.has(vivaId)) return { method: "paypal", fromViva: true };
+  if (BANK_IDS.has(vivaId)) return { method: "bank", fromViva: true };
   if (CARD_IDS.has(vivaId)) return { method: "card", fromViva: true };
 
   /*
@@ -73,7 +97,7 @@ export function resolvePaymentMethod(
     `[viva-payment-method] unmapped paymentMethodId=${vivaId}` +
       (orderNumber ? ` on ${orderNumber}` : "") +
       ` — falling back to the checkout choice "${chosen}". ` +
-      `Set VIVA_PAYMENT_METHOD_IRIS or VIVA_PAYMENT_METHOD_CARD once it is identified.`,
+      "Set VIVA_PAYMENT_METHOD_IRIS / _PAYPAL / _BANK / _CARD once it is identified.",
   );
   return { method: chosen, fromViva: false };
 }
