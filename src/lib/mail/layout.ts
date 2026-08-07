@@ -1,4 +1,5 @@
 import "server-only";
+import { siteOrigin, siteOriginConfigured } from "@/lib/seo/urls";
 
 /**
  * The shell every email we send sits in.
@@ -23,6 +24,48 @@ import "server-only";
  * honour, the second is what Word needs, and a message that ignores both is
  * 900 pixels wide on a phone.
  */
+
+/*
+ * Arial, and nothing clever.
+ *
+ * The site runs IBM Plex Sans with Artegra for headings, and neither can come
+ * here: Gmail strips `@font-face`, Outlook ignores it, and a web font in an
+ * email is a download that never happens followed by a fallback nobody chose.
+ * `-apple-system` and friends were the next idea and are worse — Word-rendered
+ * Outlook does not know those names, and every unknown family it skips brings
+ * it one step closer to its own default, which is Times.
+ *
+ * So: Arial first, by name, present on every machine that will ever open this.
+ * Helvetica for the Apple clients that prefer it, then the generic. The site's
+ * type is a website's type; an email's job is to arrive legible in a renderer
+ * from 2007.
+ *
+ * Declared on the body AND on every wrapper cell, because Outlook does not
+ * inherit font-family into table cells — the one place inheritance would have
+ * saved the repetition is the one place it does not work.
+ */
+const FONT = "Arial,'Helvetica Neue',Helvetica,sans-serif";
+
+/*
+ * The logo, as a hosted PNG on an absolute URL.
+ *
+ * Three constraints, each of which rules something out. It cannot be the site's
+ * SVG — Gmail and Outlook both drop `<img src="…svg">` entirely. It cannot be a
+ * `data:` URI — Gmail strips those too, and Outlook shows the red X. And it
+ * cannot be a relative path, because the email is read on a machine that has no
+ * idea what host it came from.
+ *
+ * `logo-horizontal-white.png` is the reversed lockup, which is the right one:
+ * it sits on the dark brand bar. Rendered at 170px from a 3305px source, so it
+ * stays sharp on a retina screen.
+ *
+ * The address falls back to the production host rather than to `siteOrigin()`
+ * when that is unconfigured: a locally-run send would otherwise put
+ * `http://localhost:3000` in a real person's inbox, where it resolves to their
+ * own machine and shows nothing.
+ */
+const ASSET_ORIGIN = siteOriginConfigured() ? siteOrigin() : "https://web.kolleris.com";
+const LOGO = `${ASSET_ORIGIN}/brand/logo-horizontal-white.png`;
 
 const INK = "#111111";
 const RED = "#e11d2e";
@@ -49,7 +92,7 @@ export const block = {
    */
   panel: (title: string, body: string, accent: string = INK): EmailBlock =>
     `<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="margin:0 0 20px;background:#f7f7f5;border-left:3px solid ${accent};">
-      <tr><td style="padding:16px 18px;">
+      <tr><td style="padding:16px 18px;font-family:${FONT};">
         <div style="font-size:13px;font-weight:600;color:${INK};margin-bottom:8px;">${title}</div>
         ${body}
       </td></tr>
@@ -104,7 +147,7 @@ export function renderEmail({ preheader, body, footerNote }: LayoutOptions): str
 <meta name="x-apple-disable-message-reformatting">
 <title>Kolleris</title>
 </head>
-<body style="margin:0;padding:0;background:#f0f0ee;-webkit-font-smoothing:antialiased;">
+<body style="margin:0;padding:0;background:#f0f0ee;font-family:${FONT};-webkit-font-smoothing:antialiased;">
 
 <!-- Preheader: read by the inbox, hidden in the message. The trailing spaces
      stop the client from padding it with the first line of real content. -->
@@ -114,16 +157,23 @@ export function renderEmail({ preheader, body, footerNote }: LayoutOptions): str
 
 <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background:#f0f0ee;">
   <tr>
-    <td align="center" style="padding:24px 12px;">
+    <td align="center" style="padding:24px 12px;font-family:${FONT};">
 
       <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="600" style="width:600px;max-width:600px;background:#ffffff;">
 
         <!-- Brand bar -->
         <tr>
-          <td style="padding:22px 32px;background:${INK};">
+          <td style="padding:22px 32px;background:${INK};font-family:${FONT};">
             <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
               <tr>
-                <td style="font-size:19px;font-weight:700;letter-spacing:0.08em;color:#ffffff;">KOLLERIS</td>
+                <td style="font-family:${FONT};">
+                  <!-- The alt text is the fallback, not a nicety: Outlook
+                       blocks images by default, so for a good share of readers
+                       that word IS the masthead. -->
+                  <img src="${LOGO}" alt="KOLLERIS" width="170" height="21"
+                       style="display:block;width:170px;height:21px;border:0;outline:none;text-decoration:none;"
+                       border="0">
+                </td>
                 <td align="right" style="font-size:11px;letter-spacing:0.12em;color:rgba(255,255,255,0.55);">ΕΡΓΑΛΕΙΑ &amp; ΕΞΟΠΛΙΣΜΟΣ</td>
               </tr>
             </table>
@@ -133,14 +183,14 @@ export function renderEmail({ preheader, body, footerNote }: LayoutOptions): str
 
         <!-- Body -->
         <tr>
-          <td style="padding:30px 32px 26px;">
+          <td style="padding:30px 32px 26px;font-family:${FONT};">
             ${body.join("\n")}
           </td>
         </tr>
 
         <!-- Footer -->
         <tr>
-          <td style="padding:0 32px 28px;">
+          <td style="padding:0 32px 28px;font-family:${FONT};">
             ${block.divider()}
             <div style="height:16px;line-height:16px;font-size:0;">&nbsp;</div>
             ${footerNote ? `<p style="margin:0 0 10px;font-size:12px;line-height:1.6;color:${MUTED};">${footerNote}</p>` : ""}
