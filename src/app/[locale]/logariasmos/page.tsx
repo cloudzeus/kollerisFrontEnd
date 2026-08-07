@@ -3,6 +3,8 @@ import type { Metadata } from "next";
 import { setRequestLocale } from "next-intl/server";
 import { AccountChrome } from "@/components/account/AccountChrome";
 import { AccountShell } from "@/components/account/AccountShell";
+import { Dashboard } from "@/components/account/Dashboard";
+import { getAccountDashboard } from "@/lib/account/dashboard";
 import { Link } from "@/i18n/navigation";
 import type { Locale } from "@/i18n/routing";
 import { requireCustomer } from "@/lib/account/guard";
@@ -40,6 +42,7 @@ export default async function AccountPage({ params }: { params: Promise<{ locale
 
   const guard = await requireCustomer(locale, "/logariasmos");
   const { user } = guard;
+  const dashboard = await getAccountDashboard(user.id, user.email);
   const company = user.company;
   const isCompany = user.accountType === "company";
   const discount = company?.partnerFactor ? Math.round((1 - company.partnerFactor) * 100) : null;
@@ -56,83 +59,13 @@ export default async function AccountPage({ params }: { params: Promise<{ locale
             : t("oi_paraggelies_oi_dieythynseis_kai")
         }
       >
-        {user.status === "pending" && (
-          <p className="mb-6 flex items-start gap-2.5 border-l-[3px] border-k-amber bg-k-surface-2 px-4 py-3 text-[12.5px] leading-[1.55] text-k-text-2">
-            <span aria-hidden className="mt-1 block h-1.5 w-1.5 shrink-0 bg-k-amber" />
-            {t("o_logariasmos_sas_einai_se")}
-          </p>
-        )}
-
-        <div className="grid gap-px border border-k-line bg-k-line sm:grid-cols-2 lg:grid-cols-3">
-          <Card label={t("stoicheia")} value={`${user.firstName} ${user.lastName}`} meta={user.email} />
-          <Card
-            label={t("tilefono")}
-            value={user.phone ?? "—"}
-            meta={user.lastLoginAt ? t("teleytaia_syndesi", { n: formatDate(user.lastLoginAt, locale) }) : undefined}
-          />
-          {isCompany && company ? (
-            <>
-              <Card label={t("afm")} value={company.afm} meta={company.doy ?? undefined} mono />
-              <Card
-                label={t("times_synergati")}
-                value={discount != null ? `−${discount}%` : t("se_egkrisi")}
-                meta={discount != null ? t("se_olo_ton_katalogo") : t("energopoioyntai_meta_tin_egkrisi")}
-              />
-              <Card
-                label={t("rolos_sas")}
-                value={user.role ? COMPANY_ROLE_LABELS[user.role] : "—"}
-                meta={
-                  user.spendLimit != null
-                    ? t("orio_ana_paraggelia", { n: formatMoney(user.spendLimit, locale) })
-                    : t("choris_orio_dapanis")
-                }
-              />
-              <Card
-                label={t("pistosi")}
-                value={company.creditLimit != null ? formatMoney(company.creditLimit, locale) : "—"}
-                meta={
-                  company.creditUsed != null && company.creditLimit != null
-                    ? t("diathesima", { n: formatMoney(company.creditLimit - company.creditUsed, locale) })
-                    : t("den_echei_energopoiithei_akomi")
-                }
-              />
-            </>
-          ) : (
-            <Card label={t("typos_logariasmoy")} value={t("idiotis")} meta={t("lianikes_times_me_fpa")} />
-          )}
-        </div>
-
-        {!isCompany && (
-          <div className="mt-8 border-l-[3px] border-k-red bg-k-surface-2 p-5 lg:p-6">
-            <p className="t-eyebrow text-k-red">{upGreek(t("agorazete_gia_etaireia"))}</p>
-            <p className="mt-2 max-w-xl text-[12.5px] leading-[1.6] text-k-text-2">
-              {t("enas_etairikos_logariasmos_dinei_times")}
-            </p>
-            <Link
-              href="/eggrafi"
-              className="t-btn-sm mt-4 inline-block bg-k-ink px-6 py-3 text-white transition-colors hover:bg-k-red"
-            >
-              {upGreek(t("aitisi_b2b"))} →
-            </Link>
-          </div>
-        )}
-
-        {isCompany && (
-          <div className="mt-8 flex flex-wrap gap-3">
-            <Link
-              href="/b2b"
-              className="t-btn-sm bg-k-ink px-6 py-3.5 text-white transition-colors hover:bg-k-red"
-            >
-              {upGreek(t("etairikos_logariasmos"))} →
-            </Link>
-            <Link
-              href="/b2b/xristes"
-              className="t-btn-sm border-[1.5px] border-k-ink px-6 py-3.5 text-k-ink transition-colors hover:bg-k-ink hover:text-white"
-            >
-              {upGreek(t("christes_roloi"))}
-            </Link>
-          </div>
-        )}
+        {/*
+          The old body was a grid of facts about the account. It has been
+          replaced wholesale rather than added to: the facts are still
+          available on «Τα στοιχεία μου», and a page that leads with them is a
+          page that answers a question nobody asked.
+        */}
+        <Dashboard data={dashboard} locale={locale} />
       </AccountShell>
     </AccountChrome>
   );
