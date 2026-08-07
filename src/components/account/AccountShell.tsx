@@ -11,7 +11,7 @@ import { upGreek } from "@/lib/greek";
  * The rail is where the two account types visibly differ. An individual sees
  * their own orders, addresses and warranties. A company sees all of that plus
  * the sections that only exist because the account is a COMPANY: partner
- * pricing, invoices on credit, and the users who may order on its behalf.
+ * pricing, invoices, and the users who may order on its behalf.
  *
  * Sections whose pages have not been built are rendered as disabled rows rather
  * than omitted. Omitting them would make the account area look complete; a

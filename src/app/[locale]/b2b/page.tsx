@@ -45,10 +45,6 @@ export default async function B2BPage({ params }: { params: Promise<{ locale: Lo
 
   const pending = company.status !== "active";
   const discount = company.partnerFactor ? Math.round((1 - company.partnerFactor) * 100) : null;
-  const creditAvailable =
-    company.creditLimit != null && company.creditUsed != null
-      ? company.creditLimit - company.creditUsed
-      : null;
 
   return (
     <AccountChrome locale={locale}>
@@ -75,16 +71,13 @@ export default async function B2BPage({ params }: { params: Promise<{ locale: Lo
             value={discount != null ? `−${discount}%` : "—"}
             meta={discount != null ? t("stin_timi_katalogoy") : t("meta_tin_egkrisi")}
           />
-          <Metric
-            label={t("orio_pistosis")}
-            value={company.creditLimit != null ? formatMoney(company.creditLimit, locale) : "—"}
-            meta={company.creditLimit == null ? t("den_echei_energopoiithei") : undefined}
-          />
-          <Metric
-            label={t("diathesimo_ypoloipo")}
-            value={creditAvailable != null ? formatMoney(creditAvailable, locale) : "—"}
-            meta={creditAvailable == null ? t("chreiazetai_syndesi_me_softone") : undefined}
-          />
+          {/*
+            The two credit metrics that stood here are gone with the payment
+            method. Credit is not offered on the web and is not mentioned
+            anywhere on the site; a company panel advertising a limit and a
+            balance for something nobody can spend is the same promise in a
+            quieter place.
+          */}
           <Metric
             label={t("kodikos_pelati")}
             value={company.trdr != null ? String(company.trdr) : "—"}

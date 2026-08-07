@@ -705,7 +705,7 @@
       "nav_logariasmos_agapimena": "Αγαπημένα",
       "nav_b2b": "Εταιρικός λογαριασμός",
       "nav_b2b_xristes": "Χρήστες & ρόλοι",
-      "nav_b2b_timologia": "Τιμολόγια & πίστωση",
+      "nav_b2b_timologia": "Τιμολόγια",
       "nav_b2b_listes": "Λίστες υλικών"
     },
     "AuthForms": {
@@ -985,7 +985,6 @@
       "energopoioyntai_meta_tin_egkrisi": "ενεργοποιούνται μετά την έγκριση",
       "rolos_sas": "Ρόλος σας",
       "choris_orio_dapanis": "Χωρίς όριο δαπάνης",
-      "pistosi": "Πίστωση",
       "den_echei_energopoiithei_akomi": "δεν έχει ενεργοποιηθεί ακόμη",
       "typos_logariasmoy": "Τύπος λογαριασμού",
       "idiotis": "Ιδιώτης",
@@ -1337,9 +1336,7 @@
       "ekptosi_synergati": "Έκπτωση συνεργάτη",
       "stin_timi_katalogoy": "στην τιμή καταλόγου",
       "meta_tin_egkrisi": "μετά την έγκριση",
-      "orio_pistosis": "Όριο πίστωσης",
       "den_echei_energopoiithei": "δεν έχει ενεργοποιηθεί",
-      "diathesimo_ypoloipo": "Διαθέσιμο υπόλοιπο",
       "chreiazetai_syndesi_me_softone": "χρειάζεται σύνδεση με SoftOne",
       "kodikos_pelati": "Κωδικός πελάτη",
       "den_echei_dimioyrgithei_akomi": "δεν έχει δημιουργηθεί ακόμη",

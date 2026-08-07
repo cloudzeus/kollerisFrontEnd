@@ -5,12 +5,8 @@ import { AccountChrome } from "@/components/account/AccountChrome";
 import { AccountShell } from "@/components/account/AccountShell";
 import { Dashboard } from "@/components/account/Dashboard";
 import { getAccountDashboard } from "@/lib/account/dashboard";
-import { Link } from "@/i18n/navigation";
 import type { Locale } from "@/i18n/routing";
 import { requireCustomer } from "@/lib/account/guard";
-import { COMPANY_ROLE_LABELS } from "@/lib/account/contract";
-import { formatMoney } from "@/lib/format";
-import { upGreek } from "@/lib/greek";
 
 export async function generateMetadata({
   params,
@@ -43,9 +39,7 @@ export default async function AccountPage({ params }: { params: Promise<{ locale
   const guard = await requireCustomer(locale, "/logariasmos");
   const { user } = guard;
   const dashboard = await getAccountDashboard(user.id, user.email);
-  const company = user.company;
   const isCompany = user.accountType === "company";
-  const discount = company?.partnerFactor ? Math.round((1 - company.partnerFactor) * 100) : null;
 
   return (
     <AccountChrome locale={locale}>
@@ -69,35 +63,4 @@ export default async function AccountPage({ params }: { params: Promise<{ locale
       </AccountShell>
     </AccountChrome>
   );
-}
-
-function Card({
-  label,
-  value,
-  meta,
-  mono = false,
-}: {
-  label: string;
-  value: string;
-  meta?: string;
-  mono?: boolean;
-}) {
-  return (
-    <div className="flex flex-col gap-1.5 bg-white p-4 lg:p-5">
-      <span className="t-account-label text-k-text-4">{upGreek(label)}</span>
-      <span
-        className={`text-[15px] leading-[1.25] font-semibold text-k-ink ${mono ? "font-mono" : ""}`}
-      >
-        {value}
-      </span>
-      {meta && <span className="t-brand-count text-k-text-4">{meta}</span>}
-    </div>
-  );
-}
-
-function formatDate(iso: string, locale: string): string {
-  const date = new Date(iso);
-  return Number.isNaN(date.getTime())
-    ? "—"
-    : date.toLocaleDateString(locale, { day: "2-digit", month: "2-digit", year: "numeric" });
 }
