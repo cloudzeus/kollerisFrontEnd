@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { setRequestLocale } from "next-intl/server";
 import { SiteChrome } from "@/components/chrome/SiteChrome";
 import { SiteFooter } from "@/components/chrome/SiteFooter";
+import { ReorderButton } from "@/components/account/ReorderButton";
 import { Link } from "@/i18n/navigation";
 import type { Locale } from "@/i18n/routing";
 import { getMiniCart } from "@/lib/cart/cart";
@@ -404,6 +405,24 @@ export default async function ConfirmationPage({ params, searchParams }: PagePro
             >
               {upGreek(t("synechiste_tis_agores"))} →
             </Link>
+
+            {/*
+              Reorder from the order itself.
+              ──────────────────────────────────────────────────────────────
+              This page is where a customer lands when they open an old order,
+              and it is the only order view a customer who never registered
+              can reach — the `?t=` token in the link is what authorises it.
+              Leaving the button on the account list alone would give the
+              feature to registered customers only, which is backwards: the
+              guest is the one with no order history to search.
+            */}
+            <div className="mt-3">
+              <ReorderButton
+                orderNumber={order.orderNumber}
+                token={order.guestToken}
+                locale={locale}
+              />
+            </div>
           </aside>
         </div>
       </main>

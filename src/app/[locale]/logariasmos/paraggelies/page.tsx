@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { setRequestLocale } from "next-intl/server";
 import { AccountChrome } from "@/components/account/AccountChrome";
 import { AccountShell } from "@/components/account/AccountShell";
+import { ReorderButton } from "@/components/account/ReorderButton";
 import { Truck } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import type { Locale } from "@/i18n/routing";
@@ -158,6 +159,23 @@ export default async function OrdersPage({
                     </span>
                   </div>
                 </Link>
+
+                {/*
+                  Outside the row's link, not inside it.
+                  ────────────────────────────────────────────────────────────
+                  A button nested in an anchor is invalid markup and, worse,
+                  ambiguous to use: the click target that reorders and the one
+                  that opens the order would overlap. It sits under the row on
+                  its own line, where the result panel has somewhere to open.
+                */}
+                <div className="border-t border-k-line px-4 py-2.5 lg:px-6">
+                  <ReorderButton
+                    orderNumber={order.orderNumber}
+                    token={order.guestToken}
+                    locale={locale}
+                    compact
+                  />
+                </div>
               </li>
             ))}
           </ul>

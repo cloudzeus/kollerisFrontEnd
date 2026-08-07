@@ -269,6 +269,59 @@ export async function addSkusToCart(input: unknown): Promise<CartActionResult> {
   return { ok: true, added: matched.length, notFound };
 }
 
+const reorderSchema = z.object({
+  orderNumber: z.string().min(1).max(64),
+  /** The confirmation link's `?t=`, for a customer who never registered. */
+  token: z.string().max(128).optional(),
+});
+
+/**
+ * Put a past order back in the basket.
+ *
+ * The decision — which lines still exist, at what price — is `planReorder`'s,
+ * including who is allowed to ask. This adds what it returned and reports what
+ * it found, unchanged: the panel the customer reads is the plan itself, so the
+ * screen cannot claim eight items went in while six did.
+ *
+ * Quantities increment rather than replace, because that is what adding means
+ * everywhere else in this cart, and a customer who reorders twice can see and
+ * fix the total on the cart page. Silently capping it would be a second rule
+ * for the same gesture.
+ */
+export async function reorder(
+  input: unknown,
+): Promise<
+  | { ok: true; plan: import("@/lib/cart/reorder").ReorderPlan }
+  | { ok: false; error: import("@/lib/cart/reorder").ReorderError | "invalid_input" }
+> {
+  const parsed = reorderSchema.safeParse(input);
+  if (!parsed.success) return { ok: false, error: "invalid_input" };
+
+  const { planReorder } = await import("@/lib/cart/reorder");
+  const result = await planReorder(parsed.data.orderNumber, parsed.data.token);
+  if (!result.ok) return result;
+
+  const cartId = await getOrCreateCartId();
+  await prisma.$transaction(
+    result.plan.add.map((line) =>
+      prisma.cartLine.upsert({
+        where: { cartId_productId: { cartId, productId: line.productId } },
+        update: { quantity: { increment: line.quantity } },
+        create: {
+          cartId,
+          productId: line.productId,
+          quantity: line.quantity,
+          // Today's price, read by the plan — never the one on the old order.
+          addedPriceNet: line.priceNet,
+        },
+      }),
+    ),
+  );
+
+  revalidateCart();
+  return { ok: true, plan: result.plan };
+}
+
 /**
  * Coupons.
  *
