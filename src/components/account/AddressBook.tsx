@@ -170,49 +170,62 @@ export function AddressBook({ addresses }: { addresses: Address[] }) {
             </p>
           )}
 
-          <Field name="label" label={t("onomasia")} defaultValue={editing?.label} error={state.fieldErrors?.label} required placeholder={t("onomasia_paradeigma")} />
-
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <Field name="label" label={t("onomasia")} defaultValue={editing?.label} error={state.fieldErrors?.label} required placeholder={t("onomasia_paradeigma")} />
             <Field name="firstName" label={t("onoma")} defaultValue={editing?.firstName} error={state.fieldErrors?.firstName} required autoComplete="given-name" />
             <Field name="lastName" label={t("eponymo")} defaultValue={editing?.lastName} error={state.fieldErrors?.lastName} required autoComplete="family-name" />
           </div>
 
           {/*
-            The same suggestion field as checkout, pointed at this form's names.
+            Street and floor on one row, the four locality fields on the next.
             ──────────────────────────────────────────────────────────────────
+            Every field was full width and stacked, which made a nine-field form
+            a page and a half of scrolling for something people fill in twenty
+            seconds. The grouping is not decoration: the top row is the address
+            as somebody says it out loud, and the row below is the part the
+            geocoder fills in — so after picking a suggestion the four fields
+            that just changed are all visible at once, together, and can be
+            checked in one glance instead of four.
+
+            The same suggestion field as checkout, pointed at this form's names.
             This was a plain input, so the address book — the one screen whose
             entire job is entering an address — was the one place with no
-            suggestions. Picking one now fills the four fields below it, which
-            is the point: the postcode decides the ACS zone, and it is the field
-            people leave blank or get wrong.
+            suggestions.
           */}
-          <AddressAutocomplete
-            name="line1"
-            label={t("odos")}
-            defaultValue={editing?.line1}
-            error={state.fieldErrors?.line1}
-            required
-            fields={{
-              postcode: "postcode",
-              city: "city",
-              region: "region",
-              adminRegion: "adminRegion",
-            }}
-            help={t("odos_voitheia")}
-          />
-          <Field name="line2" label={t("orofos")} defaultValue={editing?.line2 ?? ""} autoComplete="address-line2" />
-
-          <div className="grid gap-4 sm:grid-cols-[140px_1fr]">
-            <Field name="postcode" label={t("tk")} defaultValue={editing?.postcode} error={state.fieldErrors?.postcode} required inputMode="numeric" autoComplete="postal-code" />
-            <Field name="city" label={t("poli")} defaultValue={editing?.city} error={state.fieldErrors?.city} required autoComplete="address-level2" />
+          <div className="grid gap-4 sm:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+            <AddressAutocomplete
+              name="line1"
+              label={t("odos")}
+              defaultValue={editing?.line1}
+              error={state.fieldErrors?.line1}
+              required
+              fields={{
+                postcode: "postcode",
+                city: "city",
+                region: "region",
+                adminRegion: "adminRegion",
+              }}
+              help={t("odos_voitheia")}
+            />
+            <Field name="line2" label={t("orofos")} defaultValue={editing?.line2 ?? ""} autoComplete="address-line2" />
           </div>
 
-          <div className="grid gap-4 sm:grid-cols-2">
+          {/* Τ.Κ. is five digits and never needs more room than that; giving it
+              an equal quarter would leave three fields cramped for no gain.
+
+              Four across only from `lg`. Between the breakpoints the column is
+              too narrow for four, and «Κεντρικής Μακεδονίας» in a 150px field
+              is a value you have to scroll a text box to read. */}
+          <div className="grid gap-4 sm:grid-cols-[110px_minmax(0,1fr)] lg:grid-cols-[110px_repeat(3,minmax(0,1fr))]">
+            <Field name="postcode" label={t("tk")} defaultValue={editing?.postcode} error={state.fieldErrors?.postcode} required inputMode="numeric" autoComplete="postal-code" />
+            <Field name="city" label={t("poli")} defaultValue={editing?.city} error={state.fieldErrors?.city} required autoComplete="address-level2" />
             <Field name="region" label={t("nomos")} defaultValue={editing?.region ?? ""} autoComplete="address-level1" />
             <Field name="adminRegion" label={t("perifereia")} defaultValue={editing?.adminRegion ?? ""} />
           </div>
 
-          <Field name="phone" label={t("tilefono")} defaultValue={editing?.phone ?? ""} type="tel" autoComplete="tel" />
+          <div className="grid gap-4 sm:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]">
+            <Field name="phone" label={t("tilefono")} defaultValue={editing?.phone ?? ""} type="tel" autoComplete="tel" />
+          </div>
 
           <label className="flex items-center gap-2.5 text-[12.5px] text-k-text-2">
             <input

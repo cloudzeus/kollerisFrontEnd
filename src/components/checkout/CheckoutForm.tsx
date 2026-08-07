@@ -126,31 +126,28 @@ export function CheckoutForm({
       </Step>
 
       <Step n="02" title={t("dieythynsi_paradosis")}>
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div className="sm:col-span-2">
-            {/* Suggestions fill the postcode as well, which is the field that
-                decides the ACS zone and the one customers most often get wrong. */}
-            <AddressAutocomplete
-              label={t("odos_kai_arithmos")}
-              name="shipLine1"
-              defaultValue={prefill?.shipLine1}
-              error={state.fieldErrors?.shipLine1}
-              required
-            />
-          </div>
-          <Field label={t("orofos_koydoyni")} name="shipLine2" defaultValue={prefill?.shipLine2} autoComplete="address-line2" />
-          {/* Νομός and περιφέρεια, both filled by a chosen suggestion. Two
-              administrative levels, so one field could only ever hold one. */}
-          <Field label={t("nomos")} name="shipRegion" defaultValue={prefill?.shipRegion} autoComplete="address-level1" />
-          <Field label={t("perifereia")} name="shipAdminRegion" defaultValue={prefill?.shipAdminRegion} />
-          <Field
-            label={t("poli")}
-            name="shipCity"
-            autoComplete="address-level2"
-            defaultValue={prefill?.shipCity}
-            error={state.fieldErrors?.shipCity}
+        {/*
+          Street and floor on one row, the four locality fields on the next —
+          the same shape as the account's address book, because it is the same
+          address. Two forms that ask for one thing in two arrangements make the
+          second one feel like a different question.
+        */}
+        <div className="grid gap-4 sm:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+          {/* Suggestions fill the postcode as well, which is the field that
+              decides the ACS zone and the one customers most often get wrong. */}
+          <AddressAutocomplete
+            label={t("odos_kai_arithmos")}
+            name="shipLine1"
+            defaultValue={prefill?.shipLine1}
+            error={state.fieldErrors?.shipLine1}
             required
           />
+          <Field label={t("orofos_koydoyni")} name="shipLine2" defaultValue={prefill?.shipLine2} autoComplete="address-line2" />
+        </div>
+
+        {/* Νομός and περιφέρεια are two administrative levels, so one field
+            could only ever hold one of them. Both are filled by a suggestion. */}
+        <div className="mt-4 grid gap-4 sm:grid-cols-[110px_minmax(0,1fr)] lg:grid-cols-[110px_repeat(3,minmax(0,1fr))]">
           <Field
             label={t("t_k")}
             name="shipPostcode"
@@ -160,6 +157,16 @@ export function CheckoutForm({
             required
             help={t("kathorizei_ti_zoni_acs_kai")}
           />
+          <Field
+            label={t("poli")}
+            name="shipCity"
+            autoComplete="address-level2"
+            defaultValue={prefill?.shipCity}
+            error={state.fieldErrors?.shipCity}
+            required
+          />
+          <Field label={t("nomos")} name="shipRegion" defaultValue={prefill?.shipRegion} autoComplete="address-level1" />
+          <Field label={t("perifereia")} name="shipAdminRegion" defaultValue={prefill?.shipAdminRegion} />
         </div>
 
         <label className="mt-5 flex cursor-pointer items-center gap-3">
