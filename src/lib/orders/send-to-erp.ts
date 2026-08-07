@@ -38,11 +38,24 @@ export type SendToErpResult =
   | { ok: true; findoc: number | null; alreadySent: boolean }
   | { ok: false; stage: "intake" | "push" | "order"; error: string };
 
+/**
+ * What HDCtool's push actually returns.
+ *
+ * `softOneOrderId` is the document number — this read `findoc`/`saldoc` and
+ * would have stored null on a SUCCESSFUL push, which is the worst kind of
+ * wrong: the document exists in the ERP and the shop has no record of which
+ * one it is. Both spellings are still accepted so a change on either side
+ * cannot silently lose it again.
+ */
 type PushResponse = {
   success?: boolean;
   error?: string;
+  softOneOrderId?: number | string | null;
   findoc?: number | string | null;
   saldoc?: number | string | null;
+  trdr?: number | null;
+  series?: number | null;
+  customerCreated?: boolean;
   needsConfiguration?: boolean;
 };
 
@@ -186,13 +199,23 @@ export async function sendOrderToErp(orderNumber: string): Promise<SendToErpResu
     return { ok: false, stage: "push", error: message };
   }
 
-  const findocRaw = push.findoc ?? push.saldoc ?? null;
+  const findocRaw = push.softOneOrderId ?? push.findoc ?? push.saldoc ?? null;
   const findoc = findocRaw == null ? null : Number(findocRaw);
 
   await prisma.order.update({
     where: { id: order.id },
     data: {
       erpFindoc: Number.isFinite(findoc) && findoc ? findoc : null,
+      erpSeries: push.series ?? null,
+      erpTrdr: push.trdr ?? order.erpTrdr,
+      /*
+       * Kept verbatim, not parsed down to the number.
+       *
+       * The document number is what somebody looks up; the rest is what
+       * settles an argument six months later. A parsed subset is a summary of
+       * what we happened to think mattered on the day.
+       */
+      erpResponse: push as object,
       erpPushedAt: new Date(),
       erpError: null,
     },

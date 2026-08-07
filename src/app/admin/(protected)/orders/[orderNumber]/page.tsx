@@ -225,7 +225,20 @@ export default async function OrderDetailPage({
 
           <Panel title="SOFTONE">
             {order.erpFindoc ? (
-              <div className="numeral text-[13px] text-k-green">FINDOC {order.erpFindoc}</div>
+              <>
+                {/*
+                  Series AND number. A FINDOC is unique only within its series,
+                  so a bare number is not something anybody can look up in
+                  SoftOne — they would have to know which book to open.
+                */}
+                <div className="numeral text-[13px] text-k-green">
+                  {order.erpSeries ? `${order.erpSeries} / ` : ""}
+                  {order.erpFindoc}
+                </div>
+                <div className="text-[11px] text-k-text-3">
+                  Παραστατικό · {when(order.erpPushedAt)}
+                </div>
+              </>
             ) : (
               <div className="text-[13px] text-k-text-2">Δεν έχει σταλεί</div>
             )}
@@ -234,6 +247,25 @@ export default async function OrderDetailPage({
             )}
             {order.erpError && (
               <div className="pt-1 text-[11px] text-k-red">{order.erpError}</div>
+            )}
+
+            {/*
+              Everything the ERP answered, verbatim and folded away.
+              ─────────────────────────────────────────────────────────────
+              Nobody reads it on an ordinary day. On the day a figure is
+              disputed it is the only evidence of what SoftOne actually said,
+              and a parsed summary is a record of what we happened to think
+              mattered at the time.
+            */}
+            {order.erpResponse != null && (
+              <details className="pt-2">
+                <summary className="cursor-pointer text-[11px] text-k-text-3 hover:text-k-ink">
+                  Απάντηση SoftOne
+                </summary>
+                <pre className="numeral mt-1.5 max-h-48 overflow-auto border border-k-line bg-k-surface-2 p-2 text-[10px] leading-[1.5] whitespace-pre-wrap text-k-text-2">
+                  {JSON.stringify(order.erpResponse, null, 2)}
+                </pre>
+              </details>
             )}
           </Panel>
 

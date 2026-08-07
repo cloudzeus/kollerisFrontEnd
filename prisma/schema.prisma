@@ -664,6 +664,17 @@ model Order {
 
   erpTrdr       Int?
   erpFindoc     Int?
+  /// The document series SoftOne filed it under (7020 for eshop orders).
+  erpSeries     Int?
+  /**
+   * Everything SoftOne answered, kept verbatim.
+   *
+   * The document number alone is what somebody looks up; the rest is what
+   * settles an argument. When a figure is disputed six months later, "this is
+   * what the ERP returned when the document was created" is evidence, and a
+   * parsed subset of it is a summary of what we thought mattered at the time.
+   */
+  erpResponse   Json?
   erpPushedAt   DateTime?
   erpError      String?   @db.Text
 
