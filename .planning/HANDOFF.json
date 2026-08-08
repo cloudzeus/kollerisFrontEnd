@@ -1,7 +1,7 @@
 {
   "version": "1.0",
-  "timestamp": "2026-08-08T06:55:24.679Z",
-  "source": "auto-compact",
+  "timestamp": "2026-08-08T06:59:35.339Z",
+  "source": "auto-postool",
   "partial": false,
   "phase": null,
   "phase_name": null,
@@ -15,20 +15,7 @@
   "blockers": [],
   "human_actions_pending": [],
   "decisions": [],
-  "uncommitted_files": [
-    {
-      "status": "M",
-      "path": ".planning/HANDOFF.json"
-    },
-    {
-      "status": "M",
-      "path": "src/app/[locale]/proion/[slug]/page.tsx"
-    },
-    {
-      "status": "??",
-      "path": "src/lib/seo/product-faq.ts"
-    }
-  ],
+  "uncommitted_files": [],
   "next_action": null,
-  "context_notes": "Recent commits:\ndf81ccc feat(seo): οι κατηγορίες γίνονται δηλωμένες συλλογές, όχι κείμενο με συνδέσμους\n119ea0a fix(seo): σωστό Merchant ID στις Αξιολογήσεις πελατών Google\n4f6d5b5 fix(feed): δεν υποσχόμαστε αυθημερόν παραλαβή για 3.830 προϊόντα που δεν υπάρχουν\n0eb899d feat(seo): τα χαρακτηριστικά γίνονται δεδομένα — και οι όροι πώλησης μπαίνουν στο schema\n60b5bf5 feat(payment): PayPal και τραπεζική όταν ο πελάτης αλλάζει τρόπο μέσα στη Viva"
+  "context_notes": "Recent commits:\n02bf709 feat(aeo): οι σελίδες προϊόντων απαντούν στις ερωτήσεις που τους γίνονται\ndf81ccc feat(seo): οι κατηγορίες γίνονται δηλωμένες συλλογές, όχι κείμενο με συνδέσμους\n119ea0a fix(seo): σωστό Merchant ID στις Αξιολογήσεις πελατών Google\n4f6d5b5 fix(feed): δεν υποσχόμαστε αυθημερόν παραλαβή για 3.830 προϊόντα που δεν υπάρχουν\n0eb899d feat(seo): τα χαρακτηριστικά γίνονται δεδομένα — και οι όροι πώλησης μπαίνουν στο schema"
 }

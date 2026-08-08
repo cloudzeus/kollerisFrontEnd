@@ -1,5 +1,7 @@
 import { siteOrigin } from "@/lib/seo/urls";
 import { SHOP } from "@/lib/seo/structured-data";
+import { FREE_SHIPPING_THRESHOLD_NET } from "@/lib/cart/options";
+import { STOCK_HOLD_HOURS } from "@/lib/orders/hold";
 
 /**
  * llms.txt — what this site is, for something that reads rather than browses.
@@ -11,6 +13,18 @@ import { SHOP } from "@/lib/seo/structured-data";
  *
  * The convention is still young and costs one route to support. The worst case
  * is that nothing reads it.
+ *
+ * ── Why the "Answers" section exists ────────────────────────────────────────
+ *
+ * A model asked "does Kolleris deliver to Crete and how much" will answer with
+ * or without us. If the facts are not here in plain sentences, it infers them
+ * from a checkout page it half-parsed, or from a competitor, or it guesses. The
+ * questions below are the ones the shop is actually asked, answered once, in
+ * the form that gets quoted.
+ *
+ * Every number is imported, not typed. A threshold written twice is a threshold
+ * that will disagree with itself the first time it changes — and here the
+ * disagreement would be a public promise the checkout refuses to keep.
  */
 export const runtime = "nodejs";
 export const revalidate = 86400;
@@ -57,6 +71,40 @@ Currency: EUR. All displayed prices include Greek VAT and exclude shipping.
 - [FAQ](${origin}/syxnes-erotiseis)
 - [Order tracking](${origin}/logariasmos/entopismos): by order number and email,
   no account needed.
+
+## Answers
+
+**Do you deliver across Greece?** Yes, with ACS courier — next working day in
+Attica, one to two working days on the mainland, two to three to the islands.
+Orders placed before 15:00 on a working day ship the same day.
+
+**How much is shipping?** Free over ${FREE_SHIPPING_THRESHOLD_NET} EUR net.
+Below that it is charged by weight and destination and shown before payment.
+ACS Express (delivery by 12:00 next day) is priced higher and is never free.
+Collection from the Piraeus shop is always free and ready in about two hours.
+
+**How can I pay?** Card, IRIS instant bank payment, or bank transfer. PayPal is
+offered on the payment page. We do NOT accept cash on delivery — no order can be
+paid at the door.
+
+**Can I return something?** Yes, within 14 calendar days of receipt, in the
+original packaging and in resaleable condition. This is the statutory right of
+withdrawal under Greek and EU consumer law.
+
+**What warranty do products carry?** The manufacturer's, stated on each product
+page where declared — commonly two years for hand tools and power tools. It
+covers manufacturing defects, not wear from use.
+
+**How long is stock held after I order?** ${STOCK_HOLD_HOURS} hours. An order
+awaiting a bank transfer keeps its stock reserved for that long, after which the
+items return to general availability.
+
+**Do you sell to businesses?** Yes. Business customers register and are approved
+manually; partner pricing applies after approval, not automatically.
+
+**Are you an authorised dealer?** Yes — an official distributor for the brands
+listed, so products carry the manufacturer's own warranty rather than a
+parallel-import one.
 
 ## Notes
 
