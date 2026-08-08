@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-08-08T07:09:46.168Z",
+  "timestamp": "2026-08-08T07:15:56.020Z",
   "source": "auto-postool",
   "partial": false,
   "phase": null,
@@ -19,16 +19,8 @@
     {
       "status": "M",
       "path": ".planning/HANDOFF.json"
-    },
-    {
-      "status": "M",
-      "path": "src/app/[locale]/katalogos/[kathgoria]/page.tsx"
-    },
-    {
-      "status": "??",
-      "path": "src/lib/seo/category-copy.ts"
     }
   ],
   "next_action": null,
-  "context_notes": "Recent commits:\n1f97b01 feat(aeo): το llms.txt απαντά, δεν παραπέμπει\n02bf709 feat(aeo): οι σελίδες προϊόντων απαντούν στις ερωτήσεις που τους γίνονται\ndf81ccc feat(seo): οι κατηγορίες γίνονται δηλωμένες συλλογές, όχι κείμενο με συνδέσμους\n119ea0a fix(seo): σωστό Merchant ID στις Αξιολογήσεις πελατών Google\n4f6d5b5 fix(feed): δεν υποσχόμαστε αυθημερόν παραλαβή για 3.830 προϊόντα που δεν υπάρχουν"
+  "context_notes": "Recent commits:\na23b33d feat(aeo): οι κατηγορίες λένε τι έχουν μέσα, με μετρημένα στοιχεία\n1f97b01 feat(aeo): το llms.txt απαντά, δεν παραπέμπει\n02bf709 feat(aeo): οι σελίδες προϊόντων απαντούν στις ερωτήσεις που τους γίνονται\ndf81ccc feat(seo): οι κατηγορίες γίνονται δηλωμένες συλλογές, όχι κείμενο με συνδέσμους\n119ea0a fix(seo): σωστό Merchant ID στις Αξιολογήσεις πελατών Google"
 }

@@ -23,14 +23,24 @@ import { prisma } from "@/lib/prisma";
  */
 
 /**
- * The code WE assign this store, not one Google issues. It has to match
- * whatever store code is entered for the Piraeus location when the local
- * inventory data source is registered in Merchant Center — which itself
- * requires a verified Google Business Profile listing for that address first.
- * Configurable because that registration step happens outside this codebase
- * and might land on a different value than this default.
+ * Ο κωδικός καταστήματος, όπως τον έχει το Επιχειρηματικό Προφίλ — ΟΧΙ όπως
+ * θα τον διαλέγαμε εμείς.
+ *
+ * Ήταν `peiraias`, και το Merchant Center το απέρριψε ολόκληρο το αρχείο:
+ * «Μη έγκυρος κωδικός καταστήματος». Ο κωδικός ΔΕΝ επιλέγεται από εδώ. Ο
+ * Google τον αντιστοιχεί με το Επιχειρηματικό Προφίλ, και ό,τι δεν υπάρχει
+ * εκεί δεν αντιστοιχεί σε κανένα κατάστημα — οπότε και οι 9.522 γραμμές πάνε
+ * χαμένες μαζί, χωρίς ούτε μία να περάσει.
+ *
+ * Το `om-` δεν είναι όνομα που έδωσε άνθρωπος· είναι ο κωδικός που παράγει ο
+ * ίδιος ο Google για τοποθεσία που δεν έχει δικό της. Άσχημος να τον διαβάσεις,
+ * αλλά αυτός είναι που ταιριάζει.
+ *
+ * Παραμένει σε env var: αν κάποια στιγμή δοθεί στο Επιχειρηματικό Προφίλ
+ * κανονικός κωδικός, αλλάζει χωρίς deploy.
  */
-const STORE_CODE = process.env.GOOGLE_LOCAL_STORE_CODE?.trim() || "peiraias";
+const STORE_CODE =
+  process.env.GOOGLE_LOCAL_STORE_CODE?.trim() || "om-8281271752754963088";
 
 /** Ready in about two hours during opening hours — see `SHOP` and the pickup shipping method. */
 const PICKUP_SLA = "same_day";
