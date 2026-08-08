@@ -35,6 +35,23 @@ const STORE_CODE = process.env.GOOGLE_LOCAL_STORE_CODE?.trim() || "peiraias";
 /** Ready in about two hours during opening hours — see `SHOP` and the pickup shipping method. */
 const PICKUP_SLA = "same_day";
 
+/**
+ * Παραλαβή προσφέρεται μόνο για ό,τι ΥΠΑΡΧΕΙ στο ράφι.
+ *
+ * Ο feed δήλωνε `buy` / `same_day` και για τα 9.522 προϊόντα, από τα οποία τα
+ * 3.830 είναι εκτός αποθέματος. Δηλαδή υποσχόταν «πλήρωσε online, παράλαβε
+ * σήμερα από τον Πειραιά» για δέματα που δεν υπάρχουν — υπόσχεση που δεν
+ * μπορεί να τηρηθεί, και ακριβώς το είδος ασυμφωνίας που το Merchant Center
+ * βρίσκει και τιμωρεί.
+ *
+ * Το `not_supported` είναι η τιμή του Google για «αυτό το είδος δεν
+ * παραλαμβάνεται από κατάστημα». Η γραμμή μένει στον feed με `quantity 0` και
+ * `out of stock`, γιατί το Google θέλει να ξέρει ότι το ξέρουμε — η ΑΠΟΥΣΙΑ
+ * γραμμής διαβάζεται ως «δεν στείλαμε δεδομένα», που είναι το σφάλμα που
+ * προσπαθούμε να λύσουμε.
+ */
+const PICKUP_UNAVAILABLE = "not_supported";
+
 function tsvEscape(value: string): string {
   // Tabs and newlines break column alignment; nothing in these fields should
   // legitimately contain either, so replacing rather than rejecting is enough.
@@ -73,6 +90,8 @@ export async function buildLocalInventoryFeed(): Promise<string> {
     const quantity = clampQuantity(product.qty ? Number(product.qty) : null);
     const availability = availabilityFor(product.inStock, quantity);
 
+    const available = availability === "in stock";
+
     return [
       STORE_CODE,
       String(product.mtrl),
@@ -80,9 +99,12 @@ export async function buildLocalInventoryFeed(): Promise<string> {
       availability,
       // Checkout completes fully online before pickup — see the "pickup"
       // shipping method in `cart/options.ts` — which is Google's "buy", not
-      // "reserve" (pay in store) or "ship_to_store".
-      "buy",
-      PICKUP_SLA,
+      // "reserve" (pay in store) or "ship_to_store". Ό,τι δεν υπάρχει στο ράφι
+      // δεν παραλαμβάνεται: βλ. PICKUP_UNAVAILABLE.
+      available ? "buy" : PICKUP_UNAVAILABLE,
+      // Το SLA περιγράφει ΠΟΤΕ είναι έτοιμο. Χωρίς παραλαβή δεν υπάρχει «πότε»,
+      // και ένα «same_day» δίπλα σε «not_supported» είναι αντιφατικό.
+      available ? PICKUP_SLA : "",
     ]
       .map(tsvEscape)
       .join("\t");
