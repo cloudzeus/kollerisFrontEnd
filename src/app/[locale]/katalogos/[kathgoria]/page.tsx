@@ -1,5 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import { alternatesFor } from "@/lib/seo/urls";
+import { categoryBreadcrumb, categoryItemList } from "@/lib/seo/product-schema";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { setRequestLocale } from "next-intl/server";
@@ -143,8 +144,36 @@ export default async function CategoryPage({
     };
   };
 
+  /*
+   * Δομημένα δεδομένα για την κατηγορία.
+   *
+   * Χωρίς αυτά η σελίδα είναι, για μια μηχανή, κείμενο με συνδέσμους. Με αυτά
+   * γίνεται δηλωμένη συλλογή — και η διαφορά φαίνεται όχι στο αν θα βρεθεί η
+   * σελίδα, αλλά στο αν θα παρατεθεί ως απάντηση στο «τι κατσαβίδια πουλάει το
+   * κατάστημα».
+   *
+   * Η θέση στη λίστα μετράει από την πραγματική σελίδα, όχι από το 1: στη
+   * σελίδα 3 το πρώτο προϊόν ΔΕΝ είναι το πρώτο της κατηγορίας.
+   */
+  const itemListLd = categoryItemList(
+    locale,
+    data.products,
+    (data.page - 1) * data.products.length,
+  );
+  const breadcrumbLd = categoryBreadcrumb(locale, { name, slug: kathgoria });
+
   return (
     <QuickViewProvider locale={locale}>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
+      />
+      {itemListLd && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListLd) }}
+        />
+      )}
       <SiteChrome
         locale={locale}
         cart={miniCart}

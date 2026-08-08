@@ -191,3 +191,64 @@ export function productBreadcrumb(
     })),
   };
 }
+
+/**
+ * Η κατηγορία ως λίστα προϊόντων.
+ *
+ * Μια σελίδα κατηγορίας χωρίς `ItemList` είναι, για μια μηχανή, ένα κείμενο με
+ * συνδέσμους. Με αυτό γίνεται δηλωμένη συλλογή: «αυτή η σελίδα περιέχει αυτά τα
+ * 24 προϊόντα, με αυτή τη σειρά». Είναι η διαφορά ανάμεσα στο να βρεθεί η
+ * σελίδα και στο να παρατεθεί ως απάντηση στο «τι κατσαβίδια πουλάει το
+ * κατάστημα».
+ *
+ * Μόνο URL και όνομα ανά θέση — όχι τιμές. Η τιμή ζει στη σελίδα προϊόντος με
+ * τους όρους της (ΦΠΑ, μεταφορικά, διαθεσιμότητα)· αντιγραμμένη εδώ θα ήταν
+ * δεύτερο αντίγραφο που μπορεί να παλιώσει χωριστά.
+ *
+ * Η θέση μετράει από 1 και ακολουθεί τη σειρά της σελίδας: αν κάποιος
+ * ταξινομήσει κατά τιμή, αυτό δηλώνει τη σειρά που πραγματικά είδε.
+ */
+export function categoryItemList(
+  locale: Locale,
+  products: Array<{ slug: string; name: string }>,
+  offset = 0,
+) {
+  if (products.length === 0) return undefined;
+  return {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    numberOfItems: products.length,
+    itemListElement: products.map((p, i) => ({
+      "@type": "ListItem",
+      position: offset + i + 1,
+      name: p.name,
+      url: absoluteUrl(`/proion/${p.slug}`, locale),
+    })),
+  };
+}
+
+/**
+ * Η διαδρομή μιας κατηγορίας.
+ *
+ * Ίδιο σκεπτικό με το `productBreadcrumb`, χωρίς το τελευταίο σκαλί.
+ */
+export function categoryBreadcrumb(
+  locale: Locale,
+  category: { name: string; slug: string },
+) {
+  const items = [
+    { name: "Αρχική", path: "/" },
+    { name: "Κατάλογος", path: "/katalogos" },
+    { name: category.name, path: `/katalogos/${category.slug}` },
+  ];
+  return {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: items.map((item, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      name: item.name,
+      item: absoluteUrl(item.path, locale),
+    })),
+  };
+}
