@@ -1,5 +1,12 @@
 import { getTranslations } from "next-intl/server";
 import { absoluteUrl, alternatesFor } from "@/lib/seo/urls";
+import {
+  priceValidUntil,
+  productBreadcrumb,
+  returnPolicy,
+  shippingDetails,
+  specsAsProperties,
+} from "@/lib/seo/product-schema";
 import type { Metadata } from "next";
 import Image from "next/image";
 import { notFound } from "next/navigation";
@@ -173,9 +180,58 @@ export default async function ProductPage({ params }: PageProps) {
             availability: product.inStock
               ? "https://schema.org/InStock"
               : "https://schema.org/OutOfStock",
+            /*
+             * Χωρίς ημερομηνία λήξης, το Google θεωρεί την τιμή δυνητικά
+             * μπαγιάτικη και μπορεί να πάψει να τη δείχνει στο αποτέλεσμα.
+             */
+            priceValidUntil: priceValidUntil(),
+            /*
+             * Μεταφορικά και επιστροφές μέσα στην προσφορά.
+             *
+             * Είναι αυτά που επιτρέπουν στο αποτέλεσμα αναζήτησης να δείξει
+             * «δωρεάν μεταφορικά» και «14 ημέρες επιστροφή» δίπλα στην τιμή.
+             * Χωρίς αυτά το αποτέλεσμα δείχνει μόνο ποσό — και ένα μοντέλο που
+             * συγκρίνει καταστήματα διαβάζει την απουσία ως άγνωστη πολιτική,
+             * όχι ως την προβλεπόμενη.
+             */
+            shippingDetails: shippingDetails(locale),
+            hasMerchantReturnPolicy: returnPolicy(),
           }
         : undefined,
+    /*
+     * Τα χαρακτηριστικά ως δεδομένα, όχι ως πρόζα.
+     *
+     * Υπάρχουν ήδη στη βάση ανά γλώσσα και με μονάδα, και ως τώρα έβγαιναν μόνο
+     * ως κείμενο στη σελίδα. Ένα μοντέλο που ρωτιέται «μύτες 25mm σε σετ των 3»
+     * δεν μπορεί να προτείνει σελίδα που δεν ΔΗΛΩΝΕΙ μήκος και τεμάχια — ακόμα
+     * κι αν η περιγραφή τα λέει, γιατί εκείνη είναι πρόζα και αυτά μετρήσιμα.
+     */
+    additionalProperty: specsAsProperties(product.specs, {
+      brand: product.brand?.name,
+      category: product.category?.name,
+    }),
+    /*
+     * Βάρος μόνο όταν υπάρχει πραγματικά.
+     *
+     * Το `!= null` περνούσε το μηδέν, και `value: 0` δεν σημαίνει «άγνωστο» —
+     * σημαίνει «δεν ζυγίζει τίποτα». Ο κατάλογος έχει πολλά είδη με GWEIGHT 0
+     * γιατί κανείς δεν το συμπλήρωσε ποτέ στο ERP· η παράλειψη είναι η αλήθεια.
+     */
+    weight:
+      product.weight != null && product.weight > 0
+        ? { "@type": "QuantitativeValue", value: product.weight, unitCode: "KGM" }
+        : undefined,
+    category: product.category?.name ?? undefined,
   };
+
+  /*
+   * Η διαδρομή στον κατάλογο.
+   *
+   * Ο helper `breadcrumbJsonLd` υπήρχε από την αρχή και δεν τον καλούσε καμία
+   * σελίδα. Η ταξινομία είναι αυτό που ρωτάει μια μηχανή — και ένα AI — όταν
+   * του ζητούν «τι κατσαβίδια έχει το κατάστημα».
+   */
+  const breadcrumbLd = productBreadcrumb(locale, product);
 
   return (
     <QuickViewProvider locale={locale}>
@@ -191,6 +247,13 @@ export default async function ProductPage({ params }: PageProps) {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+
+      {/* Ξεχωριστό block, όχι μέσα στο Product: το BreadcrumbList είναι δική
+          του οντότητα και το Google το διαβάζει ως τέτοια. */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
       />
 
       <main id="main">
