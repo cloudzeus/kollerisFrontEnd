@@ -1,5 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import { absoluteUrl, alternatesFor } from "@/lib/seo/urls";
+import { faqJsonLd, productFaq } from "@/lib/seo/product-faq";
 import {
   priceValidUntil,
   productBreadcrumb,
@@ -233,6 +234,27 @@ export default async function ProductPage({ params }: PageProps) {
    */
   const breadcrumbLd = productBreadcrumb(locale, product);
 
+  /*
+   * Οι ερωτήσεις που ρωτάει κάποιος πριν αγοράσει — απαντημένες από τα δεδομένα
+   * ΑΥΤΟΥ του προϊόντος.
+   *
+   * Παράγονται μόνο για την ελληνική έκδοση. Οι απαντήσεις είναι γραμμένες στα
+   * ελληνικά μέσα στον helper, και μια αγγλική σελίδα με ελληνικές ερωτήσεις
+   * είναι χειρότερη από καμία ερώτηση: λέει στη μηχανή ότι η σελίδα είναι
+   * ελληνική ενώ το `lang` της λέει το αντίθετο.
+   */
+  const faq = locale === "el" ? productFaq({
+    name: product.name,
+    sku: product.sku,
+    brandName: product.brand?.name ?? null,
+    inStock: product.inStock,
+    qty: product.qty,
+    guaranteeMonths: product.guaranteeMonths,
+    priceGross: product.priceNet != null ? grossAmount(product.priceNet, ctx) : null,
+    specs: product.specs,
+  }) : [];
+  const faqLd = faqJsonLd(faq);
+
   return (
     <QuickViewProvider locale={locale}>
       <SiteChrome
@@ -255,6 +277,13 @@ export default async function ProductPage({ params }: PageProps) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
       />
+
+      {faqLd && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }}
+        />
+      )}
 
       <main id="main">
         <div className="shell-x bg-k-ink-deep">
@@ -589,6 +618,48 @@ export default async function ProductPage({ params }: PageProps) {
           (related) → dark (footer), with the hazard rule marking the change of
           register from "this product" to "the alternatives".
         */}
+        {/*
+          Οι ερωτήσεις, ΟΡΑΤΕΣ.
+          ────────────────────────────────────────────────────────────────────
+          Δεν είναι διακόσμηση για το schema: οι οδηγίες του Google απαιτούν το
+          περιεχόμενο του FAQPage να φαίνεται στη σελίδα, και schema που δηλώνει
+          κάτι που ο επισκέπτης δεν βλέπει είναι παράβαση — όχι έξυπνη κίνηση.
+
+          `<details>` και όχι accordion με JavaScript: ανοίγει χωρίς script,
+          είναι προσβάσιμο από πληκτρολόγιο εξ ορισμού, και το περιεχόμενο
+          υπάρχει στο HTML ακόμα και κλειστό — που είναι αυτό που διαβάζει ένας
+          crawler.
+        */}
+        {faq.length > 0 && (
+          <section className="band-base">
+            <div className="pdp-band py-9 lg:py-12">
+              <div className="pdp-inner">
+                <h2 className="t-eyebrow mb-5 text-k-text-4">
+                  {upGreek("Συχνές ερωτήσεις")}
+                </h2>
+                <div className="border-t border-k-line">
+                  {faq.map((item) => (
+                    <details key={item.q} className="group border-b border-k-line">
+                      <summary className="flex cursor-pointer items-center justify-between gap-4 py-3.5 text-[14px] font-medium text-k-ink marker:content-none [&::-webkit-details-marker]:hidden">
+                        {item.q}
+                        <span
+                          aria-hidden
+                          className="shrink-0 text-k-text-4 transition-transform group-open:rotate-45"
+                        >
+                          +
+                        </span>
+                      </summary>
+                      <p className="max-w-[70ch] pb-4 text-[13.5px] leading-[1.7] text-k-text-2">
+                        {item.a}
+                      </p>
+                    </details>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
+
         {related.length > 0 && (
           <section className="band-base">
             <div className="rule-hazard" />

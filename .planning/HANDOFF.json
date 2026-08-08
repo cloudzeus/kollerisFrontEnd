@@ -1,7 +1,7 @@
 {
   "version": "1.0",
-  "timestamp": "2026-08-05T19:34:27.317Z",
-  "source": "auto-postool",
+  "timestamp": "2026-08-08T06:55:24.679Z",
+  "source": "auto-compact",
   "partial": false,
   "phase": null,
   "phase_name": null,
@@ -18,17 +18,17 @@
   "uncommitted_files": [
     {
       "status": "M",
-      "path": ".claude/launch.json"
-    },
-    {
-      "status": "M",
       "path": ".planning/HANDOFF.json"
     },
     {
+      "status": "M",
+      "path": "src/app/[locale]/proion/[slug]/page.tsx"
+    },
+    {
       "status": "??",
-      "path": "src/lib/offers/coverage.ts"
+      "path": "src/lib/seo/product-faq.ts"
     }
   ],
   "next_action": null,
-  "context_notes": "Recent commits:\nc5cf8a1 fix(reconcile): refuse to de-list a tenth of the shop in one pass\n84abac3 feat(arrivals): \"new\" means new to the shop, not new to the warehouse\n09e0830 feat(pdp): show colour and size, and say the same thing to Google\n328b001 feat(catalog): colours and sizes reach the storefront and the Merchant feed\nbed9b74 chore(seo): new Google site-verification token"
+  "context_notes": "Recent commits:\ndf81ccc feat(seo): οι κατηγορίες γίνονται δηλωμένες συλλογές, όχι κείμενο με συνδέσμους\n119ea0a fix(seo): σωστό Merchant ID στις Αξιολογήσεις πελατών Google\n4f6d5b5 fix(feed): δεν υποσχόμαστε αυθημερόν παραλαβή για 3.830 προϊόντα που δεν υπάρχουν\n0eb899d feat(seo): τα χαρακτηριστικά γίνονται δεδομένα — και οι όροι πώλησης μπαίνουν στο schema\n60b5bf5 feat(payment): PayPal και τραπεζική όταν ο πελάτης αλλάζει τρόπο μέσα στη Viva"
 }
