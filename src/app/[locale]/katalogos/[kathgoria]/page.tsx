@@ -1,6 +1,8 @@
 import { getTranslations } from "next-intl/server";
 import { alternatesFor } from "@/lib/seo/urls";
 import { categoryBreadcrumb, categoryItemList } from "@/lib/seo/product-schema";
+import { categoryFaq, categoryIntro } from "@/lib/seo/category-copy";
+import { faqJsonLd } from "@/lib/seo/product-faq";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { setRequestLocale } from "next-intl/server";
@@ -162,6 +164,18 @@ export default async function CategoryPage({
   );
   const breadcrumbLd = categoryBreadcrumb(locale, { name, slug: kathgoria });
 
+  /*
+   * Τι λέει η σελίδα για τον εαυτό της.
+   *
+   * Μόνο στα ελληνικά και μόνο στην πρώτη σελίδα. Η δεύτερη σελίδα μιας
+   * κατηγορίας δεν είναι άλλη κατηγορία — ίδιο κείμενο σε πέντε URL είναι
+   * ακριβώς το διπλότυπο περιεχόμενο που το canonical προσπαθεί να αποφύγει.
+   */
+  const copyInput = { name, total: data.total, facets: data.facets };
+  const intro = locale === "el" && data.page === 1 ? categoryIntro(copyInput) : null;
+  const faq = locale === "el" && data.page === 1 ? categoryFaq(copyInput) : [];
+  const faqLd = faqJsonLd(faq);
+
   return (
     <QuickViewProvider locale={locale}>
       <script
@@ -172,6 +186,12 @@ export default async function CategoryPage({
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListLd) }}
+        />
+      )}
+      {faqLd && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }}
         />
       )}
       <SiteChrome
@@ -208,6 +228,16 @@ export default async function CategoryPage({
             <h1 className="font-artegra text-[22px] leading-[1.16] font-medium text-white lg:text-[30px]">
               {upGreek(name)}
             </h1>
+            {/*
+              Η λεπτή γραμμή μένει· η παράγραφος πάει κάτω.
+              ───────────────────────────────────────────────────────────────
+              Δοκιμάστηκε εδώ πρώτα και ήταν λάθος: πέντε σειρές κειμένου στο
+              σκούρο band σπρώχνουν 5.850 προϊόντα κάτω από το fold. Κανείς δεν
+              έρχεται σε σελίδα κατηγορίας για να διαβάσει — έρχεται για να δει
+              πλακίδια. Το κείμενο δεν χάνει τίποτα στο κάτω μέρος της σελίδας:
+              ο crawler διαβάζει ολόκληρη τη σελίδα, και ο άνθρωπος που θέλει
+              απάντηση έχει ήδη κάνει scroll για να τη ζητήσει.
+            */}
             <p className="mt-3.5 max-w-[640px] text-[13px] leading-[1.68] text-white/60 lg:text-sm">
               {category.productCount.toLocaleString(locale)} {t("kodikoi_se")}{" "}
               {category.childCount} {t("ypokatigories_filtrarete_aristera_oles_oi")}
@@ -311,6 +341,47 @@ export default async function CategoryPage({
             )}
           </div>
         </div>
+
+        {/*
+          Οι ερωτήσεις της κατηγορίας — ορατές, όπως και στο προϊόν.
+          ────────────────────────────────────────────────────────────────────
+          Κάτω από τη σελιδοποίηση: αυτό είναι το σημείο όπου κάποιος που δεν
+          βρήκε ό,τι έψαχνε στα πλακίδια φτάνει με ερώτηση, όχι με κλικ.
+        */}
+        {(intro || faq.length > 0) && (
+          <div className="shell-x border-t border-k-line py-9 lg:py-12">
+            {intro && (
+              <p className="mb-8 max-w-[860px] text-[13.5px] leading-[1.75] text-k-text-2">
+                {intro}
+              </p>
+            )}
+            {faq.length > 0 && (
+            <>
+            <h2 className="t-eyebrow mb-5 text-k-text-4">
+              {upGreek("Συχνές ερωτήσεις")}
+            </h2>
+            <div className="max-w-[860px] border-t border-k-line">
+              {faq.map((item) => (
+                <details key={item.q} className="group border-b border-k-line">
+                  <summary className="flex cursor-pointer items-center justify-between gap-4 py-3.5 text-[14px] font-medium text-k-ink marker:content-none [&::-webkit-details-marker]:hidden">
+                    {item.q}
+                    <span
+                      aria-hidden
+                      className="shrink-0 text-k-text-4 transition-transform group-open:rotate-45"
+                    >
+                      +
+                    </span>
+                  </summary>
+                  <p className="max-w-[70ch] pb-4 text-[13.5px] leading-[1.7] text-k-text-2">
+                    {item.a}
+                  </p>
+                </details>
+              ))}
+            </div>
+            </>
+            )}
+          </div>
+        )}
       </main>
 
       <SiteFooter categories={rootCategories} />
