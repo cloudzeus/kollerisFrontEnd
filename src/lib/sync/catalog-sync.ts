@@ -425,7 +425,22 @@ async function upsertProduct(
    * and `onSale` follows — every display path downstream already handles it.
    */
   const priceList = null;
+  /*
+   * `quantity` από το HDCtool είναι ήδη το ΠΩΛΗΣΙΜΟ (AVAILABLE − RESERVED).
+   * Ο υπολογισμός δεν επαναλαμβάνεται εδώ: αν γινόταν και στις δύο πλευρές,
+   * αργά ή γρήγορα θα διαφωνούσαν, και η διαφωνία θα φαινόταν μόνο ως πελάτης
+   * που παρήγγειλε κάτι ανύπαρκτο.
+   *
+   * Τα ωμά νούμερα κρατιούνται ξεχωριστά — όχι για τη διαθεσιμότητα, αλλά για
+   * να μπορεί μια σελίδα να πει «εξαντλήθηκε, αναμένεται» αντί για σκέτο
+   * «εξαντλήθηκε». Μένουν NULL όσο δεν τα στέλνει το HDCtool: το μηδέν σε
+   * στήλη αποθέματος διαβάζεται ως «τίποτα», και ακριβώς αυτό εξαφάνισε 98
+   * προϊόντα από τα feed του HDCtool.
+   */
   const qty = p.quantity ?? 0;
+  const qtyOnHand = p.quantityOnHand ?? null;
+  const qtyReserved = p.quantityReserved ?? null;
+  const qtyIncoming = p.quantityIncoming ?? null;
 
   const base = {
     code: p.code ?? "",
@@ -444,6 +459,9 @@ async function upsertProduct(
     priceList,
     vatRate: p.vat?.percentage ?? null,
     qty,
+    qtyOnHand,
+    qtyReserved,
+    qtyIncoming,
     priceSyncedAt: new Date(),
     width: p.width ?? null,
     length: p.length ?? null,

@@ -144,7 +144,20 @@ export type HdctoolProduct = {
   priceWeb: number | null;
   /** Returned as a STRING by the live API (e.g. "25") — coerce before using. */
   brandDiscount: string | number | null;
+  /**
+   * ΠΩΛΗΣΙΜΟ απόθεμα: `AVAILABLE − RESERVED` στο HDCtool.
+   *
+   * Δεν είναι το υπόλοιπο της αποθήκης. Ένα κομμάτι δεσμευμένο για παραγγελία
+   * άλλου πελάτη κάθεται στο ράφι και μετράει κανονικά στο υπόλοιπο, αλλά δεν
+   * είναι δικό μας να το πουλήσουμε δεύτερη φορά.
+   */
   quantity: number | null;
+  /** Το ωμό υπόλοιπο αποθήκης. Για αναφορά — ΟΧΙ για διαθεσιμότητα. */
+  quantityOnHand?: number | null;
+  /** Δεσμευμένα για παραγγελίες άλλων πελατών. */
+  quantityReserved?: number | null;
+  /** Αναμενόμενα από παραγγελία σε προμηθευτή. */
+  quantityIncoming?: number | null;
   unit: number | null;
   brand: {
     id: string | null;

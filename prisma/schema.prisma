@@ -135,7 +135,21 @@ model Product {
   priceNet   Decimal? @db.Decimal(12, 2) // PRICER02, the eshop web price
   priceList  Decimal? @db.Decimal(12, 2) // struck-through "was", when higher
   vatRate    Decimal? @db.Decimal(5, 2)  // resolved percentage, not a code
+  /// ΠΩΛΗΣΙΜΟ απόθεμα: ό,τι μπορεί να παραγγείλει πελάτης σήμερα.
+  ///
+  /// Δεν είναι το υπόλοιπο της αποθήκης. Το HDCtool στέλνει εδώ το
+  /// `AVAILABLE − RESERVED`: ένα κομμάτι ήδη δεσμευμένο για παραγγελία πελάτη
+  /// κάθεται στο ράφι, μετράει κανονικά στο υπόλοιπο, και δεν είναι δικό μας να
+  /// το πουλήσουμε δεύτερη φορά. Το `inStock` βγαίνει από ΑΥΤΟ.
   qty        Decimal? @db.Decimal(12, 2)
+
+  /// Το ωμό υπόλοιπο αποθήκης, για αναφορά — ΟΧΙ για διαθεσιμότητα.
+  qtyOnHand   Decimal? @db.Decimal(12, 2)
+  /// Δεσμευμένα για παραγγελίες άλλων πελατών.
+  qtyReserved Decimal? @db.Decimal(12, 2)
+  /// Αναμενόμενα από παραγγελία σε προμηθευτή — τεκμηριώνει το «έρχεται».
+  qtyIncoming Decimal? @db.Decimal(12, 2)
+
   priceSyncedAt DateTime?
 
   // ── Physical (drives shipping + spec-at-a-glance strip) ──
