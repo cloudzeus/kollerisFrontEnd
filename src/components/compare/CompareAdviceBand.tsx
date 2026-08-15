@@ -26,7 +26,7 @@ export function CompareAdviceBand({
       <p className="t-eyebrow text-k-red">
         {upGreek(t("i_epilogi_toy_ypeythynoy"))}
       </p>
-      <h2 className="font-artegra mt-2 text-[19px] leading-[1.2] font-medium text-k-ink lg:text-[25px]">
+      <h2 className="font-display mt-2 text-[19px] leading-[1.2] font-medium text-k-ink lg:text-[25px]">
         {upGreek(t("poio_na_parete_analoga_me"))}
       </h2>
 

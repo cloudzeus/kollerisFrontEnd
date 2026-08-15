@@ -97,7 +97,7 @@ export default async function CartPage({
                   ? upGreek(t("kanena_proion"))
                   : `${cart!.totals.itemCount} ${upGreek(t("proionta"))} · ${cart!.totals.unitCount} ${upGreek(t("temachia"))}`}
               </p>
-              <h1 className="font-artegra text-[26px] leading-[1.14] font-medium text-white lg:text-[34px]">
+              <h1 className="font-display text-[26px] leading-[1.14] font-medium text-white lg:text-[34px]">
                 {upGreek(t("to_kalathi_sas"))}
               </h1>
             </div>
@@ -134,7 +134,7 @@ export default async function CartPage({
               height={46}
               className="mx-auto block opacity-35"
             />
-            <p className="font-artegra mt-5 text-xl leading-[1.3] text-k-ink">
+            <p className="font-display mt-5 text-xl leading-[1.3] text-k-ink">
               {upGreek(t("to_kalathi_einai_adeio"))}
             </p>
             <p className="mt-2.5 text-[13.5px] text-k-text-3">

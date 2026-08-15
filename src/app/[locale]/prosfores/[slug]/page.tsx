@@ -169,7 +169,7 @@ export default async function OfferProductsPage({ params, searchParams }: PagePr
 
           <div className="pt-2.5 pb-7">
             <div className="flex flex-wrap items-center gap-3">
-              <h1 className="font-artegra text-[22px] leading-[1.16] font-medium text-white lg:text-[30px]">
+              <h1 className="font-display text-[22px] leading-[1.16] font-medium text-white lg:text-[30px]">
                 {upGreek(title)}
               </h1>
               {offer.badge && (
@@ -209,7 +209,7 @@ export default async function OfferProductsPage({ params, searchParams }: PagePr
           <div className="min-w-0 border-k-line px-4 py-6 lg:border-l lg:px-10 lg:pt-6 lg:pb-10">
             {data.products.length === 0 ? (
               <div className="flex flex-col items-center justify-center border border-k-line bg-k-surface-2 px-6 py-20 text-center">
-                <p className="font-artegra text-lg text-k-ink">
+                <p className="font-display text-lg text-k-ink">
                   {upGreek(t("kanena_proion_me_ayta_ta"))}
                 </p>
                 <p className="mt-2 max-w-md text-[13px] text-k-text-3">

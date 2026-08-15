@@ -45,7 +45,7 @@ export function MainNav({
   return (
     <nav
       aria-label={t("kyria_ploigisi")}
-      className="relative z-20 hidden border-b border-k-line bg-white lg:block"
+      className="relative z-20 hidden border-b border-k-header-line bg-k-header lg:block"
     >
       <div className="shell-x flex items-stretch justify-between">
         <div className="flex items-stretch">
@@ -63,7 +63,7 @@ export function MainNav({
             <Link
               key={link.href}
               href={link.href}
-              className="t-nav flex h-[54px] items-center px-[18px] text-k-ink transition-colors hover:text-k-red"
+              className="t-nav-cond flex h-[46px] items-center px-[18px] text-k-on-dark-2 transition-colors hover:text-white"
             >
               {link.label}
             </Link>
@@ -71,7 +71,7 @@ export function MainNav({
 
           <Link
             href="/prosfores"
-            className="t-nav-strong flex h-[54px] items-center gap-[7px] px-[18px] text-k-red"
+            className="t-nav-cond flex h-[46px] items-center gap-[7px] px-[18px] text-k-red hover:text-k-red-hover"
           >
             <span className="block h-[5px] w-[5px] bg-k-red" />
             {upGreek(t("prosfores"))}
@@ -83,7 +83,7 @@ export function MainNav({
             <Link
               key={link.href}
               href={link.href}
-              className="t-nav-sub text-k-text-4 transition-colors hover:text-k-red"
+              className="t-nav-cond text-k-on-dark-3 transition-colors hover:text-white"
             >
               {link.label}
             </Link>

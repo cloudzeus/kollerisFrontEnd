@@ -120,7 +120,7 @@ export function CategoryPicker({
                   <span aria-hidden className="rule-accent block shrink-0" />
                   {upGreek(t("epilogi_ypokatigorias"))}
                 </p>
-                <p className="font-artegra mt-2 truncate text-[17px] leading-[1.25] text-k-ink lg:text-xl">
+                <p className="font-display mt-2 truncate text-[17px] leading-[1.25] text-k-ink lg:text-xl">
                   {upGreek(root)}
                 </p>
               </div>

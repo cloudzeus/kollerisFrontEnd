@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-08-12T17:33:55.704Z",
+  "timestamp": "2026-08-15T16:44:26.339Z",
   "source": "auto-postool",
   "partial": false,
   "phase": null,
@@ -18,9 +18,209 @@
   "uncommitted_files": [
     {
       "status": "M",
+      "path": ".claude/launch.json"
+    },
+    {
+      "status": "M",
       "path": ".planning/HANDOFF.json"
+    },
+    {
+      "status": "M",
+      "path": "src/app/[locale]/anazitisi/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/app/[locale]/b2b/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/app/[locale]/blog/[slug]/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/app/[locale]/blog/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/app/[locale]/brands/[slug]/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/app/[locale]/brands/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/app/[locale]/checkout/epibebaiosi/[orderNumber]/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/app/[locale]/eggrafi/[token]/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/app/[locale]/eggrafi/anamoni/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/app/[locale]/eggrafi/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/app/[locale]/eisodos/neos-kodikos/[token]/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/app/[locale]/eisodos/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/app/[locale]/eisodos/prosvasi/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/app/[locale]/epikoinonia/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/app/[locale]/etaireia/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/app/[locale]/kalathi/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/app/[locale]/katalogos/[kathgoria]/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/app/[locale]/katalogos/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/app/[locale]/logariasmos/entopismos/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/app/[locale]/nees-afixeis/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/app/[locale]/proion/[slug]/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/app/[locale]/proionta/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/app/[locale]/prosfores/[slug]/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/app/[locale]/prosfores/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/app/[locale]/sygkrisi/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/app/[locale]/syxnes-erotiseis/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/app/globals.css"
+    },
+    {
+      "status": "M",
+      "path": "src/app/layout.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/app/typography.css"
+    },
+    {
+      "status": "M",
+      "path": "src/components/account/AccountShell.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/components/blog/BlogMissingNotice.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/components/brands/BrandSearchGrid.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/components/cart/CartCrossSell.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/components/catalogue/CategoryPicker.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/components/chrome/MainNav.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/components/chrome/MegaMenu.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/components/chrome/SearchSuggest.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/components/chrome/SiteChrome.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/components/chrome/SiteHeader.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/components/chrome/UtilityBar.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/components/compare/CompareAdviceBand.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/components/contact/ContactForm.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/components/contact/StoreMap.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/components/policies/PolicyLayout.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/components/product/QuickViewProvider.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/lib/banners/contract.ts"
+    },
+    {
+      "status": "M",
+      "path": "src/messages/el.json"
+    },
+    {
+      "status": "M",
+      "path": "src/messages/en.json"
+    },
+    {
+      "status": "M",
+      "path": "src/messages/it.json"
     }
   ],
   "next_action": null,
-  "context_notes": "Recent commits:\nd3577ed feat(stock): το eshop ξεχωρίζει το ράφι από το πωλήσιμο\neeedc31 fix(feeds): ο κωδικός καταστήματος είναι αυτός που έχει ο Google, όχι αυτός που διαλέξαμε\na23b33d feat(aeo): οι κατηγορίες λένε τι έχουν μέσα, με μετρημένα στοιχεία\n1f97b01 feat(aeo): το llms.txt απαντά, δεν παραπέμπει\n02bf709 feat(aeo): οι σελίδες προϊόντων απαντούν στις ερωτήσεις που τους γίνονται"
+  "context_notes": "Recent commits:\nd599256 fix(stock): κανένα αρνητικό απόθεμα δεν φτάνει στο κατάστημα\nd3577ed feat(stock): το eshop ξεχωρίζει το ράφι από το πωλήσιμο\neeedc31 fix(feeds): ο κωδικός καταστήματος είναι αυτός που έχει ο Google, όχι αυτός που διαλέξαμε\na23b33d feat(aeo): οι κατηγορίες λένε τι έχουν μέσα, με μετρημένα στοιχεία\n1f97b01 feat(aeo): το llms.txt απαντά, δεν παραπέμπει"
 }

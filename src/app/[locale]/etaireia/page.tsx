@@ -182,7 +182,7 @@ export default async function CompanyPage({ params }: { params: Promise<{ locale
                 <span aria-hidden className="rule-accent block shrink-0" />
                 {upGreek(t("peiraias_apo_to", { FOUNDED: FOUNDED }))}
               </p>
-              <h1 className="font-artegra mt-3.5 text-[26px] leading-[1.12] font-medium text-balance text-white lg:text-[42px]">
+              <h1 className="font-display mt-3.5 text-[26px] leading-[1.12] font-medium text-balance text-white lg:text-[42px]">
                 {upGreek(t("den_sas_zitame_na_mas"))}
                 <br />
                 <span className="text-k-red">{upGreek(t("deite_ta_noymera"))}</span>

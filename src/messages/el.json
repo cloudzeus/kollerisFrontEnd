@@ -445,14 +445,19 @@
       "logariasmos": "Λογαριασμός",
       "glossa": "Γλώσσα",
       "syndesi_b2b": "Σύνδεση B2B",
-      "syndesi_logariasmoy": "Σύνδεση"
+      "syndesi_logariasmoy": "Σύνδεση",
+      "kodikoi": "κωδικοί"
     },
     "UtilityBar": {
       "kodikoi": "κωδικοί",
       "paradosi_24_48o_dorean_ano": "Παράδοση 24-48ω · Δωρεάν άνω 150€",
       "paradosi_24_48o_se_oli": "Παράδοση 24-48ω σε όλη την Ελλάδα",
       "dorean_apostoli_ano_ton_150": "Δωρεάν αποστολή άνω των 150€",
-      "t_30_210_411_1355": "Τ. [+30] 210 411 1355"
+      "t_30_210_411_1355": "Τ. [+30] 210 411 1355",
+      "k_mavromichali_4_peiraias": "Κ. Μαυρομιχάλη 4, Πειραιάς",
+      "times_synergati_b2b_aitisi_logariasmoy": "Τιμές συνεργάτη B2B — αίτηση λογαριασμού",
+      "syndesi": "Σύνδεση",
+      "b2b": "B2B"
     }
   },
   "checkout": {

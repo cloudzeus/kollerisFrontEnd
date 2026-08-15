@@ -106,8 +106,14 @@ export function MegaMenu({
           aria-haspopup="true"
           onClick={() => setOpen(open === "categories" ? null : "categories")}
           onFocus={() => show("categories")}
-          className={`t-nav-strong flex h-[54px] items-center gap-1.5 px-[18px] transition-colors ${
-            open === "categories" ? "bg-k-red text-white" : "bg-k-ink text-white"
+          /*
+            Ο ενεργοποιητής των κατηγοριών είναι ΚΟΚΚΙΝΟ ΚΕΙΜΕΝΟ, όχι κόκκινο
+            πλακίδιο. Σε λευκή μπάρα το πλακίδιο ήταν το άγκυρο σημείο· σε
+            σκούρα μπάρα γίνεται μπάλωμα, και το κόκκινο πάνω στο σκούρο έχει
+            ήδη αρκετή ένταση για να τραβήξει το μάτι χωρίς φόντο.
+          */
+          className={`t-nav-cond flex h-[46px] items-center gap-1.5 px-[18px] transition-colors ${
+            open === "categories" ? "text-k-red-hover" : "text-k-red"
           }`}
         >
           {upGreek(t("katigories"))}
@@ -116,7 +122,7 @@ export function MegaMenu({
 
         {open === "categories" && (
           <div
-            className="shell-x absolute inset-x-0 top-full z-30 max-h-[calc(100vh-var(--header-h)-54px)] overflow-y-auto border-t border-k-line bg-white shadow-[0_18px_40px_rgba(0,0,0,.10)]"
+            className="shell-x absolute inset-x-0 top-full z-30 max-h-[calc(100vh-var(--header-h)-46px)] overflow-y-auto border-t border-k-line bg-white shadow-[0_18px_40px_rgba(0,0,0,.10)]"
             onMouseEnter={cancelClose}
           >
             <div className="grid grid-cols-[repeat(4,1fr)_300px]">

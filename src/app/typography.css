@@ -72,6 +72,21 @@
   }
 
   /* ── Navigation ────────────────────────────────────────────────── */
+  /*
+   * Η πλοήγηση του redesign: στενή, κεφαλαία, με ανοιχτό γράμμα.
+   *
+   * Roboto Condensed στα 14px χωράει «ΟΛΕΣ ΟΙ ΚΑΤΗΓΟΡΙΕΣ» σε λιγότερο πλάτος
+   * απ' όσο η προηγούμενη Plex Sans στα 11,5 — γι' αυτό μπόρεσαν να μπουν και
+   * τα brands δίπλα στις σελίδες, που ήταν το ζητούμενο του design.
+   */
+  .t-nav-cond {
+    font-family: var(--font-display-face), var(--font-sans-face), sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: 0.08em;
+    line-height: 1;
+  }
+
   .t-nav {
     font-family: var(--font-sans-face), system-ui, sans-serif;
     font-weight: 600;
@@ -108,7 +123,7 @@
   }
 
   .t-h1 {
-    font-family: var(--font-artegra-face), var(--font-sans-face), sans-serif;
+    font-family: var(--font-display-face), var(--font-sans-face), sans-serif;
     font-weight: 500;
     font-size: 25px;
     line-height: 1.14;
@@ -122,7 +137,7 @@
   }
 
   .t-h2 {
-    font-family: var(--font-artegra-face), var(--font-sans-face), sans-serif;
+    font-family: var(--font-display-face), var(--font-sans-face), sans-serif;
     font-weight: 500;
     font-size: 18px;
     line-height: 1.18;
@@ -137,7 +152,7 @@
 
   /* About section heading — 26px on desktop, not 29px. */
   .t-h2-about {
-    font-family: var(--font-artegra-face), var(--font-sans-face), sans-serif;
+    font-family: var(--font-display-face), var(--font-sans-face), sans-serif;
     font-weight: 500;
     font-size: 18px;
     line-height: 1.18;
@@ -150,7 +165,7 @@
   }
 
   .t-tile-title {
-    font-family: var(--font-artegra-face), var(--font-sans-face), sans-serif;
+    font-family: var(--font-display-face), var(--font-sans-face), sans-serif;
     font-weight: 500;
     font-size: 15px;
     line-height: 1.2;
@@ -415,7 +430,7 @@
 
   /* ── Brand wall ────────────────────────────────────────────────── */
   .t-brand-name {
-    font-family: var(--font-artegra-face), var(--font-sans-face), sans-serif;
+    font-family: var(--font-display-face), var(--font-sans-face), sans-serif;
     font-weight: 500;
     font-size: 11px;
     letter-spacing: 0.02em;
@@ -483,7 +498,7 @@
 
   /* ── Newsletter ────────────────────────────────────────────────── */
   .t-news-title {
-    font-family: var(--font-artegra-face), var(--font-sans-face), sans-serif;
+    font-family: var(--font-display-face), var(--font-sans-face), sans-serif;
     font-weight: 500;
     font-size: 15px;
     line-height: 1.2;

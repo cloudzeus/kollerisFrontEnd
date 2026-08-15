@@ -63,7 +63,7 @@ export default async function PendingApprovalPage({
       <main id="main">
         <div className="shell-x bg-k-ink-deep py-10 lg:py-14">
           <p className="t-eyebrow text-k-red">{upGreek(t("aitisi_b2b"))}</p>
-          <h1 className="font-artegra mt-3 text-[24px] leading-[1.16] font-medium text-white lg:text-[32px]">
+          <h1 className="font-display mt-3 text-[24px] leading-[1.16] font-medium text-white lg:text-[32px]">
             {upGreek(t("i_aitisi_sas_katachorithike"))}
           </h1>
           <p className="mt-3.5 max-w-[600px] text-[13px] leading-[1.68] text-white/60 lg:text-sm">

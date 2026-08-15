@@ -931,7 +931,7 @@ export const clampFrame = (frame: Frame): Frame => ({
 });
 
 export const FONT_STACK: Record<FontToken, string> = {
-  display: "var(--font-artegra)",
+  display: "var(--font-display)",
   sans: "var(--font-sans)",
   mono: "var(--font-mono)",
 };

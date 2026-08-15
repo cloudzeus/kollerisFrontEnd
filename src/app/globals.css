@@ -13,13 +13,46 @@
  * reserved for dots and status badges.
  */
 @theme {
-  /* ── Brand ── */
-  --color-k-red: #ff3333;
-  --color-k-red-hover: #c81f1f;
+  /* ── Brand ──
+   *
+   * Redesign Αυγούστου 2026. Το κόκκινο έπεσε από #ff3333 σε #e8362a: το πρώτο
+   * είναι καθαρό κόκκινο οθόνης και «τσιρίζει» δίπλα στο ζεστό υπόβαθρο του νέου
+   * design· το δεύτερο έχει λίγο πορτοκαλί μέσα του και κάθεται. Το hover πάει
+   * ΠΡΟΣ ΤΑ ΠΑΝΩ (#ff4b3e) αντί προς τα κάτω — ένα κουμπί που σκουραίνει στο
+   * hover διαβάζεται σαν απενεργοποιημένο.
+   */
+  --color-k-red: #e8362a;
+  --color-k-red-hover: #ff4b3e;
+  /** Το βαθύ κόκκινο των promo banner (gradient με το k-red). */
+  --color-k-red-deep: #b3170d;
+
+  /* ── Χρυσό ──
+   *
+   * Ο δεύτερος τόνος του design: eyebrow labels, B2B, αστέρια αξιολογήσεων.
+   * `k-gold` για σκούρο φόντο, `k-gold-ink` για ανοιχτό — το ίδιο κίτρινο πάνω
+   * σε λευκό δεν διαβάζεται.
+   */
+  --color-k-gold: #e8b542;
+  --color-k-gold-ink: #b3831f;
+  --color-k-gold-tint: #f7f0df;
+  --color-k-gold-line: #e6d9b8;
 
   /* ── Ink & text ── */
-  --color-k-ink: #1a1a1c;
-  --color-k-ink-deep: #101012;
+  --color-k-ink: #1a1b1e;
+  --color-k-ink-deep: #101113;
+  /** Το μαύρο του utility bar και του footer — απόλυτο, όχι σχεδόν. */
+  --color-k-black: #000000;
+  /** Η επιφάνεια του header: σκούρο αλλά όχι μαύρο, ώστε να ξεχωρίζει από το bar. */
+  --color-k-header: #17181b;
+  --color-k-header-line: #26282c;
+  /** Το βυθισμένο πεδίο αναζήτησης μέσα στο σκούρο header. */
+  --color-k-header-well: #0c0d0f;
+  --color-k-header-well-line: #33363b;
+  /* Κείμενο πάνω σε σκούρο. */
+  --color-k-on-dark: #f2f1ee;
+  --color-k-on-dark-2: #c9cdd2;
+  --color-k-on-dark-3: #9aa0a6;
+  --color-k-on-dark-4: #61666d;
   --color-k-text-2: #55555a;
   --color-k-text-3: #6e6e73;
   /*
@@ -41,12 +74,25 @@
   --color-k-text-5: #a8a8ad;
   --color-k-text-6: #b4b4b9;
 
-  /* ── Lines & surfaces ── */
-  --color-k-line: #ececee;
-  --color-k-line-2: #dddde0;
-  --color-k-line-3: #f4f4f5;
-  --color-k-surface-2: #fafafb;
-  --color-k-surface-3: #f5f5f6;
+  /* ── Lines & surfaces ──
+   *
+   * Ζεστά, όχι ουδέτερα. Το design βάζει τη σελίδα σε #f4f3f0 και τις κάρτες σε
+   * καθαρό λευκό: το αντίθετο από το συνηθισμένο «λευκή σελίδα, γκρι κάρτες».
+   * Έτσι κάθε κάρτα προϊόντος σηκώνεται μόνη της χωρίς σκιά, και οι φωτογραφίες
+   * προϊόντων — που έχουν λευκό φόντο — κουμπώνουν χωρίς ορατό περίγραμμα.
+   *
+   * Οι γραμμές είναι επίσης ζεστές (#e4e1da). Ψυχρό γκρι πάνω σε ζεστό μπεζ
+   * φαίνεται βρόμικο, και ήταν το πρώτο πράγμα που χάλασε όταν κράτησα τις
+   * παλιές τιμές.
+   */
+  --color-k-page: #f4f3f0;
+  --color-k-surface: #ffffff;
+  --color-k-line: #e4e1da;
+  --color-k-line-2: #d8d4cc;
+  --color-k-line-3: #efede8;
+  --color-k-surface-2: #faf9f6;
+  --color-k-surface-3: #f4f3f0;
+  --color-k-line-strong: #c9c4bb;
 
   /* ── Status ── */
   --color-k-green: #1f9254;
@@ -55,7 +101,7 @@
   --color-k-blue: #1f5f8b;
 
   /* ── Type ── */
-  --font-artegra: var(--font-artegra-face), var(--font-sans-face), sans-serif;
+  --font-display: var(--font-display-face), var(--font-sans-face), sans-serif;
   --font-sans: var(--font-sans-face), system-ui, sans-serif;
   --font-mono: var(--font-mono-face), ui-monospace, monospace;
 
@@ -190,8 +236,21 @@
     }
   }
 
-  body {
+  /*
+   * Η σελίδα είναι ζεστό μπεζ, ΟΧΙ λευκό — και οι κάρτες μέσα της είναι λευκές.
+   *
+   * Είναι η αντιστροφή του συνηθισμένου «λευκή σελίδα, γκρι κάρτες», και ο λόγος
+   * είναι πρακτικός: οι φωτογραφίες προϊόντων έχουν λευκό φόντο. Πάνω σε λευκή
+   * σελίδα η κάρτα εξαφανίζεται και χρειάζεται σκιά ή περίγραμμα για να σταθεί·
+   * πάνω σε #f4f3f0 σηκώνεται μόνη της και το προϊόν κόβεται καθαρά.
+   */
+  /* admin surface */
+  body:has([data-admin-shell]) {
     background: #ffffff;
+  }
+
+  body {
+    background: var(--color-k-page);
     color: var(--color-k-ink);
     font-family: var(--font-sans);
   }
@@ -499,7 +558,7 @@
   }
   .prose-kolleris h2,
   .prose-kolleris h3 {
-    font-family: var(--font-artegra);
+    font-family: var(--font-display);
     color: var(--color-k-ink);
     line-height: 1.25;
     margin-top: 2em;

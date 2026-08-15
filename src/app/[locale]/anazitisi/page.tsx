@@ -156,7 +156,7 @@ export default async function SearchPage({ params, searchParams }: PageProps) {
 
           <div className="flex flex-col gap-5 pt-2.5 pb-7 lg:flex-row lg:items-end lg:justify-between lg:gap-12">
             <div className="min-w-0">
-              <h1 className="font-artegra text-[22px] leading-[1.16] font-medium text-balance text-white lg:text-[30px]">
+              <h1 className="font-display text-[22px] leading-[1.16] font-medium text-balance text-white lg:text-[30px]">
                 {query ? (
                   <>
                     {upGreek(t("apotelesmata_gia"))}{" "}
@@ -358,7 +358,7 @@ function NoResults({ query }: { query: string }) {
           <span aria-hidden className="rule-accent block shrink-0" />
           {upGreek(t("kamia_antistoichia"))}
         </p>
-        <h2 className="font-artegra mt-2.5 text-[20px] leading-[1.25] text-k-ink lg:text-[26px]">
+        <h2 className="font-display mt-2.5 text-[20px] leading-[1.25] text-k-ink lg:text-[26px]">
           {upGreek(t("den_vrethike_kati_gia", { query: query }))}
         </h2>
         <p className="mt-3 text-[13.5px] leading-[1.65] text-k-text-3">

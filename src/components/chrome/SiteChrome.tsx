@@ -40,7 +40,7 @@ export function SiteChrome({
 }) {
   return (
     <HeaderShell>
-      <UtilityBar locale={locale} productCount={stats.products} brandCount={stats.brands} />
+      <UtilityBar locale={locale} />
       <SiteHeader
         locale={locale}
         cart={cart}

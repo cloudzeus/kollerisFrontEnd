@@ -9,6 +9,13 @@ import type { MiniCartSummary } from "@/lib/cart/options";
 import type { BrandTile, MenuCategory } from "@/lib/catalog/queries";
 import { upGreek } from "@/lib/greek";
 
+/**
+ * `stroke="currentColor"`, όχι καρφωμένο μαύρο.
+ *
+ * Το ίδιο εικονίδιο κάθεται τώρα και σε σκούρο header και σε λευκή γραμμή
+ * κινητού. Με σταθερό #1A1A1C ήταν αόρατο στο σκούρο — και το είδα ακριβώς έτσι
+ * την πρώτη φορά που άλλαξε το φόντο.
+ */
 function AccountIcon({ size = 20 }: { size?: number }) {
   return (
     <svg
@@ -16,7 +23,7 @@ function AccountIcon({ size = 20 }: { size?: number }) {
       height={size}
       viewBox="0 0 24 24"
       fill="none"
-      stroke="#1A1A1C"
+      stroke="currentColor"
       strokeWidth="1.7"
     >
       <circle cx="12" cy="8" r="4" />
@@ -63,7 +70,7 @@ export function SiteHeader({
     <>
       {/* ── Mobile ─────────────────────────────────────────────── */}
       <div className="lg:hidden">
-        <div className="flex items-center gap-3.5 border-b border-k-line bg-white px-4 py-3">
+        <div className="flex items-center gap-3.5 border-b border-k-header-line bg-k-header px-4 py-3 text-k-on-dark">
           <MobileMenu
             categories={categories}
             brands={brands}
@@ -74,12 +81,12 @@ export function SiteHeader({
 
           <Link href="/" className="mr-auto">
             <Image
-              src="/brand/kolleris-logo.svg"
+              src="/brand/logo-horizontal-white.png"
               alt="Kolleris"
-              width={104}
-              height={21}
+              width={208}
+              height={42}
               priority
-              className="block h-auto w-[104px]"
+              className="block h-[22px] w-auto"
             />
           </Link>
 
@@ -124,19 +131,35 @@ export function SiteHeader({
       </div>
 
       {/* ── Desktop ────────────────────────────────────────────── */}
-      <div className="header-main shell-x hidden h-24 items-center gap-9 border-b border-k-line bg-white lg:flex">
+      {/*
+        Σκούρο, όχι λευκό.
+        ────────────────────────────────────────────────────────────────────
+        Το λευκό header έκανε τη σελίδα να ξεκινά με 96px κενού. Το σκούρο
+        κρατά το ίδιο ύψος αλλά διαβάζεται ως πλαίσιο: ό,τι είναι μέσα του
+        είναι εργαλείο πλοήγησης, ό,τι είναι από κάτω είναι το κατάστημα.
+
+        Πρακτικά κερδίζει και το hero: η βίντεο-εικόνα από κάτω είναι σκούρα,
+        και ένα λευκό header έκοβε τη σελίδα στα δύο ακριβώς στο σημείο που
+        θέλουμε να συνεχίζει.
+      */}
+      <div className="header-main shell-x hidden h-24 items-center gap-8 border-b border-k-header-line bg-k-header text-k-on-dark lg:flex">
         <Link href="/" className="shrink-0">
           <Image
-            src="/brand/kolleris-logo.svg"
+            src="/brand/logo-horizontal-white.png"
             alt="Kolleris"
-            width={158}
-            height={32}
+            width={316}
+            height={64}
             priority
-            className="header-logo block h-auto w-[158px]"
+            className="header-logo block h-[38px] w-auto"
           />
         </Link>
 
-        <SearchSuggest locale={locale} categories={suggestCategories} />
+        <SearchSuggest
+          locale={locale}
+          categories={suggestCategories}
+          tone="dark"
+          hint={`${totalProducts.toLocaleString(locale)}+ ${upGreek(t("kodikoi"))}`}
+        />
 
         <div className="flex shrink-0 items-center gap-[26px]">
           {/*
@@ -150,20 +173,20 @@ export function SiteHeader({
           */}
           <Link
             href="/eisodos"
-            className="group/acc flex items-center gap-2.5 transition-colors hover:text-k-red"
+            className="group/acc flex items-center gap-2.5 text-k-on-dark transition-colors hover:text-k-red"
           >
             <AccountIcon />
             <span className="block">
-              <span className="t-account-label block text-k-text-4">
+              <span className="t-account-label block text-k-on-dark-3">
                 {upGreek(t("logariasmos"))}
               </span>
-              <span className="t-account-value mt-0.5 block text-k-ink transition-colors group-hover/acc:text-k-red">
+              <span className="t-account-value mt-0.5 block transition-colors group-hover/acc:text-k-red">
                 {t("syndesi_logariasmoy")}
               </span>
             </span>
           </Link>
 
-          <span className="h-[34px] w-px bg-k-line" />
+          <span className="h-[34px] w-px bg-k-header-line" />
 
           <MiniCart cart={cart} />
         </div>

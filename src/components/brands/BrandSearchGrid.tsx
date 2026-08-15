@@ -73,7 +73,7 @@ export function BrandSearchGrid({ brands }: { brands: BrandListItem[] }) {
 
       {filtered.length === 0 ? (
         <div className="shell-x py-16 text-center">
-          <p className="font-artegra text-xl leading-[1.3] text-k-ink">
+          <p className="font-display text-xl leading-[1.3] text-k-ink">
             {upGreek(t("den_vrethike_brand"))}
           </p>
           <p className="mx-auto mt-2.5 max-w-md text-[13.5px] text-k-text-3">

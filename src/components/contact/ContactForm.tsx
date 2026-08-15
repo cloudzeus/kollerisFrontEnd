@@ -44,7 +44,7 @@ export function ContactForm({ locale, pagePath }: { locale: string; pagePath?: s
     return (
       <div className="border-l-[3px] border-k-green bg-k-surface-2 p-6 lg:p-8">
         <p className="t-eyebrow text-k-green">{upGreek(t("stalthike"))}</p>
-        <p className="font-artegra mt-3 text-[19px] leading-[1.25] text-k-ink lg:text-[22px]">
+        <p className="font-display mt-3 text-[19px] leading-[1.25] text-k-ink lg:text-[22px]">
           {upGreek(t("to_lavame"))}
         </p>
         <p className="mt-3 max-w-lg text-[13.5px] leading-[1.7] text-k-text-2">

@@ -87,7 +87,7 @@ export default async function B2BPage({ params }: { params: Promise<{ locale: Lo
 
         <section className="mt-10">
           <p className="t-eyebrow text-k-red">{upGreek(t("o_rolos_sas"))}</p>
-          <h2 className="font-artegra mt-2 text-[18px] leading-[1.28] text-k-ink lg:text-xl">
+          <h2 className="font-display mt-2 text-[18px] leading-[1.28] text-k-ink lg:text-xl">
             {upGreek(user.role ? COMPANY_ROLE_LABELS[user.role] : "—")}
           </h2>
           {user.role && (

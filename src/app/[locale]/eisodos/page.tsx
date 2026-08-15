@@ -59,7 +59,7 @@ export default async function SignInPage({
             <span className="text-white">{upGreek(t("syndesi"))}</span>
           </nav>
           <div className="pt-2.5 pb-7">
-            <h1 className="font-artegra text-[22px] leading-[1.16] font-medium text-white lg:text-[30px]">
+            <h1 className="font-display text-[22px] leading-[1.16] font-medium text-white lg:text-[30px]">
               {upGreek(t("syndesi"))}
             </h1>
             <p className="mt-3.5 max-w-[560px] text-[13px] leading-[1.68] text-white/60 lg:text-sm">
@@ -99,7 +99,7 @@ export default async function SignInPage({
 
           <aside className="border-t border-k-line bg-k-surface-2 px-4 py-8 lg:border-t-0 lg:border-l lg:px-8 lg:py-12">
             <p className="t-eyebrow text-k-red">{upGreek(t("etairikos_logariasmos"))}</p>
-            <p className="font-artegra mt-2.5 text-[18px] leading-[1.28] text-k-ink">
+            <p className="font-display mt-2.5 text-[18px] leading-[1.28] text-k-ink">
               {upGreek(t("agorazete_gia_etaireia"))}
             </p>
             <ul className="mt-4 flex flex-col gap-2.5">

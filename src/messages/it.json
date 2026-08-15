@@ -445,14 +445,19 @@
       "logariasmos": "Account",
       "glossa": "Lingua",
       "syndesi_b2b": "Accesso B2B",
-      "syndesi_logariasmoy": "Accedi"
+      "syndesi_logariasmoy": "Accedi",
+      "kodikoi": "codici"
     },
     "UtilityBar": {
       "kodikoi": "codici",
       "paradosi_24_48o_dorean_ano": "Consegna 24-48h · Gratuita oltre 150€",
       "paradosi_24_48o_se_oli": "Consegna 24-48h in tutta la Grecia",
       "dorean_apostoli_ano_ton_150": "Spedizione gratuita oltre 150€",
-      "t_30_210_411_1355": "Tel. [+30] 210 411 1355"
+      "t_30_210_411_1355": "Tel. [+30] 210 411 1355",
+      "k_mavromichali_4_peiraias": "K. Mavromichali 4, Pireo",
+      "times_synergati_b2b_aitisi_logariasmoy": "Prezzi partner B2B — richiedi un account",
+      "syndesi": "Accedi",
+      "b2b": "B2B"
     }
   },
   "checkout": {

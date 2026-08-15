@@ -95,7 +95,7 @@ export default async function BrandsPage({
         <div className="relative overflow-hidden bg-k-ink-deep">
           <span
             aria-hidden
-            className="font-artegra pointer-events-none absolute -top-10 right-8 hidden text-[210px] leading-none font-extralight tracking-[-0.03em] text-white/[0.04] lg:block"
+            className="font-display pointer-events-none absolute -top-10 right-8 hidden text-[210px] leading-none font-extralight tracking-[-0.03em] text-white/[0.04] lg:block"
           >
             {brandStats.brandCount}
           </span>
@@ -118,7 +118,7 @@ export default async function BrandsPage({
                   <span className="hidden h-[1.5px] w-[26px] bg-k-red lg:block" />
                   EXCLUSIVE PARTNERSHIPS
                 </p>
-                <h1 className="font-artegra text-[26px] leading-[1.14] font-medium text-white lg:text-[36px]">
+                <h1 className="font-display text-[26px] leading-[1.14] font-medium text-white lg:text-[36px]">
                   {upGreek(t("ta_brands_poy"))}
                   <br />
                   {upGreek(t("antiprosopeyoyme"))}
@@ -197,7 +197,7 @@ export default async function BrandsPage({
                       />
                     ) : (
                       <span
-                        className={`font-artegra text-lg ${dark ? "text-white" : "text-k-ink"}`}
+                        className={`font-display text-lg ${dark ? "text-white" : "text-k-ink"}`}
                       >
                         {brand.name}
                       </span>

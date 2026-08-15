@@ -33,10 +33,21 @@ export function SearchSuggest({
   locale,
   categories,
   variant = "desktop",
+  tone = "light",
+  hint,
 }: {
   locale: string;
   categories: Array<{ slug: string; name: string }>;
   variant?: "desktop" | "mobile";
+  /**
+   * `dark` = βυθισμένο πεδίο μέσα στο σκούρο header (redesign Αυγ 2026).
+   *
+   * Δεν είναι θέμα γούστου ποιο μπαίνει πού: το ίδιο πεδίο εμφανίζεται και στη
+   * σελίδα αναζήτησης πάνω σε ανοιχτό φόντο, όπου το σκούρο θα ήταν τρύπα.
+   */
+  tone?: "light" | "dark";
+  /** Μικρό μετρημένο στοιχείο στη δεξιά άκρη, π.χ. «9.400+ ΚΩΔΙΚΟΙ». */
+  hint?: string;
 }) {
   const t = useTranslations("chrome.SearchSuggest");
   const router = useRouter();
@@ -183,6 +194,7 @@ export function SearchSuggest({
   const showPanel = open && trimmed.length >= SUGGEST_MIN_LENGTH;
   const isEmpty = data != null && rows.length === 0 && !loading;
   const desktop = variant === "desktop";
+  const dark = tone === "dark";
 
   return (
     <div ref={root} className="relative min-w-0 flex-1">
@@ -214,7 +226,11 @@ export function SearchSuggest({
         }}
         className={
           desktop
-            ? "search-shell flex h-[50px] min-w-0 border-[1.5px] border-k-ink transition-shadow"
+            ? `search-shell flex h-12 min-w-0 transition-shadow ${
+                dark
+                  ? "border border-k-header-well-line bg-k-header-well"
+                  : "border-[1.5px] border-k-ink"
+              }`
             : "flex min-w-0"
         }
       >
@@ -226,7 +242,11 @@ export function SearchSuggest({
             <select
               id="scope-desktop"
               name="cat"
-              className="t-search-cat h-full w-[168px] shrink-0 cursor-pointer truncate border-0 border-r border-[#E4E4E6] bg-white pr-7 pl-4 text-k-ink outline-none xl:w-[196px]"
+              className={`t-search-cat h-full w-[168px] shrink-0 cursor-pointer truncate border-0 border-r pr-7 pl-4 outline-none xl:w-[196px] ${
+                dark
+                  ? "border-k-header-well-line bg-k-header-well text-k-on-dark-2"
+                  : "border-[#E4E4E6] bg-white text-k-ink"
+              }`}
             >
               <option value="">{upGreek(t("oles_oi_katigories"))}</option>
               {categories.map((category) => (
@@ -266,12 +286,21 @@ export function SearchSuggest({
           }
           className={
             desktop
-              ? "t-input min-w-0 flex-1 border-0 bg-transparent px-4 text-k-ink outline-none placeholder:text-k-text-4"
+              ? `t-input min-w-0 flex-1 border-0 bg-transparent px-4 outline-none ${
+                dark
+                  ? "text-k-on-dark placeholder:text-k-on-dark-3"
+                  : "text-k-ink placeholder:text-k-text-4"
+              }`
               : "t-input h-[46px] min-w-0 flex-1 border-[1.5px] border-r-0 border-k-ink px-3.5 text-k-ink outline-none placeholder:text-k-text-4"
           }
         />
 
-        {desktop && (
+        {desktop && hint && (
+          <span className="t-util my-auto mr-3 hidden shrink-0 text-k-on-dark-4 xl:block">
+            {hint}
+          </span>
+        )}
+        {desktop && !hint && (
           <kbd className="t-brand-count my-auto mr-3 hidden shrink-0 border border-k-line-2 px-1.5 py-1 font-mono text-k-text-5 xl:block">
             /
           </kbd>

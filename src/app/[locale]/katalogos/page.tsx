@@ -104,7 +104,7 @@ export default async function CataloguePage({
           </nav>
 
           <div className="pt-2.5 pb-8">
-            <h1 className="font-artegra text-[22px] leading-[1.16] font-medium text-balance text-white lg:text-[30px]">
+            <h1 className="font-display text-[22px] leading-[1.16] font-medium text-balance text-white lg:text-[30px]">
               {upGreek(t("olos_o_katalogos"))}
             </h1>
             <p className="mt-3.5 max-w-[660px] text-[13px] leading-[1.68] text-white/60 lg:text-sm">
@@ -240,7 +240,7 @@ async function FeatureTile({ root, nodes }: { root: CatalogueRoot; nodes: Catalo
             <span aria-hidden className="rule-accent block shrink-0" />
             {upGreek(t("katigoria"))}
           </p>
-          <p className="font-artegra mt-3 text-[19px] leading-[1.2] text-balance text-k-ink transition-colors group-hover/feat:text-k-red lg:text-[24px]">
+          <p className="font-display mt-3 text-[19px] leading-[1.2] text-balance text-k-ink transition-colors group-hover/feat:text-k-red lg:text-[24px]">
             {upGreek(root.name)}
           </p>
           <p className="mt-3 text-[12.5px] leading-[1.6] text-k-text-3">

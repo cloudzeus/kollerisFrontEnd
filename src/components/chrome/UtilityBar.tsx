@@ -1,57 +1,70 @@
 import { useTranslations } from "next-intl";
-import Image from "next/image";
 import { Link } from "@/i18n/navigation";
 import { LOCALE_LABELS, routing, type Locale } from "@/i18n/routing";
 import { upGreek } from "@/lib/greek";
 
 /**
- * Utility strip. Two distinct layouts per the handoff:
- *   mobile 390 — 32px, one centred claim, no locale switcher, no phone
- *   desktop 1440 — 36px, three claims left, locale + phone right
+ * Η μαύρη λωρίδα πάνω από τα πάντα.
  *
- * The design also carried a ΜΕ ΦΠΑ / ΧΩΡΙΣ ΦΠΑ toggle — removed on the client's
- * instruction: every displayed price is VAT-inclusive.
+ * Redesign Αυγούστου 2026. Άλλαξε από «τρεις υποσχέσεις παράδοσης» σε
+ * «πού είμαστε και πώς μας βρίσκεις»: τηλέφωνο και διεύθυνση αριστερά, B2B και
+ * σύνδεση δεξιά.
+ *
+ * Ο λόγος είναι ότι οι υποσχέσεις μετακόμισαν. Η παράδοση 24–48 ωρών και το
+ * δωρεάν όριο λέγονται πια στο hero και στη λωρίδα στατιστικών, με μεγαλύτερα
+ * γράμματα και μέσα στο πλαίσιο που τους δίνει νόημα. Επαναλαμβανόμενες σε
+ * 11px γκρι στην κορυφή, δεν τις διάβαζε κανείς.
+ *
+ * Το τηλέφωνο στην κορυφή δεν είναι διακόσμηση: το μισό B2B κοινό αυτού του
+ * καταστήματος παραγγέλνει τηλεφωνικά, και μέχρι τώρα ο αριθμός ήταν κρυμμένος
+ * δεξιά, μετά τον επιλογέα γλώσσας.
  */
-export function UtilityBar({
-  locale,
-  productCount,
-  brandCount,
-}: {
-  locale: Locale;
-  productCount: number;
-  brandCount: number;
-}) {
+export function UtilityBar({ locale }: { locale: Locale }) {
   const t = useTranslations("chrome.UtilityBar");
-  const counts = `${productCount.toLocaleString(locale)}+ ${upGreek(t("kodikoi"))} · ${brandCount} BRANDS`;
 
   return (
     <>
-      {/* Mobile — single condensed claim, centred. */}
-      <div className="header-utility t-util flex h-8 items-center justify-center gap-2 bg-k-ink text-white/75 lg:hidden">
-        <span className="block h-1 w-1 bg-k-red" />
-        {upGreek(t("paradosi_24_48o_dorean_ano"))}
+      {/*
+        Mobile — μόνο το τηλέφωνο, ως σύνδεσμος κλήσης.
+        ────────────────────────────────────────────────────────────────────
+        Η διεύθυνση και το B2B κόβονται· σε 390px η γραμμή θα τύλιγε σε τρεις
+        σειρές και θα έσπρωχνε το λογότυπο κάτω από το fold. Ό,τι μένει είναι
+        αυτό που κάνει κάποιος από κινητό: πατά και τηλεφωνεί.
+      */}
+      <div className="header-utility t-util flex h-8 items-center justify-center gap-3 bg-k-black text-k-on-dark-3 lg:hidden">
+        <a href="tel:+302104111355" className="text-k-on-dark">
+          {t("t_30_210_411_1355")}
+        </a>
+        <span className="text-white/20">·</span>
+        <Link href="/eisodos" className="text-k-gold">
+          {upGreek(t("b2b"))}
+        </Link>
       </div>
 
-      {/*
-        Desktop. The handoff lays this out at 1440; the three claims need ~750px
-        in a Greek-capable monospace, so between 1024 and 1440 they are dropped
-        right-to-left rather than allowed to wrap inside the fixed 36px bar.
-      */}
-      <div className="header-utility t-util shell-x hidden h-9 items-center justify-between gap-6 overflow-hidden bg-k-ink text-white/72 lg:flex">
-        <div className="flex items-center gap-[22px] whitespace-nowrap">
-          <span className="flex items-center gap-2">
-            <Image src="/icons/truck.png" alt="" width={17} height={17} className="block" />
-            {upGreek(t("paradosi_24_48o_se_oli"))}
-          </span>
-          <span className="hidden text-white/24 xl:inline">/</span>
-          <span className="hidden xl:inline">
-            {upGreek(t("dorean_apostoli_ano_ton_150"))}
-          </span>
-          <span className="hidden text-white/24 2xl:inline">/</span>
-          <span className="hidden 2xl:inline">{counts}</span>
+      <div className="header-utility t-util shell-x hidden h-9 items-center justify-between gap-6 overflow-hidden bg-k-black text-k-on-dark-3 lg:flex">
+        <div className="flex items-center gap-6 whitespace-nowrap">
+          <a
+            href="tel:+302104111355"
+            className="transition-colors hover:text-k-on-dark"
+          >
+            {t("t_30_210_411_1355")}
+          </a>
+          <span className="hidden xl:inline">{t("k_mavromichali_4_peiraias")}</span>
         </div>
 
-        <div className="flex shrink-0 items-center gap-[18px] whitespace-nowrap">
+        <div className="flex shrink-0 items-center gap-5 whitespace-nowrap">
+          {/*
+            Ο χρυσός σύνδεσμος B2B είναι ο μοναδικός έγχρωμος στη μαύρη λωρίδα.
+            Είναι σκόπιμο: είναι η μία ενέργεια εδώ που αξίζει περισσότερα από
+            μια επίσκεψη — ένας λογαριασμός συνεργάτη αγοράζει για χρόνια.
+          */}
+          <Link
+            href="/eisodos"
+            className="text-k-gold transition-colors hover:text-white"
+          >
+            {upGreek(t("times_synergati_b2b_aitisi_logariasmoy"))}
+          </Link>
+
           <div className="flex border border-white/18">
             {routing.locales.map((code) => (
               <Link
@@ -67,13 +80,10 @@ export function UtilityBar({
               </Link>
             ))}
           </div>
-          <span className="text-white/24">/</span>
-          <a
-            href="tel:+302104111355"
-            className="whitespace-nowrap text-white transition-colors hover:text-k-red"
-          >
-            {t("t_30_210_411_1355")}
-          </a>
+
+          <Link href="/eisodos" className="transition-colors hover:text-k-on-dark">
+            {upGreek(t("syndesi"))}
+          </Link>
         </div>
       </div>
     </>

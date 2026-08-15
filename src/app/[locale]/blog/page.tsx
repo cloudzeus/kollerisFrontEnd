@@ -93,7 +93,7 @@ export default async function BlogPage({
             <span className="text-white">BLOG</span>
           </nav>
           <div className="pt-2.5 pb-8">
-            <h1 className="font-artegra text-[22px] leading-[1.16] font-medium text-balance text-white lg:text-[30px]">
+            <h1 className="font-display text-[22px] leading-[1.16] font-medium text-balance text-white lg:text-[30px]">
               {upGreek(t("odigoi_kai_dokimes"))}
             </h1>
             <p className="mt-3.5 max-w-[600px] text-[13px] leading-[1.68] text-white/60 lg:text-sm">
@@ -167,7 +167,7 @@ function LeadCard({ post }: { post: import("@/lib/blog/contract").BlogPostSummar
             <span aria-hidden className="rule-accent block shrink-0" />
             {upGreek(t("pio_prosfato"))}
           </p>
-          <h2 className="font-artegra mt-3.5 text-[20px] leading-[1.22] text-balance text-k-ink transition-colors group-hover/lead:text-k-red lg:text-[27px]">
+          <h2 className="font-display mt-3.5 text-[20px] leading-[1.22] text-balance text-k-ink transition-colors group-hover/lead:text-k-red lg:text-[27px]">
             {post.title}
           </h2>
           {post.shortDescription && (
@@ -218,7 +218,7 @@ function PostCard({ post }: { post: import("@/lib/blog/contract").BlogPostSummar
       </span>
 
       <span className="flex flex-1 flex-col gap-2.5 p-5">
-        <span className="font-artegra block text-[15px] leading-[1.3] text-k-ink transition-colors group-hover/post:text-k-red">
+        <span className="font-display block text-[15px] leading-[1.3] text-k-ink transition-colors group-hover/post:text-k-red">
           {post.title}
         </span>
         {post.shortDescription && (

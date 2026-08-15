@@ -103,7 +103,7 @@ export default async function BlogPostPage({ params }: PageProps) {
 
           {post && (
             <div className="max-w-[68ch] pt-2.5 pb-9">
-              <h1 className="font-artegra text-[24px] leading-[1.18] font-medium text-balance text-white lg:text-[36px]">
+              <h1 className="font-display text-[24px] leading-[1.18] font-medium text-balance text-white lg:text-[36px]">
                 {post.title}
               </h1>
               {post.shortDescription && (

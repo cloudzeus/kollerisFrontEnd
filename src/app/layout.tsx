@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
-import { IBM_Plex_Sans, Noto_Sans_Mono } from "next/font/google";
-import localFont from "next/font/local";
+import { Noto_Sans, Noto_Sans_Mono, Roboto_Condensed } from "next/font/google";
 import { getLocale, getTranslations } from "next-intl/server";
 import "./globals.css";
 import { alternatesFor } from "@/lib/seo/urls";
@@ -15,18 +14,33 @@ import type { Locale } from "@/i18n/routing";
  */
 
 /** Display face for headings, per the design handoff. */
-const artegra = localFont({
-  variable: "--font-artegra-face",
+/**
+ * Η γραμματοσειρά τίτλων: Roboto Condensed.
+ *
+ * Αντικατέστησε την Artegra με το redesign του Αυγούστου 2026. Η επιλογή δεν
+ * είναι αισθητική ιδιοτροπία — οι τίτλοι του καταστήματος είναι ΚΕΦΑΛΑΙΑ
+ * ελληνικά («ΕΡΓΑΛΕΙΑ ΠΟΥ ΔΟΥΛΕΥΟΥΝ»), και μια στενή γραμματοσειρά χωράει τη
+ * φράση σε μία σειρά αντί για δύο. Η Artegra είναι extended: η ίδια φράση
+ * έσπαγε και έχανε τη δύναμή της.
+ *
+ * Μεταβλητή γραμματοσειρά, οπότε δεν δηλώνονται βάρη — το design χρησιμοποιεί
+ * 400, 700 και 800, και τα παίρνουμε όλα χωρίς επιπλέον αρχεία.
+ */
+const display = Roboto_Condensed({
+  variable: "--font-display-face",
+  subsets: ["latin", "greek"],
   display: "swap",
-  src: [
-    { path: "../../public/fonts/ArtegraSansExtended-ExtLt.otf", weight: "200", style: "normal" },
-    { path: "../../public/fonts/ArtegraSansExtended-MedExp.otf", weight: "500", style: "normal" },
-  ],
 });
-const plexSans = IBM_Plex_Sans({
+
+/**
+ * Η γραμματοσειρά κειμένου: Noto Sans.
+ *
+ * Ελληνικά και λατινικά από την ίδια οικογένεια, με πλήρη κάλυψη τόνων και
+ * διαλυτικών — αυτό δεν το είχε δώσει η IBM Plex Sans χωρίς fallback.
+ */
+const sans = Noto_Sans({
   variable: "--font-sans-face",
   subsets: ["latin", "greek"],
-  weight: ["400", "500", "600", "700"],
   display: "swap",
 });
 
@@ -124,7 +138,7 @@ export default async function RootLayout({
   return (
     <html
       lang={locale}
-      className={`${plexSans.variable} ${mono.variable} ${artegra.variable} h-full antialiased`}
+      className={`${sans.variable} ${mono.variable} ${display.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col">
         {/*

@@ -202,7 +202,7 @@ function QuickViewBody({
         {product.brand && (
           <p className="t-card-brand text-k-red">{upGreek(product.brand.name)}</p>
         )}
-        <h2 className="font-artegra mt-2 text-[18px] leading-[1.28] font-medium text-k-ink">
+        <h2 className="font-display mt-2 text-[18px] leading-[1.28] font-medium text-k-ink">
           {product.name}
         </h2>
         <p className="t-card-sku mt-1.5 text-k-text-4">

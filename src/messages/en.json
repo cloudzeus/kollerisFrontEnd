@@ -445,14 +445,19 @@
       "logariasmos": "Account",
       "glossa": "Language",
       "syndesi_b2b": "B2B Login",
-      "syndesi_logariasmoy": "Sign in"
+      "syndesi_logariasmoy": "Sign in",
+      "kodikoi": "codes"
     },
     "UtilityBar": {
       "kodikoi": "codes",
       "paradosi_24_48o_dorean_ano": "Delivery 24-48h · Free over €150",
       "paradosi_24_48o_se_oli": "Delivery 24-48h across Greece",
       "dorean_apostoli_ano_ton_150": "Free shipping over €150",
-      "t_30_210_411_1355": "Tel. [+30] 210 411 1355"
+      "t_30_210_411_1355": "Tel. [+30] 210 411 1355",
+      "k_mavromichali_4_peiraias": "4 K. Mavromichali St, Piraeus",
+      "times_synergati_b2b_aitisi_logariasmoy": "B2B partner pricing — apply for an account",
+      "syndesi": "Sign in",
+      "b2b": "B2B"
     }
   },
   "checkout": {

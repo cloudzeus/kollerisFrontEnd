@@ -81,7 +81,7 @@ export async function StoreMap() {
           */}
           <div className="band-ink flex flex-col justify-between gap-7 p-6 lg:p-8">
             <div>
-              <p className="font-[family-name:var(--font-artegra-face)] text-[26px] leading-[1.05] font-medium tracking-[0.01em] lg:text-[32px]">
+              <p className="font-[family-name:var(--font-display-face)] text-[26px] leading-[1.05] font-medium tracking-[0.01em] lg:text-[32px]">
                 <span className="text-k-red">{upGreek(t("parking_free"))}</span>{" "}
                 <span className="text-white">{upGreek(t("parking_word"))}</span>
               </p>

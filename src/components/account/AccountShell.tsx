@@ -67,7 +67,7 @@ export function AccountShell({
 
         <div className="flex flex-col gap-5 pt-2.5 pb-7 lg:flex-row lg:items-end lg:justify-between lg:gap-12">
           <div className="min-w-0">
-            <h1 className="font-artegra text-[22px] leading-[1.16] font-medium text-white lg:text-[30px]">
+            <h1 className="font-display text-[22px] leading-[1.16] font-medium text-white lg:text-[30px]">
               {upGreek(title)}
             </h1>
             {lead && (
