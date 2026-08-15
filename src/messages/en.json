@@ -213,6 +213,16 @@
       "axiologiseis_epaggelmation_synergeion_kai_naypigeion": "ratings from professionals, workshops and\n            shipyards.",
       "sta_5": "{rating} out of 5",
       "sta_5_2": "{rating} out of 5"
+    },
+    "QuickOrder": {
+      "grigori_paraggelia_me_kodiko": "Quick order by code",
+      "xerete_ti_thelete": "Know what you need? Type the code straight into the cart — ours, the manufacturer's, or the barcode.",
+      "kodikos_proiontos": "Product code",
+      "p_ch_4932499207_81_11": "e.g. 4932499207, 81 11 250, 05052504001",
+      "prosthiki_sto_kalathi": "Add to cart",
+      "prostethike_sto_kalathi": "Added to your cart.",
+      "den_vrethike_kodikos": "No product with that code. Check it, or use search instead.",
+      "kati_pige_strava": "Something went wrong. Please try again."
     }
   },
   "faq": {
@@ -368,7 +378,8 @@
       "i_etaireia": "The company",
       "epikoinonia": "Contact",
       "kyria_ploigisi": "Main navigation",
-      "prosfores": "Offers"
+      "prosfores": "Offers",
+      "brands": "Brands"
     },
     "MegaMenu": {
       "katigories": "Categories",

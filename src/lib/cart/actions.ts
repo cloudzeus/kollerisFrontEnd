@@ -99,6 +99,87 @@ export async function addToCart(input: unknown): Promise<CartActionResult> {
 }
 
 /**
+ * Προσθήκη στο καλάθι με ΚΩΔΙΚΟ, όχι με επιλογή από λίστα.
+ *
+ * Ο B2B πελάτης δεν ψάχνει: έχει τον κωδικό μπροστά του, σε δελτίο ή σε
+ * παλιό τιμολόγιο, και θέλει να τον πληκτρολογήσει. Μέχρι τώρα έπρεπε να τον
+ * αναζητήσει, να ανοίξει το προϊόν και να πατήσει προσθήκη — τρία βήματα για
+ * κάτι που ξέρει ήδη.
+ *
+ * Ψάχνει και στους τρεις κωδικούς που κρατά ο κατάλογος:
+ *
+ *   `code`  — ο κωδικός του ERP, αυτός που γράφουμε εμείς στα παραστατικά
+ *   `code1` — το EAN/barcode, αυτό που σκανάρεται από τη συσκευασία
+ *   `code2` — ο κωδικός του κατασκευαστή, αυτός που γράφει το κουτί
+ *
+ * Και οι τρεις είναι «ο κωδικός» για κάποιον. Ο αγοραστής της ναυτιλιακής έχει
+ * τον δικό μας, ο τεχνικός στο συνεργείο διαβάζει αυτόν του κατασκευαστή, και
+ * όποιος έχει το κουτί στο χέρι σκανάρει το barcode. Να δεχόμαστε μόνο τον
+ * πρώτο θα σήμαινε «λάθος κωδικός» σε κωδικό που είναι απολύτως σωστός.
+ *
+ * Τα κενά και οι παύλες αφαιρούνται: το «81 11 250» της KNIPEX γράφεται και
+ * «8111250», και είναι το ίδιο προϊόν.
+ */
+const addByCodeSchema = z.object({
+  code: z.string().trim().min(2).max(64),
+  quantity: z.number().int().min(1).max(MAX_QUANTITY).default(1),
+});
+
+export async function addToCartByCode(input: unknown): Promise<CartActionResult> {
+  const parsed = addByCodeSchema.safeParse(input);
+  if (!parsed.success) return { ok: false, error: "invalid_input" };
+
+  const raw = parsed.data.code;
+  const loose = raw.replace(/[\s.\-\/]/g, "").toUpperCase();
+
+  /*
+   * Δύο περάσματα, όχι ένα με `contains`.
+   *
+   * Πρώτα ακριβής ταύτιση — αν ο κωδικός υπάρχει όπως δόθηκε, αυτό είναι το
+   * προϊόν και τελείωσε. Μόνο αν αποτύχει δοκιμάζουμε τη «χαλαρή» μορφή χωρίς
+   * κενά. Με μία αναζήτηση τύπου `contains` ο κωδικός «250» θα ταίριαζε σε
+   * εκατοντάδες προϊόντα και το πρώτο θα έμπαινε στο καλάθι — σιωπηλά λάθος
+   * προϊόν είναι χειρότερο από «δεν βρέθηκε».
+   */
+  const exact = await prisma.product.findFirst({
+    where: {
+      isActive: true,
+      OR: [{ code: raw }, { code1: raw }, { code2: raw }],
+    },
+    select: { id: true, priceNet: true, slug: true },
+  });
+
+  const product =
+    exact ??
+    (loose.length >= 4
+      ? await prisma.product.findFirst({
+          where: {
+            isActive: true,
+            OR: [{ code: loose }, { code1: loose }, { code2: loose }],
+          },
+          select: { id: true, priceNet: true, slug: true },
+        })
+      : null);
+
+  if (!product) return { ok: false, error: "code_not_found" };
+
+  const cartId = await getOrCreateCartId();
+  await prisma.cartLine.upsert({
+    where: { cartId_productId: { cartId, productId: product.id } },
+    update: { quantity: { increment: parsed.data.quantity } },
+    create: {
+      cartId,
+      productId: product.id,
+      quantity: parsed.data.quantity,
+      addedPriceNet: product.priceNet,
+    },
+  });
+
+  revalidateCart();
+  return { ok: true, added: parsed.data.quantity };
+}
+
+/**
  * Buy now — add and go straight to checkout.
  *
  * For the customer who wants one thing. Making them add to cart, find the

@@ -214,8 +214,20 @@ export function MegaMenu({
           aria-haspopup="true"
           onClick={() => setOpen(open === "brands" ? null : "brands")}
           onFocus={() => show("brands")}
-          className={`t-nav flex h-[54px] items-center gap-1.5 px-[18px] transition-colors ${
-            open === "brands" ? "text-k-red" : "text-k-ink hover:text-k-red"
+          /*
+            `text-k-ink` εδώ σήμαινε ΑΟΡΑΤΟ.
+            ────────────────────────────────────────────────────────────────
+            Το κουμπί υπήρχε πάντα· απλώς ήταν σκούρο κείμενο, και όταν η μπάρα
+            έγινε σκούρα εξαφανίστηκε τελείως. Ο πελάτης το ανέφερε ως «λείπει
+            το link με τα brands» — δεν έλειπε, ήταν γραμμένο με το χρώμα του
+            φόντου.
+
+            Ο κανόνας που βγαίνει: χρώμα κειμένου δηλωμένο απόλυτα μέσα σε
+            component που μπορεί να αλλάξει φόντο είναι βόμβα με χρονοδιακόπτη.
+            Ό,τι κάθεται στο chrome μιλά πια σε `k-on-dark-*`.
+          */
+          className={`t-nav-cond flex h-[46px] items-center gap-1.5 px-[18px] transition-colors ${
+            open === "brands" ? "text-white" : "text-k-on-dark-2 hover:text-white"
           }`}
         >
           BRANDS

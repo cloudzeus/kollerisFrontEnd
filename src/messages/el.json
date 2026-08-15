@@ -213,6 +213,16 @@
       "axiologiseis_epaggelmation_synergeion_kai_naypigeion": "αξιολογήσεις επαγγελματιών, συνεργείων και\n            ναυπηγείων.",
       "sta_5": "{rating} στα 5",
       "sta_5_2": "{rating} στα 5"
+    },
+    "QuickOrder": {
+      "grigori_paraggelia_me_kodiko": "Γρήγορη παραγγελία με κωδικό",
+      "xerete_ti_thelete": "Ξέρετε τι θέλετε; Ο κωδικός κατευθείαν στο καλάθι — δικός μας, του κατασκευαστή ή barcode.",
+      "kodikos_proiontos": "Κωδικός προϊόντος",
+      "p_ch_4932499207_81_11": "π.χ. 4932499207, 81 11 250, 05052504001",
+      "prosthiki_sto_kalathi": "Προσθήκη στο καλάθι",
+      "prostethike_sto_kalathi": "Προστέθηκε στο καλάθι.",
+      "den_vrethike_kodikos": "Δεν βρέθηκε προϊόν με αυτόν τον κωδικό. Ελέγξτε τον ή χρησιμοποιήστε την αναζήτηση.",
+      "kati_pige_strava": "Κάτι πήγε στραβά. Δοκιμάστε ξανά."
     }
   },
   "faq": {
@@ -368,7 +378,8 @@
       "i_etaireia": "Η εταιρεία",
       "epikoinonia": "Επικοινωνία",
       "kyria_ploigisi": "Κύρια πλοήγηση",
-      "prosfores": "Προσφορές"
+      "prosfores": "Προσφορές",
+      "brands": "Brands"
     },
     "MegaMenu": {
       "katigories": "Κατηγορίες",

@@ -9,6 +9,7 @@ import { CategoryGrid } from "@/components/home/CategoryGrid";
 import { FeaturedProducts } from "@/components/home/FeaturedProducts";
 import { HeroBanner } from "@/components/home/HeroBanner";
 import { NewsletterBand } from "@/components/home/NewsletterBand";
+import { QuickOrder } from "@/components/home/QuickOrder";
 import { ReviewsBand } from "@/components/home/ReviewsBand";
 import { StatStrip } from "@/components/home/StatStrip";
 import type { Locale } from "@/i18n/routing";
@@ -193,6 +194,7 @@ export default async function HomePage({
         />
         <Zone id="home.belowCategories" locale={locale} context={zoneContext} />
         <FeaturedProducts products={products} />
+        <QuickOrder />
         <BrandWall brands={brands} totalBrands={stats.brands} />
         <Zone id="home.band" locale={locale} context={zoneContext} />
         <ReviewsBand rating="4,9" reviewCount={214} reviews={reviews} copy={reviewsCopy} />

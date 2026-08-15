@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-08-15T16:46:12.722Z",
+  "timestamp": "2026-08-15T16:51:52.380Z",
   "source": "auto-postool",
   "partial": false,
   "phase": null,
@@ -15,7 +15,40 @@
   "blockers": [],
   "human_actions_pending": [],
   "decisions": [],
-  "uncommitted_files": [],
+  "uncommitted_files": [
+    {
+      "status": "M",
+      "path": ".planning/HANDOFF.json"
+    },
+    {
+      "status": "M",
+      "path": "src/app/[locale]/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/components/chrome/MainNav.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/lib/cart/actions.ts"
+    },
+    {
+      "status": "M",
+      "path": "src/messages/el.json"
+    },
+    {
+      "status": "M",
+      "path": "src/messages/en.json"
+    },
+    {
+      "status": "M",
+      "path": "src/messages/it.json"
+    },
+    {
+      "status": "??",
+      "path": "src/components/home/QuickOrder.tsx"
+    }
+  ],
   "next_action": null,
-  "context_notes": "Recent commits:\nb2d94cf feat(design): το νέο design στα θεμέλια — γραμματοσειρές, παλέτα, header & footer\nd599256 fix(stock): κανένα αρνητικό απόθεμα δεν φτάνει στο κατάστημα\nd3577ed feat(stock): το eshop ξεχωρίζει το ράφι από το πωλήσιμο\neeedc31 fix(feeds): ο κωδικός καταστήματος είναι αυτός που έχει ο Google, όχι αυτός που διαλέξαμε\na23b33d feat(aeo): οι κατηγορίες λένε τι έχουν μέσα, με μετρημένα στοιχεία"
+  "context_notes": "Recent commits:\n21d2875 fix(chrome): hook μέσα σε map — «Rendered more hooks than during the previous render»\nb2d94cf feat(design): το νέο design στα θεμέλια — γραμματοσειρές, παλέτα, header & footer\nd599256 fix(stock): κανένα αρνητικό απόθεμα δεν φτάνει στο κατάστημα\nd3577ed feat(stock): το eshop ξεχωρίζει το ράφι από το πωλήσιμο\neeedc31 fix(feeds): ο κωδικός καταστήματος είναι αυτός που έχει ο Google, όχι αυτός που διαλέξαμε"
 }

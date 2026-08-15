@@ -34,7 +34,21 @@ export function MainNav({
   const links = [
     { href: "/katalogos", label: upGreek(t("katalogos")) },
     { href: "/nees-afixeis", label: upGreek(t("nees_afixeis")) },
-  ] as const;
+  ];
+
+  /*
+   * Οι τρεις μεγαλύτερες μάρκες, ονομαστικά, δίπλα στις κατηγορίες.
+   *
+   * Έτσι τις έχει το design, και ο λόγος φαίνεται στα ερωτήματα αναζήτησης: οι
+   * επαγγελματίες δεν ψάχνουν «κατσαβίδια», ψάχνουν «Wera». Το `/brands` από
+   * μόνο του είναι ένα ακόμη κλικ πριν από το όνομα που έχουν ήδη στο μυαλό.
+   *
+   * ΔΕΝ είναι χειροκίνητη λίστα: έρχονται ταξινομημένες κατά πλήθος προϊόντων
+   * από το `getTopBrands`, οπότε αν αύριο η KNIPEX περάσει τη MILWAUKEE, το nav
+   * το ακολουθεί. Χειρόγραφα ονόματα εδώ θα έδειχναν μάρκα που σταματήσαμε να
+   * φέρνουμε.
+   */
+  const featuredBrands = brands.slice(0, 3);
 
   const secondary = [
     { href: "/etaireia", label: upGreek(t("i_etaireia")) },
@@ -66,6 +80,16 @@ export function MainNav({
               className="t-nav-cond flex h-[46px] items-center px-[18px] text-k-on-dark-2 transition-colors hover:text-white"
             >
               {link.label}
+            </Link>
+          ))}
+
+          {featuredBrands.map((brand) => (
+            <Link
+              key={brand.id}
+              href={`/brands/${brand.slug}`}
+              className="t-nav-cond hidden h-[46px] items-center px-[18px] text-k-on-dark-2 transition-colors hover:text-white xl:flex"
+            >
+              {upGreek(brand.name)}
             </Link>
           ))}
 

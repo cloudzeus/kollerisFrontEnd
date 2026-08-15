@@ -213,6 +213,16 @@
       "axiologiseis_epaggelmation_synergeion_kai_naypigeion": "recensioni di professionisti, officine e\n            cantieri navali.",
       "sta_5": "{rating} su 5",
       "sta_5_2": "{rating} su 5"
+    },
+    "QuickOrder": {
+      "grigori_paraggelia_me_kodiko": "Ordine rapido con codice",
+      "xerete_ti_thelete": "Sai già cosa ti serve? Il codice va dritto nel carrello — nostro, del produttore o barcode.",
+      "kodikos_proiontos": "Codice prodotto",
+      "p_ch_4932499207_81_11": "es. 4932499207, 81 11 250, 05052504001",
+      "prosthiki_sto_kalathi": "Aggiungi al carrello",
+      "prostethike_sto_kalathi": "Aggiunto al carrello.",
+      "den_vrethike_kodikos": "Nessun prodotto con questo codice. Verificalo o usa la ricerca.",
+      "kati_pige_strava": "Qualcosa è andato storto. Riprova."
     }
   },
   "faq": {
@@ -368,7 +378,8 @@
       "i_etaireia": "L'azienda",
       "epikoinonia": "Contatti",
       "kyria_ploigisi": "Navigazione principale",
-      "prosfores": "Offerte"
+      "prosfores": "Offerte",
+      "brands": "Brand"
     },
     "MegaMenu": {
       "katigories": "Categorie",
