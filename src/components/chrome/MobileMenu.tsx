@@ -135,7 +135,6 @@ export function MobileMenu({
               {tab === "categories" ? (
                 <>
                   {categories.map((category, index) => {
-  const t = useTranslations("chrome.MobileMenu");
                     const isOpen = expanded === category.id;
                     return (
                       <div key={category.id} className="border-b border-k-line">
