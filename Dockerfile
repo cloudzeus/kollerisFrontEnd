@@ -27,8 +27,27 @@ WORKDIR /app
 # Only the manifests, so this layer is rebuilt when dependencies change and not
 # when a component does. `npm ci` installs exactly the lock, never resolving
 # afresh — which is what makes a build reproducible.
+#
+# `--include=dev` is NOT redundant, and removing it breaks the build.
+#
+# Το build χρειάζεται τα devDependencies: το `@tailwindcss/postcss` και το
+# `tailwindcss` ζουν εκεί, και χωρίς αυτά το `next build` σκάει με
+# «Cannot find module '@tailwindcss/postcss'» πάνω στο globals.css.
+#
+# Το deploy της 26ης Αυγ 2026 απέτυχε ακριβώς έτσι. Το log έλεγε «added 405
+# packages» — και το lockfile έχει ΑΚΡΙΒΩΣ 405 πακέτα production, από 848
+# συνολικά. Δηλαδή κάποιος παρέλειψε και τα 443 dev, χωρίς να το ζητήσει το
+# Dockerfile: το `npm ci` εδώ δεν είχε καμία σχετική σημαία, δεν υπάρχει
+# `.npmrc` στο repo, και το `NODE_ENV=production` μπαίνει αργότερα, στο στάδιο
+# builder. Το κόψιμο ήρθε από το περιβάλλον που περνά η πλατφόρμα στο build
+# (`NODE_ENV` ή `NPM_CONFIG_OMIT`), το οποίο δεν ελέγχουμε από εδώ.
+#
+# Το `--include=dev` υπερισχύει και του `--omit` και του NODE_ENV, οπότε το
+# στάδιο γίνεται ανεξάρτητο από ό,τι κι αν έχει ρυθμιστεί στο Coolify. Η
+# εναλλακτική — να αφαιρεθεί η μεταβλητή από τη πλατφόρμα — φτιάχνει το ίδιο
+# build μία φορά και σπάει ξανά μόλις κάποιος την ξαναβάλει.
 COPY package.json package-lock.json ./
-RUN npm ci --no-audit --no-fund
+RUN npm ci --include=dev --no-audit --no-fund
 
 # ── Build ───────────────────────────────────────────────────────────────────
 FROM base AS builder
