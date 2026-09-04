@@ -810,22 +810,37 @@ function SourceRail({
  * του σχήματος: με το viewBox ολόκληρου του λογοτύπου θα ερχόταν με 190px
  * κενού δεξιά του, και θα φαινόταν μικρό χωρίς να είναι.
  */
+/*
+ * Από το CDN, όχι από το `public/` της εφαρμογής.
+ *
+ * Η διεύθυνση γράφεται ΜΕΣΑ στο banner και ζει όσο και αυτό. Ένα
+ * `/brand/…svg` λύνεται σωστά μόνο όσο το banner αποδίδεται σε αυτό το
+ * domain — και τα banner διαβάζονται και από την προεπισκόπηση του
+ * διαχειριστή, και από ό,τι άλλο κοιτάξει τη σύνθεση αύριο. Κάθε άλλο
+ * εικαστικό του συστήματος (λογότυπα μαρκών, φωτογραφίες, cutouts) είναι ήδη
+ * απόλυτη διεύθυνση του CDN· αυτά ήταν η μόνη εξαίρεση.
+ *
+ * Τα αρχεία μένουν και στο `public/brand/` — από εκεί παράγονται, και από
+ * εκεί τα παίρνει το favicon και η εικόνα κοινοποίησης.
+ */
+const MARK_CDN = "https://kolleris.b-cdn.net/eshop/brand";
+
 const KOLLERIS_MARKS = [
   /* Διάφανα — για να κάτσουν πάνω σε φωτογραφία ή σε χρώμα του banner. */
-  { src: "/brand/kolleris-lockup-black.svg", name: "Κολλέρης — μαύρο", dark: false },
-  { src: "/brand/kolleris-lockup-white.svg", name: "Κολλέρης — λευκό", dark: true },
-  { src: "/brand/kolleris-lockup-red.svg", name: "Κολλέρης — κόκκινο", dark: false },
-  { src: "/brand/kolleris-symbol-black.svg", name: "Σήμα — μαύρο", dark: false },
-  { src: "/brand/kolleris-symbol-white.svg", name: "Σήμα — λευκό", dark: true },
-  { src: "/brand/kolleris-symbol-red.svg", name: "Σήμα — κόκκινο", dark: false },
+  { src: `${MARK_CDN}/kolleris-lockup-black.svg`, name: "Κολλέρης — μαύρο", dark: false },
+  { src: `${MARK_CDN}/kolleris-lockup-white.svg`, name: "Κολλέρης — λευκό", dark: true },
+  { src: `${MARK_CDN}/kolleris-lockup-red.svg`, name: "Κολλέρης — κόκκινο", dark: false },
+  { src: `${MARK_CDN}/kolleris-symbol-black.svg`, name: "Σήμα — μαύρο", dark: false },
+  { src: `${MARK_CDN}/kolleris-symbol-white.svg`, name: "Σήμα — λευκό", dark: true },
+  { src: `${MARK_CDN}/kolleris-symbol-red.svg`, name: "Σήμα — κόκκινο", dark: false },
   /* Πλακίδια — το σήμα σκαλισμένο μέσα σε συμπαγές χρώμα, για όταν το φόντο
      από κάτω είναι πολυάσχολο και ένα διάφανο λογότυπο χάνεται μέσα του. */
-  { src: "/brand/kolleris-lockup-on-red.svg", name: "Πλακίδιο κόκκινο — λευκά γράμματα", dark: false },
-  { src: "/brand/kolleris-lockup-on-ink.svg", name: "Πλακίδιο μαύρο — λευκά γράμματα", dark: false },
-  { src: "/brand/kolleris-lockup-on-white.svg", name: "Πλακίδιο λευκό — μαύρα γράμματα", dark: false },
-  { src: "/brand/kolleris-symbol-on-red.svg", name: "Σήμα σε κόκκινο πλακίδιο", dark: false },
-  { src: "/brand/kolleris-symbol-on-ink.svg", name: "Σήμα σε μαύρο πλακίδιο", dark: false },
-  { src: "/brand/kolleris-symbol-on-white.svg", name: "Σήμα σε λευκό πλακίδιο", dark: false },
+  { src: `${MARK_CDN}/kolleris-lockup-on-red.svg`, name: "Πλακίδιο κόκκινο — λευκά γράμματα", dark: false },
+  { src: `${MARK_CDN}/kolleris-lockup-on-ink.svg`, name: "Πλακίδιο μαύρο — λευκά γράμματα", dark: false },
+  { src: `${MARK_CDN}/kolleris-lockup-on-white.svg`, name: "Πλακίδιο λευκό — μαύρα γράμματα", dark: false },
+  { src: `${MARK_CDN}/kolleris-symbol-on-red.svg`, name: "Σήμα σε κόκκινο πλακίδιο", dark: false },
+  { src: `${MARK_CDN}/kolleris-symbol-on-ink.svg`, name: "Σήμα σε μαύρο πλακίδιο", dark: false },
+  { src: `${MARK_CDN}/kolleris-symbol-on-white.svg`, name: "Σήμα σε λευκό πλακίδιο", dark: false },
 ] as const;
 
 function LogoRail() {

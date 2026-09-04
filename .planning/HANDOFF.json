@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-09-04T17:22:45.804Z",
+  "timestamp": "2026-09-04T17:24:52.072Z",
   "source": "auto-postool",
   "partial": false,
   "phase": null,
@@ -22,41 +22,9 @@
     },
     {
       "status": "M",
-      "path": "public/brand/kolleris-lockup-on-ink.svg"
-    },
-    {
-      "status": "M",
-      "path": "public/brand/kolleris-lockup-on-red.svg"
-    },
-    {
-      "status": "M",
-      "path": "public/brand/kolleris-lockup-on-white.svg"
-    },
-    {
-      "status": "M",
-      "path": "public/brand/kolleris-symbol-on-ink.svg"
-    },
-    {
-      "status": "M",
-      "path": "public/brand/kolleris-symbol-on-red.svg"
-    },
-    {
-      "status": "M",
-      "path": "public/brand/kolleris-symbol-on-white.svg"
-    },
-    {
-      "status": "M",
-      "path": "src/app/layout.tsx"
-    },
-    {
-      "status": "??",
-      "path": "src/app/[locale]/opengraph-image.tsx"
-    },
-    {
-      "status": "??",
-      "path": "src/app/icon.svg"
+      "path": "src/components/admin/banners/CellEditor.tsx"
     }
   ],
   "next_action": null,
-  "context_notes": "Recent commits:\nee6ea3d feat(banners): μία συνταγή κίνησης, auto-fit παντού, τα σήματα του Κολλέρη\n86e54c5 fix(type): οι επικεφαλίδες που έμειναν στην παλιά γραμματοσειρά\na578f95 feat(banners): τα widgets αλλάζουν θέση με σύρσιμο\n825487a feat(banners): αντίγραφο banner\n24ab9cf fix(zones,banners): σύνδεσμος σε κάθε widget, προσφορά ενός προϊόντος πάει στο προϊόν"
+  "context_notes": "Recent commits:\nc2e7694 fix(meta): Open Graph, εικόνα κοινοποίησης και το κόκκινο Κ ως favicon\nee6ea3d feat(banners): μία συνταγή κίνησης, auto-fit παντού, τα σήματα του Κολλέρη\n86e54c5 fix(type): οι επικεφαλίδες που έμειναν στην παλιά γραμματοσειρά\na578f95 feat(banners): τα widgets αλλάζουν θέση με σύρσιμο\n825487a feat(banners): αντίγραφο banner"
 }
