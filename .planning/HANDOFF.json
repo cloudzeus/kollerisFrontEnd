@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-09-04T03:55:26.069Z",
+  "timestamp": "2026-09-04T03:58:01.939Z",
   "source": "auto-postool",
   "partial": false,
   "phase": null,
@@ -22,45 +22,13 @@
     },
     {
       "status": "M",
-      "path": "src/components/admin/newsletter/CampaignWizard.tsx"
-    },
-    {
-      "status": "M",
-      "path": "src/emails/templates/nl-announcement.html"
-    },
-    {
-      "status": "M",
-      "path": "src/emails/templates/nl-news.html"
-    },
-    {
-      "status": "M",
-      "path": "src/emails/templates/nl-offers.html"
-    },
-    {
-      "status": "M",
-      "path": "src/lib/newsletter/campaign-actions.ts"
+      "path": "src/lib/mail/templates.ts"
     },
     {
       "status": "M",
       "path": "src/lib/newsletter/campaign.ts"
-    },
-    {
-      "status": "??",
-      "path": "src/lib/newsletter/__tests__/"
-    },
-    {
-      "status": "??",
-      "path": "src/lib/newsletter/events.ts"
-    },
-    {
-      "status": "??",
-      "path": "src/lib/newsletter/rich-text.ts"
-    },
-    {
-      "status": "??",
-      "path": "src/lib/newsletter/send.ts"
     }
   ],
   "next_action": null,
-  "context_notes": "Recent commits:\n52ae3bd fix(newsletter): το κλικ προσθέτει, και τα ονόματα προϊόντων διαβάζονται\n10896e8 fix(newsletter): σπασμένο λογότυπο στην προεπισκόπηση — και σε κάθε αποστολή πριν το deploy\nd62f4d7 feat(newsletter): ο wizard καμπάνιας, με ζωντανή προεπισκόπηση και drag & drop\n06adb4d feat(newsletter): η φόρμα εγγραφής δουλεύει, και το admin απέκτησε ομάδα «Επικοινωνία»\n3477feb feat(newsletter): τα 24 email templates μπαίνουν στο κατάστημα, με τα σωστά link"
+  "context_notes": "Recent commits:\nb2fbed7 feat(newsletter): πλούσιο κείμενο, επεξεργάσιμα σταθερά κείμενα, δοκιμαστικό και αποστολή\n52ae3bd fix(newsletter): το κλικ προσθέτει, και τα ονόματα προϊόντων διαβάζονται\n10896e8 fix(newsletter): σπασμένο λογότυπο στην προεπισκόπηση — και σε κάθε αποστολή πριν το deploy\nd62f4d7 feat(newsletter): ο wizard καμπάνιας, με ζωντανή προεπισκόπηση και drag & drop\n06adb4d feat(newsletter): η φόρμα εγγραφής δουλεύει, και το admin απέκτησε ομάδα «Επικοινωνία»"
 }

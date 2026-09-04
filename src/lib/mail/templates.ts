@@ -46,6 +46,19 @@ const TEMPLATE_DIR = path.join(process.cwd(), "src", "emails", "templates");
  */
 const HARDCODED_ASSET_ORIGIN = "https://web.kolleris.com";
 
+/**
+ * Πού ζουν πραγματικά τα εικαστικά του email.
+ *
+ * Προεπιλογή η παραγωγή, αλλά ρυθμιζόμενο: τα αρχεία μπήκαν στο
+ * `public/email-assets/` και σερβίρονται ΜΟΝΟ αφού γίνει deploy. Μέχρι τότε
+ * κάθε πραγματική αποστολή βγάζει σπασμένο λογότυπο — και αυτό δεν παίρνεται
+ * πίσω από τα εισερχόμενα κανενός.
+ *
+ * Με `MAIL_ASSET_ORIGIN` μπορούν να δείξουν σε CDN που ήδη τα σερβίρει, χωρίς
+ * να περιμένει η αποστολή το deploy.
+ */
+const ASSET_ORIGIN = process.env.MAIL_ASSET_ORIGIN?.trim().replace(/\/$/, "") || HARDCODED_ASSET_ORIGIN;
+
 /** Μεταγλωττισμένα μία φορά ανά διεργασία — το parse δεν είναι δωρεάν. */
 const compiled = new Map<string, HandlebarsTemplateDelegate>();
 
@@ -110,8 +123,9 @@ export async function renderTemplate(
    * καμπάνια που έφευγε με `http://localhost:3000` στις εικόνες θα έστελνε τον
    * παραλήπτη στο δικό του μηχάνημα, όπου δεν υπάρχει τίποτα.
    */
-  if (options.assetOrigin && options.assetOrigin !== HARDCODED_ASSET_ORIGIN) {
-    return html.replaceAll(`${HARDCODED_ASSET_ORIGIN}/email-assets/`, `${options.assetOrigin}/email-assets/`);
+  const origin = options.assetOrigin ?? ASSET_ORIGIN;
+  if (origin !== HARDCODED_ASSET_ORIGIN) {
+    return html.replaceAll(`${HARDCODED_ASSET_ORIGIN}/email-assets/`, `${origin}/email-assets/`);
   }
   return html;
 }

@@ -65,6 +65,32 @@ export function campaignTemplates(): TemplateMeta[] {
     }));
 }
 
+/**
+ * Η διεύθυνση εικόνας, κωδικοποιημένη για email.
+ *
+ * ── Το πρόβλημα, μετρημένο ─────────────────────────────────────────────────
+ *
+ * 4.120 από τις 42.199 εικόνες του καταλόγου — ένα στα δέκα — έχουν ΚΕΝΑ στη
+ * διεύθυνση, επειδή τα αρχεία της KNIPEX ονομάζονται «81 11 250_1.webp» όπως ο
+ * κωδικός τους. Ο browser συγχωρεί· τα email όχι. Το `<img src="…/81 11
+ * 250_1.webp">` δεν φορτώνει, και το επιβεβαίωσα και με αίτημα: με κενά
+ * αποτυγχάνει, κωδικοποιημένο επιστρέφει 200.
+ *
+ * Το είδε ο πελάτης στο δοκιμαστικό email πριν το δω εγώ.
+ *
+ * Ο κατασκευαστής `URL` κωδικοποιεί μόνος του τη διαδρομή και είναι
+ * ταυτοδύναμος: ένα ήδη κωδικοποιημένο «%20» δεν γίνεται «%2520».
+ */
+function emailSafeImageUrl(raw: string): string {
+  if (!raw) return "";
+  try {
+    return new URL(raw).href;
+  } catch {
+    // Σχετική ή σπασμένη διεύθυνση: καλύτερα κενή παρά σίγουρα σπασμένη σε inbox.
+    return "";
+  }
+}
+
 export type PickedProduct = {
   id: string;
   slug: string;
@@ -163,7 +189,7 @@ export async function searchCampaignProducts(
       name: p.name,
       code: p.code,
       brand: (p.mtrmark != null ? brandByMark.get(p.mtrmark) : "") ?? "",
-      image: p.images[0]?.url ?? "",
+      image: emailSafeImageUrl(p.images[0]?.url ?? ""),
       price: formatMoney(gross, "el"),
       priceOld: grossOld > 0 ? formatMoney(grossOld, "el") : "",
       discount: grossOld > 0 ? String(Math.round((1 - gross / grossOld) * 100)) : "",
