@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Eye, GripHorizontal, Loader2, Plus, Undo2, Upload, X } from "lucide-react";
+import { AlertTriangle, Eye, GripHorizontal, Loader2, Plus, Undo2, Upload, X } from "lucide-react";
 import { toast } from "sonner";
 import { measureMedia, roundAspect } from "@/lib/media/measure";
 import {
@@ -70,11 +70,49 @@ import { cn } from "@/lib/utils";
  * no aspect ratio is assumed to be roughly 16:7 overall, which is what the
  * thumbnails use.
  */
-function cellAspect(template: BannerView["template"], cell: GridCell): number {
-  const [w, h] = (template.aspect ?? "16/7").split("/").map(Number);
-  const bannerAspect = w && h ? w / h : 16 / 7;
-  const unitAspect = (template.rows / template.columns) * bannerAspect;
-  return (cell.w / cell.h) * unitAspect;
+/**
+ * Το πλάτος στο οποίο κρίνεται το σχήμα.
+ *
+ * Το ίδιο που χρησιμοποιεί η προεπισκόπηση για «Υπολογιστής». Χρειάζεται
+ * σταθερή τιμή επειδή ο καμβάς του admin είναι στενότερος από τη ζώνη του
+ * καταστήματος — γύρω στα 740 έναντι 1400 — και με ύψος σε εικονοστοιχεία το
+ * σχήμα εξαρτάται από το πλάτος. Έτσι, ένα κελί που εδώ δείχνει σχεδόν
+ * τετράγωνο είναι στο site δυόμισι φορές πιο φαρδύ από ψηλό.
+ */
+const REFERENCE_WIDTH = 1440;
+
+/**
+ * Η αναλογία ενός κελιού όπως θα βγει ΣΤΟ ΚΑΤΑΣΤΗΜΑ.
+ *
+ * Με αναλογία στο πρότυπο το σχήμα είναι ανεξάρτητο πλάτους. Χωρίς αυτήν το
+ * ύψος είναι απόλυτο — σταθερή τιμή, ή το δάπεδο του stylesheet — οπότε το
+ * σχήμα αλλάζει με το πλάτος και πρέπει να κριθεί σε συγκεκριμένο.
+ *
+ * Το προηγούμενο μάντευε 16/7 όταν το πρότυπο δεν είχε αναλογία. Για λωρίδα
+ * τριών κελιών με ύψος 294 έδινε 0.76· η αλήθεια είναι 1.63. Τόσο λάθος ώστε
+ * καμία προειδοποίηση περικοπής να μην εμφανίζεται ποτέ.
+ */
+function cellAspect(
+  template: BannerView["template"],
+  cell: GridCell,
+  content?: Pick<BannerContent, "minHeight">,
+): number {
+  if (template.aspect) {
+    const [w, h] = template.aspect.split("/").map(Number);
+    if (w && h) return (cell.w / cell.h) * ((template.rows / template.columns) * (w / h));
+  }
+
+  const fixed = content?.minHeight;
+  // 13rem: το δάπεδο του stylesheet, που ισχύει όταν δεν έχει δοθεί ύψος.
+  const height = !fixed?.value
+    ? 208
+    : fixed.unit === "vh"
+      ? (fixed.value / 100) * 900
+      : fixed.value;
+
+  return (
+    (REFERENCE_WIDTH * cell.w) / template.columns / ((height * cell.h) / template.rows)
+  );
 }
 
 const STATE: Record<string, { label: string; className: string }> = {
@@ -97,16 +135,6 @@ export function BannerEditor({
   const [content, setContent] = useState<BannerContent>(banner.draft ?? { cells: {} });
   const [saved, setSaved] = useState<BannerContent>(banner.draft ?? { cells: {} });
   const [editing, setEditing] = useState<GridCell | null>(null);
-  /*
-   * Η ΜΕΤΡΗΜΕΝΗ αναλογία του κελιού που ανοίγει.
-   * ───────────────────────────────────────────────────────────────────────
-   * Το `cellAspect` την υπολογίζει από την αναλογία του πλέγματος, και όταν
-   * το πλέγμα δεν έχει αναλογία μαντεύει 16/7 — που δεν είναι ούτε κατά
-   * προσέγγιση σωστό, αφού τότε το ύψος έρχεται από το δάπεδο ή από σταθερή
-   * τιμή. Το κουμπί που πατήθηκε ΕΙΝΑΙ το κελί, στη σωστή του γεωμετρία·
-   * μετριέται τη στιγμή του κλικ και δεν χρειάζεται να μαντέψει κανείς.
-   */
-  const [editingAspect, setEditingAspect] = useState<number | null>(null);
 
   /*
    * Το ύψος με το χέρι.
@@ -122,6 +150,7 @@ export function BannerEditor({
    * διαφέρουν — γι' αυτό δίπλα στη λαβή γράφεται το νούμερο, όχι μόνο το σχήμα.
    */
   const canvasRef = useRef<HTMLDivElement>(null);
+
   const [resizing, setResizing] = useState<{ startY: number; startH: number } | null>(null);
 
   useEffect(() => {
@@ -252,6 +281,86 @@ export function BannerEditor({
       };
     });
   }, [measureRest, template]);
+
+  /*
+   * Η προειδοποίηση περικοπής, στο επίπεδο του banner.
+   * ───────────────────────────────────────────────────────────────────────
+   * Υπήρχε ήδη μέσα στον διάλογο του κελιού, αλλά εκεί τη βλέπει μόνο όποιος
+   * τον ανοίξει — και κανείς δεν ανοίγει έναν διάλογο για να ανακαλύψει ότι
+   * κάτι δεν πάει καλά. Το πρόβλημα φαίνεται στον καμβά· η λύση πρέπει να
+   * είναι δίπλα του.
+   *
+   * Οι μετρήσεις μένουν σε τοπική κατάσταση και ΔΕΝ γράφονται στο προσχέδιο:
+   * ένα banner που σημαδεύεται «μη δημοσιευμένες αλλαγές» επειδή απλώς το
+   * άνοιξε κανείς είναι ανησυχητικό. Γράφονται μόνο όταν πατηθεί η διόρθωση.
+   */
+  const [measuredAspects, setMeasuredAspects] = useState<Record<string, number>>({});
+
+  useEffect(() => {
+    let alive = true;
+    const jobs = template.cells
+      .map((cell) => ({ cell, bg: content.cells[cell.id]?.background }))
+      .filter(({ bg }) => bg && (bg.kind === "image" || bg.kind === "video"));
+
+    void Promise.all(
+      jobs.map(async ({ cell, bg }) => {
+        const kind = bg!.kind as "image" | "video";
+        const stored = bg!.mediaAspect;
+        const ratio = stored ?? (await measureMedia(kind, kind === "video" ? bg!.video : bg!.image));
+        return { id: cell.id, ratio };
+      }),
+    ).then((rows) => {
+      if (!alive) return;
+      setMeasuredAspects(
+        Object.fromEntries(rows.filter((r) => r.ratio).map((r) => [r.id, r.ratio!])),
+      );
+    });
+
+    return () => {
+      alive = false;
+    };
+    // Σκόπιμα μόνο στα κελιά και στα φόντα τους: το ύψος αλλάζει συνέχεια όσο
+    // σύρεται η λαβή, και δεν πρέπει να ξαναμετρά αρχεία σε κάθε εικονοστοιχείο.
+  }, [template.cells, content.cells]);
+
+  /**
+   * Το χειρότερο κελί, και πόσο χάνει.
+   *
+   * Χειρότερο και όχι μέσος όρος: αρκεί ένα κελί να κόβει το κείμενό του για
+   * να είναι το banner λάθος, και ο μέσος όρος θα το έκρυβε πίσω από δύο που
+   * τυχαίνει να ταιριάζουν.
+   */
+  /**
+   * Το χειρότερο κελί, και πόσο χάνει.
+   *
+   * Χειρότερο και όχι μέσος όρος: αρκεί ένα κελί να κόβει το κείμενό του για
+   * να είναι το banner λάθος, και ο μέσος όρος θα το έκρυβε πίσω από δύο που
+   * τυχαίνει να ταιριάζουν.
+   */
+  /**
+   * Το χειρότερο κελί, και πόσο χάνει.
+   *
+   * Χειρότερο και όχι μέσος όρος: αρκεί ένα κελί να κόβει το κείμενό του για
+   * να είναι το banner λάθος, και ο μέσος όρος θα το έκρυβε πίσω από δύο που
+   * τυχαίνει να ταιριάζουν.
+   */
+  const cropped = useMemo(() => {
+    if (content.aspectFromMedia) return null;
+    let worst: { name: string; visible: number } | null = null;
+
+    for (const cell of template.cells) {
+      const media = measuredAspects[cell.id];
+      if (!media) continue;
+      const bg = content.cells[cell.id]?.background;
+      if ((bg?.fit ?? "cover") !== "cover") continue;
+
+      const drawn = cellAspect(template, cell, content);
+      const visible = Math.min(media, drawn) / Math.max(media, drawn);
+      if (visible > 0.8) continue;
+      if (!worst || visible < worst.visible) worst = { name: cell.name, visible };
+    }
+    return worst;
+  }, [template.cells, content.cells, content.aspectFromMedia, measuredAspects]);
 
   /* ── the canvas shows what the storefront would ── */
   useEffect(() => {
@@ -433,11 +542,7 @@ export function BannerEditor({
                       key={cell.id}
                       type="button"
                       style={{ ...cellVars(cell), order: cell.mobile?.order ?? index }}
-                      onClick={(e) => {
-                        const r = e.currentTarget.getBoundingClientRect();
-                        setEditingAspect(r.height > 0 ? r.width / r.height : null);
-                        setEditing(cell);
-                      }}
+                      onClick={() => setEditing(cell)}
                       className={cn(
                         "group flex items-center justify-center border-2 border-transparent transition-colors hover:border-k-ink/70",
                         !has && "bg-white/40",
@@ -555,6 +660,30 @@ export function BannerEditor({
                 «Σταθερό» βάζει δάπεδο και ταβάνι στην ίδια τιμή, οπότε το
                 banner έχει ακριβώς αυτό το ύψος ό,τι κι αν λέει το πλέγμα.
               */}
+              {cropped && (
+                <div className="space-y-2 border border-k-amber/40 bg-k-amber/10 p-2.5">
+                  <p className="flex items-start gap-1.5 text-[11px] leading-[1.5] text-k-ink">
+                    <AlertTriangle className="mt-px size-3 shrink-0 text-k-amber" />
+                    <span>
+                      Το «{cropped.name}» δείχνει το{" "}
+                      <span className="numeral font-medium">
+                        {Math.round(cropped.visible * 100)}%
+                      </span>{" "}
+                      του υλικού του — το υπόλοιπο κόβεται. Σε κείμενο ή λογότυπο μέσα σε βίντεο,
+                      αυτό σημαίνει ότι χάνεται.
+                    </span>
+                  </p>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => void applyMediaAspect()}
+                    className="h-7 w-full bg-white px-2 text-[11px]"
+                  >
+                    Πάρε το ύψος από το υλικό
+                  </Button>
+                </div>
+              )}
+
               <div className="space-y-1.5">
                 <label className="text-[11.5px] text-k-text-3">Ύψος</label>
                 <Select
@@ -766,7 +895,9 @@ export function BannerEditor({
         resolved={editing ? resolved[editing.id] : undefined}
         // The cell's real proportions, so the editing canvas is not a lie about
         // the shape the composition has to fit.
-        aspect={editingAspect ?? (editing ? cellAspect(template, editing) : 16 / 9)}
+        /* Το σχήμα του καταστήματος, όχι του καμβά: ο καμβάς είναι στενότερος,
+           και με σταθερό ύψος τα δύο διαφέρουν κατά διπλάσιο. */
+        aspect={editing ? cellAspect(template, editing, content) : 16 / 9}
         onClose={() => setEditing(null)}
         onSave={(composition: CellComposition) => {
           if (!editing) return;
