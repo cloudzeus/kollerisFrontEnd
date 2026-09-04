@@ -148,6 +148,58 @@ export async function resolveCells(
     brands.filter((b) => b.logo).map((b) => [b.mtrmark, b.logo as string]),
   );
 
+  /*
+   * Η μάρκα μιας ΠΡΟΣΦΟΡΑΣ.
+   * ───────────────────────────────────────────────────────────────────────────
+   * Οι προσφορές δεν έλυναν καθόλου `{brand}` — μόνο τα προϊόντα — οπότε μια
+   * παραλλαγή με υπέρτιτλο «{brand}» πάνω σε κελί προσφοράς τύπωνε κυριολεκτικά
+   * «{brand}» στο κατάστημα. Και η μάρκα ΥΠΑΡΧΕΙ: είτε η καμπάνια στοχεύει
+   * μάρκα, είτε έχει ένα μόνο προϊόν που έχει τη δική του.
+   *
+   * Δεύτερο ερώτημα και όχι επέκταση του πρώτου: τα slugs των προϊόντων μιας
+   * καμπάνιας τα ξέρουμε μόνο ΑΦΟΥ φορτωθούν οι προσφορές. Τρέχει μόνο όταν
+   * υπάρχει κελί προσφοράς, δηλαδή σχεδόν ποτέ σε σελίδα χωρίς banner.
+   */
+  const offerBrandSlugs = [
+    ...new Set(offers.map((o) => o.brandSlug).filter((v): v is string => !!v)),
+  ];
+  const loneOfferProductSlugs = [
+    ...new Set(
+      offers
+        .filter((o) => !o.brandSlug && o.scope === "products" && o.productSlugs.length === 1)
+        .map((o) => o.productSlugs[0]),
+    ),
+  ];
+
+  const [offerBrands, loneOfferProducts] = await Promise.all([
+    offerBrandSlugs.length
+      ? prisma.brand.findMany({
+          where: { slug: { in: offerBrandSlugs } },
+          select: { slug: true, logo: true, nameEl: true, nameEn: true, nameIt: true },
+        })
+      : Promise.resolve([]),
+    loneOfferProductSlugs.length
+      ? prisma.product.findMany({
+          where: { slug: { in: loneOfferProductSlugs } },
+          select: { slug: true, mtrmark: true },
+        })
+      : Promise.resolve([]),
+  ]);
+
+  const loneMarks = [
+    ...new Set(loneOfferProducts.map((p) => p.mtrmark).filter((m): m is number => m != null)),
+  ];
+  const loneBrands = loneMarks.length
+    ? await prisma.brand.findMany({
+        where: { mtrmark: { in: loneMarks } },
+        select: { mtrmark: true, logo: true, nameEl: true, nameEn: true, nameIt: true },
+      })
+    : [];
+
+  const offerBrandBySlug = new Map(offerBrands.map((b) => [b.slug, b]));
+  const loneMarkBySlug = new Map(loneOfferProducts.map((p) => [p.slug, p.mtrmark]));
+  const loneBrandByMark = new Map(loneBrands.map((b) => [b.mtrmark, b]));
+
   const productBySlug = new Map(products.map((p) => [p.slug, p]));
   const offerBySlug = new Map(offers.map((o) => [o.slug, o]));
 
@@ -310,6 +362,26 @@ export async function resolveCells(
               : locale === "it"
                 ? o.descriptionIt
                 : o.descriptionEl) || o.descriptionEl,
+          /*
+           * Η μάρκα και το σήμα της, όπου υπάρχουν: πρώτα η μάρκα-στόχος της
+           * καμπάνιας, αλλιώς η μάρκα του μοναδικού προϊόντος της.
+           */
+          ...(() => {
+            const mark =
+              !o.brandSlug && o.scope === "products" && o.productSlugs.length === 1
+                ? loneMarkBySlug.get(o.productSlugs[0])
+                : null;
+            const brand = o.brandSlug
+              ? offerBrandBySlug.get(o.brandSlug)
+              : mark != null
+                ? loneBrandByMark.get(mark)
+                : undefined;
+            if (!brand) return { "{brand}": "", "{brandLogo}": "" };
+            const name =
+              (locale === "en" ? brand.nameEn : locale === "it" ? brand.nameIt : brand.nameEl) ||
+              brand.nameEl;
+            return { "{brand}": name, "{brandLogo}": brand.logo ?? "" };
+          })(),
           "{badge}": o.badge ?? "",
           "{ends}": o.endsAt ? endsIn(o.endsAt) : "",
           "{image}": o.image ?? "",

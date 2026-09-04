@@ -264,7 +264,14 @@ export function CellCanvas({
       )}
       style={{ aspectRatio: aspect }}
     >
-      <CompositionRenderer composition={composition} resolved={resolved} locale="el" interactive={false} />
+      <CompositionRenderer
+        composition={composition}
+        resolved={resolved}
+        locale="el"
+        interactive={false}
+        /* Ο συντάκτης βλέπει τα άλυτα tokens ως placeholders· ο πελάτης όχι. */
+        placeholders
+      />
       {motionKey ? <BannerMotion key={motionKey} /> : null}
 
       {/* ── Οδηγοί ── */}

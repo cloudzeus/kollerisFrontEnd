@@ -4,6 +4,7 @@ import { FitCell, FitText } from "@/components/banners/FitText";
 import {
   COLOR_VALUE,
   FONT_STACK,
+  TOKENS,
   layerStyle,
   type BadgeLayer,
   type ButtonLayer,
@@ -50,12 +51,25 @@ const BADGE_TONE: Record<BadgeLayer["tone"], string> = {
 const localised = (text: LocalisedText, locale: Locale): string =>
   (text[locale] || text.el || "").trim();
 
+/**
+ * Κάθε token του συστήματος, λυμένο σε κενό.
+ *
+ * Η βάση πάνω στην οποία μπαίνει ό,τι έλυσε πραγματικά ο resolver, ώστε να μη
+ * φτάσει ποτέ κυριολεκτικό `{token}` σε πελάτη. `{image}` δεν είναι στον
+ * κατάλογο των γραπτών tokens — δεν γράφεται σε κείμενο — αλλά μπαίνει σε
+ * στρώσεις εικόνας και φόντου, οπότε χρειάζεται το ίδιο κενό.
+ */
+const BLANK_TOKENS: Record<string, string> = Object.fromEntries(
+  [...TOKENS.map((t) => t.token), "{image}", "{imageWide}"].map((token) => [token, ""]),
+);
+
 export function CompositionRenderer({
   composition,
   resolved,
   locale,
   className,
   interactive = true,
+  placeholders = false,
 }: {
   composition: CellComposition;
   resolved: ResolvedCell | undefined;
@@ -70,9 +84,31 @@ export function CompositionRenderer({
    * in an editing canvas wants to be navigable anyway.
    */
   interactive?: boolean;
+  /**
+   * Να μένουν ορατά τα άλυτα `{tokens}`.
+   *
+   * Μόνο στον συντάκτη: εκεί ένα `{title}` σε κελί χωρίς δέσιμο πρέπει να
+   * μοιάζει με λάθος. Στο κατάστημα σβήνουν — το banner τύπωσε κυριολεκτικά
+   * «{brand}» και «{PRICE}» σε πελάτες.
+   */
+  placeholders?: boolean;
 }) {
   const bg = composition.background;
-  const tokens = resolved?.tokens ?? {};
+  /*
+   * Τα άλυτα tokens σβήνουν — εκτός αν ζητηθούν ρητά.
+   * ───────────────────────────────────────────────────────────────────────────
+   * Το `applyTokens` αφήνει ανέγγιχτο ό,τι δεν ξέρει, ώστε ένα `{title}` σε
+   * κελί χωρίς δέσιμο να μοιάζει με λάθος στον συντάκτη. Στο κατάστημα το ίδιο
+   * ακριβώς πράγμα είναι σκουπίδι: το banner τύπωσε κυριολεκτικά «{brand}» σε
+   * πελάτες, και πριν από αυτό «{price}».
+   *
+   * Αντί για σημαία που ταξιδεύει σε πέντε συναρτήσεις, ο χάρτης των tokens
+   * συμπληρώνεται με κενά: ό,τι δεν έλυσε ο resolver λύνει σε "". Το
+   * `applyTokens` δεν βλέπει ποτέ άγνωστο token και μένει όπως ήταν.
+   */
+  const tokens = placeholders
+    ? (resolved?.tokens ?? {})
+    : { ...BLANK_TOKENS, ...(resolved?.tokens ?? {}) };
   // `{image}` means the bound entity's own picture; anything else is a URL
   // somebody picked from the media library.
   const bgImage = applyTokens(bg.image, tokens).startsWith("{") ? "" : applyTokens(bg.image, tokens);

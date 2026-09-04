@@ -594,6 +594,10 @@ export function BannerEditor({
               resolved={widgets}
               locale="el"
               interactive={false}
+              /* Ο καμβάς του συντάκτη δείχνει τα άλυτα tokens ως placeholders:
+                 ένα κελί χωρίς δέσιμο πρέπει να μοιάζει με λάθος εδώ, όχι να
+                 φαίνεται άδειο. Στο κατάστημα σβήνουν. */
+              placeholders
               motion={false}
             />
 

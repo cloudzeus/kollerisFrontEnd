@@ -2506,6 +2506,7 @@ function PresetGallery({
                               resolved={DEMO}
                               locale="el"
                               interactive={false}
+                              placeholders
                             />
                           </span>
                           <span className="block px-2.5 py-2">

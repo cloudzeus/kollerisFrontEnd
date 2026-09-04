@@ -96,11 +96,11 @@ export type Binding =
  */
 export const TOKENS = [
   { token: "{title}", label: "Τίτλος", sources: ["product", "offer"] },
-  { token: "{brand}", label: "Μάρκα", sources: ["product"] },
+  { token: "{brand}", label: "Μάρκα", sources: ["product", "offer"] },
   /* Εικόνα, όχι κείμενο: μπαίνει σε στρώση εικόνας. Στα επαγγελματικά
      εργαλεία η μάρκα ΕΙΝΑΙ το επιχείρημα — κανείς δεν αγοράζει «γωνιακό
      τροχό», αγοράζει Milwaukee, και το σήμα το αναγνωρίζει από δέκα μέτρα. */
-  { token: "{brandLogo}", label: "Λογότυπο μάρκας", sources: ["product"] },
+  { token: "{brandLogo}", label: "Λογότυπο μάρκας", sources: ["product", "offer"] },
   { token: "{code}", label: "Κωδικός", sources: ["product"] },
   { token: "{price}", label: "Τιμή", sources: ["product", "offer"] },
   {

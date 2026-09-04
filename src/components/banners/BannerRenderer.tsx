@@ -33,6 +33,7 @@ export function BannerRenderer({
   className,
   /** The editor renders cells without links, so clicking one opens its editor. */
   interactive = true,
+  placeholders = false,
   motion = true,
 }: {
   template: GridTemplateView;
@@ -41,6 +42,8 @@ export function BannerRenderer({
   locale: Locale;
   className?: string;
   interactive?: boolean;
+  /** Τα άλυτα `{tokens}` μένουν ορατά — μόνο στον συντάκτη. */
+  placeholders?: boolean;
   /** Off on the editor canvas: an entrance that replays on every keystroke is
    *  not a preview, it is a distraction. On in the preview modal. */
   motion?: boolean;
@@ -111,6 +114,7 @@ export function BannerRenderer({
               resolved={cellResolved}
               locale={locale}
               interactive={interactive}
+              placeholders={placeholders}
             />
           );
 

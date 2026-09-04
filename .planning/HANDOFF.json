@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-09-04T18:20:13.398Z",
+  "timestamp": "2026-09-04T18:29:31.349Z",
   "source": "auto-postool",
   "partial": false,
   "phase": null,
@@ -22,11 +22,11 @@
     },
     {
       "status": "M",
-      "path": "src/app/globals.css"
+      "path": "src/components/admin/banners/BannerEditor.tsx"
     },
     {
       "status": "M",
-      "path": "src/components/admin/banners/BannerEditor.tsx"
+      "path": "src/components/admin/banners/CellCanvas.tsx"
     },
     {
       "status": "M",
@@ -34,13 +34,21 @@
     },
     {
       "status": "M",
+      "path": "src/components/banners/BannerRenderer.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/components/banners/CompositionRenderer.tsx"
+    },
+    {
+      "status": "M",
       "path": "src/lib/banners/contract.ts"
     },
     {
       "status": "M",
-      "path": "src/lib/banners/presets.ts"
+      "path": "src/lib/banners/resolve.ts"
     }
   ],
   "next_action": null,
-  "context_notes": "Recent commits:\n7bb4ac7 fix(banners): μία κλίμακα τυπογραφίας ανά κελί, αντί για πέντε ανεξάρτητα clamp\n27ef746 feat(brand): το σήμα κόκκινο με λευκά γράμματα, σε οριζόντια διάταξη\nd42f587 feat(banners): έξι νέες παραλλαγές, ο ρόλος «μέγεθος», και το σήμα της μάρκας\n163d455 feat(seo): δομημένα δεδομένα σε κάθε τύπο σελίδας, και τα χρόνια υπολογίζονται\n9c7becb fix(seo): κάθε σελίδα δηλώνει τον δικό της τίτλο, canonical και δομή"
+  "context_notes": "Recent commits:\nc8eb0bf fix(banners): το κλικ άνοιγε ΑΛΛΟ κελί, μικρότερη τυπογραφία, προεπισκόπηση κίνησης\n7bb4ac7 fix(banners): μία κλίμακα τυπογραφίας ανά κελί, αντί για πέντε ανεξάρτητα clamp\n27ef746 feat(brand): το σήμα κόκκινο με λευκά γράμματα, σε οριζόντια διάταξη\nd42f587 feat(banners): έξι νέες παραλλαγές, ο ρόλος «μέγεθος», και το σήμα της μάρκας\n163d455 feat(seo): δομημένα δεδομένα σε κάθε τύπο σελίδας, και τα χρόνια υπολογίζονται"
 }
