@@ -261,10 +261,21 @@ export default async function CategoryPage({
         {data.facets.subcategories.length > 0 && (
           <div className="shell-x sticky top-[var(--header-h)] z-30 border-t border-white/10 bg-k-ink-deep/97 backdrop-blur-sm">
             <div className="flex flex-wrap gap-1.5 py-3.5">
+              {/*
+                  Χωρίς προ-φόρτωση.
+                  ──────────────────────────────────────────────────────────
+                  Κάθε τσιπ υποκατηγορίας είναι ΠΛΗΡΗΣ σελίδα κατηγορίας με τα
+                  δικά της ερωτήματα. Μετρημένο στην παραγωγή: μία σελίδα
+                  προκαλούσε 92 προ-φορτώσεις RSC — 62 από αυτές φίλτρα — και
+                  13,9 δευτερόλεπτα δουλειάς διακομιστή για σελίδες που κανείς
+                  δεν ζήτησε. Ο επισκέπτης πατά το πολύ ένα-δύο· οι υπόλοιπες
+                  εξήντα καθυστερούν τη σελίδα που ΟΝΤΩΣ ζητήθηκε.
+              */}
               {data.facets.subcategories.map((sub) => (
                 <Link
                   key={sub.slug}
                   href={`/katalogos/${kathgoria}?sub=${sub.slug}`}
+                  prefetch={false}
                   scroll={false}
                   className={`group/chip flex items-center gap-1.5 border px-2.5 py-1.5 text-[10px] font-semibold tracking-[0.02em] transition-colors duration-200 ${
                     sub.active

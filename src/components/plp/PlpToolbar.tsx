@@ -94,7 +94,7 @@ export async function PlpToolbar({
                 href={chip.href}
                 scroll={false}
                 className="flex items-center gap-2 bg-k-ink px-2.5 py-[7px] text-[10px] font-semibold tracking-[0.05em] whitespace-nowrap text-white transition-colors hover:bg-k-red"
-              >
+               prefetch={false}>
                 {chip.label}
                 <span className="text-k-red">✕</span>
               </Link>
@@ -103,7 +103,7 @@ export async function PlpToolbar({
               <Link
                 href={basePath}
                 className="px-1 text-[10px] font-semibold tracking-[0.05em] whitespace-nowrap text-k-red"
-              >
+               prefetch={false}>
                 {upGreek(t("katharismos_olon"))}
               </Link>
             )}
@@ -122,7 +122,7 @@ export async function PlpToolbar({
                   className={`flex h-[30px] w-[30px] items-center justify-center text-[11px] font-semibold transition-colors ${
                     perRow === n ? "bg-k-ink text-white" : "text-k-text-2 hover:text-k-ink"
                   }`}
-                >
+                 prefetch={false}>
                   {n}
                 </Link>
               ))}
@@ -140,7 +140,7 @@ export async function PlpToolbar({
                   className={`flex h-[30px] items-center px-2.5 text-[11px] font-semibold transition-colors ${
                     perPage === n ? "bg-k-ink text-white" : "text-k-text-2 hover:text-k-ink"
                   }`}
-                >
+                 prefetch={false}>
                   {n}
                 </Link>
               ))}

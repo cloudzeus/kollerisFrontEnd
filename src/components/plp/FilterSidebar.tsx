@@ -56,7 +56,7 @@ export function FilterSidebar({
         <span className="text-[11.5px] font-bold tracking-[0.09em] text-white">
           {upGreek(t("filtra"))}
         </span>
-        <Link href={basePath} className="t-card-cta text-white/60 hover:text-k-red">
+        <Link href={basePath} className="t-card-cta text-white/60 hover:text-k-red" prefetch={false}>
           {upGreek(t("katharismos"))}
         </Link>
       </div>
@@ -94,7 +94,7 @@ export function FilterSidebar({
                       ? "border-k-ink bg-k-ink text-white"
                       : "border-k-line-2 text-k-text-2 hover:border-k-ink"
                   }`}
-                >
+                 prefetch={false}>
                   {band.label}
                 </Link>
               );
@@ -119,7 +119,7 @@ export function FilterSidebar({
                 )}
                 scroll={false}
                 className="flex min-h-[34px] items-center gap-2.5 py-1"
-              >
+               prefetch={false}>
                 <span
                   className={`rounded-pill block h-3.5 w-3.5 shrink-0 border ${
                     item.active ? "border-[5px] border-k-red" : "border-k-line-2"
@@ -151,7 +151,7 @@ export function FilterSidebar({
                   role="switch"
                   aria-checked={active}
                   className="flex min-h-[34px] items-center gap-3"
-                >
+                 prefetch={false}>
                   <span
                     className={`rounded-pill relative block h-[18px] w-8 shrink-0 transition-colors ${
                       active ? "bg-k-red" : "bg-k-line-2"
@@ -237,7 +237,7 @@ function CheckList({
           scroll={false}
           aria-pressed={item.active}
           className="flex min-h-[34px] items-center gap-2.5 py-1"
-        >
+         prefetch={false}>
           <span
             className={`flex h-3.5 w-3.5 shrink-0 items-center justify-center border text-[9px] leading-none ${
               item.active ? "border-k-ink bg-k-ink text-white" : "border-k-line-2"
