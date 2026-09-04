@@ -20,7 +20,7 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import { GripVertical, Plus, Search, X } from "lucide-react";
 import { campaignBrandsAction, searchProductsAction } from "@/lib/newsletter/campaign-actions";
-import type { PickedProduct } from "@/lib/newsletter/campaign";
+import type { PickedProduct } from "@/lib/newsletter/copy";
 import { cn } from "@/lib/utils";
 
 /**

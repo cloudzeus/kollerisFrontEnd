@@ -11,7 +11,11 @@ import {
   saveCampaignAction,
   sendTestAction,
 } from "@/lib/newsletter/campaign-actions";
-import { DEFAULT_COPY, type PickedProduct, type TemplateMeta } from "@/lib/newsletter/campaign";
+import {
+  DEFAULT_COPY,
+  type PickedProduct,
+  type TemplateMeta,
+} from "@/lib/newsletter/copy";
 import { cn } from "@/lib/utils";
 
 const STEPS: StepDef[] = [

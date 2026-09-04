@@ -4,24 +4,27 @@ import { renderTemplate } from "@/lib/mail/templates";
 import { grossAmount, formatMoney } from "@/lib/format";
 import { siteOrigin } from "@/lib/seo/urls";
 import manifest from "@/emails/manifest.json";
+import {
+  DEFAULT_COPY,
+  type CampaignPayload,
+  type PickedProduct,
+  type ProductFilters,
+  type TemplateMeta,
+} from "@/lib/newsletter/copy";
+
+/*
+ * Επανεξαγωγή για τον server. Οι τιμές και οι τύποι ζουν στο `copy.ts`, που δεν
+ * αγγίζει τίποτα του server — έτσι ο wizard τα εισάγει χωρίς να τραβά μαζί τους
+ * τον renderer και το `node:fs`.
+ */
+export { DEFAULT_COPY };
+export type { CampaignPayload, CampaignCopy, PickedProduct, ProductFilters, TemplateMeta } from "@/lib/newsletter/copy";
 
 /**
  * Ό,τι χρειάζεται ο wizard από τον server: ποια πρότυπα υπάρχουν, ποια προϊόντα
  * μπορούν να μπουν σε καμπάνια, και πώς γίνεται όλο αυτό HTML.
  */
 
-export type TemplateMeta = {
-  id: string;
-  name: string;
-  category: string;
-  categoryTitle: string;
-  subject: string;
-  preheader: string;
-  /** Αν δέχεται προϊόντα. Καθορίζει αν εμφανίζεται το βήμα επιλογής. */
-  takesProducts: boolean;
-  /** Αν δέχεται ελεύθερο κείμενο (WYSIWYG). */
-  takesRichText: boolean;
-};
 
 type ManifestShape = {
   categories: Record<string, { title: string }>;
@@ -91,19 +94,6 @@ function emailSafeImageUrl(raw: string): string {
   }
 }
 
-export type PickedProduct = {
-  id: string;
-  slug: string;
-  name: string;
-  code: string;
-  brand: string;
-  image: string;
-  price: string;
-  priceOld: string;
-  discount: string;
-  stockLabel: string;
-  url: string;
-};
 
 /**
  * Αναζήτηση προϊόντων για τον επιλογέα.
@@ -112,15 +102,6 @@ export type PickedProduct = {
  * newsletter είναι κενό γκρι κουτί, και δεν υπάρχει τρόπος να σωθεί από το
  * layout. Καλύτερα να μη μπορεί να επιλεγεί παρά να φύγει έτσι.
  */
-export type ProductFilters = {
-  query?: string;
-  /** `mtrmark` της μάρκας. Το ίδιο κλειδί που κρατά το προϊόν. */
-  mtrmark?: number | null;
-  /** Μόνο όσα έχουν διαγραμμένη τιμή — δηλαδή είναι όντως σε προσφορά. */
-  onSaleOnly?: boolean;
-  /** Μόνο όσα μπορούν να σταλούν σήμερα. */
-  inStockOnly?: boolean;
-};
 
 export async function searchCampaignProducts(
   filters: ProductFilters = {},
@@ -226,58 +207,6 @@ export function toProductRows(products: PickedProduct[]) {
   return rows;
 }
 
-/**
- * Τα «σταθερά» κείμενα του προτύπου — κουμπιά, επικεφαλίδες ενοτήτων, το
- * μπάνερ B2B.
- *
- * Ήταν καρφωτά μέσα στο markup. Έγιναν μεταβλητές με ΑΥΤΕΣ τις προεπιλογές,
- * ώστε καμία υπάρχουσα καμπάνια να μην αλλάξει όψη: αν ο συντάκτης δεν τα
- * αγγίξει, το email βγαίνει ακριβώς όπως πριν.
- *
- * Χωρίς τόνους στα κεφαλαία, όπως τα είχε το πρότυπο — τα ελληνικά κεφαλαία δεν
- * φέρουν τόνο, και το «ΔΕΙΤΕ ΤΙΣ ΠΡΟΣΦΟΡΕΣ» με τόνο είναι ορθογραφικό λάθος που
- * το βλέπουν χιλιάδες άνθρωποι.
- */
-export const DEFAULT_COPY = {
-  /*
-   * Πραγματικός χαρακτήρας αχώριστου κενού (U+00A0), ΟΧΙ «&nbsp;».
-   *
-   * Όσο τα κείμενα ήταν καρφωμένα στο markup, το «&nbsp;» ήταν HTML και
-   * δούλευε. Μόλις έγιναν μεταβλητές, το Handlebars άρχισε να κάνει escape το
-   * «&» — και ο παραλήπτης έβλεπε κυριολεκτικά «Δειτε τις προσφορες&nbsp;→».
-   * Επτά φορές σε κάθε email.
-   *
-   * Λύση ΔΕΝ είναι να γίνουν raw τα πεδία: είναι κείμενα που πληκτρολογεί ο
-   * συντάκτης, και raw σημαίνει ότι μια κακή επικόλληση από το Word μπαίνει
-   * αυτούσια στο email. Ο χαρακτήρας U+00A0 δεν χρειάζεται escape καθόλου —
-   * περνά ως κείμενο και αποδίδεται σωστά παντού.
-   */
-  hero_button: "Δειτε τις προσφορες\u00A0\u00A0→",
-  section_eyebrow: "Επιλεγμενα",
-  section_title: "Οι προσφορες του μηνα",
-  section_link: "Ολες οι προσφορες\u00A0→",
-  all_button: "Ολες οι προσφορες\u00A0\u00A0→",
-  b2b_eyebrow: "Για επαγγελματιες",
-  b2b_button: "Λογαριασμος B2B\u00A0\u00A0→",
-} as const;
-
-export type CampaignCopy = Partial<Record<keyof typeof DEFAULT_COPY, string>>;
-
-export type CampaignPayload = {
-  campaign: {
-    eyebrow: string;
-    discount: string;
-    title: string;
-    text: string;
-    url: string;
-    valid_until: string;
-  };
-  products: PickedProduct[];
-  /** Ελεύθερο κείμενο από τον editor, ήδη ως HTML. */
-  bodyHtml?: string;
-  /** Παρακάμψεις των σταθερών κειμένων. Κενό = οι προεπιλογές. */
-  copy?: CampaignCopy;
-};
 
 /**
  * Το HTML της καμπάνιας, για προεπισκόπηση ή για αποστολή.
