@@ -3,11 +3,12 @@
 import { useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { LayoutTemplate, MoreHorizontal, Pencil, Plus, Trash2 } from "lucide-react";
+import { Copy, LayoutTemplate, MoreHorizontal, Pencil, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import {
   actionCreateBanner,
   actionDeleteBanner,
+  actionDuplicateBanner,
 } from "@/app/admin/(protected)/banners/actions";
 import { cellStyle, type GridTemplateView } from "@/lib/banners/contract";
 import { ZONES } from "@/lib/zones/registry";
@@ -94,6 +95,25 @@ export function BannerList({
       }
       setCreating(false);
       setName("");
+      router.push(`/admin/banners/${result.id}`);
+    });
+  }
+
+  /*
+   * Αντίγραφο, και αμέσως μέσα του.
+   * ───────────────────────────────────────────────────────────────────────────
+   * Ο λόγος που κάποιος βγάζει αντίγραφο είναι για να το αλλάξει· να μείνει
+   * στη λίστα και να ψάξει ποια από τις δύο σειρές είναι η καινούργια είναι
+   * ένα βήμα που δεν χρειάζεται να υπάρχει.
+   */
+  function duplicate(b: BannerRow) {
+    start(async () => {
+      const result = await actionDuplicateBanner(b.id);
+      if (!result.ok) {
+        toast.error(result.error);
+        return;
+      }
+      toast.success("Το αντίγραφο δημιουργήθηκε ως πρόχειρο, χωρίς θέσεις.");
       router.push(`/admin/banners/${result.id}`);
     });
   }
@@ -208,6 +228,10 @@ export function BannerList({
                             <Pencil className="size-3.5" />
                             Επεξεργασία
                           </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onSelect={() => duplicate(b)}>
+                          <Copy className="size-3.5" />
+                          Δημιουργία αντιγράφου
                         </DropdownMenuItem>
                         <DropdownMenuItem
                           variant="destructive"

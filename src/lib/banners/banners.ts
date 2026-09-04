@@ -209,6 +209,55 @@ export async function createBanner(
   return { ok: true, id: row.id };
 }
 
+/**
+ * Ένα αντίγραφο, για να μη χτίζεται δύο φορές η ίδια σύνθεση.
+ *
+ * ── Τι αντιγράφεται ────────────────────────────────────────────────────────
+ *
+ * Το πλέγμα και η ΣΥΝΘΕΣΗ — δηλαδή όλη η δουλειά. Ως πρόχειρο, ακόμη κι όταν
+ * η πηγή ήταν δημοσιευμένη: ο λόγος που κάποιος βγάζει αντίγραφο είναι για να
+ * αλλάξει κάτι, και ένα αντίγραφο που μπαίνει ζωντανό ταυτόχρονα με το
+ * πρωτότυπο δείχνει δύο φορές το ίδιο πράγμα μέχρι να προλάβει να το πειράξει.
+ *
+ * Παίρνει το δημοσιευμένο περιεχόμενο αν υπάρχει, αλλιώς το πρόχειρο: το
+ * δημοσιευμένο είναι αυτό που ο συντάκτης ΒΛΕΠΕΙ όταν πατά «αντίγραφο», ενώ
+ * το πρόχειρο μπορεί να είναι μια μισοτελειωμένη δοκιμή.
+ *
+ * ── Τι ΔΕΝ αντιγράφεται ────────────────────────────────────────────────────
+ *
+ * Οι τοποθετήσεις. Μια ζώνη κρατά ένα banner (`zone` είναι το κλειδί), οπότε
+ * ένα αντίγραφο που κληρονομούσε τις θέσεις θα ΠΕΤΑΓΕ το πρωτότυπο έξω από
+ * αυτές — αντιγραφή που σβήνει το πρωτότυπο δεν είναι αντιγραφή. Ο συντάκτης
+ * διαλέγει θέσεις μετά, όσες θέλει.
+ */
+export async function duplicateBanner(
+  id: string,
+  actor: string,
+): Promise<{ ok: true; id: string } | { ok: false; error: string }> {
+  const source = await prisma.banner.findUnique({
+    where: { id },
+    select: { name: true, templateId: true, draft: true, published: true },
+  });
+  if (!source) return fail("Το banner δεν βρέθηκε.");
+
+  const content = (source.published ?? source.draft ?? { cells: {} }) as never;
+
+  const row = await prisma.banner.create({
+    data: {
+      /* Το «80» είναι το όριο της στήλης· κόβεται το ΟΝΟΜΑ και μετά μπαίνει το
+         επίθημα, αλλιώς ένα μακρύ όνομα θα έχανε ακριβώς την ένδειξη που λέει
+         ότι πρόκειται για αντίγραφο. */
+      name: `${source.name.slice(0, 71)} (αντίγραφο)`,
+      templateId: source.templateId,
+      draft: content,
+      published: undefined,
+      updatedBy: actor.slice(0, 120),
+    },
+    select: { id: true },
+  });
+  return { ok: true, id: row.id };
+}
+
 export async function renameBanner(id: string, name: string, actor: string): Promise<Result> {
   const trimmed = name.trim();
   if (!trimmed) return fail("Το banner χρειάζεται όνομα.");

@@ -9,6 +9,7 @@ import {
   deleteBanner,
   deleteTemplate,
   discardDraft,
+  duplicateBanner,
   publish,
   renameBanner,
   saveDraft,
@@ -67,6 +68,15 @@ function refreshStorefront() {
 export async function actionCreateBanner(name: string, templateId: string) {
   const actor = await requireEditor();
   const result = await createBanner(name, templateId, actor);
+  if (result.ok) revalidatePath("/admin/banners");
+  return result;
+}
+
+export async function actionDuplicateBanner(id: string) {
+  const actor = await requireEditor();
+  const result = await duplicateBanner(id, actor);
+  /* Μόνο η λίστα του διαχειριστή. Το αντίγραφο γεννιέται ως πρόχειρο και
+     χωρίς τοποθετήσεις, οπότε το κατάστημα δεν άλλαξε σε τίποτα. */
   if (result.ok) revalidatePath("/admin/banners");
   return result;
 }
