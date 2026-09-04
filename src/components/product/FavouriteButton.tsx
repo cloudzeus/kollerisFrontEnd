@@ -1,8 +1,9 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
-import { Heart } from "lucide-react";
+import { useEffect, useRef, useState, useTransition } from "react";
+import { createPortal } from "react-dom";
+import { Heart, X } from "lucide-react";
+import { Link } from "@/i18n/navigation";
 import { toggleFavourite } from "@/lib/account/favourites";
 import { cn } from "@/lib/utils";
 
@@ -31,14 +32,27 @@ export function FavouriteButton({
   className?: string;
   size?: "sm" | "md";
 }) {
-  const router = useRouter();
   const [on, setOn] = useState(initial);
   const [pending, start] = useTransition();
+  /*
+   * Ο επισκέπτης δεν πετάγεται στη φόρμα.
+   * ───────────────────────────────────────────────────────────────────────────
+   * Πατούσε μια καρδιά και βρισκόταν σε σελίδα σύνδεσης, χωρίς να του έχει πει
+   * κανείς γιατί — μοιάζει με τοίχο, όχι με απάντηση. Και του έκλεβε τη σελίδα
+   * που διάβαζε.
+   *
+   * Το παράθυρο εξηγεί σε μία γραμμή τι κερδίζει, και δίνει ΚΑΙ ΤΙΣ ΔΥΟ πόρτες:
+   * όποιος έχει λογαριασμό δεν πρέπει να ψάχνει τη σύνδεση μέσα από την
+   * εγγραφή, και όποιος δεν έχει δεν πρέπει να νομίζει ότι δεν μπορεί.
+   */
+  const [askSignIn, setAskSignIn] = useState(false);
+  const [redirect, setRedirect] = useState("/");
 
   const label = on ? "Αφαίρεση από τα αγαπημένα" : "Αποθήκευση στα αγαπημένα";
 
   return (
-    <button
+    <>
+      <button
       type="button"
       aria-label={label}
       aria-pressed={on}
@@ -55,9 +69,8 @@ export function FavouriteButton({
           if (result.ok) return;
           setOn(!next);
           if (result.reason === "signedOut") {
-            router.push(
-              `/eisodos?redirect=${encodeURIComponent(window.location.pathname)}`,
-            );
+            setRedirect(window.location.pathname + window.location.search);
+            setAskSignIn(true);
           }
         });
       }}
@@ -79,6 +92,107 @@ export function FavouriteButton({
         fill={on ? "currentColor" : "none"}
         strokeWidth={2}
       />
-    </button>
+      </button>
+
+      {askSignIn && <SignInPrompt redirect={redirect} onClose={() => setAskSignIn(false)} />}
+    </>
+  );
+}
+
+/**
+ * Το παράθυρο που εξηγεί γιατί χρειάζεται λογαριασμός.
+ *
+ * Δικό μας και όχι Radix: η καρδιά μπαίνει σε κάθε κάρτα, και ένα πλέγμα 96
+ * προϊόντων θα φόρτωνε τη βιβλιοθήκη διαλόγων για ένα παράθυρο που ίσως δεν
+ * ανοίξει ποτέ. Ό,τι χρειάζεται ένας διάλογος το κάνει μόνο του: Escape,
+ * κλικ στο φόντο, εστίαση στο κύριο κουμπί, `aria-modal`.
+ */
+function SignInPrompt({ redirect, onClose }: { redirect: string; onClose: () => void }) {
+  const primary = useRef<HTMLAnchorElement>(null);
+  const to = encodeURIComponent(redirect);
+
+  useEffect(() => {
+    primary.current?.focus();
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
+    document.addEventListener("keydown", onKey);
+    // Το φόντο δεν κυλάει όσο το παράθυρο είναι ανοιχτό.
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.body.style.overflow = previous;
+    };
+  }, [onClose]);
+
+  /*
+   * Πύλη στο `body`: η καρδιά ζει μέσα σε κάρτα προϊόντος, και ένας πρόγονος με
+   * `@container` (ή `overflow-hidden`) κάνει το `position: fixed` να μετριέται
+   * από την κάρτα αντί για το παράθυρο — το πλαίσιο θα εμφανιζόταν στριμωγμένο
+   * μέσα στο κουτί του προϊόντος.
+   */
+  return createPortal(
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="fav-prompt-title"
+      onClick={onClose}
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-k-ink/60 px-4 backdrop-blur-[2px]"
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="relative w-full max-w-[26rem] border border-k-line bg-white p-6 lg:p-7"
+      >
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label="Κλείσιμο"
+          className="absolute top-3 right-3 p-1 text-k-text-4 transition-colors hover:text-k-ink"
+        >
+          <X className="size-4" />
+        </button>
+
+        <span className="flex size-11 items-center justify-center border border-k-red bg-k-red text-white">
+          <Heart className="size-5" fill="currentColor" />
+        </span>
+
+        <h2
+          id="fav-prompt-title"
+          className="font-display mt-4 text-[19px] leading-tight font-extrabold tracking-[0.01em] text-k-ink"
+        >
+          ΚΡΑΤΗΣΤΕ ΤΟ ΓΙΑ ΑΡΓΟΤΕΡΑ
+        </h2>
+        <p className="mt-2 text-[13px] leading-[1.65] text-k-text-2">
+          Τα αγαπημένα αποθηκεύονται στον λογαριασμό σας, ώστε να τα βρίσκετε από
+          οποιαδήποτε συσκευή — με τη σημερινή τιμή και διαθεσιμότητα.
+        </p>
+
+        <div className="mt-5 flex flex-col gap-2">
+          <Link
+            ref={primary}
+            href={`/eisodos?redirect=${to}`}
+            className="font-display flex h-11 items-center justify-center bg-k-ink-deep px-6 text-[13px] font-bold tracking-[0.08em] text-white transition-colors hover:bg-k-ink"
+          >
+            ΕΙΣΟΔΟΣ ΣΤΟΝ ΛΟΓΑΡΙΑΣΜΟ
+          </Link>
+          <Link
+            href="/eggrafi"
+            className="font-display flex h-11 items-center justify-center border border-k-line-2 px-6 text-[13px] font-bold tracking-[0.08em] text-k-ink transition-colors hover:border-k-ink"
+          >
+            ΔΗΜΙΟΥΡΓΙΑ ΛΟΓΑΡΙΑΣΜΟΥ
+          </Link>
+        </div>
+
+        {/* Η τρίτη έξοδος, χωρίς έμφαση: το «όχι τώρα» πρέπει να υπάρχει, αλλά
+            δεν είναι αυτό που προτείνουμε. */}
+        <button
+          type="button"
+          onClick={onClose}
+          className="mt-3 w-full text-[12px] text-k-text-3 transition-colors hover:text-k-ink"
+        >
+          Συνέχεια χωρίς λογαριασμό
+        </button>
+      </div>
+    </div>,
+    document.body,
   );
 }
