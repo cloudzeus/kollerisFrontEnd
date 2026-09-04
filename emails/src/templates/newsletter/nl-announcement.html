@@ -1,0 +1,56 @@
+<!-- ===== ΑΝΑΚΟΙΝΩΣΗ: Concrete panel με κόκκινο K-cut block ===== -->
+<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+  <tr><td bgcolor="#D8D8D8" class="k-pad" style="background-color:#D8D8D8;padding:32px 32px 32px 32px;">
+    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+      <tr>
+        <td width="140" valign="top" style="vertical-align:top;padding-right:24px;">
+          <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="116" bgcolor="#EA3E39" style="$chamfer-red-on-concrete$width:116px;">
+            <tr><td align="center" style="padding:22px 8px;">
+              <p class="mono" style="$eyebrow-white$margin:0;opacity:1;font-size:11px;">Ανακοινωση</p>
+              <p class="mono" style="$eyebrow-white$margin:4px 0 0 0;opacity:0.85;">{{announcement.date}}</p>
+            </td></tr>
+          </table>
+        </td>
+        <td valign="middle" style="vertical-align:middle;">
+          <p class="mono" style="$eyebrow$color:#454647;">{{announcement.eyebrow}}</p>
+          <h1 class="k-h1" style="$h1$margin:0;">{{announcement.title}}</h1>
+        </td>
+      </tr>
+    </table>
+  </td></tr>
+</table>
+
+<!-- ===== ΚΕΙΜΕΝΟ ===== -->
+<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+  <tr><td class="k-pad" style="padding:36px 32px 0 32px;">
+    <p style="$lead$">{{recipient.first_name}}, {{announcement.lead}}</p>
+    {{#each announcement.paragraphs}}
+    <p style="$p$">{{this}}</p>
+    {{/each}}
+  </td></tr>
+</table>
+
+<!-- ===== ΤΙ ΑΛΛΑΖΕΙ: key facts ===== -->
+<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+  <tr><td class="k-pad" style="padding:16px 32px 0 32px;">
+    <p class="mono" style="$eyebrow-red$margin-bottom:4px;">Συνοπτικα</p>
+    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="border-top:1px solid #1F1F1F;">
+      {{#each announcement.facts}}
+      {{> kv key="{{label}}" val="{{value}}"}}
+      {{/each}}
+    </table>
+  </td></tr>
+</table>
+
+<!-- ===== ΣΗΜΕΙΩΣΗ + CTA ===== -->
+<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+  <tr><td class="k-pad" style="padding:28px 32px 0 32px;">
+    {{> note accent="#EA3E39" kicker="Σημειωση" text="{{announcement.note}}"}}
+  </td></tr>
+  <tr><td class="k-pad" style="padding:28px 32px 0 32px;">
+    {{> button-outline href="{{announcement.url}}" label="{{announcement.cta}}"}}
+  </td></tr>
+  <tr><td class="k-pad" style="padding:36px 32px 40px 32px;">
+    <p style="$p-last$">Με εκτίμηση,<br><strong>{{announcement.signature_name}}</strong><br><span style="$small$">{{announcement.signature_role}} <span style="color:#EA3E39;">/</span> ΑΦΟΙ ΚΟΛΛΕΡΗ ΙΚΕ</span></p>
+  </td></tr>
+</table>

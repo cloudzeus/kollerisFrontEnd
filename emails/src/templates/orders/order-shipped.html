@@ -1,0 +1,47 @@
+<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+  <tr><td class="k-pad" style="padding:40px 32px 0 32px;">
+    {{> order-head kicker="Αποστολη" title="Το δεμα<br>εφυγε." badge="$badge-info$" status="Απεσταλη"}}
+  </td></tr>
+  <tr><td class="k-pad" style="padding:24px 32px 0 32px;">
+    {{> timeline s1="@done@" s2="@done@" s3="@active@" s4="@todo@"}}
+  </td></tr>
+  <tr><td class="k-pad" style="padding:32px 32px 0 32px;">
+    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" bgcolor="#1F1F1F" style="$chamfer-ink$">
+      <tr><td style="padding:28px 32px;">
+        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+          <tr>
+            <td class="k-col k-col-gap" valign="top" style="vertical-align:top;padding-right:16px;">
+              <p class="mono" style="$eyebrow-light$margin-bottom:4px;">{{shipment.courier}} <span style="color:#EA3E39;">/</span> Αριθμος αποστολης</p>
+              <p class="mono" style="$display-code$color:#FFFFFF;font-size:26px;line-height:34px;letter-spacing:0.06em;">{{shipment.tracking}}</p>
+              <p style="$small$color:#BDBDBE;margin-top:8px;">Εκτιμώμενη παράδοση: <strong style="color:#FFFFFF;">{{shipment.eta}}</strong> · {{shipment.packages}} δέμα(τα), {{shipment.weight}}</p>
+            </td>
+            <td class="k-col" valign="middle" align="right" style="vertical-align:middle;text-align:right;white-space:nowrap;">
+              {{> button href="{{shipment.tracking_url}}" label="Παρακολουθηση" align="display:inline-table;"}}
+            </td>
+          </tr>
+        </table>
+      </td></tr>
+    </table>
+  </td></tr>
+  <tr><td class="k-pad" style="padding:32px 32px 0 32px;">
+    <p class="mono" style="$eyebrow$margin-bottom:4px;">Τι περιλαμβανει η αποστολη</p>
+    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="border-top:1px solid #1F1F1F;">
+      {{#each order.items}}
+      {{> product-row}}
+      {{/each}}
+    </table>
+    {{#if shipment.backorder}}
+    <p style="$small$margin-top:12px;">Τα υπόλοιπα είδη της παραγγελίας ({{shipment.backorder}}) αποστέλλονται ξεχωριστά χωρίς επιπλέον μεταφορικά.</p>
+    {{/if}}
+  </td></tr>
+  <tr><td class="k-pad" style="padding:32px 32px 0 32px;">
+    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+      {{> kv key="Παραδοση σε" val="{{order.shipping.name}}, {{order.shipping.line1}}, {{order.shipping.line2}}"}}
+      {{> kv key="Τηλεφωνο" val="{{order.shipping.phone}} (ο courier θα καλέσει πριν την παράδοση)"}}
+      {{> kv key="Παραστατικο" val="{{shipment.document}} — επισυνάπτεται ως PDF"}}
+    </table>
+  </td></tr>
+  <tr><td class="k-pad" style="padding:28px 32px 40px 32px;">
+    {{> note accent="#D8D8D8" kicker="Κατα την παραλαβη" text="Ελέγξτε το δέμα παρουσία του διανομέα. Αν η συσκευασία είναι φθαρμένη, σημειώστε το στο αποδεικτικό παράδοσης και ενημερώστε μας την ίδια μέρα."}}
+  </td></tr>
+</table>

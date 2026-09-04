@@ -1,0 +1,30 @@
+<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+  <tr><td class="k-pad" style="padding:40px 32px 0 32px;">
+    <p class="mono" style="$eyebrow-red$">Ειδοποιηση αποθεματος</p>
+    <h1 class="k-h1" style="$h1$">Ξανα<br>διαθεσιμο.</h1>
+    <p style="$lead$">{{recipient.first_name}}, το προϊόν που ζητήσατε να σας ειδοποιήσουμε μπήκε ξανά στο απόθεμα. Το στέλνουμε σε όσους το ζήτησαν, με σειρά προτεραιότητας — και σε εσάς πρώτους.</p>
+  </td></tr>
+  <tr><td class="k-pad" style="padding:8px 32px 0 32px;">
+    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="border:1px solid #D8D8D8;">
+      <tr>
+        <td class="k-col k-col-gap" width="240" valign="top" bgcolor="#EFEFEF" style="background:#EFEFEF;vertical-align:top;padding:0;">
+          <a href="{{product.url}}" target="_blank"><img src="{{product.image}}" width="240" alt="{{product.name}}" class="k-img-full" style="display:block;width:240px;max-width:100%;height:auto;border:0;"></a>
+        </td>
+        <td class="k-col" valign="top" style="vertical-align:top;padding:20px 24px;">
+          <p style="margin:0 0 10px 0;"><span class="mono" style="$badge-ok$">● {{product.stock}} τεμ. διαθεσιμα</span></p>
+          <p class="mono" style="$mono-sm$margin:0 0 4px 0;"><span style="color:#C42A26;font-weight:600;">{{product.brand}}</span> <span style="color:#EA3E39;">/</span> {{product.sku}}</p>
+          <p style="$h4$font-size:14px;line-height:20px;"><a href="{{product.url}}" target="_blank" style="color:#1F1F1F;text-decoration:none;">{{product.name}}</a></p>
+          <p style="margin:8px 0 2px 0;"><span class="mono" style="$price$font-size:22px;">{{product.price}}</span></p>
+          <p class="mono" style="$mono-sm$margin-bottom:18px;">με ΦΠΑ 24%{{#if product.price_b2b}} <span style="color:#EA3E39;">/</span> συνεργάτη {{product.price_b2b}}{{/if}}</p>
+          {{> button href="{{product.url}}" label="Στο καλαθι"}}
+        </td>
+      </tr>
+    </table>
+  </td></tr>
+  <tr><td class="k-pad" style="padding:28px 32px 0 32px;">
+    {{> note accent="#E8B542" kicker="Περιορισμενο αποθεμα" text="Δεν κρατάμε τεμάχια. Η ειδοποίηση εστάλη σε {{product.waitlist}} πελάτες που περίμεναν το ίδιο είδος. Αν εξαντληθεί ξανά, η εγγραφή σας για ειδοποίηση παραμένει ενεργή."}}
+  </td></tr>
+  <tr><td class="k-pad" style="padding:28px 32px 40px 32px;">
+    <p style="$small$">Δεν θέλετε πλέον ειδοποίηση για αυτό το είδος; <a href="{{product.unwatch_url}}" style="$link$">Κατάργηση ειδοποίησης</a>.</p>
+  </td></tr>
+</table>

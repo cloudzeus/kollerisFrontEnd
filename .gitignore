@@ -46,3 +46,6 @@ next-env.d.ts
 
 # Prisma generated client
 /src/generated
+
+# Παράγεται από `npm run emails:build` — το κατάστημα διαβάζει από src/emails/
+emails/dist/

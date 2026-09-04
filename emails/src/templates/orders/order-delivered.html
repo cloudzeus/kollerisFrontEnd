@@ -1,0 +1,47 @@
+<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+  <tr><td class="k-pad" style="padding:40px 32px 0 32px;">
+    {{> order-head kicker="Παραδοση" title="Παραδοθηκε." badge="$badge-ok$" status="Ολοκληρωθηκε"}}
+  </td></tr>
+  <tr><td class="k-pad" style="padding:24px 32px 0 32px;">
+    {{> timeline s1="@done@" s2="@done@" s3="@done@" s4="@active@"}}
+  </td></tr>
+  <tr><td class="k-pad" style="padding:32px 32px 0 32px;">
+    <p style="$p$">{{recipient.first_name}}, η παραγγελία {{order.number}} παραδόθηκε στις <strong>{{delivery.at}}</strong> {{delivery.where}}. Ελέγξτε τα είδη σας — αν κάτι λείπει ή έφτασε φθαρμένο, απαντήστε σε αυτό το email <strong>εντός 48 ωρών</strong> με φωτογραφία.</p>
+    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="border-top:1px solid #1F1F1F;">
+      {{#each order.items}}
+      {{> product-row}}
+      {{/each}}
+    </table>
+  </td></tr>
+  <tr><td class="k-pad" style="padding:32px 32px 0 32px;">
+    <table role="presentation" cellspacing="0" cellpadding="0" border="0">
+      <tr>
+        <td class="k-col k-cta-gap" style="padding-right:12px;">{{> button href="{{delivery.invoice_url}}" label="Το παραστατικο (PDF)"}}</td>
+        <td class="k-col">{{> button-outline href="{{delivery.reorder_url}}" label="Επαναληψη παραγγελιας"}}</td>
+      </tr>
+    </table>
+  </td></tr>
+  <tr><td class="k-pad" style="padding:32px 32px 0 32px;">
+    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+      <tr>
+        <td class="k-col k-col-gap" width="50%" valign="top" style="vertical-align:top;padding-right:12px;">
+          <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="border:1px solid #D8D8D8;"><tr><td style="padding:16px 18px;">
+            <p class="mono" style="$eyebrow$margin-bottom:6px;">Επιστροφες</p>
+            <p style="$small-ink$">14 ημέρες για είδη αχρησιμοποίητα, στη συσκευασία τους. Ξεκινήστε από τη σελίδα της παραγγελίας.</p>
+            <p style="margin:10px 0 0 0;"><a href="{{delivery.returns_url}}" class="mono" style="$link-mono$">Επιστροφη ειδους&nbsp;→</a></p>
+          </td></tr></table>
+        </td>
+        <td class="k-col" width="50%" valign="top" style="vertical-align:top;padding-left:12px;">
+          <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="border:1px solid #D8D8D8;"><tr><td style="padding:16px 18px;">
+            <p class="mono" style="$eyebrow$margin-bottom:6px;">Εγγυηση</p>
+            <p style="$small-ink$">Κρατήστε το παραστατικό. Για εγγύηση κατασκευαστή, απευθυνθείτε πρώτα σε εμάς — αναλαμβάνουμε την επικοινωνία.</p>
+            <p style="margin:10px 0 0 0;"><a href="{{delivery.warranty_url}}" class="mono" style="$link-mono$">Οροι εγγυησης&nbsp;→</a></p>
+          </td></tr></table>
+        </td>
+      </tr>
+    </table>
+  </td></tr>
+  <tr><td class="k-pad" style="padding:32px 32px 40px 32px;">
+    <p style="$small$">Σε λίγες μέρες θα σας ζητήσουμε μια σύντομη αξιολόγηση. Ένα email, μία φορά.</p>
+  </td></tr>
+</table>

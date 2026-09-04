@@ -1,0 +1,32 @@
+<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+  <tr><td class="k-pad" style="padding:40px 32px 0 32px;">
+    <p class="mono" style="$eyebrow-red$">Λογαριασμος B2B <span style="color:#EA3E39;">/</span> Αιτημα {{b2b.request_number}}</p>
+    <h1 class="k-h1" style="$h1$">Λαβαμε το<br>αιτημα σας.</h1>
+    <p style="$lead$">{{recipient.first_name}}, το αίτημα για λογαριασμό συνεργάτη της <strong>{{b2b.company_name}}</strong> καταχωρήθηκε. Ελέγχουμε τα στοιχεία και ενεργοποιούμε τον λογαριασμό εντός <strong>{{b2b.sla}}</strong>.</p>
+  </td></tr>
+  <tr><td class="k-pad" style="padding:8px 32px 0 32px;">
+    <p class="mono" style="$eyebrow$margin-bottom:4px;">Στοιχεια που δηλωσατε</p>
+    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="border-top:1px solid #1F1F1F;">
+      {{> kv key="Επωνυμια" val="{{b2b.company_name}}"}}
+      {{> kv key="ΑΦΜ" val="<span class=\"mono\" style=\"$mono$\">{{b2b.vat}}</span> · {{b2b.doy}}"}}
+      {{> kv key="Δραστηριοτητα" val="{{b2b.activity}}"}}
+      {{> kv key="Εδρα" val="{{b2b.address}}"}}
+      {{> kv key="Υπευθυνος" val="{{b2b.contact_name}} · {{b2b.contact_phone}}"}}
+      {{> kv key="Κατασταση" val="<span class=\"mono\" style=\"$badge-warn$\">● Σε ελεγχο</span>"}}
+    </table>
+  </td></tr>
+  <tr><td class="k-pad" style="padding:28px 32px 0 32px;">
+    <p class="mono" style="$eyebrow-red$margin-bottom:4px;">Τι ακολουθει</p>
+    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="border-top:1px solid #1F1F1F;">
+      {{#each next_steps}}
+      <tr>
+        <td class="mono" width="40" valign="top" style="padding:16px 0;font-family:'JetBrains Mono',Consolas,'Courier New',monospace;font-size:13px;font-weight:600;color:#C42A26;border-bottom:1px solid #D8D8D8;vertical-align:top;">{{index}}</td>
+        <td valign="top" style="padding:16px 0;border-bottom:1px solid #D8D8D8;vertical-align:top;"><p style="$small-ink$">{{text}}</p></td>
+      </tr>
+      {{/each}}
+    </table>
+  </td></tr>
+  <tr><td class="k-pad" style="padding:28px 32px 40px 32px;">
+    {{> note accent="#D8D8D8" kicker="Στο μεταξυ" text="Ο απλός λογαριασμός σας λειτουργεί κανονικά με τις λιανικές τιμές. Μόλις εγκριθεί το αίτημα, οι τιμές συνεργάτη εμφανίζονται αυτόματα, χωρίς νέα σύνδεση."}}
+  </td></tr>
+</table>

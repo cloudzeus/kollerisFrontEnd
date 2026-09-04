@@ -1,0 +1,24 @@
+<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+  <tr><td class="k-pad" style="padding:40px 32px 0 32px;">
+    <p class="mono" style="$eyebrow-red$">Newsletter <span style="color:#EA3E39;">/</span> Επιβεβαιωση εγγραφης</p>
+    <h1 class="k-h1" style="$h1$">Ενα κλικ<br>και τελειωσαμε.</h1>
+    <p style="$lead$">Ζητήσατε να λαμβάνετε το newsletter της Kolleris στο <strong>{{recipient.email}}</strong>. Επιβεβαιώστε το για να ξεκινήσουν οι αποστολές. Χωρίς επιβεβαίωση δεν στέλνουμε τίποτα.</p>
+    {{> button href="{{subscribe.confirm_url}}" label="Επιβεβαιωση εγγραφης"}}
+    <p style="$small$margin-top:16px;">Ο σύνδεσμος ισχύει για {{subscribe.expires_in}}.</p>
+  </td></tr>
+  <tr><td class="k-pad" style="padding:32px 32px 0 32px;">
+    <p class="mono" style="$eyebrow$margin-bottom:4px;">Τι θα λαμβανετε</p>
+    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="border-top:1px solid #1F1F1F;">
+      {{#each what}}
+      <tr>
+        <td class="mono" width="40" valign="top" style="padding:14px 0;font-family:'JetBrains Mono',Consolas,'Courier New',monospace;font-size:13px;font-weight:600;color:#C42A26;border-bottom:1px solid #D8D8D8;vertical-align:top;">{{index}}</td>
+        <td valign="top" style="padding:14px 0;border-bottom:1px solid #D8D8D8;vertical-align:top;"><p style="$h4$font-size:13px;margin-bottom:2px;">{{title}}</p><p style="$small$">{{text}}</p></td>
+      </tr>
+      {{/each}}
+    </table>
+    <p style="$small$margin-top:16px;">Συχνότητα: 2–4 emails τον μήνα. Διαγραφή με ένα κλικ από κάθε email, χωρίς ερωτήσεις.</p>
+  </td></tr>
+  <tr><td class="k-pad" style="padding:28px 32px 40px 32px;">
+    {{> note accent="#D8D8D8" kicker="Δεν το ζητησατε εσεις;" text="Αγνοήστε αυτό το email. Η διεύθυνσή σας δεν θα προστεθεί στη λίστα και θα διαγραφεί από τα εκκρεμή αιτήματα σε 7 ημέρες."}}
+  </td></tr>
+</table>

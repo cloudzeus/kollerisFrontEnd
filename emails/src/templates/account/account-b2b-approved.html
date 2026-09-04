@@ -1,0 +1,31 @@
+{{> hero-red eyebrow="Λογαριασμος B2B / Εγκριθηκε" title="Τιμες συνεργατη ενεργες." text="{{recipient.first_name}}, ο λογαριασμός της {{b2b.company_name}} εγκρίθηκε. Από την επόμενη σύνδεση βλέπετε τις τιμές σας σε κάθε προϊόν και σε κάθε παραγγελία." href="{{urls.account}}" label="Συνδεση στον λογαριασμο"}}
+
+<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+  <tr><td class="k-pad" style="padding:40px 32px 0 32px;">
+    <p class="mono" style="$eyebrow-red$margin-bottom:4px;">Τι περιλαμβανει</p>
+    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="border-top:1px solid #1F1F1F;">
+      {{#each benefits}}
+      <tr>
+        <td class="mono" width="40" valign="top" style="padding:18px 0;font-family:'JetBrains Mono',Consolas,'Courier New',monospace;font-size:13px;font-weight:600;color:#C42A26;border-bottom:1px solid #D8D8D8;vertical-align:top;">{{index}}</td>
+        <td valign="top" style="padding:18px 0;border-bottom:1px solid #D8D8D8;vertical-align:top;">
+          <p style="$h4$font-size:13px;margin-bottom:4px;">{{title}}</p>
+          <p style="$small$">{{text}}</p>
+        </td>
+      </tr>
+      {{/each}}
+    </table>
+  </td></tr>
+  <tr><td class="k-pad" style="padding:32px 32px 0 32px;">
+    <p class="mono" style="$eyebrow$margin-bottom:4px;">Ο λογαριασμος σας</p>
+    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+      {{> kv key="Επωνυμια" val="{{b2b.company_name}}"}}
+      {{> kv key="Κωδικος πελατη" val="<span class=\"mono\" style=\"$mono$\">{{b2b.customer_code}}</span>"}}
+      {{> kv key="Τιμοκαταλογος" val="{{b2b.price_list}}"}}
+      {{> kv key="Τροπος πληρωμης" val="{{b2b.payment_terms}}"}}
+      {{> kv key="Υπευθυνος πωλησεων" val="{{b2b.sales_rep}} · {{b2b.sales_rep_phone}}"}}
+    </table>
+  </td></tr>
+  <tr><td class="k-pad" style="padding:28px 32px 40px 32px;">
+    {{> button-ink href="{{urls.quick_order}}" label="Πρωτη παραγγελια με κωδικο"}}
+  </td></tr>
+</table>

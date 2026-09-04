@@ -41,6 +41,14 @@
     .k-stat{font-size:32px !important;line-height:32px !important;}
     .k-step-label{font-size:8px !important;letter-spacing:0.04em !important;}
     .k-img-full{width:100% !important;height:auto !important;}
+    /* Η κεφαλίδα παραγγελίας: τρεις στήλες σε 375 px σημαίνει αριθμός
+       παραγγελίας σπασμένος σε τρεις γραμμές. Στοιβάζονται, και ο κάθετος
+       διαχωρισμός γίνεται οριζόντιος. */
+    .k-head-cell{border-right:0 !important;border-bottom:1px solid #D8D8D8 !important;}
+    .k-head-last{border-bottom:0 !important;}
+    /* Ζεύγη CTA: δίπλα-δίπλα στα 600 px, στοιβαγμένα στο κινητό — αλλιώς η
+       ετικέτα του κύριου κουμπιού τυλίγεται σε δύο γραμμές. */
+    .k-cta-gap{padding-right:0 !important;padding-bottom:12px !important;}
   }
 </style>
 </head>
@@ -87,7 +95,7 @@
         <p class="k-percent" style="margin:0;font-family:'Inter','Arial Black',Arial,Helvetica,sans-serif;font-size:96px;line-height:88px;font-weight:900;letter-spacing:-0.05em;color:#FFFFFF;">{{campaign.discount}}</p>
         <h1 class="k-hero-h1" style="margin:0 0 20px 0;font-family:'Inter','Arial Black',Arial,Helvetica,sans-serif;font-size:40px;line-height:40px;font-weight:900;letter-spacing:-0.03em;text-transform:uppercase;color:#FFFFFF;margin-top:12px;">{{campaign.title}}</h1>
         <p style="margin:0 0 16px 0;font-family:'Inter',Arial,Helvetica,sans-serif;font-size:15px;line-height:24px;color:#1F1F1F;color:#FFFFFF;font-size:16px;line-height:24px;margin:0 0 28px 0;">{{campaign.text}}</p>
-        <table role="presentation" cellspacing="0" cellpadding="0" border="0" style=""><tr><td bgcolor="#FFFFFF" style="background-color:#FFFFFF;"><a href="{{campaign.url}}" target="_blank" style="display:inline-block;padding:15px 24px;font-family:'Inter',Arial,Helvetica,sans-serif;font-size:12px;line-height:14px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#C42A26;text-decoration:none;mso-padding-alt:0;"><!--[if mso]><i style="letter-spacing:24px;mso-font-width:-100%;mso-text-raise:22pt;">&nbsp;</i><![endif]--><span style="mso-text-raise:11pt;">{{copy.hero_button}}</span><!--[if mso]><i style="letter-spacing:24px;mso-font-width:-100%;">&nbsp;</i><![endif]--></a></td></tr></table>
+        <table role="presentation" cellspacing="0" cellpadding="0" border="0" style=""><tr><td bgcolor="#FFFFFF" style="background-color:#FFFFFF;"><a href="{{campaign.url}}" target="_blank" style="display:inline-block;padding:15px 24px;font-family:'Inter',Arial,Helvetica,sans-serif;font-size:12px;line-height:14px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#C42A26;text-decoration:none;mso-padding-alt:0;"><!--[if mso]><i style="letter-spacing:24px;mso-font-width:-100%;mso-text-raise:22pt;">&nbsp;</i><![endif]--><span style="mso-text-raise:11pt;">{{copy.hero_button}}&nbsp;&nbsp;→</span><!--[if mso]><i style="letter-spacing:24px;mso-font-width:-100%;">&nbsp;</i><![endif]--></a></td></tr></table>
         <p class="mono" style="margin:0 0 12px 0;font-family:'JetBrains Mono',Consolas,'Courier New',monospace;font-size:10px;line-height:16px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:#FFFFFF;opacity:0.8;margin:24px 0 0 0;">Ισχυει εως {{campaign.valid_until}} <span style="opacity:1;">/</span> Οι τιμες περιλαμβανουν ΦΠΑ 24%</p>
       </td></tr>
     </table>
@@ -104,7 +112,7 @@
       <h2 style="margin:0 0 12px 0;font-family:'Inter','Arial Black',Arial,Helvetica,sans-serif;font-size:24px;line-height:26px;font-weight:900;letter-spacing:-0.02em;text-transform:uppercase;color:#1F1F1F;margin:0;">{{copy.section_title}}</h2>
     </td>
     <td valign="bottom" align="right" class="k-hide" style="vertical-align:bottom;text-align:right;padding-bottom:4px;white-space:nowrap;">
-      <a href="{{campaign.url}}" target="_blank" class="mono" style="font-family:'JetBrains Mono',Consolas,'Courier New',monospace;font-size:11px;line-height:16px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:#C42A26;text-decoration:none;">{{copy.section_link}}</a>
+      <a href="{{campaign.url}}" target="_blank" class="mono" style="font-family:'JetBrains Mono',Consolas,'Courier New',monospace;font-size:11px;line-height:16px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:#C42A26;text-decoration:none;">{{copy.section_link}}&nbsp;→</a>
     </td>
   </tr>
   <tr><td colspan="2" style="padding-top:14px;"><table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%"><tr><td style="font-size:0;line-height:0;height:1px;background:#1F1F1F;">&nbsp;</td></tr></table></td></tr>
@@ -139,7 +147,7 @@
   </td></tr>
   {{/each}}
   <tr><td class="k-pad" align="center" style="padding:32px 32px 0 32px;">
-    <table role="presentation" cellspacing="0" cellpadding="0" border="0" class="k-btn" style="margin:0 auto;"><tr><td bgcolor="#EA3E39" style="background-color:#EA3E39;"><a href="{{campaign.url}}" target="_blank" style="display:inline-block;padding:15px 24px;font-family:'Inter',Arial,Helvetica,sans-serif;font-size:12px;line-height:14px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#FFFFFF;text-decoration:none;mso-padding-alt:0;"><!--[if mso]><i style="letter-spacing:24px;mso-font-width:-100%;mso-text-raise:22pt;">&nbsp;</i><![endif]--><span style="mso-text-raise:11pt;">{{copy.all_button}}</span><!--[if mso]><i style="letter-spacing:24px;mso-font-width:-100%;">&nbsp;</i><![endif]--></a></td></tr></table>
+    <table role="presentation" cellspacing="0" cellpadding="0" border="0" class="k-btn" style="margin:0 auto;"><tr><td bgcolor="#EA3E39" style="background-color:#EA3E39;"><a href="{{campaign.url}}" target="_blank" style="display:inline-block;padding:15px 24px;font-family:'Inter',Arial,Helvetica,sans-serif;font-size:12px;line-height:14px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#FFFFFF;text-decoration:none;mso-padding-alt:0;"><!--[if mso]><i style="letter-spacing:24px;mso-font-width:-100%;mso-text-raise:22pt;">&nbsp;</i><![endif]--><span style="mso-text-raise:11pt;">{{copy.all_button}}&nbsp;&nbsp;→</span><!--[if mso]><i style="letter-spacing:24px;mso-font-width:-100%;">&nbsp;</i><![endif]--></a></td></tr></table>
   </td></tr>
 </table>
 
@@ -155,7 +163,7 @@
               <h2 style="margin:0 0 12px 0;font-family:'Inter','Arial Black',Arial,Helvetica,sans-serif;font-size:24px;line-height:26px;font-weight:900;letter-spacing:-0.02em;text-transform:uppercase;color:#FFFFFF;margin:0;">Τιμες συνεργατη<br>χωρις διαπραγματευση.</h2>
             </td>
             <td class="k-col" valign="middle" align="right" style="vertical-align:middle;text-align:right;white-space:nowrap;">
-              <table role="presentation" cellspacing="0" cellpadding="0" border="0" class="k-btn" style="display:inline-table;"><tr><td bgcolor="#EA3E39" style="background-color:#EA3E39;"><a href="{{urls.b2b}}" target="_blank" style="display:inline-block;padding:15px 24px;font-family:'Inter',Arial,Helvetica,sans-serif;font-size:12px;line-height:14px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#FFFFFF;text-decoration:none;mso-padding-alt:0;"><!--[if mso]><i style="letter-spacing:24px;mso-font-width:-100%;mso-text-raise:22pt;">&nbsp;</i><![endif]--><span style="mso-text-raise:11pt;">{{copy.b2b_button}}</span><!--[if mso]><i style="letter-spacing:24px;mso-font-width:-100%;">&nbsp;</i><![endif]--></a></td></tr></table>
+              <table role="presentation" cellspacing="0" cellpadding="0" border="0" class="k-btn" style="display:inline-table;"><tr><td bgcolor="#EA3E39" style="background-color:#EA3E39;"><a href="{{urls.b2b}}" target="_blank" style="display:inline-block;padding:15px 24px;font-family:'Inter',Arial,Helvetica,sans-serif;font-size:12px;line-height:14px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#FFFFFF;text-decoration:none;mso-padding-alt:0;"><!--[if mso]><i style="letter-spacing:24px;mso-font-width:-100%;mso-text-raise:22pt;">&nbsp;</i><![endif]--><span style="mso-text-raise:11pt;">{{copy.b2b_button}}&nbsp;&nbsp;→</span><!--[if mso]><i style="letter-spacing:24px;mso-font-width:-100%;">&nbsp;</i><![endif]--></a></td></tr></table>
             </td>
           </tr>
         </table>
@@ -181,6 +189,9 @@
           </td>
           <td class="k-col k-col-gap k-mob-left" valign="top" width="50%" align="right" style="vertical-align:top;text-align:right;padding-top:2px;">
             <p style="margin:0 0 10px 0;"><a href="{{urls.shop}}" class="mono" style="font-family:'JetBrains Mono',Consolas,'Courier New',monospace;font-size:10px;line-height:16px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:#BDBDBE;text-decoration:none;">Το e-shop</a></p>
+            <p style="margin:0 0 10px 0;"><a href="{{urls.account}}" class="mono" style="font-family:'JetBrains Mono',Consolas,'Courier New',monospace;font-size:10px;line-height:16px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:#BDBDBE;text-decoration:none;">Ο λογαριασμός μου</a></p>
+            <p style="margin:0 0 10px 0;"><a href="{{urls.b2b}}" class="mono" style="font-family:'JetBrains Mono',Consolas,'Courier New',monospace;font-size:10px;line-height:16px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:#BDBDBE;text-decoration:none;">Λογαριασμός B2B</a></p>
+            <p style="margin:0 0 10px 0;"><a href="{{urls.contact}}" class="mono" style="font-family:'JetBrains Mono',Consolas,'Courier New',monospace;font-size:10px;line-height:16px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:#BDBDBE;text-decoration:none;">Επικοινωνία</a></p>
             <p style="margin:0;"><a href="{{urls.terms}}" class="mono" style="font-family:'JetBrains Mono',Consolas,'Courier New',monospace;font-size:10px;line-height:16px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:#BDBDBE;text-decoration:none;">Όροι</a> <span style="color:#EA3E39;">/</span> <a href="{{urls.privacy}}" class="mono" style="font-family:'JetBrains Mono',Consolas,'Courier New',monospace;font-size:10px;line-height:16px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:#BDBDBE;text-decoration:none;">Απόρρητο</a></p>
           </td>
         </tr>

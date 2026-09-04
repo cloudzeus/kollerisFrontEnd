@@ -1,0 +1,104 @@
+<!-- ===== ISSUE HEAD ===== -->
+<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+  <tr><td class="k-pad" style="padding:32px 32px 0 32px;">
+    <p class="mono" style="$eyebrow-red$">Newsletter <span style="color:#EA3E39;">/</span> {{issue.label}} <span style="color:#EA3E39;">/</span> Τευχος {{issue.number}}</p>
+    <h1 class="k-h1" style="$h1$">{{issue.title}}</h1>
+    <p style="$lead$color:#5F6061;">{{issue.intro}}</p>
+  </td></tr>
+</table>
+
+<!-- ===== DARK HERO με φωτογραφία + accent word ===== -->
+<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+  <tr><td class="k-pad" style="padding:8px 32px 0 32px;">
+    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" bgcolor="#111111" style="background-color:#111111;">
+      <tr><td style="padding:0;">
+        <a href="{{hero.url}}" target="_blank"><img src="{{hero.image}}" width="536" alt="{{hero.image_alt}}" class="k-img-full" style="display:block;width:100%;max-width:536px;height:auto;border:0;"></a>
+      </td></tr>
+      <tr><td style="padding:28px 32px 32px 32px;">
+        <p class="mono" style="$eyebrow-light$">{{hero.eyebrow}}</p>
+        <h2 style="$h2-white$font-size:28px;line-height:30px;">{{hero.title_before}} <span style="color:#EA3E39;">{{hero.title_accent}}</span> {{hero.title_after}}</h2>
+        <p style="$p$color:#BDBDBE;margin-bottom:24px;">{{hero.text}}</p>
+        {{> button href="{{hero.url}}" label="{{hero.cta}}"}}
+      </td></tr>
+    </table>
+  </td></tr>
+</table>
+
+<!-- ===== STATS ROW ===== -->
+<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+  <tr><td class="k-pad" style="padding:40px 32px 0 32px;">
+    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="border-top:1px solid #1F1F1F;border-bottom:1px solid #D8D8D8;">
+      <tr>
+        {{#each stats}}
+        <td width="33%" valign="top" style="padding:20px 12px 20px 0;vertical-align:top;{{#unless @last}}border-right:1px solid #D8D8D8;{{/unless}}{{#unless @first}}padding-left:16px;{{/unless}}">
+          <p class="k-stat" style="$display-stat$">{{value}}</p>
+          <p class="mono" style="$eyebrow$margin:6px 0 0 0;">{{label}}</p>
+        </td>
+        {{/each}}
+      </tr>
+    </table>
+  </td></tr>
+</table>
+
+<!-- ===== ARTICLES ===== -->
+<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+  <tr><td class="k-pad" style="padding:40px 32px 0 32px;">
+    {{> section-head eyebrow="Αυτον τον μηνα" title="Τι αλλαξε" href="{{urls.new}}" label="Ολα τα νεα"}}
+  </td></tr>
+  {{#each articles}}
+  <tr><td class="k-pad" style="padding:24px 32px 0 32px;">
+    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="border-bottom:1px solid #D8D8D8;">
+      <tr>
+        <td class="k-col k-col-gap" width="180" valign="top" style="vertical-align:top;padding:0 24px 24px 0;">
+          <a href="{{url}}" target="_blank"><img src="{{image}}" width="180" alt="{{title}}" class="k-img-full" style="display:block;width:180px;max-width:100%;height:auto;border:0;background:#EFEFEF;"></a>
+        </td>
+        <td class="k-col" valign="top" style="vertical-align:top;padding:0 0 24px 0;">
+          <p class="mono" style="$eyebrow$margin-bottom:6px;"><span style="color:#C42A26;">{{index}}</span> <span style="color:#EA3E39;">/</span> {{tag}}</p>
+          <h3 style="$h4$font-size:14px;line-height:20px;margin-bottom:8px;"><a href="{{url}}" target="_blank" style="color:#1F1F1F;text-decoration:none;">{{title}}</a></h3>
+          <p style="$small$margin-bottom:12px;">{{excerpt}}</p>
+          <a href="{{url}}" target="_blank" class="mono" style="$link-mono$">{{cta}}&nbsp;→</a>
+        </td>
+      </tr>
+    </table>
+  </td></tr>
+  {{/each}}
+</table>
+
+<!-- ===== ΝΕΑ BRANDS ===== -->
+<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+  <tr><td class="k-pad" style="padding:40px 32px 0 32px;">
+    {{> section-head eyebrow="Νεα brands" title="Μπηκαν στον καταλογο" href="{{urls.brands}}" label="Ολα τα brands"}}
+  </td></tr>
+  <tr><td class="k-pad" style="padding:20px 32px 0 32px;">
+    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+      {{#each brands}}
+      <tr>
+        <td class="mono" width="32" style="padding:12px 0;font-family:'JetBrains Mono',Consolas,'Courier New',monospace;font-size:11px;color:#C42A26;font-weight:600;border-bottom:1px solid #EFEFEF;vertical-align:middle;">{{index}}</td>
+        <td style="padding:12px 0;font-family:'Inter',Arial,Helvetica,sans-serif;font-size:13px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#1F1F1F;border-bottom:1px solid #EFEFEF;vertical-align:middle;"><a href="{{url}}" target="_blank" style="color:#1F1F1F;text-decoration:none;">{{name}}</a> <span style="color:#EA3E39;">/</span> <span style="font-weight:400;letter-spacing:0;text-transform:none;color:#5F6061;">{{category}}</span></td>
+        <td class="mono" align="right" style="padding:12px 0;font-family:'JetBrains Mono',Consolas,'Courier New',monospace;font-size:11px;color:#5F6061;border-bottom:1px solid #EFEFEF;text-align:right;white-space:nowrap;vertical-align:middle;">{{codes}} κωδ.</td>
+      </tr>
+      {{/each}}
+    </table>
+  </td></tr>
+</table>
+
+<!-- ===== CLOSING CTA ===== -->
+<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+  <tr><td class="k-pad" style="padding:40px 32px 40px 32px;">
+    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" bgcolor="#D8D8D8" style="$chamfer-concrete$">
+      <tr><td style="padding:28px 32px;">
+        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+          <tr>
+            <td class="k-col k-col-gap" valign="middle" style="vertical-align:middle;padding-right:16px;">
+              <p class="mono" style="$eyebrow$margin-bottom:6px;">Γρηγορη παραγγελια</p>
+              <h2 style="$h2$margin:0;">Ξερετε τον κωδικο;<br>Παραγγειλτε σε 10&#8239;δευτερολεπτα.</h2>
+            </td>
+            <td class="k-col" valign="middle" align="right" style="vertical-align:middle;text-align:right;white-space:nowrap;">
+              {{> button-ink href="{{urls.quick_order}}" label="Γρηγορη παραγγελια" align="display:inline-table;"}}
+            </td>
+          </tr>
+        </table>
+      </td></tr>
+    </table>
+  </td></tr>
+</table>

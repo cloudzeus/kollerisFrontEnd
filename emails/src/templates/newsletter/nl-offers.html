@@ -1,0 +1,74 @@
+<!-- ===== HERO: κόκκινο K-cut panel με ποσοστό έκπτωσης ===== -->
+<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+  <tr><td class="k-pad" style="padding:32px 32px 0 32px;">
+    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" bgcolor="#EA3E39" style="$chamfer-red$">
+      <tr><td style="padding:40px 36px 36px 36px;">
+        <p class="mono" style="$eyebrow-white$">{{campaign.eyebrow}}</p>
+        <p class="k-percent" style="$display-percent$">{{campaign.discount}}</p>
+        <h1 class="k-hero-h1" style="$h1-hero$margin-top:12px;">{{campaign.title}}</h1>
+        <p style="$p$color:#FFFFFF;font-size:16px;line-height:24px;margin:0 0 28px 0;">{{campaign.text}}</p>
+        {{> button-white href="{{campaign.url}}" label="{{copy.hero_button}}"}}
+        <p class="mono" style="$eyebrow-white$margin:24px 0 0 0;">Ισχυει εως {{campaign.valid_until}} <span style="opacity:1;">/</span> Οι τιμες περιλαμβανουν ΦΠΑ 24%</p>
+      </td></tr>
+    </table>
+  </td></tr>
+</table>
+
+<!-- ===== ΠΡΟΪΟΝΤΑ: 2-up grid, rows από product_rows[[a,b],[c,d]] ===== -->
+<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+  <tr><td class="k-pad" style="padding:40px 32px 0 32px;">
+    {{> section-head eyebrow="{{copy.section_eyebrow}}" title="{{copy.section_title}}" href="{{campaign.url}}" label="{{copy.section_link}}"}}
+  </td></tr>
+  {{#each product_rows}}
+  <tr><td class="k-pad" style="padding:24px 32px 0 32px;">
+    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+      <tr>
+        {{#each this}}
+        <td class="k-col k-col-gap" width="50%" valign="top" style="vertical-align:top;{{#if @first}}padding-right:12px;{{else}}padding-left:12px;{{/if}}">
+          <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="border:1px solid #D8D8D8;">
+            <tr><td style="padding:0;position:relative;">
+              <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                <tr><td bgcolor="#EFEFEF" style="background:#EFEFEF;padding:0;">
+                  <a href="{{url}}" target="_blank"><img src="{{image}}" width="256" alt="{{name}}" class="k-img-full" style="display:block;width:100%;max-width:256px;height:auto;border:0;margin:0 auto;"></a>
+                </td></tr>
+              </table>
+            </td></tr>
+            <tr><td style="padding:14px 16px 16px 16px;">
+              <span class="mono" style="$badge-red$">-{{discount}}</span>
+              <p class="mono" style="$mono-sm$margin:10px 0 4px 0;"><span style="color:#C42A26;font-weight:600;">{{brand}}</span> <span style="color:#EA3E39;">/</span> {{sku}}</p>
+              <p style="$h4-nomargin$min-height:36px;"><a href="{{url}}" target="_blank" style="color:#1F1F1F;text-decoration:none;">{{name}}</a></p>
+              <p style="margin:10px 0 0 0;"><span class="mono" style="$price-old$">{{price_old}}</span>&nbsp;&nbsp;<span class="mono" style="$price-red$">{{price}}</span></p>
+              <p class="mono" style="$mono-sm$margin:2px 0 0 0;">με ΦΠΑ 24% <span style="color:#EA3E39;">/</span> {{stock_label}}</p>
+            </td></tr>
+          </table>
+        </td>
+        {{/each}}
+      </tr>
+    </table>
+  </td></tr>
+  {{/each}}
+  <tr><td class="k-pad" align="center" style="padding:32px 32px 0 32px;">
+    {{> button href="{{campaign.url}}" label="{{copy.all_button}}" align="margin:0 auto;"}}
+  </td></tr>
+</table>
+
+<!-- ===== B2B BANNER (ink) ===== -->
+<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+  <tr><td class="k-pad" style="padding:40px 32px 40px 32px;">
+    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" bgcolor="#1F1F1F" style="$chamfer-ink$">
+      <tr><td style="padding:28px 32px;">
+        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+          <tr>
+            <td class="k-col k-col-gap" valign="middle" style="vertical-align:middle;padding-right:16px;">
+              <p class="mono" style="$eyebrow-light$margin-bottom:6px;">{{copy.b2b_eyebrow}}</p>
+              <h2 style="$h2-white$margin:0;">Τιμες συνεργατη<br>χωρις διαπραγματευση.</h2>
+            </td>
+            <td class="k-col" valign="middle" align="right" style="vertical-align:middle;text-align:right;white-space:nowrap;">
+              {{> button href="{{urls.b2b}}" label="{{copy.b2b_button}}" align="display:inline-table;"}}
+            </td>
+          </tr>
+        </table>
+      </td></tr>
+    </table>
+  </td></tr>
+</table>

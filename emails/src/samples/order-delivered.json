@@ -1,0 +1,10 @@
+{
+  "delivery": {
+    "at": "05.09.2026, 11:40",
+    "where": "στη διεύθυνση παράδοσης (υπογραφή: Ν. Παπαδόπουλος)",
+    "invoice_url": "https://web.kolleris.com/account/orders/WK-2026-018342/invoice.pdf",
+    "reorder_url": "https://web.kolleris.com/account/orders/WK-2026-018342/reorder",
+    "returns_url": "https://web.kolleris.com/account/orders/WK-2026-018342/return",
+    "warranty_url": "https://web.kolleris.com/warranty"
+  }
+}

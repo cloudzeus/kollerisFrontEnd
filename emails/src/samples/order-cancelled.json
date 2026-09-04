@@ -1,0 +1,10 @@
+{
+  "cancellation": {
+    "at": "04.09.2026, 15:20",
+    "by": "κατόπιν δικού σας αιτήματος",
+    "reason": "Αίτημα πελάτη — αλλαγή προδιαγραφών",
+    "payment_status": "Είχε πληρωθεί με κάρτα",
+    "refund_amount": "537,10 €",
+    "reorder_url": "https://web.kolleris.com/account/orders/WK-2026-018342/reorder"
+  }
+}

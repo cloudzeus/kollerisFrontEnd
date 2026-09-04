@@ -1,0 +1,63 @@
+<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+  <tr><td class="k-pad" style="padding:40px 32px 0 32px;">
+    <p class="mono" style="$eyebrow-red$">B2B <span style="color:#EA3E39;">/</span> Προσφορα {{rfp.number}}</p>
+    <h1 class="k-h1" style="$h1$">Η προσφορα σας<br>ειναι ετοιμη.</h1>
+    <p style="$lead$">{{recipient.first_name}}, η προσφορά για την <strong>{{rfp.company_name}}</strong> ισχύει έως <strong>{{rfp.valid_until}}</strong>. Με την αποδοχή, μετατρέπεται αυτόματα σε παραγγελία με τους όρους του λογαριασμού σας.</p>
+  </td></tr>
+  <tr><td class="k-pad" style="padding:8px 32px 0 32px;">
+    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" bgcolor="#1F1F1F" style="$chamfer-ink$">
+      <tr><td style="padding:28px 32px;">
+        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+          <tr>
+            <td class="k-col k-col-gap" valign="top" width="50%" style="vertical-align:top;">
+              <p class="mono" style="$eyebrow-light$margin-bottom:2px;">Συνολο χωρις ΦΠΑ</p>
+              <p class="k-stat" style="$display-stat$color:#FFFFFF;">{{rfp.total}}</p>
+              <p class="mono" style="$mono-sm$color:#BDBDBE;margin-top:4px;">+ ΦΠΑ 24% {{rfp.vat}} = {{rfp.total_incl}}</p>
+            </td>
+            <td class="k-col" valign="middle" width="50%" align="right" style="vertical-align:middle;text-align:right;">
+              {{> button href="{{rfp.accept_url}}" label="Αποδοχη προσφορας" align="display:inline-table;"}}
+            </td>
+          </tr>
+        </table>
+      </td></tr>
+    </table>
+  </td></tr>
+  <tr><td class="k-pad" style="padding:32px 32px 0 32px;">
+    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+      <tr>
+        <th class="mono" style="$th$">Κωδικος / Ειδος</th>
+        <th class="mono" style="$th-right$padding-left:16px;">Ποσ.</th>
+        <th class="mono" style="$th-right$padding-left:16px;">Τιμη μον.</th>
+        <th class="mono" style="$th-right$padding-left:16px;">Συνολο</th>
+      </tr>
+      {{#each rfp.items}}
+      <tr>
+        <td style="$td$"><span class="mono" style="$mono-sm$">{{sku}}</span><br><span style="$h4-nomargin$font-size:12px;">{{name}}</span>{{#if lead_time}}<br><span style="$small$">Παράδοση: {{lead_time}}</span>{{/if}}</td>
+        <td style="$td-right$padding-left:16px;">{{qty}}</td>
+        <td style="$td-right$padding-left:16px;">{{unit_price}}</td>
+        <td style="$td-right$padding-left:16px;font-weight:700;">{{line_total}}</td>
+      </tr>
+      {{/each}}
+    </table>
+  </td></tr>
+  <tr><td class="k-pad" style="padding:28px 32px 0 32px;">
+    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+      {{> kv key="Ισχυει εως" val="<strong>{{rfp.valid_until}}</strong>"}}
+      {{> kv key="Οροι πληρωμης" val="{{rfp.payment_terms}}"}}
+      {{> kv key="Παραδοση" val="{{rfp.delivery_terms}}"}}
+      {{> kv key="Προσφορα PDF" val="<a href=\"{{rfp.pdf_url}}\" style=\"$link$\">{{rfp.number}}.pdf</a> — επισυνάπτεται και σε αυτό το email"}}
+      {{> kv key="Υπευθυνος πωλησεων" val="{{rfp.sales_rep}} · {{rfp.sales_rep_phone}}"}}
+    </table>
+  </td></tr>
+  <tr><td class="k-pad" style="padding:28px 32px 0 32px;">
+    <table role="presentation" cellspacing="0" cellpadding="0" border="0">
+      <tr>
+        <td class="k-col k-cta-gap" style="padding-right:12px;">{{> button href="{{rfp.accept_url}}" label="Αποδοχη"}}</td>
+        <td class="k-col">{{> button-outline href="{{rfp.discuss_url}}" label="Σχολια / Αλλαγες"}}</td>
+      </tr>
+    </table>
+  </td></tr>
+  <tr><td class="k-pad" style="padding:32px 32px 40px 32px;">
+    <p style="$small$">Οι τιμές είναι σε ευρώ, χωρίς ΦΠΑ, για τις αναγραφόμενες ποσότητες. Μετά τη λήξη της προσφοράς μπορεί να αναπροσαρμοστούν βάσει τρέχοντος τιμοκαταλόγου.</p>
+  </td></tr>
+</table>

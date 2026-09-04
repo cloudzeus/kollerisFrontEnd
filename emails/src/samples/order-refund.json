@@ -1,0 +1,22 @@
+{
+  "refund": {
+    "amount": "73,40 €",
+    "method": "Visa **** 4821",
+    "eta": "5–10 εργάσιμες ημέρες",
+    "reason": "Επιστροφή είδους — αχρησιμοποίητο, εντός 14 ημερών",
+    "credit_note": "ΠΤ-2026-00318",
+    "transaction_id": "VW-RF-91C2E0A7",
+    "at": "12.09.2026, 09:05",
+    "items": [
+      {
+        "brand": "KNIPEX",
+        "sku": "KN-8701250",
+        "name": "Γκαζοτανάλια Cobra 250 mm",
+        "qty": "2",
+        "unit_price": "36,70 €",
+        "line_total": "73,40 €",
+        "image": "../../assets/placeholder-product-2@2x.png"
+      }
+    ]
+  }
+}

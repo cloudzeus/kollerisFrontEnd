@@ -1,0 +1,34 @@
+{{> hero-red eyebrow="Λογαριασμος ενεργος" title="Ο λογαριασμος σας ειναι ετοιμος." text="{{recipient.first_name}}, από εδώ και πέρα παραγγέλνετε με τον κωδικό του προϊόντος, βλέπετε το ιστορικό σας και παρακολουθείτε κάθε αποστολή." href="{{urls.account}}" label="Συνδεση"}}
+
+<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+  <tr><td class="k-pad" style="padding:40px 32px 0 32px;">
+    <p class="mono" style="$eyebrow-red$margin-bottom:4px;">Τρια πραγματα για αρχη</p>
+    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="border-top:1px solid #1F1F1F;">
+      {{#each steps}}
+      <tr>
+        <td class="mono" width="40" valign="top" style="padding:20px 0;font-family:'JetBrains Mono',Consolas,'Courier New',monospace;font-size:13px;font-weight:600;color:#C42A26;border-bottom:1px solid #D8D8D8;vertical-align:top;">{{index}}</td>
+        <td valign="top" style="padding:20px 0;border-bottom:1px solid #D8D8D8;vertical-align:top;">
+          <p style="$h4$font-size:13px;">{{title}}</p>
+          <p style="$small$margin-bottom:8px;">{{text}}</p>
+          <a href="{{url}}" target="_blank" class="mono" style="$link-mono$">{{cta}}&nbsp;→</a>
+        </td>
+      </tr>
+      {{/each}}
+    </table>
+  </td></tr>
+  <tr><td class="k-pad" style="padding:32px 32px 0 32px;">
+    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="border-top:1px solid #D8D8D8;">
+      <tr><td style="padding-top:16px;">
+        <p class="mono" style="$eyebrow$margin-bottom:4px;">Τα στοιχεια σας</p>
+      </td></tr>
+    </table>
+    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+      {{> kv key="Email" val="{{recipient.email}}"}}
+      {{> kv key="Πελατης" val="{{account.customer_code}}"}}
+      {{> kv key="Τυπος" val="{{account.type}}"}}
+    </table>
+  </td></tr>
+  <tr><td class="k-pad" style="padding:28px 32px 40px 32px;">
+    {{> note accent="#1F1F1F" kicker="Ειστε επαγγελματιας;" text="Ζητήστε λογαριασμό B2B με το ΑΦΜ της εταιρείας σας. Τιμές συνεργάτη, πλήρης κατάλογος και αιτήματα προσφοράς, χωρίς διαπραγμάτευση. <a href=\"{{urls.b2b}}\" style=\"$link$\">Αίτηση B2B →</a>"}}
+  </td></tr>
+</table>

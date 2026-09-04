@@ -1,0 +1,35 @@
+<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+  <tr><td class="k-pad" style="padding:40px 32px 0 32px;">
+    {{> order-head kicker="Παραγγελια / Ακυρωση" title="Η παραγγελια<br>ακυρωθηκε." badge="$badge-danger$" status="Ακυρωθηκε"}}
+    <p style="$p$margin-top:24px;">{{recipient.first_name}}, η παραγγελία {{order.number}} ακυρώθηκε στις {{cancellation.at}}, {{cancellation.by}}.</p>
+  </td></tr>
+  <tr><td class="k-pad" style="padding:8px 32px 0 32px;">
+    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="border-top:1px solid #1F1F1F;">
+      {{> kv key="Αιτια" val="{{cancellation.reason}}"}}
+      {{> kv key="Ειδη" val="{{order.items_count}} είδη · {{order.total}}"}}
+      {{> kv key="Πληρωμη" val="{{cancellation.payment_status}}"}}
+      {{#if cancellation.refund_amount}}
+      {{> kv key="Επιστροφη" val="<span class=\"mono\" style=\"$mono$\">{{cancellation.refund_amount}}</span> στην αρχική μέθοδο πληρωμής, σε 5–10 εργάσιμες ημέρες"}}
+      {{/if}}
+    </table>
+  </td></tr>
+  <tr><td class="k-pad" style="padding:28px 32px 0 32px;">
+    <p class="mono" style="$eyebrow$margin-bottom:4px;">Ακυρωμενα ειδη</p>
+    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="border-top:1px solid #1F1F1F;">
+      {{#each order.items}}
+      {{> product-row}}
+      {{/each}}
+    </table>
+  </td></tr>
+  <tr><td class="k-pad" style="padding:32px 32px 0 32px;">
+    <table role="presentation" cellspacing="0" cellpadding="0" border="0">
+      <tr>
+        <td class="k-col k-cta-gap" style="padding-right:12px;">{{> button-ink href="{{cancellation.reorder_url}}" label="Νεα παραγγελια με τα ιδια ειδη"}}</td>
+        <td class="k-col">{{> button-outline href="{{urls.support}}" label="Επικοινωνια"}}</td>
+      </tr>
+    </table>
+  </td></tr>
+  <tr><td class="k-pad" style="padding:32px 32px 40px 32px;">
+    {{> note accent="#EA3E39" kicker="Δεν ζητησατε ακυρωση;" text="Αν η ακύρωση έγινε κατά λάθος ή δεν την αναγνωρίζετε, καλέστε μας στο +30 210 411 1355 με τον αριθμό παραγγελίας. Μπορούμε να την επαναφέρουμε αν το απόθεμα είναι ακόμη διαθέσιμο."}}
+  </td></tr>
+</table>

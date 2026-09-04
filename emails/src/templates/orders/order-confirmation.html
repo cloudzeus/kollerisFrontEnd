@@ -1,0 +1,40 @@
+<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+  <tr><td class="k-pad" style="padding:40px 32px 0 32px;">
+    {{#if order.paid}}
+    {{> order-head kicker="Παραγγελια / Επιβεβαιωση" title="Η παραγγελια<br>επιβεβαιωθηκε." badge="$badge-ok$" status="Πληρωμενη"}}
+    <p style="$p$margin-top:24px;">{{recipient.first_name}}, ευχαριστούμε. Η πληρωμή παραλήφθηκε και η παραγγελία προωθήθηκε στην αποθήκη. Θα σας ενημερώσουμε ξανά μόλις φύγει το δέμα.</p>
+    {{else}}
+    {{> order-head kicker="Παραγγελια / Επιβεβαιωση" title="Λαβαμε την<br>παραγγελια σας." badge="$badge-info$" status="Εληφθη"}}
+    <p style="$p$margin-top:24px;">{{recipient.first_name}}, ευχαριστούμε. Η παραγγελία καταχωρήθηκε και προωθήθηκε στην αποθήκη. Θα σας ενημερώσουμε ξανά μόλις παραληφθεί η πληρωμή και μόλις φύγει το δέμα.</p>
+    {{/if}}
+  </td></tr>
+  <tr><td class="k-pad" style="padding:8px 32px 0 32px;">
+    {{#if order.paid}}
+    {{> timeline s1="@done@" s2="@active@" s3="@todo@" s4="@todo@"}}
+    {{else}}
+    {{> timeline s1="@active@" s2="@todo@" s3="@todo@" s4="@todo@"}}
+    {{/if}}
+  </td></tr>
+  <tr><td class="k-pad" style="padding:32px 32px 0 32px;">
+    {{> order-items}}
+  </td></tr>
+  <tr><td class="k-pad" style="padding:32px 32px 0 32px;">
+    {{> order-addresses}}
+  </td></tr>
+  {{#if order.notes}}
+  <tr><td class="k-pad" style="padding:24px 32px 0 32px;">
+    {{> note accent="#D8D8D8" kicker="Σχολια παραγγελιας" text="{{order.notes}}"}}
+  </td></tr>
+  {{/if}}
+  <tr><td class="k-pad" style="padding:32px 32px 0 32px;">
+    <table role="presentation" cellspacing="0" cellpadding="0" border="0">
+      <tr>
+        <td class="k-col k-cta-gap" style="padding-right:12px;">{{> button href="{{order.url}}" label="Προβολη παραγγελιας"}}</td>
+        <td class="k-col">{{> button-outline href="{{urls.support}}" label="Βοηθεια"}}</td>
+      </tr>
+    </table>
+  </td></tr>
+  <tr><td class="k-pad" style="padding:32px 32px 40px 32px;">
+    <p style="$small$">Αλλαγές ή ακύρωση: δυνατές μέχρι να ξεκινήσει η συλλογή των ειδών, από τη σελίδα της παραγγελίας ή στο +30 210 411 1355 με τον αριθμό <span class="mono" style="$mono-sm$color:#1F1F1F;">{{order.number}}</span>.</p>
+  </td></tr>
+</table>

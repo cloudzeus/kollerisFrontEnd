@@ -1,0 +1,47 @@
+<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+  <tr><td class="k-pad" style="padding:40px 32px 0 32px;">
+    <p class="mono" style="$eyebrow-red$">B2B <span style="color:#EA3E39;">/</span> Αιτημα προσφορας {{rfp.number}}</p>
+    <h1 class="k-h1" style="$h1$">Λαβαμε το αιτημα<br>προσφορας.</h1>
+    <p style="$lead$">{{recipient.first_name}}, το αίτημα για την <strong>{{rfp.company_name}}</strong> προωθήθηκε στο τμήμα πωλήσεων. Απαντάμε με τιμές και χρόνους παράδοσης εντός <strong>{{rfp.sla}}</strong>.</p>
+  </td></tr>
+  <tr><td class="k-pad" style="padding:8px 32px 0 32px;">
+    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="border:1px solid #D8D8D8;">
+      <tr>
+        <td valign="top" width="34%" style="padding:14px 16px;border-right:1px solid #D8D8D8;vertical-align:top;"><p class="mono" style="$eyebrow$margin-bottom:2px;">Αιτημα</p><p class="mono" style="$mono-lg$">{{rfp.number}}</p></td>
+        <td valign="top" width="33%" style="padding:14px 16px;border-right:1px solid #D8D8D8;vertical-align:top;"><p class="mono" style="$eyebrow$margin-bottom:2px;">Υποβληθηκε</p><p class="mono" style="$mono$">{{rfp.date}}</p></td>
+        <td valign="top" width="33%" style="padding:14px 16px;vertical-align:top;"><p class="mono" style="$eyebrow$margin-bottom:2px;">Κατασταση</p><p style="margin:0;"><span class="mono" style="$badge-warn$">● Σε τιμολογηση</span></p></td>
+      </tr>
+    </table>
+  </td></tr>
+  <tr><td class="k-pad" style="padding:32px 32px 0 32px;">
+    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+      <tr>
+        <th class="mono" style="$th$">Κωδικος</th>
+        <th class="mono" style="$th$">Ειδος</th>
+        <th class="mono" style="$th-right$padding-left:16px;">Ποσοτητα</th>
+      </tr>
+      {{#each rfp.items}}
+      <tr>
+        <td class="mono" style="$td-mono$padding-right:16px;white-space:nowrap;">{{sku}}{{#if impa}}<br><span style="$mono-sm$">IMPA {{impa}}</span>{{/if}}</td>
+        <td style="$td$"><span style="$h4-nomargin$font-size:12px;">{{name}}</span>{{#if note}}<br><span style="$small$">{{note}}</span>{{/if}}</td>
+        <td style="$td-right$padding-left:16px;">{{qty}} {{unit}}</td>
+      </tr>
+      {{/each}}
+    </table>
+  </td></tr>
+  {{#if rfp.notes}}
+  <tr><td class="k-pad" style="padding:24px 32px 0 32px;">
+    {{> note accent="#D8D8D8" kicker="Σχολια σας" text="{{rfp.notes}}"}}
+  </td></tr>
+  {{/if}}
+  <tr><td class="k-pad" style="padding:28px 32px 0 32px;">
+    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+      {{> kv key="Παραδοση σε" val="{{rfp.delivery_to}}"}}
+      {{> kv key="Επιθυμητη ημ/νια" val="{{rfp.needed_by}}"}}
+      {{> kv key="Υπευθυνος πωλησεων" val="{{rfp.sales_rep}} · {{rfp.sales_rep_phone}}"}}
+    </table>
+  </td></tr>
+  <tr><td class="k-pad" style="padding:28px 32px 40px 32px;">
+    {{> button-outline href="{{rfp.url}}" label="Προβολη αιτηματος"}}
+  </td></tr>
+</table>

@@ -1,0 +1,12 @@
+{
+  "shipment": {
+    "courier": "ACS Courier",
+    "tracking": "7291 3345 118",
+    "tracking_url": "https://www.acscourier.net/track/72913345118",
+    "eta": "Παρασκευή 05.09, 09:00–15:00",
+    "packages": "1",
+    "weight": "6,4 kg",
+    "document": "Τιμολόγιο ΤΔΑ-2026-04417",
+    "backorder": ""
+  }
+}

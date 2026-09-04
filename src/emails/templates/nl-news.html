@@ -41,6 +41,14 @@
     .k-stat{font-size:32px !important;line-height:32px !important;}
     .k-step-label{font-size:8px !important;letter-spacing:0.04em !important;}
     .k-img-full{width:100% !important;height:auto !important;}
+    /* Η κεφαλίδα παραγγελίας: τρεις στήλες σε 375 px σημαίνει αριθμός
+       παραγγελίας σπασμένος σε τρεις γραμμές. Στοιβάζονται, και ο κάθετος
+       διαχωρισμός γίνεται οριζόντιος. */
+    .k-head-cell{border-right:0 !important;border-bottom:1px solid #D8D8D8 !important;}
+    .k-head-last{border-bottom:0 !important;}
+    /* Ζεύγη CTA: δίπλα-δίπλα στα 600 px, στοιβαγμένα στο κινητό — αλλιώς η
+       ετικέτα του κύριου κουμπιού τυλίγεται σε δύο γραμμές. */
+    .k-cta-gap{padding-right:0 !important;padding-bottom:12px !important;}
   }
 </style>
 </head>
@@ -83,7 +91,7 @@
   <tr><td class="k-pad" style="padding:32px 32px 0 32px;">
     <p class="mono" style="margin:0 0 12px 0;font-family:'JetBrains Mono',Consolas,'Courier New',monospace;font-size:10px;line-height:16px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:#C42A26;">Newsletter <span style="color:#EA3E39;">/</span> {{issue.label}} <span style="color:#EA3E39;">/</span> Τευχος {{issue.number}}</p>
     <h1 class="k-h1" style="margin:0 0 16px 0;font-family:'Inter','Arial Black',Arial,Helvetica,sans-serif;font-size:32px;line-height:34px;font-weight:900;letter-spacing:-0.02em;text-transform:uppercase;color:#1F1F1F;">{{issue.title}}</h1>
-    <p style="margin:0 0 20px 0;font-family:'Inter',Arial,Helvetica,sans-serif;font-size:18px;line-height:28px;color:#1F1F1F;color:#5F6061;">{{issue.intro}}</p>
+    <p style="margin:0 0 20px 0;font-family:'Inter',Arial,Helvetica,sans-serif;font-size:16px;line-height:26px;color:#1F1F1F;color:#5F6061;">{{issue.intro}}</p>
   </td></tr>
 </table>
 
@@ -222,6 +230,9 @@
           </td>
           <td class="k-col k-col-gap k-mob-left" valign="top" width="50%" align="right" style="vertical-align:top;text-align:right;padding-top:2px;">
             <p style="margin:0 0 10px 0;"><a href="{{urls.shop}}" class="mono" style="font-family:'JetBrains Mono',Consolas,'Courier New',monospace;font-size:10px;line-height:16px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:#BDBDBE;text-decoration:none;">Το e-shop</a></p>
+            <p style="margin:0 0 10px 0;"><a href="{{urls.account}}" class="mono" style="font-family:'JetBrains Mono',Consolas,'Courier New',monospace;font-size:10px;line-height:16px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:#BDBDBE;text-decoration:none;">Ο λογαριασμός μου</a></p>
+            <p style="margin:0 0 10px 0;"><a href="{{urls.b2b}}" class="mono" style="font-family:'JetBrains Mono',Consolas,'Courier New',monospace;font-size:10px;line-height:16px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:#BDBDBE;text-decoration:none;">Λογαριασμός B2B</a></p>
+            <p style="margin:0 0 10px 0;"><a href="{{urls.contact}}" class="mono" style="font-family:'JetBrains Mono',Consolas,'Courier New',monospace;font-size:10px;line-height:16px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:#BDBDBE;text-decoration:none;">Επικοινωνία</a></p>
             <p style="margin:0;"><a href="{{urls.terms}}" class="mono" style="font-family:'JetBrains Mono',Consolas,'Courier New',monospace;font-size:10px;line-height:16px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:#BDBDBE;text-decoration:none;">Όροι</a> <span style="color:#EA3E39;">/</span> <a href="{{urls.privacy}}" class="mono" style="font-family:'JetBrains Mono',Consolas,'Courier New',monospace;font-size:10px;line-height:16px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:#BDBDBE;text-decoration:none;">Απόρρητο</a></p>
           </td>
         </tr>

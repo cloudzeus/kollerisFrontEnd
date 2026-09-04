@@ -1,0 +1,18 @@
+<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+  <tr>
+    <td class="k-col k-col-gap" width="50%" valign="top" style="vertical-align:top;padding-right:12px;">
+      <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="border:1px solid #D8D8D8;"><tr><td style="padding:16px 18px;">
+        <p class="mono" style="$eyebrow$margin-bottom:8px;">Παραδοση</p>
+        <p style="$small-ink$"><strong>{{order.shipping.name}}</strong><br>{{order.shipping.line1}}<br>{{order.shipping.line2}}<br>{{order.shipping.phone}}</p>
+        <p class="mono" style="$mono-sm$margin-top:10px;">{{order.shipping_method}} <span style="color:#EA3E39;">/</span> {{order.eta}}</p>
+      </td></tr></table>
+    </td>
+    <td class="k-col" width="50%" valign="top" style="vertical-align:top;padding-left:12px;">
+      <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="border:1px solid #D8D8D8;"><tr><td style="padding:16px 18px;">
+        <p class="mono" style="$eyebrow$margin-bottom:8px;">Τιμολογηση <span style="color:#EA3E39;">/</span> {{order.document_type}}</p>
+        <p style="$small-ink$"><strong>{{order.billing.name}}</strong><br>{{order.billing.line1}}<br>{{order.billing.line2}}<br>{{#if order.billing.vat}}ΑΦΜ {{order.billing.vat}} · {{order.billing.doy}}{{/if}}</p>
+        <p class="mono" style="$mono-sm$margin-top:10px;">{{order.payment_method}}</p>
+      </td></tr></table>
+    </td>
+  </tr>
+</table>

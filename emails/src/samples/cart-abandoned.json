@@ -1,0 +1,32 @@
+{
+  "cart": {
+    "items_count": "2",
+    "total": "462,40 €",
+    "url": "https://web.kolleris.com/cart?restore=9f2e…",
+    "free_shipping_from": "150 €",
+    "items": [
+      {
+        "brand": "MILWAUKEE",
+        "sku": "M18FPD3-502X",
+        "name": "Κρουστικό δραπανοκατσάβιδο M18 FUEL, 2×5.0Ah",
+        "qty": "1",
+        "unit_price": "389,00 €",
+        "stock_label": "Τελευταια 4 τεμ.",
+        "image": "../../assets/placeholder-product-1@2x.png",
+        "url": "https://web.kolleris.com/p/M18FPD3-502X",
+        "low_stock": true
+      },
+      {
+        "brand": "KNIPEX",
+        "sku": "KN-8701250",
+        "name": "Γκαζοτανάλια Cobra 250 mm",
+        "qty": "2",
+        "unit_price": "36,70 €",
+        "stock_label": "Αμεσα διαθεσιμο",
+        "image": "../../assets/placeholder-product-2@2x.png",
+        "url": "https://web.kolleris.com/p/KN-8701250",
+        "low_stock": false
+      }
+    ]
+  }
+}

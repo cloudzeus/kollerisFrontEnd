@@ -1,0 +1,50 @@
+<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+  <tr><td class="k-pad" style="padding:40px 32px 0 32px;">
+    {{> order-head kicker="Πληρωμη / Καταθεση σε τραπεζα" title="Στοιχεια<br>καταθεσης." badge="$badge-warn$" status="Αναμονη πληρωμης"}}
+    <p style="$p$margin-top:24px;">{{recipient.first_name}}, η παραγγελία {{order.number}} καταχωρήθηκε με τρόπο πληρωμής «Κατάθεση σε τράπεζα». Το απόθεμα κρατείται για <strong>{{payment.hold_for}}</strong>{{#if payment.deadline}} (έως {{payment.deadline}}){{/if}}. Μόλις εμφανιστεί η κατάθεση, η παραγγελία περνά σε συλλογή.</p>
+  </td></tr>
+  <tr><td class="k-pad" style="padding:8px 32px 0 32px;">
+    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" bgcolor="#D8D8D8" style="$chamfer-concrete$">
+      <tr><td style="padding:24px 28px;">
+        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+          <tr>
+            <td class="k-col k-col-gap" valign="top" width="50%" style="vertical-align:top;">
+              <p class="mono" style="$eyebrow$color:#454647;margin-bottom:2px;">Ποσο</p>
+              <p class="k-stat" style="$display-stat$">{{order.total}}</p>
+            </td>
+            <td class="k-col" valign="top" width="50%" style="vertical-align:top;">
+              <p class="mono" style="$eyebrow$color:#454647;margin-bottom:2px;">Αιτιολογια καταθεσης</p>
+              <p class="mono" style="$display-code$font-size:24px;line-height:40px;letter-spacing:0.06em;">{{payment.reference}}</p>
+            </td>
+          </tr>
+        </table>
+      </td></tr>
+    </table>
+  </td></tr>
+  <tr><td class="k-pad" style="padding:28px 32px 0 32px;">
+    <p class="mono" style="$eyebrow-red$margin-bottom:4px;">Λογαριασμοι — δικαιουχος ΑΦΟΙ ΚΟΛΛΕΡΗ ΙΚΕ</p>
+    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="border-top:1px solid #1F1F1F;">
+      {{#each banks}}
+      <tr>
+        <td style="padding:12px 0;font-family:'Inter',Arial,Helvetica,sans-serif;font-size:13px;font-weight:700;color:#1F1F1F;border-bottom:1px solid #EFEFEF;vertical-align:middle;width:120px;">{{name}}</td>
+        <td class="mono" style="padding:12px 0;font-family:'JetBrains Mono',Consolas,'Courier New',monospace;font-size:12px;color:#1F1F1F;border-bottom:1px solid #EFEFEF;vertical-align:middle;">{{iban}}</td>
+      </tr>
+      {{/each}}
+    </table>
+    <p style="$small$margin-top:12px;">Επιλέξτε την τράπεζά σας για να αποφύγετε έξοδα εμβάσματος. Γράψτε <strong>μόνο την αιτιολογία που βλέπετε παραπάνω</strong>, ακριβώς όπως είναι.</p>
+  </td></tr>
+  <tr><td class="k-pad" style="padding:28px 32px 0 32px;">
+    <table role="presentation" cellspacing="0" cellpadding="0" border="0">
+      <tr>
+        <td class="k-col k-cta-gap" style="padding-right:12px;">{{#if payment.card_url}}{{> button href="{{payment.card_url}}" label="Πληρωμη με καρτα"}}{{else}}{{#if payment.upload_url}}{{> button href="{{payment.upload_url}}" label="Αποστολη αποδεικτικου"}}{{/if}}{{/if}}</td>
+        <td class="k-col">{{> button-outline href="{{order.url}}" label="Η παραγγελια"}}</td>
+      </tr>
+    </table>
+  </td></tr>
+  <tr><td class="k-pad" style="padding:32px 32px 0 32px;">
+    {{> order-items}}
+  </td></tr>
+  <tr><td class="k-pad" style="padding:32px 32px 40px 32px;">
+    {{> note accent="#D8D8D8" kicker="Προτιματε καρτα;" text="Μπορείτε να αλλάξετε τρόπο πληρωμής και να πληρώσετε με κάρτα από τη σελίδα της παραγγελίας. Η παραγγελία περνά σε συλλογή αμέσως."}}
+  </td></tr>
+</table>

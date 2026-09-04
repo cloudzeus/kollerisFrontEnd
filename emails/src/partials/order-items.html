@@ -1,0 +1,20 @@
+<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+  <tr>
+    <th class="mono" colspan="2" style="$th$">Ειδος</th>
+    <th class="mono" style="$th-right$">Συνολο</th>
+  </tr>
+  {{#each order.items}}
+  {{> product-row}}
+  {{/each}}
+</table>
+<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+  <tr><td align="right" style="padding-top:8px;">
+    <table role="presentation" cellspacing="0" cellpadding="0" border="0">
+      <tr><td style="$tot-label$">Υποσύνολο</td><td class="mono" style="$tot-value$">{{order.subtotal}}</td></tr>
+      {{#if order.discount}}<tr><td style="$tot-label$">Έκπτωση {{order.discount_label}}</td><td class="mono" style="$tot-value$color:#C42A26;">−{{order.discount}}</td></tr>{{/if}}
+      <tr><td style="$tot-label$">Μεταφορικά ({{order.shipping_method}})</td><td class="mono" style="$tot-value$">{{order.shipping_cost}}</td></tr>
+      <tr><td style="$tot-label$">ΦΠΑ{{#if order.vat_label}} {{order.vat_label}}{{/if}}</td><td class="mono" style="$tot-value$">{{order.vat}}</td></tr>
+      <tr><td style="$tot-grand-label$">Συνολο</td><td class="mono" style="$tot-grand-value$">{{order.total}}</td></tr>
+    </table>
+  </td></tr>
+</table>

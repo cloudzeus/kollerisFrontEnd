@@ -1,0 +1,34 @@
+<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+  <tr><td class="k-pad" style="padding:40px 32px 0 32px;">
+    {{> order-head kicker="Επιστροφη χρηματων" title="Η επιστροφη<br>εγκριθηκε." badge="$badge-ok$" status="Επιστροφη"}}
+  </td></tr>
+  <tr><td class="k-pad" style="padding:24px 32px 0 32px;">
+    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" bgcolor="#F7F7F7" style="background-color:#F7F7F7;border:1px solid #D8D8D8;">
+      <tr><td style="padding:24px;">
+        <p class="mono" style="$eyebrow$margin-bottom:4px;">Ποσο επιστροφης</p>
+        <p class="k-stat" style="$display-stat$">{{refund.amount}}</p>
+        <p style="$small$margin-top:6px;">προς {{refund.method}} · θα εμφανιστεί σε <strong>{{refund.eta}}</strong>, ανάλογα με την τράπεζά σας</p>
+      </td></tr>
+    </table>
+    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+      {{> kv key="Αιτια" val="{{refund.reason}}"}}
+      {{> kv key="Πιστωτικο" val="<span class=\"mono\" style=\"$mono$\">{{refund.credit_note}}</span> — επισυνάπτεται ως PDF"}}
+      {{> kv key="Συναλλαγη" val="<span class=\"mono\" style=\"$mono$\">{{refund.transaction_id}}</span>"}}
+      {{> kv key="Ημερομηνια" val="{{refund.at}}"}}
+    </table>
+  </td></tr>
+  <tr><td class="k-pad" style="padding:28px 32px 0 32px;">
+    <p class="mono" style="$eyebrow$margin-bottom:4px;">Ειδη που επιστραφηκαν</p>
+    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="border-top:1px solid #1F1F1F;">
+      {{#each refund.items}}
+      {{> product-row}}
+      {{/each}}
+    </table>
+  </td></tr>
+  <tr><td class="k-pad" style="padding:28px 32px 0 32px;">
+    {{> button-outline href="{{order.url}}" label="Προβολη παραγγελιας"}}
+  </td></tr>
+  <tr><td class="k-pad" style="padding:32px 32px 40px 32px;">
+    {{> note accent="#D8D8D8" kicker="Δεν εμφανιστηκε το ποσο;" text="Οι τράπεζες χρειάζονται έως 10 εργάσιμες ημέρες. Αν περάσει η προθεσμία, απαντήστε σε αυτό το email με τον αριθμό συναλλαγής και θα στείλουμε το αποδεικτικό της επιστροφής."}}
+  </td></tr>
+</table>

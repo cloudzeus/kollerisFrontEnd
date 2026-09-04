@@ -1,0 +1,26 @@
+<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+  <tr><td class="k-pad" style="padding:40px 32px 0 32px;">
+    <p class="mono" style="$eyebrow-red$">Λογαριασμος <span style="color:#EA3E39;">/</span> Βημα 1 απο 2</p>
+    <h1 class="k-h1" style="$h1$">Επιβεβαιωστε<br>το email σας.</h1>
+    <p style="$lead$">{{#if verify.lead}}{{verify.lead}}{{else}}{{recipient.first_name}}, δημιουργήσατε λογαριασμό στο web.kolleris.com με τη διεύθυνση <strong>{{recipient.email}}</strong>. Ένα κλικ και ενεργοποιείται.{{/if}}</p>
+    {{> button href="{{verify.url}}" label="{{#if verify.cta}}{{verify.cta}}{{else}}Επιβεβαιωση email{{/if}}"}}
+    <p style="$small$margin-top:16px;">Ο σύνδεσμος ισχύει για <strong>{{verify.expires_in}}</strong>. Μετά τη λήξη του, ζητήστε νέο από τη σελίδα σύνδεσης.</p>
+  </td></tr>
+  <tr><td class="k-pad" style="padding:32px 32px 0 32px;">
+    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" bgcolor="#F7F7F7" style="background-color:#F7F7F7;border:1px solid #D8D8D8;">
+      <tr><td style="padding:20px 24px;">
+        {{#if verify.code}}
+        <p class="mono" style="$eyebrow$margin-bottom:8px;">Δεν ανοιγει το κουμπι; Χρησιμοποιηστε τον κωδικο</p>
+        <p class="mono" style="$display-code$">{{verify.code}}</p>
+        <p style="$small$margin-top:8px;">Εισάγετέ τον στη σελίδα επιβεβαίωσης: <a href="{{verify.manual_url}}" style="$link$">{{verify.manual_url_label}}</a></p>
+        {{else}}
+        <p class="mono" style="$eyebrow$margin-bottom:8px;">Δεν ανοιγει το κουμπι; Αντιγραψτε τον συνδεσμο</p>
+        <p class="mono" style="$mono$word-break:break-all;color:#1F1F1F;">{{verify.url}}</p>
+        {{/if}}
+      </td></tr>
+    </table>
+  </td></tr>
+  <tr><td class="k-pad" style="padding:28px 32px 40px 32px;">
+    {{> note accent="#D8D8D8" kicker="Δεν το ζητησατε εσεις;" text="{{#if verify.note}}{{verify.note}}{{else}}Αγνοήστε αυτό το email. Χωρίς επιβεβαίωση ο λογαριασμός δεν ενεργοποιείται και διαγράφεται αυτόματα σε 7 ημέρες.{{/if}}"}}
+  </td></tr>
+</table>

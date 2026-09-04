@@ -1,0 +1,59 @@
+{
+  "rfp": {
+    "number": "RFP-2026-0091",
+    "company_name": "ΝΑΥΠΗΓΟΕΠΙΣΚΕΥΑΣΤΙΚΗ ΠΕΡΑΜΑΤΟΣ ΑΕ",
+    "date": "04.09.2026, 09:30",
+    "sla": "1 εργάσιμης ημέρας",
+    "items": [
+      {
+        "sku": "KN-8701250",
+        "impa": "611731",
+        "name": "Γκαζοτανάλια Cobra 250 mm",
+        "qty": "40",
+        "unit": "τεμ.",
+        "note": "",
+        "unit_price": "31,20 €",
+        "line_total": "1.248,00 €",
+        "lead_time": "Άμεσα"
+      },
+      {
+        "sku": "WE-05056490001",
+        "impa": "",
+        "name": "Σετ μύτες Bit-Check 30 Impaktor",
+        "qty": "25",
+        "unit": "τεμ.",
+        "note": "",
+        "unit_price": "21,10 €",
+        "line_total": "527,50 €",
+        "lead_time": "Άμεσα"
+      },
+      {
+        "sku": "M18FPD3-502X",
+        "impa": "",
+        "name": "Κρουστικό δραπανοκατσάβιδο M18 FUEL, 2×5.0Ah",
+        "qty": "6",
+        "unit": "τεμ.",
+        "note": "Με βαλίτσα μεταφοράς",
+        "unit_price": "338,00 €",
+        "line_total": "2.028,00 €",
+        "lead_time": "5–7 εργάσιμες (4 τεμ. άμεσα)"
+      }
+    ],
+    "items_count": "3",
+    "notes": "Παρακαλώ τιμές για τμηματική παράδοση, το δράπανο μπορεί να έρθει δεύτερο.",
+    "delivery_to": "Ναυπηγεία Περάματος, Πύλη 3, 18863 Πέραμα",
+    "needed_by": "15.09.2026",
+    "sales_rep": "Γιώργος Κολλέρης",
+    "sales_rep_phone": "+30 210 411 1355",
+    "url": "https://web.kolleris.com/b2b/rfp/RFP-2026-0091",
+    "valid_until": "18.09.2026",
+    "total": "3.803,50 €",
+    "vat": "912,84 €",
+    "total_incl": "4.716,34 €",
+    "accept_url": "https://web.kolleris.com/b2b/rfp/RFP-2026-0091/accept",
+    "discuss_url": "https://web.kolleris.com/b2b/rfp/RFP-2026-0091#comments",
+    "payment_terms": "Πίστωση 30 ημερών (όροι λογαριασμού B-002317)",
+    "delivery_terms": "Δωρεάν παράδοση στην έδρα σας, τμηματικά κατόπιν συνεννόησης",
+    "pdf_url": "https://web.kolleris.com/b2b/rfp/RFP-2026-0091.pdf"
+  }
+}

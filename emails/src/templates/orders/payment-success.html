@@ -1,0 +1,30 @@
+<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+  <tr><td class="k-pad" style="padding:40px 32px 0 32px;">
+    {{> order-head kicker="Πληρωμη / Εγκριθηκε" title="Η πληρωμη<br>εγκριθηκε." badge="$badge-ok$" status="Πληρωμενη"}}
+  </td></tr>
+  <tr><td class="k-pad" style="padding:24px 32px 0 32px;">
+    {{> timeline s1="@done@" s2="@active@" s3="@todo@" s4="@todo@"}}
+  </td></tr>
+  <tr><td class="k-pad" style="padding:32px 32px 0 32px;">
+    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" bgcolor="#F7F7F7" style="background-color:#F7F7F7;border:1px solid #D8D8D8;">
+      <tr><td style="padding:24px;">
+        <p class="mono" style="$eyebrow$margin-bottom:4px;">Ποσο που χρεωθηκε</p>
+        <p class="k-stat" style="$display-stat$">{{payment.amount}}</p>
+      </td></tr>
+    </table>
+    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+      {{> kv key="Τροπος" val="{{payment.method}}"}}
+      {{> kv key="Καρτα" val="<span class=\"mono\" style=\"$mono$\">{{payment.card}}</span>"}}
+      {{> kv key="Συναλλαγη" val="<span class=\"mono\" style=\"$mono$\">{{payment.transaction_id}}</span>"}}
+      {{> kv key="Ημερομηνια" val="{{payment.at}}"}}
+      {{> kv key="Παραστατικο" val="{{payment.document}}"}}
+    </table>
+  </td></tr>
+  <tr><td class="k-pad" style="padding:28px 32px 0 32px;">
+    <p style="$p$">Η παραγγελία περνά σε συλλογή. Το επόμενο email που θα λάβετε είναι η επιβεβαίωση αποστολής με τον αριθμό αποστολής του courier.</p>
+    {{> button href="{{order.url}}" label="Προβολη παραγγελιας"}}
+  </td></tr>
+  <tr><td class="k-pad" style="padding:32px 32px 40px 32px;">
+    {{> note accent="#D8D8D8" kicker="Αποδειξη / Τιμολογιο" text="Το παραστατικό εκδίδεται με την αποστολή και αποστέλλεται σε ξεχωριστό email ως PDF. Θα είναι διαθέσιμο και στον λογαριασμό σας."}}
+  </td></tr>
+</table>

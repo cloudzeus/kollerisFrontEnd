@@ -1,0 +1,69 @@
+{
+  "order": {
+    "number": "WK-2026-018342",
+    "date": "04.09.2026, 10:12",
+    "url": "https://web.kolleris.com/account/orders/WK-2026-018342",
+    "items": [
+      {
+        "brand": "MILWAUKEE",
+        "sku": "M18FPD3-502X",
+        "name": "Κρουστικό δραπανοκατσάβιδο M18 FUEL, 2×5.0Ah",
+        "qty": "1",
+        "unit_price": "389,00 €",
+        "line_total": "389,00 €",
+        "image": "../../assets/placeholder-product-1@2x.png"
+      },
+      {
+        "brand": "KNIPEX",
+        "sku": "KN-8701250",
+        "name": "Γκαζοτανάλια Cobra 250 mm",
+        "qty": "2",
+        "unit_price": "36,70 €",
+        "line_total": "73,40 €",
+        "image": "../../assets/placeholder-product-2@2x.png"
+      },
+      {
+        "brand": "WERA",
+        "sku": "WE-05056490001",
+        "name": "Σετ μύτες Bit-Check 30 Impaktor",
+        "qty": "3",
+        "unit_price": "24,90 €",
+        "line_total": "74,70 €",
+        "image": "../../assets/placeholder-product-3@2x.png"
+      }
+    ],
+    "items_count": "3",
+    "subtotal": "433,15 €",
+    "discount": "",
+    "discount_label": "",
+    "shipping_method": "Courier ACS",
+    "shipping_cost": "0,00 €",
+    "vat": "103,95 €",
+    "total": "537,10 €",
+    "eta": "Παράδοση Παρ 05.09",
+    "payment_method": "Κατάθεση σε τράπεζα",
+    "document_type": "Τιμολόγιο",
+    "shipping": {
+      "name": "Νίκος Παπαδόπουλος",
+      "line1": "Ναυπηγεία Περάματος, Πύλη 3",
+      "line2": "18863 Πέραμα",
+      "phone": "+30 694 000 0000"
+    },
+    "billing": {
+      "name": "ΝΑΥΠΗΓΟΕΠΙΣΚΕΥΑΣΤΙΚΗ ΠΕΡΑΜΑΤΟΣ ΑΕ",
+      "line1": "Ναυπηγεία Περάματος",
+      "line2": "18863 Πέραμα",
+      "vat": "099876543",
+      "doy": "ΔΟΥ Πειραιά ΦΑΕ"
+    },
+    "notes": "Παράδοση στην πύλη 3, ώρες 08:00–14:00. Ζητήστε τον κ. Παπαδόπουλο.",
+    "vat_label": "24%"
+  },
+  "payment": {
+    "reference": "WK-2026-018342",
+    "hold_for": "3 εργάσιμες ημέρες",
+    "deadline": "Τρί 09.09.2026",
+    "card_url": "https://web.kolleris.com/account/orders/WK-2026-018342/pay",
+    "upload_url": "https://web.kolleris.com/account/orders/WK-2026-018342/proof"
+  }
+}

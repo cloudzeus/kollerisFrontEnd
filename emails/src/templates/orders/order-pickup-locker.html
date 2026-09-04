@@ -1,0 +1,54 @@
+<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+  <tr><td class="k-pad" style="padding:40px 32px 0 32px;">
+    {{> order-head kicker="Παραλαβη / Parcel locker" title="Το δεμα σας<br>ειναι στο locker." badge="$badge-ok$" status="Ετοιμο"}}
+    <p style="$p$margin-top:24px;">{{recipient.first_name}}, η παραγγελία {{order.number}} τοποθετήθηκε στη θυρίδα. Παραλαμβάνετε όποια ώρα θέλετε, 24/7, με τον κωδικό PIN. Τον ίδιο κωδικό λάβατε και με SMS στο {{locker.phone_masked}}.</p>
+  </td></tr>
+  <tr><td class="k-pad" style="padding:8px 32px 0 32px;">
+    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" bgcolor="#EA3E39" style="$chamfer-red$">
+      <tr><td style="padding:32px 36px;">
+        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+          <tr>
+            <td class="k-col k-col-gap" width="50%" valign="top" style="vertical-align:top;">
+              <p class="mono" style="$eyebrow-white$margin-bottom:2px;">Κωδικος PIN</p>
+              <p class="mono" style="$display-code$color:#FFFFFF;font-size:34px;line-height:44px;letter-spacing:0.06em;">{{locker.pin}}</p>
+            </td>
+            <td class="k-col" width="50%" valign="top" style="vertical-align:top;">
+              <p class="mono" style="$eyebrow-white$margin-bottom:2px;">Θυριδα</p>
+              <p class="mono" style="$display-code$color:#FFFFFF;font-size:34px;line-height:44px;letter-spacing:0.06em;">{{locker.box}}</p>
+            </td>
+          </tr>
+        </table>
+        <p class="mono" style="$eyebrow-white$margin:16px 0 0 0;">Παραλαβη εως {{locker.valid_until}} <span style="opacity:1;">/</span> Μετα, το δεμα επιστρεφει στην αποθηκη</p>
+      </td></tr>
+    </table>
+  </td></tr>
+  <tr><td class="k-pad" style="padding:28px 32px 0 32px;">
+    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+      {{> kv key="Locker" val="<strong>{{locker.name}}</strong><br>{{locker.address}}"}}
+      {{> kv key="Προσβαση" val="{{locker.hours}}"}}
+      {{> kv key="Δεματα" val="{{locker.packages}} · {{locker.size}}"}}
+    </table>
+  </td></tr>
+  <tr><td class="k-pad" style="padding:28px 32px 0 32px;">
+    <table role="presentation" cellspacing="0" cellpadding="0" border="0">
+      <tr>
+        <td class="k-col k-cta-gap" style="padding-right:12px;">{{> button href="{{locker.map_url}}" label="Οδηγιες στον χαρτη"}}</td>
+        <td class="k-col">{{> button-outline href="{{order.url}}" label="Η παραγγελια"}}</td>
+      </tr>
+    </table>
+  </td></tr>
+  <tr><td class="k-pad" style="padding:32px 32px 0 32px;">
+    <p class="mono" style="$eyebrow-red$margin-bottom:4px;">Πως παραλαμβανετε</p>
+    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="border-top:1px solid #1F1F1F;">
+      {{#each steps}}
+      <tr>
+        <td class="mono" width="40" valign="top" style="padding:14px 0;font-family:'JetBrains Mono',Consolas,'Courier New',monospace;font-size:13px;font-weight:600;color:#C42A26;border-bottom:1px solid #D8D8D8;vertical-align:top;">{{index}}</td>
+        <td valign="top" style="padding:14px 0;border-bottom:1px solid #D8D8D8;vertical-align:top;"><p style="$small-ink$">{{text}}</p></td>
+      </tr>
+      {{/each}}
+    </table>
+  </td></tr>
+  <tr><td class="k-pad" style="padding:28px 32px 40px 32px;">
+    {{> note accent="#EA3E39" kicker="Δεν ανοιγει η θυριδα;" text="Καλέστε στο +30 210 411 1355 ή απαντήστε σε αυτό το email με τον αριθμό παραγγελίας. Μπορούμε να στείλουμε νέο PIN άμεσα."}}
+  </td></tr>
+</table>

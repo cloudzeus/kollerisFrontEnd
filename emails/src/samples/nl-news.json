@@ -1,0 +1,34 @@
+{
+  "issue": {
+    "label": "Σεπτεμβριος 2026",
+    "number": "14",
+    "title": "480 νεοι κωδικοι. Παραδοση σε 24 ωρες.",
+    "intro": "Τι άλλαξε στο web.kolleris.com αυτόν τον μήνα: τρία νέα brands, νέο απόθεμα σε εργαλεία μπαταρίας και συντομότεροι χρόνοι παράδοσης σε Αττική και Πειραιά."
+  },
+  "hero": {
+    "image": "../../assets/placeholder-hero@2x.png",
+    "image_alt": "Αποθήκη Kolleris, Πειραιάς",
+    "url": "https://web.kolleris.com/delivery",
+    "eyebrow": "Logistics / Αττικη",
+    "title_before": "Παραγγελια εως 14:00,",
+    "title_accent": "παραδοση αυριο.",
+    "title_after": "",
+    "text": "Νέος κύκλος αποστολών από την αποθήκη μας στον Πειραιά. Για τα 5.716 άμεσα διαθέσιμα είδη, ό,τι παραγγέλνετε μέχρι τις 14:00 φεύγει την ίδια μέρα.",
+    "cta": "Δειτε τους χρονους παραδοσης"
+  },
+  "stats": [
+    { "value": "9.419+", "label": "Κωδικοι στον καταλογο" },
+    { "value": "5.716", "label": "Αμεσα διαθεσιμοι" },
+    { "value": "24–48ω", "label": "Παραδοση πανελλαδικα" }
+  ],
+  "articles": [
+    { "index": "01", "tag": "Εργαλεια μπαταριας", "title": "Milwaukee M18 FUEL: νέα σειρά, όλα σε απόθεμα", "excerpt": "Δράπανα, παλμικά, τροχοί και σέγες της νέας γενιάς M18 FUEL. Συμβατά με όλες τις μπαταρίες M18 που ήδη έχετε.", "cta": "Δειτε τη σειρα", "url": "https://web.kolleris.com/brands/milwaukee/m18-fuel", "image": "../../assets/placeholder-article@2x.png" },
+    { "index": "02", "tag": "Ναυτιλια", "title": "Αναζήτηση με κωδικό IMPA σε όλο τον κατάλογο", "excerpt": "Τα τμήματα προμηθειών πλοίων μπορούν πλέον να αναζητούν και να παραγγέλνουν με IMPA code. Ένας κωδικός, όλα τα αντίστοιχα προϊόντα.", "cta": "Πως δουλευει", "url": "https://web.kolleris.com/impa", "image": "../../assets/placeholder-article@2x.png" },
+    { "index": "03", "tag": "Μεσα ατομικης προστασιας", "title": "Νέα κατηγορία ΜΑΠ: 340 κωδικοί", "excerpt": "Γάντια, κράνη, υποδήματα ασφαλείας και προστασία αναπνοής με πιστοποιήσεις CE. Ειδικές τιμές για ποσότητες.", "cta": "Δειτε την κατηγορια", "url": "https://web.kolleris.com/c/ppe", "image": "../../assets/placeholder-article@2x.png" }
+  ],
+  "brands": [
+    { "index": "01", "name": "Wera", "category": "Κατσαβίδια, καστάνιες, μύτες", "codes": "212", "url": "https://web.kolleris.com/brands/wera" },
+    { "index": "02", "name": "Wiha", "category": "Εργαλεία ηλεκτρολόγου VDE", "codes": "168", "url": "https://web.kolleris.com/brands/wiha" },
+    { "index": "03", "name": "Bahco", "category": "Πριόνια, κλειδιά, εργαλεία κήπου", "codes": "100", "url": "https://web.kolleris.com/brands/bahco" }
+  ]
+}

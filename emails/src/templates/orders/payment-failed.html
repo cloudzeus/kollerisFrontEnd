@@ -1,0 +1,33 @@
+<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+  <tr><td class="k-pad" style="padding:40px 32px 0 32px;">
+    {{> order-head kicker="Πληρωμη / Δεν ολοκληρωθηκε" title="Η πληρωμη δεν<br>ολοκληρωθηκε." badge="$badge-danger$" status="Εκκρεμει"}}
+    <p style="$p$margin-top:24px;">{{recipient.first_name}}, η τράπεζα δεν ενέκρινε τη συναλλαγή για την παραγγελία {{order.number}}. Δεν έγινε καμία χρέωση.</p>
+  </td></tr>
+  <tr><td class="k-pad" style="padding:8px 32px 0 32px;">
+    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+      {{> kv key="Ποσο" val="<span class=\"mono\" style=\"$mono$\">{{payment.amount}}</span>"}}
+      {{> kv key="Τροπος" val="{{payment.method}}{{#if payment.card}} · {{payment.card}}{{/if}}"}}
+      {{> kv key="Αιτια" val="{{payment.reason}}"}}
+      {{> kv key="Κωδικος" val="<span class=\"mono\" style=\"$mono$\">{{payment.error_code}}</span>"}}
+    </table>
+  </td></tr>
+  <tr><td class="k-pad" style="padding:28px 32px 0 32px;">
+    {{> button href="{{payment.retry_url}}" label="Δοκιμαστε ξανα την πληρωμη"}}
+    <p style="$small$margin-top:12px;">Συνήθεις αιτίες: λάθος ημερομηνία λήξης ή CVV, όριο ημέρας της κάρτας, μη ολοκληρωμένη επιβεβαίωση 3D Secure από την τράπεζα.</p>
+  </td></tr>
+  <tr><td class="k-pad" style="padding:32px 32px 0 32px;">
+    <p class="mono" style="$eyebrow-red$margin-bottom:4px;">Εναλλακτικα: καταθεση σε τραπεζα</p>
+    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="border-top:1px solid #1F1F1F;">
+      {{#each banks}}
+      <tr>
+        <td style="padding:12px 0;font-family:'Inter',Arial,Helvetica,sans-serif;font-size:13px;font-weight:700;color:#1F1F1F;border-bottom:1px solid #EFEFEF;vertical-align:middle;width:120px;">{{name}}</td>
+        <td class="mono" style="padding:12px 0;font-family:'JetBrains Mono',Consolas,'Courier New',monospace;font-size:12px;color:#1F1F1F;border-bottom:1px solid #EFEFEF;vertical-align:middle;">{{iban}}</td>
+      </tr>
+      {{/each}}
+    </table>
+    <p style="$small$margin-top:12px;">Δικαιούχος: <strong>ΑΦΟΙ ΚΟΛΛΕΡΗ ΙΚΕ</strong>. Αιτιολογία κατάθεσης: <span class="mono" style="$mono-sm$color:#1F1F1F;font-weight:700;">{{order.number}}</span>. Στείλτε το αποδεικτικό με απάντηση σε αυτό το email.</p>
+  </td></tr>
+  <tr><td class="k-pad" style="padding:28px 32px 40px 32px;">
+    {{> note accent="#EA3E39" kicker="Χρειαζεστε βοηθεια;" text="Καλέστε μας στο +30 210 411 1355 (Δευ–Παρ 08:00–17:00) με τον αριθμό παραγγελίας. Μπορούμε να ολοκληρώσουμε την πληρωμή τηλεφωνικά μέσω ασφαλούς συνδέσμου."}}
+  </td></tr>
+</table>

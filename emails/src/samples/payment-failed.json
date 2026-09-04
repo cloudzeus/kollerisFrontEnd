@@ -1,0 +1,10 @@
+{
+  "payment": {
+    "amount": "537,10 €",
+    "method": "Κάρτα Visa",
+    "card": "**** 4821",
+    "reason": "Η τράπεζα απέρριψε τη συναλλαγή (3D Secure δεν ολοκληρώθηκε)",
+    "error_code": "VW-05-DECLINED",
+    "retry_url": "https://web.kolleris.com/checkout/pay/WK-2026-018342"
+  }
+}

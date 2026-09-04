@@ -1,0 +1,44 @@
+<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+  <tr><td class="k-pad" style="padding:40px 32px 0 32px;">
+    <p class="mono" style="$eyebrow-red$">Το καλαθι σας <span style="color:#EA3E39;">/</span> {{cart.items_count}} ειδη <span style="color:#EA3E39;">/</span> {{cart.total}}</p>
+    <h1 class="k-h1" style="$h1$">Αφησατε εργαλεια<br>στο καλαθι.</h1>
+    <p style="$lead$">{{recipient.first_name}}, το καλάθι σας είναι όπως το αφήσατε. Το απόθεμα όμως αλλάζει καθημερινά — ό,τι είναι διαθέσιμο σήμερα μπορεί να μην είναι αύριο.</p>
+    {{> button href="{{cart.url}}" label="Ολοκληρωση παραγγελιας"}}
+  </td></tr>
+  <tr><td class="k-pad" style="padding:32px 32px 0 32px;">
+    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="border-top:1px solid #1F1F1F;">
+      {{#each cart.items}}
+      <tr>
+        <td width="72" valign="top" style="padding:14px 16px 14px 0;border-bottom:1px solid #EFEFEF;vertical-align:top;">
+          <a href="{{url}}" target="_blank"><img src="{{image}}" width="72" height="72" alt="{{name}}" style="display:block;width:72px;height:72px;border:0;background:#EFEFEF;"></a>
+        </td>
+        <td valign="top" style="$td$">
+          <p class="mono" style="$mono-sm$margin:0 0 2px 0;">{{brand}} <span style="color:#EA3E39;">/</span> {{sku}}</p>
+          <p style="$h4-nomargin$"><a href="{{url}}" target="_blank" style="color:#1F1F1F;text-decoration:none;">{{name}}</a></p>
+          <p style="margin:6px 0 0 0;">{{#if low_stock}}<span class="mono" style="$badge-warn$">● {{stock_label}}</span>{{else}}<span class="mono" style="$badge-ok$">● {{stock_label}}</span>{{/if}}</p>
+        </td>
+        <td valign="top" align="right" style="$td-right$"><span class="mono" style="$mono-sm$">{{qty}} ×</span><br><span class="mono" style="$price$font-size:15px;">{{unit_price}}</span></td>
+      </tr>
+      {{/each}}
+    </table>
+    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+      <tr><td align="right" style="padding-top:8px;">
+        <table role="presentation" cellspacing="0" cellpadding="0" border="0">
+          <tr><td style="$tot-grand-label$border-top:0;">Συνολο με ΦΠΑ</td><td class="mono" style="$tot-grand-value$border-top:0;">{{cart.total}}</td></tr>
+        </table>
+      </td></tr>
+    </table>
+  </td></tr>
+  <tr><td class="k-pad" style="padding:24px 32px 0 32px;">
+    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+      <tr>
+        <td class="k-col k-col-gap" width="33%" valign="top" style="vertical-align:top;padding-right:12px;"><p class="mono" style="$eyebrow-red$margin-bottom:2px;">Παραδοση</p><p style="$small-ink$">24–48 ώρες πανελλαδικά. Δωρεάν από {{cart.free_shipping_from}}.</p></td>
+        <td class="k-col k-col-gap" width="33%" valign="top" style="vertical-align:top;padding:0 6px;"><p class="mono" style="$eyebrow-red$margin-bottom:2px;">Πληρωμη</p><p style="$small-ink$">Κάρτα, κατάθεση, αντικαταβολή. Τιμολόγιο ή απόδειξη.</p></td>
+        <td class="k-col" width="33%" valign="top" style="vertical-align:top;padding-left:12px;"><p class="mono" style="$eyebrow-red$margin-bottom:2px;">Επιστροφες</p><p style="$small-ink$">14 ημέρες, χωρίς ερωτήσεις, για αχρησιμοποίητα είδη.</p></td>
+      </tr>
+    </table>
+  </td></tr>
+  <tr><td class="k-pad" style="padding:32px 32px 40px 32px;">
+    <p style="$small$">Χρειάζεστε βοήθεια με την επιλογή ή τη συμβατότητα; Απαντήστε σε αυτό το email ή καλέστε στο +30 210 411 1355. Αν ολοκληρώσατε ήδη την παραγγελία, αγνοήστε αυτό το μήνυμα.</p>
+  </td></tr>
+</table>

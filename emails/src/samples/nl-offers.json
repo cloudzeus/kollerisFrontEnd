@@ -1,0 +1,20 @@
+{
+  "campaign": {
+    "eyebrow": "Προσφορες Σεπτεμβριου / 01–30.09.2026",
+    "discount": "-25%",
+    "title": "Σε ολα τα Knipex.",
+    "text": "Πένσες, κόφτες, γκαζοτανάλιες και σετ. Οι τιμές που βλέπετε είναι τελικές, με ΦΠΑ, χωρίς κουπόνι.",
+    "url": "https://web.kolleris.com/offers/knipex-09-2026",
+    "valid_until": "30.09.2026"
+  },
+  "product_rows": [
+    [
+      { "brand": "KNIPEX", "sku": "KN-8701250", "name": "Γκαζοτανάλια Cobra 250 mm", "price_old": "48,90 €", "price": "36,70 €", "discount": "25%", "stock_label": "Άμεσα διαθέσιμο", "image": "../../assets/placeholder-product-1@2x.png", "url": "https://web.kolleris.com/p/KN-8701250" },
+      { "brand": "KNIPEX", "sku": "KN-7402180", "name": "Κόφτης πλάγιος ισχύος 180 mm", "price_old": "39,60 €", "price": "29,70 €", "discount": "25%", "stock_label": "Άμεσα διαθέσιμο", "image": "../../assets/placeholder-product-2@2x.png", "url": "https://web.kolleris.com/p/KN-7402180" }
+    ],
+    [
+      { "brand": "KNIPEX", "sku": "KN-002006", "name": "Σετ πένσες 3 τεμ. σε θήκη", "price_old": "129,00 €", "price": "96,75 €", "discount": "25%", "stock_label": "Τελευταία 6 τεμ.", "image": "../../assets/placeholder-product-3@2x.png", "url": "https://web.kolleris.com/p/KN-002006" },
+      { "brand": "KNIPEX", "sku": "KN-1262180", "name": "Απογυμνωτής αυτόματος 180 mm", "price_old": "62,40 €", "price": "46,80 €", "discount": "25%", "stock_label": "Άμεσα διαθέσιμο", "image": "../../assets/placeholder-product-4@2x.png", "url": "https://web.kolleris.com/p/KN-1262180" }
+    ]
+  ]
+}
