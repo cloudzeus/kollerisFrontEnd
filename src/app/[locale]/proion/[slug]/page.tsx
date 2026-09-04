@@ -131,6 +131,19 @@ export default async function ProductPage({ params }: PageProps) {
         v: product.inStock ? t("tem", { qty: product.qty }) : t("katopin"),
       },
       /*
+       * Ο κωδικός IMPA, δεύτερος μετά τη διαθεσιμότητα.
+       * ───────────────────────────────────────────────────────────────────
+       * Χωρίς λογότυπο: η λωρίδα είναι τέσσερα ίσα κελιά με ετικέτα και τιμή,
+       * και μια εικόνα μέσα σε ένα από αυτά σπάει τη στοίχιση όλης της
+       * γραμμής — αυτό ακριβώς έκανε όταν μπήκε στη σειρά των κωδικών.
+       *
+       * Ψηλά στη λίστα επειδή για το κοινό που τον ψάχνει είναι ΤΟ
+       * αναγνωριστικό: ο αγοραστής πλοίου δουλεύει με λίστα κωδικών IMPA και
+       * το όνομα του προϊόντος το διαβάζει δεύτερο. Για όλους τους άλλους δεν
+       * υπάρχει καν — μόνο τρία προϊόντα τον έχουν σήμερα.
+       */
+      product.impaCode ? { k: "IMPA", v: product.impaCode } : null,
+      /*
        * Colour and size sit above weight and dimensions on purpose. They are
        * absent from all but a few hundred products, and where they exist they
        * are what the product IS — a glove is chosen by size long before anyone
