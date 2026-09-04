@@ -4,31 +4,50 @@ import Image from "next/image";
  * Το σήμα IMPA.
  *
  * Το IMPA είναι το διεθνές πρότυπο ναυτιλιακών προμηθειών: ο αγοραστής ενός
- * πλοίου δουλεύει με λίστα κωδικών IMPA, όχι με ονόματα προϊόντων. Το σήμα
- * απαντά τη μία ερώτηση που έχει κοιτώντας μια κάρτα — «είναι αυτό;» — χωρίς να
- * ανοίξει το προϊόν.
+ * πλοίου δουλεύει με λίστα κωδικών IMPA, όχι με ονόματα προϊόντων.
  *
- * Εικονίδιο και όχι κείμενο, γιατί ο κωδικός δεν λέει τίποτα σε όποιον δεν τον
- * ψάχνει: έξι ψηφία δίπλα στο όνομα είναι θόρυβος για το 99% των πελατών και
- * σήμα για το 1% που πληρώνει τα περισσότερα. Το `title` το δίνει σε όποιον
- * σταθεί πάνω του, και το `aria-label` σε όποιον διαβάζει με φωνή.
+ * ── Το σχήμα θέλει ύψος ───────────────────────────────────────────────────
+ *
+ * Το λογότυπο είναι ΔΙΓΡΑΜΜΟ — «im» πάνω, «pa» κάτω, με το γκρι κύμα από κάτω.
+ * Σε ύψος 26px κάθε σειρά πέφτει κάτω από 9px και οι δύο γίνονται μουτζούρα:
+ * δεν διαβάζεται ως λογότυπο, διαβάζεται ως σπασμένη φωτογραφία. Δεν είναι
+ * θέμα ανάλυσης — είναι σχήμα που δεν σμικρύνεται.
+ *
+ * Γι' αυτό 30px στην κάρτα και 40 στη σελίδα: το ελάχιστο στο οποίο οι δύο
+ * σειρές διαβάζονται. Χωρίς πλαίσιο, ώστε να μένει διακριτικό παρά το μέγεθος.
  */
+const RATIO = 1920 / 1777;
+
 export function ImpaBadge({ code, className = "" }: { code: string; className?: string }) {
-  const label = `IMPA ${code}`;
+  return <ImpaMark code={code} height={30} className={className} />;
+}
+
+/**
+ * Το σήμα, χωρίς πλαίσιο.
+ *
+ * Χωρίς περίγραμμα και χωρίς φόντο: το κουτί γύρω από ένα λογότυπο με διάφανο
+ * φόντο το κάνει να μοιάζει με μικρογραφία που δεν φόρτωσε. Το ίδιο το σήμα
+ * είναι ήδη σχήμα — δεν χρειάζεται δεύτερο.
+ */
+export function ImpaMark({
+  code,
+  height = 44,
+  className = "",
+}: {
+  code: string;
+  height?: number;
+  className?: string;
+}) {
   return (
-    <span
-      title={label}
-      aria-label={label}
-      className={`flex items-center justify-center border border-k-line-2 bg-white/90 p-[3px] ${className}`}
-    >
-      <Image
-        src="https://kolleris.b-cdn.net/eshop/library/impalogo-1788510932636.webp"
-        alt=""
-        width={16}
-        height={16}
-        unoptimized
-        className="block h-[14px] w-auto object-contain"
-      />
-    </span>
+    <Image
+      src="https://kolleris.b-cdn.net/eshop/library/impalogo-1788510932636.webp"
+      alt={`IMPA ${code}`}
+      title={`IMPA ${code}`}
+      width={Math.round(height * RATIO)}
+      height={height}
+      unoptimized
+      className={`block w-auto shrink-0 object-contain ${className}`}
+      style={{ height }}
+    />
   );
 }

@@ -37,7 +37,6 @@ import { upGreek } from "@/lib/greek";
 import { Zone } from "@/components/zones/Zone";
 import { VariantPicker } from "@/components/pdp/VariantPicker";
 import { FavouriteButton } from "@/components/product/FavouriteButton";
-import { ImpaBadge } from "@/components/product/ImpaBadge";
 import { favouriteIds } from "@/lib/account/favourite-ids";
 import { variantsOf } from "@/lib/catalog/variants";
 import { discountedNet, offerBadgeFor } from "@/lib/offers/badges";
@@ -481,10 +480,6 @@ export default async function ProductPage({ params }: PageProps) {
                   >
                     {upGreek(product.brand.name)}
                   </Link>
-                  {/* Ο IMPA δίπλα στη μάρκα: ο αγοραστής πλοίου κοιτάει
-                      πρώτα εκεί, και ο κωδικός είναι το μόνο που τον
-                      ενδιαφέρει πριν την τιμή. */}
-                  {product.impaCode && <ImpaBadge code={product.impaCode} className="h-6" />}
                   <span className="t-brand-count ml-auto flex items-center gap-1.5 border border-k-line-2 px-2 py-1 text-k-text-3">
                     <span
                       aria-hidden

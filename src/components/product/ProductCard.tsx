@@ -133,10 +133,7 @@ export async function ProductCard({
             offer || saving ? "top-11 lg:top-[52px]" : "top-2.5 lg:top-3.5",
           )}
         >
-          <span className="flex items-center gap-1.5">
-            <FavouriteButton productId={product.id} initial={favourite} size="sm" />
-            {product.impaCode && <ImpaBadge code={product.impaCode} className="h-[22px]" />}
-          </span>
+          <FavouriteButton productId={product.id} initial={favourite} size="sm" />
           {compare ? (
             <CompareCheckbox
               slug={product.slug}
@@ -170,9 +167,19 @@ export async function ProductCard({
       </div>
 
       <div className="flex flex-1 flex-col gap-1.5 px-3 pb-3 @[300px]:gap-[9px] @[300px]:px-5 @[300px]:pb-5">
-        <div className="flex items-baseline justify-between">
-          <span className="t-card-brand text-k-red">{product.brandName ?? "—"}</span>
-          <span className="t-card-sku hidden text-k-text-5 @[240px]:inline">{product.sku}</span>
+        {/*
+          Το IMPA στη γραμμή της μάρκας, όχι πάνω στη φωτογραφία.
+          ──────────────────────────────────────────────────────────────────
+          Πάνω στη φωτογραφία κάθεται στο ίδιο το προϊόν και διαβάζεται σαν
+          αυτοκόλλητο. Εδώ είναι δίπλα στον κωδικό — που είναι ακριβώς τι
+          είναι — και δεν κρύβει τίποτα.
+        */}
+        <div className="flex items-center justify-between gap-2">
+          <span className="t-card-brand truncate text-k-red">{product.brandName ?? "—"}</span>
+          <span className="flex shrink-0 items-center gap-1.5">
+            <span className="t-card-sku hidden text-k-text-5 @[240px]:inline">{product.sku}</span>
+            {product.impaCode && <ImpaBadge code={product.impaCode} />}
+          </span>
         </div>
 
         <Link
