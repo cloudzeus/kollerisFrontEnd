@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-09-04T03:14:10.412Z",
+  "timestamp": "2026-09-04T03:21:00.390Z",
   "source": "auto-postool",
   "partial": false,
   "phase": null,
@@ -22,37 +22,29 @@
     },
     {
       "status": "M",
-      "path": "package-lock.json"
+      "path": "src/app/admin/(protected)/layout.tsx"
     },
     {
       "status": "M",
-      "path": "package.json"
+      "path": "src/components/admin/AdminNav.tsx"
     },
     {
       "status": "M",
-      "path": "prisma/schema.prisma"
+      "path": "src/components/home/NewsletterBand.tsx"
     },
     {
       "status": "??",
-      "path": "prisma/migrations/20260826120000_newsletter/"
+      "path": "src/app/[locale]/newsletter/"
     },
     {
       "status": "??",
-      "path": "public/email-assets/"
+      "path": "src/app/admin/(protected)/newsletter/"
     },
     {
       "status": "??",
-      "path": "src/emails/"
-    },
-    {
-      "status": "??",
-      "path": "src/lib/mail/templates.ts"
-    },
-    {
-      "status": "??",
-      "path": "src/lib/mail/urls.ts"
+      "path": "src/lib/newsletter/"
     }
   ],
   "next_action": null,
-  "context_notes": "Recent commits:\n540cdc3 fix(docker): το build έχανε τα devDependencies και έσκαγε στο Tailwind\n4e62624 feat(design): γρήγορη παραγγελία με κωδικό, μάρκες στο nav — και το BRANDS ξανά ορατό\n21d2875 fix(chrome): hook μέσα σε map — «Rendered more hooks than during the previous render»\nb2d94cf feat(design): το νέο design στα θεμέλια — γραμματοσειρές, παλέτα, header & footer\nd599256 fix(stock): κανένα αρνητικό απόθεμα δεν φτάνει στο κατάστημα"
+  "context_notes": "Recent commits:\n3477feb feat(newsletter): τα 24 email templates μπαίνουν στο κατάστημα, με τα σωστά link\n540cdc3 fix(docker): το build έχανε τα devDependencies και έσκαγε στο Tailwind\n4e62624 feat(design): γρήγορη παραγγελία με κωδικό, μάρκες στο nav — και το BRANDS ξανά ορατό\n21d2875 fix(chrome): hook μέσα σε map — «Rendered more hooks than during the previous render»\nb2d94cf feat(design): το νέο design στα θεμέλια — γραμματοσειρές, παλέτα, header & footer"
 }

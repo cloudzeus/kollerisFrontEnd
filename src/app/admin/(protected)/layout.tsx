@@ -27,9 +27,24 @@ const GROUPS: Array<{ title: string; sections: Section[] }> = [
       { href: "/admin", label: "Επισκόπηση", icon: "dashboard", capability: null },
       { href: "/admin/orders", label: "Παραγγελίες", icon: "orders", capability: "orders" },
       { href: "/admin/courier", label: "Αποστολές", icon: "courier", capability: "orders" },
-      { href: "/admin/engagement", label: "Επικοινωνία", icon: "engagement", capability: "engagement" },
       { href: "/admin/customers", label: "Πελάτες", icon: "customers", capability: "customers" },
       { href: "/admin/service", label: "Επιστροφές", icon: "service", capability: "service" },
+    ],
+  },
+  /*
+   * Η «Επικοινωνία» ήταν ΕΝΑ item — το inbox των μηνυμάτων. Έγινε ομάδα όταν
+   * απέκτησε δεύτερο κάτοικο, το newsletter. Τα δύο μοιράζονται το ίδιο
+   * ερώτημα («τι λέμε στους πελάτες και τι μας λένε») και θα ήταν λάθος να
+   * κάθονται σε διαφορετικές ενότητες επειδή το ένα είναι εισερχόμενο.
+   *
+   * Το Newsletter πρώτο: είναι η δουλειά που ξεκινά κανείς, ενώ τα μηνύματα
+   * είναι δουλειά που τον βρίσκει.
+   */
+  {
+    title: "Επικοινωνία",
+    sections: [
+      { href: "/admin/newsletter", label: "Newsletter", icon: "newsletter", capability: "engagement" },
+      { href: "/admin/engagement", label: "Μηνύματα", icon: "engagement", capability: "engagement" },
     ],
   },
   {
