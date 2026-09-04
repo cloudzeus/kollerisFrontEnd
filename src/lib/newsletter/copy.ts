@@ -55,6 +55,56 @@ export type PickedProduct = {
   url: string;
 };
 
+/**
+ * Το περιεχόμενο του newsletter «Νέα».
+ *
+ * Δομημένο και όχι ελεύθερο HTML, επειδή έτσι είναι φτιαγμένο το πρότυπο: κάθε
+ * άρθρο παίρνει τη δική του εικόνα, ετικέτα και σύνδεσμο, και η διάταξη κρατιέται
+ * από πίνακες που το Outlook καταλαβαίνει. Ένα κουτί ελεύθερου κειμένου θα
+ * έδινε στον συντάκτη ελευθερία που το email δεν μπορεί να αποδώσει.
+ */
+export type NewsArticle = {
+  id: string;
+  title: string;
+  excerpt: string;
+  tag: string;
+  image: string;
+  url: string;
+  cta: string;
+};
+
+export type NewsContent = {
+  issue: { label: string; number: string; title: string; intro: string };
+  hero: {
+    eyebrow: string;
+    title_before: string;
+    title_accent: string;
+    title_after: string;
+    text: string;
+    image: string;
+    image_alt: string;
+    cta: string;
+    url: string;
+  };
+  articles: NewsArticle[];
+};
+
+export const EMPTY_NEWS: NewsContent = {
+  issue: { label: "Newsletter", number: "", title: "", intro: "" },
+  hero: {
+    eyebrow: "",
+    title_before: "",
+    title_accent: "",
+    title_after: "",
+    text: "",
+    image: "",
+    image_alt: "",
+    cta: "Δειτε περισσοτερα",
+    url: "",
+  },
+  articles: [],
+};
+
 export type CampaignPayload = {
   campaign: {
     eyebrow: string;
@@ -69,6 +119,8 @@ export type CampaignPayload = {
   bodyHtml?: string;
   /** Παρακάμψεις των σταθερών κειμένων. Κενό = οι προεπιλογές. */
   copy?: CampaignCopy;
+  /** Περιεχόμενο για τα πρότυπα «Νέα» και «Ανακοίνωση». */
+  news?: NewsContent;
 };
 
 export type TemplateMeta = {

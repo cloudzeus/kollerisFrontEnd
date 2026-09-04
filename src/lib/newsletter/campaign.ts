@@ -11,6 +11,7 @@ import {
   type ProductFilters,
   type TemplateMeta,
 } from "@/lib/newsletter/copy";
+import { richText } from "@/lib/newsletter/rich-text";
 
 /*
  * Επανεξαγωγή για τον server. Οι τιμές και οι τύποι ζουν στο `copy.ts`, που δεν
@@ -18,7 +19,16 @@ import {
  * τον renderer και το `node:fs`.
  */
 export { DEFAULT_COPY };
-export type { CampaignPayload, CampaignCopy, PickedProduct, ProductFilters, TemplateMeta } from "@/lib/newsletter/copy";
+export type {
+  CampaignPayload,
+  CampaignCopy,
+  NewsArticle,
+  NewsContent,
+  PickedProduct,
+  ProductFilters,
+  TemplateMeta,
+} from "@/lib/newsletter/copy";
+export { EMPTY_NEWS } from "@/lib/newsletter/copy";
 
 /**
  * Ό,τι χρειάζεται ο wizard από τον server: ποια πρότυπα υπάρχουν, ποια προϊόντα
@@ -230,8 +240,23 @@ export async function renderCampaign(
     if (typeof v === "string" && v.trim()) copy[k] = v;
   }
 
+  /*
+   * Τα κείμενα των «Νέων» περνούν από τον καθαριστή και βγαίνουν ως SafeString,
+   * ώστε ο συντάκτης να μπορεί να βάλει έμφαση και συνδέσμους χωρίς να απειλείται
+   * η διάταξη — και χωρίς να χρειαστεί να γίνουν raw τα πεδία του προτύπου.
+   */
+  const news = payload.news;
+
   return renderTemplate(templateId, {
     copy,
+    issue: news
+      ? { ...news.issue, intro: richText(news.issue.intro) }
+      : undefined,
+    hero: news ? { ...news.hero, text: richText(news.hero.text) } : undefined,
+    articles: (news?.articles ?? []).map((a) => ({
+      ...a,
+      excerpt: richText(a.excerpt),
+    })),
     campaign: payload.campaign,
     product_rows: toProductRows(payload.products ?? []),
     body_html: payload.bodyHtml ?? "",

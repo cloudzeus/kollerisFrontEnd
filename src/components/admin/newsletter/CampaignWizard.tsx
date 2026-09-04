@@ -7,6 +7,7 @@ import { StepRail, EmailPreview, type StepDef } from "./WizardShell";
 import { ProductPicker } from "./ProductPicker";
 import { RecipientPicker, type RecipientChoice } from "./RecipientPicker";
 import { AiCopyPanel } from "./AiCopyPanel";
+import { NewsEditor } from "./NewsEditor";
 import {
   previewCampaignAction,
   saveCampaignAction,
@@ -14,6 +15,8 @@ import {
 } from "@/lib/newsletter/campaign-actions";
 import {
   DEFAULT_COPY,
+  EMPTY_NEWS,
+  type NewsContent,
   type PickedProduct,
   type TemplateMeta,
 } from "@/lib/newsletter/copy";
@@ -65,6 +68,7 @@ export function CampaignWizard({
   });
   const [products, setProducts] = useState<PickedProduct[]>([]);
   const [copy, setCopy] = useState<Record<string, string>>({});
+  const [news, setNews] = useState<NewsContent>(EMPTY_NEWS);
   const [testTo, setTestTo] = useState("");
   const [testState, setTestState] = useState<{ kind: "idle" | "ok" | "error"; message: string }>({
     kind: "idle",
@@ -94,8 +98,8 @@ export function CampaignWizard({
   };
 
   const payload = useMemo(
-    () => ({ campaign, products, bodyHtml: "", copy }),
-    [campaign, products, copy],
+    () => ({ campaign, products, bodyHtml: "", copy, news }),
+    [campaign, products, copy, news],
   );
 
   const refresh = useCallback(() => {
@@ -218,6 +222,16 @@ export function CampaignWizard({
                 </Field>
               </div>
 
+              {!template.takesProducts && (
+                /*
+                  Τα «Νέα» και οι «Ανακοινώσεις» δεν έχουν καμπάνια προσφοράς —
+                  έχουν τεύχος, κύριο θέμα και άρθρα. Δείχνοντάς τους τα πεδία
+                  έκπτωσης θα ζητούσαμε ποσοστό για email που δεν πουλά τίποτα.
+                */
+                <NewsEditor value={news} onChange={setNews} />
+              )}
+
+              {template.takesProducts && (
               <div className="grid gap-3 border border-neutral-200 bg-white p-4 sm:grid-cols-2">
                 <Field label="Επικεφαλίδα" hint="π.χ. «Προσφορές Σεπτεμβρίου / 01–30.09»">
                   <input
@@ -269,6 +283,7 @@ export function CampaignWizard({
                   </Field>
                 </div>
               </div>
+              )}
 
               {template.takesProducts && (
                 <div className="border border-neutral-200 bg-white p-4">

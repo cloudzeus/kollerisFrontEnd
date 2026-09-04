@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-09-04T04:30:31.966Z",
+  "timestamp": "2026-09-04T04:41:01.748Z",
   "source": "auto-postool",
   "partial": false,
   "phase": null,
@@ -22,17 +22,33 @@
     },
     {
       "status": "M",
+      "path": "src/components/admin/newsletter/CampaignWizard.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/lib/newsletter/ai-copy.ts"
+    },
+    {
+      "status": "M",
       "path": "src/lib/newsletter/campaign-actions.ts"
     },
     {
-      "status": "??",
-      "path": "src/components/admin/newsletter/AiCopyPanel.tsx"
+      "status": "M",
+      "path": "src/lib/newsletter/campaign.ts"
+    },
+    {
+      "status": "M",
+      "path": "src/lib/newsletter/copy.ts"
     },
     {
       "status": "??",
-      "path": "src/lib/newsletter/ai-copy.ts"
+      "path": "src/components/admin/newsletter/NewsEditor.tsx"
+    },
+    {
+      "status": "??",
+      "path": "src/lib/newsletter/__tests__/ai-copy.test.ts"
     }
   ],
   "next_action": null,
-  "context_notes": "Recent commits:\n351bbb7 feat(newsletter): γραφικά και εξαγωγές στη σελίδα MailGun\nb3ffff3 feat(newsletter): σελίδα MailGun με αναλυτικά στατιστικά αποστολών\n93b276a fix(newsletter): το build έσπαγε — client component τραβούσε server-only κώδικα\n486d471 fix(newsletter): τα &nbsp; τυπώνονταν κυριολεκτικά — επτά φορές σε κάθε email\n50a7903 fix(newsletter): ένα στα δέκα προϊόντα έβγαζε σπασμένη εικόνα στο email"
+  "context_notes": "Recent commits:\n934937d feat(newsletter): παραγωγή κειμένων προσφορών με DeepSeek, ανά γωνία marketing\n351bbb7 feat(newsletter): γραφικά και εξαγωγές στη σελίδα MailGun\nb3ffff3 feat(newsletter): σελίδα MailGun με αναλυτικά στατιστικά αποστολών\n93b276a fix(newsletter): το build έσπαγε — client component τραβούσε server-only κώδικα\n486d471 fix(newsletter): τα &nbsp; τυπώνονταν κυριολεκτικά — επτά φορές σε κάθε email"
 }

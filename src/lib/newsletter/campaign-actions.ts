@@ -6,6 +6,8 @@ import { assertCan } from "@/lib/rbac";
 import { prisma } from "@/lib/prisma";
 import { sendTest } from "@/lib/newsletter/send";
 import { generateCampaignCopy, type AngleId, type GeneratedCopy } from "@/lib/newsletter/ai-copy";
+import { getBlogPosts } from "@/lib/blog/blog";
+import { siteOrigin } from "@/lib/seo/urls";
 import {
   renderCampaign,
   searchCampaignProducts,
@@ -218,6 +220,83 @@ export async function generateCopyAction(input: {
           : `Η παραγωγή απέτυχε: ${message.slice(0, 160)}`,
     };
   }
+}
+
+export type NewsSource = {
+  kind: "blog" | "offer" | "product";
+  kindLabel: string;
+  title: string;
+  excerpt: string;
+  image: string;
+  url: string;
+  tag: string;
+};
+
+/**
+ * Ό,τι μπορεί να γίνει άρθρο στο newsletter «Νέα» — από πραγματικό περιεχόμενο.
+ *
+ * ── Γιατί όχι κενά πεδία να τα γράψει ο συντάκτης ──────────────────────────
+ *
+ * Επειδή ο τίτλος, το κείμενο, η εικόνα και ο σύνδεσμος ΥΠΑΡΧΟΥΝ ήδη — σε
+ * άρθρο του blog, σε προσφορά, σε προϊόν. Ζητώντας τα ξανά, δύο πράγματα πάνε
+ * στραβά: ο συντάκτης πληκτρολογεί URL εικόνας με το χέρι (και κάνει λάθος), και
+ * το newsletter αρχίζει να λέει κάτι λίγο διαφορετικό από τη σελίδα στην οποία
+ * οδηγεί.
+ *
+ * Μετά την επιλογή, ΟΛΑ παραμένουν επεξεργάσιμα: ο τίτλος του blog είναι
+ * γραμμένος για σελίδα, και σε email συχνά θέλει άλλη διατύπωση.
+ */
+export async function searchNewsSourcesAction(query: string): Promise<NewsSource[]> {
+  await guard();
+  const q = query.trim().toLowerCase();
+  const origin = siteOrigin();
+  const out: NewsSource[] = [];
+
+  /*
+   * Τα άρθρα έρχονται από το HDCtool και μπορεί να μην απαντήσει. Η αποτυχία
+   * τους δεν πρέπει να ρίξει και τις προσφορές — ο συντάκτης θα έμενε με άδεια
+   * λίστα χωρίς να ξέρει γιατί.
+   */
+  try {
+    const blog = await getBlogPosts("el", 1, 24);
+    for (const post of blog.posts) {
+      out.push({
+        kind: "blog",
+        kindLabel: "Άρθρο",
+        title: post.title,
+        excerpt: post.shortDescription ?? "",
+        image: post.image?.url ?? "",
+        url: `${origin}/blog/${post.slug}`,
+        tag: "ΑΡΘΡΟ",
+      });
+    }
+  } catch (error) {
+    console.warn("[newsletter] blog sources unavailable", error);
+  }
+
+  const offers = await prisma.offer.findMany({
+    where: { isActive: true },
+    select: { slug: true, titleEl: true, descriptionEl: true, image: true, imageWide: true, href: true, badge: true },
+    orderBy: { updatedAt: "desc" },
+    take: 20,
+  });
+  for (const o of offers) {
+    out.push({
+      kind: "offer",
+      kindLabel: "Προσφορά",
+      title: o.titleEl,
+      excerpt: o.descriptionEl,
+      image: o.image ?? o.imageWide ?? "",
+      url: o.href.startsWith("http") ? o.href : `${origin}${o.href}`,
+      tag: (o.badge ?? "ΠΡΟΣΦΟΡΑ").toUpperCase(),
+    });
+  }
+
+  const filtered = q.length >= 2
+    ? out.filter((s) => `${s.title} ${s.excerpt}`.toLowerCase().includes(q))
+    : out;
+
+  return filtered.slice(0, 30);
 }
 
 /** Οι επιβεβαιωμένοι συνδρομητές — το κοινό που μπορεί να λάβει καμπάνια. */
