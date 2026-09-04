@@ -192,6 +192,18 @@ export function pageMeta(input: {
   type?: "website" | "article";
 }) {
   const url = absoluteUrl(input.path, input.locale);
+  /*
+   * Η εικόνα κοινοποίησης δηλώνεται ΡΗΤΑ.
+   * ───────────────────────────────────────────────────────────────────────────
+   * Το `openGraph` μιας σελίδας ΑΝΤΙΚΑΘΙΣΤΑ ολόκληρο εκείνο του γονέα — και
+   * μαζί του χάνεται η εικόνα που δίνει το `opengraph-image.tsx`. Μετρημένο
+   * στην παραγωγή: 11 από 13 σελίδες έμειναν χωρίς `og:image` μόλις απέκτησαν
+   * δικό τους `og:title`. Δηλαδή η διόρθωση του τίτλου χάλασε την εικόνα.
+   *
+   * Χωρίς hash στη διεύθυνση: το Next τη σερβίρει και έτσι (επαληθεύτηκε, 200
+   * image/png), ενώ ο hash αλλάζει σε κάθε build και δεν γράφεται πουθενά.
+   */
+  const image = input.image ?? absoluteUrl("/opengraph-image", input.locale);
   return {
     alternates: alternatesFor(input.path, input.locale),
     openGraph: {
@@ -206,15 +218,13 @@ export function pageMeta(input: {
       title: input.title,
       description: input.description,
       url,
-      ...(input.image
-        ? { images: [{ url: input.image, alt: input.title }] }
-        : {}),
+      images: [{ url: image, alt: input.title }],
     },
     twitter: {
       card: "summary_large_image" as const,
       title: input.title,
       description: input.description,
-      ...(input.image ? { images: [input.image] } : {}),
+      images: [image],
     },
   };
 }
