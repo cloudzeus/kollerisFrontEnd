@@ -42,7 +42,7 @@ export async function BrandWall({
           <Link
             key={brand.id}
             href={`/brands/${brand.slug}`}
-            className="flex h-[124px] flex-col items-center justify-center gap-1.5 bg-white px-2.5 transition-colors hover:bg-k-surface-2 lg:h-[148px]"
+            className="flex h-[132px] flex-col items-center justify-center gap-1.5 bg-white p-5 transition-colors hover:bg-k-surface-2 lg:h-[150px]"
           >
             {brand.logo ? (
               /* Square source art — see the note in MegaMenu. */
@@ -51,10 +51,10 @@ export async function BrandWall({
                 alt={brand.name}
                 /* Εγγενές μέγεθος διπλάσιο του αποδοσμένου, για οθόνες 2x:
                    στα 176 ένα λογότυπο 116px θα ανέβαινε μόλις 1,5 φορά. */
-                width={232}
-                height={232}
+                width={200}
+                height={200}
                 style={logoScaleStyle(brand.slug)}
-                className="block h-[92px] w-[92px] object-contain lg:h-[116px] lg:w-[116px]"
+                className="block h-[76px] w-[76px] max-w-full object-contain lg:h-[90px] lg:w-[90px]"
               />
             ) : (
               <span className="t-brand-name text-k-text-2">{brand.name}</span>

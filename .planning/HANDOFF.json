@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-09-04T18:31:21.580Z",
+  "timestamp": "2026-09-04T18:34:07.907Z",
   "source": "auto-postool",
   "partial": false,
   "phase": null,
@@ -15,7 +15,20 @@
   "blockers": [],
   "human_actions_pending": [],
   "decisions": [],
-  "uncommitted_files": [],
+  "uncommitted_files": [
+    {
+      "status": "M",
+      "path": ".planning/HANDOFF.json"
+    },
+    {
+      "status": "M",
+      "path": "src/components/home/BrandWall.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/lib/catalog/brand-logo.ts"
+    }
+  ],
   "next_action": null,
-  "context_notes": "Recent commits:\nf2ee6c0 fix(banners): κανένα άλυτο {token} στο κατάστημα, και η μάρκα λύνει και στις προσφορές\nc8eb0bf fix(banners): το κλικ άνοιγε ΑΛΛΟ κελί, μικρότερη τυπογραφία, προεπισκόπηση κίνησης\n7bb4ac7 fix(banners): μία κλίμακα τυπογραφίας ανά κελί, αντί για πέντε ανεξάρτητα clamp\n27ef746 feat(brand): το σήμα κόκκινο με λευκά γράμματα, σε οριζόντια διάταξη\nd42f587 feat(banners): έξι νέες παραλλαγές, ο ρόλος «μέγεθος», και το σήμα της μάρκας"
+  "context_notes": "Recent commits:\nc6c6872 feat(home): μεγαλύτερα λογότυπα στον τοίχο των μαρκών\nf2ee6c0 fix(banners): κανένα άλυτο {token} στο κατάστημα, και η μάρκα λύνει και στις προσφορές\nc8eb0bf fix(banners): το κλικ άνοιγε ΑΛΛΟ κελί, μικρότερη τυπογραφία, προεπισκόπηση κίνησης\n7bb4ac7 fix(banners): μία κλίμακα τυπογραφίας ανά κελί, αντί για πέντε ανεξάρτητα clamp\n27ef746 feat(brand): το σήμα κόκκινο με λευκά γράμματα, σε οριζόντια διάταξη"
 }
