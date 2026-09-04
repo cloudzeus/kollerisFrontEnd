@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-09-04T03:21:00.390Z",
+  "timestamp": "2026-09-04T03:33:45.086Z",
   "source": "auto-postool",
   "partial": false,
   "phase": null,
@@ -21,30 +21,22 @@
       "path": ".planning/HANDOFF.json"
     },
     {
-      "status": "M",
-      "path": "src/app/admin/(protected)/layout.tsx"
-    },
-    {
-      "status": "M",
-      "path": "src/components/admin/AdminNav.tsx"
-    },
-    {
-      "status": "M",
-      "path": "src/components/home/NewsletterBand.tsx"
+      "status": "??",
+      "path": "src/app/admin/(protected)/newsletter/nea/"
     },
     {
       "status": "??",
-      "path": "src/app/[locale]/newsletter/"
+      "path": "src/components/admin/newsletter/"
     },
     {
       "status": "??",
-      "path": "src/app/admin/(protected)/newsletter/"
+      "path": "src/lib/newsletter/campaign-actions.ts"
     },
     {
       "status": "??",
-      "path": "src/lib/newsletter/"
+      "path": "src/lib/newsletter/campaign.ts"
     }
   ],
   "next_action": null,
-  "context_notes": "Recent commits:\n3477feb feat(newsletter): τα 24 email templates μπαίνουν στο κατάστημα, με τα σωστά link\n540cdc3 fix(docker): το build έχανε τα devDependencies και έσκαγε στο Tailwind\n4e62624 feat(design): γρήγορη παραγγελία με κωδικό, μάρκες στο nav — και το BRANDS ξανά ορατό\n21d2875 fix(chrome): hook μέσα σε map — «Rendered more hooks than during the previous render»\nb2d94cf feat(design): το νέο design στα θεμέλια — γραμματοσειρές, παλέτα, header & footer"
+  "context_notes": "Recent commits:\n06adb4d feat(newsletter): η φόρμα εγγραφής δουλεύει, και το admin απέκτησε ομάδα «Επικοινωνία»\n3477feb feat(newsletter): τα 24 email templates μπαίνουν στο κατάστημα, με τα σωστά link\n540cdc3 fix(docker): το build έχανε τα devDependencies και έσκαγε στο Tailwind\n4e62624 feat(design): γρήγορη παραγγελία με κωδικό, μάρκες στο nav — και το BRANDS ξανά ορατό\n21d2875 fix(chrome): hook μέσα σε map — «Rendered more hooks than during the previous render»"
 }
