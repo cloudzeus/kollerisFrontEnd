@@ -154,6 +154,41 @@ export async function generateMetadata(): Promise<Metadata> {
       template: "%s | Kolleris",
     },
     description: t("perigrafi_epaggelmatika_ergaleia_michanimata"),
+    /*
+     * Open Graph — ό,τι διαβάζει κάθε εφαρμογή που φτιάχνει προεπισκόπηση.
+     * ─────────────────────────────────────────────────────────────────────────
+     * Έλειπε ολόκληρο. Μετρημένο σε έξι σελίδες: ούτε ένα `og:*`, ούτε ένα
+     * `twitter:*`. Ένα link του καταστήματος επικολλημένο σε Viber, Messenger,
+     * Slack ή LinkedIn εμφανιζόταν ως γυμνή διεύθυνση. Το `<title>` και το
+     * `description` ήταν σωστά όλο αυτό τον καιρό· απλώς δεν τα κοιτάζει
+     * κανένας scraper — οι scrapers διαβάζουν Open Graph.
+     *
+     * Η εικόνα δεν δηλώνεται εδώ: το `opengraph-image.tsx` δίπλα σε αυτό το
+     * αρχείο την παράγει και το Next τη συνδέει μόνο του, με τις σωστές
+     * διαστάσεις και το σωστό `alt`. Γραμμένη εδώ ως διαδρομή, θα ξέμενε
+     * πίσω τη μέρα που αλλάξει.
+     */
+    openGraph: {
+      type: "website",
+      siteName: "Kolleris",
+      locale: locale === "el" ? "el_GR" : locale === "it" ? "it_IT" : "en_US",
+      title: t("titlos_kolleris_ergaleia_epaggelmatikos"),
+      description: t("perigrafi_epaggelmatika_ergaleia_michanimata"),
+      /*
+       * Χωρίς `url` επίτηδες.
+       *
+       * Το `openGraph` κληρονομείται ΟΛΟΚΛΗΡΟ από κάθε σελίδα που δεν ορίζει
+       * δικό της — έτσι το λέει η τεκμηρίωση του Next. Ένα σταθερό `og:url`
+       * εδώ σήμαινε ότι κάθε link του καταστήματος, από όποια σελίδα κι αν
+       * αντιγραφόταν, θα δήλωνε στους scrapers ότι είναι η αρχική. Χωρίς αυτό,
+       * η προεπισκόπηση δείχνει τη διεύθυνση που όντως μοιράστηκε.
+       */
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: t("titlos_kolleris_ergaleia_epaggelmatikos"),
+      description: t("perigrafi_epaggelmatika_ergaleia_michanimata"),
+    },
   };
 }
 
