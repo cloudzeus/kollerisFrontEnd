@@ -133,7 +133,18 @@ export default async function ProductPage({ params }: PageProps) {
        * asks what it weighs. Ranking them below would let the four-item slice
        * drop them in favour of trivia.
        */
-      product.sizes.length > 0
+      /*
+       * Το μέγεθος φεύγει από τη λωρίδα όταν υπάρχει επιλογέας.
+       * ───────────────────────────────────────────────────────────────────
+       * Ο επιλογέας από πάνω δείχνει ήδη ποιο νούμερο είναι διαλεγμένο, και
+       * μάλιστα δείχνει ΚΑΙ τα υπόλοιπα. Μια δεύτερη αναφορά «ΜΕΓΕΘΟΣ 36»
+       * δίπλα στη διαθεσιμότητα δεν προσθέτει τίποτα και ρωτάει τον
+       * αναγνώστη ποιο από τα δύο να πιστέψει.
+       *
+       * Χωρίς ομάδα μένει: εκεί το μέγεθος είναι σταθερό χαρακτηριστικό του
+       * προϊόντος, όχι επιλογή — ένα γάντι που υπάρχει μόνο σε L.
+       */
+      product.sizes.length > 0 && !product.variantGroup
         ? { k: t("megethos"), v: product.sizes.map((s) => s.label).join(", ") }
         : null,
       product.colors.length > 0
