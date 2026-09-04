@@ -34,6 +34,7 @@ import {
 } from "@/lib/catalog/queries";
 import { formatPercent, grossAmount, savingsOf } from "@/lib/format";
 import { upGreek } from "@/lib/greek";
+import { cn } from "@/lib/utils";
 import { Zone } from "@/components/zones/Zone";
 import { VariantPicker } from "@/components/pdp/VariantPicker";
 import { FavouriteButton } from "@/components/product/FavouriteButton";
@@ -119,9 +120,20 @@ export default async function ProductPage({ params }: PageProps) {
    * a 4-column grid fed 3 items leaves a dead grey square, which is what it
    * was doing on most products.
    */
+  /*
+   * Η μονάδα ανήκει στην ΤΙΜΗ, όχι στην ετικέτα.
+   * ───────────────────────────────────────────────────────────────────────────
+   * «ΔΙΑΣΤΑΣΕΙΣ (CM)» δεν χωρούσε σε κελί ενός τετάρτου και τυλιγόταν σε δύο
+   * σειρές, οπότε εκείνο το κελί ήταν ψηλότερο από τα άλλα τρία και η λωρίδα
+   * φαινόταν ξεστοιχισμένη — σε κάθε προϊόν με διαστάσεις.
+   *
+   * Και τα δεκαδικά με κόμμα: «8.6» είναι αγγλικά, και δίπλα στις τιμές που
+   * γράφονται «152,52 €» διαβάζεται ως λάθος.
+   */
+  const el = (n: number) => n.toLocaleString(locale);
   const dimensions =
     product.width != null && product.length != null && product.height != null
-      ? `${product.width}×${product.length}×${product.height}`
+      ? `${el(product.width)}×${el(product.length)}×${el(product.height)} cm`
       : null;
 
   const glance = (
@@ -167,7 +179,7 @@ export default async function ProductPage({ params }: PageProps) {
       product.colors.length > 0
         ? { k: t("chroma"), v: product.colors.join(", ") }
         : null,
-      product.weight != null ? { k: t("varos"), v: `${product.weight} kg` } : null,
+      product.weight != null ? { k: t("varos"), v: `${el(product.weight)} kg` } : null,
       product.guaranteeMonths
         ? { k: t("eggyisi"), v: t("mines", { guaranteeMonths: product.guaranteeMonths }) }
         : null,
@@ -399,16 +411,30 @@ export default async function ProductPage({ params }: PageProps) {
               </div>
 
               {glance.length > 0 && (
-                <dl className="mt-5 grid grid-cols-2 gap-px border border-k-line bg-k-line sm:grid-cols-4 lg:mt-6">
+                /*
+                  `@container`, και το ίδιο padding σε όλα τα κελιά.
+                  ────────────────────────────────────────────────────────────
+                  Τα τέσσερα κελιά μοιράζονται τη ΣΤΗΛΗ, όχι την οθόνη: με
+                  `sm:` έμπαιναν τέσσερα σε πλάτος 310px, δηλαδή ~78px το
+                  καθένα, και το `lg:px-8` έτρωγε 64 από αυτά. Ό,τι περίσσευε
+                  δεν χωρούσε ούτε ένα «32×15×10 cm».
+                */
+                <dl className="@container mt-5 grid grid-cols-2 gap-px border border-k-line bg-k-line lg:mt-6 @[30rem]:grid-cols-4">
                   {glance.map((item) => (
-                    <div
-                      key={item.k}
-                      className="bg-white px-5 py-4 lg:px-8 lg:py-5"
-                    >
+                    <div key={item.k} className="bg-white px-4 py-4 @[44rem]:px-6">
                       <dt className="t-account-label text-k-text-4">
                         {upGreek(item.k)}
                       </dt>
-                      <dd className="mt-1.5 font-mono text-[17px] leading-[1.2] font-semibold text-k-ink">
+                      {/* Μικρότερο για μακριές τιμές: «32×15×10 cm» στα 17px
+                          τυλιγόταν, και το «cm» έπεφτε μόνο του στη δεύτερη
+                          σειρά. Οι σύντομες τιμές — «8 τεμ.», «2,3 kg» —
+                          κρατούν το μεγάλο μέγεθος. */}
+                      <dd
+                        className={cn(
+                          "mt-1.5 font-mono leading-[1.2] font-semibold text-k-ink",
+                          item.v.length > 9 ? "text-[13.5px]" : "text-[17px]",
+                        )}
+                      >
                         {item.v}
                       </dd>
                     </div>

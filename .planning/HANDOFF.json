@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-09-04T08:51:36.210Z",
+  "timestamp": "2026-09-04T08:54:11.122Z",
   "source": "auto-postool",
   "partial": false,
   "phase": null,
@@ -19,8 +19,24 @@
     {
       "status": "M",
       "path": ".planning/HANDOFF.json"
+    },
+    {
+      "status": "M",
+      "path": "src/app/[locale]/proion/[slug]/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/messages/el.json"
+    },
+    {
+      "status": "M",
+      "path": "src/messages/en.json"
+    },
+    {
+      "status": "M",
+      "path": "src/messages/it.json"
     }
   ],
   "next_action": null,
-  "context_notes": "Recent commits:\nb6e50ce fix(impa): το λογότυπο στη γραμμή της μάρκας, σε μέγεθος που διαβάζεται\nd935b22 feat(impa): σήμα IMPA στην κάρτα και στη σελίδα, και ο κωδικός στην αναζήτηση\n383af57 feat(account): αγαπημένα προϊόντα, με καρδιά στην κάρτα και στη σελίδα\nb97fff4 fix(pdp): φεύγει το «ΜΕΓΕΘΟΣ» από τη λωρίδα όταν υπάρχει επιλογέας\n86c087e fix(cart): ο κωδικός του ERP στη γραμμή, και ολόκληρο το όνομα με το νούμερο"
+  "context_notes": "Recent commits:\n6f0b497 feat(impa): ο κωδικός στη λωρίδα «με μια ματιά», χωρίς λογότυπο\nb6e50ce fix(impa): το λογότυπο στη γραμμή της μάρκας, σε μέγεθος που διαβάζεται\nd935b22 feat(impa): σήμα IMPA στην κάρτα και στη σελίδα, και ο κωδικός στην αναζήτηση\n383af57 feat(account): αγαπημένα προϊόντα, με καρδιά στην κάρτα και στη σελίδα\nb97fff4 fix(pdp): φεύγει το «ΜΕΓΕΘΟΣ» από τη λωρίδα όταν υπάρχει επιλογέας"
 }
