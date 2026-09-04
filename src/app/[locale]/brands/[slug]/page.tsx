@@ -1,5 +1,8 @@
 import { getTranslations } from "next-intl/server";
 import { pageMeta } from "@/lib/seo/urls";
+import { brandPageJsonLd } from "@/lib/seo/structured-data";
+import { brandFaq } from "@/lib/seo/category-copy";
+import { faqJsonLd } from "@/lib/seo/product-faq";
 import type { Metadata } from "next";
 import Image from "next/image";
 import { notFound } from "next/navigation";
@@ -15,6 +18,7 @@ import { CountUp } from "@/components/ui/CountUp";
 import { logoScaleStyle } from "@/lib/catalog/brand-logo";
 import { QuickViewProvider } from "@/components/product/QuickViewProvider";
 import { Link } from "@/i18n/navigation";
+import { breadcrumbJsonLd } from "@/lib/seo/structured-data";
 import type { Locale } from "@/i18n/routing";
 import { getMiniCart } from "@/lib/cart/cart";
 import {
@@ -48,7 +52,10 @@ export async function generateMetadata({
   const brand = await getBrandBySlug(slug, locale);
   if (!brand) return {};
   const title = brand.name;
-  const description = t("kodikoi_se_apothema_episimi_antiprosopeysi", { n: brand.productCount.toLocaleString(locale), name: brand.name });
+  const description = t("kodikoi_se_apothema_episimi_antiprosopeysi", {
+    n: brand.productCount.toLocaleString(locale),
+    name: brand.name,
+  });
   return {
     /* Canonical, γλώσσες και Open Graph μαζί: το `openGraph` κληρονομείται
        ολόκληρο από όποια σελίδα δεν ορίζει δικό της, οπότε 12 από 16 σελίδες
@@ -119,8 +126,77 @@ export default async function BrandPage({ params, searchParams }: PageProps) {
     };
   };
 
+  /*
+   * Η μάρκα ως ΟΝΤΟΤΗΤΑ, όχι ως λέξη μέσα σε σελίδα.
+   *
+   * «BOSCH» είναι οντότητα που η μηχανή ήδη γνωρίζει. Το `Brand` συνδέει
+   * ΑΥΤΗ τη σελίδα με ΕΚΕΙΝΗ την οντότητα — αυτό είναι η διαφορά ανάμεσα σε
+   * «μια σελίδα που αναφέρει τη λέξη Bosch» και «ο διανομέας της Bosch στον
+   * Πειραιά». Και τα προϊόντα της τρέχουσας σελίδας, ώστε να υπάρχει κάτι
+   * παραθέσιμο όταν κάποιος ρωτήσει τι κρατάει το κατάστημα από τη μάρκα.
+   */
+  /*
+   * Οι δύο ερωτήσεις που κρίνουν την αγορά επαγγελματικού εργαλείου —
+   * «είστε επίσημος αντιπρόσωπος;» και «πότε θα το πάρω;» — απαντημένες σε
+   * δομή και όχι μόνο σε τρέχον κείμενο. Μόνο στα ελληνικά: το κείμενο είναι
+   * γραμμένο, όχι μεταφρασμένο, και μια αγγλική σελίδα με ελληνικό FAQ είναι
+   * χειρότερη από μια χωρίς.
+   */
+  const faqLd =
+    locale === "el"
+      ? faqJsonLd(
+          brandFaq({
+            name: brand.name,
+            total: brand.productCount,
+            inStock: brand.inStockCount,
+            categories: data.facets.subcategories.map((sub) => sub.label),
+          }),
+        )
+      : undefined;
+
+  const brandLd = brandPageJsonLd(
+    {
+      name: brand.name,
+      description: t("kodikoi_se_apothema_episimi_antiprosopeysi", {
+        n: brand.productCount.toLocaleString(locale),
+        name: brand.name,
+      }),
+      slug,
+      logo: brand.logo,
+      products: data.products.map((product) => ({
+        name: product.name,
+        slug: product.slug,
+      })),
+    },
+    locale,
+  );
+
+  /* Το μονοπάτι που ζωγραφίζει η μηχανή κάτω από το αποτέλεσμα, αντί για
+     τη γυμνή διεύθυνση. Υπήρχε μόνο σε κατηγορία και προϊόν. */
+  const crumbsLd = breadcrumbJsonLd(
+    [
+      { name: "Brands", path: "/brands" },
+      { name: brand.name, path: `/brands/${slug}` },
+    ],
+    locale,
+  );
+
   return (
     <QuickViewProvider locale={locale}>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(crumbsLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(brandLd) }}
+      />
+      {faqLd && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }}
+        />
+      )}
       <SiteChrome
         locale={locale}
         cart={miniCart}
@@ -239,7 +315,7 @@ export default async function BrandPage({ params, searchParams }: PageProps) {
 
         <div className="shell-w bg-white lg:grid lg:grid-cols-[326px_1fr] lg:items-start">
           <FilterSidebar
-              locale={locale}
+            locale={locale}
             facets={data.facets}
             basePath={`/brands/${slug}`}
             params={raw}

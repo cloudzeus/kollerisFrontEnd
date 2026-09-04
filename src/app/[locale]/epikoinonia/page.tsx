@@ -10,6 +10,7 @@ import { StoreMap } from "@/components/contact/StoreMap";
 import { StorePhotos } from "@/components/contact/StorePhotos";
 import { Link } from "@/i18n/navigation";
 import type { Locale } from "@/i18n/routing";
+import { infoPageJsonLd, yearsInBusiness } from "@/lib/seo/structured-data";
 import { getMiniCart } from "@/lib/cart/cart";
 import {
   getCatalogueStats,
@@ -63,13 +64,15 @@ export default async function ContactPage({
   const { locale } = await params;
   setRequestLocale(locale);
 
-  const [menuTree, brands, stats, rootCategories, miniCart] = await Promise.all([
-    getMenuTree(locale),
-    getTopBrands(locale, 16),
-    getCatalogueStats(),
-    getRootCategories(locale),
-    getMiniCart(locale),
-  ]);
+  const [menuTree, brands, stats, rootCategories, miniCart] = await Promise.all(
+    [
+      getMenuTree(locale),
+      getTopBrands(locale, 16),
+      getCatalogueStats(),
+      getRootCategories(locale),
+      getMiniCart(locale),
+    ],
+  );
 
   const now = openState(new Date());
   /*
@@ -87,7 +90,10 @@ export default async function ContactPage({
         : now.label.when === "tomorrow"
           ? t("kleista_anoigei_ayrio", { time: now.label.at })
           : t("kleista_anoigei_imera", {
-              day: new Intl.DateTimeFormat(locale, { weekday: "long", timeZone: "UTC" })
+              day: new Intl.DateTimeFormat(locale, {
+                weekday: "long",
+                timeZone: "UTC",
+              })
                 // 2024-01-07 was a Sunday, so the index lines up with getDay().
                 .format(Date.UTC(2024, 0, 7 + now.label.day)),
               time: now.label.at,
@@ -118,20 +124,43 @@ export default async function ContactPage({
     },
     {
       label: t("orario"),
-      value: t("dey_par_00_16_30", { n: String(HOURS.weekday.open).padStart(2, "0") }),
+      value: t("dey_par_00_16_30", {
+        n: String(HOURS.weekday.open).padStart(2, "0"),
+      }),
       note: t("savvato_kai_kyriaki_kleista"),
     },
   ];
 
   const direct = [
     { area: t("techniki_ypostirixi"), body: t("poio_ergaleio_kanei_gia_ti") },
-    { area: t("prosfores_posotites"), body: t("timi_gia_posotita_set_exoplismos") },
-    { area: t("paraggelies_apostoles"), body: t("entopismos_timologia_epistrofes_eggyiseis") },
-    { area: t("synergasies_b2b"), body: t("etairikos_logariasmos_timi_synergati_pliromi") },
+    {
+      area: t("prosfores_posotites"),
+      body: t("timi_gia_posotita_set_exoplismos"),
+    },
+    {
+      area: t("paraggelies_apostoles"),
+      body: t("entopismos_timologia_epistrofes_eggyiseis"),
+    },
+    {
+      area: t("synergasies_b2b"),
+      body: t("etairikos_logariasmos_timi_synergati_pliromi"),
+    },
   ];
+
+  /* Τηλέφωνο, διεύθυνση και ώρες υπάρχουν ήδη στο καθολικό `HardwareStore`·
+     αυτό λέει σε ποια ΣΕΛΙΔΑ τα βρίσκει κανείς. */
+  const contactLd = infoPageJsonLd(
+    "ContactPage",
+    { name: t("titlos_epikoinonia"), path: "/epikoinonia" },
+    locale,
+  );
 
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(contactLd) }}
+      />
       <SiteChrome
         locale={locale}
         cart={miniCart}
@@ -142,7 +171,10 @@ export default async function ContactPage({
 
       <main id="main">
         <div className="shell-x bg-k-ink-deep">
-          <nav aria-label="Breadcrumb" className="t-util flex h-11 items-center gap-2.5 text-white/45">
+          <nav
+            aria-label="Breadcrumb"
+            className="t-util flex h-11 items-center gap-2.5 text-white/45"
+          >
             <Link href="/" className="text-white/60 hover:text-white">
               {upGreek(t("archiki"))}
             </Link>
@@ -156,7 +188,9 @@ export default async function ContactPage({
                 {upGreek(t("peite_mas_ti_doyleia_ochi"))}
               </h1>
               <p className="mt-3.5 max-w-[620px] text-[13px] leading-[1.68] text-white/60 lg:text-sm">
-                {t("den_chreiazetai_na_xerete_ti")}
+                {t("den_chreiazetai_na_xerete_ti", {
+                  years: yearsInBusiness(),
+                })}
               </p>
             </div>
 
@@ -181,7 +215,8 @@ export default async function ContactPage({
               </p>
               {closingSoon && (
                 <p className="mt-2 text-[12px] leading-[1.5] text-white/70">
-                  {t("kleinoyme_se")} {now.minutesUntilChange}{t("prolavainete_ena_tilefono")}
+                  {t("kleinoyme_se")} {now.minutesUntilChange}
+                  {t("prolavainete_ena_tilefono")}
                 </p>
               )}
             </div>
@@ -193,15 +228,21 @@ export default async function ContactPage({
           {channels.map((channel) => {
             const body = (
               <>
-                <dt className="t-account-label text-k-text-4">{upGreek(channel.label)}</dt>
+                <dt className="t-account-label text-k-text-4">
+                  {upGreek(channel.label)}
+                </dt>
                 <dd
                   className={`mt-1.5 leading-[1.25] font-semibold text-k-ink ${
-                    channel.primary ? "font-mono text-[19px] lg:text-[23px]" : "text-[14px]"
+                    channel.primary
+                      ? "font-mono text-[19px] lg:text-[23px]"
+                      : "text-[14px]"
                   }`}
                 >
                   {channel.value}
                 </dd>
-                <dd className="mt-1.5 text-[12px] leading-[1.5] text-k-text-3">{channel.note}</dd>
+                <dd className="mt-1.5 text-[12px] leading-[1.5] text-k-text-3">
+                  {channel.note}
+                </dd>
               </>
             );
 
@@ -209,13 +250,18 @@ export default async function ContactPage({
               <a
                 key={channel.label}
                 href={channel.href}
-                {...(channel.external ? { target: "_blank", rel: "noreferrer" } : {})}
+                {...(channel.external
+                  ? { target: "_blank", rel: "noreferrer" }
+                  : {})}
                 className="bg-white px-5 py-4 transition-colors hover:bg-k-surface-2 lg:px-8 lg:py-6"
               >
                 {body}
               </a>
             ) : (
-              <div key={channel.label} className="bg-white px-5 py-4 lg:px-8 lg:py-6">
+              <div
+                key={channel.label}
+                className="bg-white px-5 py-4 lg:px-8 lg:py-6"
+              >
                 {body}
               </div>
             );
@@ -243,13 +289,22 @@ export default async function ContactPage({
               <aside className="self-start border border-k-line bg-white">
                 <p className="flex items-center gap-2.5 border-b border-k-line px-5 py-3.5">
                   <span aria-hidden className="rule-accent block shrink-0" />
-                  <span className="t-eyebrow text-k-red">{upGreek(t("poios_apanta_ti"))}</span>
+                  <span className="t-eyebrow text-k-red">
+                    {upGreek(t("poios_apanta_ti"))}
+                  </span>
                 </p>
                 <ul>
                   {direct.map((item) => (
-                    <li key={item.area} className="border-b border-k-line px-5 py-3.5 last:border-b-0">
-                      <p className="text-[13px] font-semibold text-k-ink">{item.area}</p>
-                      <p className="mt-1 text-[12px] leading-[1.55] text-k-text-3">{item.body}</p>
+                    <li
+                      key={item.area}
+                      className="border-b border-k-line px-5 py-3.5 last:border-b-0"
+                    >
+                      <p className="text-[13px] font-semibold text-k-ink">
+                        {item.area}
+                      </p>
+                      <p className="mt-1 text-[12px] leading-[1.55] text-k-text-3">
+                        {item.body}
+                      </p>
                     </li>
                   ))}
                 </ul>
@@ -298,11 +353,16 @@ export default async function ContactPage({
                   cta: t("aitisi_b2b"),
                 },
               ].map((item) => (
-                <div key={item.title} className="flex flex-col gap-2.5 bg-white p-5 lg:p-6">
+                <div
+                  key={item.title}
+                  className="flex flex-col gap-2.5 bg-white p-5 lg:p-6"
+                >
                   <p className="text-[13.5px] leading-[1.3] font-semibold text-k-ink">
                     {item.title}
                   </p>
-                  <p className="text-[12.5px] leading-[1.65] text-k-text-3">{item.body}</p>
+                  <p className="text-[12.5px] leading-[1.65] text-k-text-3">
+                    {item.body}
+                  </p>
                   <Link
                     href={item.href}
                     className="t-card-cta mt-auto self-start border-b-[1.5px] border-k-red pt-2 pb-[3px] text-k-ink transition-colors hover:text-k-red"

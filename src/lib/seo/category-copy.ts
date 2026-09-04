@@ -97,7 +97,8 @@ export function categoryIntro(input: CategoryCopyInput): string | null {
   const { name, total, facets } = input;
   if (total < 4) return null;
 
-  const inStock = facets.availability.find((a) => a.slug === "in-stock")?.count ?? 0;
+  const inStock =
+    facets.availability.find((a) => a.slug === "in-stock")?.count ?? 0;
   const brands = facets.brands.filter((b) => b.count > 0).slice(0, 6);
   const kids = facets.subcategories.filter((c) => c.count > 0).slice(0, 5);
 
@@ -143,7 +144,8 @@ export function categoryFaq(input: CategoryCopyInput): FaqPair[] {
   if (total < 4) return [];
 
   const pairs: FaqPair[] = [];
-  const inStock = facets.availability.find((a) => a.slug === "in-stock")?.count ?? 0;
+  const inStock =
+    facets.availability.find((a) => a.slug === "in-stock")?.count ?? 0;
   const brands = facets.brands.filter((b) => b.count > 0).slice(0, 8);
 
   if (brands.length >= 2) {
@@ -175,6 +177,69 @@ export function categoryFaq(input: CategoryCopyInput): FaqPair[] {
         `${price.replace(/\.$/, "")}, ανάλογα με τη μάρκα και τα χαρακτηριστικά. ` +
         `Τα μεταφορικά είναι δωρεάν άνω των ${FREE_SHIPPING_THRESHOLD_NET} € καθαρής αξίας. ` +
         `Οι εταιρικοί πελάτες έχουν χονδρική τιμολόγηση μετά την έγκριση του λογαριασμού τους.`,
+    });
+  }
+
+  return pairs;
+}
+
+/**
+ * Ερωτήσεις και απαντήσεις για μια σελίδα μάρκας.
+ *
+ * ── Γιατί μια μάρκα χρειάζεται δικές της ───────────────────────────────────
+ *
+ * «Είναι επίσημος αντιπρόσωπος ο Κολλέρης για τη Bosch;» και «έχει εγγύηση;»
+ * είναι οι δύο ερωτήσεις που κρίνουν την αγορά επαγγελματικού εργαλείου, και
+ * μια μηχανή απάντησης δεν έχει από πού να τις απαντήσει: η σελίδα το λέει σε
+ * τρέχον κείμενο, όχι σε δομή. Γραμμένες εδώ, γίνονται παραθέσιμες — και
+ * είναι το ίδιο κείμενο που διαβάζει ο επισκέπτης, όχι ξεχωριστό markup που
+ * αποκλίνει.
+ *
+ * ── Κατώφλι, όπως και στις κατηγορίες ──────────────────────────────────────
+ *
+ * Κάτω από τέσσερις κωδικούς δεν βγαίνει FAQ: «έχουμε 2 προϊόντα Χ» δεν είναι
+ * απάντηση σε τίποτα, και ένα `FAQPage` με μια κενή ερώτηση είναι θόρυβος που
+ * κοστίζει στην αξιοπιστία του υπόλοιπου structured data.
+ */
+export function brandFaq(input: {
+  name: string;
+  total: number;
+  inStock: number;
+  categories?: string[];
+}): FaqPair[] {
+  const { name, total, inStock } = input;
+  if (total < 4) return [];
+
+  const pairs: FaqPair[] = [
+    {
+      q: `Είστε επίσημος αντιπρόσωπος ${name};`,
+      a:
+        `Ναι. Είμαστε επίσημος διανομέας ${name} στην Ελλάδα και προμηθευόμαστε απευθείας ` +
+        `από τον κατασκευαστή. Τα προϊόντα συνοδεύονται από την εγγύηση του κατασκευαστή ` +
+        `και όχι από εγγύηση παράλληλης εισαγωγής, και τα ανταλλακτικά είναι γνήσια.`,
+    },
+    {
+      q: `Πόσα προϊόντα ${name} έχετε;`,
+      a:
+        `Ο κατάλογος έχει ${total.toLocaleString("el-GR")} κωδικούς ${name}` +
+        (inStock > 0
+          ? `, από τους οποίους ${inStock.toLocaleString("el-GR")} είναι σε απόθεμα αυτή τη στιγμή. ` +
+            `Το φίλτρο «Άμεσα διαθέσιμα» δείχνει μόνο αυτά.`
+          : `. Η διαθεσιμότητα ενημερώνεται από την αποθήκη κάθε δέκα λεπτά.`),
+    },
+    {
+      q: `Πότε θα παραλάβω μια παραγγελία ${name};`,
+      a:
+        `Ό,τι είναι σε απόθεμα και παραγγελθεί πριν τις 15:00 εργάσιμη αποστέλλεται αυθημερόν ` +
+        `με ACS — παράδοση σε 24-48 ώρες σε όλη την Ελλάδα. Εναλλακτικά μπορείτε να το ` +
+        `παραλάβετε από το κατάστημα στον Πειραιά σε περίπου δύο ώρες.`,
+    },
+  ];
+
+  if (input.categories && input.categories.length >= 2) {
+    pairs.push({
+      q: `Σε ποιες κατηγορίες έχετε προϊόντα ${name};`,
+      a: `Τα προϊόντα ${name} του καταλόγου μας καλύπτουν ${joinGreek(input.categories.slice(0, 8))}.`,
     });
   }
 

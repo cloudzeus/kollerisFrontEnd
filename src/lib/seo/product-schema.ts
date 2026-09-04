@@ -67,7 +67,9 @@ export function specsAsProperties(
    * μετρήσιμα. Καλύτερα να μην υπάρχει block παρά block που δεν λέει τίποτα.
    */
   const echoes = new Set(
-    [echo?.brand, echo?.category].filter(Boolean).map((v) => String(v).trim().toLowerCase()),
+    [echo?.brand, echo?.category]
+      .filter(Boolean)
+      .map((v) => String(v).trim().toLowerCase()),
   );
   const rows = specs
     .filter((s) => s.label?.trim() && s.value?.trim())
@@ -113,9 +115,19 @@ export function shippingDetails(locale: Locale) {
     deliveryTime: {
       "@type": "ShippingDeliveryTime",
       // Παραγγελία πριν τις 15:00 φεύγει αυθημερόν.
-      handlingTime: { "@type": "QuantitativeValue", minValue: 0, maxValue: 1, unitCode: "DAY" },
+      handlingTime: {
+        "@type": "QuantitativeValue",
+        minValue: 0,
+        maxValue: 1,
+        unitCode: "DAY",
+      },
       // Αττική 1 εργάσιμη · νησιά και δυσπρόσιτες έως 3.
-      transitTime: { "@type": "QuantitativeValue", minValue: 1, maxValue: 3, unitCode: "DAY" },
+      transitTime: {
+        "@type": "QuantitativeValue",
+        minValue: 1,
+        maxValue: 3,
+        unitCode: "DAY",
+      },
     },
     ...(locale ? {} : {}),
   };
@@ -176,7 +188,10 @@ export function productBreadcrumb(
     { name: "Κατάλογος", path: "/katalogos" },
   ];
   if (product.category) {
-    items.push({ name: product.category.name, path: `/katalogos/${product.category.slug}` });
+    items.push({
+      name: product.category.name,
+      path: `/katalogos/${product.category.slug}`,
+    });
   }
   items.push({ name: product.name, path: `/proion/${product.slug}` });
 

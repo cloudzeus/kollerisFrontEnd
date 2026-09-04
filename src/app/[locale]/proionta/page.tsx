@@ -11,9 +11,15 @@ import { ProductCard } from "@/components/product/ProductCard";
 import { CompareTray } from "@/components/compare/CompareTray";
 import { QuickViewProvider } from "@/components/product/QuickViewProvider";
 import { Link } from "@/i18n/navigation";
+import { breadcrumbJsonLd } from "@/lib/seo/structured-data";
 import type { Locale } from "@/i18n/routing";
+import { collectionJsonLd } from "@/lib/seo/structured-data";
 import { getMiniCart } from "@/lib/cart/cart";
-import { COMPARE_MAX, getCompareSelection, getCompareTray } from "@/lib/compare/compare";
+import {
+  COMPARE_MAX,
+  getCompareSelection,
+  getCompareTray,
+} from "@/lib/compare/compare";
 import { getPlpData, parsePlpParams } from "@/lib/catalog/plp";
 import {
   getCatalogueStats,
@@ -49,7 +55,9 @@ type PageProps = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
 
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "katalogos.page" });
   const title = t("ola_ta_proionta");
@@ -64,7 +72,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   };
 }
 
-export default async function AllProductsPage({ params, searchParams }: PageProps) {
+export default async function AllProductsPage({
+  params,
+  searchParams,
+}: PageProps) {
   const t = await getTranslations("katalogos.page");
   const { locale } = await params;
   setRequestLocale(locale);
@@ -73,17 +84,25 @@ export default async function AllProductsPage({ params, searchParams }: PageProp
   // No `categorySlug`: the scope is the whole catalogue.
   const plpParams = parsePlpParams(raw);
 
-  const [data, menuTree, brands, stats, rootCategories, miniCart, compareSelection, compareTray] =
-    await Promise.all([
-      getPlpData(plpParams, locale),
-      getMenuTree(locale),
-      getTopBrands(locale, 16),
-      getCatalogueStats(),
-      getRootCategories(locale),
-      getMiniCart(locale),
-      getCompareSelection(),
-      getCompareTray(locale),
-    ]);
+  const [
+    data,
+    menuTree,
+    brands,
+    stats,
+    rootCategories,
+    miniCart,
+    compareSelection,
+    compareTray,
+  ] = await Promise.all([
+    getPlpData(plpParams, locale),
+    getMenuTree(locale),
+    getTopBrands(locale, 16),
+    getCatalogueStats(),
+    getRootCategories(locale),
+    getMiniCart(locale),
+    getCompareSelection(),
+    getCompareTray(locale),
+  ]);
 
   /*
    * `getPlpData` returns null only for an unknown category slug, which cannot
@@ -110,12 +129,48 @@ export default async function AllProductsPage({ params, searchParams }: PageProp
       disabled:
         !selected &&
         (compareSelection.slugs.length >= COMPARE_MAX ||
-          (compareSelection.scopeKey != null && scopeKey !== compareSelection.scopeKey)),
+          (compareSelection.scopeKey != null &&
+            scopeKey !== compareSelection.scopeKey)),
     };
   };
 
+  /* Η τρέχουσα σελίδα αποτελεσμάτων ως λίστα. Μόνο όσα δείχνει: μια δήλωση
+     10.000 προϊόντων σε σελίδα που δείχνει 24 είναι ψέμα προς τη μηχανή. */
+  const listLd =
+    !data || data.products.length === 0
+      ? null
+      : collectionJsonLd(
+          {
+            name: t("ola_ta_proionta"),
+            description: t("olos_o_katalogos_se_mia_lista"),
+            path: "/proionta",
+            items: data.products.map((product) => ({
+              name: product.name,
+              path: `/proion/${product.slug}`,
+            })),
+          },
+          locale,
+        );
+
+  /* Το μονοπάτι που ζωγραφίζει η μηχανή κάτω από το αποτέλεσμα, αντί για
+     τη γυμνή διεύθυνση. Υπήρχε μόνο σε κατηγορία και προϊόν. */
+  const crumbsLd = breadcrumbJsonLd(
+    [{ name: t("ola_ta_proionta"), path: "/proionta" }],
+    locale,
+  );
+
   return (
     <QuickViewProvider locale={locale}>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(crumbsLd) }}
+      />
+      {listLd && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(listLd) }}
+        />
+      )}
       <SiteChrome
         locale={locale}
         cart={miniCart}
@@ -127,16 +182,24 @@ export default async function AllProductsPage({ params, searchParams }: PageProp
 
       <main id="main">
         <div className="shell-x bg-k-ink-deep">
-          <nav aria-label="Breadcrumb" className="t-util flex h-11 items-center gap-2.5 text-white/45">
+          <nav
+            aria-label="Breadcrumb"
+            className="t-util flex h-11 items-center gap-2.5 text-white/45"
+          >
             <Link href="/" className="text-white/60 hover:text-white">
               {upGreek(t("archiki"))}
             </Link>
             <span className="text-k-red">/</span>
-            <Link href="/katalogos" className="hidden text-white/60 hover:text-white sm:inline">
+            <Link
+              href="/katalogos"
+              className="hidden text-white/60 hover:text-white sm:inline"
+            >
               {upGreek(t("katalogos"))}
             </Link>
             <span className="hidden text-k-red sm:inline">/</span>
-            <span className="truncate text-white">{upGreek(t("ola_ta_proionta"))}</span>
+            <span className="truncate text-white">
+              {upGreek(t("ola_ta_proionta"))}
+            </span>
           </nav>
 
           <div className="pt-2.5 pb-7">
@@ -144,7 +207,8 @@ export default async function AllProductsPage({ params, searchParams }: PageProp
               {upGreek(t("ola_ta_proionta"))}
             </h1>
             <p className="mt-3.5 max-w-[640px] text-[13px] leading-[1.68] text-white/60 lg:text-sm">
-              {data.total.toLocaleString(locale)} {t("kodikoi_filtrarete_aristera")}
+              {data.total.toLocaleString(locale)}{" "}
+              {t("kodikoi_filtrarete_aristera")}
             </p>
           </div>
         </div>
@@ -172,7 +236,9 @@ export default async function AllProductsPage({ params, searchParams }: PageProp
                   {upGreek(sub.label)}
                   <span
                     className={`t-brand-count transition-colors duration-200 ${
-                      sub.active ? "text-white/70" : "text-white/35 group-hover/chip:text-white/80"
+                      sub.active
+                        ? "text-white/70"
+                        : "text-white/35 group-hover/chip:text-white/80"
                     }`}
                   >
                     {sub.count}

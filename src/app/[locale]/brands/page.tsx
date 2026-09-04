@@ -8,6 +8,7 @@ import { BrandSearchGrid } from "@/components/brands/BrandSearchGrid";
 import { SiteChrome } from "@/components/chrome/SiteChrome";
 import { SiteFooter } from "@/components/chrome/SiteFooter";
 import { Link } from "@/i18n/navigation";
+import { breadcrumbJsonLd } from "@/lib/seo/structured-data";
 import type { Locale } from "@/i18n/routing";
 import { getMiniCart } from "@/lib/cart/cart";
 import {
@@ -114,8 +115,19 @@ export default async function BrandsPage({
     locale,
   );
 
+  /* Το μονοπάτι που ζωγραφίζει η μηχανή κάτω από το αποτέλεσμα, αντί για
+     τη γυμνή διεύθυνση. Υπήρχε μόνο σε κατηγορία και προϊόν. */
+  const crumbsLd = breadcrumbJsonLd(
+    [{ name: "Brands", path: "/brands" }],
+    locale,
+  );
+
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(crumbsLd) }}
+      />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionLd) }}

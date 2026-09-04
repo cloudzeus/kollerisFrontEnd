@@ -9,6 +9,7 @@ import { CompareTray } from "@/components/compare/CompareTray";
 import { ProductCard } from "@/components/product/ProductCard";
 import { QuickViewProvider } from "@/components/product/QuickViewProvider";
 import { Link } from "@/i18n/navigation";
+import { breadcrumbJsonLd } from "@/lib/seo/structured-data";
 import type { Locale } from "@/i18n/routing";
 import { getMiniCart } from "@/lib/cart/cart";
 import { getNewArrivals, getOffers } from "@/lib/catalog/editorial";
@@ -133,8 +134,19 @@ export default async function OffersPage({
   const hasOffers = offers.products.length > 0;
   const latest = arrivals.periods[0];
 
+  /* Το μονοπάτι που ζωγραφίζει η μηχανή κάτω από το αποτέλεσμα, αντί για
+     τη γυμνή διεύθυνση. Υπήρχε μόνο σε κατηγορία και προϊόν. */
+  const crumbsLd = breadcrumbJsonLd(
+    [{ name: t("titlos_prosfores"), path: "/prosfores" }],
+    locale,
+  );
+
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(crumbsLd) }}
+      />
       {/* Άδεια λίστα δεν δηλώνεται: ένα `ItemList` με μηδέν στοιχεία λέει σε
           μια μηχανή «εδώ υπάρχει κατάλογος προσφορών» και της δίνει κενό. */}
       {collectionLd && (

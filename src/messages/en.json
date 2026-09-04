@@ -65,7 +65,7 @@
       "diathesimotita": "Availability",
       "eidika_filtra": "Special filters",
       "den_vriskete_to_sosto": "Can't find the right one?",
-      "peite_mas_ti_doyleia_kai": "Tell us your job and we'll suggest the code. 46 years of experience on the phone.",
+      "peite_mas_ti_doyleia_kai": "Tell us your job and we'll suggest the code. {years} years of experience on the phone.",
       "se_prosfora": "On sale",
       "nea_proionta": "New products"
     },
@@ -176,7 +176,7 @@
   },
   "home": {
     "AboutSplit": {
-      "gia_46_chronia_i_kolleris": "For 46 years, Kolleris is the supplier that shipping\n          companies, factories and workshops call. Direct relationships with Milwaukee, Knipex,\n          Wera — accurate availability, no “we’ll see”.",
+      "gia_46_chronia_i_kolleris": "For {years} years, Kolleris is the supplier that shipping\n          companies, factories and workshops call. Direct relationships with Milwaukee, Knipex,\n          Wera — accurate availability, no “we’ll see”.",
       "apo_to_1978": "Since 1978",
       "motto_line1": "Consistency",
       "motto_line2": "without a break.",
@@ -695,7 +695,7 @@
     "page": {
       "archiki": "Home",
       "odigoi_kai_dokimes": "Guides and tests",
-      "ti_doyleyei_ti_ochi_kai": "What works, what doesn't, and why. Written by people who have been selling these\n              tools for 46 years.",
+      "ti_doyleyei_ti_ochi_kai": "What works, what doesn't, and why. Written by people who have been selling these\n              tools for {years} years.",
       "den_yparchoyn_akomi_dimosieymena_arthra": "No articles published yet.",
       "selides": "Pages",
       "pio_prosfato": "Latest",
@@ -842,7 +842,7 @@
     "oi_times_synergati_einai_pragmatikes": "Partner prices are real, not renegotiated every time. Saves us time.",
     "k_vasileioy": "K. Vasileiou",
     "ypeythynos_promitheion_ergostasio": "PROCUREMENT MANAGER · FACTORY",
-    "46_chronia_stin_agora_fainontai": "46 years in the market show. They know what you're asking before you finish the sentence.",
+    "46_chronia_stin_agora_fainontai": "{years} years in the market show. They know what you're asking before you finish the sentence.",
     "g_antonioy": "G. Antoniou",
     "idioktitis_synergeio": "OWNER · WORKSHOP",
     "pragmatiko_apothema_ochi_yposcheseis": "Real stock, not promises",
@@ -944,7 +944,7 @@
       "gnisio_proion_eggyisi_kataskeyasti_servis": "Genuine product, manufacturer's warranty, service and spare parts from Kolleris.",
       "ypeythynos_katigorias": "Category manager",
       "den_xerete_an_kanei_gia": "Not sure if it's right for your job?",
-      "kaleste_mas_46_chronia_sta": "Call us — 46 years in tools, we pick up the phone.",
+      "kaleste_mas_46_chronia_sta": "Call us — {years} years in tools, we pick up the phone.",
       "kod_kataskeyasti": "Manufacturer code",
       "paradosi_24_48o": "Delivery 24-48h",
       "panelladika_me_courier": "Nationwide via courier",
@@ -1169,7 +1169,7 @@
       "ola_ta_brands": "All brands",
       "miliste_mas": "Talk to us",
       "peite_mas_ti_doyleia_ochi": "Tell us the job, not the code",
-      "den_xerete_poio_ergaleio_kanei": "You don't know which tool does it? Describe what you want to do. In 46 years, we've heard it before.",
+      "den_xerete_poio_ergaleio_kanei": "You don't know which tool does it? Describe what you want to do. In {years} years, we've heard it before.",
       "epikoinonia": "Contact",
       "se_katigories_kai_ypokatigories": "in {categories} categories and {n} subcategories",
       "temachia_tora_ston_peiraia": "{n} pieces, now, in Piraeus",
@@ -1180,7 +1180,7 @@
       "peiraias_apo_to": "Piraeus · since {FOUNDED}",
       "apo_to_mechri_simera": "From {FOUNDED} to today",
       "titlos_i_etaireia": "The company",
-      "perigrafi_46_chronia_sta_viomichanika": "46 years in industrial tools. See our warehouse numbers live — codes, stock, tons on the shelf."
+      "perigrafi_46_chronia_sta_viomichanika": "{years} years in industrial tools. See our warehouse numbers live — codes, stock, tons on the shelf."
     }
   },
   "epikoinonia": {
@@ -1205,7 +1205,7 @@
       "archiki": "Home",
       "epikoinonia": "Contact",
       "peite_mas_ti_doyleia_ochi": "Tell us the job, not the code",
-      "den_chreiazetai_na_xerete_ti": "You don't need to know exactly what you're asking for. Describe what you want to do —\n                in 46 years we've heard it before.",
+      "den_chreiazetai_na_xerete_ti": "You don't need to know exactly what you're asking for. Describe what you want to do —\n                in {years} years we've heard it before.",
       "kleinoyme_se": "Closing in",
       "prolavainete_ena_tilefono": "′ — you can make a phone call in time.",
       "forma": "Form",

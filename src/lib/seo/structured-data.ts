@@ -165,6 +165,126 @@ export function collectionJsonLd(
 }
 
 /**
+ * Μια σελίδα που ΛΕΕΙ κάτι, δηλωμένη ως τέτοια.
+ *
+ * `AboutPage` και `ContactPage` δεν είναι διακόσμηση: λένε σε μια μηχανή ότι
+ * ΕΔΩ βρίσκεται η ταυτότητα και τα στοιχεία επικοινωνίας της επιχείρησης.
+ * Χωρίς αυτά, ένα μοντέλο που ρωτιέται «πότε ιδρύθηκε ο Κολλέρης» ή «πού
+ * είναι το κατάστημα» πρέπει να βγάλει άκρη από τρέχον κείμενο σελίδας.
+ *
+ * Το `mainEntity` δείχνει πίσω στο ίδιο `#shop` που δηλώνει το `siteJsonLd`,
+ * αντί να ξαναγράφει τα στοιχεία: δύο αντίγραφα της διεύθυνσης αποκλίνουν την
+ * πρώτη φορά που αλλάζει το ένα.
+ */
+export function infoPageJsonLd(
+  type: "AboutPage" | "ContactPage",
+  input: { name: string; description?: string; path: string },
+  locale: Locale,
+) {
+  return {
+    "@context": "https://schema.org",
+    "@type": type,
+    name: input.name,
+    ...(input.description ? { description: input.description } : {}),
+    url: absoluteUrl(input.path, locale),
+    isPartOf: { "@id": `${siteOrigin()}/#website` },
+    mainEntity: { "@id": `${siteOrigin()}/#shop` },
+  };
+}
+
+/**
+ * Το blog ως blog, και τα άρθρα του ως αναρτήσεις.
+ *
+ * Ένα `Blog` με `blogPost` δίνει σε μια μηχανή ημερομηνίες και τίτλους — δηλαδή
+ * το ένα πράγμα που κάνει ένα άρθρο παραθέσιμο: πότε γράφτηκε. Χωρίς αυτό ένα
+ * μοντέλο δεν ξεχωρίζει έναν οδηγό του 2026 από έναν του 2019.
+ */
+export function blogJsonLd(
+  input: {
+    name: string;
+    description?: string;
+    path: string;
+    posts: Array<{
+      title: string;
+      path: string;
+      publishedAt?: Date | string | null;
+    }>;
+  },
+  locale: Locale,
+) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Blog",
+    name: input.name,
+    ...(input.description ? { description: input.description } : {}),
+    url: absoluteUrl(input.path, locale),
+    isPartOf: { "@id": `${siteOrigin()}/#website` },
+    publisher: { "@id": `${siteOrigin()}/#shop` },
+    blogPost: input.posts.map((post) => ({
+      "@type": "BlogPosting",
+      headline: post.title,
+      url: absoluteUrl(post.path, locale),
+      ...(post.publishedAt
+        ? {
+            datePublished: new Date(post.publishedAt)
+              .toISOString()
+              .slice(0, 10),
+          }
+        : {}),
+      publisher: { "@id": `${siteOrigin()}/#shop` },
+    })),
+  };
+}
+
+/**
+ * Μια μάρκα ως οντότητα, και η σελίδα της ως λίστα των προϊόντων της.
+ *
+ * ── Γιατί `Brand` και όχι μόνο `CollectionPage` ────────────────────────────
+ *
+ * «BOSCH» είναι οντότητα που η μηχανή ήδη γνωρίζει. Το `Brand` με `sameAs`
+ * προς τον επίσημο ιστότοπο του κατασκευαστή συνδέει ΑΥΤΗ τη σελίδα με ΕΚΕΙΝΗ
+ * την οντότητα — αυτό είναι η διαφορά ανάμεσα στο «μια σελίδα που αναφέρει τη
+ * λέξη Bosch» και «ο διανομέας της Bosch στον Πειραιά».
+ */
+export function brandPageJsonLd(
+  input: {
+    name: string;
+    description?: string;
+    slug: string;
+    logo?: string | null;
+    website?: string | null;
+    products: Array<{ name: string; slug: string }>;
+  },
+  locale: Locale,
+) {
+  const path = `/brands/${input.slug}`;
+  return {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    name: input.name,
+    ...(input.description ? { description: input.description } : {}),
+    url: absoluteUrl(path, locale),
+    isPartOf: { "@id": `${siteOrigin()}/#website` },
+    about: {
+      "@type": "Brand",
+      name: input.name,
+      ...(input.logo ? { logo: input.logo } : {}),
+      ...(input.website ? { sameAs: [input.website] } : {}),
+    },
+    mainEntity: {
+      "@type": "ItemList",
+      numberOfItems: input.products.length,
+      itemListElement: input.products.map((product, index) => ({
+        "@type": "ListItem",
+        position: index + 1,
+        name: product.name,
+        url: absoluteUrl(`/proion/${product.slug}`, locale),
+      })),
+    },
+  };
+}
+
+/**
  * A trail a machine can follow.
  *
  * The storefront shows breadcrumbs as text; this is the same trail said in a
@@ -185,4 +305,22 @@ export function breadcrumbJsonLd(
       item: absoluteUrl(step.path, locale),
     })),
   };
+}
+
+/**
+ * Πόσα χρόνια δουλεύει η επιχείρηση, σήμερα.
+ *
+ * ── Γιατί δεν γράφεται νούμερο ─────────────────────────────────────────────
+ *
+ * Το κατάστημα έγραφε «46 χρόνια» σε οκτώ σημεία και σε τρεις γλώσσες —
+ * αρχική, blog, σελίδα προϊόντος, επικοινωνία, εταιρεία, φίλτρα. Το 2026 ο
+ * σωστός αριθμός είναι 48: το κείμενο γράφτηκε το 2024 και γέρασε σιωπηλά,
+ * παντού ταυτόχρονα. Η επόμενη Πρωτοχρονιά θα το ξαναχαλούσε.
+ *
+ * Το `founded` είναι ήδη γραμμένο μία φορά, στο `SHOP`, και το διαβάζει και το
+ * structured data — οπότε ο αριθμός που λέει η σελίδα και ο αριθμός που
+ * διαβάζει η μηχανή δεν μπορούν πια να διαφωνήσουν.
+ */
+export function yearsInBusiness(now: Date = new Date()): number {
+  return now.getFullYear() - Number(SHOP.founded);
 }

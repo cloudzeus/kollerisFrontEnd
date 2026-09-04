@@ -59,10 +59,14 @@ const money = (n: number) => `${n.toFixed(2).replace(".", ",")} €`;
  * κωδικό μοντέλου, το όνομα κόβεται σε κάτι που στέκει σε πρόταση.
  */
 function askLabel(product: FaqProduct): string {
-  const model = product.specs.find((s) => /μοντέλ|model/i.test(s.label))?.value?.trim();
+  const model = product.specs
+    .find((s) => /μοντέλ|model/i.test(s.label))
+    ?.value?.trim();
   if (product.brandName && model) return `${product.brandName} ${model}`;
   if (product.brandName) return `${product.brandName} ${product.sku}`;
-  return product.name.length > 48 ? `${product.name.slice(0, 45).trimEnd()}…` : product.name;
+  return product.name.length > 48
+    ? `${product.name.slice(0, 45).trimEnd()}…`
+    : product.name;
 }
 
 /**
@@ -129,7 +133,8 @@ export function productFaq(product: FaqProduct): FaqPair[] {
    * η ταυτότητα, που ήδη λέει η ερώτηση. Απάντηση που επαναλαμβάνει την ερώτηση
    * είναι χειρότερη από απουσία απάντησης.
    */
-  const IDENTITY = /^(κατασκευαστ|μάρκα|brand|μοντέλ|model|κατηγορ|υποκατηγορ)/i;
+  const IDENTITY =
+    /^(κατασκευαστ|μάρκα|brand|μοντέλ|model|κατηγορ|υποκατηγορ)/i;
   const measurable = product.specs
     .filter((s) => s.label?.trim() && s.value?.trim())
     .filter((s) => !IDENTITY.test(s.label.trim()))

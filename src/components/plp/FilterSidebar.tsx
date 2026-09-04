@@ -1,4 +1,5 @@
 import type { Locale } from "@/i18n/routing";
+import { yearsInBusiness } from "@/lib/seo/structured-data";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import {
@@ -180,7 +181,7 @@ export function FilterSidebar({
           <div className="border-l-[3px] border-k-red bg-k-surface-3 px-[18px] py-4">
             <p className="text-[12.5px] font-semibold text-k-ink">{t("den_vriskete_to_sosto")}</p>
             <p className="mt-1.5 text-[12px] leading-[1.55] text-k-text-3">
-              {t("peite_mas_ti_doyleia_kai")}
+              {t("peite_mas_ti_doyleia_kai", { years: yearsInBusiness() })}
             </p>
             <a
               href="tel:+302104111355"

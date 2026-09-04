@@ -8,6 +8,7 @@ import { SiteChrome } from "@/components/chrome/SiteChrome";
 import { SiteFooter } from "@/components/chrome/SiteFooter";
 import { Link } from "@/i18n/navigation";
 import type { Locale } from "@/i18n/routing";
+import { infoPageJsonLd, yearsInBusiness } from "@/lib/seo/structured-data";
 import { getMiniCart } from "@/lib/cart/cart";
 import { getCompanyProof } from "@/lib/catalog/editorial";
 import {
@@ -29,7 +30,9 @@ export async function generateMetadata({
   // metadata is generated outside it.
   const t = await getTranslations({ locale, namespace: "etaireia.page" });
   const title = t("titlos_i_etaireia");
-  const description = t("perigrafi_46_chronia_sta_viomichanika");
+  const description = t("perigrafi_46_chronia_sta_viomichanika", {
+    years: yearsInBusiness(),
+  });
   return {
     /* Canonical, γλώσσες και Open Graph μαζί: το `openGraph` κληρονομείται
        ολόκληρο από όποια σελίδα δεν ορίζει δικό της, οπότε 12 από 16 σελίδες
@@ -55,19 +58,24 @@ const FOUNDED = 1978;
  * catalogued specifications. An engineer skims the adjectives and reads the
  * figures — so the figures are the page.
  */
-export default async function CompanyPage({ params }: { params: Promise<{ locale: Locale }> }) {
+export default async function CompanyPage({
+  params,
+}: {
+  params: Promise<{ locale: Locale }>;
+}) {
   const t = await getTranslations("etaireia.page");
   const { locale } = await params;
   setRequestLocale(locale);
 
-  const [proof, menuTree, brands, stats, rootCategories, miniCart] = await Promise.all([
-    getCompanyProof(locale),
-    getMenuTree(locale),
-    getTopBrands(locale, 16),
-    getCatalogueStats(),
-    getRootCategories(locale),
-    getMiniCart(locale),
-  ]);
+  const [proof, menuTree, brands, stats, rootCategories, miniCart] =
+    await Promise.all([
+      getCompanyProof(locale),
+      getMenuTree(locale),
+      getTopBrands(locale, 16),
+      getCatalogueStats(),
+      getRootCategories(locale),
+      getMiniCart(locale),
+    ]);
 
   const years = new Date().getFullYear() - FOUNDED;
   const tonnes = Math.round(proof.stockKg / 1000);
@@ -82,13 +90,18 @@ export default async function CompanyPage({ params }: { params: Promise<{ locale
       claim: t("megali_gkama"),
       evidence: proof.products.toLocaleString(locale),
       unit: t("kodikoi_online"),
-      note: t("se_katigories_kai_ypokatigories", { categories: proof.categories, n: proof.nodes.toLocaleString(locale) }),
+      note: t("se_katigories_kai_ypokatigories", {
+        categories: proof.categories,
+        n: proof.nodes.toLocaleString(locale),
+      }),
     },
     {
       claim: t("amesi_diathesimotita"),
       evidence: proof.inStock.toLocaleString(locale),
       unit: t("kodikoi_sto_rafi"),
-      note: t("temachia_tora_ston_peiraia", { n: proof.units.toLocaleString(locale) }),
+      note: t("temachia_tora_ston_peiraia", {
+        n: proof.units.toLocaleString(locale),
+      }),
     },
     {
       claim: t("pragmatiko_apothema"),
@@ -100,7 +113,9 @@ export default async function CompanyPage({ params }: { params: Promise<{ locale
       claim: t("techniki_tekmiriosi"),
       evidence: proof.specs.toLocaleString(locale),
       unit: t("charaktiristika"),
-      note: t("kai_fotografies_proionton", { n: proof.images.toLocaleString(locale) }),
+      note: t("kai_fotografies_proionton", {
+        n: proof.images.toLocaleString(locale),
+      }),
     },
     {
       claim: t("episimi_antiprosopeysi"),
@@ -130,12 +145,16 @@ export default async function CompanyPage({ params }: { params: Promise<{ locale
     {
       year: "2000s",
       title: t("episimes_antiprosopeies"),
-      body: t("synergasies_me_kataskeyastes_poy_kratoyn", { brands: proof.brands }),
+      body: t("synergasies_me_kataskeyastes_poy_kratoyn", {
+        brands: proof.brands,
+      }),
     },
     {
       year: t("simera"),
       title: t("o_katalogos_online"),
-      body: t("olokliro_to_apothema_me_times", { n: proof.products.toLocaleString(locale) }),
+      body: t("olokliro_to_apothema_me_times", {
+        n: proof.products.toLocaleString(locale),
+      }),
     },
   ];
 
@@ -158,8 +177,21 @@ export default async function CompanyPage({ params }: { params: Promise<{ locale
     },
   ];
 
+  /* «Εδώ είναι η ταυτότητα της επιχείρησης». Το `mainEntity` δείχνει πίσω στο
+     ίδιο `#shop` αντί να ξαναγράφει τα στοιχεία — δύο αντίγραφα της
+     διεύθυνσης αποκλίνουν την πρώτη φορά που αλλάζει το ένα. */
+  const aboutLd = infoPageJsonLd(
+    "AboutPage",
+    { name: t("titlos_i_etaireia"), path: "/etaireia" },
+    locale,
+  );
+
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(aboutLd) }}
+      />
       <SiteChrome
         locale={locale}
         cart={miniCart}
@@ -171,7 +203,10 @@ export default async function CompanyPage({ params }: { params: Promise<{ locale
       <main id="main">
         {/* Hero */}
         <div className="shell-x bg-k-ink-deep">
-          <nav aria-label="Breadcrumb" className="t-util flex h-11 items-center gap-2.5 text-white/45">
+          <nav
+            aria-label="Breadcrumb"
+            className="t-util flex h-11 items-center gap-2.5 text-white/45"
+          >
             <Link href="/" className="text-white/60 hover:text-white">
               {upGreek(t("archiki"))}
             </Link>
@@ -188,7 +223,9 @@ export default async function CompanyPage({ params }: { params: Promise<{ locale
               <h1 className="font-display mt-3.5 text-[26px] leading-[1.12] t-display text-balance text-white lg:text-[42px]">
                 {upGreek(t("den_sas_zitame_na_mas"))}
                 <br />
-                <span className="text-k-red">{upGreek(t("deite_ta_noymera"))}</span>
+                <span className="text-k-red">
+                  {upGreek(t("deite_ta_noymera"))}
+                </span>
               </h1>
               <p className="mt-5 max-w-[600px] text-[13.5px] leading-[1.7] text-white/60 lg:text-[15px]">
                 {t("kathe_promitheytis_ergaleion_grafei_megali")}
@@ -228,7 +265,9 @@ export default async function CompanyPage({ params }: { params: Promise<{ locale
                     <dt className="text-[14px] leading-[1.3] font-semibold text-k-ink lg:text-[15px]">
                       {row.claim}
                     </dt>
-                    <dd className="mt-1.5 text-[12.5px] leading-[1.6] text-k-text-3">{row.note}</dd>
+                    <dd className="mt-1.5 text-[12.5px] leading-[1.6] text-k-text-3">
+                      {row.note}
+                    </dd>
                   </div>
                   <div className="shrink-0 text-right">
                     <span className="block font-mono text-[24px] leading-none font-semibold text-k-ink lg:text-[30px]">
@@ -252,7 +291,8 @@ export default async function CompanyPage({ params }: { params: Promise<{ locale
                 >
                   {proof.heaviestCategory.name}
                 </Link>{" "}
-                {t("me")} {proof.heaviestCategory.count.toLocaleString(locale)} {t("kodikoys")}
+                {t("me")} {proof.heaviestCategory.count.toLocaleString(locale)}{" "}
+                {t("kodikoys")}
               </p>
             )}
           </div>
@@ -261,11 +301,17 @@ export default async function CompanyPage({ params }: { params: Promise<{ locale
         {/* Timeline */}
         <section className="band-alt border-t border-k-line">
           <div className="shell-x py-9 lg:py-14">
-            <SectionHead eyebrow={t("i_diadromi")} title={t("apo_to_mechri_simera", { FOUNDED: FOUNDED })} />
+            <SectionHead
+              eyebrow={t("i_diadromi")}
+              title={t("apo_to_mechri_simera", { FOUNDED: FOUNDED })}
+            />
 
             <ol className="mt-8 grid gap-px border border-k-line bg-k-line lg:mt-10 lg:grid-cols-4">
               {timeline.map((step, index) => (
-                <li key={step.year} className="flex flex-col gap-2.5 bg-white p-5 lg:p-7">
+                <li
+                  key={step.year}
+                  className="flex flex-col gap-2.5 bg-white p-5 lg:p-7"
+                >
                   <span
                     className={`t-cat-num ${index === timeline.length - 1 ? "text-k-red" : "text-k-text-5"}`}
                   >
@@ -274,7 +320,9 @@ export default async function CompanyPage({ params }: { params: Promise<{ locale
                   <span className="text-[14px] leading-[1.3] font-semibold text-k-ink">
                     {step.title}
                   </span>
-                  <span className="text-[12.5px] leading-[1.65] text-k-text-3">{step.body}</span>
+                  <span className="text-[12.5px] leading-[1.65] text-k-text-3">
+                    {step.body}
+                  </span>
                 </li>
               ))}
             </ol>
@@ -290,11 +338,16 @@ export default async function CompanyPage({ params }: { params: Promise<{ locale
             />
             <div className="mt-8 grid gap-px border border-k-line bg-k-line sm:grid-cols-2 lg:mt-10 lg:grid-cols-4">
               {promises.map((item) => (
-                <div key={item.title} className="border-l-[3px] border-k-red bg-white p-5 lg:p-6">
+                <div
+                  key={item.title}
+                  className="border-l-[3px] border-k-red bg-white p-5 lg:p-6"
+                >
                   <p className="text-[13.5px] leading-[1.3] font-semibold text-k-ink">
                     {item.title}
                   </p>
-                  <p className="mt-2 text-[12.5px] leading-[1.65] text-k-text-3">{item.body}</p>
+                  <p className="mt-2 text-[12.5px] leading-[1.65] text-k-text-3">
+                    {item.body}
+                  </p>
                 </div>
               ))}
             </div>
@@ -334,9 +387,13 @@ export default async function CompanyPage({ params }: { params: Promise<{ locale
                         className="block h-11 w-11 object-contain"
                       />
                     ) : (
-                      <span className="t-brand-name text-center text-k-ink">{brand.name}</span>
+                      <span className="t-brand-name text-center text-k-ink">
+                        {brand.name}
+                      </span>
                     )}
-                    <span className="t-brand-count text-center text-k-text-4">{brand.name}</span>
+                    <span className="t-brand-count text-center text-k-text-4">
+                      {brand.name}
+                    </span>
                   </Link>
                 ))}
               </div>
@@ -354,7 +411,9 @@ export default async function CompanyPage({ params }: { params: Promise<{ locale
                   tone="dark"
                   eyebrow={t("miliste_mas")}
                   title={t("peite_mas_ti_doyleia_ochi")}
-                  lead={t("den_xerete_poio_ergaleio_kanei")}
+                  lead={t("den_xerete_poio_ergaleio_kanei", {
+                    years: yearsInBusiness(),
+                  })}
                 />
               </div>
               <div className="flex flex-wrap gap-3">

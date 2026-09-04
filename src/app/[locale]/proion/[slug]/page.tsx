@@ -1,4 +1,5 @@
 import { getTranslations } from "next-intl/server";
+import { yearsInBusiness } from "@/lib/seo/structured-data";
 import { absoluteUrl, pageMeta } from "@/lib/seo/urls";
 import { faqJsonLd, productFaq } from "@/lib/seo/product-faq";
 import {
@@ -491,7 +492,7 @@ export default async function ProductPage({ params }: PageProps) {
                       {t("den_xerete_an_kanei_gia")}
                     </p>
                     <p className="mt-1 text-[12px] leading-[1.55] text-k-text-3">
-                      {t("kaleste_mas_46_chronia_sta")}
+                      {t("kaleste_mas_46_chronia_sta", { years: yearsInBusiness() })}
                     </p>
                   </div>
                   <a

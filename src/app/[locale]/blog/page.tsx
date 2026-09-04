@@ -8,7 +8,9 @@ import { setRequestLocale } from "next-intl/server";
 import { SiteChrome } from "@/components/chrome/SiteChrome";
 import { SiteFooter } from "@/components/chrome/SiteFooter";
 import { BlogMissingNotice } from "@/components/blog/BlogMissingNotice";
+import { blogJsonLd, yearsInBusiness } from "@/lib/seo/structured-data";
 import { Link } from "@/i18n/navigation";
+import { breadcrumbJsonLd } from "@/lib/seo/structured-data";
 import type { Locale } from "@/i18n/routing";
 import { getMiniCart } from "@/lib/cart/cart";
 import { BlogMethodMissing, getBlogPosts } from "@/lib/blog/blog";
@@ -56,10 +58,17 @@ export default async function BlogPage({
   setRequestLocale(locale);
 
   const raw = await searchParams;
-  const page = Math.max(1, Number(Array.isArray(raw.page) ? raw.page[0] : raw.page) || 1);
+  const page = Math.max(
+    1,
+    Number(Array.isArray(raw.page) ? raw.page[0] : raw.page) || 1,
+  );
 
   const [chrome, rootCategories, miniCart] = await Promise.all([
-    Promise.all([getMenuTree(locale), getTopBrands(locale, 16), getCatalogueStats()]),
+    Promise.all([
+      getMenuTree(locale),
+      getTopBrands(locale, 16),
+      getCatalogueStats(),
+    ]),
     getRootCategories(locale),
     getMiniCart(locale),
   ]);
@@ -76,8 +85,42 @@ export default async function BlogPage({
 
   const [lead, ...rest] = data?.posts ?? [];
 
+  /* Το blog ως blog, με ημερομηνίες. Είναι το ένα πράγμα που κάνει ένα άρθρο
+     παραθέσιμο: χωρίς `datePublished`, ένα μοντέλο δεν ξεχωρίζει έναν οδηγό
+     του 2026 από έναν του 2019. */
+  const blogLd =
+    (data?.posts.length ?? 0) === 0
+      ? null
+      : blogJsonLd(
+          {
+            name: "Blog",
+            description: t("perigrafi_odigoi_dokimes_kai_technika"),
+            path: "/blog",
+            posts: (data?.posts ?? []).map((post) => ({
+              title: post.title,
+              path: `/blog/${post.slug}`,
+              publishedAt: post.publishedAt,
+            })),
+          },
+          locale,
+        );
+
+  /* Το μονοπάτι που ζωγραφίζει η μηχανή κάτω από το αποτέλεσμα, αντί για
+     τη γυμνή διεύθυνση. Υπήρχε μόνο σε κατηγορία και προϊόν. */
+  const crumbsLd = breadcrumbJsonLd([{ name: "Blog", path: "/blog" }], locale);
+
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(crumbsLd) }}
+      />
+      {blogLd && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(blogLd) }}
+        />
+      )}
       <SiteChrome
         locale={locale}
         cart={miniCart}
@@ -89,7 +132,10 @@ export default async function BlogPage({
       <main id="main">
         <Zone id="blog.top" locale={locale} />
         <div className="shell-x bg-k-ink-deep">
-          <nav aria-label="Breadcrumb" className="t-util flex h-11 items-center gap-2.5 text-white/45">
+          <nav
+            aria-label="Breadcrumb"
+            className="t-util flex h-11 items-center gap-2.5 text-white/45"
+          >
             <Link href="/" className="text-white/60 hover:text-white">
               {upGreek(t("archiki"))}
             </Link>
@@ -101,7 +147,7 @@ export default async function BlogPage({
               {upGreek(t("odigoi_kai_dokimes"))}
             </h1>
             <p className="mt-3.5 max-w-[600px] text-[13px] leading-[1.68] text-white/60 lg:text-sm">
-              {t("ti_doyleyei_ti_ochi_kai")}
+              {t("ti_doyleyei_ti_ochi_kai", { years: yearsInBusiness() })}
             </p>
           </div>
         </div>
@@ -131,7 +177,10 @@ export default async function BlogPage({
                     aria-label={t("selides")}
                     className="mt-8 flex flex-wrap items-center justify-center gap-1.5"
                   >
-                    {Array.from({ length: data.totalPages }, (_, i) => i + 1).map((n) => (
+                    {Array.from(
+                      { length: data.totalPages },
+                      (_, i) => i + 1,
+                    ).map((n) => (
                       <Link
                         key={n}
                         href={n === 1 ? "/blog" : `/blog?page=${n}`}
@@ -158,7 +207,11 @@ export default async function BlogPage({
   );
 }
 
-function LeadCard({ post }: { post: import("@/lib/blog/contract").BlogPostSummary }) {
+function LeadCard({
+  post,
+}: {
+  post: import("@/lib/blog/contract").BlogPostSummary;
+}) {
   const t = useTranslations("blog.page");
   return (
     <Link
@@ -198,7 +251,11 @@ function LeadCard({ post }: { post: import("@/lib/blog/contract").BlogPostSummar
   );
 }
 
-function PostCard({ post }: { post: import("@/lib/blog/contract").BlogPostSummary }) {
+function PostCard({
+  post,
+}: {
+  post: import("@/lib/blog/contract").BlogPostSummary;
+}) {
   const t = useTranslations("blog.page");
   return (
     <Link
@@ -240,7 +297,11 @@ function PostCard({ post }: { post: import("@/lib/blog/contract").BlogPostSummar
 
 // Async because it needs `t`, and a server component may be awaited where it is
 // rendered — cheaper than threading the one label down from both call sites.
-async function PostMeta({ post }: { post: import("@/lib/blog/contract").BlogPostSummary }) {
+async function PostMeta({
+  post,
+}: {
+  post: import("@/lib/blog/contract").BlogPostSummary;
+}) {
   const locale = await getLocale();
   const t = await getTranslations("blog.page");
   const date = new Date(post.publishedAt);
@@ -249,12 +310,18 @@ async function PostMeta({ post }: { post: import("@/lib/blog/contract").BlogPost
       <time dateTime={post.publishedAt}>
         {Number.isNaN(date.getTime())
           ? "—"
-          : date.toLocaleDateString(locale, { day: "2-digit", month: "long", year: "numeric" })}
+          : date.toLocaleDateString(locale, {
+              day: "2-digit",
+              month: "long",
+              year: "numeric",
+            })}
       </time>
       {post.readingMinutes != null && (
         <>
           <span aria-hidden className="block h-[12px] w-px bg-k-line-2" />
-          <span>{upGreek(t("anagnosi", { readingMinutes: post.readingMinutes }))}</span>
+          <span>
+            {upGreek(t("anagnosi", { readingMinutes: post.readingMinutes }))}
+          </span>
         </>
       )}
     </span>

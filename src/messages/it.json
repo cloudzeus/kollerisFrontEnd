@@ -65,7 +65,7 @@
       "diathesimotita": "Disponibilità",
       "eidika_filtra": "Filtri speciali",
       "den_vriskete_to_sosto": "Non trovi quello giusto?",
-      "peite_mas_ti_doyleia_kai": "Dicci il tuo lavoro e ti consigliamo il codice. 46 anni di esperienza al telefono.",
+      "peite_mas_ti_doyleia_kai": "Dicci il tuo lavoro e ti consigliamo il codice. {years} anni di esperienza al telefono.",
       "se_prosfora": "In offerta",
       "nea_proionta": "Nuovi prodotti"
     },
@@ -176,7 +176,7 @@
   },
   "home": {
     "AboutSplit": {
-      "gia_46_chronia_i_kolleris": "Per 46 anni, Kolleris è il fornitore a cui si rivolgono compagnie di navigazione,\n          fabbriche e officine. Rapporti diretti con Milwaukee, Knipex,\n          Wera — disponibilità precisa, senza 'vedremo'.",
+      "gia_46_chronia_i_kolleris": "Per {years} anni, Kolleris è il fornitore a cui si rivolgono compagnie di navigazione,\n          fabbriche e officine. Rapporti diretti con Milwaukee, Knipex,\n          Wera — disponibilità precisa, senza 'vedremo'.",
       "apo_to_1978": "Dal 1978",
       "motto_line1": "Coerenza",
       "motto_line2": "senza interruzioni.",
@@ -695,7 +695,7 @@
     "page": {
       "archiki": "Home",
       "odigoi_kai_dokimes": "Guide e test",
-      "ti_doyleyei_ti_ochi_kai": "Cosa funziona, cosa no, e perché. Scritti da persone che vendono questi\n              strumenti da 46 anni.",
+      "ti_doyleyei_ti_ochi_kai": "Cosa funziona, cosa no, e perché. Scritti da persone che vendono questi\n              strumenti da {years} anni.",
       "den_yparchoyn_akomi_dimosieymena_arthra": "Non ci sono ancora articoli pubblicati.",
       "selides": "Pagine",
       "pio_prosfato": "Più recente",
@@ -842,7 +842,7 @@
     "oi_times_synergati_einai_pragmatikes": "I prezzi partner sono reali, non una trattativa ogni volta. Ci fa risparmiare tempo.",
     "k_vasileioy": "K. Vasileiou",
     "ypeythynos_promitheion_ergostasio": "RESPONSABILE APPROVVIGIONAMENTI · FABBRICA",
-    "46_chronia_stin_agora_fainontai": "46 anni sul mercato si notano. Sanno cosa chiedi prima che finisci la frase.",
+    "46_chronia_stin_agora_fainontai": "{years} anni sul mercato si notano. Sanno cosa chiedi prima che finisci la frase.",
     "g_antonioy": "G. Antoniou",
     "idioktitis_synergeio": "TITOLARE · OFFICINA",
     "pragmatiko_apothema_ochi_yposcheseis": "Scorte reali, non promesse",
@@ -944,7 +944,7 @@
       "gnisio_proion_eggyisi_kataskeyasti_servis": "Prodotto originale, garanzia del produttore, assistenza e ricambi da Kolleris.",
       "ypeythynos_katigorias": "Responsabile di categoria",
       "den_xerete_an_kanei_gia": "Non sapete se è adatto al vostro lavoro?",
-      "kaleste_mas_46_chronia_sta": "Chiamateci — 46 anni nel settore degli utensili, rispondiamo al telefono.",
+      "kaleste_mas_46_chronia_sta": "Chiamateci — {years} anni nel settore degli utensili, rispondiamo al telefono.",
       "kod_kataskeyasti": "Cod. produttore",
       "paradosi_24_48o": "Consegna 24-48 ore",
       "panelladika_me_courier": "In tutta la Grecia con corriere",
@@ -1169,7 +1169,7 @@
       "ola_ta_brands": "Tutti i brand",
       "miliste_mas": "Parlateci",
       "peite_mas_ti_doyleia_ochi": "Diteci il lavoro, non il codice",
-      "den_xerete_poio_ergaleio_kanei": "Non sapete quale utensile fa al caso vostro? Descrivete cosa volete fare. In 46 anni lo abbiamo già sentito.",
+      "den_xerete_poio_ergaleio_kanei": "Non sapete quale utensile fa al caso vostro? Descrivete cosa volete fare. In {years} anni lo abbiamo già sentito.",
       "epikoinonia": "Contatto",
       "se_katigories_kai_ypokatigories": "in {categories} categorie e {n} sottocategorie",
       "temachia_tora_ston_peiraia": "{n} pezzi, ora, al Pireo",
@@ -1180,7 +1180,7 @@
       "peiraias_apo_to": "Pireo · dal {FOUNDED}",
       "apo_to_mechri_simera": "Dal {FOUNDED} a oggi",
       "titlos_i_etaireia": "L'azienda",
-      "perigrafi_46_chronia_sta_viomichanika": "46 anni negli utensili industriali. Guarda i numeri del nostro magazzino in diretta — codici, stock, tonnellate sugli scaffali."
+      "perigrafi_46_chronia_sta_viomichanika": "{years} anni negli utensili industriali. Guarda i numeri del nostro magazzino in diretta — codici, stock, tonnellate sugli scaffali."
     }
   },
   "epikoinonia": {
@@ -1205,7 +1205,7 @@
       "archiki": "Home",
       "epikoinonia": "Contatto",
       "peite_mas_ti_doyleia_ochi": "Dicci il lavoro, non il codice",
-      "den_chreiazetai_na_xerete_ti": "Non serve sapere esattamente cosa cerchi. Descrivi cosa vuoi fare — in 46 anni lo abbiamo già sentito.",
+      "den_chreiazetai_na_xerete_ti": "Non serve sapere esattamente cosa cerchi. Descrivi cosa vuoi fare — in {years} anni lo abbiamo già sentito.",
       "kleinoyme_se": "Chiudiamo tra",
       "prolavainete_ena_tilefono": "′ — fai in tempo a fare una telefonata.",
       "forma": "Modulo",

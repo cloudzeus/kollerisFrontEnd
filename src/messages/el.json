@@ -65,7 +65,7 @@
       "diathesimotita": "Διαθεσιμότητα",
       "eidika_filtra": "Ειδικά φίλτρα",
       "den_vriskete_to_sosto": "Δεν βρίσκετε το σωστό;",
-      "peite_mas_ti_doyleia_kai": "Πείτε μας τη δουλειά και σας προτείνουμε τον κωδικό. 46 χρόνια εμπειρίας\n              στο τηλέφωνο.",
+      "peite_mas_ti_doyleia_kai": "Πείτε μας τη δουλειά και σας προτείνουμε τον κωδικό. {years} χρόνια εμπειρίας\n              στο τηλέφωνο.",
       "se_prosfora": "Σε προσφορά",
       "nea_proionta": "Νέα προϊόντα"
     },
@@ -176,7 +176,7 @@
   },
   "home": {
     "AboutSplit": {
-      "gia_46_chronia_i_kolleris": "Για 46 χρόνια, η Kolleris είναι ο προμηθευτής που καλούν ναυτιλιακές\n          εταιρείες, εργοστάσια και συνεργεία. Άμεσες σχέσεις με Milwaukee, Knipex,\n          Wera — ακριβής διαθεσιμότητα, χωρίς «θα δούμε».",
+      "gia_46_chronia_i_kolleris": "Για {years} χρόνια, η Kolleris είναι ο προμηθευτής που καλούν ναυτιλιακές\n          εταιρείες, εργοστάσια και συνεργεία. Άμεσες σχέσεις με Milwaukee, Knipex,\n          Wera — ακριβής διαθεσιμότητα, χωρίς «θα δούμε».",
       "apo_to_1978": "Από το 1978",
       "motto_line1": "Συνεπεια",
       "motto_line2": "χωρις διακοπη.",
@@ -695,7 +695,7 @@
     "page": {
       "archiki": "Αρχική",
       "odigoi_kai_dokimes": "Οδηγοί και δοκιμές",
-      "ti_doyleyei_ti_ochi_kai": "Τι δουλεύει, τι όχι, και γιατί. Γραμμένα από ανθρώπους που πουλάνε αυτά τα\n              εργαλεία 46 χρόνια.",
+      "ti_doyleyei_ti_ochi_kai": "Τι δουλεύει, τι όχι, και γιατί. Γραμμένα από ανθρώπους που πουλάνε αυτά τα\n              εργαλεία {years} χρόνια.",
       "den_yparchoyn_akomi_dimosieymena_arthra": "Δεν υπάρχουν ακόμη δημοσιευμένα άρθρα.",
       "selides": "Σελίδες",
       "pio_prosfato": "Πιο πρόσφατο",
@@ -842,7 +842,7 @@
     "oi_times_synergati_einai_pragmatikes": "Οι τιμές συνεργάτη είναι πραγματικές, όχι διαπραγμάτευση κάθε φορά. Μας γλιτώνει χρόνο.",
     "k_vasileioy": "Κ. Βασιλείου",
     "ypeythynos_promitheion_ergostasio": "ΥΠΕΥΘΥΝΟΣ ΠΡΟΜΗΘΕΙΩΝ · ΕΡΓΟΣΤΑΣΙΟ",
-    "46_chronia_stin_agora_fainontai": "46 χρόνια στην αγορά φαίνονται. Ξέρουν τι ζητάς πριν τελειώσεις τη φράση.",
+    "46_chronia_stin_agora_fainontai": "{years} χρόνια στην αγορά φαίνονται. Ξέρουν τι ζητάς πριν τελειώσεις τη φράση.",
     "g_antonioy": "Γ. Αντωνίου",
     "idioktitis_synergeio": "ΙΔΙΟΚΤΗΤΗΣ · ΣΥΝΕΡΓΕΙΟ",
     "pragmatiko_apothema_ochi_yposcheseis": "Πραγματικό απόθεμα, όχι υποσχέσεις",
@@ -944,7 +944,7 @@
       "gnisio_proion_eggyisi_kataskeyasti_servis": "Γνήσιο προϊόν, εγγύηση κατασκευαστή, σέρβις και\n                          ανταλλακτικά από την Kolleris.",
       "ypeythynos_katigorias": "Υπεύθυνος κατηγορίας",
       "den_xerete_an_kanei_gia": "Δεν ξέρετε αν κάνει για τη δουλειά σας;",
-      "kaleste_mas_46_chronia_sta": "Καλέστε μας — 46 χρόνια στα εργαλεία, σηκώνουμε το\n                      τηλέφωνο.",
+      "kaleste_mas_46_chronia_sta": "Καλέστε μας — {years} χρόνια στα εργαλεία, σηκώνουμε το\n                      τηλέφωνο.",
       "kod_kataskeyasti": "Κωδ. κατασκευαστή",
       "paradosi_24_48o": "Παράδοση 24-48ω",
       "panelladika_me_courier": "Πανελλαδικά με courier",
@@ -1169,7 +1169,7 @@
       "ola_ta_brands": "Όλα τα brands",
       "miliste_mas": "Μιλήστε μας",
       "peite_mas_ti_doyleia_ochi": "Πείτε μας τη δουλειά, όχι τον κωδικό",
-      "den_xerete_poio_ergaleio_kanei": "Δεν ξέρετε ποιο εργαλείο κάνει; Περιγράψτε τι θέλετε να κάνετε. Σε 46 χρόνια το έχουμε ξανακούσει.",
+      "den_xerete_poio_ergaleio_kanei": "Δεν ξέρετε ποιο εργαλείο κάνει; Περιγράψτε τι θέλετε να κάνετε. Σε {years} χρόνια το έχουμε ξανακούσει.",
       "epikoinonia": "Επικοινωνία",
       "se_katigories_kai_ypokatigories": "σε {categories} κατηγορίες και {n} υποκατηγορίες",
       "temachia_tora_ston_peiraia": "{n} τεμάχια, τώρα, στον Πειραιά",
@@ -1180,7 +1180,7 @@
       "peiraias_apo_to": "Πειραιάς · από το {FOUNDED}",
       "apo_to_mechri_simera": "Από το {FOUNDED} μέχρι σήμερα",
       "titlos_i_etaireia": "Η εταιρεία",
-      "perigrafi_46_chronia_sta_viomichanika": "46 χρόνια στα βιομηχανικά εργαλεία. Δείτε τα νούμερα της αποθήκης μας ζωντανά — κωδικοί, απόθεμα, τόνοι στο ράφι."
+      "perigrafi_46_chronia_sta_viomichanika": "{years} χρόνια στα βιομηχανικά εργαλεία. Δείτε τα νούμερα της αποθήκης μας ζωντανά — κωδικοί, απόθεμα, τόνοι στο ράφι."
     }
   },
   "epikoinonia": {
@@ -1205,7 +1205,7 @@
       "archiki": "Αρχική",
       "epikoinonia": "Επικοινωνία",
       "peite_mas_ti_doyleia_ochi": "Πείτε μας τη δουλειά, όχι τον κωδικό",
-      "den_chreiazetai_na_xerete_ti": "Δεν χρειάζεται να ξέρετε τι ακριβώς ζητάτε. Περιγράψτε τι θέλετε να κάνετε —\n                σε 46 χρόνια το έχουμε ξανακούσει.",
+      "den_chreiazetai_na_xerete_ti": "Δεν χρειάζεται να ξέρετε τι ακριβώς ζητάτε. Περιγράψτε τι θέλετε να κάνετε —\n                σε {years} χρόνια το έχουμε ξανακούσει.",
       "kleinoyme_se": "Κλείνουμε σε",
       "prolavainete_ena_tilefono": "′ — προλαβαίνετε ένα τηλέφωνο.",
       "forma": "Φόρμα",

@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-09-04T17:33:12.969Z",
+  "timestamp": "2026-09-04T17:41:46.449Z",
   "source": "auto-postool",
   "partial": false,
   "phase": null,
@@ -22,11 +22,7 @@
     },
     {
       "status": "M",
-      "path": "src/app/[locale]/anazitisi/page.tsx"
-    },
-    {
-      "status": "M",
-      "path": "src/app/[locale]/b2b/page.tsx"
+      "path": "src/app/[locale]/(home)/page.tsx"
     },
     {
       "status": "M",
@@ -50,14 +46,6 @@
     },
     {
       "status": "M",
-      "path": "src/app/[locale]/katalogos/[kathgoria]/page.tsx"
-    },
-    {
-      "status": "M",
-      "path": "src/app/[locale]/katalogos/page.tsx"
-    },
-    {
-      "status": "M",
       "path": "src/app/[locale]/nees-afixeis/page.tsx"
     },
     {
@@ -70,19 +58,23 @@
     },
     {
       "status": "M",
-      "path": "src/app/[locale]/prosfores/[slug]/page.tsx"
-    },
-    {
-      "status": "M",
       "path": "src/app/[locale]/prosfores/page.tsx"
     },
     {
       "status": "M",
-      "path": "src/app/[locale]/sygkrisi/page.tsx"
+      "path": "src/components/home/AboutSplit.tsx"
     },
     {
       "status": "M",
-      "path": "src/app/[locale]/syxnes-erotiseis/page.tsx"
+      "path": "src/components/plp/FilterSidebar.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/lib/content/registry.ts"
+    },
+    {
+      "status": "M",
+      "path": "src/lib/seo/category-copy.ts"
     },
     {
       "status": "M",
@@ -90,9 +82,17 @@
     },
     {
       "status": "M",
-      "path": "src/lib/seo/urls.ts"
+      "path": "src/messages/el.json"
+    },
+    {
+      "status": "M",
+      "path": "src/messages/en.json"
+    },
+    {
+      "status": "M",
+      "path": "src/messages/it.json"
     }
   ],
   "next_action": null,
-  "context_notes": "Recent commits:\n073a888 fix(banners): τα σήματα του Κολλέρη περνούν στο CDN\nc2e7694 fix(meta): Open Graph, εικόνα κοινοποίησης και το κόκκινο Κ ως favicon\nee6ea3d feat(banners): μία συνταγή κίνησης, auto-fit παντού, τα σήματα του Κολλέρη\n86e54c5 fix(type): οι επικεφαλίδες που έμειναν στην παλιά γραμματοσειρά\na578f95 feat(banners): τα widgets αλλάζουν θέση με σύρσιμο"
+  "context_notes": "Recent commits:\n9c7becb fix(seo): κάθε σελίδα δηλώνει τον δικό της τίτλο, canonical και δομή\n073a888 fix(banners): τα σήματα του Κολλέρη περνούν στο CDN\nc2e7694 fix(meta): Open Graph, εικόνα κοινοποίησης και το κόκκινο Κ ως favicon\nee6ea3d feat(banners): μία συνταγή κίνησης, auto-fit παντού, τα σήματα του Κολλέρη\n86e54c5 fix(type): οι επικεφαλίδες που έμειναν στην παλιά γραμματοσειρά"
 }

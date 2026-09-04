@@ -9,7 +9,9 @@ import { CompareTray } from "@/components/compare/CompareTray";
 import { ProductCard } from "@/components/product/ProductCard";
 import { QuickViewProvider } from "@/components/product/QuickViewProvider";
 import { Link } from "@/i18n/navigation";
+import { breadcrumbJsonLd } from "@/lib/seo/structured-data";
 import type { Locale } from "@/i18n/routing";
+import { collectionJsonLd } from "@/lib/seo/structured-data";
 import { getMiniCart } from "@/lib/cart/cart";
 import { getNewArrivals } from "@/lib/catalog/editorial";
 import {
@@ -143,8 +145,45 @@ export default async function NewArrivalsPage({
     },
   ];
 
+  /* Οι νέες αφίξεις ως λίστα: η σειρά είναι χρονολογική και έχει νόημα, οπότε
+     το `position` λέει κάτι αληθινό. */
+  const arrivalsLd = (() => {
+    const products = arrivals.periods
+      .flatMap((period) => period.products)
+      .slice(0, 60);
+    if (products.length === 0) return null;
+    return collectionJsonLd(
+      {
+        name: t("titlos_nees_afixeis"),
+        path: "/nees-afixeis",
+        items: products.map((product) => ({
+          name: product.name,
+          path: `/proion/${product.slug}`,
+        })),
+      },
+      locale,
+    );
+  })();
+
+  /* Το μονοπάτι που ζωγραφίζει η μηχανή κάτω από το αποτέλεσμα, αντί για
+     τη γυμνή διεύθυνση. Υπήρχε μόνο σε κατηγορία και προϊόν. */
+  const crumbsLd = breadcrumbJsonLd(
+    [{ name: t("titlos_nees_afixeis"), path: "/nees-afixeis" }],
+    locale,
+  );
+
   return (
     <QuickViewProvider locale={locale}>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(crumbsLd) }}
+      />
+      {arrivalsLd && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(arrivalsLd) }}
+        />
+      )}
       <SiteChrome
         locale={locale}
         cart={miniCart}
@@ -232,7 +271,9 @@ export default async function NewArrivalsPage({
                       </time>
                       <span className="t-brand-count font-mono text-k-ink">
                         {period.count.toLocaleString(locale)}{" "}
-                        {upGreek(period.count === 1 ? t("kodikos") : t("kodikoi"))}
+                        {upGreek(
+                          period.count === 1 ? t("kodikos") : t("kodikoi"),
+                        )}
                       </span>
                       {index === 0 && (
                         <span className="t-badge bg-k-red px-[7px] py-[3px] text-white">
@@ -271,7 +312,9 @@ export default async function NewArrivalsPage({
                       <p className="t-brand-count mt-3.5 text-k-text-4">
                         {upGreek(
                           t("akomi_ayton_ton_mina", {
-                            n: (period.count - period.products.length).toLocaleString(locale),
+                            n: (
+                              period.count - period.products.length
+                            ).toLocaleString(locale),
                           }),
                         )}
                       </p>

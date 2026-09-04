@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { yearsInBusiness } from "@/lib/seo/structured-data";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { upGreek } from "@/lib/greek";
@@ -86,7 +87,7 @@ export function AboutSplit({
           {upGreek(copy.titleSecond)}
         </h2>
         <p className="t-body text-k-text-2">
-          {t("gia_46_chronia_i_kolleris")}
+          {t("gia_46_chronia_i_kolleris", { years: yearsInBusiness() })}
         </p>
 
         <dl className="mt-1 flex flex-col gap-3.5">

@@ -1,4 +1,5 @@
 import { getTranslations } from "next-intl/server";
+import { yearsInBusiness } from "@/lib/seo/structured-data";
 import { setRequestLocale } from "next-intl/server";
 import { SiteChrome } from "@/components/chrome/SiteChrome";
 import { SiteFooter } from "@/components/chrome/SiteFooter";
@@ -147,7 +148,7 @@ export default async function HomePage({
       role: t("ypeythynos_promitheion_ergostasio"),
     },
     {
-      text: t("46_chronia_stin_agora_fainontai"),
+      text: t("46_chronia_stin_agora_fainontai", { years: yearsInBusiness() }),
       name: t("g_antonioy"),
       role: t("idioktitis_synergeio"),
     },
