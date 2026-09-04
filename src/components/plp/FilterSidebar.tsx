@@ -64,13 +64,14 @@ export function FilterSidebar({
       <div className="scroll-slim flex-1 overflow-y-auto">
         {facets.subcategories.length > 0 && (
           <Group title={t("ypokatigoria")} badge={activeSubs} defaultOpen>
-            {/* Χρυσό μόνο στις υποκατηγορίες. Σε λευκό φόντο το `k-gold` του
-                header δεν διαβάζεται — `k-gold-ink` είναι το ίδιο κίτρινο
-                σκουραμένο ώστε να περνά την αντίθεση. */}
+            {/* Κόκκινο μόνο στις υποκατηγορίες — το ίδιο με το όνομα μάρκας
+                στην κάρτα, ώστε να μην μπει τρίτη απόχρωση στη σελίδα. Τα
+                brands από κάτω μένουν γκρι: αν βάφονταν όλα, δεν θα ξεχώριζε
+                τίποτα. */}
             <CheckList
               items={facets.subcategories}
               hrefFor={(slug) => toggleMultiHref(basePath, params, "sub", slug)}
-              countClassName="text-k-gold-ink"
+              countClassName="text-k-red"
             />
           </Group>
         )}
