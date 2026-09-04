@@ -41,6 +41,14 @@
     .k-stat{font-size:32px !important;line-height:32px !important;}
     .k-step-label{font-size:8px !important;letter-spacing:0.04em !important;}
     .k-img-full{width:100% !important;height:auto !important;}
+    /* Η κεφαλίδα παραγγελίας: τρεις στήλες σε 375 px σημαίνει αριθμός
+       παραγγελίας σπασμένος σε τρεις γραμμές. Στοιβάζονται, και ο κάθετος
+       διαχωρισμός γίνεται οριζόντιος. */
+    .k-head-cell{border-right:0 !important;border-bottom:1px solid #D8D8D8 !important;}
+    .k-head-last{border-bottom:0 !important;}
+    /* Ζεύγη CTA: δίπλα-δίπλα στα 600 px, στοιβαγμένα στο κινητό — αλλιώς η
+       ετικέτα του κύριου κουμπιού τυλίγεται σε δύο γραμμές. */
+    .k-cta-gap{padding-right:0 !important;padding-bottom:12px !important;}
   }
 </style>
 </head>
@@ -132,8 +140,8 @@
   <tr><td class="k-pad" style="padding:28px 32px 0 32px;">
     <table role="presentation" cellspacing="0" cellpadding="0" border="0">
       <tr>
-        <td style="padding-right:12px;"><table role="presentation" cellspacing="0" cellpadding="0" border="0" class="k-btn" style=""><tr><td bgcolor="#EA3E39" style="background-color:#EA3E39;"><a href="{{rfp.accept_url}}" target="_blank" style="display:inline-block;padding:15px 24px;font-family:'Inter',Arial,Helvetica,sans-serif;font-size:12px;line-height:14px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#FFFFFF;text-decoration:none;mso-padding-alt:0;"><!--[if mso]><i style="letter-spacing:24px;mso-font-width:-100%;mso-text-raise:22pt;">&nbsp;</i><![endif]--><span style="mso-text-raise:11pt;">Αποδοχη&nbsp;&nbsp;→</span><!--[if mso]><i style="letter-spacing:24px;mso-font-width:-100%;">&nbsp;</i><![endif]--></a></td></tr></table></td>
-        <td><table role="presentation" cellspacing="0" cellpadding="0" border="0" style=""><tr><td style="border:2px solid #1F1F1F;"><a href="{{rfp.discuss_url}}" target="_blank" style="display:inline-block;padding:13px 22px;font-family:'Inter',Arial,Helvetica,sans-serif;font-size:12px;line-height:14px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#1F1F1F;text-decoration:none;mso-padding-alt:0;"><!--[if mso]><i style="letter-spacing:22px;mso-font-width:-100%;mso-text-raise:20pt;">&nbsp;</i><![endif]--><span style="mso-text-raise:10pt;">Σχολια / Αλλαγες&nbsp;&nbsp;→</span><!--[if mso]><i style="letter-spacing:22px;mso-font-width:-100%;">&nbsp;</i><![endif]--></a></td></tr></table></td>
+        <td class="k-col k-cta-gap" style="padding-right:12px;"><table role="presentation" cellspacing="0" cellpadding="0" border="0" class="k-btn" style=""><tr><td bgcolor="#EA3E39" style="background-color:#EA3E39;"><a href="{{rfp.accept_url}}" target="_blank" style="display:inline-block;padding:15px 24px;font-family:'Inter',Arial,Helvetica,sans-serif;font-size:12px;line-height:14px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#FFFFFF;text-decoration:none;mso-padding-alt:0;"><!--[if mso]><i style="letter-spacing:24px;mso-font-width:-100%;mso-text-raise:22pt;">&nbsp;</i><![endif]--><span style="mso-text-raise:11pt;">Αποδοχη&nbsp;&nbsp;→</span><!--[if mso]><i style="letter-spacing:24px;mso-font-width:-100%;">&nbsp;</i><![endif]--></a></td></tr></table></td>
+        <td class="k-col"><table role="presentation" cellspacing="0" cellpadding="0" border="0" style=""><tr><td style="border:2px solid #1F1F1F;"><a href="{{rfp.discuss_url}}" target="_blank" style="display:inline-block;padding:13px 22px;font-family:'Inter',Arial,Helvetica,sans-serif;font-size:12px;line-height:14px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#1F1F1F;text-decoration:none;mso-padding-alt:0;"><!--[if mso]><i style="letter-spacing:22px;mso-font-width:-100%;mso-text-raise:20pt;">&nbsp;</i><![endif]--><span style="mso-text-raise:10pt;">Σχολια / Αλλαγες&nbsp;&nbsp;→</span><!--[if mso]><i style="letter-spacing:22px;mso-font-width:-100%;">&nbsp;</i><![endif]--></a></td></tr></table></td>
       </tr>
     </table>
   </td></tr>

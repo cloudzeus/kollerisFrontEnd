@@ -1,5 +1,6 @@
 import "server-only";
 import { prisma } from "@/lib/prisma";
+import { sendB2bApprovedEmail } from "@/lib/mail/account-emails";
 import { HdctoolError, hdctoolRequest } from "@/lib/hdctool/client";
 
 /**
@@ -127,6 +128,28 @@ export async function approveCompany(
       data: { status: "active" },
     }),
   ]);
+
+  /*
+   * Η έγκριση φτάνει στον άνθρωπο που την περίμενε.
+   * ───────────────────────────────────────────────────────────────────────────
+   * Μέχρι τώρα φαινόταν μόνο σε όποιον τύχαινε να ξαναδοκιμάσει να συνδεθεί.
+   * Κάποιος που περίμενε δύο μέρες δεν είχε λόγο να ξαναδοκιμάσει, και οι
+   * τιμές συνεργάτη έμεναν ανενεργές επειδή κανείς δεν του είπε ότι ενεργοποιήθηκαν.
+   *
+   * Στέλνεται στους κατόχους — στην πράξη έναν, τον owner που έκανε την
+   * εγγραφή — και μετά την ολοκλήρωση της συναλλαγής: η έγκριση ισχύει ό,τι
+   * κι αν κάνει το Mailgun.
+   */
+  const owners = await prisma.customer.findMany({
+    where: { companyId: company.id, role: "owner" },
+    select: { firstName: true, lastName: true, email: true },
+  });
+  for (const owner of owners) {
+    await sendB2bApprovedEmail(
+      { firstName: owner.firstName ?? "", lastName: owner.lastName ?? "", email: owner.email },
+      { name: company.name, erpTrdr: trdr, partnerFactor },
+    );
+  }
 
   return { ok: true, trdr, partnerFactor };
 }

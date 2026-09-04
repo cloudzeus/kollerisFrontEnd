@@ -3,6 +3,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { VIVA_STATUS_PAID, getTransaction } from "@/lib/payment/viva";
 import { sendOrderEmail } from "@/lib/mail/order-email";
+import { sendPaymentFailedEmail } from "@/lib/mail/payment-failed-email";
 import { syncPaymentToErp } from "@/lib/orders/send-to-erp";
 
 /**
@@ -264,5 +265,24 @@ async function handleTransaction(payload: Body, event: VivaEventName) {
       },
     },
   });
+  /*
+   * Και το λέμε στον πελάτη.
+   * ───────────────────────────────────────────────────────────────────────────
+   * Η παραγγελία έμενε σε FAILED και κανείς δεν ειδοποιούνταν: όποιος έκλεινε
+   * την καρτέλα της Viva νομίζοντας ότι η πληρωμή πέρασε, το μάθαινε όταν δεν
+   * ερχόταν το δέμα.
+   *
+   * Ίδιος κανόνας με την απόδειξη: αναμένεται, καταγράφεται, ποτέ δεν ρίχνει
+   * την απάντηση. Μια αποτυχία email που γίνεται αποτυχία webhook κάνει τη
+   * Viva να ξαναστείλει το ίδιο γεγονός, και ο πελάτης παίρνει το μήνυμα δύο
+   * φορές.
+   */
+  const failedMail = await sendPaymentFailedEmail(orderNumber, {
+    statusId: transaction.statusId == null ? null : String(transaction.statusId),
+  });
+  if (!failedMail.ok) {
+    console.error(`[viva] ${orderNumber} failure notice not sent: ${failedMail.error}`);
+  }
+
   return NextResponse.json({ ok: true, paid: false });
 }

@@ -2,6 +2,7 @@ import "server-only";
 import { randomBytes } from "node:crypto";
 import { hash, verify } from "@node-rs/argon2";
 import { prisma } from "@/lib/prisma";
+import { sendWelcomeEmail, sendB2bPendingEmail } from "@/lib/mail/account-emails";
 import type {
   AccountUser,
   CompanyMember,
@@ -178,6 +179,18 @@ export const accountStore = {
       });
 
       const { token, expiresAt } = await issueSession(created.id);
+
+      /*
+       * Ο λογαριασμός είναι έτοιμος — και τώρα το μαθαίνει και ο κάτοχός του.
+       * Κανείς δεν ειδοποιούνταν ποτέ: η εγγραφή τελείωνε σε μια ανακατεύθυνση
+       * και ο πελάτης δεν είχε τίποτα στα εισερχόμενά του που να αποδεικνύει
+       * ότι έχει λογαριασμό, ούτε πού να τον βρει.
+       */
+      await sendWelcomeEmail(
+        { firstName: created.firstName ?? "", lastName: created.lastName ?? "", email: created.email },
+        { type: "individual" },
+      );
+
       return { ok: true, user: toUser(created), token, expiresAt: expiresAt.toISOString() };
     }
 
@@ -220,6 +233,27 @@ export const accountStore = {
       },
       include: WITH_COMPANY,
     });
+
+    /*
+     * Το αίτημα B2B μπαίνει σε ουρά έγκρισης — και η ουρά ήταν αόρατη.
+     * Ο πελάτης υπέβαλλε στοιχεία εταιρείας και δεν λάμβανε τίποτα: ούτε
+     * επιβεβαίωση ότι ελήφθη, ούτε προθεσμία, ούτε τι θα ακολουθήσει. Το
+     * μόνο σημάδι ήταν ότι η σύνδεση δεν δούλευε.
+     */
+    await sendB2bPendingEmail(
+      { firstName: created.firstName ?? "", lastName: created.lastName ?? "", email: created.email },
+      {
+        id: created.company?.id ?? created.id,
+        name: input.companyName,
+        afm: input.afm,
+        doy: input.doy,
+        profession: input.profession,
+        address: input.billAddress,
+        city: input.billCity,
+        postcode: input.billPostcode,
+        phone: input.phone,
+      },
+    );
 
     return { ok: true, user: toUser(created), token: null, expiresAt: null, pendingApproval: true };
   },

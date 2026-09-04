@@ -41,6 +41,14 @@
     .k-stat{font-size:32px !important;line-height:32px !important;}
     .k-step-label{font-size:8px !important;letter-spacing:0.04em !important;}
     .k-img-full{width:100% !important;height:auto !important;}
+    /* Η κεφαλίδα παραγγελίας: τρεις στήλες σε 375 px σημαίνει αριθμός
+       παραγγελίας σπασμένος σε τρεις γραμμές. Στοιβάζονται, και ο κάθετος
+       διαχωρισμός γίνεται οριζόντιος. */
+    .k-head-cell{border-right:0 !important;border-bottom:1px solid #D8D8D8 !important;}
+    .k-head-last{border-bottom:0 !important;}
+    /* Ζεύγη CTA: δίπλα-δίπλα στα 600 px, στοιβαγμένα στο κινητό — αλλιώς η
+       ετικέτα του κύριου κουμπιού τυλίγεται σε δύο γραμμές. */
+    .k-cta-gap{padding-right:0 !important;padding-bottom:12px !important;}
   }
 </style>
 </head>
@@ -91,15 +99,15 @@
     <td style="padding:4px 0 0 0;">
       <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="border:1px solid #D8D8D8;">
         <tr>
-          <td valign="top" width="40%" style="padding:14px 16px;border-right:1px solid #D8D8D8;vertical-align:top;">
+          <td class="k-col k-head-cell" valign="top" width="40%" style="padding:14px 16px;border-right:1px solid #D8D8D8;vertical-align:top;">
             <p class="mono" style="margin:0 0 12px 0;font-family:'JetBrains Mono',Consolas,'Courier New',monospace;font-size:10px;line-height:16px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:#5F6061;margin-bottom:2px;">Παραγγελια</p>
             <p class="mono" style="font-family:'JetBrains Mono',Consolas,'Courier New',monospace;font-size:18px;line-height:24px;font-weight:700;color:#1F1F1F;">{{order.number}}</p>
           </td>
-          <td valign="top" width="30%" style="padding:14px 16px;border-right:1px solid #D8D8D8;vertical-align:top;">
+          <td class="k-col k-head-cell" valign="top" width="30%" style="padding:14px 16px;border-right:1px solid #D8D8D8;vertical-align:top;">
             <p class="mono" style="margin:0 0 12px 0;font-family:'JetBrains Mono',Consolas,'Courier New',monospace;font-size:10px;line-height:16px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:#5F6061;margin-bottom:2px;">Ημερομηνια</p>
             <p class="mono" style="font-family:'JetBrains Mono',Consolas,'Courier New',monospace;font-size:13px;line-height:20px;color:#1F1F1F;">{{order.date}}</p>
           </td>
-          <td valign="top" width="30%" style="padding:14px 16px;vertical-align:top;">
+          <td class="k-col k-head-cell k-head-last" valign="top" width="30%" style="padding:14px 16px;vertical-align:top;">
             <p class="mono" style="margin:0 0 12px 0;font-family:'JetBrains Mono',Consolas,'Courier New',monospace;font-size:10px;line-height:16px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:#5F6061;margin-bottom:2px;">Κατασταση</p>
             <p style="margin:0;"><span class="mono" style="display:inline-block;padding:4px 9px;font-family:'JetBrains Mono',Consolas,'Courier New',monospace;font-size:10px;line-height:14px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:#15803D;background:#DCF5E6;">● Πληρωμενη</span></p>
           </td>

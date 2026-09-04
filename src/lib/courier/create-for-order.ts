@@ -2,6 +2,7 @@ import "server-only";
 import { prisma } from "@/lib/prisma";
 import { createVoucher } from "@/lib/courier/acs";
 import { chargeableWeight } from "@/lib/shipping/acs-tariff";
+import { sendShippedEmail } from "@/lib/mail/order-shipped-email";
 
 /**
  * Turning a paid order into an ACS voucher.
@@ -156,6 +157,21 @@ export async function createVoucherForOrder(orderNumber: string): Promise<Vouche
       },
     },
   });
+
+  /*
+   * Η ειδοποίηση αποστολής φεύγει εδώ, και μόνο εδώ.
+   * ───────────────────────────────────────────────────────────────────────────
+   * Είναι η στιγμή που ο αριθμός αποστολής αποκτά νόημα: πριν από αυτήν δεν
+   * υπάρχει τι να παρακολουθήσει ο πελάτης. Στέλνεται μόνο όταν η κατάσταση
+   * όντως προχώρησε — ένα δεύτερο πάτημα σε παραγγελία που είχε ήδη voucher
+   * επιστρέφει νωρίτερα, οπότε κανείς δεν λαμβάνει το ίδιο email δύο φορές.
+   *
+   * Η αποτυχία του email δεν αναιρεί την αποστολή: το δέμα έχει φύγει και η
+   * ετικέτα έχει τυπωθεί, ό,τι κι αν πει το Mailgun.
+   */
+  if (advances) {
+    await sendShippedEmail(order.orderNumber, voucherNo);
+  }
 
   return { ok: true, voucherNo, alreadyIssued: false };
 }

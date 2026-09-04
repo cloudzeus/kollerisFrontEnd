@@ -107,7 +107,7 @@ export function CartSummaryPanel({
              * three would mean running the tariff engine three times per render
              * for numbers that change again once the postcode is known.
              */
-            const cost = active ? totals.shippingGross : null;
+            const cost = active ? totals.shippingNet : null;
             return (
               <button
                 key={method.id}
@@ -220,17 +220,28 @@ export function CartSummaryPanel({
       <div className="h-[7px] bg-[repeating-linear-gradient(135deg,#FF3333_0_9px,#1A1A1C_9px_18px)]" />
       <div className="bg-k-ink px-4 py-6 lg:px-8">
         <dl className="flex flex-col gap-2.5">
+          {/*
+            Οι γραμμές αθροίζουν στο τελικό σύνολο.
+
+            Έλεγαν «Καθαρή αξία» (καθαρή) και από κάτω «Μεταφορικά» ΜΕΙΚΤΑ, με
+            ξεχωριστή γραμμή ΦΠΑ — δηλαδή ο ΦΠΑ των μεταφορικών μετριόταν δύο
+            φορές. Σε παραγγελία 6,22 € οι γραμμές έβγαζαν 6,84 €: όποιος τις
+            πρόσθετε έβρισκε άλλο νούμερο από αυτό που πλήρωνε.
+
+            Καθαρά παντού μέχρι τη γραμμή του ΦΠΑ, όπως και στο email της
+            παραγγελίας — μία γλώσσα για τα ίδια ποσά σε ταμείο και απόδειξη.
+          */}
           {[
             { k: t("kathari_axia"), v: formatMoney(totals.subtotalNet, locale) },
             {
               k: t("metaforika"),
               v:
-                totals.shippingGross === 0
+                totals.shippingNet === 0
                   ? upGreek(t("dorean"))
-                  : formatMoney(totals.shippingGross, locale),
+                  : formatMoney(totals.shippingNet, locale),
             },
-            ...(totals.paymentFeeGross > 0
-              ? [{ k: t("epivarynsi_pliromis"), v: formatMoney(totals.paymentFeeGross, locale) }]
+            ...(totals.paymentFeeNet > 0
+              ? [{ k: t("epivarynsi_pliromis"), v: formatMoney(totals.paymentFeeNet, locale) }]
               : []),
             { k: t("fpa"), v: formatMoney(totals.vatAmount, locale) },
           ].map((row) => (

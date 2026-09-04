@@ -6,6 +6,7 @@ import { headers } from "next/headers";
 import { sendMail, mailConfigured } from "@/lib/mail/client";
 import { renderTemplate } from "@/lib/mail/templates";
 import { requestFingerprint, stampNow } from "@/lib/mail/request-context";
+import { sendPasswordChangedEmail } from "@/lib/mail/account-emails";
 import { siteOrigin } from "@/lib/seo/urls";
 
 /**
@@ -140,7 +141,7 @@ export async function setNewPassword(token: string, password: string): Promise<S
 
   const customer = await prisma.customer.findUnique({
     where: { email: resolved.email },
-    select: { id: true },
+    select: { id: true, firstName: true, lastName: true },
   });
   if (!customer) return { ok: false, error: "Ο λογαριασμός δεν βρέθηκε." };
 
@@ -156,6 +157,26 @@ export async function setNewPassword(token: string, password: string): Promise<S
     prisma.retailRegistrationToken.update({ where: { token }, data: { usedAt: new Date() } }),
     prisma.customerSession.deleteMany({ where: { customerId: customer.id } }),
   ]);
+
+  /*
+   * Η ειδοποίηση αλλαγής φεύγει ΠΑΝΤΑ.
+   * ───────────────────────────────────────────────────────────────────────────
+   * Ακόμη κι όταν την αλλαγή την έκανε ο ίδιος ο κάτοχος — γιατί το νόημά της
+   * είναι να φτάσει στον άνθρωπο που ΔΕΝ την έκανε. Ένας λογαριασμός που
+   * κλάπηκε αλλάζει κωδικό χωρίς να το μάθει ποτέ ο ιδιοκτήτης του, αν το
+   * μήνυμα παραλείπεται «επειδή το ξέρει ήδη».
+   *
+   * Μετά τη συναλλαγή και χωρίς να μπορεί να την αναιρέσει: ο κωδικός έχει ήδη
+   * αλλάξει και οι συνεδρίες έχουν κλείσει, ό,τι κι αν πει το Mailgun.
+   */
+  await sendPasswordChangedEmail(
+    {
+      firstName: customer.firstName ?? "",
+      lastName: customer.lastName ?? "",
+      email: resolved.email,
+    },
+    await requestFingerprint(await headers()),
+  );
 
   return { ok: true };
 }
