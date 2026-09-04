@@ -159,7 +159,16 @@ async function buildWhere(
    */
   extraWhere?: Prisma.ProductWhereInput | null,
 ): Promise<Prisma.ProductWhereInput> {
-  const and: Prisma.ProductWhereInput[] = [{ isActive: true }];
+  /*
+   * Ένα προϊόν ανά ομάδα μεγεθών.
+   * ───────────────────────────────────────────────────────────────────────
+   * Δεκατρία νούμερα του ίδιου παπουτσιού ήταν δεκατρείς κάρτες, που έπνιγαν
+   * τη σελίδα και έδειχναν το ίδιο πράγμα δεκατρείς φορές. Ο εκπρόσωπος
+   * σημειώνεται στον συγχρονισμό, οπότε εδώ αρκεί μία συνθήκη — και όσα δεν
+   * ανήκουν σε ομάδα είναι εκπρόσωποι του εαυτού τους, άρα δεν χρειάζεται
+   * `OR variantGroup IS NULL` που θα χαλούσε το ευρετήριο.
+   */
+  const and: Prisma.ProductWhereInput[] = [{ isActive: true, isVariantLead: true }];
   if (extraWhere) and.push(extraWhere);
 
   const categoryScope = await resolveCategoryScope(params.categorySlug);

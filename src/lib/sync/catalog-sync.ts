@@ -1,5 +1,6 @@
 import "server-only";
 import { prisma } from "@/lib/prisma";
+import { refreshVariantLeads } from "@/lib/catalog/variant-lead";
 import { slugify } from "@/lib/greek";
 import {
   hdctool,
@@ -446,6 +447,9 @@ async function upsertProduct(
     code: p.code ?? "",
     code1: p.code1 ?? "",
     code2: p.code2 ?? "",
+    /* Αντιγράφεται, δεν παράγεται: δύο συστήματα που ομαδοποιούν με δικό του
+       κανόνα το καθένα είναι δύο διαφορετικές λίστες προϊόντων. */
+    variantGroup: p.variantGroup?.trim() || null,
     name,
     slug,
     searchKey: [name, p.code, p.code1, p.code2, p.brand?.name]
@@ -1018,6 +1022,11 @@ export async function reconcileCatalog(): Promise<TargetedSyncResult> {
         `${localActive.size} active → synced ${result.processed}, de-listed ${removed}`,
     );
 
+    /* Οι εκπρόσωποι ξαναδιαλέγονται μετά τη διαγραφή: ένα προϊόν που βγήκε
+       από τον κατάλογο μπορεί να ήταν ο εκπρόσωπος της ομάδας του, και τότε
+       ολόκληρη η ομάδα θα εξαφανιζόταν από τις λίστες. */
+    await refreshVariantLeads();
+
     return { ...result, removed, durationMs: Date.now() - startedAt };
   });
 }
@@ -1026,6 +1035,7 @@ export async function syncAll() {
   const categories = await syncCategories();
   const brands = await syncBrands();
   const products = await syncProducts();
+  await refreshVariantLeads();
   const counts = await recomputeCounts();
   return { categories, brands, products, counts };
 }

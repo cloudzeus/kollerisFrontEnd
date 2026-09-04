@@ -200,6 +200,14 @@ export type HdctoolProduct = {
    */
   colors?: Array<{ id: string; name: string }>;
   sizes?: Array<{ id: string; label: string; category: string | null }>;
+  /**
+   * Ποιοι κωδικοί είναι το ίδιο προϊόν σε άλλο μέγεθος.
+   *
+   * Το HDCtool το υπολογίζει από τις αναθέσεις μεγέθους που κάνει ο χειριστής,
+   * και είναι null για σχεδόν όλο τον κατάλογο — το φυσιολογικό. Ένα κλειδί
+   * 12άρι δεν είναι παραλλαγή του 10άρι· είναι άλλο εργαλείο.
+   */
+  variantGroup?: string | null;
   specifications: Array<Record<string, unknown> & { language: "el" | "en" | "it" }>;
   features: Array<{
     language: "el" | "en" | "it";

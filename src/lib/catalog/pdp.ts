@@ -18,6 +18,7 @@ export type ProductSpecRow = {
 };
 
 export type ProductDetail = {
+  variantGroup: string | null;
   id: string;
   mtrl: number;
   slug: string;
@@ -131,6 +132,8 @@ export const getProductBySlug = cache(
       id: product.id,
       mtrl: product.mtrl,
       slug: product.slug,
+      /** Η ομάδα μεγεθών, όταν το προϊόν ανήκει σε μία. */
+      variantGroup: product.variantGroup,
       name: translation?.name?.trim() || product.name,
       shortDescription: translation?.shortDescription ?? null,
       longDescription: translation?.longDescription ?? null,

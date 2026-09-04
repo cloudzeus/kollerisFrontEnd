@@ -35,6 +35,8 @@ import {
 import { formatPercent, grossAmount, savingsOf } from "@/lib/format";
 import { upGreek } from "@/lib/greek";
 import { Zone } from "@/components/zones/Zone";
+import { VariantPicker } from "@/components/pdp/VariantPicker";
+import { variantsOf } from "@/lib/catalog/variants";
 import { discountedNet, offerBadgeFor } from "@/lib/offers/badges";
 
 type PageProps = {
@@ -96,6 +98,12 @@ export default async function ProductPage({ params }: PageProps) {
     { slug: product.slug, brandSlug: product.brand?.slug ?? null, unitNet: product.priceNet },
     locale,
   );
+
+  /* Τα αδέλφια του προϊόντος — τα ίδια, σε άλλο νούμερο. */
+  const variants = await variantsOf(product, locale);
+  /* Η οικογένεια μεγεθών λέει πώς λέγεται: «Παπούτσια (EU)» δεν είναι το ίδιο
+     με «Ρούχα», και το «Μέγεθος» σκέτο δεν λέει σε ποια κλίμακα. */
+  const variantLabel = variants.find((v) => v.family)?.family ?? "Μέγεθος";
 
   const saving =
     product.priceListNet != null && product.priceNet != null
@@ -526,6 +534,15 @@ export default async function ProductPage({ params }: PageProps) {
                   {product.shortDescription}
                 </Expandable>
               )}
+
+              {/*
+                Ο επιλογέας νούμερου πάνω από την τιμή.
+                ──────────────────────────────────────────────────────────
+                Το νούμερο είναι απόφαση που προηγείται της τιμής: κάθε
+                νούμερο είναι δικός του κωδικός με δικό του απόθεμα, και
+                διαλέγοντας μετά την τιμή ο πελάτης θα διάβαζε δύο φορές.
+              */}
+              <VariantPicker options={variants} label={variantLabel} />
 
               <PriceBox
                 productId={product.id}
