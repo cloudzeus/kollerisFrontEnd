@@ -2474,7 +2474,12 @@ function PresetGallery({
                 {sorted
                   .filter((p) => p.category === category)
                   .map((preset) => {
+                    /* Με τη σειρά κίνησης εφαρμοσμένη, όπως ακριβώς θα έρθει
+                       όταν την επιλέξεις: το `build()` γεννά τα layers ακίνητα
+                       και τη σειρά τη δίνει το `applyPreset`. Χωρίς αυτό η
+                       μικρογραφία δεν είχε τι να παίξει στο hover. */
                     const built = preset.build();
+                    const previewLayers = applyAnimRecipe(built.layers, "stagger");
                     return (
                       <li key={preset.id}>
                         <button
@@ -2484,15 +2489,18 @@ function PresetGallery({
                         >
                           {/* The thumbnail is the preset itself, rendered by the
                               same component the storefront uses. */}
+                          {/* `bn-preview`: με το ποντίκι πάνω, το κελί ξαναπαίζει
+                              τη σειρά κίνησής του. Η συνταγή ορίζει ΣΕΙΡΑ, και η
+                              σειρά είναι αόρατη σε ακίνητη μικρογραφία. */}
                           <span
-                            className="block w-full overflow-hidden bg-k-surface-3"
+                            className="bn-preview block w-full overflow-hidden bg-k-surface-3"
                             style={{ aspectRatio: aspect }}
                           >
                             <CompositionRenderer
                               composition={{
                                 binding: { source: "none" },
                                 background: built.background,
-                                layers: built.layers,
+                                layers: previewLayers,
                                 href: "#",
                               }}
                               resolved={DEMO}

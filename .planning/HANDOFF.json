@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-09-04T18:10:29.087Z",
+  "timestamp": "2026-09-04T18:20:13.398Z",
   "source": "auto-postool",
   "partial": false,
   "phase": null,
@@ -26,11 +26,11 @@
     },
     {
       "status": "M",
-      "path": "src/components/banners/CompositionRenderer.tsx"
+      "path": "src/components/admin/banners/BannerEditor.tsx"
     },
     {
       "status": "M",
-      "path": "src/components/banners/FitText.tsx"
+      "path": "src/components/admin/banners/CellEditor.tsx"
     },
     {
       "status": "M",
@@ -42,5 +42,5 @@
     }
   ],
   "next_action": null,
-  "context_notes": "Recent commits:\n27ef746 feat(brand): το σήμα κόκκινο με λευκά γράμματα, σε οριζόντια διάταξη\nd42f587 feat(banners): έξι νέες παραλλαγές, ο ρόλος «μέγεθος», και το σήμα της μάρκας\n163d455 feat(seo): δομημένα δεδομένα σε κάθε τύπο σελίδας, και τα χρόνια υπολογίζονται\n9c7becb fix(seo): κάθε σελίδα δηλώνει τον δικό της τίτλο, canonical και δομή\n073a888 fix(banners): τα σήματα του Κολλέρη περνούν στο CDN"
+  "context_notes": "Recent commits:\n7bb4ac7 fix(banners): μία κλίμακα τυπογραφίας ανά κελί, αντί για πέντε ανεξάρτητα clamp\n27ef746 feat(brand): το σήμα κόκκινο με λευκά γράμματα, σε οριζόντια διάταξη\nd42f587 feat(banners): έξι νέες παραλλαγές, ο ρόλος «μέγεθος», και το σήμα της μάρκας\n163d455 feat(seo): δομημένα δεδομένα σε κάθε τύπο σελίδας, και τα χρόνια υπολογίζονται\n9c7becb fix(seo): κάθε σελίδα δηλώνει τον δικό της τίτλο, canonical και δομή"
 }

@@ -1161,8 +1161,8 @@ export const TYPE_ROLE: Record<
   eyebrow: {
     label: "Eyebrow",
     font: "mono",
-    scale: 0.7,
-    floor: 9,
+    scale: 0.62,
+    floor: 8,
     css: {
       fontWeight: 500,
       letterSpacing: "0.14em",
@@ -1174,8 +1174,8 @@ export const TYPE_ROLE: Record<
   title: {
     label: "Τίτλος",
     font: "display",
-    scale: 2,
-    floor: 18,
+    scale: 1.8,
+    floor: 15,
     css: {
       fontWeight: 900,
       letterSpacing: "-0.03em",
@@ -1188,7 +1188,7 @@ export const TYPE_ROLE: Record<
   body: {
     label: "Κείμενο",
     font: "sans",
-    scale: 1,
+    scale: 0.95,
     floor: 11,
     css: {
       fontWeight: 400,
@@ -1200,8 +1200,8 @@ export const TYPE_ROLE: Record<
   price: {
     label: "Τιμή",
     font: "mono",
-    scale: 1.55,
-    floor: 14,
+    scale: 1.35,
+    floor: 13,
     css: {
       fontWeight: 600,
       letterSpacing: "-0.01em",
@@ -1222,8 +1222,8 @@ export const TYPE_ROLE: Record<
   stat: {
     label: "Μέγεθος",
     font: "mono",
-    scale: 3.2,
-    floor: 26,
+    scale: 2.9,
+    floor: 22,
     css: {
       fontWeight: 600,
       letterSpacing: "-0.02em",
@@ -1247,8 +1247,8 @@ export const TYPE_ROLE: Record<
   compare: {
     label: "Παλιά τιμή",
     font: "mono",
-    scale: 0.8,
-    floor: 10,
+    scale: 0.72,
+    floor: 9,
     css: {
       fontWeight: 400,
       letterSpacing: "0",
@@ -1412,6 +1412,17 @@ export function layerStyle(layer: Layer): React.CSSProperties {
     top: `${layer.frame.y}%`,
     width: `${layer.frame.w}%`,
     height: `${layer.frame.h}%`,
+    /*
+     * Ο χρονισμός και ως μεταβλητές CSS.
+     * ─────────────────────────────────────────────────────────────────────
+     * Τα `data-anim-*` τα διαβάζει το νησί κίνησης με JavaScript. Η γκαλερί
+     * παραλλαγών όμως δεν φορτώνει νησί — είκοσι μικρογραφίες σημαίνουν
+     * είκοσι GSAP timelines για μια προεπισκόπηση. Με μεταβλητές, η ίδια
+     * σειρά παίζεται με καθαρό CSS στο hover, και το CSS δεν μπορεί να
+     * διαβάσει `data-` attributes ως τιμές.
+     */
+    ["--bn-delay" as string]: `${layer.anim.delay}ms`,
+    ["--bn-dur" as string]: `${layer.anim.duration}ms`,
   };
 
   if (

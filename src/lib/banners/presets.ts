@@ -625,6 +625,9 @@ export const PRESETS: Preset[] = [
     build: () => ({
       background: flatBg("white"),
       layers: [
+        /* Η φωτογραφία του προϊόντος δεξιά. Χωρίς αυτήν η παραλλαγή δήλωνε
+           ότι ταιριάζει σε προϊόν και δεν έδειχνε το προϊόν πουθενά. */
+        picture({ x: 62, y: 12, w: 34, h: 44 }),
         text(
           "Υπέρτιτλος",
           "{brand}",
@@ -634,7 +637,7 @@ export const PRESETS: Preset[] = [
         text(
           "Τίτλος",
           "{title}",
-          { x: 6, y: 25, w: 70, h: 22 },
+          { x: 6, y: 25, w: 54, h: 24 },
           { role: "title" },
         ),
         /* Μια τρίχα, όχι πλαίσιο: χωρίζει χωρίς να προσθέτει σχήμα. */
@@ -673,29 +676,29 @@ export const PRESETS: Preset[] = [
       background: photoBg("light"),
       layers: [
         brandMark({ x: 72, y: 7, w: 22, h: 10 }),
-        shape({ x: 5, y: 40, w: 58, h: 52 }, "white", 100),
+        shape({ x: 5, y: 42, w: 60, h: 50 }, "white", 100),
         text(
           "Υπέρτιτλος",
           "{brand}",
-          { x: 10, y: 51, w: 40, h: 7 },
+          { x: 9, y: 47, w: 42, h: 6 },
           { role: "eyebrow", color: "red" },
         ),
         text(
           "Τίτλος",
           "{title}",
-          { x: 10, y: 55, w: 44, h: 20 },
+          { x: 9, y: 54, w: 52, h: 20 },
           { role: "title", valign: "end" },
         ),
         text(
           "Πριν",
           "{compare}",
-          { x: 10, y: 76, w: 18, h: 6 },
+          { x: 9, y: 79, w: 18, h: 6 },
           { role: "compare", color: "muted" },
         ),
         text(
           "Τιμή",
           "{price}",
-          { x: 30, y: 75, w: 26, h: 9 },
+          { x: 28, y: 77.5, w: 32, h: 9 },
           { role: "price", color: "red" },
         ),
       ],

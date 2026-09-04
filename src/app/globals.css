@@ -790,7 +790,54 @@
      Χωρίς αυτό μίκραινε μόνο ο τίτλος — το μόνο που τυλίγεται — και έβγαινε
      μικρότερος από την τιμή. */
   --bn-fit: 1;
-  --bn-type: calc(clamp(12px, 3.9cqw, 22px) * var(--bn-fit));
+  --bn-type: calc(clamp(10px, 3.5cqw, 20px) * var(--bn-fit));
+}
+
+/*
+ * Προεπισκόπηση κίνησης στη γκαλερί παραλλαγών.
+ * ─────────────────────────────────────────────────────────────────────────────
+ * Η συνταγή κίνησης ορίζει ΣΕΙΡΑ — υπέρτιτλος, τίτλος, κείμενο, τιμή — και η
+ * σειρά είναι αόρατη σε ακίνητη μικρογραφία. Με το ποντίκι πάνω, το κελί την
+ * ξαναπαίζει, οπότε ο συντάκτης διαλέγει βλέποντας και όχι διαβάζοντας.
+ *
+ * Καθαρό CSS και όχι το νησί κίνησης: είκοσι μικρογραφίες θα σήμαιναν είκοσι
+ * GSAP timelines για μια προεπισκόπηση που κρατά μισό δευτερόλεπτο. Ο
+ * χρονισμός έρχεται από τις ίδιες μεταβλητές που γράφει το `layerStyle`, άρα
+ * η προεπισκόπηση δείχνει την ΠΡΑΓΜΑΤΙΚΗ σειρά, όχι μια δική της.
+ */
+@keyframes bn-preview-rise {
+  from {
+    opacity: 0;
+    transform: translateY(14%);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes bn-preview-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.bn-preview:hover [data-anim] {
+  animation: bn-preview-rise var(--bn-dur, 600ms) cubic-bezier(0.22, 0.7, 0.2, 1)
+    var(--bn-delay, 0ms) both;
+}
+/* Το φόντο και οι εικόνες δεν ανεβαίνουν — μια φωτογραφία που γλιστράει
+   αφήνει λευκή λωρίδα στην άκρη του κελιού. */
+.bn-preview:hover [data-anim="fade"],
+.bn-preview:hover img[data-anim],
+.bn-preview:hover video[data-anim] {
+  animation-name: bn-preview-fade;
+}
+@media (prefers-reduced-motion: reduce) {
+  .bn-preview:hover [data-anim] {
+    animation: none;
+  }
 }
 
 .banner-grid {

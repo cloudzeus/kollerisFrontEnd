@@ -597,8 +597,22 @@ export function BannerEditor({
               motion={false}
             />
 
-            {/* Στόχοι κλικ, στην ίδια γεωμετρία με τον renderer */}
-            <div className="banner-shell absolute inset-0">
+            {/*
+              Στόχοι κλικ, στην ίδια γεωμετρία με τον renderer.
+              ───────────────────────────────────────────────────────────────
+              ΚΑΙ το `banner-frame`, όχι μόνο το `banner-shell`. Ο renderer
+              τυλίγει το πλέγμα σε δύο κουτιά: το frame δίνει το οριζόντιο
+              padding, το shell το μέγιστο πλάτος. Η επικάλυψη είχε μόνο το
+              δεύτερο, οπότε τα κουμπιά έβγαιναν 20px πλατύτερα και
+              μετατοπισμένα ως προς τα κελιά που κάλυπταν:
+
+                κουμπί «Ζώνη 1» x273 w231   ·   κελί 1  x313 w211
+                κουμπί «Ζώνη 4» x968 w231   ·   κελί 4  x948 w211
+
+              Δηλαδή κλικ κοντά σε όριο άνοιγε ΤΟ ΔΙΠΛΑΝΟ κελί.
+            */}
+            <div className="banner-frame absolute inset-0">
+              <div className="banner-shell h-full">
               <div
                 className="banner-grid"
                 style={gridVars(template, content.maxHeight, content.minHeight)}
@@ -673,6 +687,7 @@ export function BannerEditor({
                     </button>
                   );
                 })}
+                </div>
               </div>
             </div>
           </div>
