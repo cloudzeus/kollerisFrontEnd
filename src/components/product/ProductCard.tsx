@@ -9,6 +9,9 @@ import { Link } from "@/i18n/navigation";
 import type { ProductCardData } from "@/lib/catalog/queries";
 import { formatPrice, formatPercent, savingsOf } from "@/lib/format";
 import { upGreek } from "@/lib/greek";
+import { cn } from "@/lib/utils";
+import { FavouriteButton } from "@/components/product/FavouriteButton";
+import { favouriteIds } from "@/lib/account/favourite-ids";
 import { discountedNet, offerBadgeFor } from "@/lib/offers/badges";
 
 /**
@@ -45,6 +48,8 @@ export async function ProductCard({
    * Ο κατάλογος των ενεργών καμπανιών χτίζεται μία φορά ανά αίτημα.
    */
   const offer = await offerBadgeFor({ ...product, unitNet: product.priceNet }, locale);
+  // Ένα ερώτημα ανά αίτημα για όλο το πλέγμα — βλ. `favouriteIds`.
+  const favourite = (await favouriteIds()).has(product.id);
   /* Η τιμή που θα χρεωθεί — ο ίδιος υπολογισμός με το καλάθι, από την ίδια
      συνάρτηση, ώστε η διαφημιζόμενη και η χρεωμένη να μη γίνουν ποτέ δύο
      διαφορετικοί υπολογισμοί που απλώς συμφωνούν σήμερα. */
@@ -93,7 +98,7 @@ export async function ProductCard({
           #EA3E39 δεν περνά AA.
         */}
         {(offer || saving) && (
-          <div className="absolute top-2.5 left-2.5 z-10 flex flex-col items-start gap-1 lg:top-3.5 lg:left-3.5">
+          <div className="absolute top-2.5 left-2.5 z-20 flex flex-col items-start gap-1 lg:top-3.5 lg:left-3.5">
             {offer && (
               <span
                 title={offer.title}
@@ -110,15 +115,34 @@ export async function ProductCard({
           </div>
         )}
 
-        {compare && (
-          <div className="absolute top-2.5 right-2.5 z-10 lg:top-3.5 lg:right-3.5">
+        {/*
+          Καρδιά και σύγκριση στην ίδια ευθεία, πάνω από τη φωτογραφία.
+          ────────────────────────────────────────────────────────────────────
+          Είναι οι δύο ενέργειες που ΔΕΝ αγοράζουν — «κράτα το» και «σύγκρινέ
+          το» — και ανήκουν μαζί: μία γραμμή που το μάτι μαθαίνει, αντί για δύο
+          κουμπιά σε αντίθετες γωνίες που ψάχνονται χωριστά.
+
+          Αριστερά η καρδιά, όταν δεν υπάρχει σήμα έκπτωσης στη θέση της· με
+          σήμα, κατεβαίνει από κάτω του ώστε δύο κόκκινα πράγματα να μη
+          διαβάζονται ως ένα.
+        */}
+        <div
+          className={cn(
+            "absolute right-2.5 left-2.5 z-10 flex items-start justify-between gap-2 lg:right-3.5 lg:left-3.5",
+            offer || saving ? "top-11 lg:top-[52px]" : "top-2.5 lg:top-3.5",
+          )}
+        >
+          <FavouriteButton productId={product.id} initial={favourite} size="sm" />
+          {compare ? (
             <CompareCheckbox
               slug={product.slug}
               selected={compare.selected}
               disabled={compare.disabled}
             />
-          </div>
-        )}
+          ) : (
+            <span />
+          )}
+        </div>
 
         <Link href={`/proion/${product.slug}`} className="block">
           {product.image ? (

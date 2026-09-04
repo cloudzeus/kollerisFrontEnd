@@ -197,6 +197,18 @@ model Product {
   /// Υπολογισμένο στο HDCtool από τις αναθέσεις μεγέθους — δεν παράγεται εδώ:
   /// δύο συστήματα που ομαδοποιούν με δικό του κανόνα το καθένα είναι δύο
   /// διαφορετικές λίστες προϊόντων. Null για σχεδόν όλο τον κατάλογο.
+  reviews    ProductReview[]
+  favourites Favourite[]
+
+  /// Μέσος όρος ΕΓΚΕΚΡΙΜΕΝΩΝ αξιολογήσεων, και το πλήθος τους.
+  ///
+  /// Αποθηκευμένα και όχι υπολογισμένα στο ερώτημα: κάθε κάρτα σε πλέγμα 96
+  /// προϊόντων θα ήθελε δικό της άθροισμα, και τα αστέρια μπαίνουν και σε
+  /// λίστες όπου κανένα join δεν είναι δωρεάν. Ξαναγράφονται όταν εγκρίνεται ή
+  /// αποσύρεται μια αξιολόγηση — σπάνιο γεγονός, σε αντίθεση με την ανάγνωση.
+  ratingAvg   Decimal? @db.Decimal(3, 2)
+  ratingCount Int      @default(0)
+
   variantGroup String? @db.VarChar(255)
   /// Ο ΕΝΑΣ κωδικός της ομάδας που εμφανίζεται στις λίστες.
   ///
@@ -933,9 +945,11 @@ model Customer {
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 
-  sessions  CustomerSession[]
-  addresses CustomerAddress[]
-  orders    Order[]
+  sessions   CustomerSession[]
+  addresses  CustomerAddress[]
+  orders     Order[]
+  reviews    ProductReview[]
+  favourites Favourite[]
 
   @@index([companyId, role])
   @@index([status])
@@ -1618,4 +1632,76 @@ model CampaignRecipient {
   @@unique([campaignId, email])
   @@index([campaignId, openedAt])
   @@map("campaign_recipients")
+}
+
+
+/// Η κατάσταση μιας αξιολόγησης στη μετριασμό.
+enum ReviewStatus {
+  pending
+  approved
+  rejected
+}
+
+/// Αξιολόγηση προϊόντος από πελάτη που το αγόρασε.
+///
+/// Η αγορά είναι προϋπόθεση, όχι σήμα: χωρίς παραγγελία δεν γράφεται
+/// αξιολόγηση καθόλου. Ένα κατάστημα εργαλείων ζει από την εμπιστοσύνη των
+/// επαγγελματιών, και μια κριτική από κάποιον που δεν κράτησε ποτέ το εργαλείο
+/// αξίζει λιγότερο από καμία.
+model ProductReview {
+  id String @id @default(cuid())
+
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  customerId String
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  /// Η παραγγελία που αποδεικνύει την αγορά. Μένει ακόμη κι αν διαγραφεί, γιατί
+  /// η αξιολόγηση δεν παύει να είναι αληθινή επειδή αρχειοθετήθηκε η παραγγελία.
+  orderId     String? @db.VarChar(64)
+  orderNumber String? @db.VarChar(64)
+
+  /// 1–5. Ακέραιος: μισά αστέρια είναι ακρίβεια που κανείς δεν εννοεί.
+  rating Int
+  title  String? @db.VarChar(120)
+  body   String  @db.Text
+
+  status          ReviewStatus @default(pending)
+  /// Ο λόγος απόρριψης, ορατός στον πελάτη — μια κριτική που εξαφανίζεται
+  /// χωρίς εξήγηση διαβάζεται ως λογοκρισία.
+  moderationNote  String?      @db.VarChar(400)
+  moderatedAt     DateTime?
+  moderatedBy     String?      @db.VarChar(120)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  /// Μία αξιολόγηση ανά προϊόν ανά πελάτη. Δεύτερη αγορά δεν δίνει δεύτερη
+  /// ψήφο· η υπάρχουσα επεξεργάζεται και ξαναπερνά από έγκριση.
+  @@unique([productId, customerId])
+  /// Η σελίδα προϊόντος διαβάζει μόνο τις εγκεκριμένες, με τη νεότερη πρώτη.
+  @@index([productId, status, createdAt])
+  /// Η ουρά του διαχειριστή.
+  @@index([status, createdAt])
+  @@index([customerId, createdAt])
+  @@map("product_reviews")
+}
+
+/// Αποθηκευμένο προϊόν, για αγορά αργότερα.
+model Favourite {
+  id String @id @default(cuid())
+
+  customerId String
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  /// Το κουμπί είναι διακόπτης, όχι μετρητής: δεύτερο πάτημα σβήνει.
+  @@unique([customerId, productId])
+  @@index([customerId, createdAt])
+  @@map("favourites")
 }

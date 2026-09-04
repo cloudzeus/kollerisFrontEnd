@@ -36,6 +36,8 @@ import { formatPercent, grossAmount, savingsOf } from "@/lib/format";
 import { upGreek } from "@/lib/greek";
 import { Zone } from "@/components/zones/Zone";
 import { VariantPicker } from "@/components/pdp/VariantPicker";
+import { FavouriteButton } from "@/components/product/FavouriteButton";
+import { favouriteIds } from "@/lib/account/favourite-ids";
 import { variantsOf } from "@/lib/catalog/variants";
 import { discountedNet, offerBadgeFor } from "@/lib/offers/badges";
 
@@ -98,6 +100,8 @@ export default async function ProductPage({ params }: PageProps) {
     { slug: product.slug, brandSlug: product.brand?.slug ?? null, unitNet: product.priceNet },
     locale,
   );
+
+  const favourite = (await favouriteIds()).has(product.id);
 
   /* Τα αδέλφια του προϊόντος — τα ίδια, σε άλλο νούμερο. */
   const variants = await variantsOf(product, locale);
@@ -363,11 +367,23 @@ export default async function ProductPage({ params }: PageProps) {
               and their vertical padding — off the page.
             */}
             <div className="flex min-w-0 flex-col">
-              <ProductGallery
-                images={product.images}
-                alt={product.name}
-                discountLabel={saving ? formatPercent(saving.percent) : null}
-              />
+              {/*
+                Η καρδιά πάνω από τη φωτογραφία, όχι δίπλα στο «Στο καλάθι».
+                ──────────────────────────────────────────────────────────────
+                Το «αποθηκεύω για μετά» και το «αγοράζω τώρα» είναι αντίθετες
+                αποφάσεις· δίπλα-δίπλα η μία αραιώνει την άλλη. Στη γωνία της
+                φωτογραφίας βρίσκεται εύκολα και δεν διεκδικεί τίποτα.
+              */}
+              <div className="relative">
+                <div className="absolute top-3 right-3 z-10">
+                  <FavouriteButton productId={product.id} initial={favourite} />
+                </div>
+                <ProductGallery
+                  images={product.images}
+                  alt={product.name}
+                  discountLabel={saving ? formatPercent(saving.percent) : null}
+                />
+              </div>
 
               {glance.length > 0 && (
                 <dl className="mt-5 grid grid-cols-2 gap-px border border-k-line bg-k-line sm:grid-cols-4 lg:mt-6">
