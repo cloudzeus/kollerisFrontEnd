@@ -34,6 +34,7 @@ import {
 } from "@/lib/catalog/queries";
 import { formatPercent, grossAmount, savingsOf } from "@/lib/format";
 import { upGreek } from "@/lib/greek";
+import { Zone } from "@/components/zones/Zone";
 
 type PageProps = {
   params: Promise<{ locale: Locale; slug: string }>;
@@ -660,6 +661,8 @@ export default async function ProductPage({ params }: PageProps) {
           </section>
         )}
 
+        <Zone id="product.aboveRelated" locale={locale} />
+
         {related.length > 0 && (
           <section className="band-base">
             <div className="rule-hazard" />
@@ -708,6 +711,7 @@ export default async function ProductPage({ params }: PageProps) {
             </div>
           </section>
         )}
+        <Zone id="product.below" locale={locale} />
       </main>
 
       <SiteFooter categories={rootCategories} />

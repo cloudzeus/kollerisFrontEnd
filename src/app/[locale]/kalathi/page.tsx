@@ -19,6 +19,7 @@ import {
   getTopBrands,
 } from "@/lib/catalog/queries";
 import { upGreek } from "@/lib/greek";
+import { Zone } from "@/components/zones/Zone";
 
 /** Always fresh: a cached cart is a wrong cart. */
 export const dynamic = "force-dynamic";
@@ -180,6 +181,7 @@ export default async function CartPage({
             />
           </div>
         )}
+        <Zone id="cart.below" locale={locale} />
       </main>
 
       <SiteFooter categories={rootCategories} />

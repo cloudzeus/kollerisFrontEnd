@@ -475,6 +475,21 @@ export function BannerEditor({
   }
 
   const freeZones = ZONES.filter((z) => !banner.placements.includes(z.id));
+  /*
+   * Η σελίδα που κοιτάει η τοποθέτηση.
+   * ───────────────────────────────────────────────────────────────────────
+   * Οι σελίδες βγαίνουν από τις ίδιες τις ελεύθερες ζώνες, όχι από σταθερή
+   * λίστα: μια σελίδα που έχει γεμίσει δεν έχει λόγο να εμφανίζεται και να
+   * οδηγεί σε άδειο δεύτερο μενού. Ο αριθμός δίπλα λέει πόσες θέσεις μένουν,
+   * ώστε να μη χρειάζεται να ανοίξει κανείς για να το μάθει.
+   */
+  const [zonePage, setZonePage] = useState("");
+
+  const zonePages = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const zone of freeZones) counts.set(zone.page, (counts.get(zone.page) ?? 0) + 1);
+    return [...counts].map(([name, free]) => ({ name, free }));
+  }, [freeZones]);
 
   /* One data attribute per width band; the CSS picks the arrangement. */
   const bands = resolveBands(
@@ -863,27 +878,62 @@ export function BannerEditor({
                 </ul>
               )}
 
-              <Select value="" onValueChange={assign}>
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Προσθήκη σε ζώνη…" />
-                </SelectTrigger>
-                <SelectContent>
-                  {freeZones.map((z) => {
-                    const taken = placements[z.id];
-                    return (
-                      <SelectItem key={z.id} value={z.id}>
-                        <span className="flex flex-col items-start">
-                          <span>{z.label}</span>
-                          <span className="text-[10.5px] text-k-text-4">
-                            {z.page}
-                            {taken ? ` · θα αντικαταστήσει «${taken.name}»` : ""}
+              {/*
+                Πρώτα σελίδα, μετά θέση.
+                ────────────────────────────────────────────────────────────
+                Ένα ενιαίο μενού με είκοσι τρεις ζώνες είναι λίστα που τη
+                διαβάζεις, όχι μενού που το χρησιμοποιείς — και η μισή κάθε
+                γραμμής ήταν το όνομα της σελίδας, επαναλαμβανόμενο. Ο
+                συντάκτης ξέρει ήδη σε ποια σελίδα θέλει το banner· η σελίδα
+                είναι η ερώτηση, όχι πληροφορία που ψάχνεται μέσα στη γραμμή.
+
+                Η δεύτερη λίστα φορτώνει τις θέσεις ΕΚΕΙΝΗΣ της σελίδας, με
+                την περιγραφή τους από κάτω — «Πάνω από τα προϊόντα» χωρίς
+                εξήγηση δεν λέει αν είναι πάνω ή κάτω από τα φίλτρα.
+              */}
+              <div className="grid grid-cols-2 gap-2 border-t border-k-line pt-2">
+                <Select value={zonePage} onValueChange={setZonePage}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Σελίδα…" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {zonePages.map((page) => (
+                      <SelectItem key={page.name} value={page.name}>
+                        <span className="flex w-full items-center justify-between gap-3">
+                          <span>{page.name}</span>
+                          <span className="numeral text-[10.5px] text-k-text-4">
+                            {page.free}
                           </span>
                         </span>
                       </SelectItem>
-                    );
-                  })}
-                </SelectContent>
-              </Select>
+                    ))}
+                  </SelectContent>
+                </Select>
+
+                <Select value="" onValueChange={assign} disabled={!zonePage}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder={zonePage ? "Θέση…" : "— "} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {freeZones
+                      .filter((z) => z.page === zonePage)
+                      .map((z) => {
+                        const taken = placements[z.id];
+                        return (
+                          <SelectItem key={z.id} value={z.id}>
+                            <span className="flex flex-col items-start gap-0.5">
+                              <span>{z.label}</span>
+                              <span className="max-w-[18rem] text-[10.5px] leading-[1.4] text-k-text-4">
+                                {z.description}
+                                {taken ? ` · θα αντικαταστήσει «${taken.name}»` : ""}
+                              </span>
+                            </span>
+                          </SelectItem>
+                        );
+                      })}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           </Panel>
         </div>

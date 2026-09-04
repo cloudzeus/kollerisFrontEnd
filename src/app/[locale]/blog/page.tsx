@@ -20,6 +20,7 @@ import {
   getTopBrands,
 } from "@/lib/catalog/queries";
 import { upGreek } from "@/lib/greek";
+import { Zone } from "@/components/zones/Zone";
 
 export async function generateMetadata({
   params,
@@ -84,6 +85,7 @@ export default async function BlogPage({
       />
 
       <main id="main">
+        <Zone id="blog.top" locale={locale} />
         <div className="shell-x bg-k-ink-deep">
           <nav aria-label="Breadcrumb" className="t-util flex h-11 items-center gap-2.5 text-white/45">
             <Link href="/" className="text-white/60 hover:text-white">

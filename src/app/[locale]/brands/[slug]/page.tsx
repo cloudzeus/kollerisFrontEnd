@@ -29,6 +29,7 @@ import {
   getTopBrands,
 } from "@/lib/catalog/queries";
 import { upGreek } from "@/lib/greek";
+import { Zone } from "@/components/zones/Zone";
 
 type PageProps = {
   params: Promise<{ locale: Locale; slug: string }>;
@@ -126,6 +127,7 @@ export default async function BrandPage({ params, searchParams }: PageProps) {
       />
 
       <main id="main">
+        <Zone id="brand.top" locale={locale} />
         <div className="shell-x bg-k-ink-deep">
           <nav
             aria-label="Breadcrumb"

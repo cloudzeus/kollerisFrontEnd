@@ -17,6 +17,7 @@ import {
 } from "@/lib/catalog/queries";
 import { getFaq } from "@/lib/faq/faq";
 import { upGreek } from "@/lib/greek";
+import { Zone } from "@/components/zones/Zone";
 
 export async function generateMetadata({
   params,
@@ -151,6 +152,7 @@ export default async function FaqPage({ params }: { params: Promise<{ locale: Lo
             />
           </div>
         </section>
+        <Zone id="faq.below" locale={locale} />
       </main>
 
       <SiteFooter categories={rootCategories} />

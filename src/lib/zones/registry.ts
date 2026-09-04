@@ -320,7 +320,34 @@ const ALL: ReadonlyArray<string> = [
   "rich-text",
 ];
 
+/*
+ * Οι θέσεις όπου μπαίνει banner.
+ * ─────────────────────────────────────────────────────────────────────────────
+ * Τρεις από αυτές ήταν δηλωμένες αλλά καμία σελίδα δεν τις απέδιδε: ο συντάκτης
+ * τοποθετούσε το banner στη «Σελίδα προϊόντος», η οθόνη έλεγε «Δημοσιευμένο»,
+ * και στο site δεν υπήρχε τίποτα. Καμία ένδειξη πουθενά, γιατί από την πλευρά
+ * των δεδομένων όλα ήταν σωστά — απλώς δεν το ζητούσε κανείς.
+ *
+ * Κάθε ζώνη εδώ αποδίδεται τώρα από τη σελίδα της. Το `page` δεν είναι
+ * διακοσμητικό: ομαδοποιεί τη λίστα στην τοποθέτηση, που με είκοσι θέσεις σε
+ * ένα ενιαίο μενού θα ήταν άχρηστη.
+ *
+ * Οι θέσεις είναι σταθερά δύο ανά σελίδα — κορυφή και τέλος — εκτός από την
+ * αρχική, που είναι φτιαγμένη σε ενότητες και σηκώνει περισσότερες. Η κορυφή
+ * πιάνει το βλέμμα πριν το περιεχόμενο· το τέλος πιάνει όποιον διάβασε και δεν
+ * αγόρασε, που είναι διαφορετικό κοινό και θέλει διαφορετικό μήνυμα.
+ */
 export const ZONES: ReadonlyArray<ZoneDef> = [
+  /* ── Αρχική ── */
+  {
+    id: "home.top",
+    page: "Αρχική",
+    label: "Πάνω από το hero",
+    description: "Λεπτή λωρίδα στην κορυφή. Για ανακοινώσεις με ημερομηνία λήξης.",
+    layout: "band",
+    accepts: ALL,
+    max: 1,
+  },
   {
     id: "home.aside",
     page: "Αρχική",
@@ -350,6 +377,17 @@ export const ZONES: ReadonlyArray<ZoneDef> = [
     max: 3,
   },
   {
+    id: "home.beforeFooter",
+    page: "Αρχική",
+    label: "Πριν το υποσέλιδο",
+    description: "Το τελευταίο πράγμα πριν τους συνδέσμους. Για εγγραφή ή B2B.",
+    layout: "band",
+    accepts: ALL,
+    max: 2,
+  },
+
+  /* ── Κατάλογος ── */
+  {
     id: "catalogue.top",
     page: "Κατάλογος",
     label: "Πάνω από τις κατηγορίες",
@@ -357,6 +395,48 @@ export const ZONES: ReadonlyArray<ZoneDef> = [
     layout: "carousel",
     accepts: ALL,
     max: null,
+  },
+  {
+    id: "catalogue.bottom",
+    page: "Κατάλογος",
+    label: "Τέλος σελίδας",
+    description: "Για όποιον κατέβηκε ως το τέλος χωρίς να διαλέξει κατηγορία.",
+    layout: "grid",
+    columns: 2,
+    accepts: ALL,
+    max: 4,
+  },
+
+  /* ── Κατηγορία ── */
+  {
+    id: "category.top",
+    page: "Κατηγορία",
+    label: "Πάνω από τα προϊόντα",
+    description: "Κάτω από τον τίτλο της κατηγορίας, πριν τα φίλτρα.",
+    layout: "band",
+    accepts: ALL,
+    max: 1,
+  },
+  {
+    id: "category.bottom",
+    page: "Κατηγορία",
+    label: "Κάτω από τα προϊόντα",
+    description: "Μετά τη σελιδοποίηση. Για συναφείς κατηγορίες ή μάρκες.",
+    layout: "grid",
+    columns: 3,
+    accepts: ALL,
+    max: 3,
+  },
+
+  /* ── Σελίδα προϊόντος ── */
+  {
+    id: "product.aboveRelated",
+    page: "Σελίδα προϊόντος",
+    label: "Πάνω από τα σχετικά προϊόντα",
+    description: "Μετά την περιγραφή. Πιάνει όποιον διάβασε τα χαρακτηριστικά.",
+    layout: "band",
+    accepts: ALL,
+    max: 1,
   },
   {
     id: "product.below",
@@ -368,11 +448,120 @@ export const ZONES: ReadonlyArray<ZoneDef> = [
     accepts: ALL,
     max: 4,
   },
+
+  /* ── Προσφορές ── */
   {
     id: "offers.top",
     page: "Προσφορές",
     label: "Κορυφή σελίδας",
     description: "Μία λωρίδα πλήρους πλάτους πάνω από τις προσφορές.",
+    layout: "band",
+    accepts: ALL,
+    max: 1,
+  },
+  {
+    id: "offers.bottom",
+    page: "Προσφορές",
+    label: "Τέλος σελίδας",
+    description: "Κάτω από τη λίστα των προσφορών.",
+    layout: "grid",
+    columns: 2,
+    accepts: ALL,
+    max: 2,
+  },
+
+  /* ── Υπόλοιπες σελίδες καταλόγου ── */
+  {
+    id: "arrivals.top",
+    page: "Νέες αφίξεις",
+    label: "Κορυφή σελίδας",
+    description: "Πάνω από τα νέα προϊόντα.",
+    layout: "band",
+    accepts: ALL,
+    max: 1,
+  },
+  {
+    id: "brands.top",
+    page: "Μάρκες",
+    label: "Κορυφή σελίδας",
+    description: "Πάνω από τον κατάλογο των μαρκών.",
+    layout: "band",
+    accepts: ALL,
+    max: 1,
+  },
+  {
+    id: "brand.top",
+    page: "Σελίδα μάρκας",
+    label: "Κορυφή σελίδας",
+    description: "Κάτω από το λογότυπο της μάρκας. Ίδιο σε όλες τις μάρκες.",
+    layout: "band",
+    accepts: ALL,
+    max: 1,
+  },
+  {
+    id: "search.top",
+    page: "Αναζήτηση",
+    label: "Πάνω από τα αποτελέσματα",
+    description: "Φαίνεται σε κάθε αναζήτηση, ό,τι κι αν αναζητήθηκε.",
+    layout: "band",
+    accepts: ALL,
+    max: 1,
+  },
+
+  /* ── Περιεχόμενο ── */
+  {
+    id: "blog.top",
+    page: "Blog",
+    label: "Κορυφή σελίδας",
+    description: "Πάνω από τη λίστα των άρθρων.",
+    layout: "band",
+    accepts: ALL,
+    max: 1,
+  },
+  {
+    id: "article.below",
+    page: "Άρθρο",
+    label: "Τέλος άρθρου",
+    description: "Μετά το κείμενο. Ίδιο σε όλα τα άρθρα.",
+    layout: "grid",
+    columns: 2,
+    accepts: ALL,
+    max: 2,
+  },
+
+  /* ── Αγορά και εταιρικές ── */
+  {
+    id: "cart.below",
+    page: "Καλάθι",
+    label: "Κάτω από το καλάθι",
+    description: "Για συμπληρωματικά ή για το όριο δωρεάν μεταφορικών.",
+    layout: "band",
+    accepts: ALL,
+    max: 1,
+  },
+  {
+    id: "contact.below",
+    page: "Επικοινωνία",
+    label: "Τέλος σελίδας",
+    description: "Κάτω από τη φόρμα και τα στοιχεία.",
+    layout: "band",
+    accepts: ALL,
+    max: 1,
+  },
+  {
+    id: "about.below",
+    page: "Εταιρεία",
+    label: "Τέλος σελίδας",
+    description: "Κάτω από το ιστορικό.",
+    layout: "band",
+    accepts: ALL,
+    max: 1,
+  },
+  {
+    id: "faq.below",
+    page: "Συχνές ερωτήσεις",
+    label: "Τέλος σελίδας",
+    description: "Κάτω από τις ερωτήσεις. Για επικοινωνία ή B2B.",
     layout: "band",
     accepts: ALL,
     max: 1,

@@ -17,6 +17,7 @@ import {
   getTopBrands,
 } from "@/lib/catalog/queries";
 import { upGreek } from "@/lib/greek";
+import { Zone } from "@/components/zones/Zone";
 
 export async function generateMetadata({
   params,
@@ -371,6 +372,7 @@ export default async function CompanyPage({ params }: { params: Promise<{ locale
             </div>
           </div>
         </section>
+        <Zone id="about.below" locale={locale} />
       </main>
 
       <SiteFooter categories={rootCategories} />

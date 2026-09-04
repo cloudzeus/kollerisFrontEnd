@@ -6,6 +6,8 @@ import { cn } from "@/lib/utils";
 import { BannerRenderer } from "@/components/banners/BannerRenderer";
 import { WidgetRenderer, type WidgetContext } from "@/components/zones/WidgetRenderer";
 import type { Locale } from "@/i18n/routing";
+import { getCatalogueStats } from "@/lib/catalog/queries";
+import { FREE_SHIPPING_THRESHOLD_NET } from "@/lib/cart/options";
 
 /**
  * Renders one zone.
@@ -39,6 +41,28 @@ export async function zoneHasContent(id: string): Promise<boolean> {
   return (await getZone(id)).length > 0;
 }
 
+/**
+ * Οι ζωντανοί αριθμοί για τα `{token}` των widgets.
+ *
+ * Η αρχική τους είχε ήδη στα χέρια της και τους περνούσε· καμία άλλη σελίδα
+ * δεν τους έχει, και το να τους ζητάει η καθεμιά θα σήμαινε ότι μια ζώνη
+ * κοστίζει ένα ερώτημα σε κάθε σελίδα που την έχει — ακόμη κι όταν η ζώνη
+ * είναι άδεια, που είναι η συνήθης περίπτωση.
+ *
+ * Το `getCatalogueStats` είναι ήδη `cache()`d ανά αίτημα, οπότε η σελίδα που
+ * τους έχει δεν πληρώνει δεύτερη φορά και η σελίδα που δεν τους έχει πληρώνει
+ * μία — και μόνο αν η ζώνη έχει περιεχόμενο να δείξει.
+ */
+async function defaultContext(locale: Locale): Promise<WidgetContext> {
+  const stats = await getCatalogueStats();
+  return {
+    products: stats.products.toLocaleString(locale),
+    brands: String(stats.brands),
+    categories: String(stats.categories),
+    freeShipping: `${FREE_SHIPPING_THRESHOLD_NET}\u00A0€`,
+  };
+}
+
 export async function Zone({
   id,
   locale,
@@ -47,8 +71,8 @@ export async function Zone({
 }: {
   id: string;
   locale: Locale;
-  /** Live figures for {token} substitution. */
-  context: WidgetContext;
+  /** Live figures for {token} substitution. Read from the catalogue if absent. */
+  context?: WidgetContext;
   className?: string;
 }) {
   const def = ZONES_BY_ID.get(id);
@@ -70,6 +94,9 @@ export async function Zone({
   const widgets = await getZone(id);
   if (widgets.length === 0) return null;
 
+  // Μόνο εδώ: η ζώνη έχει περιεχόμενο, άρα οι αριθμοί θα χρησιμοποιηθούν.
+  const tokens = context ?? (await defaultContext(locale));
+
   return (
     <div className={cn(layoutClass(def.layout, def.columns), className)}>
       {widgets.map((w: WidgetInstance, index) => (
@@ -77,7 +104,7 @@ export async function Zone({
           key={w.id}
           widget={w}
           locale={locale}
-          context={context}
+          context={tokens}
           layout={def.layout}
           index={index}
         />

@@ -24,6 +24,7 @@ import {
   getCompareTray,
 } from "@/lib/compare/compare";
 import { upGreek } from "@/lib/greek";
+import { Zone } from "@/components/zones/Zone";
 
 export async function generateMetadata({
   params,
@@ -151,6 +152,7 @@ export default async function NewArrivalsPage({
       />
 
       <main id="main">
+        <Zone id="arrivals.top" locale={locale} />
         <div className="shell-x bg-k-ink-deep">
           <nav
             aria-label="Breadcrumb"

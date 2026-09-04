@@ -19,6 +19,7 @@ import {
 } from "@/lib/catalog/queries";
 import { HOURS, openState } from "@/lib/contact/hours";
 import { upGreek } from "@/lib/greek";
+import { Zone } from "@/components/zones/Zone";
 
 export async function generateMetadata({
   params,
@@ -311,6 +312,7 @@ export default async function ContactPage({
             </div>
           </div>
         </section>
+        <Zone id="contact.below" locale={locale} />
       </main>
 
       <SiteFooter categories={rootCategories} />

@@ -17,6 +17,7 @@ import {
   getTopBrands,
 } from "@/lib/catalog/queries";
 import { upGreek } from "@/lib/greek";
+import { Zone } from "@/components/zones/Zone";
 
 /* Dynamic: the header renders the visitor's own cart from the session cookie. */
 export const dynamic = "force-dynamic";
@@ -91,6 +92,7 @@ export default async function BrandsPage({
       />
 
       <main id="main">
+        <Zone id="brands.top" locale={locale} />
         {/* Hero */}
         <div className="relative overflow-hidden bg-k-ink-deep">
           <span

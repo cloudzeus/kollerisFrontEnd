@@ -21,6 +21,7 @@ import {
   getTopBrands,
 } from "@/lib/catalog/queries";
 import { upGreek } from "@/lib/greek";
+import { Zone } from "@/components/zones/Zone";
 
 export async function generateMetadata({
   params,
@@ -94,6 +95,7 @@ export default async function CataloguePage({
       />
 
       <main id="main">
+        <Zone id="catalogue.top" locale={locale} />
         <div className="shell-x bg-k-ink-deep">
           <nav aria-label="Breadcrumb" className="t-util flex h-11 items-center gap-2.5 text-white/45">
             <Link href="/" className="text-white/60 hover:text-white">
@@ -212,6 +214,7 @@ export default async function CataloguePage({
             />
           </div>
         </section>
+        <Zone id="catalogue.bottom" locale={locale} />
       </main>
 
       <SiteFooter categories={rootCategories} />

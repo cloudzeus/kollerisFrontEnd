@@ -18,6 +18,7 @@ import {
   getTopBrands,
 } from "@/lib/catalog/queries";
 import { upGreek } from "@/lib/greek";
+import { Zone } from "@/components/zones/Zone";
 
 type PageProps = { params: Promise<{ locale: Locale; slug: string }> };
 
@@ -189,6 +190,7 @@ export default async function BlogPostPage({ params }: PageProps) {
             </div>
           </div>
         </section>
+        <Zone id="article.below" locale={locale} />
       </main>
 
       <SiteFooter categories={rootCategories} />

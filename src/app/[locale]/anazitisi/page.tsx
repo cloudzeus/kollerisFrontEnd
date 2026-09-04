@@ -31,6 +31,7 @@ import {
 } from "@/lib/compare/compare";
 import { formatPrice } from "@/lib/format";
 import { upGreek } from "@/lib/greek";
+import { Zone } from "@/components/zones/Zone";
 
 type PageProps = {
   params: Promise<{ locale: Locale }>;
@@ -141,6 +142,7 @@ export default async function SearchPage({ params, searchParams }: PageProps) {
       />
 
       <main id="main">
+        <Zone id="search.top" locale={locale} />
         {/* Hero */}
         <div className="shell-x bg-k-ink-deep">
           <nav

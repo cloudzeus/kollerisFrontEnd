@@ -173,6 +173,7 @@ export default async function HomePage({
       />
 
       <main id="main">
+        <Zone id="home.top" locale={locale} context={zoneContext} />
         <HeroBanner
           productCount={stats.products}
           brandCount={stats.brands}
@@ -200,6 +201,7 @@ export default async function HomePage({
         <ReviewsBand rating="4,9" reviewCount={214} reviews={reviews} copy={reviewsCopy} />
         <AboutSplit usps={usps} copy={aboutCopy} />
         <NewsletterBand />
+        <Zone id="home.beforeFooter" locale={locale} context={zoneContext} />
       </main>
 
       <SiteFooter categories={categories} />

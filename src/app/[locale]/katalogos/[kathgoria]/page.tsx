@@ -31,6 +31,7 @@ import {
 } from "@/lib/catalog/queries";
 import { prisma } from "@/lib/prisma";
 import { upGreek } from "@/lib/greek";
+import { Zone } from "@/components/zones/Zone";
 
 type PageProps = {
   params: Promise<{ locale: Locale; kathgoria: string }>;
@@ -204,6 +205,7 @@ export default async function CategoryPage({
       />
 
       <main id="main">
+        <Zone id="category.top" locale={locale} />
         {/* Hero band */}
         <div className="shell-x bg-k-ink-deep">
           <nav
@@ -382,6 +384,7 @@ export default async function CategoryPage({
             )}
           </div>
         )}
+        <Zone id="category.bottom" locale={locale} />
       </main>
 
       <SiteFooter categories={rootCategories} />
