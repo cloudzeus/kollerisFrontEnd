@@ -43,13 +43,33 @@ export function CartLineRow({ line }: { line: CartLineView }) {
 
   return (
     <div
-      className={`grid gap-4 border-b border-k-line px-4 py-5 transition-opacity lg:grid-cols-[1fr_150px_150px_140px_52px] lg:items-center lg:gap-5 lg:px-10 lg:py-[22px] ${
+      /*
+       * Δύο πλάτη στηλών, όχι ένα.
+       * ───────────────────────────────────────────────────────────────────
+       * Το καλάθι είναι στήλη ~670px δίπλα στη σύνοψη, όχι ολόκληρη οθόνη. Με
+       * σταθερές στήλες 150/150/140 χρειάζονταν 572px και έμεναν 17 για το
+       * όνομα — γι' αυτό έπεφταν τα γράμματα το ένα πάνω στο άλλο.
+       *
+       * Στα 600px της ΓΡΑΜΜΗΣ μπαίνει η στενή εκδοχή (366px στηλών, ~240 για
+       * το όνομα)· στα 900 η άνετη. Στοίβα μόνο κάτω από 600, δηλαδή στο
+       * κινητό — γιατί μια στοιβαγμένη γραμμή πιάνει τετραπλάσιο ύψος και ένα
+       * καλάθι με δέκα κωδικούς γίνεται σελίδα που δεν τελειώνει.
+       */
+      className={`grid gap-3.5 border-b border-k-line px-4 py-4 transition-opacity @[600px]:grid-cols-[minmax(0,1fr)_110px_112px_104px_40px] @[600px]:items-center @[600px]:gap-4 @[600px]:px-5 @[600px]:py-4 @[900px]:grid-cols-[minmax(0,1fr)_150px_150px_140px_52px] @[900px]:gap-5 @[900px]:px-10 @[900px]:py-[22px] ${
         pending ? "opacity-60" : ""
       }`}
     >
       {/* Product */}
-      <div className="flex min-w-0 gap-4 lg:gap-[18px]">
-        <span className="flex h-20 w-20 shrink-0 items-center justify-center border border-k-line bg-k-surface-2 p-2 lg:h-24 lg:w-24">
+      <div className="flex min-w-0 gap-3.5 @[900px]:gap-[18px]">
+        {/* Πάνω-αριστερά στην εικόνα — ίδια θέση με την κάρτα του καταλόγου,
+            ώστε το μάτι να ψάχνει ένα σημείο και όχι δύο. Το κείμενο της
+            καμπάνιας μένει δίπλα στο όνομα, όπου έχει πλάτος. */}
+        <span className="relative flex h-16 w-16 shrink-0 items-center justify-center border border-k-line bg-k-surface-2 p-1.5 @[600px]:h-[68px] @[600px]:w-[68px] @[900px]:h-24 @[900px]:w-24 @[900px]:p-2">
+          {line.discountPercent > 0 && (
+            <span className="t-badge absolute top-0 left-0 z-10 bg-k-red-600 px-1.5 py-[3px] text-white">
+              −{line.discountPercent.toString().replace(".", ",")}%
+            </span>
+          )}
           {line.image ? (
             <Image
               src={line.image}
@@ -71,20 +91,35 @@ export function CartLineRow({ line }: { line: CartLineView }) {
 
           <Link
             href={`/proion/${line.slug}`}
-            className="text-[13.5px] leading-[1.4] font-semibold text-k-ink hover:text-k-red"
+            className="line-clamp-2 text-[13.5px] leading-[1.4] font-semibold text-k-ink hover:text-k-red"
           >
             {line.name}
           </Link>
 
+          {/*
+            Η καμπάνια ανήκει στο προϊόν, όχι στη στήλη τιμής.
+            ──────────────────────────────────────────────────────────────
+            Στη στήλη τιμής — 110px — ο τίτλος τυλιγόταν σε τρεις σειρές και
+            έσπρωχνε τη γραμμή στο ύψος τεσσάρων. Εδώ έχει το πλάτος του
+            ονόματος, και μιλάει για το ίδιο πράγμα με αυτό.
+
+            Το σήμα κρατά μόνο το ποσοστό: ένα σήμα είναι ετικέτα, όχι πρόταση.
+            Ο τίτλος δίπλα του σε κανονικό κείμενο, γιατί «−20%» χωρίς αιτία
+            μοιάζει με λάθος τιμοκαταλόγου.
+          */}
+          {/* Μία σειρά, με την κουκκίδα σταθερή: το «ΑΜΕΣΑ ΔΙΑΘΕΣΙΜΟ · 8 ΤΕΜ.»
+              τυλιγόταν και η κουκκίδα έμενε μόνη της στην προηγούμενη. */}
           <span
-            className={`t-card-stock flex items-center gap-[7px] ${
+            className={`t-card-stock flex min-w-0 items-center gap-[7px] ${
               line.inStock ? "text-k-green" : "text-k-amber"
             }`}
           >
-            <span className="rounded-pill block h-1.5 w-1.5 bg-current" />
-            {line.inStock
-              ? `${upGreek(t("amesa_diathesimo"))} · ${line.availableQty} ${upGreek(t("tem"))}`
-              : upGreek(t("katopin_paraggelias"))}
+            <span className="rounded-pill block h-1.5 w-1.5 shrink-0 bg-current" />
+            <span className="truncate">
+              {line.inStock
+                ? `${upGreek(t("amesa_diathesimo"))} · ${line.availableQty} ${upGreek(t("tem"))}`
+                : upGreek(t("katopin_paraggelias"))}
+            </span>
           </span>
 
           {/* Only shown when the basket actually exceeds stock. */}
@@ -97,8 +132,8 @@ export function CartLineRow({ line }: { line: CartLineView }) {
       </div>
 
       {/* Unit price */}
-      <div className="lg:text-right">
-        <span className="t-account-label mb-1 block text-k-text-4 lg:hidden">
+      <div className="min-w-0 @[600px]:text-right">
+        <span className="t-account-label mb-1 block text-k-text-4 @[600px]:hidden">
           {upGreek(t("timi_monadas"))}
         </span>
         {line.discountPercent > 0 ? (
@@ -115,30 +150,22 @@ export function CartLineRow({ line }: { line: CartLineView }) {
         <span className="block font-mono text-[15px] font-semibold whitespace-nowrap text-k-ink">
           {formatPrice(line.unitNetFinal, locale, ctx)}
         </span>
-        {/* Ο τίτλος της καμπάνιας, όχι μόνο το ποσοστό: «−20%» χωρίς αιτία
-            μοιάζει με σφάλμα τιμοκαταλόγου· «−20% · Μειωμένες τιμές σε
-            Milwaukee» είναι απόφαση που κάποιος πήρε. */}
-        {/* Το σήμα κρατά μόνο το ποσοστό — ένα σήμα είναι ετικέτα, όχι πρόταση.
-            Ο τίτλος της καμπάνιας πάει δίπλα του σε κανονικό κείμενο, γιατί
-            «−20%» χωρίς αιτία μοιάζει με λάθος τιμοκαταλόγου. */}
-        {line.discountPercent > 0 && (
-          <span className="mt-1.5 flex flex-wrap items-center gap-1.5 lg:justify-end">
-            <span className="t-badge bg-k-red-600 px-1.5 py-[3px] text-white">
-              −{line.discountPercent.toString().replace(".", ",")}%
-            </span>
-            {line.offerTitle && (
-              <span className="text-[11px] leading-tight text-k-text-3">{line.offerTitle}</span>
-            )}
-          </span>
-        )}
-        <span className="t-card-vat mt-0.5 block text-k-text-5">
+        {/*
+          Το «ΜΕ ΦΠΑ» λέγεται μία φορά, στην επικεφαλίδα.
+          ────────────────────────────────────────────────────────────────
+          Ανά γραμμή ήταν τρίτη σειρά μέσα σε στήλη 110px, την ίδια για κάθε
+          προϊόν. Σε καλάθι με δέκα κωδικούς είναι δέκα φορές η ίδια
+          πληροφορία και δέκα σειρές ύψους. Στη στοίβα του κινητού μένει,
+          γιατί εκεί δεν υπάρχει επικεφαλίδα να το πει.
+        */}
+        <span className="t-card-vat mt-0.5 block text-k-text-5 @[600px]:hidden">
           {upGreek(t("me_fpa", { vatRate: line.vatRate }))}
         </span>
       </div>
 
       {/* Quantity */}
-      <div className="flex items-center gap-4 lg:justify-center">
-        <span className="t-account-label text-k-text-4 lg:hidden">
+      <div className="flex items-center justify-between gap-4 @[600px]:justify-center">
+        <span className="t-account-label text-k-text-4 @[600px]:hidden">
           {upGreek(t("posotita"))}
         </span>
         <div className="flex border border-k-line-2">
@@ -169,8 +196,8 @@ export function CartLineRow({ line }: { line: CartLineView }) {
       </div>
 
       {/* Line total */}
-      <div className="flex items-center justify-between lg:block lg:text-right">
-        <span className="t-account-label text-k-text-4 lg:hidden">{upGreek(t("synolo"))}</span>
+      <div className="flex min-w-0 items-center justify-between @[600px]:block @[600px]:text-right">
+        <span className="t-account-label text-k-text-4 @[600px]:hidden">{upGreek(t("synolo"))}</span>
         <span className="font-mono text-[19px] font-semibold whitespace-nowrap text-k-ink">
           {formatPrice(line.unitNetFinal * optimisticQty, locale, ctx)}
         </span>

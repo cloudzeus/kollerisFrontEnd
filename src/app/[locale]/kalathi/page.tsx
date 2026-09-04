@@ -150,10 +150,22 @@ export default async function CartPage({
           </div>
         ) : (
           <div className="shell-w bg-white lg:grid lg:grid-cols-[1fr_430px] lg:items-start">
-            <div className="min-w-0 border-k-line lg:border-r">
-              {/* Column headings — desktop only; each mobile row labels itself. */}
-              <div className="hidden grid-cols-[1fr_150px_150px_140px_52px] gap-5 border-b border-k-ink px-10 py-4 lg:grid">
-                {[t("proion"), t("timi_monadas"), t("posotita"), t("synolo"), ""].map((label, i) => (
+            {/*
+              `@container` — η λίστα στοιχίζεται από ΤΟ ΔΙΚΟ ΤΗΣ πλάτος.
+              ──────────────────────────────────────────────────────────────
+              Το `lg:` είναι breakpoint ΟΘΟΝΗΣ, και η λίστα δεν παίρνει την
+              οθόνη: δίπλα της κάθεται η στήλη συνόψεως 430px. Σε παράθυρο
+              1115px η γραμμή ήταν 669px, οι σταθερές στήλες ζητούσαν 572, και
+              για το προϊόν έμεναν 17. Το όνομα, η τιμή και το σήμα έπεφταν το
+              ένα πάνω στο άλλο — και το `lg:` έλεγε ότι όλα ήταν εντάξει,
+              γιατί η οθόνη ΗΤΑΝ αρκετά φαρδιά· η στήλη δεν ήταν.
+
+              Η κάρτα προϊόντος έχει ήδη την ίδια σημείωση για τον ίδιο λόγο.
+            */}
+            <div className="@container min-w-0 border-k-line lg:border-r">
+              {/* Column headings — wide rows only; each narrow row labels itself. */}
+              <div className="hidden grid-cols-[minmax(0,1fr)_110px_112px_104px_40px] gap-4 border-b border-k-ink px-5 py-3.5 @[600px]:grid @[900px]:grid-cols-[minmax(0,1fr)_150px_150px_140px_52px] @[900px]:gap-5 @[900px]:px-10 @[900px]:py-4">
+                {[t("proion"), `${t("timi_monadas")} (${t("me_fpa_short")})`, t("posotita"), t("synolo"), ""].map((label, i) => (
                   <span
                     key={label || i}
                     className={`t-footer-col text-k-text-4 ${

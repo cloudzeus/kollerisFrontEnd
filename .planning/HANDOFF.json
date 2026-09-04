@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-09-04T07:08:56.081Z",
+  "timestamp": "2026-09-04T07:19:21.799Z",
   "source": "auto-postool",
   "partial": false,
   "phase": null,
@@ -22,11 +22,7 @@
     },
     {
       "status": "M",
-      "path": "prisma/schema.prisma"
-    },
-    {
-      "status": "M",
-      "path": "src/app/[locale]/proion/[slug]/page.tsx"
+      "path": "src/app/[locale]/kalathi/page.tsx"
     },
     {
       "status": "M",
@@ -34,41 +30,21 @@
     },
     {
       "status": "M",
-      "path": "src/components/pdp/PriceBox.tsx"
-    },
-    {
-      "status": "M",
-      "path": "src/components/product/ProductCard.tsx"
-    },
-    {
-      "status": "M",
-      "path": "src/lib/cart/cart.ts"
-    },
-    {
-      "status": "M",
-      "path": "src/lib/cart/options.ts"
-    },
-    {
-      "status": "M",
-      "path": "src/lib/checkout/actions.ts"
-    },
-    {
-      "status": "M",
-      "path": "src/lib/mail/order-email.ts"
-    },
-    {
-      "status": "M",
       "path": "src/lib/offers/badges.ts"
     },
     {
       "status": "M",
-      "path": "src/lib/orders/send-to-erp.ts"
+      "path": "src/messages/el.json"
     },
     {
-      "status": "??",
-      "path": "prisma/migrations/20260904090000_order_line_campaign_discount/"
+      "status": "M",
+      "path": "src/messages/en.json"
+    },
+    {
+      "status": "M",
+      "path": "src/messages/it.json"
     }
   ],
   "next_action": null,
-  "context_notes": "Recent commits:\n461ea7b feat(offers): σήμα προσφοράς στις κάρτες και στη σελίδα προϊόντος\n9b0f92a feat(zones): banner σε κάθε σελίδα — και τρεις ζώνες που ήταν φαντάσματα\nf40bcbf fix(banners): ο καμβάς του admin έλεγε ψέματα για το σχήμα — γι' αυτό το site έμενε ίδιο\nba6306e feat(banners): «Ύψος: από το υλικό» — το σχήμα κρατιέται σε κάθε συσκευή\n6de4bcb feat(admin): βιβλιοθήκη αρχείων, και το ύψος του banner σύρεται με το χέρι"
+  "context_notes": "Recent commits:\n1a0d80c feat(offers): η έκπτωση καμπάνιας χρεώνεται, φαίνεται παντού, και φτάνει σωστά στο ERP\n461ea7b feat(offers): σήμα προσφοράς στις κάρτες και στη σελίδα προϊόντος\n9b0f92a feat(zones): banner σε κάθε σελίδα — και τρεις ζώνες που ήταν φαντάσματα\nf40bcbf fix(banners): ο καμβάς του admin έλεγε ψέματα για το σχήμα — γι' αυτό το site έμενε ίδιο\nba6306e feat(banners): «Ύψος: από το υλικό» — το σχήμα κρατιέται σε κάθε συσκευή"
 }
