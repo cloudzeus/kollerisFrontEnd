@@ -239,13 +239,26 @@ export function toProductRows(products: PickedProduct[]) {
  * το βλέπουν χιλιάδες άνθρωποι.
  */
 export const DEFAULT_COPY = {
-  hero_button: "Δειτε τις προσφορες&nbsp;&nbsp;→",
+  /*
+   * Πραγματικός χαρακτήρας αχώριστου κενού (U+00A0), ΟΧΙ «&nbsp;».
+   *
+   * Όσο τα κείμενα ήταν καρφωμένα στο markup, το «&nbsp;» ήταν HTML και
+   * δούλευε. Μόλις έγιναν μεταβλητές, το Handlebars άρχισε να κάνει escape το
+   * «&» — και ο παραλήπτης έβλεπε κυριολεκτικά «Δειτε τις προσφορες&nbsp;→».
+   * Επτά φορές σε κάθε email.
+   *
+   * Λύση ΔΕΝ είναι να γίνουν raw τα πεδία: είναι κείμενα που πληκτρολογεί ο
+   * συντάκτης, και raw σημαίνει ότι μια κακή επικόλληση από το Word μπαίνει
+   * αυτούσια στο email. Ο χαρακτήρας U+00A0 δεν χρειάζεται escape καθόλου —
+   * περνά ως κείμενο και αποδίδεται σωστά παντού.
+   */
+  hero_button: "Δειτε τις προσφορες\u00A0\u00A0→",
   section_eyebrow: "Επιλεγμενα",
   section_title: "Οι προσφορες του μηνα",
-  section_link: "Ολες οι προσφορες&nbsp;→",
-  all_button: "Ολες οι προσφορες&nbsp;&nbsp;→",
+  section_link: "Ολες οι προσφορες\u00A0→",
+  all_button: "Ολες οι προσφορες\u00A0\u00A0→",
   b2b_eyebrow: "Για επαγγελματιες",
-  b2b_button: "Λογαριασμος B2B&nbsp;&nbsp;→",
+  b2b_button: "Λογαριασμος B2B\u00A0\u00A0→",
 } as const;
 
 export type CampaignCopy = Partial<Record<keyof typeof DEFAULT_COPY, string>>;

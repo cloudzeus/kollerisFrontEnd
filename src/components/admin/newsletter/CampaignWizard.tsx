@@ -303,7 +303,7 @@ export function CampaignWizard({
                         <input
                           value={copy[key] ?? ""}
                           onChange={(e) => setCopy({ ...copy, [key]: e.target.value })}
-                          placeholder={DEFAULT_COPY[key].replaceAll("&nbsp;", " ")}
+                          placeholder={DEFAULT_COPY[key]}
                           className={INPUT}
                         />
                       </Field>

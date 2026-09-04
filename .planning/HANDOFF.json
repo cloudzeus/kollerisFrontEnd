@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-09-04T03:58:01.939Z",
+  "timestamp": "2026-09-04T03:59:23.181Z",
   "source": "auto-postool",
   "partial": false,
   "phase": null,
@@ -15,20 +15,7 @@
   "blockers": [],
   "human_actions_pending": [],
   "decisions": [],
-  "uncommitted_files": [
-    {
-      "status": "M",
-      "path": ".planning/HANDOFF.json"
-    },
-    {
-      "status": "M",
-      "path": "src/lib/mail/templates.ts"
-    },
-    {
-      "status": "M",
-      "path": "src/lib/newsletter/campaign.ts"
-    }
-  ],
+  "uncommitted_files": [],
   "next_action": null,
-  "context_notes": "Recent commits:\nb2fbed7 feat(newsletter): πλούσιο κείμενο, επεξεργάσιμα σταθερά κείμενα, δοκιμαστικό και αποστολή\n52ae3bd fix(newsletter): το κλικ προσθέτει, και τα ονόματα προϊόντων διαβάζονται\n10896e8 fix(newsletter): σπασμένο λογότυπο στην προεπισκόπηση — και σε κάθε αποστολή πριν το deploy\nd62f4d7 feat(newsletter): ο wizard καμπάνιας, με ζωντανή προεπισκόπηση και drag & drop\n06adb4d feat(newsletter): η φόρμα εγγραφής δουλεύει, και το admin απέκτησε ομάδα «Επικοινωνία»"
+  "context_notes": "Recent commits:\n50a7903 fix(newsletter): ένα στα δέκα προϊόντα έβγαζε σπασμένη εικόνα στο email\nb2fbed7 feat(newsletter): πλούσιο κείμενο, επεξεργάσιμα σταθερά κείμενα, δοκιμαστικό και αποστολή\n52ae3bd fix(newsletter): το κλικ προσθέτει, και τα ονόματα προϊόντων διαβάζονται\n10896e8 fix(newsletter): σπασμένο λογότυπο στην προεπισκόπηση — και σε κάθε αποστολή πριν το deploy\nd62f4d7 feat(newsletter): ο wizard καμπάνιας, με ζωντανή προεπισκόπηση και drag & drop"
 }
