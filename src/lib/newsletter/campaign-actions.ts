@@ -4,6 +4,7 @@ import { headers } from "next/headers";
 import { auth } from "@/auth";
 import { assertCan } from "@/lib/rbac";
 import { prisma } from "@/lib/prisma";
+import { sendTest } from "@/lib/newsletter/send";
 import {
   renderCampaign,
   searchCampaignProducts,
@@ -154,6 +155,32 @@ export async function searchSubscribersAction(
     rows: rows.map((r) => ({ ...r, createdAt: r.createdAt.toISOString().slice(0, 10) })),
     total,
   };
+}
+
+/**
+ * Δοκιμαστικό στον εαυτό σου, πριν φύγει σε χιλιάδες.
+ *
+ * Η προεπισκόπηση δείχνει το HTML σε iframe· δεν δείχνει πώς το αποδίδει το
+ * Gmail, το Outlook ή το Mail του iPhone, ούτε αν το θέμα κόβεται στα
+ * εισερχόμενα, ούτε αν κάτι σκόνταψε στα φίλτρα. Αυτά φαίνονται μόνο σε
+ * πραγματικό γραμματοκιβώτιο.
+ *
+ * Προεπιλογή είναι η διεύθυνση του συνδεδεμένου χρήστη: η συχνή περίπτωση δεν
+ * πρέπει να απαιτεί πληκτρολόγηση.
+ */
+export async function sendTestAction(input: {
+  to?: string;
+  templateId: string;
+  subject: string;
+  payload: CampaignPayload;
+}): Promise<{ ok: true; to: string } | { ok: false; error: string }> {
+  const user = await guard();
+  const to = (input.to?.trim() || user.email || "").toLowerCase();
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(to)) {
+    return { ok: false, error: "Δώστε έγκυρη διεύθυνση για το δοκιμαστικό." };
+  }
+  const res = await sendTest({ to, templateId: input.templateId, subject: input.subject, payload: input.payload });
+  return res.ok ? { ok: true, to } : { ok: false, error: res.error };
 }
 
 /** Οι επιβεβαιωμένοι συνδρομητές — το κοινό που μπορεί να λάβει καμπάνια. */

@@ -200,6 +200,30 @@ export function toProductRows(products: PickedProduct[]) {
   return rows;
 }
 
+/**
+ * Τα «σταθερά» κείμενα του προτύπου — κουμπιά, επικεφαλίδες ενοτήτων, το
+ * μπάνερ B2B.
+ *
+ * Ήταν καρφωτά μέσα στο markup. Έγιναν μεταβλητές με ΑΥΤΕΣ τις προεπιλογές,
+ * ώστε καμία υπάρχουσα καμπάνια να μην αλλάξει όψη: αν ο συντάκτης δεν τα
+ * αγγίξει, το email βγαίνει ακριβώς όπως πριν.
+ *
+ * Χωρίς τόνους στα κεφαλαία, όπως τα είχε το πρότυπο — τα ελληνικά κεφαλαία δεν
+ * φέρουν τόνο, και το «ΔΕΙΤΕ ΤΙΣ ΠΡΟΣΦΟΡΕΣ» με τόνο είναι ορθογραφικό λάθος που
+ * το βλέπουν χιλιάδες άνθρωποι.
+ */
+export const DEFAULT_COPY = {
+  hero_button: "Δειτε τις προσφορες&nbsp;&nbsp;→",
+  section_eyebrow: "Επιλεγμενα",
+  section_title: "Οι προσφορες του μηνα",
+  section_link: "Ολες οι προσφορες&nbsp;→",
+  all_button: "Ολες οι προσφορες&nbsp;&nbsp;→",
+  b2b_eyebrow: "Για επαγγελματιες",
+  b2b_button: "Λογαριασμος B2B&nbsp;&nbsp;→",
+} as const;
+
+export type CampaignCopy = Partial<Record<keyof typeof DEFAULT_COPY, string>>;
+
 export type CampaignPayload = {
   campaign: {
     eyebrow: string;
@@ -212,6 +236,8 @@ export type CampaignPayload = {
   products: PickedProduct[];
   /** Ελεύθερο κείμενο από τον editor, ήδη ως HTML. */
   bodyHtml?: string;
+  /** Παρακάμψεις των σταθερών κειμένων. Κενό = οι προεπιλογές. */
+  copy?: CampaignCopy;
 };
 
 /**
@@ -226,7 +252,18 @@ export async function renderCampaign(
   recipient: { first_name?: string; last_name?: string; email?: string } = {},
   options: { assetOrigin?: string } = {},
 ): Promise<string> {
+  /*
+   * Κενή τιμή σημαίνει «κράτα την προεπιλογή», όχι «άφησε το κενό». Ένας
+   * συντάκτης που σβήνει ένα πεδίο για να δει τι κάνει, δεν θέλει κουμπί χωρίς
+   * ετικέτα να φύγει σε τέσσερις χιλιάδες ανθρώπους.
+   */
+  const copy = { ...DEFAULT_COPY } as Record<string, string>;
+  for (const [k, v] of Object.entries(payload.copy ?? {})) {
+    if (typeof v === "string" && v.trim()) copy[k] = v;
+  }
+
   return renderTemplate(templateId, {
+    copy,
     campaign: payload.campaign,
     product_rows: toProductRows(payload.products ?? []),
     body_html: payload.bodyHtml ?? "",

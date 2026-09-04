@@ -2,15 +2,16 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, ArrowRight, Monitor, Save, Smartphone } from "lucide-react";
+import { ArrowLeft, ArrowRight, Monitor, Save, Send, Smartphone } from "lucide-react";
 import { StepRail, EmailPreview, type StepDef } from "./WizardShell";
 import { ProductPicker } from "./ProductPicker";
 import { RecipientPicker, type RecipientChoice } from "./RecipientPicker";
 import {
   previewCampaignAction,
   saveCampaignAction,
+  sendTestAction,
 } from "@/lib/newsletter/campaign-actions";
-import type { PickedProduct, TemplateMeta } from "@/lib/newsletter/campaign";
+import { DEFAULT_COPY, type PickedProduct, type TemplateMeta } from "@/lib/newsletter/campaign";
 import { cn } from "@/lib/utils";
 
 const STEPS: StepDef[] = [
@@ -58,6 +59,13 @@ export function CampaignWizard({
     valid_until: "",
   });
   const [products, setProducts] = useState<PickedProduct[]>([]);
+  const [copy, setCopy] = useState<Record<string, string>>({});
+  const [testTo, setTestTo] = useState("");
+  const [testState, setTestState] = useState<{ kind: "idle" | "ok" | "error"; message: string }>({
+    kind: "idle",
+    message: "",
+  });
+  const [testing, startTest] = useTransition();
   const [recipients, setRecipients] = useState<RecipientChoice>({ mode: "subscribers" });
 
   const [html, setHtml] = useState("");
@@ -81,8 +89,8 @@ export function CampaignWizard({
   };
 
   const payload = useMemo(
-    () => ({ campaign, products, bodyHtml: "" }),
-    [campaign, products],
+    () => ({ campaign, products, bodyHtml: "", copy }),
+    [campaign, products, copy],
   );
 
   const refresh = useCallback(() => {
@@ -262,6 +270,50 @@ export function CampaignWizard({
                   <ProductPicker selected={products} onChange={setProducts} />
                 </div>
               )}
+
+              {/*
+                Τα σταθερά κείμενα σε πτυσσόμενο, κλειστό.
+
+                Αλλάζουν σπάνια — είναι τα «ΔΕΙΤΕ ΤΙΣ ΠΡΟΣΦΟΡΕΣ» και «ΟΙ
+                ΠΡΟΣΦΟΡΕΣ ΤΟΥ ΜΗΝΑ» του προτύπου. Ανοιχτά, θα γέμιζαν το βήμα με
+                επτά πεδία που κανείς δεν πειράζει στις εννιά στις δέκα καμπάνιες
+                και θα έκρυβαν τα δύο που μετράνε.
+              */}
+              {template.takesProducts && (
+                <details className="border border-neutral-200 bg-white">
+                  <summary className="cursor-pointer px-4 py-3 text-[13px] font-semibold">
+                    Σταθερά κείμενα προτύπου
+                    <span className="ml-2 font-normal text-neutral-500">
+                      κουμπιά και επικεφαλίδες — προαιρετικά
+                    </span>
+                  </summary>
+                  <div className="grid gap-3 border-t border-neutral-100 p-4 sm:grid-cols-2">
+                    {(
+                      [
+                        ["hero_button", "Κουμπί hero"],
+                        ["section_eyebrow", "Επικεφαλίδα ενότητας"],
+                        ["section_title", "Τίτλος ενότητας"],
+                        ["section_link", "Σύνδεσμος ενότητας"],
+                        ["all_button", "Κουμπί «όλες»"],
+                        ["b2b_eyebrow", "Επικεφαλίδα B2B"],
+                        ["b2b_button", "Κουμπί B2B"],
+                      ] as const
+                    ).map(([key, label]) => (
+                      <Field key={key} label={label}>
+                        <input
+                          value={copy[key] ?? ""}
+                          onChange={(e) => setCopy({ ...copy, [key]: e.target.value })}
+                          placeholder={DEFAULT_COPY[key].replaceAll("&nbsp;", " ")}
+                          className={INPUT}
+                        />
+                      </Field>
+                    ))}
+                    <p className="text-[11px] text-neutral-500 sm:col-span-2">
+                      Κενό πεδίο κρατά την προεπιλογή — δεν αφήνει κουμπί χωρίς ετικέτα.
+                    </p>
+                  </div>
+                </details>
+              )}
             </section>
           )}
 
@@ -287,6 +339,57 @@ export function CampaignWizard({
                 και μπορείτε να τη συνεχίσετε.
               </p>
               {error && <p className="text-[12px] text-red-600">{error}</p>}
+
+              {/*
+                Δοκιμαστικό πριν από οτιδήποτε άλλο.
+
+                Η προεπισκόπηση δείχνει το HTML σε iframe· δεν δείχνει πώς το
+                αποδίδει το Gmail ή το Outlook, αν το θέμα κόβεται στα
+                εισερχόμενα, ή αν κάτι σκόνταψε στα φίλτρα. Αυτά φαίνονται μόνο
+                σε πραγματικό γραμματοκιβώτιο, και είναι φθηνότερο να τα δει
+                κανείς τώρα παρά σε τέσσερις χιλιάδες αντίγραφα.
+              */}
+              <div className="border-t border-neutral-100 pt-3">
+                <p className="text-[13px] font-semibold">Δοκιμαστική αποστολή</p>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  <input
+                    type="email"
+                    value={testTo}
+                    onChange={(e) => setTestTo(e.target.value)}
+                    placeholder="Η διεύθυνσή σας (προεπιλογή: ο λογαριασμός σας)"
+                    className={cn(INPUT, "min-w-[260px] flex-1")}
+                  />
+                  <button
+                    type="button"
+                    disabled={testing || !templateId || !subject.trim()}
+                    onClick={() => {
+                      setTestState({ kind: "idle", message: "" });
+                      startTest(async () => {
+                        const res = await sendTestAction({ to: testTo, templateId, subject, payload });
+                        setTestState(
+                          res.ok
+                            ? { kind: "ok", message: `Στάλθηκε στο ${res.to}. Ελέγξτε και τα ανεπιθύμητα.` }
+                            : { kind: "error", message: res.error },
+                        );
+                      });
+                    }}
+                    className="inline-flex h-9 shrink-0 items-center gap-1.5 border border-neutral-300 px-4 text-[13px] font-medium disabled:opacity-40"
+                  >
+                    <Send className="h-4 w-4" /> {testing ? "Αποστολή…" : "Στείλε δοκιμαστικό"}
+                  </button>
+                </div>
+                {testState.kind !== "idle" && (
+                  <p
+                    aria-live="polite"
+                    className={cn(
+                      "mt-2 text-[12px]",
+                      testState.kind === "ok" ? "text-emerald-700" : "text-red-600",
+                    )}
+                  >
+                    {testState.message}
+                  </p>
+                )}
+              </div>
             </section>
           )}
         </div>
