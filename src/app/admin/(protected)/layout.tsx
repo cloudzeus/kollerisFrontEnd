@@ -60,6 +60,7 @@ const GROUPS: Array<{ title: string; sections: Section[] }> = [
       { href: "/admin/catalogue", label: "Κατάλογος", icon: "catalogue", capability: "catalogue" },
       { href: "/admin/offers", label: "Προσφορές", icon: "merchandising", capability: "merchandising" },
       { href: "/admin/editorial", label: "Άρθρα & FAQ", icon: "editorial", capability: "editorial" },
+      { href: "/admin/reviews", label: "Αξιολογήσεις", icon: "reviews", capability: "content" },
     ],
   },
   {

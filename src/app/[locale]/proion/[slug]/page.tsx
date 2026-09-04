@@ -37,6 +37,8 @@ import { upGreek } from "@/lib/greek";
 import { cn } from "@/lib/utils";
 import { Zone } from "@/components/zones/Zone";
 import { VariantPicker } from "@/components/pdp/VariantPicker";
+import { ProductReviews } from "@/components/pdp/ProductReviews";
+import { approvedReviews } from "@/lib/account/reviews";
 import { FavouriteButton } from "@/components/product/FavouriteButton";
 import { favouriteIds } from "@/lib/account/favourite-ids";
 import { variantsOf } from "@/lib/catalog/variants";
@@ -103,6 +105,9 @@ export default async function ProductPage({ params }: PageProps) {
   );
 
   const favourite = (await favouriteIds()).has(product.id);
+  /* Οι κριτικές διαβάζονται σε ΟΛΗ την ομάδα μεγεθών: αγόρασε το 42 και
+     αξιολογεί «το παπούτσι», όχι «το 42». */
+  const reviews = await approvedReviews(product);
 
   /* Τα αδέλφια του προϊόντος — τα ίδια, σε άλλο νούμερο. */
   const variants = await variantsOf(product, locale);
@@ -799,6 +804,12 @@ export default async function ProductPage({ params }: PageProps) {
             </div>
           </section>
         )}
+
+        <ProductReviews
+          reviews={reviews}
+          average={product.ratingAvg}
+          count={product.ratingCount}
+        />
 
         <Zone id="product.aboveRelated" locale={locale} />
 

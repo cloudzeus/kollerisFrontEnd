@@ -124,13 +124,32 @@ export async function createVoucherForOrder(orderNumber: string): Promise<Vouche
     return { ok: false, error: acsError?.trim() || "Η ACS δεν επέστρεψε αριθμό αποστολής." };
   }
 
+  /*
+   * Το voucher ΕΙΝΑΙ η αποστολή.
+   * ───────────────────────────────────────────────────────────────────────────
+   * Η κατάσταση έμενε για πάντα στο CONFIRMED: τίποτα σε όλο το κατάστημα δεν
+   * έγραφε ποτέ SHIPPED ή DELIVERED. Ο πελάτης έβλεπε «Επιβεβαιώθηκε» ενώ το
+   * δέμα ήταν στην ACS, ο ιχνηλάτης της παραγγελίας κρατούσε το βήμα «Έφυγε από
+   * την αποθήκη» σβηστό — αν και η ετικέτα υπήρχε ήδη γραμμένη — και οι
+   * αξιολογήσεις, που ζητούν παραληφθέν προϊόν, δεν θα ενεργοποιούνταν ποτέ.
+   *
+   * Η δημιουργία voucher είναι η στιγμή που το δέμα φεύγει· δεν χρειάζεται
+   * δεύτερο κουμπί για να το πει κάποιος ξανά με το χέρι.
+   *
+   * ΜΟΝΟ προς τα εμπρός: μια ακυρωμένη ή αποτυχημένη παραγγελία δεν γίνεται
+   * απεσταλμένη επειδή κάποιος τύπωσε ετικέτα κατά λάθος.
+   */
+  const advances = order.status === "CONFIRMED" || order.status === "PENDING_PAYMENT";
+  const nextStatus = advances ? "SHIPPED" : order.status;
+
   await prisma.order.update({
     where: { id: order.id },
     data: {
       acsVoucherNo: voucherNo,
+      status: nextStatus,
       history: {
         create: {
-          status: order.status,
+          status: nextStatus,
           actor: "admin",
           note: `ACS voucher ${voucherNo}`,
         },

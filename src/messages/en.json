@@ -723,7 +723,8 @@
       "nav_b2b": "Corporate account",
       "nav_b2b_xristes": "Users & roles",
       "nav_b2b_timologia": "Invoices",
-      "nav_b2b_listes": "Material lists"
+      "nav_b2b_listes": "Material lists",
+      "nav_logariasmos_axiologiseis": "Reviews"
     },
     "AuthForms": {
       "kodikos": "Password",

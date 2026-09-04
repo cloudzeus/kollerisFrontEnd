@@ -723,7 +723,8 @@
       "nav_b2b": "Εταιρικός λογαριασμός",
       "nav_b2b_xristes": "Χρήστες & ρόλοι",
       "nav_b2b_timologia": "Τιμολόγια",
-      "nav_b2b_listes": "Λίστες υλικών"
+      "nav_b2b_listes": "Λίστες υλικών",
+      "nav_logariasmos_axiologiseis": "Αξιολογήσεις"
     },
     "AuthForms": {
       "kodikos": "Κωδικός",

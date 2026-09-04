@@ -21,6 +21,8 @@ export type ProductSpecRow = {
 export type ProductDetail = {
   variantGroup: string | null;
   impaCode: string | null;
+  ratingAvg: number | null;
+  ratingCount: number;
   id: string;
   mtrl: number;
   slug: string;
@@ -148,6 +150,8 @@ export const getProductBySlug = cache(
       mpn: product.code2 || "—",
       ean: product.code1 || "—",
       impaCode: product.impaCode,
+      ratingAvg: product.ratingAvg == null ? null : Number(product.ratingAvg),
+      ratingCount: product.ratingCount,
       brand: brand ? { name: pick(brand), slug: brand.slug, logo: brand.logo } : null,
       category: category ? { name: pick(category), slug: category.slug } : null,
       images: product.images.map((i) => ({ id: i.id, url: i.url })),

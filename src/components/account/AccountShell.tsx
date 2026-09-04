@@ -29,6 +29,7 @@ const ITEMS: Item[] = [
   { href: "/logariasmos/eggyiseis", label: "nav_logariasmos_eggyiseis", ready: false },
   { href: "/logariasmos/epistrofes", label: "nav_logariasmos_epistrofes", ready: false },
   { href: "/logariasmos/agapimena", label: "nav_logariasmos_agapimena", ready: true },
+  { href: "/logariasmos/axiologiseis", label: "nav_logariasmos_axiologiseis", ready: true },
   // ── Company only ──
   { href: "/b2b", label: "nav_b2b", ready: true, companyOnly: true },
   { href: "/b2b/xristes", label: "nav_b2b_xristes", ready: true, companyOnly: true },
