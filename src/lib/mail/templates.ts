@@ -31,6 +31,21 @@ import { mailUrls } from "@/lib/mail/urls";
 
 const TEMPLATE_DIR = path.join(process.cwd(), "src", "emails", "templates");
 
+/**
+ * Τα templates γράφουν καρφωτά `https://web.kolleris.com/email-assets/…`.
+ *
+ * Δουλεύει στην παραγωγή και ΜΟΝΟ εκεί. Στην ανάπτυξη η προεπισκόπηση έδειχνε
+ * σπασμένη εικόνα λογοτύπου — το είδα στην οθόνη, δεν το συμπέρανα — επειδή τα
+ * αρχεία υπάρχουν τοπικά αλλά δεν έχουν ανέβει ακόμη.
+ *
+ * Χειρότερο από την προεπισκόπηση: αν έφευγε καμπάνια πριν το deploy, ΚΑΘΕ
+ * παραλήπτης θα έβλεπε σπασμένο λογότυπο, και αυτό δεν παίρνεται πίσω.
+ *
+ * Η αντικατάσταση γίνεται εδώ και όχι στο markup: πηγή των HTML παραμένει το
+ * άλλο project. Μία γραμμή, ένα σημείο.
+ */
+const HARDCODED_ASSET_ORIGIN = "https://web.kolleris.com";
+
 /** Μεταγλωττισμένα μία φορά ανά διεργασία — το parse δεν είναι δωρεάν. */
 const compiled = new Map<string, HandlebarsTemplateDelegate>();
 
@@ -69,6 +84,7 @@ export async function listTemplateIds(): Promise<TemplateId[]> {
 export async function renderTemplate(
   id: TemplateId,
   data: Record<string, unknown>,
+  options: { assetOrigin?: string } = {},
 ): Promise<string> {
   /*
    * Το `id` φτάνει από τη διαχείριση και καταλήγει σε διαδρομή αρχείου. Χωρίς
@@ -87,5 +103,15 @@ export async function renderTemplate(
     compiled.set(id, template);
   }
 
-  return template({ ...baseContext(), ...data });
+  const html = template({ ...baseContext(), ...data });
+
+  /*
+   * Μόνο όταν ζητηθεί ρητά. Οι πραγματικές αποστολές ΔΕΝ περνούν origin — μια
+   * καμπάνια που έφευγε με `http://localhost:3000` στις εικόνες θα έστελνε τον
+   * παραλήπτη στο δικό του μηχάνημα, όπου δεν υπάρχει τίποτα.
+   */
+  if (options.assetOrigin && options.assetOrigin !== HARDCODED_ASSET_ORIGIN) {
+    return html.replaceAll(`${HARDCODED_ASSET_ORIGIN}/email-assets/`, `${options.assetOrigin}/email-assets/`);
+  }
+  return html;
 }

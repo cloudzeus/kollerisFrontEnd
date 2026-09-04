@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-09-04T03:33:45.086Z",
+  "timestamp": "2026-09-04T03:37:51.284Z",
   "source": "auto-postool",
   "partial": false,
   "phase": null,
@@ -21,22 +21,18 @@
       "path": ".planning/HANDOFF.json"
     },
     {
-      "status": "??",
-      "path": "src/app/admin/(protected)/newsletter/nea/"
+      "status": "M",
+      "path": "src/lib/mail/templates.ts"
     },
     {
-      "status": "??",
-      "path": "src/components/admin/newsletter/"
-    },
-    {
-      "status": "??",
+      "status": "M",
       "path": "src/lib/newsletter/campaign-actions.ts"
     },
     {
-      "status": "??",
+      "status": "M",
       "path": "src/lib/newsletter/campaign.ts"
     }
   ],
   "next_action": null,
-  "context_notes": "Recent commits:\n06adb4d feat(newsletter): η φόρμα εγγραφής δουλεύει, και το admin απέκτησε ομάδα «Επικοινωνία»\n3477feb feat(newsletter): τα 24 email templates μπαίνουν στο κατάστημα, με τα σωστά link\n540cdc3 fix(docker): το build έχανε τα devDependencies και έσκαγε στο Tailwind\n4e62624 feat(design): γρήγορη παραγγελία με κωδικό, μάρκες στο nav — και το BRANDS ξανά ορατό\n21d2875 fix(chrome): hook μέσα σε map — «Rendered more hooks than during the previous render»"
+  "context_notes": "Recent commits:\nd62f4d7 feat(newsletter): ο wizard καμπάνιας, με ζωντανή προεπισκόπηση και drag & drop\n06adb4d feat(newsletter): η φόρμα εγγραφής δουλεύει, και το admin απέκτησε ομάδα «Επικοινωνία»\n3477feb feat(newsletter): τα 24 email templates μπαίνουν στο κατάστημα, με τα σωστά link\n540cdc3 fix(docker): το build έχανε τα devDependencies και έσκαγε στο Tailwind\n4e62624 feat(design): γρήγορη παραγγελία με κωδικό, μάρκες στο nav — και το BRANDS ξανά ορατό"
 }

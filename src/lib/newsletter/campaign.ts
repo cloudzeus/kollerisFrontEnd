@@ -224,6 +224,7 @@ export async function renderCampaign(
   templateId: string,
   payload: CampaignPayload,
   recipient: { first_name?: string; last_name?: string; email?: string } = {},
+  options: { assetOrigin?: string } = {},
 ): Promise<string> {
   return renderTemplate(templateId, {
     campaign: payload.campaign,
@@ -235,5 +236,5 @@ export async function renderCampaign(
       last_name: recipient.last_name ?? "",
       email: recipient.email ?? "",
     },
-  });
+  }, options);
 }

@@ -3,7 +3,7 @@ import { auth } from "@/auth";
 import { assertCan } from "@/lib/rbac";
 import { PageShell, Panel } from "@/components/admin/PageShell";
 import { prisma } from "@/lib/prisma";
-import { listTemplateIds } from "@/lib/mail/templates";
+import { campaignTemplates } from "@/lib/newsletter/campaign";
 
 export const dynamic = "force-dynamic";
 
@@ -35,7 +35,7 @@ export default async function NewsletterPage() {
   const [byStatus, campaigns, templates] = await Promise.all([
     prisma.newsletterSubscriber.groupBy({ by: ["status"], _count: { _all: true } }),
     prisma.campaign.findMany({ orderBy: { createdAt: "desc" }, take: 20 }),
-    listTemplateIds(),
+    Promise.resolve(campaignTemplates()),
   ]);
 
   const counts = Object.fromEntries(byStatus.map((r) => [r.status, r._count._all]));
@@ -81,7 +81,12 @@ export default async function NewsletterPage() {
 
       <Panel
         title="Καμπάνιες"
-        description={`${templates.length} διαθέσιμα templates`}
+        /*
+          Τα πρότυπα ΚΑΜΠΑΝΙΑΣ, όχι και τα 24 του συστήματος. Το «24 διαθέσιμα
+          templates» κάτω από τον τίτλο «Καμπάνιες» υποσχόταν είκοσι τέσσερις
+          επιλογές σε έναν wizard που προσφέρει τρεις.
+        */
+        description={`${templates.length} πρότυπα newsletter διαθέσιμα για αποστολή`}
       >
         {campaigns.length === 0 ? (
           <p className="text-[13px] text-neutral-500">Καμία καμπάνια ακόμη.</p>

@@ -1,5 +1,6 @@
 "use server";
 
+import { headers } from "next/headers";
 import { auth } from "@/auth";
 import { assertCan } from "@/lib/rbac";
 import { prisma } from "@/lib/prisma";
@@ -47,12 +48,28 @@ export async function previewCampaignAction(input: {
   payload: CampaignPayload;
 }): Promise<string> {
   await guard();
-  return renderCampaign(input.templateId, input.payload, {
-    // Δείγμα ονόματος, ώστε να φαίνεται πώς κάθεται η προσωποποίηση στη σελίδα.
-    first_name: "Νίκος",
-    last_name: "Παπαδόπουλος",
-    email: "nikos@example.gr",
-  });
+
+  /*
+   * Η προεπισκόπηση τραβά τα εικαστικά από τον server που την σερβίρει, όχι από
+   * την παραγωγή. Στην ανάπτυξη τα αρχεία υπάρχουν τοπικά και όχι ακόμη στο
+   * web.kolleris.com· χωρίς αυτό, το λογότυπο έβγαινε σπασμένο σε κάθε
+   * προεπισκόπηση και θα το θεωρούσε κανείς σφάλμα του template.
+   */
+  const h = await headers();
+  const host = h.get("host");
+  const proto = h.get("x-forwarded-proto") ?? (host?.startsWith("localhost") ? "http" : "https");
+
+  return renderCampaign(
+    input.templateId,
+    input.payload,
+    {
+      // Δείγμα ονόματος, ώστε να φαίνεται πώς κάθεται η προσωποποίηση στη σελίδα.
+      first_name: "Νίκος",
+      last_name: "Παπαδόπουλος",
+      email: "nikos@example.gr",
+    },
+    host ? { assetOrigin: `${proto}://${host}` } : {},
+  );
 }
 
 export async function saveCampaignAction(input: {
