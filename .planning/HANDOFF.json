@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-09-04T18:50:15.927Z",
+  "timestamp": "2026-09-04T18:52:34.058Z",
   "source": "auto-postool",
   "partial": false,
   "phase": null,
@@ -22,21 +22,9 @@
     },
     {
       "status": "M",
-      "path": "src/lib/catalog/brands.ts"
-    },
-    {
-      "status": "M",
-      "path": "src/lib/catalog/catalogue-index.ts"
-    },
-    {
-      "status": "M",
-      "path": "src/lib/catalog/queries.ts"
-    },
-    {
-      "status": "??",
-      "path": "src/lib/catalog/shared-cache.ts"
+      "path": "src/lib/prisma.ts"
     }
   ],
   "next_action": null,
-  "context_notes": "Recent commits:\n386d39b perf: 34 αιτήματα RSC ανά σελίδα → 0\n0a43c2c fix(home): 20px περιθώριο γύρω από κάθε λογότυπο μάρκας\nc6c6872 feat(home): μεγαλύτερα λογότυπα στον τοίχο των μαρκών\nf2ee6c0 fix(banners): κανένα άλυτο {token} στο κατάστημα, και η μάρκα λύνει και στις προσφορές\nc8eb0bf fix(banners): το κλικ άνοιγε ΑΛΛΟ κελί, μικρότερη τυπογραφία, προεπισκόπηση κίνησης"
+  "context_notes": "Recent commits:\n3680093 perf: ο κατάλογος κρατιέται ανάμεσα σε αιτήματα\n386d39b perf: 34 αιτήματα RSC ανά σελίδα → 0\n0a43c2c fix(home): 20px περιθώριο γύρω από κάθε λογότυπο μάρκας\nc6c6872 feat(home): μεγαλύτερα λογότυπα στον τοίχο των μαρκών\nf2ee6c0 fix(banners): κανένα άλυτο {token} στο κατάστημα, και η μάρκα λύνει και στις προσφορές"
 }
