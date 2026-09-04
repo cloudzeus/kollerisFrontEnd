@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-09-04T16:29:00.729Z",
+  "timestamp": "2026-09-04T16:43:37.302Z",
   "source": "auto-postool",
   "partial": false,
   "phase": null,
@@ -30,9 +30,13 @@
     },
     {
       "status": "M",
-      "path": "src/lib/banners/contract.ts"
+      "path": "src/components/banners/CompositionRenderer.tsx"
+    },
+    {
+      "status": "??",
+      "path": "src/components/banners/FitText.tsx"
     }
   ],
   "next_action": null,
-  "context_notes": "Recent commits:\nb65f3d3 feat(banners): κλειδωμένη τυπογραφία αντί για ελεύθερα νούμερα\n50f93ee fix(banners): η τιμή έρχεται από την προσφορά, και η γεννήτρια βρίσκεται\n0348ff1 feat(banners): ένα προϊόν σε ένα κελί, με μία κίνηση\nf717c45 feat(αρχική): η φωτογραφία του κτηρίου αντικαθιστά την κράτηση θέσης\nf0434fd feat(emails): το σύστημα email μπαίνει μέσα στην εφαρμογή"
+  "context_notes": "Recent commits:\n8655e8f fix(banners): η τυπογραφία των banner γίνεται ίδια με της σελίδας\nb65f3d3 feat(banners): κλειδωμένη τυπογραφία αντί για ελεύθερα νούμερα\n50f93ee fix(banners): η τιμή έρχεται από την προσφορά, και η γεννήτρια βρίσκεται\n0348ff1 feat(banners): ένα προϊόν σε ένα κελί, με μία κίνηση\nf717c45 feat(αρχική): η φωτογραφία του κτηρίου αντικαθιστά την κράτηση θέσης"
 }

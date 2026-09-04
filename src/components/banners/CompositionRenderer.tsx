@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { Link } from "@/i18n/navigation";
+import { FitText } from "@/components/banners/FitText";
 import {
   COLOR_VALUE,
   FONT_STACK,
@@ -78,7 +79,7 @@ export function CompositionRenderer({
 
   return (
     <div
-      className={cn("relative isolate size-full overflow-hidden", className)}
+      className={cn("bn-clip relative isolate size-full overflow-hidden", className)}
       style={{ containerType: "size", backgroundColor: COLOR_VALUE[bg.color] }}
     >
       {/* ── Φόντο ──
@@ -345,9 +346,17 @@ function TextView({
               : "flex-start",
         textTransform: layer.style.uppercase ? "uppercase" : "none",
         textWrap: "balance",
+        /* Οι σύντομοι ρόλοι δεν σπάνε ποτέ γραμμή: μια τιμή μοιρασμένη σε
+           «337,71» και «€» δεν είναι τιμή. Συρρικνώνονται αντί να σπάσουν. */
+        whiteSpace:
+          layer.style.role === "price" ||
+          layer.style.role === "compare" ||
+          layer.style.role === "eyebrow"
+            ? "nowrap"
+            : undefined,
       }}
     >
-      <span>{value}</span>
+      <FitText>{value}</FitText>
     </div>
   );
 }

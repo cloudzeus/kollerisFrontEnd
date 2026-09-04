@@ -9,6 +9,7 @@ import {
   Copy,
   Eye,
   EyeOff,
+  GripVertical,
   Image as ImageIcon,
   LayoutGrid,
   Play,
@@ -57,6 +58,23 @@ import type { ResolvedCell } from "@/lib/banners/resolve-tokens";
 import type { PickerProduct } from "@/lib/media/picker";
 import { CompositionRenderer } from "@/components/banners/CompositionRenderer";
 import { CellCanvas } from "@/components/admin/banners/CellCanvas";
+import {
+  DndContext,
+  KeyboardSensor,
+  PointerSensor,
+  closestCenter,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  arrayMove,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 import { LocalisedField, NumberField, OfferPicker, ProductCombo, Segmented } from "@/components/admin/banners/fields";
 import { MediaField } from "@/components/admin/MediaPicker";
 import { Button } from "@/components/ui/button";
@@ -337,6 +355,18 @@ export function CellEditor({
     });
   }
 
+  /**
+   * Το ίδιο, με σύρσιμο: από θέση σε θέση αντί για ένα σκαλί τη φορά.
+   *
+   * Δύο τρόποι για την ίδια πράξη επίτηδες. Το σύρσιμο είναι ο γρήγορος όταν
+   * ένα στοιχείο πρέπει να περάσει τέσσερα άλλα· τα βελάκια είναι ο μόνος που
+   * δουλεύει με πληκτρολόγιο και ο μόνος ακριβής όταν οι σειρές είναι 18px
+   * ψηλές και δύο διπλανές διαφέρουν κατά ένα pixel.
+   */
+  function moveLayer(from: number, to: number) {
+    setDraft((d) => ({ ...d, layers: arrayMove(d.layers, from, to) }));
+  }
+
   /** Which tokens this cell can actually print, for the hint under a text field. */
   const tokens = useMemo(
     () => TOKENS.filter((t) => (t.sources as readonly string[]).includes(draft.binding.source)),
@@ -428,6 +458,7 @@ export function CellEditor({
                 selected={selected}
                 onSelect={setSelected}
                 onReorder={reorder}
+                onMove={moveLayer}
                 onPatch={patchLayer}
                 onDelete={(id) => {
                   setLayers(draft.layers.filter((l) => l.id !== id));
@@ -819,6 +850,7 @@ function LayerList({
   selected,
   onSelect,
   onReorder,
+  onMove,
   onPatch,
   onDelete,
   onDuplicate,
@@ -827,10 +859,29 @@ function LayerList({
   selected: string | null;
   onSelect: (id: string | null) => void;
   onReorder: (id: string, direction: -1 | 1) => void;
+  onMove: (from: number, to: number) => void;
   onPatch: (id: string, patch: Partial<Layer>) => void;
   onDelete: (id: string) => void;
   onDuplicate: (id: string) => void;
 }) {
+  const sensors = useSensors(
+    /* 6px χαλαρά, αλλιώς ένα κλικ στη λαβή μετριέται ως μικροσκοπικό σύρσιμο
+       και η σειρά δεν επιλέγεται ποτέ. */
+    useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+  );
+
+  function onDragEnd(event: DragEndEvent) {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+    const from = layers.findIndex((l) => l.id === active.id);
+    const to = layers.findIndex((l) => l.id === over.id);
+    if (from < 0 || to < 0) return;
+    onMove(from, to);
+  }
+
+  /* Μετά τα hooks: ένα πρόωρο return από πάνω τους τα κάνει να καλούνται
+     άλλοτε και άλλοτε όχι, που είναι παράβαση των κανόνων των hooks. */
   if (layers.length === 0) {
     return (
       <p className="border border-dashed border-k-line px-3 py-3 text-[11.5px] leading-[1.6] text-k-text-3">
@@ -844,80 +895,142 @@ function LayerList({
       <p className="border-b border-k-line px-2.5 py-1.5 text-[10px] font-medium uppercase tracking-[0.08em] text-k-text-4">
         Στοιχεία · από πίσω προς τα εμπρός
       </p>
-      <ul>
-        {layers.map((layer, index) => {
-          const Icon = LAYER_ICON[layer.kind];
-          return (
-            <li
-              key={layer.id}
-              className={cn(
-                "flex items-center gap-1 border-b border-k-line px-1.5 py-1 last:border-0",
-                selected === layer.id && "bg-k-surface-2",
-              )}
-            >
-              <button
-                type="button"
-                onClick={() => onSelect(layer.id)}
-                className="flex min-w-0 flex-1 items-center gap-1.5 py-0.5 text-left"
-              >
-                <Icon className="size-3 shrink-0 text-k-text-4" />
-                <span
-                  className={cn(
-                    "truncate text-[11.5px]",
-                    layer.hidden ? "text-k-text-5 line-through" : "text-k-ink",
-                  )}
-                >
-                  {layer.name}
-                </span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => onPatch(layer.id, { hidden: !layer.hidden })}
-                className="p-1 text-k-text-4 hover:text-k-ink"
-                aria-label={layer.hidden ? "Εμφάνιση" : "Απόκρυψη"}
-              >
-                {layer.hidden ? <EyeOff className="size-3" /> : <Eye className="size-3" />}
-              </button>
-              <button
-                type="button"
-                onClick={() => onReorder(layer.id, -1)}
-                disabled={index === 0}
-                className="p-1 text-k-text-4 hover:text-k-ink disabled:opacity-30"
-                aria-label="Πιο πίσω"
-              >
-                <ArrowDown className="size-3" />
-              </button>
-              <button
-                type="button"
-                onClick={() => onReorder(layer.id, 1)}
-                disabled={index === layers.length - 1}
-                className="p-1 text-k-text-4 hover:text-k-ink disabled:opacity-30"
-                aria-label="Πιο μπροστά"
-              >
-                <ArrowUp className="size-3" />
-              </button>
-              <button
-                type="button"
-                onClick={() => onDuplicate(layer.id)}
-                className="p-1 text-k-text-4 hover:text-k-ink"
-                aria-label="Αντιγραφή"
-              >
-                <Copy className="size-3" />
-              </button>
-              <button
-                type="button"
-                onClick={() => onDelete(layer.id)}
-                className="p-1 text-k-text-4 hover:text-k-red"
-                aria-label="Διαγραφή"
-              >
-                <Trash2 className="size-3" />
-              </button>
-            </li>
-          );
-        })}
-      </ul>
+      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
+        <SortableContext items={layers.map((l) => l.id)} strategy={verticalListSortingStrategy}>
+          <ul>
+            {layers.map((layer, index) => (
+              <LayerRow
+                key={layer.id}
+                layer={layer}
+                index={index}
+                count={layers.length}
+                selected={selected === layer.id}
+                onSelect={() => onSelect(layer.id)}
+                onReorder={onReorder}
+                onPatch={onPatch}
+                onDelete={onDelete}
+                onDuplicate={onDuplicate}
+              />
+            ))}
+          </ul>
+        </SortableContext>
+      </DndContext>
     </div>
+  );
+}
+
+/**
+ * Μία σειρά της λίστας στοιχείων — συρόμενη.
+ *
+ * Η λαβή είναι ξεχωριστό κουμπί και όχι ολόκληρη η σειρά: η σειρά ανοίγει το
+ * στοιχείο με κλικ, και ένα `listeners` απλωμένο πάνω της θα έκανε κάθε κλικ
+ * υποψήφιο σύρσιμο — δηλαδή θα χαλούσε την πιο συχνή κίνηση για χάρη της πιο
+ * σπάνιας.
+ */
+function LayerRow({
+  layer,
+  index,
+  count,
+  selected,
+  onSelect,
+  onReorder,
+  onPatch,
+  onDelete,
+  onDuplicate,
+}: {
+  layer: Layer;
+  index: number;
+  count: number;
+  selected: boolean;
+  onSelect: () => void;
+  onReorder: (id: string, direction: -1 | 1) => void;
+  onPatch: (id: string, patch: Partial<Layer>) => void;
+  onDelete: (id: string) => void;
+  onDuplicate: (id: string) => void;
+}) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: layer.id,
+  });
+  const Icon = LAYER_ICON[layer.kind];
+
+  return (
+    <li
+      ref={setNodeRef}
+      style={{ transform: CSS.Transform.toString(transform), transition }}
+      className={cn(
+        "flex items-center gap-1 border-b border-k-line px-1.5 py-1 last:border-0",
+        selected && "bg-k-surface-2",
+        isDragging && "relative z-10 bg-white shadow-md",
+      )}
+    >
+      <button
+        {...attributes}
+        {...listeners}
+        className="cursor-grab touch-none p-0.5 text-k-text-5 hover:text-k-ink active:cursor-grabbing"
+        aria-label="Μετακίνηση"
+      >
+        <GripVertical className="size-3" />
+      </button>
+
+      <button
+        type="button"
+        onClick={onSelect}
+        className="flex min-w-0 flex-1 items-center gap-1.5 py-0.5 text-left"
+      >
+        <Icon className="size-3 shrink-0 text-k-text-4" />
+        <span
+          className={cn(
+            "truncate text-[11.5px]",
+            layer.hidden ? "text-k-text-5 line-through" : "text-k-ink",
+          )}
+        >
+          {layer.name}
+        </span>
+      </button>
+
+      <button
+        type="button"
+        onClick={() => onPatch(layer.id, { hidden: !layer.hidden })}
+        className="p-1 text-k-text-4 hover:text-k-ink"
+        aria-label={layer.hidden ? "Εμφάνιση" : "Απόκρυψη"}
+      >
+        {layer.hidden ? <EyeOff className="size-3" /> : <Eye className="size-3" />}
+      </button>
+      <button
+        type="button"
+        onClick={() => onReorder(layer.id, -1)}
+        disabled={index === 0}
+        className="p-1 text-k-text-4 hover:text-k-ink disabled:opacity-30"
+        aria-label="Πιο πίσω"
+      >
+        <ArrowDown className="size-3" />
+      </button>
+      <button
+        type="button"
+        onClick={() => onReorder(layer.id, 1)}
+        disabled={index === count - 1}
+        className="p-1 text-k-text-4 hover:text-k-ink disabled:opacity-30"
+        aria-label="Πιο μπροστά"
+      >
+        <ArrowUp className="size-3" />
+      </button>
+      <button
+        type="button"
+        onClick={() => onDuplicate(layer.id)}
+        className="p-1 text-k-text-4 hover:text-k-ink"
+        aria-label="Αντιγραφή"
+      >
+        <Copy className="size-3" />
+      </button>
+      <button
+        type="button"
+        onClick={() => onDelete(layer.id)}
+        className="p-1 text-k-text-4 hover:text-k-red"
+        aria-label="Διαγραφή"
+      >
+        <Trash2 className="size-3" />
+      </button>
+    </li>
   );
 }
 
