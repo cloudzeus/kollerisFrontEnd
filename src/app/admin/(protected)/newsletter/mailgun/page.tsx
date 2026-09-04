@@ -4,6 +4,16 @@ import { assertCan } from "@/lib/rbac";
 import { PageShell, Panel } from "@/components/admin/PageShell";
 import { RANGES, fetchMailgunStats, type RangeId } from "@/lib/newsletter/mailgun-stats";
 import { cn } from "@/lib/utils";
+import {
+  DailyChart,
+  Funnel,
+  Legend,
+  METRIC,
+  Ring,
+  Sparkline,
+  StatBadge,
+  type MetricKey,
+} from "@/components/admin/newsletter/Charts";
 
 export const dynamic = "force-dynamic";
 
@@ -32,7 +42,19 @@ export default async function MailgunPage({
       title="MailGun"
       description="Στατιστικά αποστολών από τον λογαριασμό Mailgun. Αφορούν ΚΑΘΕ email του καταστήματος — παραγγελίες, λογαριασμοί, newsletter — όχι μόνο τις καμπάνιες."
       actions={
-        <div className="flex gap-px bg-neutral-200">
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="flex gap-px bg-neutral-200">
+            {["csv", "json"].map((f) => (
+              <a
+                key={f}
+                href={`/admin/newsletter/mailgun/export?range=${range}&format=${f}`}
+                className="bg-white px-3 py-1.5 text-[12px] font-medium text-neutral-600 hover:bg-neutral-50"
+              >
+                {f.toUpperCase()}
+              </a>
+            ))}
+          </div>
+          <div className="flex gap-px bg-neutral-200">
           {RANGES.map((r) => (
             <Link
               key={r.id}
@@ -45,6 +67,7 @@ export default async function MailgunPage({
               {r.label}
             </Link>
           ))}
+          </div>
         </div>
       }
     >
@@ -75,23 +98,74 @@ function MailgunReport({
         description="Το web.kolleris.com δεν είναι domain του Mailgun — το κατάστημα στέλνει μέσω kolleris.com. Δεν υπάρχει δεύτερο σύνολο αριθμών που λείπει."
       >
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <Kpi label="Απεσταλμένα" value={nf.format(t.sent)} note="μηνύματα που δεχτήκαμε να στείλουμε" />
           <Kpi
-            label="Παραδόθηκαν"
+            metric="sent"
+            value={nf.format(t.sent)}
+            note="μηνύματα που δεχτήκαμε να στείλουμε"
+            series={stats.days.map((d) => d.sent)}
+          />
+          <Kpi
+            metric="delivered"
             value={nf.format(t.delivered)}
             note={`${pct(t.delivered, t.sent)} των απεσταλμένων`}
-            tone={t.sent > 0 && t.delivered / t.sent < 0.95 ? "warn" : "good"}
+            series={stats.days.map((d) => d.delivered)}
+            badge={
+              t.sent > 0
+                ? t.delivered / t.sent >= 0.95
+                  ? { tone: "good" as const, text: "υγιές" }
+                  : { tone: "warn" as const, text: "χαμηλό" }
+                : undefined
+            }
           />
           <Kpi
-            label="Άνοιξαν"
+            metric="opened"
             value={nf.format(t.openedUnique)}
             note={`${pct(t.openedUnique, t.delivered)} · ${nf.format(t.openedTotal)} ανοίγματα συνολικά`}
+            series={stats.days.map((d) => d.opened)}
           />
           <Kpi
-            label="Έκαναν κλικ"
+            metric="clicked"
             value={nf.format(t.clickedUnique)}
             note={`${pct(t.clickedUnique, t.delivered)} · ${pct(t.clickedUnique, t.openedUnique)} όσων άνοιξαν`}
+            series={stats.days.map((d) => d.clicked)}
           />
+        </div>
+
+        <div className="mt-5 grid gap-6 border-t border-neutral-100 pt-5 lg:grid-cols-[minmax(0,1fr)_320px]">
+          <div>
+            <p className="mb-3 text-[12px] font-semibold">Η διαδρομή ενός μηνύματος</p>
+            <Funnel
+              steps={[
+                { key: "sent", value: t.sent, of: t.sent },
+                { key: "delivered", value: t.delivered, of: t.sent },
+                { key: "opened", value: t.openedUnique, of: t.sent, note: "μοναδικοί παραλήπτες, όχι ανοίγματα" },
+                { key: "clicked", value: t.clickedUnique, of: t.sent },
+              ]}
+            />
+          </div>
+          <div className="space-y-4">
+            <Ring
+              value={t.delivered}
+              of={t.sent}
+              color={METRIC.delivered.color}
+              label="Παραδοσιμότητα"
+              sub="Κάτω από 95% σημαίνει πρόβλημα λίστας ή φήμης."
+            />
+            <Ring
+              value={t.openedUnique}
+              of={t.delivered}
+              color={METRIC.opened.color}
+              label="Ποσοστό ανοίγματος"
+              sub="Μέσος όρος λιανικής στην Ελλάδα: 20–30%."
+            />
+            <Ring
+              value={t.clickedUnique}
+              of={t.openedUnique}
+              color={METRIC.clicked.color}
+              label="Κλικ ανά άνοιγμα"
+              sub="Πόσο έπεισε το περιεχόμενο όποιον το άνοιξε."
+            />
+          </div>
         </div>
       </Panel>
 
@@ -101,27 +175,54 @@ function MailgunReport({
       >
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <Kpi
-            label="Μόνιμες αποτυχίες"
+            metric="failed"
             value={nf.format(t.failedPermanent)}
             note={`${pct(t.failedPermanent, t.sent)} — ανύπαρκτες ή μπλοκαρισμένες διευθύνσεις`}
-            tone={t.failedPermanent > 0 ? "warn" : "neutral"}
+            series={stats.days.map((d) => d.failed)}
+            badge={t.failedPermanent > 0 ? { tone: "warn", text: "προσοχή" } : { tone: "good", text: "καθαρό" }}
           />
-          <Kpi label="Προσωρινές" value={nf.format(t.failedTemporary)} note="ο παραλήπτης δοκιμάζεται ξανά" />
           <Kpi
-            label="Διαγραφές"
+            metric="unsubscribed"
             value={nf.format(t.unsubscribed)}
             note={`${pct(t.unsubscribed, t.delivered)} όσων παραδόθηκαν`}
           />
-          <Kpi
-            label="Παράπονα spam"
-            value={nf.format(t.complained)}
-            /*
-              Το 0,1% είναι το όριο που δηλώνουν Gmail και Yahoo. Πάνω από αυτό
-              αρχίζουν να ρίχνουν αλληλογραφία του domain — και δεν το λένε.
-            */
-            note={`${pct(t.complained, t.delivered)} — όριο ανοχής 0,1%`}
-            tone={t.delivered > 0 && t.complained / t.delivered > 0.001 ? "bad" : "good"}
-          />
+          <div className="border border-neutral-200 bg-white">
+            <div className="h-1 bg-neutral-300" />
+            <div className="p-4">
+              <div className="font-mono text-[26px] leading-none font-semibold tabular-nums">
+                {nf.format(t.failedTemporary)}
+              </div>
+              <div className="mt-1.5 text-[12px] font-medium">Προσωρινές αποτυχίες</div>
+              <div className="mt-0.5 text-[11px] text-neutral-500">ο παραλήπτης δοκιμάζεται ξανά</div>
+            </div>
+          </div>
+          <div className="border border-neutral-200 bg-white">
+            <div
+              className="h-1"
+              style={{
+                background:
+                  t.delivered > 0 && t.complained / t.delivered > 0.001 ? METRIC.failed.color : "#059669",
+              }}
+            />
+            <div className="p-4">
+              <div className="flex items-start justify-between gap-2">
+                <div className="font-mono text-[26px] leading-none font-semibold tabular-nums">
+                  {nf.format(t.complained)}
+                </div>
+                <StatBadge tone={t.delivered > 0 && t.complained / t.delivered > 0.001 ? "bad" : "good"}>
+                  {t.delivered > 0 && t.complained / t.delivered > 0.001 ? "πάνω από το όριο" : "εντός"}
+                </StatBadge>
+              </div>
+              <div className="mt-1.5 text-[12px] font-medium">Παράπονα spam</div>
+              {/*
+                Το 0,1% είναι το όριο που δηλώνουν Gmail και Yahoo. Πάνω από αυτό
+                αρχίζουν να ρίχνουν αλληλογραφία του domain — και δεν το λένε.
+              */}
+              <div className="mt-0.5 text-[11px] text-neutral-500">
+                {pct(t.complained, t.delivered)} — όριο ανοχής 0,1%
+              </div>
+            </div>
+          </div>
         </div>
 
         <div className="mt-4 grid gap-3 border-t border-neutral-100 pt-4 sm:grid-cols-2">
@@ -131,6 +232,13 @@ function MailgunReport({
             value={nf.format(t.suppressed)}
             hint="Διευθύνσεις που το Mailgun αρνήθηκε να ξαναδοκιμάσει επειδή είχαν ήδη απορριφθεί, διαγραφεί ή παραπονεθεί."
           />
+        </div>
+      </Panel>
+
+      <Panel title="Πορεία στο διάστημα" description="Οι σειρές είναι εμφωλευμένες: κάθε κλικ είναι και άνοιγμα, κάθε άνοιγμα είναι και παράδοση.">
+        <DailyChart days={stats.days} series={["sent", "delivered", "opened", "clicked"] as MetricKey[]} />
+        <div className="mt-2">
+          <Legend items={["sent", "delivered", "opened", "clicked"] as MetricKey[]} />
         </div>
       </Panel>
 
@@ -192,31 +300,43 @@ function MailgunReport({
   );
 }
 
+/**
+ * Κάρτα μετρικής: αριθμός, τάση, και το χρώμα της μετρικής ως λωρίδα.
+ *
+ * Η λωρίδα δεν είναι διακόσμηση — είναι το ίδιο χρώμα που έχει η μετρική στη
+ * χοάνη και στο ημερήσιο διάγραμμα, ώστε το μάτι να συνδέει κάρτα και καμπύλη
+ * χωρίς λεζάντα.
+ */
 function Kpi({
-  label,
+  metric,
   value,
   note,
-  tone = "neutral",
+  series,
+  badge,
 }: {
-  label: string;
+  metric: MetricKey;
   value: string;
   note?: string;
-  tone?: "neutral" | "good" | "warn" | "bad";
+  series?: number[];
+  badge?: { tone: "good" | "warn" | "bad"; text: string };
 }) {
+  const m = METRIC[metric];
   return (
-    <div
-      className={cn(
-        "border bg-white p-4",
-        tone === "good" && "border-l-2 border-l-emerald-600",
-        tone === "warn" && "border-l-2 border-l-amber-500",
-        tone === "bad" && "border-l-2 border-l-red-600",
-        tone === "neutral" && "border-neutral-200",
-        tone !== "neutral" && "border-neutral-200",
-      )}
-    >
-      <div className="font-mono text-[26px] leading-none font-semibold tabular-nums">{value}</div>
-      <div className="mt-1.5 text-[12px] font-medium">{label}</div>
-      {note && <div className="mt-0.5 text-[11px] leading-snug text-neutral-500">{note}</div>}
+    <div className="border border-neutral-200 bg-white">
+      <div className="h-1" style={{ background: m.color }} />
+      <div className="p-4">
+        <div className="flex items-start justify-between gap-2">
+          <div className="font-mono text-[26px] leading-none font-semibold tabular-nums">{value}</div>
+          {badge && <StatBadge tone={badge.tone}>{badge.text}</StatBadge>}
+        </div>
+        <div className="mt-1.5 text-[12px] font-medium">{m.label}</div>
+        {note && <div className="mt-0.5 text-[11px] leading-snug text-neutral-500">{note}</div>}
+        {series && series.length > 1 && (
+          <div className="mt-2">
+            <Sparkline values={series} color={m.color} />
+          </div>
+        )}
+      </div>
     </div>
   );
 }
