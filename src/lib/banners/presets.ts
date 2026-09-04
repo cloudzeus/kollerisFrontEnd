@@ -137,7 +137,7 @@ const picture = (
  */
 const mark = (
   frame: ImageLayer["frame"],
-  variant: "white" | "red" = "white",
+  variant: "white" | "red" | "on-red" | "on-ink" = "white",
 ): ImageLayer => {
   const layer = newLayer("image") as ImageLayer;
   layer.name = "Σήμα Κολλέρη";
@@ -729,6 +729,40 @@ export const PRESETS: Preset[] = [
           "Τιμή",
           "{price}",
           { x: 26, y: 84, w: 34, h: 9 },
+          { role: "price", color: "white" },
+        ),
+      ],
+    }),
+  },
+  {
+    id: "red-signature",
+    label: "Κόκκινη υπογραφή",
+    hint: "Το σήμα σε κόκκινο πλακίδιο πάνω αριστερά, τίτλος κάτω. Το πιο αναγνωρίσιμο.",
+    category: "photo",
+    suits: ["none", "offer", "product"],
+    build: () => ({
+      background: photoBg("medium"),
+      layers: [
+        /* Πλακίδιο και όχι διάφανο σήμα: πάνω σε φωτογραφία εργοταξίου ένα
+           λευκό λογότυπο χάνεται μέσα στον θόρυβο· ένα κόκκινο ορθογώνιο όχι. */
+        mark({ x: 5, y: 6, w: 20, h: 12 }, "on-red"),
+        brandMark({ x: 74, y: 7, w: 20, h: 10 }),
+        text(
+          "Υπέρτιτλος",
+          "{brand}",
+          { x: 5, y: 62, w: 50, h: 7 },
+          { role: "eyebrow", color: "red" },
+        ),
+        text(
+          "Τίτλος",
+          "{title}",
+          { x: 5, y: 70, w: 72, h: 20 },
+          { role: "title", color: "white", valign: "end" },
+        ),
+        text(
+          "Τιμή",
+          "{price}",
+          { x: 5, y: 91, w: 34, h: 8 },
           { role: "price", color: "white" },
         ),
       ],

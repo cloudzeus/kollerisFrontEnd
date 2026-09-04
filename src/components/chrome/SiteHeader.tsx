@@ -80,13 +80,17 @@ export function SiteHeader({
           />
 
           <Link href="/" className="mr-auto">
+            {/* Το πρωτότυπο: κόκκινο σήμα, λευκά γράμματα, χωρίς φόντο. Το
+                γκρι του αρχείου είναι φτιαγμένο για λευκό χαρτί και σε σκούρα
+                μπάρα διαβάζεται μόλις· η ολόλευκη εκδοχή έχανε το χρώμα. */}
             <Image
-              src="/brand/logo-horizontal-white.png"
+              src="/brand/kolleris-row-duo.svg"
               alt="Kolleris"
-              width={208}
-              height={42}
+              width={396}
+              height={69}
               priority
-              className="block h-[22px] w-auto"
+              unoptimized
+              className="block h-[26px] w-auto"
             />
           </Link>
 
@@ -145,12 +149,13 @@ export function SiteHeader({
       <div className="header-main shell-x hidden h-24 items-center gap-8 border-b border-k-header-line bg-k-header text-k-on-dark lg:flex">
         <Link href="/" className="shrink-0">
           <Image
-            src="/brand/logo-horizontal-white.png"
+            src="/brand/kolleris-row-duo.svg"
             alt="Kolleris"
-            width={316}
-            height={64}
+            width={396}
+            height={69}
             priority
-            className="header-logo block h-[38px] w-auto"
+            unoptimized
+            className="header-logo block h-[44px] w-auto"
           />
         </Link>
 

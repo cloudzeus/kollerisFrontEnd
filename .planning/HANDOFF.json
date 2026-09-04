@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-09-04T17:51:11.498Z",
+  "timestamp": "2026-09-04T17:54:29.149Z",
   "source": "auto-postool",
   "partial": false,
   "phase": null,
@@ -22,21 +22,21 @@
     },
     {
       "status": "M",
-      "path": "src/components/admin/banners/CellEditor.tsx"
-    },
-    {
-      "status": "M",
-      "path": "src/lib/banners/contract.ts"
+      "path": "src/components/chrome/SiteHeader.tsx"
     },
     {
       "status": "M",
       "path": "src/lib/banners/presets.ts"
     },
     {
-      "status": "M",
-      "path": "src/lib/banners/resolve.ts"
+      "status": "??",
+      "path": "public/_bbox.html"
+    },
+    {
+      "status": "??",
+      "path": "public/brand/kolleris-lockup-duo.svg"
     }
   ],
   "next_action": null,
-  "context_notes": "Recent commits:\n163d455 feat(seo): δομημένα δεδομένα σε κάθε τύπο σελίδας, και τα χρόνια υπολογίζονται\n9c7becb fix(seo): κάθε σελίδα δηλώνει τον δικό της τίτλο, canonical και δομή\n073a888 fix(banners): τα σήματα του Κολλέρη περνούν στο CDN\nc2e7694 fix(meta): Open Graph, εικόνα κοινοποίησης και το κόκκινο Κ ως favicon\nee6ea3d feat(banners): μία συνταγή κίνησης, auto-fit παντού, τα σήματα του Κολλέρη"
+  "context_notes": "Recent commits:\nd42f587 feat(banners): έξι νέες παραλλαγές, ο ρόλος «μέγεθος», και το σήμα της μάρκας\n163d455 feat(seo): δομημένα δεδομένα σε κάθε τύπο σελίδας, και τα χρόνια υπολογίζονται\n9c7becb fix(seo): κάθε σελίδα δηλώνει τον δικό της τίτλο, canonical και δομή\n073a888 fix(banners): τα σήματα του Κολλέρη περνούν στο CDN\nc2e7694 fix(meta): Open Graph, εικόνα κοινοποίησης και το κόκκινο Κ ως favicon"
 }
