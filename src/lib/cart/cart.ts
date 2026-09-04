@@ -162,8 +162,24 @@ export const getCart = cache(async (
       id: line.id,
       productId: p.id,
       slug: p.slug,
+      /* ΟΛΟΚΛΗΡΟ το όνομα, με το νούμερο μέσα. Στη λίστα η κάρτα εκπροσωπεί
+         την ομάδα και το νούμερο αφαιρείται· εδώ η γραμμή είναι ένα
+         συγκεκριμένο ζευγάρι, και το νούμερο είναι ό,τι πιο σημαντικό έχει. */
       name: translated?.trim() || p.name,
-      sku: p.code2 || p.code,
+      /*
+       * Ο κωδικός του ERP, όχι του κατασκευαστή.
+       * ─────────────────────────────────────────────────────────────────────
+       * Η σελίδα του προϊόντος δείχνει «ΚΩΔΙΚΟΣ 21191001258» και το καλάθι
+       * έδειχνε «4932493714» για το ίδιο πράγμα: ο πελάτης έβλεπε δύο κωδικούς
+       * και δεν ήξερε ποιον να πει στο τηλέφωνο. Ο κωδικός του ERP είναι αυτός
+       * που μαζεύει η αποθήκη και αυτός που πάει στο παραστατικό — και σε
+       * προϊόν με νούμερα είναι το ένα πράγμα που ξεχωρίζει το 42 από το 43.
+       *
+       * Ταξιδεύει και στη γραμμή της παραγγελίας: το `OrderLine.sku` παίρνει
+       * αυτή την τιμή, οπότε το email και η λίστα συλλογής λένε τον ίδιο
+       * κωδικό με τη σελίδα.
+       */
+      sku: p.code || p.code2,
       brandName: p.mtrmark != null ? (brands.get(p.mtrmark) ?? null) : null,
       image: p.images[0]?.url ?? null,
       quantity: line.quantity,
@@ -347,7 +363,8 @@ export const getCartCrossSell = cache(
       id: row.id,
       slug: row.slug,
       name: row.translations.find((t) => t.locale === locale)?.name?.trim() || row.name,
-      sku: row.code2 || row.code,
+      // Ίδιο με τη γραμμή του καλαθιού: ένας κωδικός παντού.
+      sku: row.code || row.code2,
       brandName: row.mtrmark != null ? (brands.get(row.mtrmark) ?? null) : null,
       image: row.images[0]?.url ?? null,
       priceNet: num(row.priceNet),

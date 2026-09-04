@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-09-04T07:49:20.368Z",
+  "timestamp": "2026-09-04T07:52:10.186Z",
   "source": "auto-postool",
   "partial": false,
   "phase": null,
@@ -19,28 +19,8 @@
     {
       "status": "M",
       "path": ".planning/HANDOFF.json"
-    },
-    {
-      "status": "M",
-      "path": "src/app/[locale]/proion/[slug]/page.tsx"
-    },
-    {
-      "status": "M",
-      "path": "src/lib/catalog/pdp.ts"
-    },
-    {
-      "status": "M",
-      "path": "src/lib/catalog/plp.ts"
-    },
-    {
-      "status": "M",
-      "path": "src/lib/catalog/queries.ts"
-    },
-    {
-      "status": "??",
-      "path": "src/lib/catalog/variant-name.ts"
     }
   ],
   "next_action": null,
-  "context_notes": "Recent commits:\n5613922 feat(variants): ένα προϊόν αντί για δεκατρία, με επιλογέα νούμερου\n6a3acf0 fix(cart): το κομμένο όνομα δείχνει ολόκληρο σε hover\n41d4733 fix(cart): τα γράμματα έπεφταν το ένα πάνω στο άλλο — breakpoint οθόνης σε στενή στήλη\n1a0d80c feat(offers): η έκπτωση καμπάνιας χρεώνεται, φαίνεται παντού, και φτάνει σωστά στο ERP\n461ea7b feat(offers): σήμα προσφοράς στις κάρτες και στη σελίδα προϊόντος"
+  "context_notes": "Recent commits:\na0455a7 fix(variants): φεύγει το «No 36» από τον τίτλο, και το EAN από τα προϊόντα με νούμερα\n5613922 feat(variants): ένα προϊόν αντί για δεκατρία, με επιλογέα νούμερου\n6a3acf0 fix(cart): το κομμένο όνομα δείχνει ολόκληρο σε hover\n41d4733 fix(cart): τα γράμματα έπεφταν το ένα πάνω στο άλλο — breakpoint οθόνης σε στενή στήλη\n1a0d80c feat(offers): η έκπτωση καμπάνιας χρεώνεται, φαίνεται παντού, και φτάνει σωστά στο ERP"
 }
