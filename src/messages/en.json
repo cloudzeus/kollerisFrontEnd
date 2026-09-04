@@ -176,8 +176,11 @@
   },
   "home": {
     "AboutSplit": {
-      "fotografia_apothikis_omadas": "Warehouse / group photo",
-      "gia_46_chronia_i_kolleris": "For 46 years, Kolleris is the supplier that shipping\n          companies, factories and workshops call. Direct relationships with Milwaukee, Knipex,\n          Wera — accurate availability, no “we’ll see”."
+      "gia_46_chronia_i_kolleris": "For 46 years, Kolleris is the supplier that shipping\n          companies, factories and workshops call. Direct relationships with Milwaukee, Knipex,\n          Wera — accurate availability, no “we’ll see”.",
+      "apo_to_1978": "Since 1978",
+      "motto_line1": "Consistency",
+      "motto_line2": "without a break.",
+      "motto_lead": "If we say it is in stock, it is. The same brands, the same people on the phone, the same answer."
     },
     "BrandWall": {
       "ta_brands_poy_antiprosopeyoyme": "The brands we distribute",

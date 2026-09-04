@@ -176,8 +176,11 @@
   },
   "home": {
     "AboutSplit": {
-      "fotografia_apothikis_omadas": "Foto magazzino / gruppo",
-      "gia_46_chronia_i_kolleris": "Per 46 anni, Kolleris è il fornitore a cui si rivolgono compagnie di navigazione,\n          fabbriche e officine. Rapporti diretti con Milwaukee, Knipex,\n          Wera — disponibilità precisa, senza 'vedremo'."
+      "gia_46_chronia_i_kolleris": "Per 46 anni, Kolleris è il fornitore a cui si rivolgono compagnie di navigazione,\n          fabbriche e officine. Rapporti diretti con Milwaukee, Knipex,\n          Wera — disponibilità precisa, senza 'vedremo'.",
+      "apo_to_1978": "Dal 1978",
+      "motto_line1": "Coerenza",
+      "motto_line2": "senza interruzioni.",
+      "motto_lead": "Se diciamo che è disponibile, lo è. Stessi marchi, stesse persone al telefono, stessa risposta."
     },
     "BrandWall": {
       "ta_brands_poy_antiprosopeyoyme": "I marchi che distribuiamo",
