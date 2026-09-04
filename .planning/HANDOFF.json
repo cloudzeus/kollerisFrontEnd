@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-09-04T11:12:17.100Z",
+  "timestamp": "2026-09-04T11:16:27.178Z",
   "source": "auto-postool",
   "partial": false,
   "phase": null,
@@ -22,9 +22,9 @@
     },
     {
       "status": "M",
-      "path": "src/components/plp/FilterSidebar.tsx"
+      "path": "src/components/zones/WidgetRenderer.tsx"
     }
   ],
   "next_action": null,
-  "context_notes": "Recent commits:\n139589c style(plp): χρυσός ο αριθμός προϊόντων στις υποκατηγορίες\n662b8c1 perf(plp): τα φίλτρα δεν προ-φορτώνονται — 62 άχρηστες αποδόσεις σελίδας ανά επίσκεψη\n2da3038 fix(banners): ίδιο πλάτος με το header, μαύρο φόντο εκατέρωθεν\ne7822a7 feat(reviews): αξιολογήσεις από πελάτες που παρέλαβαν, με έγκριση διαχειριστή\n95e3d61 fix(pdp): η λωρίδα «με μια ματιά» στοιχίζεται — και τα δεκαδικά γίνονται ελληνικά"
+  "context_notes": "Recent commits:\n7fa5b2f style(plp): κόκκινος ο αριθμός στη μπάρα φίλτρων, χρυσός στα τσιπ\n139589c style(plp): χρυσός ο αριθμός προϊόντων στις υποκατηγορίες\n662b8c1 perf(plp): τα φίλτρα δεν προ-φορτώνονται — 62 άχρηστες αποδόσεις σελίδας ανά επίσκεψη\n2da3038 fix(banners): ίδιο πλάτος με το header, μαύρο φόντο εκατέρωθεν\ne7822a7 feat(reviews): αξιολογήσεις από πελάτες που παρέλαβαν, με έγκριση διαχειριστή"
 }
