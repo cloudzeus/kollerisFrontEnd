@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-08-15T16:51:52.380Z",
+  "timestamp": "2026-09-04T03:14:10.412Z",
   "source": "auto-postool",
   "partial": false,
   "phase": null,
@@ -22,33 +22,37 @@
     },
     {
       "status": "M",
-      "path": "src/app/[locale]/page.tsx"
+      "path": "package-lock.json"
     },
     {
       "status": "M",
-      "path": "src/components/chrome/MainNav.tsx"
+      "path": "package.json"
     },
     {
       "status": "M",
-      "path": "src/lib/cart/actions.ts"
-    },
-    {
-      "status": "M",
-      "path": "src/messages/el.json"
-    },
-    {
-      "status": "M",
-      "path": "src/messages/en.json"
-    },
-    {
-      "status": "M",
-      "path": "src/messages/it.json"
+      "path": "prisma/schema.prisma"
     },
     {
       "status": "??",
-      "path": "src/components/home/QuickOrder.tsx"
+      "path": "prisma/migrations/20260826120000_newsletter/"
+    },
+    {
+      "status": "??",
+      "path": "public/email-assets/"
+    },
+    {
+      "status": "??",
+      "path": "src/emails/"
+    },
+    {
+      "status": "??",
+      "path": "src/lib/mail/templates.ts"
+    },
+    {
+      "status": "??",
+      "path": "src/lib/mail/urls.ts"
     }
   ],
   "next_action": null,
-  "context_notes": "Recent commits:\n21d2875 fix(chrome): hook μέσα σε map — «Rendered more hooks than during the previous render»\nb2d94cf feat(design): το νέο design στα θεμέλια — γραμματοσειρές, παλέτα, header & footer\nd599256 fix(stock): κανένα αρνητικό απόθεμα δεν φτάνει στο κατάστημα\nd3577ed feat(stock): το eshop ξεχωρίζει το ράφι από το πωλήσιμο\neeedc31 fix(feeds): ο κωδικός καταστήματος είναι αυτός που έχει ο Google, όχι αυτός που διαλέξαμε"
+  "context_notes": "Recent commits:\n540cdc3 fix(docker): το build έχανε τα devDependencies και έσκαγε στο Tailwind\n4e62624 feat(design): γρήγορη παραγγελία με κωδικό, μάρκες στο nav — και το BRANDS ξανά ορατό\n21d2875 fix(chrome): hook μέσα σε map — «Rendered more hooks than during the previous render»\nb2d94cf feat(design): το νέο design στα θεμέλια — γραμματοσειρές, παλέτα, header & footer\nd599256 fix(stock): κανένα αρνητικό απόθεμα δεν φτάνει στο κατάστημα"
 }

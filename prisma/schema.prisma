@@ -69,9 +69,9 @@ model AdminUser {
 /// Who changed what in /admin. Content edits are invisible in git, so this is
 /// the only record of them.
 model AdminAuditLog {
-  id       String  @id @default(cuid())
-  userId   String?
-  user     AdminUser? @relation(fields: [userId], references: [id], onDelete: SetNull)
+  id     String     @id @default(cuid())
+  userId String?
+  user   AdminUser? @relation(fields: [userId], references: [id], onDelete: SetNull)
 
   action   String  @db.VarChar(64) // "create" | "update" | "delete" | "publish"
   entity   String  @db.VarChar(64) // model name
@@ -89,10 +89,10 @@ model AdminAuditLog {
 /// Failed login throttling — spec §19 requires 5 attempts → 15 minute lockout,
 /// enforced server-side (a disabled button is not a security control).
 model LoginAttempt {
-  id         String   @id @default(cuid())
-  identifier String   @db.VarChar(320) // email
-  ipAddress  String?  @db.VarChar(64)
-  successful Boolean  @default(false)
+  id          String   @id @default(cuid())
+  identifier  String   @db.VarChar(320) // email
+  ipAddress   String?  @db.VarChar(64)
+  successful  Boolean  @default(false)
   attemptedAt DateTime @default(now())
 
   @@index([identifier, attemptedAt])
@@ -117,31 +117,31 @@ model Product {
   code2 String @db.VarChar(64) // manufacturer / MPN
 
   /// Greek name (MTRAN el, falling back to MTRL.NAME).
-  name String @db.Text
+  name      String @db.Text
   /// URL slug, generated here via `slugify()`. Unique; renames leave a Redirect.
-  slug String @unique @db.VarChar(140)
+  slug      String @unique @db.VarChar(140)
   /// `searchKey(name + code + code1 + code2 + brand)` — accent-insensitive index.
   searchKey String @db.Text
 
   // ── Classification (SoftOne 3-level hierarchy) ──
-  mtrmark     Int? // brand
-  mtrcategory Int?
-  mtrgroup    Int?
+  mtrmark      Int? // brand
+  mtrcategory  Int?
+  mtrgroup     Int?
   cccSubgroup2 Int?
 
   // ── Display pricing. INDICATIVE ONLY. ──
   // Never used for a purchase decision: PDP, cart and order placement all
   // re-read live values from HDCtool H3. See BACKEND_ALIGNMENT.md §2.
-  priceNet   Decimal? @db.Decimal(12, 2) // PRICER02, the eshop web price
-  priceList  Decimal? @db.Decimal(12, 2) // struck-through "was", when higher
-  vatRate    Decimal? @db.Decimal(5, 2)  // resolved percentage, not a code
+  priceNet  Decimal? @db.Decimal(12, 2) // PRICER02, the eshop web price
+  priceList Decimal? @db.Decimal(12, 2) // struck-through "was", when higher
+  vatRate   Decimal? @db.Decimal(5, 2) // resolved percentage, not a code
   /// ΠΩΛΗΣΙΜΟ απόθεμα: ό,τι μπορεί να παραγγείλει πελάτης σήμερα.
   ///
   /// Δεν είναι το υπόλοιπο της αποθήκης. Το HDCtool στέλνει εδώ το
   /// `AVAILABLE − RESERVED`: ένα κομμάτι ήδη δεσμευμένο για παραγγελία πελάτη
   /// κάθεται στο ράφι, μετράει κανονικά στο υπόλοιπο, και δεν είναι δικό μας να
   /// το πουλήσουμε δεύτερη φορά. Το `inStock` βγαίνει από ΑΥΤΟ.
-  qty        Decimal? @db.Decimal(12, 2)
+  qty       Decimal? @db.Decimal(12, 2)
 
   /// Το ωμό υπόλοιπο αποθήκης, για αναφορά — ΟΧΙ για διαθεσιμότητα.
   qtyOnHand   Decimal? @db.Decimal(12, 2)
@@ -153,22 +153,22 @@ model Product {
   priceSyncedAt DateTime?
 
   // ── Physical (drives shipping + spec-at-a-glance strip) ──
-  width      Decimal? @db.Decimal(10, 2) // DIM1, cm
-  length     Decimal? @db.Decimal(10, 2) // DIM2, cm
-  height     Decimal? @db.Decimal(10, 2) // DIM3, cm
-  weight     Decimal? @db.Decimal(10, 3) // GWEIGHT, kg
-  guaranteeMonths Int?                    // GUARTIME — feeds the warranty page
+  width           Decimal? @db.Decimal(10, 2) // DIM1, cm
+  length          Decimal? @db.Decimal(10, 2) // DIM2, cm
+  height          Decimal? @db.Decimal(10, 2) // DIM3, cm
+  weight          Decimal? @db.Decimal(10, 3) // GWEIGHT, kg
+  guaranteeMonths Int? // GUARTIME — feeds the warranty page
 
   // ── Merchandising flags, denormalised for facet counts ──
-  isActive   Boolean @default(true) // mirrors MTRL.eshopListed
-  inStock    Boolean @default(false)
-  isNew      Boolean @default(false)
-  onSale     Boolean @default(false)
+  isActive Boolean @default(true) // mirrors MTRL.eshopListed
+  inStock  Boolean @default(false)
+  isNew    Boolean @default(false)
+  onSale   Boolean @default(false)
 
   /// Source timestamps, for delta reconciliation.
   erpInsertedAt DateTime?
   erpUpdatedAt  DateTime?
-  syncedAt      DateTime @default(now())
+  syncedAt      DateTime  @default(now())
 
   /// When this product first became visible in the shop.
   ///
@@ -224,10 +224,10 @@ model Category {
   parent   Category?  @relation("CategoryTree", fields: [parentId], references: [id], onDelete: SetNull)
   children Category[] @relation("CategoryTree")
 
-  slug     String @unique @db.VarChar(140)
-  nameEl   String @db.VarChar(255)
-  nameEn   String @db.VarChar(255)
-  nameIt   String @db.VarChar(255)
+  slug   String @unique @db.VarChar(140)
+  nameEl String @db.VarChar(255)
+  nameEn String @db.VarChar(255)
+  nameIt String @db.VarChar(255)
 
   mainImage String? @db.Text
   heroImage String? @db.Text
@@ -261,7 +261,7 @@ model Brand {
   id String @id @default(cuid())
 
   /// HDCtool `SuperProductBrand.id`.
-  hdcId String @unique
+  hdcId   String @unique
   /// SoftOne MTRMARK. Null when the super brand has no linked SoftBrand row.
   mtrmark Int?
 
@@ -374,16 +374,16 @@ model ProductSpec {
   productId String
   product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 
-  locale    Locale
-  fieldKey  String  @db.VarChar(64) // "voltage" | "torque" | "chuckSize" | …
-  fieldGroup String @db.VarChar(32) // "identification" | "physical" | "technical" | "performance"
-  label     String? @db.VarChar(128)
-  value     String  @db.Text
+  locale       Locale
+  fieldKey     String   @db.VarChar(64) // "voltage" | "torque" | "chuckSize" | …
+  fieldGroup   String   @db.VarChar(32) // "identification" | "physical" | "technical" | "performance"
+  label        String?  @db.VarChar(128)
+  value        String   @db.Text
   /// Parsed numeric value where the field is numeric — enables range facets
   /// and the compare page's "highlight best" without re-parsing at read time.
   valueNumeric Decimal? @db.Decimal(14, 4)
-  unit      String? @db.VarChar(16)
-  order     Int     @default(0)
+  unit         String?  @db.VarChar(16)
+  order        Int      @default(0)
 
   @@unique([productId, locale, fieldKey])
   @@index([fieldKey, valueNumeric])
@@ -398,10 +398,10 @@ model ProductOverride {
   product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 
   /// Overrides the generated slug. The generator will not touch this.
-  slugOverride String? @unique @db.VarChar(140)
-  badges       Json? // string[] — "VDE", "ΝΕΟ", "TOP"
+  slugOverride  String? @unique @db.VarChar(140)
+  badges        Json? // string[] — "VDE", "ΝΕΟ", "TOP"
   editorialCopy String? @db.Text
-  isFeatured   Boolean @default(false)
+  isFeatured    Boolean @default(false)
   hideFromEshop Boolean @default(false)
 
   updatedBy String?
@@ -413,11 +413,11 @@ model ProductOverride {
 
 /// Preserves old URLs when a slug changes — a rename must not 404.
 model Redirect {
-  id        String   @id @default(cuid())
-  fromPath  String   @unique @db.VarChar(512)
-  toPath    String   @db.VarChar(512)
-  statusCode Int     @default(301)
-  createdAt DateTime @default(now())
+  id         String   @id @default(cuid())
+  fromPath   String   @unique @db.VarChar(512)
+  toPath     String   @db.VarChar(512)
+  statusCode Int      @default(301)
+  createdAt  DateTime @default(now())
 
   @@map("redirects")
 }
@@ -439,7 +439,7 @@ model SyncState {
   id      String @id @default(cuid())
   channel String @unique @db.VarChar(64)
 
-  cursor        String?   @db.Text
+  cursor        String?        @db.Text
   lastRunAt     DateTime?
   lastSuccessAt DateTime?
   lastStatus    SyncRunStatus?
@@ -457,16 +457,16 @@ model SyncRun {
   stateId String
   state   SyncState @relation(fields: [stateId], references: [id], onDelete: Cascade)
 
-  status      SyncRunStatus @default(RUNNING)
-  startedAt   DateTime      @default(now())
-  finishedAt  DateTime?
-  processed   Int           @default(0)
-  created     Int           @default(0)
-  updated     Int           @default(0)
-  removed     Int           @default(0)
-  failed      Int           @default(0)
+  status     SyncRunStatus @default(RUNNING)
+  startedAt  DateTime      @default(now())
+  finishedAt DateTime?
+  processed  Int           @default(0)
+  created    Int           @default(0)
+  updated    Int           @default(0)
+  removed    Int           @default(0)
+  failed     Int           @default(0)
   /// Per-row failures, so the admin sync monitor can show what did not land.
-  errors      Json?
+  errors     Json?
 
   @@index([stateId, startedAt])
   @@map("sync_runs")
@@ -601,52 +601,52 @@ model Order {
   ///
   /// The token is what lets a guest reopen their own confirmation page and
   /// nobody else's, and it keeps working after the customer registers.
-  customerId  String?
-  customer    Customer? @relation(fields: [customerId], references: [id], onDelete: SetNull)
-  guestToken  String    @unique @db.VarChar(64)
+  customerId String?
+  customer   Customer? @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  guestToken String    @unique @db.VarChar(64)
 
   // ── Contact ──
-  email     String  @db.VarChar(320)
-  phone     String  @db.VarChar(64)
-  firstName String  @db.VarChar(120)
-  lastName  String  @db.VarChar(120)
+  email     String @db.VarChar(320)
+  phone     String @db.VarChar(64)
+  firstName String @db.VarChar(120)
+  lastName  String @db.VarChar(120)
 
   // ── Shipping address ──
-  shipLine1    String  @db.VarChar(255)
-  shipLine2    String? @db.VarChar(255)
-  shipCity     String  @db.VarChar(120)
-  shipPostcode String  @db.VarChar(16)
+  shipLine1       String  @db.VarChar(255)
+  shipLine2       String? @db.VarChar(255)
+  shipCity        String  @db.VarChar(120)
+  shipPostcode    String  @db.VarChar(16)
   /// Νομός — the regional unit. "Πειραιώς".
-  shipRegion   String? @db.VarChar(120)
+  shipRegion      String? @db.VarChar(120)
   /// Περιφέρεια — the administrative region above it. "Αττικής".
   shipAdminRegion String? @db.VarChar(120)
-  shipCountry  String  @default("GR") @db.VarChar(2)
+  shipCountry     String  @default("GR") @db.VarChar(2)
 
   // ── Invoice (ΤΙΜΟΛΟΓΙΟ) — only when the customer asks for one ──
-  wantsInvoice  Boolean @default(false)
-  companyName   String? @db.VarChar(255)
-  vatNumber     String? @db.VarChar(32)  // ΑΦΜ
-  taxOffice     String? @db.VarChar(120) // ΔΟΥ
-  companyTrade  String? @db.VarChar(255) // δραστηριότητα
-  billLine1     String? @db.VarChar(255)
-  billCity      String? @db.VarChar(120)
-  billPostcode  String? @db.VarChar(16)
+  wantsInvoice Boolean @default(false)
+  companyName  String? @db.VarChar(255)
+  vatNumber    String? @db.VarChar(32) // ΑΦΜ
+  taxOffice    String? @db.VarChar(120) // ΔΟΥ
+  companyTrade String? @db.VarChar(255) // δραστηριότητα
+  billLine1    String? @db.VarChar(255)
+  billCity     String? @db.VarChar(120)
+  billPostcode String? @db.VarChar(16)
 
   // ── Fulfilment choices ──
-  shippingMethod String @db.VarChar(32)
-  paymentMethod  String @db.VarChar(32)
+  shippingMethod String  @db.VarChar(32)
+  paymentMethod  String  @db.VarChar(32)
   notes          String? @db.Text
 
   // ── Money, all frozen at placement (EUR) ──
-  subtotalNet   Decimal @db.Decimal(12, 2)
-  subtotalGross Decimal @db.Decimal(12, 2)
-  shippingNet   Decimal @db.Decimal(12, 2)
-  shippingGross Decimal @db.Decimal(12, 2)
-  paymentFeeNet Decimal @default(0) @db.Decimal(12, 2)
+  subtotalNet     Decimal @db.Decimal(12, 2)
+  subtotalGross   Decimal @db.Decimal(12, 2)
+  shippingNet     Decimal @db.Decimal(12, 2)
+  shippingGross   Decimal @db.Decimal(12, 2)
+  paymentFeeNet   Decimal @default(0) @db.Decimal(12, 2)
   paymentFeeGross Decimal @default(0) @db.Decimal(12, 2)
-  vatAmount     Decimal @db.Decimal(12, 2)
-  totalGross    Decimal @db.Decimal(12, 2)
-  savingsGross  Decimal @default(0) @db.Decimal(12, 2)
+  vatAmount       Decimal @db.Decimal(12, 2)
+  totalGross      Decimal @db.Decimal(12, 2)
+  savingsGross    Decimal @default(0) @db.Decimal(12, 2)
 
   /// How the postage was priced — zone, chargeable weight, whether any item
   /// weight was estimated. Kept so a disputed charge can be explained.
@@ -668,7 +668,7 @@ model Order {
   /// Only set where a hold means anything — a bank transfer, where the goods
   /// wait for money that has not arrived. Card and IRIS are paid before the
   /// order exists.
-  reservedUntil     DateTime?
+  reservedUntil DateTime?
 
   // ── ACS ──
   acsVoucherNo String?   @db.VarChar(64)
@@ -679,34 +679,33 @@ model Order {
   /// company already registered as a Kolleris customer. Carried so the order
   /// push reuses that customer instead of creating a second SoftOne record.
   /**
+   * /**
+   * /**
    * The method Viva reports, which can differ from `paymentMethod`.
-   *
    * `paymentMethod` is what the customer chose at OUR checkout. Viva's page
    * then offers its own alternatives — IRIS, instalments, another card — and
    * the shopper chooses again. The ERP needs a different code for each, so the
    * document has to follow what happened rather than what was intended.
-   *
    * Stored raw rather than translated. We do not yet know Viva's number for
    * every method, and recording the value we were given is what lets the next
    * real payment tell us, instead of a guess hardening into a mapping.
    */
   vivaPaymentMethodId Int?
 
-  erpTrdr       Int?
-  erpFindoc     Int?
+  erpTrdr     Int?
+  erpFindoc   Int?
   /// The document series SoftOne filed it under (7020 for eshop orders).
-  erpSeries     Int?
+  erpSeries   Int?
   /**
    * Everything SoftOne answered, kept verbatim.
-   *
    * The document number alone is what somebody looks up; the rest is what
    * settles an argument. When a figure is disputed six months later, "this is
    * what the ERP returned when the document was created" is evidence, and a
    * parsed subset of it is a summary of what we thought mattered at the time.
    */
-  erpResponse   Json?
-  erpPushedAt   DateTime?
-  erpError      String?   @db.Text
+  erpResponse Json?
+  erpPushedAt DateTime?
+  erpError    String?   @db.Text
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -717,6 +716,13 @@ model Order {
   @@index([status, createdAt])
   @@index([email])
   @@index([customerId])
+  /// Η σάρωση που ελευθερώνει ληγμένες δεσμεύσεις αποθέματος ρωτά ακριβώς αυτό.
+  ///
+  /// Το index υπήρχε ήδη στη βάση — το δημιούργησε το migration
+  /// `20260807130000_order_stock_hold` — αλλά ΔΕΝ ήταν δηλωμένο εδώ. Το Prisma
+  /// το έβλεπε ως απόκλιση και το επόμενο migration που θα παραγόταν θα το
+  /// έριχνε σιωπηλά, μαζί με ό,τι άσχετο έτυχε να φτιάχνει εκείνη τη στιγμή.
+  @@index([reservedUntil])
   @@map("orders")
 }
 
@@ -736,14 +742,14 @@ model OrderLine {
   brand    String? @db.VarChar(255)
   imageUrl String? @db.Text
 
-  quantity   Int
-  unitNet    Decimal @db.Decimal(12, 2)
-  unitGross  Decimal @db.Decimal(12, 2)
-  vatRate    Decimal @db.Decimal(5, 2)
-  lineNet    Decimal @db.Decimal(12, 2)
-  lineGross  Decimal @db.Decimal(12, 2)
+  quantity  Int
+  unitNet   Decimal  @db.Decimal(12, 2)
+  unitGross Decimal  @db.Decimal(12, 2)
+  vatRate   Decimal  @db.Decimal(5, 2)
+  lineNet   Decimal  @db.Decimal(12, 2)
+  lineGross Decimal  @db.Decimal(12, 2)
   /// Weight used for the postage calculation, kg.
-  weightKg   Decimal? @db.Decimal(10, 3)
+  weightKg  Decimal? @db.Decimal(10, 3)
 
   @@index([orderId])
   @@map("order_lines")
@@ -800,15 +806,15 @@ model ContactMessage {
   topic  ContactTopic
   status ContactStatus @default(new)
 
-  name    String  @db.VarChar(200)
-  email   String  @db.VarChar(320)
-  phone   String? @db.VarChar(64)
-  company String? @db.VarChar(255)
+  name      String  @db.VarChar(200)
+  email     String  @db.VarChar(320)
+  phone     String? @db.VarChar(64)
+  company   String? @db.VarChar(255)
   /// ΑΦΜ when the topic is a partnership request.
   vatNumber String? @db.VarChar(32)
 
-  subject String  @db.VarChar(255)
-  message String  @db.Text
+  subject  String  @db.VarChar(255)
+  message  String  @db.Text
   /// Order number when the topic is about an existing order.
   orderRef String? @db.VarChar(32)
 
@@ -993,12 +999,12 @@ model CustomerAddress {
   lastName  String  @db.VarChar(120)
   phone     String? @db.VarChar(64)
 
-  line1    String  @db.VarChar(255)
-  line2    String? @db.VarChar(255)
-  city     String  @db.VarChar(120)
-  postcode String  @db.VarChar(16)
+  line1       String  @db.VarChar(255)
+  line2       String? @db.VarChar(255)
+  city        String  @db.VarChar(120)
+  postcode    String  @db.VarChar(16)
   /// Νομός — the regional unit. "Πειραιώς".
-  region   String? @db.VarChar(120)
+  region      String? @db.VarChar(120)
   /// Περιφέρεια — the administrative region above it. "Αττικής".
   adminRegion String? @db.VarChar(120)
 
@@ -1017,17 +1023,14 @@ model CustomerAddress {
 /// Pending invitation to join a company account.
 /**
  * An invitation to register, sent to somebody who has already bought from us.
- *
  * Every order comes with a name, an email, a phone and an address — a
  * registration in everything but the password. What it does not come with is
  * consent to hold an account, and an account created behind somebody's back
  * with a password nobody chose is not an account; it is a row.
- *
  * So the order stays a guest order and this is the offer: one link, which the
  * customer may accept or ignore. Accepting creates the Customer and adopts
  * every past order that shares the email, so their history is there the moment
  * they arrive rather than starting from the next purchase.
- *
  * Keyed on EMAIL rather than on a customer id, because at the time it is
  * written there is no customer. `CustomerInvite` could not serve: it demands a
  * `companyId`, having been built for a B2B owner adding colleagues.
@@ -1035,8 +1038,8 @@ model CustomerAddress {
 model RetailRegistrationToken {
   id String @id @default(cuid())
 
-  email String @db.VarChar(320)
-  token String @unique @db.VarChar(64)
+  email       String  @db.VarChar(320)
+  token       String  @unique @db.VarChar(64)
   /// The order that prompted it, for context in the email and in the admin.
   /// Null for a password reset, which no order prompted.
   orderNumber String? @db.VarChar(32)
@@ -1065,10 +1068,10 @@ model RetailRegistrationToken {
   expiresAt DateTime
   /// Set when the customer completes registration. Kept so a second click says
   /// "already used" instead of silently doing nothing.
-  usedAt DateTime?
+  usedAt    DateTime?
   /// Last time the link was emailed, so resending is visible rather than
   /// guessed at.
-  sentAt DateTime?
+  sentAt    DateTime?
 
   createdAt DateTime @default(now())
 
@@ -1089,8 +1092,8 @@ model CustomerInvite {
   companyId String
   company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
 
-  token     String    @unique @db.VarChar(64)
-  expiresAt DateTime
+  token      String    @unique @db.VarChar(64)
+  expiresAt  DateTime
   /// Set once the invitee sets a password and the Customer row is created.
   acceptedAt DateTime?
 
@@ -1235,7 +1238,6 @@ model GridTemplate {
   /// Null lets the content decide the height.
   aspect String? @db.VarChar(12)
 
-
   updatedBy String?  @db.VarChar(120)
   updatedAt DateTime @updatedAt
   createdAt DateTime @default(now())
@@ -1365,12 +1367,12 @@ model Offer {
   href String @db.VarChar(255)
 
   /// ── What it covers ──
-  scope OfferScope @default(products)
+  scope        OfferScope @default(products)
   /// Product slugs, in the order they were chosen. Empty unless scope is
   /// `products`.
   productSlugs String[]
-  brandSlug    String? @db.VarChar(140)
-  categorySlug String? @db.VarChar(140)
+  brandSlug    String?    @db.VarChar(140)
+  categorySlug String?    @db.VarChar(140)
 
   /// ── The saving ──
   ///
@@ -1390,16 +1392,16 @@ model Offer {
   /// How many times in total. Null means no limit.
   maxTotal       Int?
   /// Redemptions so far, so `maxTotal` means something.
-  usedCount      Int @default(0)
+  usedCount      Int  @default(0)
 
   /// Which ready-made presentation this campaign uses wherever it appears.
   widget OfferWidget @default(strip)
 
-  image String? @db.Text
+  image     String? @db.Text
   /// Second image for a different aspect — a band and a tile rarely share art.
   imageWide String? @db.Text
   /// A short loop for banner backgrounds.
-  video String? @db.Text
+  video     String? @db.Text
 
   startsAt DateTime?
   /// Drives the countdown widget. Null means no deadline to show.
@@ -1447,4 +1449,138 @@ model MediaAsset {
 
   @@index([kind, createdAt])
   @@map("media_assets")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Newsletter
+//
+// Μέχρι τώρα η φόρμα εγγραφής στην αρχική ΔΕΝ έστελνε πουθενά — το σχόλιο στο
+// `NewsletterBand.tsx` το έλεγε ρητά: «The form posts nowhere yet». Δηλαδή το
+// κατάστημα ζητούσε email και τα πετούσε. Είναι το ίδιο μοτίβο με τα emails
+// παραγγελίας πριν φτιαχτούν: υπόσχεση στη διεπαφή, τίποτα από πίσω.
+// ─────────────────────────────────────────────────────────────────────────────
+
+enum SubscriberStatus {
+  /// Έδωσε email, δεν έχει επιβεβαιώσει ακόμη. ΔΕΝ του στέλνουμε καμπάνιες.
+  pending
+  confirmed
+  unsubscribed
+  /// Το Mailgun το επέστρεψε ως ανύπαρκτο ή μπλοκαρισμένο.
+  bounced
+}
+
+model NewsletterSubscriber {
+  id String @id @default(cuid())
+
+  /// Πεζά πάντα. Δύο εγγραφές για «Nikos@x.gr» και «nikos@x.gr» είναι δύο email
+  /// στον ίδιο άνθρωπο, και το δεύτερο μοιάζει με spam.
+  email  String           @unique @db.VarChar(320)
+  name   String?          @db.VarChar(200)
+  locale Locale           @default(el)
+  status SubscriberStatus @default(pending)
+
+  /// Πού εγγράφηκε: «home», «checkout», «import». Χρήσιμο όταν μια πηγή αρχίσει
+  /// να παράγει bounces και πρέπει να βρεθεί ποια.
+  source String @default("home") @db.VarChar(32)
+
+  /// Double opt-in. Το token καίγεται μόλις χρησιμοποιηθεί.
+  confirmToken   String?   @unique @db.VarChar(64)
+  confirmedAt    DateTime?
+  unsubscribedAt DateTime?
+
+  /// Απόδειξη συγκατάθεσης — GDPR. Χωρίς αυτά, η συγκατάθεση είναι ισχυρισμός.
+  consentIp        String? @db.VarChar(64)
+  consentUserAgent String? @db.VarChar(255)
+
+  recipients CampaignRecipient[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status, createdAt])
+  @@map("newsletter_subscribers")
+}
+
+enum CampaignStatus {
+  draft
+  /// Κλειδωμένη και στην ουρά. Δεν επεξεργάζεται πια.
+  sending
+  sent
+  failed
+}
+
+model Campaign {
+  id String @id @default(cuid())
+
+  name       String         @db.VarChar(160)
+  status     CampaignStatus @default(draft)
+  /// Το id του template στο `src/emails/templates`, π.χ. «nl-offers».
+  templateId String         @db.VarChar(64)
+
+  subject   String @db.VarChar(255)
+  preheader String @default("") @db.VarChar(500)
+
+  /// Ό,τι έφτιαξε ο wizard: campaign copy, επιλεγμένα προϊόντα, ελεύθερο
+  /// κείμενο. Json και όχι στήλες, επειδή κάθε template έχει δικό του σχήμα —
+  /// το `nl-offers` θέλει `product_rows`, το `nl-news` θέλει άρθρα.
+  payload Json
+
+  /// Το HTML που ΟΝΤΩΣ στάλθηκε, αποδοσμένο τη στιγμή της αποστολής.
+  ///
+  /// Αποθηκεύεται ολόκληρο επίτηδες: το template θα αλλάξει, τα προϊόντα θα
+  /// αλλάξουν τιμή, και σε έξι μήνες η ερώτηση «τι ακριβώς είδε ο πελάτης»
+  /// πρέπει να έχει απάντηση. Ξανα-απόδοση από το payload δίνει τη σημερινή
+  /// εκδοχή, όχι την απεσταλμένη.
+  renderedHtml String? @db.Text
+
+  recipientCount Int @default(0)
+  deliveredCount Int @default(0)
+  openedCount    Int @default(0)
+  clickedCount   Int @default(0)
+  failedCount    Int @default(0)
+
+  /// Πότε τραβήχτηκαν τελευταία τα events από το Mailgun.
+  statsSyncedAt DateTime?
+
+  createdBy String?   @db.VarChar(64)
+  sentAt    DateTime?
+
+  recipients CampaignRecipient[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status, createdAt])
+  @@map("campaigns")
+}
+
+model CampaignRecipient {
+  id String @id @default(cuid())
+
+  campaignId String
+  campaign   Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  /// Ο συνδρομητής, όταν ο παραλήπτης ήρθε από τη λίστα. Κενό όταν ήρθε από
+  /// ανέβασμα αρχείου — αυτοί δεν γίνονται συνδρομητές επειδή τους στείλαμε κάτι.
+  subscriberId String?
+  subscriber   NewsletterSubscriber? @relation(fields: [subscriberId], references: [id], onDelete: SetNull)
+
+  email String  @db.VarChar(320)
+  name  String? @db.VarChar(200)
+
+  /// Το id που επιστρέφει το Mailgun. Το κλειδί με το οποίο ταιριάζουν τα events.
+  messageId String? @unique @db.VarChar(255)
+
+  deliveredAt  DateTime?
+  openedAt     DateTime?
+  clickedAt    DateTime?
+  /// Απόρριψη ή παράπονο. Το κείμενο του λόγου μένει για να μη μαντεύει κανείς.
+  failedAt     DateTime?
+  failedReason String?   @db.VarChar(255)
+
+  createdAt DateTime @default(now())
+
+  @@unique([campaignId, email])
+  @@index([campaignId, openedAt])
+  @@map("campaign_recipients")
 }
