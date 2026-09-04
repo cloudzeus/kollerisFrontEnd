@@ -57,13 +57,13 @@ export default async function ConfirmPage({
           <div className="mt-8 flex flex-wrap gap-3">
             <Link
               href="/prosfores"
-              className="font-display bg-k-red px-7 py-3.5 text-[15px] font-bold tracking-[0.08em] text-white transition-colors hover:bg-k-red-hover"
+              className="font-sans bg-k-red px-7 py-3.5 text-[15px] font-bold tracking-[0.08em] text-white transition-colors hover:bg-k-red-hover"
             >
               {upGreek("Δείτε τις προσφορές")}
             </Link>
             <Link
               href="/"
-              className="font-display border border-k-line-strong px-7 py-3.5 text-[15px] font-bold tracking-[0.08em] text-k-ink transition-colors hover:border-k-ink"
+              className="font-sans border border-k-line-strong px-7 py-3.5 text-[15px] font-bold tracking-[0.08em] text-k-ink transition-colors hover:border-k-ink"
             >
               {upGreek("Στην αρχική")}
             </Link>

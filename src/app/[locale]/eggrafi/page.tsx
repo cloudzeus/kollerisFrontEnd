@@ -73,7 +73,7 @@ export default async function RegisterPage({ params }: { params: Promise<{ local
 
           <aside className="border-t border-k-line bg-k-surface-2 px-4 py-8 lg:border-t-0 lg:border-l lg:px-8 lg:py-12">
             <p className="t-eyebrow text-k-red">{upGreek(t("ti_allazei"))}</p>
-            <p className="font-display mt-2.5 text-[18px] leading-[1.28] text-k-ink">
+            <p className="font-display t-display mt-2.5 text-[18px] leading-[1.28] text-k-ink">
               {upGreek(t("idiotis_i_etaireia"))}
             </p>
 

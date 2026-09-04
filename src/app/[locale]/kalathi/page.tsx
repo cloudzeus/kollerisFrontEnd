@@ -135,7 +135,7 @@ export default async function CartPage({
               height={46}
               className="mx-auto block opacity-35"
             />
-            <p className="font-display mt-5 text-xl leading-[1.3] text-k-ink">
+            <p className="font-display t-display mt-5 text-xl leading-[1.3] text-k-ink">
               {upGreek(t("to_kalathi_einai_adeio"))}
             </p>
             <p className="mt-2.5 text-[13.5px] text-k-text-3">

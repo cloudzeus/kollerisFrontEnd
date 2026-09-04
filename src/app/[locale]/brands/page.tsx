@@ -212,7 +212,7 @@ export default async function BrandsPage({
                         className="block h-20 w-20 object-contain"
                       />
                     ) : (
-                      <span className="font-display text-lg text-k-ink">
+                      <span className="font-display t-display text-lg text-k-ink">
                         {brand.name}
                       </span>
                     )}

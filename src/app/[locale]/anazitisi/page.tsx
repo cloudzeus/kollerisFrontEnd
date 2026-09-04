@@ -360,7 +360,7 @@ function NoResults({ query }: { query: string }) {
           <span aria-hidden className="rule-accent block shrink-0" />
           {upGreek(t("kamia_antistoichia"))}
         </p>
-        <h2 className="font-display mt-2.5 text-[20px] leading-[1.25] text-k-ink lg:text-[26px]">
+        <h2 className="font-display t-display mt-2.5 text-[20px] leading-[1.25] text-k-ink lg:text-[26px]">
           {upGreek(t("den_vrethike_kati_gia", { query: query }))}
         </h2>
         <p className="mt-3 text-[13.5px] leading-[1.65] text-k-text-3">

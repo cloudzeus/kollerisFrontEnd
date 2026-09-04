@@ -194,7 +194,7 @@ export default async function NewArrivalsPage({
 
         {arrivals.periods.length === 0 ? (
           <section className="shell-x bg-white py-16 text-center">
-            <p className="font-display text-xl text-k-ink">
+            <p className="font-display t-display text-xl text-k-ink">
               {upGreek(t("den_yparchoyn_akomi_katachorimenes_imerominies"))}
             </p>
           </section>

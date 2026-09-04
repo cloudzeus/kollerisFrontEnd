@@ -230,7 +230,7 @@ export default async function OffersPage({
                     <span aria-hidden className="rule-accent block shrink-0" />
                     {upGreek(t("kamia_energi_prosfora"))}
                   </p>
-                  <h2 className="font-display mt-3 text-[21px] leading-[1.2] text-balance text-k-ink lg:text-[28px]">
+                  <h2 className="font-display t-display mt-3 text-[21px] leading-[1.2] text-balance text-k-ink lg:text-[28px]">
                     {upGreek(t("mia_ekptosi_poy_trechei_panta"))}
                   </h2>
                   <p className="mt-4 text-[13.5px] leading-[1.75] text-k-text-2">
@@ -246,7 +246,7 @@ export default async function OffersPage({
                     <p className="t-eyebrow text-k-red">
                       {upGreek(t("i_pragmatiki_ekptosi"))}
                     </p>
-                    <p className="font-display text-[17px] leading-[1.3] text-k-ink lg:text-xl">
+                    <p className="font-display t-display text-[17px] leading-[1.3] text-k-ink lg:text-xl">
                       {upGreek(t("timi_synergati_gia_epaggelmaties"))}
                     </p>
                     <p className="text-[12.5px] leading-[1.65] text-k-text-3">
@@ -264,7 +264,7 @@ export default async function OffersPage({
                     <p className="t-eyebrow text-k-text-4">
                       {upGreek(t("o_ti_kinithike_teleytaia"))}
                     </p>
-                    <p className="font-display text-[17px] leading-[1.3] text-k-ink lg:text-xl">
+                    <p className="font-display t-display text-[17px] leading-[1.3] text-k-ink lg:text-xl">
                       {upGreek(
                         latest
                           ? `${latest.count.toLocaleString(locale)} ${

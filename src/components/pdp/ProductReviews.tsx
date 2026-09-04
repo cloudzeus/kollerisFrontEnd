@@ -61,7 +61,7 @@ export function ProductReviews({
       <div className="pdp-band py-9 lg:py-14">
         <div className="pdp-inner">
           <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1.5">
-            <h2 className="font-display text-[20px] leading-tight font-extrabold tracking-[0.01em] text-k-ink lg:text-[24px]">
+            <h2 className="font-display t-display text-[20px] leading-tight text-k-ink lg:text-[24px]">
               ΑΞΙΟΛΟΓΗΣΕΙΣ
             </h2>
             {average != null && (

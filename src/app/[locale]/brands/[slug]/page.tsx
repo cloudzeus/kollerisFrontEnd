@@ -247,7 +247,7 @@ export default async function BrandPage({ params, searchParams }: PageProps) {
           <div className="min-w-0 border-k-line px-4 py-6 lg:border-l lg:px-10 lg:pt-6 lg:pb-10">
             {data.products.length === 0 ? (
               <div className="flex flex-col items-center justify-center border border-k-line bg-k-surface-2 px-6 py-20 text-center">
-                <p className="font-display text-lg text-k-ink">
+                <p className="font-display t-display text-lg text-k-ink">
                   {upGreek(t("kanena_proion_me_ayta_ta"))}
                 </p>
                 <Link

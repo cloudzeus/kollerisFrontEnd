@@ -14,7 +14,7 @@ export function BlogMissingNotice({ endpoint }: { endpoint: string }) {
   return (
     <div className="border-l-[3px] border-k-amber bg-k-surface-2 p-5 lg:p-8">
       <p className="t-eyebrow text-k-amber">{upGreek(t("den_echei_energopoiithei_akomi"))}</p>
-      <p className="font-display mt-2.5 text-[18px] leading-[1.3] text-k-ink lg:text-[22px]">
+      <p className="font-display t-display mt-2.5 text-[18px] leading-[1.3] text-k-ink lg:text-[22px]">
         {upGreek(t("ta_arthra_perimenoyn_to_hdctool"))}
       </p>
       <p className="mt-3 max-w-2xl text-[13px] leading-[1.7] text-k-text-2">

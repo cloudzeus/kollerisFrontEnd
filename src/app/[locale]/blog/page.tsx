@@ -169,7 +169,7 @@ function LeadCard({ post }: { post: import("@/lib/blog/contract").BlogPostSummar
             <span aria-hidden className="rule-accent block shrink-0" />
             {upGreek(t("pio_prosfato"))}
           </p>
-          <h2 className="font-display mt-3.5 text-[20px] leading-[1.22] text-balance text-k-ink transition-colors group-hover/lead:text-k-red lg:text-[27px]">
+          <h2 className="font-display t-display mt-3.5 text-[20px] leading-[1.22] text-balance text-k-ink transition-colors group-hover/lead:text-k-red lg:text-[27px]">
             {post.title}
           </h2>
           {post.shortDescription && (
@@ -220,7 +220,7 @@ function PostCard({ post }: { post: import("@/lib/blog/contract").BlogPostSummar
       </span>
 
       <span className="flex flex-1 flex-col gap-2.5 p-5">
-        <span className="font-display block text-[15px] leading-[1.3] text-k-ink transition-colors group-hover/post:text-k-red">
+        <span className="font-display t-display block text-[15px] leading-[1.3] text-k-ink transition-colors group-hover/post:text-k-red">
           {post.title}
         </span>
         {post.shortDescription && (

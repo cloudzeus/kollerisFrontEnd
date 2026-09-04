@@ -164,7 +164,7 @@ export function ReviewForm({ item }: { item: ReviewableItem }) {
             <button
               type="submit"
               disabled={pending || rating === 0}
-              className="font-display h-10 shrink-0 bg-k-ink-deep px-6 text-[13px] font-bold tracking-[0.08em] text-white transition-colors hover:bg-k-ink disabled:opacity-50"
+              className="font-sans h-10 shrink-0 bg-k-ink-deep px-6 text-[13px] font-bold tracking-[0.08em] text-white transition-colors hover:bg-k-ink disabled:opacity-50"
             >
               {pending ? "…" : "ΑΠΟΣΤΟΛΗ"}
             </button>

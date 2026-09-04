@@ -100,7 +100,7 @@ export default async function FavouritesPage({
             </p>
             <Link
               href="/katalogos"
-              className="font-display mt-5 inline-block bg-k-ink-deep px-7 py-3 text-[13px] font-bold tracking-[0.08em] text-white transition-colors hover:bg-k-ink"
+              className="font-sans mt-5 inline-block bg-k-ink-deep px-7 py-3 text-[13px] font-bold tracking-[0.08em] text-white transition-colors hover:bg-k-ink"
             >
               {upGreek("Δείτε τον κατάλογο")}
             </Link>

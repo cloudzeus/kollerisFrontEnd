@@ -279,7 +279,7 @@ function EmptyCompare() {
           <path d="M4 20V9M10 20V4M16 20v-7M22 20H2" />
         </svg>
       </span>
-      <p className="font-display mt-5 text-xl leading-[1.25] text-k-ink">
+      <p className="font-display t-display mt-5 text-xl leading-[1.25] text-k-ink">
         {upGreek(t("den_echete_epilexei_proionta"))}
       </p>
       <p className="mx-auto mt-2.5 max-w-md text-[13.5px] leading-[1.6] text-k-text-3">

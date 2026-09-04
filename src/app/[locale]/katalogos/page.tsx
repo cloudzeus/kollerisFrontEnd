@@ -243,7 +243,7 @@ async function FeatureTile({ root, nodes }: { root: CatalogueRoot; nodes: Catalo
             <span aria-hidden className="rule-accent block shrink-0" />
             {upGreek(t("katigoria"))}
           </p>
-          <p className="font-display mt-3 text-[19px] leading-[1.2] text-balance text-k-ink transition-colors group-hover/feat:text-k-red lg:text-[24px]">
+          <p className="font-display t-display mt-3 text-[19px] leading-[1.2] text-balance text-k-ink transition-colors group-hover/feat:text-k-red lg:text-[24px]">
             {upGreek(root.name)}
           </p>
           <p className="mt-3 text-[12.5px] leading-[1.6] text-k-text-3">

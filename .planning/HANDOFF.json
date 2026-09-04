@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-09-04T16:55:38.122Z",
+  "timestamp": "2026-09-04T17:05:21.542Z",
   "source": "auto-postool",
   "partial": false,
   "phase": null,
@@ -19,8 +19,44 @@
     {
       "status": "M",
       "path": ".planning/HANDOFF.json"
+    },
+    {
+      "status": "M",
+      "path": "src/app/[locale]/logariasmos/agapimena/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/app/[locale]/logariasmos/axiologiseis/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/app/[locale]/newsletter/epibebaiosi/[token]/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/app/typography.css"
+    },
+    {
+      "status": "M",
+      "path": "src/components/account/ReviewForm.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/components/contact/StoreMap.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/components/home/QuickOrder.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/components/pdp/ProductReviews.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/components/product/FavouriteButton.tsx"
     }
   ],
   "next_action": null,
-  "context_notes": "Recent commits:\n825487a feat(banners): αντίγραφο banner\n24ab9cf fix(zones,banners): σύνδεσμος σε κάθε widget, προσφορά ενός προϊόντος πάει στο προϊόν\n647d079 fix(banners): το πλαίσιο δεν πέφτει πάνω στα κελιά, τα κείμενα δεν κόβονται\n8655e8f fix(banners): η τυπογραφία των banner γίνεται ίδια με της σελίδας\nb65f3d3 feat(banners): κλειδωμένη τυπογραφία αντί για ελεύθερα νούμερα"
+  "context_notes": "Recent commits:\na578f95 feat(banners): τα widgets αλλάζουν θέση με σύρσιμο\n825487a feat(banners): αντίγραφο banner\n24ab9cf fix(zones,banners): σύνδεσμος σε κάθε widget, προσφορά ενός προϊόντος πάει στο προϊόν\n647d079 fix(banners): το πλαίσιο δεν πέφτει πάνω στα κελιά, τα κείμενα δεν κόβονται\n8655e8f fix(banners): η τυπογραφία των banner γίνεται ίδια με της σελίδας"
 }

@@ -49,7 +49,7 @@ export function QuickOrder() {
         className="flex flex-col gap-5 border border-k-line bg-k-surface px-8 py-7 lg:flex-row lg:items-center lg:gap-7"
       >
         <div className="lg:min-w-[280px]">
-          <h2 className="font-display text-[20px] leading-tight font-extrabold tracking-[0.01em]">
+          <h2 className="font-display t-display text-[20px] leading-tight">
             {upGreek(t("grigori_paraggelia_me_kodiko"))}
           </h2>
           <p className="mt-1 text-[13px] text-k-text-3">{t("xerete_ti_thelete")}</p>
@@ -71,7 +71,7 @@ export function QuickOrder() {
             <button
               type="submit"
               disabled={pending || code.trim().length === 0}
-              className="font-display h-12 shrink-0 cursor-pointer bg-k-ink-deep px-7 text-[14px] font-bold tracking-[0.08em] text-white transition-colors hover:bg-k-ink disabled:cursor-not-allowed disabled:opacity-50"
+              className="font-sans h-12 shrink-0 cursor-pointer bg-k-ink-deep px-7 text-[14px] font-bold tracking-[0.08em] text-white transition-colors hover:bg-k-ink disabled:cursor-not-allowed disabled:opacity-50"
             >
               {pending ? "…" : upGreek(t("prosthiki_sto_kalathi"))}
             </button>

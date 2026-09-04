@@ -157,7 +157,7 @@ function SignInPrompt({ redirect, onClose }: { redirect: string; onClose: () => 
 
         <h2
           id="fav-prompt-title"
-          className="font-display mt-4 text-[19px] leading-tight font-extrabold tracking-[0.01em] text-k-ink"
+          className="font-display t-display mt-4 text-[19px] leading-tight text-k-ink"
         >
           ΚΡΑΤΗΣΤΕ ΤΟ ΓΙΑ ΑΡΓΟΤΕΡΑ
         </h2>
@@ -170,13 +170,13 @@ function SignInPrompt({ redirect, onClose }: { redirect: string; onClose: () => 
           <Link
             ref={primary}
             href={`/eisodos?redirect=${to}`}
-            className="font-display flex h-11 items-center justify-center bg-k-ink-deep px-6 text-[13px] font-bold tracking-[0.08em] text-white transition-colors hover:bg-k-ink"
+            className="font-sans flex h-11 items-center justify-center bg-k-ink-deep px-6 text-[13px] font-bold tracking-[0.08em] text-white transition-colors hover:bg-k-ink"
           >
             ΕΙΣΟΔΟΣ ΣΤΟΝ ΛΟΓΑΡΙΑΣΜΟ
           </Link>
           <Link
             href="/eggrafi"
-            className="font-display flex h-11 items-center justify-center border border-k-line-2 px-6 text-[13px] font-bold tracking-[0.08em] text-k-ink transition-colors hover:border-k-ink"
+            className="font-sans flex h-11 items-center justify-center border border-k-line-2 px-6 text-[13px] font-bold tracking-[0.08em] text-k-ink transition-colors hover:border-k-ink"
           >
             ΔΗΜΙΟΥΡΓΙΑ ΛΟΓΑΡΙΑΣΜΟΥ
           </Link>
