@@ -82,7 +82,7 @@
   .t-nav-cond {
     font-family: var(--font-display-face), var(--font-sans-face), sans-serif;
     font-weight: 700;
-    font-size: 14px;
+    font-size: 12.5px;
     letter-spacing: 0.08em;
     line-height: 1;
   }
