@@ -4,6 +4,7 @@ import { cache } from "react";
 import { getTranslations } from "next-intl/server";
 import { Prisma } from "@/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
+import { nameWithoutSize } from "@/lib/catalog/variant-name";
 import type { Locale } from "@/i18n/routing";
 import type { ProductCardData } from "@/lib/catalog/queries";
 
@@ -134,7 +135,12 @@ export const getProductBySlug = cache(
       slug: product.slug,
       /** Η ομάδα μεγεθών, όταν το προϊόν ανήκει σε μία. */
       variantGroup: product.variantGroup,
-      name: translation?.name?.trim() || product.name,
+      /* Ο επιλογέας από κάτω δείχνει ήδη ποιο νούμερο είναι επιλεγμένο· ο
+         τίτλος που το επαναλαμβάνει είναι θόρυβος. */
+      name: nameWithoutSize(translation?.name?.trim() || product.name, {
+        variantGroup: product.variantGroup,
+        sizeLabel: product.sizes[0]?.label,
+      }),
       shortDescription: translation?.shortDescription ?? null,
       longDescription: translation?.longDescription ?? null,
       sku: product.code,

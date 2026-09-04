@@ -505,7 +505,17 @@ export default async function ProductPage({ params }: PageProps) {
                 {[
                   { label: t("kodikos"), value: product.sku },
                   { label: t("kod_kataskeyasti"), value: product.mpn },
-                  { label: "EAN", value: product.ean },
+                  /*
+                    Το EAN κρύβεται στα προϊόντα με νούμερα.
+                    ────────────────────────────────────────────────────────
+                    Είναι μοναδικό ανά νούμερο, οπότε αλλάζει σε κάθε πάτημα
+                    του επιλογέα — δίπλα σε έναν κωδικό κατασκευαστή που
+                    ΜΕΝΕΙ ίδιος, μοιάζει με σφάλμα. Και δεν το χρειάζεται
+                    κανείς εδώ: ο αγοραστής παραγγέλνει με τον κωδικό μας.
+                  */
+                  ...(product.variantGroup
+                    ? []
+                    : [{ label: "EAN", value: product.ean }]),
                 ]
                   .filter((item) => item.value && item.value !== "—")
                   .map((item) => (

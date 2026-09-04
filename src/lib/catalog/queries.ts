@@ -2,6 +2,7 @@ import "server-only";
 import { cache } from "react";
 import { prisma } from "@/lib/prisma";
 import type { Locale } from "@/i18n/routing";
+import { nameWithoutSize } from "@/lib/catalog/variant-name";
 
 /**
  * Read queries against the local catalogue projection.
@@ -216,6 +217,10 @@ const PRODUCT_CARD_SELECT = {
   translations: {
     select: { locale: true, name: true },
   },
+  variantGroup: true,
+  /* Μία ετικέτα αρκεί: ένας κωδικός είναι ΕΝΑ νούμερο, και η ομάδα χτίζεται
+     πάνω σε αυτή την παραδοχή. */
+  sizes: { select: { label: true }, orderBy: { order: "asc" }, take: 1 },
 } as const;
 
 type ProductRow = {
@@ -234,6 +239,8 @@ type ProductRow = {
   inStock: boolean;
   images: Array<{ url: string }>;
   translations: Array<{ locale: string; name: string }>;
+  variantGroup: string | null;
+  sizes: Array<{ label: string }>;
 };
 
 /** Prisma returns Decimal; the UI wants plain numbers. */
@@ -255,7 +262,12 @@ function toCard(
     id: row.id,
     mtrl: row.mtrl,
     slug: row.slug,
-    name: translated?.trim() || row.name,
+    /* Η κάρτα εκπροσωπεί ΟΛΗ την ομάδα — «No 36» στον τίτλο θα έλεγε ότι
+       το προϊόν είναι το 36, ενώ είναι το παπούτσι. */
+    name: nameWithoutSize(translated?.trim() || row.name, {
+      variantGroup: row.variantGroup,
+      sizeLabel: row.sizes[0]?.label,
+    }),
     sku: row.code2 || row.code,
     brandName: brand?.name ?? null,
     brandSlug: brand?.slug ?? null,

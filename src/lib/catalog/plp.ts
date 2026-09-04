@@ -4,6 +4,7 @@ import { Prisma } from "@/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
 import { activeCampaignsWhere } from "@/lib/offers/coverage";
 import type { Locale } from "@/i18n/routing";
+import { nameWithoutSize } from "@/lib/catalog/variant-name";
 import { scopeKeyOf } from "@/lib/compare/options";
 import { searchKey } from "@/lib/greek";
 import type { ProductCardData } from "@/lib/catalog/queries";
@@ -270,6 +271,10 @@ const CARD_SELECT = {
   inStock: true,
   images: { where: { isFeature: true }, take: 1, select: { url: true } },
   translations: { select: { locale: true, name: true } },
+  variantGroup: true,
+  /* Μία ετικέτα αρκεί: ένας κωδικός είναι ΕΝΑ νούμερο, και η ομάδα χτίζεται
+     πάνω σε αυτή την παραδοχή. */
+  sizes: { select: { label: true }, orderBy: { order: "asc" }, take: 1 },
 } as const;
 
 function num(value: unknown): number | null {
@@ -332,7 +337,12 @@ export async function getPlpData(
       id: row.id,
       mtrl: row.mtrl,
       slug: row.slug,
-      name: translated?.trim() || row.name,
+      /* Η κάρτα εκπροσωπεί ΟΛΗ την ομάδα — «No 36» στον τίτλο θα έλεγε ότι
+         το προϊόν είναι το 36, ενώ είναι το παπούτσι. */
+      name: nameWithoutSize(translated?.trim() || row.name, {
+        variantGroup: row.variantGroup,
+        sizeLabel: row.sizes[0]?.label,
+      }),
       sku: row.code2 || row.code,
       brandName: brand?.name ?? null,
       brandSlug: brand?.slug ?? null,

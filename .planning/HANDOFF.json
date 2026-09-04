@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-09-04T07:42:04.785Z",
+  "timestamp": "2026-09-04T07:49:20.368Z",
   "source": "auto-postool",
   "partial": false,
   "phase": null,
@@ -22,10 +22,6 @@
     },
     {
       "status": "M",
-      "path": "prisma/schema.prisma"
-    },
-    {
-      "status": "M",
       "path": "src/app/[locale]/proion/[slug]/page.tsx"
     },
     {
@@ -38,33 +34,13 @@
     },
     {
       "status": "M",
-      "path": "src/lib/hdctool/client.ts"
-    },
-    {
-      "status": "M",
-      "path": "src/lib/sync/catalog-sync.ts"
+      "path": "src/lib/catalog/queries.ts"
     },
     {
       "status": "??",
-      "path": "prisma/migrations/20260904100000_product_variant_group/"
-    },
-    {
-      "status": "??",
-      "path": "prisma/migrations/20260904101000_product_variant_lead/"
-    },
-    {
-      "status": "??",
-      "path": "src/components/pdp/VariantPicker.tsx"
-    },
-    {
-      "status": "??",
-      "path": "src/lib/catalog/variant-lead.ts"
-    },
-    {
-      "status": "??",
-      "path": "src/lib/catalog/variants.ts"
+      "path": "src/lib/catalog/variant-name.ts"
     }
   ],
   "next_action": null,
-  "context_notes": "Recent commits:\n6a3acf0 fix(cart): το κομμένο όνομα δείχνει ολόκληρο σε hover\n41d4733 fix(cart): τα γράμματα έπεφταν το ένα πάνω στο άλλο — breakpoint οθόνης σε στενή στήλη\n1a0d80c feat(offers): η έκπτωση καμπάνιας χρεώνεται, φαίνεται παντού, και φτάνει σωστά στο ERP\n461ea7b feat(offers): σήμα προσφοράς στις κάρτες και στη σελίδα προϊόντος\n9b0f92a feat(zones): banner σε κάθε σελίδα — και τρεις ζώνες που ήταν φαντάσματα"
+  "context_notes": "Recent commits:\n5613922 feat(variants): ένα προϊόν αντί για δεκατρία, με επιλογέα νούμερου\n6a3acf0 fix(cart): το κομμένο όνομα δείχνει ολόκληρο σε hover\n41d4733 fix(cart): τα γράμματα έπεφταν το ένα πάνω στο άλλο — breakpoint οθόνης σε στενή στήλη\n1a0d80c feat(offers): η έκπτωση καμπάνιας χρεώνεται, φαίνεται παντού, και φτάνει σωστά στο ERP\n461ea7b feat(offers): σήμα προσφοράς στις κάρτες και στη σελίδα προϊόντος"
 }
