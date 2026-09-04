@@ -49,8 +49,16 @@ import {
   type TypeRole,
   type TickerLayer,
 } from "@/lib/banners/contract";
-import { CATEGORY_LABEL, PRESETS, applyPreset, type PresetCategory } from "@/lib/banners/presets";
-import { actionListLogos, actionRemoveBackground } from "@/app/admin/(protected)/media/actions";
+import {
+  CATEGORY_LABEL,
+  PRESETS,
+  applyPreset,
+  type PresetCategory,
+} from "@/lib/banners/presets";
+import {
+  actionListLogos,
+  actionRemoveBackground,
+} from "@/app/admin/(protected)/media/actions";
 import {
   actionProductAssets,
   actionProductFill,
@@ -79,7 +87,13 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { LocalisedField, NumberField, OfferPicker, ProductCombo, Segmented } from "@/components/admin/banners/fields";
+import {
+  LocalisedField,
+  NumberField,
+  OfferPicker,
+  ProductCombo,
+  Segmented,
+} from "@/components/admin/banners/fields";
 import { MediaField } from "@/components/admin/MediaPicker";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -114,7 +128,10 @@ const LAYER_MIME = "application/x-kolleris-layer";
 const ASSET_MIME = "application/x-kolleris-asset";
 const TOKEN_MIME = "application/x-kolleris-token";
 
-const LAYER_ICON: Record<LayerKind, React.ComponentType<{ className?: string }>> = {
+const LAYER_ICON: Record<
+  LayerKind,
+  React.ComponentType<{ className?: string }>
+> = {
   text: Type,
   badge: Square,
   button: LayoutGrid,
@@ -134,7 +151,7 @@ const COLORS: Array<{ value: ColorToken; label: string; swatch: string }> = [
 /** Demo values so a preset thumbnail reads as a design rather than as `{title}`. */
 const DEMO: ResolvedCell = {
   tokens: {
-    "{title}": "Κλειδί ρατσέτας 1/2\"",
+    "{title}": 'Κλειδί ρατσέτας 1/2"',
     "{brand}": "FACOM",
     "{code}": "SL.171",
     "{price}": "79,26 €",
@@ -145,6 +162,10 @@ const DEMO: ResolvedCell = {
     // A real photograph, so a thumbnail of a layout built around one is not a
     // picture of an empty rectangle.
     "{image}": "https://kolleris.b-cdn.net/mtrl-files/images/SL.171_1.webp",
+    /* Και το σήμα της μάρκας, αλλιώς κάθε παραλλαγή που το χρησιμοποιεί
+       δείχνει στη γκαλερί ένα κενό στη γωνία της. */
+    "{brandLogo}":
+      "https://kolleris.b-cdn.net/super-product-brands/cmdbrkyco05qwd41o9by1eikb-logo-processed-1753021318794.webp",
   },
   href: "#",
   image: "",
@@ -207,8 +228,12 @@ export function CellEditor({
   onSave: (composition: CellComposition) => void;
   onClear: () => void;
 }) {
-  const [draft, setDraft] = useState<CellComposition>(initial ?? emptyComposition());
-  const [resolved, setResolved] = useState<ResolvedCell | undefined>(initialResolved);
+  const [draft, setDraft] = useState<CellComposition>(
+    initial ?? emptyComposition(),
+  );
+  const [resolved, setResolved] = useState<ResolvedCell | undefined>(
+    initialResolved,
+  );
   const [selected, setSelected] = useState<string | null>(null);
   const [gallery, setGallery] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -252,12 +277,18 @@ export function CellEditor({
   const patchLayer = (id: string, patch: Partial<Layer>) =>
     setDraft((d) => ({
       ...d,
-      layers: d.layers.map((l) => (l.id === id ? ({ ...l, ...patch } as Layer) : l)),
+      layers: d.layers.map((l) =>
+        l.id === id ? ({ ...l, ...patch } as Layer) : l,
+      ),
     }));
 
   const setLayers = (layers: Layer[]) => setDraft((d) => ({ ...d, layers }));
 
-  function addLayer(kind: LayerKind, at?: { x: number; y: number }, src?: string) {
+  function addLayer(
+    kind: LayerKind,
+    at?: { x: number; y: number },
+    src?: string,
+  ) {
     const created = newLayer(kind);
     if (at) {
       // Dropped things arrive centred under the pointer. Landing at the drop
@@ -362,7 +393,10 @@ export function CellEditor({
 
   /** Which tokens this cell can actually print, for the hint under a text field. */
   const tokens = useMemo(
-    () => TOKENS.filter((t) => (t.sources as readonly string[]).includes(draft.binding.source)),
+    () =>
+      TOKENS.filter((t) =>
+        (t.sources as readonly string[]).includes(draft.binding.source),
+      ),
     [draft.binding.source],
   );
 
@@ -399,7 +433,9 @@ export function CellEditor({
               />
 
               <div className="flex flex-wrap items-center gap-1.5">
-                <span className="text-[11px] text-k-text-4">Σύρετε ή πατήστε:</span>
+                <span className="text-[11px] text-k-text-4">
+                  Σύρετε ή πατήστε:
+                </span>
                 {(
                   [
                     ["text", "Κείμενο"],
@@ -437,10 +473,11 @@ export function CellEditor({
               <LogoRail />
 
               <p className="text-[11px] leading-[1.6] text-k-text-4">
-                Σύρετε για μετακίνηση, τις λαβές για μέγεθος. Κουμπώνει στις άκρες και στα άλλα
-                στοιχεία — κρατήστε Alt για ελεύθερη τοποθέτηση. Βελάκια για ακρίβεια, Shift για
-                μεγάλα βήματα, Alt+βελάκια για μέγεθος. Ρίξτε αρχεία από τον υπολογιστή απευθείας
-                πάνω στον καμβά.
+                Σύρετε για μετακίνηση, τις λαβές για μέγεθος. Κουμπώνει στις
+                άκρες και στα άλλα στοιχεία — κρατήστε Alt για ελεύθερη
+                τοποθέτηση. Βελάκια για ακρίβεια, Shift για μεγάλα βήματα,
+                Alt+βελάκια για μέγεθος. Ρίξτε αρχεία από τον υπολογιστή
+                απευθείας πάνω στον καμβά.
               </p>
             </div>
 
@@ -464,7 +501,11 @@ export function CellEditor({
                     ...structuredClone(source),
                     id: `${id}-${draft.layers.length}`,
                     name: `${source.name} 2`,
-                    frame: { ...source.frame, x: source.frame.x + 3, y: source.frame.y + 3 },
+                    frame: {
+                      ...source.frame,
+                      x: source.frame.x + 3,
+                      y: source.frame.y + 3,
+                    },
                   } as Layer;
                   setDraft((d) => ({ ...d, layers: [...d.layers, copy] }));
                   setSelected(copy.id);
@@ -513,7 +554,9 @@ export function CellEditor({
       <PresetGallery
         open={gallery}
         onOpenChange={setGallery}
-        binding={draft.binding.source === "products" ? "none" : draft.binding.source}
+        binding={
+          draft.binding.source === "products" ? "none" : draft.binding.source
+        }
         aspect={aspect}
         onPick={(presetId) => {
           setDraft((d) => applyPreset(d, presetId));
@@ -563,7 +606,8 @@ function ProductSetPicker({
 
       {slugs.length === 0 ? (
         <p className="border border-dashed border-k-line px-2.5 py-2 text-[11px] leading-[1.5] text-k-text-3">
-          Κανένα προϊόν ακόμη. Προσθέστε όσα θέλετε — εμφανίζονται με τη σειρά που τα βάζετε.
+          Κανένα προϊόν ακόμη. Προσθέστε όσα θέλετε — εμφανίζονται με τη σειρά
+          που τα βάζετε.
         </p>
       ) : (
         <ul className="max-h-44 space-y-1 overflow-y-auto">
@@ -572,7 +616,9 @@ function ProductSetPicker({
               key={slug}
               className="flex items-center gap-1 border border-k-line bg-white px-1.5 py-1"
             >
-              <span className="numeral w-4 shrink-0 text-[10px] text-k-text-4">{index + 1}</span>
+              <span className="numeral w-4 shrink-0 text-[10px] text-k-text-4">
+                {index + 1}
+              </span>
               {chosen[slug]?.images[0] && (
                 <span className="relative size-6 shrink-0 border border-k-line">
                   <NextImage
@@ -649,7 +695,9 @@ function SourceRail({
   const [name, setName] = useState("");
 
   const slug =
-    binding.source === "product" || binding.source === "offer" ? binding.slug : "";
+    binding.source === "product" || binding.source === "offer"
+      ? binding.slug
+      : "";
   const setSize = binding.source === "products" ? binding.slugs.length : 0;
 
   useEffect(() => {
@@ -687,7 +735,9 @@ function SourceRail({
    * σε προϊόν που έχει το ίδιο αρχείο συνδεδεμένο δύο φορές — το `productAssets`
    * το φιλτράρει ήδη, αλλά ο φιλτραρισμός ανήκει εδώ, όπου γίνεται η απόδοση.
    */
-  const gallery = [...new Set(binding.source === "product" ? images : offerImages)];
+  const gallery = [
+    ...new Set(binding.source === "product" ? images : offerImages),
+  ];
   if (binding.source === "products") {
     // A set lends a ticker rather than a gallery: dragging one of ten
     // photographs out of it would be picking a favourite, which is the opposite
@@ -747,7 +797,11 @@ function SourceRail({
                   )}
                 >
                   <span className="text-k-text-4">{t.label}</span>
-                  {value && <span className="numeral max-w-[9rem] truncate">{value}</span>}
+                  {value && (
+                    <span className="numeral max-w-[9rem] truncate">
+                      {value}
+                    </span>
+                  )}
                 </button>
               </li>
             );
@@ -827,24 +881,74 @@ const MARK_CDN = "https://kolleris.b-cdn.net/eshop/brand";
 
 const KOLLERIS_MARKS = [
   /* Διάφανα — για να κάτσουν πάνω σε φωτογραφία ή σε χρώμα του banner. */
-  { src: `${MARK_CDN}/kolleris-lockup-black.svg`, name: "Κολλέρης — μαύρο", dark: false },
-  { src: `${MARK_CDN}/kolleris-lockup-white.svg`, name: "Κολλέρης — λευκό", dark: true },
-  { src: `${MARK_CDN}/kolleris-lockup-red.svg`, name: "Κολλέρης — κόκκινο", dark: false },
-  { src: `${MARK_CDN}/kolleris-symbol-black.svg`, name: "Σήμα — μαύρο", dark: false },
-  { src: `${MARK_CDN}/kolleris-symbol-white.svg`, name: "Σήμα — λευκό", dark: true },
-  { src: `${MARK_CDN}/kolleris-symbol-red.svg`, name: "Σήμα — κόκκινο", dark: false },
+  {
+    src: `${MARK_CDN}/kolleris-lockup-black.svg`,
+    name: "Κολλέρης — μαύρο",
+    dark: false,
+  },
+  {
+    src: `${MARK_CDN}/kolleris-lockup-white.svg`,
+    name: "Κολλέρης — λευκό",
+    dark: true,
+  },
+  {
+    src: `${MARK_CDN}/kolleris-lockup-red.svg`,
+    name: "Κολλέρης — κόκκινο",
+    dark: false,
+  },
+  {
+    src: `${MARK_CDN}/kolleris-symbol-black.svg`,
+    name: "Σήμα — μαύρο",
+    dark: false,
+  },
+  {
+    src: `${MARK_CDN}/kolleris-symbol-white.svg`,
+    name: "Σήμα — λευκό",
+    dark: true,
+  },
+  {
+    src: `${MARK_CDN}/kolleris-symbol-red.svg`,
+    name: "Σήμα — κόκκινο",
+    dark: false,
+  },
   /* Πλακίδια — το σήμα σκαλισμένο μέσα σε συμπαγές χρώμα, για όταν το φόντο
      από κάτω είναι πολυάσχολο και ένα διάφανο λογότυπο χάνεται μέσα του. */
-  { src: `${MARK_CDN}/kolleris-lockup-on-red.svg`, name: "Πλακίδιο κόκκινο — λευκά γράμματα", dark: false },
-  { src: `${MARK_CDN}/kolleris-lockup-on-ink.svg`, name: "Πλακίδιο μαύρο — λευκά γράμματα", dark: false },
-  { src: `${MARK_CDN}/kolleris-lockup-on-white.svg`, name: "Πλακίδιο λευκό — μαύρα γράμματα", dark: false },
-  { src: `${MARK_CDN}/kolleris-symbol-on-red.svg`, name: "Σήμα σε κόκκινο πλακίδιο", dark: false },
-  { src: `${MARK_CDN}/kolleris-symbol-on-ink.svg`, name: "Σήμα σε μαύρο πλακίδιο", dark: false },
-  { src: `${MARK_CDN}/kolleris-symbol-on-white.svg`, name: "Σήμα σε λευκό πλακίδιο", dark: false },
+  {
+    src: `${MARK_CDN}/kolleris-lockup-on-red.svg`,
+    name: "Πλακίδιο κόκκινο — λευκά γράμματα",
+    dark: false,
+  },
+  {
+    src: `${MARK_CDN}/kolleris-lockup-on-ink.svg`,
+    name: "Πλακίδιο μαύρο — λευκά γράμματα",
+    dark: false,
+  },
+  {
+    src: `${MARK_CDN}/kolleris-lockup-on-white.svg`,
+    name: "Πλακίδιο λευκό — μαύρα γράμματα",
+    dark: false,
+  },
+  {
+    src: `${MARK_CDN}/kolleris-symbol-on-red.svg`,
+    name: "Σήμα σε κόκκινο πλακίδιο",
+    dark: false,
+  },
+  {
+    src: `${MARK_CDN}/kolleris-symbol-on-ink.svg`,
+    name: "Σήμα σε μαύρο πλακίδιο",
+    dark: false,
+  },
+  {
+    src: `${MARK_CDN}/kolleris-symbol-on-white.svg`,
+    name: "Σήμα σε λευκό πλακίδιο",
+    dark: false,
+  },
 ] as const;
 
 function LogoRail() {
-  const [logos, setLogos] = useState<Array<{ slug: string; name: string; logo: string }>>([]);
+  const [logos, setLogos] = useState<
+    Array<{ slug: string; name: string; logo: string }>
+  >([]);
 
   useEffect(() => {
     let cancelled = false;
@@ -892,7 +996,9 @@ function LogoRail() {
 
         {/* Χωρίστρα: το σήμα του καταστήματος δεν είναι μια μάρκα ανάμεσα στις
             μάρκες που διανέμει. */}
-        {logos.length > 0 && <li className="w-px shrink-0 self-stretch bg-k-line" />}
+        {logos.length > 0 && (
+          <li className="w-px shrink-0 self-stretch bg-k-line" />
+        )}
 
         {logos.map((brand) => (
           <li key={brand.slug} className="shrink-0">
@@ -947,7 +1053,9 @@ function LayerList({
     /* 6px χαλαρά, αλλιώς ένα κλικ στη λαβή μετριέται ως μικροσκοπικό σύρσιμο
        και η σειρά δεν επιλέγεται ποτέ. */
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
-    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    }),
   );
 
   function onDragEnd(event: DragEndEvent) {
@@ -974,8 +1082,15 @@ function LayerList({
       <p className="border-b border-k-line px-2.5 py-1.5 text-[10px] font-medium uppercase tracking-[0.08em] text-k-text-4">
         Στοιχεία · από πίσω προς τα εμπρός
       </p>
-      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
-        <SortableContext items={layers.map((l) => l.id)} strategy={verticalListSortingStrategy}>
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragEnd={onDragEnd}
+      >
+        <SortableContext
+          items={layers.map((l) => l.id)}
+          strategy={verticalListSortingStrategy}
+        >
           <ul>
             {layers.map((layer, index) => (
               <LayerRow
@@ -1027,7 +1142,14 @@ function LayerRow({
   onDelete: (id: string) => void;
   onDuplicate: (id: string) => void;
 }) {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({
     id: layer.id,
   });
   const Icon = LAYER_ICON[layer.kind];
@@ -1073,7 +1195,11 @@ function LayerRow({
         className="p-1 text-k-text-4 hover:text-k-ink"
         aria-label={layer.hidden ? "Εμφάνιση" : "Απόκρυψη"}
       >
-        {layer.hidden ? <EyeOff className="size-3" /> : <Eye className="size-3" />}
+        {layer.hidden ? (
+          <EyeOff className="size-3" />
+        ) : (
+          <Eye className="size-3" />
+        )}
       </button>
       <button
         type="button"
@@ -1153,7 +1279,10 @@ function CellPanel({
    * ακριβώς το ποσοστό που μένει ορατό. Κάτω από 80% το θεωρούμε αρκετά για
    * να το πούμε — πάνω από αυτό η περικοπή είναι διακοσμητική άκρη.
    */
-  const naturalRatio = useNaturalRatio(bg.kind, bg.kind === "video" ? bg.video : bg.image);
+  const naturalRatio = useNaturalRatio(
+    bg.kind,
+    bg.kind === "video" ? bg.video : bg.image,
+  );
 
   /*
    * Η μέτρηση γράφεται στο προσχέδιο, δεν μένει στη μνήμη.
@@ -1173,8 +1302,10 @@ function CellPanel({
     );
   }, [naturalRatio, setDraft]);
   const cropWarning = useMemo(() => {
-    if (!naturalRatio || !aspect || (bg.fit ?? "cover") !== "cover") return null;
-    const visible = Math.min(naturalRatio, aspect) / Math.max(naturalRatio, aspect);
+    if (!naturalRatio || !aspect || (bg.fit ?? "cover") !== "cover")
+      return null;
+    const visible =
+      Math.min(naturalRatio, aspect) / Math.max(naturalRatio, aspect);
     if (visible > 0.8) return null;
     return {
       visible: Math.round(visible * 100),
@@ -1228,7 +1359,10 @@ function CellPanel({
             <ProductCombo
               value={draft.binding.slug}
               onPick={(p) =>
-                setDraft((d) => ({ ...d, binding: { source: "product", slug: p.slug } }))
+                setDraft((d) => ({
+                  ...d,
+                  binding: { source: "product", slug: p.slug },
+                }))
               }
             />
             <FillFromProduct slug={draft.binding.slug} setDraft={setDraft} />
@@ -1237,13 +1371,23 @@ function CellPanel({
         {draft.binding.source === "products" && (
           <ProductSetPicker
             slugs={draft.binding.slugs}
-            onChange={(slugs) => setDraft((d) => ({ ...d, binding: { source: "products", slugs } }))}
+            onChange={(slugs) =>
+              setDraft((d) => ({
+                ...d,
+                binding: { source: "products", slugs },
+              }))
+            }
           />
         )}
         {draft.binding.source === "offer" && (
           <OfferPicker
             value={draft.binding.slug}
-            onPick={(o) => setDraft((d) => ({ ...d, binding: { source: "offer", slug: o.slug } }))}
+            onPick={(o) =>
+              setDraft((d) => ({
+                ...d,
+                binding: { source: "offer", slug: o.slug },
+              }))
+            }
           />
         )}
         {draft.binding.source === "products" ? (
@@ -1251,13 +1395,15 @@ function CellPanel({
             <Label className="text-[11px] text-k-text-3">Σύνδεσμος</Label>
             <Input
               value={draft.href}
-              onChange={(e) => setDraft((d) => ({ ...d, href: e.target.value }))}
+              onChange={(e) =>
+                setDraft((d) => ({ ...d, href: e.target.value }))
+              }
               className="h-8 text-[12px]"
               placeholder="/prosfores"
             />
             <p className="text-[10.5px] leading-[1.5] text-k-text-4">
-              Το κελί δείχνει πολλά προϊόντα, οπότε οδηγεί σε μία σελίδα που τα περιέχει — όχι στο
-              καθένα ξεχωριστά.
+              Το κελί δείχνει πολλά προϊόντα, οπότε οδηγεί σε μία σελίδα που τα
+              περιέχει — όχι στο καθένα ξεχωριστά.
             </p>
           </div>
         ) : draft.binding.source === "none" ? (
@@ -1265,7 +1411,9 @@ function CellPanel({
             <Label className="text-[11px] text-k-text-3">Σύνδεσμος</Label>
             <Input
               value={draft.href}
-              onChange={(e) => setDraft((d) => ({ ...d, href: e.target.value }))}
+              onChange={(e) =>
+                setDraft((d) => ({ ...d, href: e.target.value }))
+              }
               className="h-8 text-[12px]"
               placeholder="/katalogos"
             />
@@ -1273,7 +1421,8 @@ function CellPanel({
         ) : (
           <p className="text-[10.5px] leading-[1.5] text-k-text-4">
             Ο σύνδεσμος προκύπτει από{" "}
-            {draft.binding.source === "product" ? "το προϊόν" : "την προσφορά"} — δεν γράφεται.
+            {draft.binding.source === "product" ? "το προϊόν" : "την προσφορά"}{" "}
+            — δεν γράφεται.
           </p>
         )}
       </section>
@@ -1294,7 +1443,10 @@ function CellPanel({
         <Segmented
           value={animRecipe}
           onChange={(recipe) => {
-            setDraft((d) => ({ ...d, layers: applyAnimRecipe(d.layers, recipe as AnimRecipe) }));
+            setDraft((d) => ({
+              ...d,
+              layers: applyAnimRecipe(d.layers, recipe as AnimRecipe),
+            }));
             setTimeout(onReplay, 60);
           }}
           options={(Object.keys(ANIM_RECIPE) as AnimRecipe[]).map((key) => ({
@@ -1305,9 +1457,15 @@ function CellPanel({
         />
         <div className="flex items-center justify-between gap-2">
           <p className="text-[10.5px] leading-[1.5] text-k-text-4">
-            {ANIM_RECIPE[animRecipe].hint} Παίζει μία φορά, όταν το banner μπει στην οθόνη.
+            {ANIM_RECIPE[animRecipe].hint} Παίζει μία φορά, όταν το banner μπει
+            στην οθόνη.
           </p>
-          <Button variant="outline" size="sm" onClick={onReplay} className="shrink-0 text-[11px]">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={onReplay}
+            className="shrink-0 text-[11px]"
+          >
             <Play className="size-3" />
             Δοκιμή
           </Button>
@@ -1331,7 +1489,11 @@ function CellPanel({
         />
 
         {(bg.kind === "color" || bg.kind === "none") && (
-          <ColorPicker label="Χρώμα" value={bg.color} onChange={(color) => setBg({ color })} />
+          <ColorPicker
+            label="Χρώμα"
+            value={bg.color}
+            onChange={(color) => setBg({ color })}
+          />
         )}
 
         {bg.kind === "image" && (
@@ -1339,7 +1501,9 @@ function CellPanel({
             <Segmented
               label="Πηγή"
               value={bg.image === "{image}" ? "bound" : "custom"}
-              onChange={(mode) => setBg({ image: mode === "bound" ? "{image}" : "" })}
+              onChange={(mode) =>
+                setBg({ image: mode === "bound" ? "{image}" : "" })
+              }
               options={[
                 { value: "bound", label: "Από το προϊόν/προσφορά" },
                 { value: "custom", label: "Δική μου" },
@@ -1400,8 +1564,8 @@ function CellPanel({
               />
             </div>
             <p className="text-[10.5px] leading-[1.5] text-k-text-4">
-              Το κάδρο μετακινεί την περικοπή, όχι την εικόνα — για φωτογραφίες με το θέμα εκτός
-              κέντρου.
+              Το κάδρο μετακινεί την περικοπή, όχι την εικόνα — για φωτογραφίες
+              με το θέμα εκτός κέντρου.
             </p>
             {/*
               Πάνω από τη σκίαση, κάτω από το κάδρο.
@@ -1425,16 +1589,20 @@ function CellPanel({
                 <AlertTriangle className="mt-px size-3 shrink-0 text-k-amber" />
                 <span>
                   Με «Γέμισμα» φαίνεται το{" "}
-                  <span className="numeral font-medium">{cropWarning.visible}%</span> του καρέ —
-                  κόβεται {cropWarning.where}. Αν το υλικό έχει κείμενο ή λογότυπο μέσα του, θα
-                  χαθεί. Διαλέξτε «Ολόκληρο», ή δώστε στο banner ύψος που να ταιριάζει στο υλικό.
+                  <span className="numeral font-medium">
+                    {cropWarning.visible}%
+                  </span>{" "}
+                  του καρέ — κόβεται {cropWarning.where}. Αν το υλικό έχει
+                  κείμενο ή λογότυπο μέσα του, θα χαθεί. Διαλέξτε «Ολόκληρο», ή
+                  δώστε στο banner ύψος που να ταιριάζει στο υλικό.
                 </span>
               </p>
             )}
             <p className="text-[10.5px] leading-[1.5] text-k-text-4">
-              «Γέμισμα» πιάνει όλο το κελί και κόβει ό,τι περισσεύει — για φωτογραφίες.
-              «Ολόκληρο» δείχνει ακέραιο το καρέ, με κενό γύρω· η σωστή επιλογή για βίντεο ή
-              λογότυπο, όπου το κόψιμο χάνει το θέμα. Με «Ολόκληρο» το κάδρο δεν κάνει τίποτα.
+              «Γέμισμα» πιάνει όλο το κελί και κόβει ό,τι περισσεύει — για
+              φωτογραφίες. «Ολόκληρο» δείχνει ακέραιο το καρέ, με κενό γύρω· η
+              σωστή επιλογή για βίντεο ή λογότυπο, όπου το κόψιμο χάνει το θέμα.
+              Με «Ολόκληρο» το κάδρο δεν κάνει τίποτα.
             </p>
             <Segmented
               label="Σκίαση"
@@ -1448,7 +1616,9 @@ function CellPanel({
               ]}
             />
             <label className="flex items-center justify-between gap-2 border border-k-line px-2.5 py-1.5">
-              <span className="text-[11.5px] text-k-ink">Αργή κίνηση φόντου</span>
+              <span className="text-[11.5px] text-k-ink">
+                Αργή κίνηση φόντου
+              </span>
               <Switch
                 checked={bg.kenBurns}
                 onCheckedChange={(kenBurns) => setBg({ kenBurns })}
@@ -1503,7 +1673,12 @@ function CutoutButton({
 
   return (
     <div className="space-y-1">
-      <Button variant="outline" onClick={run} disabled={busy} className="w-full">
+      <Button
+        variant="outline"
+        onClick={run}
+        disabled={busy}
+        className="w-full"
+      >
         <Scissors className="size-3.5" />
         {busy ? "Αφαίρεση φόντου…" : "Αφαίρεση φόντου"}
       </Button>
@@ -1578,7 +1753,8 @@ function FillFromProduct({
            */
           const has = (token: string) =>
             d.layers.some(
-              (l) => l.kind === "text" && (l as TextLayer).text.el?.includes(token),
+              (l) =>
+                l.kind === "text" && (l as TextLayer).text.el?.includes(token),
             );
           const missing = seedProductLayers().filter((l) => {
             const body = (l as TextLayer).text.el ?? "";
@@ -1588,8 +1764,13 @@ function FillFromProduct({
           const layers = [...d.layers, ...missing];
 
           const withText = layers.map((layer) =>
-            layer.kind === "text" && (layer as TextLayer).text.el === "{desc}" && fill.text
-              ? { ...layer, text: { ...(layer as TextLayer).text, el: fill.text } }
+            layer.kind === "text" &&
+            (layer as TextLayer).text.el === "{desc}" &&
+            fill.text
+              ? {
+                  ...layer,
+                  text: { ...(layer as TextLayer).text, el: fill.text },
+                }
               : layer,
           );
           return {
@@ -1624,13 +1805,20 @@ function FillFromProduct({
       })
       .catch((error: unknown) => {
         setBusy(false);
-        toast.error(error instanceof Error ? error.message : "Κάτι πήγε στραβά.");
+        toast.error(
+          error instanceof Error ? error.message : "Κάτι πήγε στραβά.",
+        );
       });
   }
 
   return (
     <div className="space-y-1.5 border border-k-line bg-k-surface-2 p-2.5">
-      <Button variant="outline" onClick={run} disabled={busy} className="w-full bg-white">
+      <Button
+        variant="outline"
+        onClick={run}
+        disabled={busy}
+        className="w-full bg-white"
+      >
         <Wand2 className="size-3.5" />
         {busy ? "Γέμισμα…" : "Γέμισε από το προϊόν"}
       </Button>
@@ -1644,8 +1832,9 @@ function FillFromProduct({
         Αφαίρεση φόντου από τη φωτογραφία
       </label>
       <p className="text-[10.5px] leading-[1.5] text-k-text-4">
-        Φωτογραφία, τίτλος, μάρκα, τιμή και σύνδεσμος προς τη σελίδα του προϊόντος. Κείμενο από τον
-        κατάλογο — και αν δεν υπάρχει, το γράφει η DeepSeek.
+        Φωτογραφία, τίτλος, μάρκα, τιμή και σύνδεσμος προς τη σελίδα του
+        προϊόντος. Κείμενο από τον κατάλογο — και αν δεν υπάρχει, το γράφει η
+        DeepSeek.
       </p>
     </div>
   );
@@ -1667,7 +1856,8 @@ function LayerInspector({
   onReplay: () => void;
   onPatch: (patch: Partial<Layer>) => void;
 }) {
-  const hasText = layer.kind === "text" || layer.kind === "badge" || layer.kind === "button";
+  const hasText =
+    layer.kind === "text" || layer.kind === "badge" || layer.kind === "button";
 
   return (
     <div className="space-y-4">
@@ -1720,7 +1910,11 @@ function LayerInspector({
           <Segmented
             label="Πηγή"
             value={layer.src === "{image}" ? "bound" : "custom"}
-            onChange={(mode) => onPatch({ src: mode === "bound" ? "{image}" : "" } as Partial<Layer>)}
+            onChange={(mode) =>
+              onPatch({
+                src: mode === "bound" ? "{image}" : "",
+              } as Partial<Layer>)
+            }
             options={[
               { value: "bound", label: "Από το προϊόν" },
               { value: "custom", label: "Δική μου" },
@@ -1794,7 +1988,9 @@ function LayerInspector({
               <span className="text-[11.5px] text-k-ink">Όνομα</span>
               <Switch
                 checked={layer.showName}
-                onCheckedChange={(showName) => onPatch({ showName } as Partial<Layer>)}
+                onCheckedChange={(showName) =>
+                  onPatch({ showName } as Partial<Layer>)
+                }
                 aria-label="Όνομα προϊόντος"
               />
             </label>
@@ -1802,14 +1998,16 @@ function LayerInspector({
               <span className="text-[11.5px] text-k-ink">Τιμή</span>
               <Switch
                 checked={layer.showPrice}
-                onCheckedChange={(showPrice) => onPatch({ showPrice } as Partial<Layer>)}
+                onCheckedChange={(showPrice) =>
+                  onPatch({ showPrice } as Partial<Layer>)
+                }
                 aria-label="Τιμή προϊόντος"
               />
             </label>
           </div>
           <p className="text-[10.5px] leading-[1.5] text-k-text-4">
-            Δείχνει τα προϊόντα του κελιού ένα-ένα. Σταματά όσο ο επισκέπτης έχει τον δείκτη πάνω
-            του.
+            Δείχνει τα προϊόντα του κελιού ένα-ένα. Σταματά όσο ο επισκέπτης
+            έχει τον δείκτη πάνω του.
           </p>
         </>
       )}
@@ -1852,7 +2050,9 @@ function LayerInspector({
           <Label className="text-[11px] text-k-text-3">Σύνδεσμος</Label>
           <Input
             value={layer.href}
-            onChange={(e) => onPatch({ href: e.target.value } as Partial<Layer>)}
+            onChange={(e) =>
+              onPatch({ href: e.target.value } as Partial<Layer>)
+            }
             className="h-8 text-[12px]"
             placeholder="Ίδιος με το κελί"
           />
@@ -1893,7 +2093,11 @@ function LayerInspector({
               value={layer.frame[key]}
               step={0.5}
               suffix="%"
-              onChange={(value) => onPatch({ frame: { ...layer.frame, [key]: value } } as Partial<Layer>)}
+              onChange={(value) =>
+                onPatch({
+                  frame: { ...layer.frame, [key]: value },
+                } as Partial<Layer>)
+              }
             />
           ))}
         </div>
@@ -1915,21 +2119,30 @@ function LayerInspector({
         μέσα στη σειρά.
       */}
       <section className="space-y-2 border-t border-k-line pt-3">
-        <p className="text-[10px] font-medium uppercase tracking-[0.08em] text-k-text-4">Κίνηση</p>
+        <p className="text-[10px] font-medium uppercase tracking-[0.08em] text-k-text-4">
+          Κίνηση
+        </p>
         {layer.anim.preset === "none" ? (
           <p className="text-[10.5px] leading-[1.5] text-k-text-4">
-            Ακίνητο. Η κίνηση ορίζεται για ολόκληρο το κελί — πατήστε σε κενό σημείο του καμβά.
+            Ακίνητο. Η κίνηση ορίζεται για ολόκληρο το κελί — πατήστε σε κενό
+            σημείο του καμβά.
           </p>
         ) : (
           <>
             <p className="text-[11.5px] leading-[1.6] text-k-text-2">
               Μπαίνει στα{" "}
-              <span className="numeral text-k-ink">{animWindow(layer).start}s</span> και κάθεται
-              στα <span className="numeral text-k-ink">{animWindow(layer).end}s</span>.
+              <span className="numeral text-k-ink">
+                {animWindow(layer).start}s
+              </span>{" "}
+              και κάθεται στα{" "}
+              <span className="numeral text-k-ink">
+                {animWindow(layer).end}s
+              </span>
+              .
             </p>
             <p className="text-[10.5px] leading-[1.5] text-k-text-4">
-              Από τη σειρά του κελιού. Για να αλλάξει, η «Κίνηση» του κελιού — πατήστε σε κενό
-              σημείο του καμβά.
+              Από τη σειρά του κελιού. Για να αλλάξει, η «Κίνηση» του κελιού —
+              πατήστε σε κενό σημείο του καμβά.
             </p>
             <Button variant="outline" onClick={onReplay} className="w-full">
               <Play className="size-3.5" />
@@ -1977,7 +2190,10 @@ function Typography({
           patchStyle(
             role === "custom"
               ? ({ role: undefined } as Partial<TextStyle>)
-              : ({ role, font: TYPE_ROLE[role as TypeRole].font } as Partial<TextStyle>),
+              : ({
+                  role,
+                  font: TYPE_ROLE[role as TypeRole].font,
+                } as Partial<TextStyle>),
           )
         }
         options={[
@@ -1985,6 +2201,7 @@ function Typography({
           { value: "eyebrow" as const, label: "Eyebrow" },
           { value: "body" as const, label: "Κείμενο" },
           { value: "price" as const, label: "Τιμή" },
+          { value: "stat" as const, label: "Μέγεθος" },
           { value: "compare" as const, label: "Παλιά" },
           { value: "custom" as const, label: "Ελεύθερο" },
         ]}
@@ -2012,8 +2229,8 @@ function Typography({
             ]}
           />
           <p className="text-[10.5px] leading-[1.5] text-k-text-4">
-            Γραμματοσειρά, βάρος και απόσταση τα δίνει το design system — ίδια με τις
-            επικεφαλίδες της σελίδας. Για χειροκίνητο έλεγχο, «Ελεύθερο».
+            Γραμματοσειρά, βάρος και απόσταση τα δίνει το design system — ίδια
+            με τις επικεφαλίδες της σελίδας. Για χειροκίνητο έλεγχο, «Ελεύθερο».
           </p>
         </>
       ) : (
@@ -2022,9 +2239,21 @@ function Typography({
           value={style.font}
           onChange={(font) => patchStyle({ font })}
           options={[
-            { value: "display" as const, label: "Τίτλων", title: "Roboto Flex — τίτλοι, extended" },
-            { value: "sans" as const, label: "Κειμένου", title: "Inter — σώμα κειμένου" },
-            { value: "mono" as const, label: "Αριθμών", title: "JetBrains Mono — τιμές, κωδικοί" },
+            {
+              value: "display" as const,
+              label: "Τίτλων",
+              title: "Roboto Flex — τίτλοι, extended",
+            },
+            {
+              value: "sans" as const,
+              label: "Κειμένου",
+              title: "Inter — σώμα κειμένου",
+            },
+            {
+              value: "mono" as const,
+              label: "Αριθμών",
+              title: "JetBrains Mono — τιμές, κωδικοί",
+            },
           ]}
         />
       )}
@@ -2055,8 +2284,8 @@ function Typography({
       </div>
       {!style.role && (
         <p className="text-[10.5px] leading-[1.5] text-k-text-4">
-          Το μέγεθος είναι σε κελί πλάτους 1000px και κλιμακώνεται μαζί του — μια στήλη
-          παραπάνω το μικραίνει.
+          Το μέγεθος είναι σε κελί πλάτους 1000px και κλιμακώνεται μαζί του —
+          μια στήλη παραπάνω το μικραίνει.
         </p>
       )}
 
@@ -2172,7 +2401,9 @@ function ColorPicker({
 }) {
   return (
     <div className="space-y-1">
-      <Label className="text-[10.5px] uppercase tracking-[0.06em] text-k-text-4">{label}</Label>
+      <Label className="text-[10.5px] uppercase tracking-[0.06em] text-k-text-4">
+        {label}
+      </Label>
       <div className="flex gap-1">
         {COLORS.map((c) => (
           <button
@@ -2182,7 +2413,9 @@ function ColorPicker({
             onClick={() => onChange(c.value)}
             className={cn(
               "size-6 border transition-transform",
-              value === c.value ? "border-k-ink ring-1 ring-k-ink" : "border-k-line-2",
+              value === c.value
+                ? "border-k-ink ring-1 ring-k-ink"
+                : "border-k-line-2",
             )}
             style={{ backgroundColor: c.swatch }}
             aria-label={c.label}
@@ -2216,7 +2449,9 @@ function PresetGallery({
     return [...suited, ...rest];
   }, [binding]);
 
-  const categories = [...new Set(sorted.map((p) => p.category))] as PresetCategory[];
+  const categories = [
+    ...new Set(sorted.map((p) => p.category)),
+  ] as PresetCategory[];
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -2224,7 +2459,8 @@ function PresetGallery({
         <DialogHeader>
           <DialogTitle>Παραλλαγές</DialogTitle>
           <DialogDescription>
-            Έτοιμες συνθέσεις. Διαλέξτε μία και μετά αλλάξτε ό,τι θέλετε πάνω στον καμβά.
+            Έτοιμες συνθέσεις. Διαλέξτε μία και μετά αλλάξτε ό,τι θέλετε πάνω
+            στον καμβά.
           </DialogDescription>
         </DialogHeader>
 

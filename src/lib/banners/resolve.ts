@@ -1,5 +1,9 @@
 import "server-only";
-import { offerBadgeFor, discountedNet, campaignDiscountPercent } from "@/lib/offers/badges";
+import {
+  offerBadgeFor,
+  discountedNet,
+  campaignDiscountPercent,
+} from "@/lib/offers/badges";
 import { campaignWhere } from "@/lib/offers/coverage";
 import { prisma } from "@/lib/prisma";
 import type { BannerContent, Binding } from "@/lib/banners/contract";
@@ -26,7 +30,9 @@ export { applyTokens } from "@/lib/banners/resolve-tokens";
 // The locale decides the separators and where the € sits — "1.234,50 €" in
 // Greek and Italian, "€1,234.50" in English.
 const format = (value: number, locale: string): string =>
-  new Intl.NumberFormat(locale, { style: "currency", currency: "EUR" }).format(value);
+  new Intl.NumberFormat(locale, { style: "currency", currency: "EUR" }).format(
+    value,
+  );
 
 /** How long until a date, in words. Printed once at render — a banner is not a
  *  checkout timer, and a second hand costs a client component per cell. */
@@ -50,7 +56,9 @@ export async function resolveCells(
   const slugsOf = (source: "product" | "offer") =>
     entries
       .map(([, c]) => c.binding)
-      .filter((b): b is Extract<Binding, { slug: string }> => b.source === source)
+      .filter(
+        (b): b is Extract<Binding, { slug: string }> => b.source === source,
+      )
       .map((b) => b.slug)
       .filter(Boolean);
 
@@ -61,7 +69,10 @@ export async function resolveCells(
   // products in one cell and one in another are eleven rows, not two queries.
   const setSlugs = entries
     .map(([, c]) => c.binding)
-    .filter((b): b is Extract<Binding, { slugs: string[] }> => b.source === "products")
+    .filter(
+      (b): b is Extract<Binding, { slugs: string[] }> =>
+        b.source === "products",
+    )
     .flatMap((b) => b.slugs);
 
   const allProductSlugs = [...new Set([...productSlugs, ...setSlugs])];
@@ -98,21 +109,44 @@ export async function resolveCells(
 
   // Brands join on mtrmark rather than by relation — one extra query over the
   // marks actually present, matching how the product picker does it.
-  const marks = [...new Set(products.map((p) => p.mtrmark).filter((m): m is number => m != null))];
+  const marks = [
+    ...new Set(
+      products.map((p) => p.mtrmark).filter((m): m is number => m != null),
+    ),
+  ];
   const brands = marks.length
     ? await prisma.brand.findMany({
         where: { mtrmark: { in: marks } },
-        select: { mtrmark: true, slug: true, nameEl: true, nameEn: true, nameIt: true },
+        select: {
+          mtrmark: true,
+          slug: true,
+          logo: true,
+          nameEl: true,
+          nameEn: true,
+          nameIt: true,
+        },
       })
     : [];
   const brandByMark = new Map(
     brands.map((b) => [
       b.mtrmark,
-      (locale === "en" ? b.nameEn : locale === "it" ? b.nameIt : b.nameEl) || b.nameEl,
+      (locale === "en" ? b.nameEn : locale === "it" ? b.nameIt : b.nameEl) ||
+        b.nameEl,
     ]),
   );
   /* Η καμπάνια μπορεί να στοχεύει μάρκα, οπότε χρειάζεται το slug της. */
   const brandSlugByMark = new Map(brands.map((b) => [b.mtrmark, b.slug]));
+  /*
+   * Το λογότυπο του κατασκευαστή.
+   * ───────────────────────────────────────────────────────────────────────────
+   * Στα επαγγελματικά εργαλεία η μάρκα ΕΙΝΑΙ το επιχείρημα: κανείς δεν αγοράζει
+   * «γωνιακό τροχό», αγοράζει Milwaukee. Το `{brand}` έδινε μόνο το όνομα ως
+   * κείμενο, και ένα banner που γράφει «MILWAUKEE» σε mono δεν έχει καμία σχέση
+   * με το να δείχνει το σήμα που αναγνωρίζει ο πελάτης από δέκα μέτρα.
+   */
+  const brandLogoByMark = new Map(
+    brands.filter((b) => b.logo).map((b) => [b.mtrmark, b.logo as string]),
+  );
 
   const productBySlug = new Map(products.map((p) => [p.slug, p]));
   const offerBySlug = new Map(offers.map((o) => [o.slug, o]));
@@ -142,16 +176,24 @@ export async function resolveCells(
        * πάνω στις ζωντανές καμπάνιες. Όταν υπάρχει έκπτωση, το `{compare}`
        * γίνεται η τιμή ΠΡΙΝ — η διαγραμμένη που απαιτεί και η Omnibus.
        */
-      const brandSlug = p.mtrmark != null ? (brandSlugByMark.get(p.mtrmark) ?? null) : null;
+      const brandSlug =
+        p.mtrmark != null ? (brandSlugByMark.get(p.mtrmark) ?? null) : null;
       const badge =
-        net == null ? null : await offerBadgeFor({ slug: p.slug, brandSlug, unitNet: net }, locale);
+        net == null
+          ? null
+          : await offerBadgeFor(
+              { slug: p.slug, brandSlug, unitNet: net },
+              locale,
+            );
       const offerPct = badge?.discountPercent ?? 0;
-      const sellNet = net == null ? null : offerPct > 0 ? discountedNet(net, offerPct) : net;
+      const sellNet =
+        net == null ? null : offerPct > 0 ? discountedNet(net, offerPct) : net;
 
       out.set(cellId, {
         tokens: {
           "{title}": p.translations[0]?.name ?? p.name,
-          "{brand}": p.mtrmark != null ? (brandByMark.get(p.mtrmark) ?? "") : "",
+          "{brand}":
+            p.mtrmark != null ? (brandByMark.get(p.mtrmark) ?? "") : "",
           "{code}": p.code,
           "{price}": sellNet == null ? "" : format(sellNet * vat, locale),
           // Η τιμή πριν: της καμπάνιας όπου υπάρχει, αλλιώς η τιμή καταλόγου —
@@ -165,6 +207,8 @@ export async function resolveCells(
                 : "",
           "{desc}": p.translations[0]?.shortDescription ?? "",
           "{image}": p.images[0]?.url ?? "",
+          "{brandLogo}":
+            p.mtrmark != null ? (brandLogoByMark.get(p.mtrmark) ?? "") : "",
         },
         // Derived, never typed. The canonical product URL is the only correct
         // destination for a product tile.
@@ -194,7 +238,10 @@ export async function resolveCells(
         }));
 
       out.set(cellId, {
-        tokens: { "{count}": String(items.length), "{image}": items[0]?.image ?? "" },
+        tokens: {
+          "{count}": String(items.length),
+          "{image}": items[0]?.image ?? "",
+        },
         href: cell.href,
         image: items[0]?.image ?? "",
         items,
@@ -251,10 +298,18 @@ export async function resolveCells(
         tokens: {
           "{price}": offerPrice,
           "{compare}": offerCompare,
-          "{title}": (locale === "en" ? o.titleEn : locale === "it" ? o.titleIt : o.titleEl) || o.titleEl,
+          "{title}":
+            (locale === "en"
+              ? o.titleEn
+              : locale === "it"
+                ? o.titleIt
+                : o.titleEl) || o.titleEl,
           "{desc}":
-            (locale === "en" ? o.descriptionEn : locale === "it" ? o.descriptionIt : o.descriptionEl) ||
-            o.descriptionEl,
+            (locale === "en"
+              ? o.descriptionEn
+              : locale === "it"
+                ? o.descriptionIt
+                : o.descriptionEl) || o.descriptionEl,
           "{badge}": o.badge ?? "",
           "{ends}": o.endsAt ? endsIn(o.endsAt) : "",
           "{image}": o.image ?? "",

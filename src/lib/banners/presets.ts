@@ -1,6 +1,7 @@
 import {
   DEFAULT_BACKGROUND,
   DEFAULT_TEXT_STYLE,
+  applyAnimRecipe,
   newLayer,
   type BadgeLayer,
   type Background,
@@ -15,6 +16,15 @@ import {
 
 /**
  * The variation library.
+ *
+ * ── Ρόλοι, όχι νούμερα ─────────────────────────────────────────────────────
+ *
+ * Κάθε κείμενο εδώ δηλώνει ΡΟΛΟ — eyebrow, τίτλος, κείμενο, τιμή, παλιά τιμή —
+ * και το μέγεθος, το βάρος και το tracking τα δίνει το design system. Πριν,
+ * κάθε παραλλαγή έγραφε δικά της νούμερα: «size 42» εδώ, «size 38» δίπλα,
+ * «size 46» παρακάτω. Τρία διαφορετικά μεγέθη για το ίδιο πράγμα, κανένα
+ * συνδεδεμένο με τις επικεφαλίδες της σελίδας — και το «size» σημαίνει pixel
+ * σε κελί πλάτους 1000px, οπότε μια σύνθεση σε στενή στήλη έβγαζε τίτλο 11px.
  *
  * One widget with twenty switches asks an operator to design from nothing every
  * time; a shelf of finished looks asks them to choose, then adjust. Each preset
@@ -67,6 +77,8 @@ const badge = (
   layer.text = { el: value };
   layer.frame = frame;
   layer.tone = tone;
+  /* Το badge είναι eyebrow με φόντο: ίδιο mono, ίδιο tracking, ίδιο βάρος. */
+  layer.style = { ...layer.style, role: "eyebrow" };
   return layer;
 };
 
@@ -104,12 +116,55 @@ const ticker = (frame: TickerLayer["frame"]): TickerLayer => {
   return layer;
 };
 
-const picture = (frame: ImageLayer["frame"], fit: ImageLayer["fit"] = "contain"): ImageLayer => {
+const picture = (
+  frame: ImageLayer["frame"],
+  fit: ImageLayer["fit"] = "contain",
+): ImageLayer => {
   const layer = newLayer("image") as ImageLayer;
   // The bound entity's own photograph. A literal URL can be picked instead.
   layer.src = "{image}";
   layer.frame = frame;
   layer.fit = fit;
+  return layer;
+};
+
+/**
+ * Το σήμα του καταστήματος ως στρώση.
+ *
+ * Σταθερή διεύθυνση CDN και όχι `{image}`: αυτό ΔΕΝ είναι η φωτογραφία του
+ * προϊόντος, είναι η υπογραφή πάνω της. Η λευκή εκδοχή γιατί μπαίνει πάντα σε
+ * σκούρο — πάνω σε φωτογραφία με scrim ή σε κόκκινο πλακίδιο.
+ */
+const mark = (
+  frame: ImageLayer["frame"],
+  variant: "white" | "red" = "white",
+): ImageLayer => {
+  const layer = newLayer("image") as ImageLayer;
+  layer.name = "Σήμα Κολλέρη";
+  layer.src = `https://kolleris.b-cdn.net/eshop/brand/kolleris-lockup-${variant}.svg`;
+  layer.frame = frame;
+  layer.fit = "contain";
+  return layer;
+};
+
+/**
+ * Το σήμα του ΚΑΤΑΣΚΕΥΑΣΤΗ.
+ *
+ * Στα επαγγελματικά εργαλεία η μάρκα είναι το επιχείρημα: κανείς δεν αγοράζει
+ * «γωνιακό τροχό», αγοράζει Milwaukee. Το `{brand}` έδινε μόνο το όνομα σε
+ * mono — σωστό, και εντελώς άλλο πράγμα από το σήμα που αναγνωρίζει ο πελάτης
+ * από δέκα μέτρα.
+ *
+ * Πάνω δεξιά, μακριά από το σήμα του καταστήματος: δύο λογότυπα στην ίδια
+ * γωνία διαβάζονται ως ένα ανακατεμένο. Λύνει σε κενό όταν η μάρκα δεν έχει
+ * αρχείο, και στρώση χωρίς πηγή δεν αποδίδεται.
+ */
+const brandMark = (frame: ImageLayer["frame"]): ImageLayer => {
+  const layer = newLayer("image") as ImageLayer;
+  layer.name = "Σήμα μάρκας";
+  layer.src = "{brandLogo}";
+  layer.frame = frame;
+  layer.fit = "contain";
   return layer;
 };
 
@@ -139,22 +194,25 @@ export const PRESETS: Preset[] = [
     build: () => ({
       background: photoBg("medium"),
       layers: [
-        text("Υπέρτιτλος", "{brand}", { x: 6, y: 55, w: 50, h: 7 }, {
-          font: "mono",
-          size: 15,
-          weight: 500,
-          tracking: 10,
-          color: "red",
-        }),
-        text("Τίτλος", "{title}", { x: 6, y: 63, w: 62, h: 19 }, { color: "white", size: 42 }),
-        text("Τιμή", "{price}", { x: 6, y: 84, w: 40, h: 10 }, {
-          font: "mono",
-          size: 26,
-          weight: 600,
-          tracking: 0,
-          color: "white",
-          uppercase: false,
-        }),
+        brandMark({ x: 74, y: 6, w: 20, h: 10 }),
+        text(
+          "Υπέρτιτλος",
+          "{brand}",
+          { x: 6, y: 55, w: 50, h: 7 },
+          { role: "eyebrow", color: "red" },
+        ),
+        text(
+          "Τίτλος",
+          "{title}",
+          { x: 6, y: 63, w: 62, h: 19 },
+          { role: "title", color: "white", valign: "end" },
+        ),
+        text(
+          "Τιμή",
+          "{price}",
+          { x: 6, y: 84, w: 40, h: 10 },
+          { role: "price", color: "white" },
+        ),
       ],
     }),
   },
@@ -167,12 +225,18 @@ export const PRESETS: Preset[] = [
     build: () => ({
       background: photoBg("strong"),
       layers: [
-        text("Τίτλος", "{title}", { x: 12, y: 34, w: 76, h: 24 }, {
-          color: "white",
-          size: 46,
-          align: "center",
-        }),
-        button("Δείτε περισσότερα", { x: 33, y: 64, w: 34, h: 9 }, "underline", "white"),
+        text(
+          "Τίτλος",
+          "{title}",
+          { x: 12, y: 34, w: 76, h: 24 },
+          { role: "title", color: "white", align: "center" },
+        ),
+        button(
+          "Δείτε περισσότερα",
+          { x: 33, y: 64, w: 34, h: 9 },
+          "underline",
+          "white",
+        ),
       ],
     }),
   },
@@ -185,16 +249,22 @@ export const PRESETS: Preset[] = [
     build: () => ({
       background: photoBg("none"),
       layers: [
-        shape({ x: 0, y: 58, w: 100, h: 42 }, "ink", 82),
-        text("Τίτλος", "{title}", { x: 6, y: 63, w: 66, h: 20 }, { color: "white", size: 38 }),
-        text("Τιμή", "{price}", { x: 6, y: 85, w: 40, h: 9 }, {
-          font: "mono",
-          size: 24,
-          weight: 600,
-          tracking: 0,
-          color: "white",
-          uppercase: false,
-        }),
+        brandMark({ x: 74, y: 6, w: 20, h: 10 }),
+        /* Ψηλότερα από τον τίτλο: με `valign: "end"` ο τίτλος μεγαλώνει προς τα
+           πάνω, και μια ζώνη που ξεκινά στο 58 τον άφηνε να βγει από πάνω της. */
+        shape({ x: 0, y: 48, w: 100, h: 52 }, "ink", 82),
+        text(
+          "Τίτλος",
+          "{title}",
+          { x: 6, y: 63, w: 66, h: 20 },
+          { role: "title", color: "white", valign: "end" },
+        ),
+        text(
+          "Τιμή",
+          "{price}",
+          { x: 6, y: 85, w: 40, h: 9 },
+          { role: "price", color: "white" },
+        ),
       ],
     }),
   },
@@ -208,21 +278,25 @@ export const PRESETS: Preset[] = [
       background: flatBg("white"),
       layers: [
         picture({ x: 52, y: 8, w: 44, h: 84 }),
-        text("Υπέρτιτλος", "{brand}", { x: 6, y: 22, w: 40, h: 7 }, {
-          font: "mono",
-          size: 15,
-          weight: 500,
-          tracking: 10,
-          color: "red",
-        }),
-        text("Τίτλος", "{title}", { x: 6, y: 31, w: 44, h: 26 }, { size: 34 }),
-        text("Τιμή", "{price}", { x: 6, y: 60, w: 40, h: 10 }, {
-          font: "mono",
-          size: 26,
-          weight: 600,
-          tracking: 0,
-          uppercase: false,
-        }),
+        brandMark({ x: 6, y: 8, w: 22, h: 9 }),
+        text(
+          "Υπέρτιτλος",
+          "{brand}",
+          { x: 6, y: 22, w: 40, h: 7 },
+          { role: "eyebrow", color: "red" },
+        ),
+        text(
+          "Τίτλος",
+          "{title}",
+          { x: 6, y: 31, w: 44, h: 26 },
+          { role: "title", valign: "end" },
+        ),
+        text(
+          "Τιμή",
+          "{price}",
+          { x: 6, y: 60, w: 40, h: 10 },
+          { role: "price" },
+        ),
         button("Δείτε το προϊόν", { x: 6, y: 74, w: 40, h: 9 }),
       ],
     }),
@@ -237,14 +311,18 @@ export const PRESETS: Preset[] = [
       background: flatBg("white"),
       layers: [
         picture({ x: 4, y: 8, w: 44, h: 84 }),
-        text("Τίτλος", "{title}", { x: 52, y: 31, w: 44, h: 26 }, { size: 34 }),
-        text("Τιμή", "{price}", { x: 52, y: 60, w: 40, h: 10 }, {
-          font: "mono",
-          size: 26,
-          weight: 600,
-          tracking: 0,
-          uppercase: false,
-        }),
+        text(
+          "Τίτλος",
+          "{title}",
+          { x: 52, y: 31, w: 44, h: 26 },
+          { role: "title", valign: "end" },
+        ),
+        text(
+          "Τιμή",
+          "{price}",
+          { x: 52, y: 60, w: 40, h: 10 },
+          { role: "price" },
+        ),
         button("Δείτε το προϊόν", { x: 52, y: 74, w: 40, h: 9 }),
       ],
     }),
@@ -260,23 +338,24 @@ export const PRESETS: Preset[] = [
       layers: [
         badge("{badge}", { x: 0, y: 0, w: 20, h: 11 }),
         picture({ x: 54, y: 14, w: 42, h: 72 }),
-        text("Τιμή", "{price}", { x: 6, y: 30, w: 46, h: 18 }, {
-          font: "mono",
-          size: 56,
-          weight: 700,
-          tracking: -2,
-          color: "red",
-          uppercase: false,
-        }),
-        text("Πριν", "{compare}", { x: 6, y: 50, w: 30, h: 8 }, {
-          font: "mono",
-          size: 20,
-          weight: 400,
-          tracking: 0,
-          color: "muted",
-          uppercase: false,
-        }),
-        text("Τίτλος", "{title}", { x: 6, y: 60, w: 46, h: 22 }, { size: 24 }),
+        text(
+          "Τιμή",
+          "{price}",
+          { x: 6, y: 30, w: 46, h: 18 },
+          { role: "price", color: "red" },
+        ),
+        text(
+          "Πριν",
+          "{compare}",
+          { x: 6, y: 50, w: 30, h: 8 },
+          { role: "compare", color: "muted" },
+        ),
+        text(
+          "Τίτλος",
+          "{title}",
+          { x: 6, y: 60, w: 46, h: 22 },
+          { role: "title", valign: "end" },
+        ),
       ],
     }),
   },
@@ -289,23 +368,24 @@ export const PRESETS: Preset[] = [
     build: () => ({
       background: flatBg("white"),
       layers: [
-        text("Υπέρτιτλος", "", { x: 8, y: 22, w: 60, h: 7 }, {
-          font: "mono",
-          size: 15,
-          weight: 500,
-          tracking: 10,
-          color: "red",
-        }),
-        text("Τίτλος", "{title}", { x: 8, y: 32, w: 84, h: 30 }, { size: 40 }),
-        text("Κείμενο", "", { x: 8, y: 64, w: 78, h: 16 }, {
-          font: "sans",
-          size: 18,
-          weight: 400,
-          tracking: 0,
-          leading: 155,
-          color: "muted",
-          uppercase: false,
-        }),
+        text(
+          "Υπέρτιτλος",
+          "",
+          { x: 8, y: 22, w: 60, h: 7 },
+          { role: "eyebrow", color: "red" },
+        ),
+        text(
+          "Τίτλος",
+          "{title}",
+          { x: 8, y: 32, w: 84, h: 30 },
+          { role: "title" },
+        ),
+        text(
+          "Κείμενο",
+          "",
+          { x: 8, y: 64, w: 78, h: 16 },
+          { role: "body", color: "muted" },
+        ),
         button("Δείτε περισσότερα", { x: 8, y: 82, w: 40, h: 9 }),
       ],
     }),
@@ -319,17 +399,24 @@ export const PRESETS: Preset[] = [
     build: () => ({
       background: flatBg("ink"),
       layers: [
-        text("Τίτλος", "{title}", { x: 8, y: 30, w: 84, h: 28 }, { size: 38, color: "white" }),
-        text("Κείμενο", "", { x: 8, y: 60, w: 78, h: 16 }, {
-          font: "sans",
-          size: 18,
-          weight: 400,
-          tracking: 0,
-          leading: 155,
-          color: "white-70",
-          uppercase: false,
-        }),
-        button("Δείτε περισσότερα", { x: 8, y: 80, w: 44, h: 9 }, "underline", "white"),
+        text(
+          "Τίτλος",
+          "{title}",
+          { x: 8, y: 30, w: 84, h: 28 },
+          { role: "title", color: "white", valign: "end" },
+        ),
+        text(
+          "Κείμενο",
+          "",
+          { x: 8, y: 60, w: 78, h: 16 },
+          { role: "body", color: "white-70" },
+        ),
+        button(
+          "Δείτε περισσότερα",
+          { x: 8, y: 80, w: 44, h: 9 },
+          "underline",
+          "white",
+        ),
       ],
     }),
   },
@@ -343,16 +430,24 @@ export const PRESETS: Preset[] = [
       background: flatBg("ink"),
       layers: [
         badge("{badge}", { x: 6, y: 16, w: 22, h: 12 }),
-        text("Τίτλος", "{title}", { x: 6, y: 33, w: 80, h: 26 }, { size: 36, color: "white" }),
-        text("Λήγει", "Λήγει σε {ends}", { x: 6, y: 62, w: 50, h: 9 }, {
-          font: "mono",
-          size: 18,
-          weight: 500,
-          tracking: 4,
-          color: "white-70",
-          uppercase: false,
-        }),
-        button("Δείτε την προσφορά", { x: 6, y: 78, w: 46, h: 9 }, "solid", "white"),
+        text(
+          "Τίτλος",
+          "{title}",
+          { x: 6, y: 33, w: 80, h: 26 },
+          { role: "title", color: "white", valign: "end" },
+        ),
+        text(
+          "Λήγει",
+          "Λήγει σε {ends}",
+          { x: 6, y: 62, w: 50, h: 9 },
+          { role: "eyebrow", color: "white-70" },
+        ),
+        button(
+          "Δείτε την προσφορά",
+          { x: 6, y: 78, w: 46, h: 9 },
+          "solid",
+          "white",
+        ),
       ],
     }),
   },
@@ -366,8 +461,18 @@ export const PRESETS: Preset[] = [
       background: photoBg("medium"),
       layers: [
         badge("{badge}", { x: 0, y: 0, w: 20, h: 11 }),
-        text("Τίτλος", "{title}", { x: 6, y: 62, w: 70, h: 22 }, { size: 38, color: "white" }),
-        button("Δείτε την προσφορά", { x: 6, y: 85, w: 46, h: 9 }, "underline", "white"),
+        text(
+          "Τίτλος",
+          "{title}",
+          { x: 6, y: 62, w: 70, h: 22 },
+          { role: "title", color: "white", valign: "end" },
+        ),
+        button(
+          "Δείτε την προσφορά",
+          { x: 6, y: 85, w: 46, h: 9 },
+          "underline",
+          "white",
+        ),
       ],
     }),
   },
@@ -380,8 +485,18 @@ export const PRESETS: Preset[] = [
     build: () => ({
       background: { ...DEFAULT_BACKGROUND, kind: "video", overlay: "medium" },
       layers: [
-        text("Τίτλος", "{title}", { x: 6, y: 60, w: 70, h: 24 }, { size: 44, color: "white" }),
-        button("Δείτε περισσότερα", { x: 6, y: 86, w: 40, h: 9 }, "underline", "white"),
+        text(
+          "Τίτλος",
+          "{title}",
+          { x: 6, y: 60, w: 70, h: 24 },
+          { role: "title", color: "white", valign: "end" },
+        ),
+        button(
+          "Δείτε περισσότερα",
+          { x: 6, y: 86, w: 40, h: 9 },
+          "underline",
+          "white",
+        ),
       ],
     }),
   },
@@ -395,16 +510,13 @@ export const PRESETS: Preset[] = [
       background: flatBg("white"),
       layers: [
         badge("{count} προϊόντα", { x: 6, y: 12, w: 24, h: 9 }, "ink"),
-        text("Τίτλος", "", { x: 6, y: 26, w: 42, h: 26 }, { size: 34 }),
-        text("Κείμενο", "", { x: 6, y: 54, w: 40, h: 14 }, {
-          font: "sans",
-          size: 17,
-          weight: 400,
-          tracking: 0,
-          leading: 155,
-          color: "muted",
-          uppercase: false,
-        }),
+        text("Τίτλος", "", { x: 6, y: 26, w: 42, h: 26 }, { role: "title" }),
+        text(
+          "Κείμενο",
+          "",
+          { x: 6, y: 54, w: 40, h: 14 },
+          { role: "body", color: "muted" },
+        ),
         button("Δείτε την προσφορά", { x: 6, y: 76, w: 42, h: 9 }, "solid"),
         ticker({ x: 54, y: 10, w: 40, h: 78 }),
       ],
@@ -419,9 +531,231 @@ export const PRESETS: Preset[] = [
     build: () => ({
       background: flatBg("ink"),
       layers: [
-        text("Τίτλος", "", { x: 6, y: 30, w: 40, h: 26 }, { size: 34, color: "white" }),
-        button("Δείτε τα όλα", { x: 6, y: 66, w: 40, h: 9 }, "underline", "white"),
+        text(
+          "Τίτλος",
+          "",
+          { x: 6, y: 30, w: 40, h: 26 },
+          { role: "title", color: "white", valign: "end" },
+        ),
+        button(
+          "Δείτε τα όλα",
+          { x: 6, y: 66, w: 40, h: 9 },
+          "underline",
+          "white",
+        ),
         ticker({ x: 52, y: 8, w: 44, h: 84 }),
+      ],
+    }),
+  },
+  /* ─────────────────────────────────────────────────────────────────────────
+     Οι έξι παρακάτω γράφτηκαν με τους κανόνες αντίθεσης μπροστά:
+
+       · Λευκό πάνω σε #EA3E39 δίνει 3,4:1. Περνά για ΜΕΓΑΛΟ κείμενο (το όριο
+         είναι 3:1) και ΚΟΒΕΤΑΙ για σώμα κειμένου (όριο 4,5:1). Γι' αυτό καμία
+         κόκκινη ζώνη εδώ δεν κουβαλά παράγραφο — μόνο υπέρτιτλο και τίτλο.
+       · Ένα κουμπί ανά κελί. Δύο ισοδύναμα κουμπιά είναι μηδέν κουμπιά.
+       · Η ιεραρχία βγαίνει από μέγεθος και κενό, όχι από χρώμα: το ίδιο
+         πλακίδιο πρέπει να διαβάζεται και ασπρόμαυρο.
+     ───────────────────────────────────────────────────────────────────────── */
+  {
+    id: "stat-slab",
+    label: "Ο αριθμός πρώτα",
+    hint: "Ένα μέγεθος που είναι το επιχείρημα — κωδικοί, χρόνια, ώρες παράδοσης.",
+    category: "text",
+    suits: ["none", "offer", "product"],
+    build: () => ({
+      background: flatBg("ink"),
+      layers: [
+        text(
+          "Υπέρτιτλος",
+          "",
+          { x: 8, y: 20, w: 60, h: 7 },
+          { role: "eyebrow", color: "red" },
+        ),
+        text(
+          "Μέγεθος",
+          "",
+          { x: 8, y: 29, w: 84, h: 26 },
+          { role: "stat", color: "white" },
+        ),
+        text(
+          "Τίτλος",
+          "",
+          { x: 8, y: 58, w: 72, h: 18 },
+          { role: "title", color: "white", valign: "end" },
+        ),
+        button("Δείτε τα", { x: 8, y: 80, w: 40, h: 9 }, "underline", "white"),
+      ],
+    }),
+  },
+  {
+    id: "photo-band",
+    label: "Φωτογραφία με κόκκινη ζώνη",
+    hint: "Η εικόνα επάνω, συμπαγές κόκκινο κάτω. Διαβάζεται πάνω σε οποιαδήποτε φωτογραφία.",
+    category: "photo",
+    suits: ["offer", "product", "none"],
+    build: () => ({
+      background: photoBg("none"),
+      layers: [
+        /* Συμπαγές και όχι ημιδιαφανές: μια ζώνη 85% αφήνει τη φωτογραφία να
+           περνά από μέσα, και το λευκό γράμμα κάθεται πάνω σε ό,τι τύχει. */
+        brandMark({ x: 74, y: 7, w: 20, h: 10 }),
+        shape({ x: 0, y: 62, w: 100, h: 38 }, "red", 100),
+        text(
+          "Υπέρτιτλος",
+          "{brand}",
+          { x: 6, y: 67, w: 50, h: 7 },
+          { role: "eyebrow", color: "white" },
+        ),
+        text(
+          "Τίτλος",
+          "{title}",
+          { x: 6, y: 75, w: 76, h: 18 },
+          { role: "title", color: "white", valign: "end" },
+        ),
+      ],
+    }),
+  },
+  {
+    id: "spec-strip",
+    label: "Λωρίδα προδιαγραφών",
+    hint: "Τίτλος επάνω, τρία νούμερα σε σειρά κάτω. Για ό,τι πουλιέται με μεγέθη.",
+    category: "text",
+    suits: ["product", "none", "offer"],
+    build: () => ({
+      background: flatBg("white"),
+      layers: [
+        text(
+          "Υπέρτιτλος",
+          "{brand}",
+          { x: 6, y: 16, w: 50, h: 7 },
+          { role: "eyebrow", color: "red" },
+        ),
+        text(
+          "Τίτλος",
+          "{title}",
+          { x: 6, y: 25, w: 70, h: 22 },
+          { role: "title" },
+        ),
+        /* Μια τρίχα, όχι πλαίσιο: χωρίζει χωρίς να προσθέτει σχήμα. */
+        shape({ x: 6, y: 62, w: 88, h: 0.6 }, "ink", 14),
+        text(
+          "Στοιχείο 1",
+          "",
+          { x: 6, y: 68, w: 26, h: 7 },
+          { role: "eyebrow", color: "muted" },
+        ),
+        text("Τιμή 1", "", { x: 6, y: 76, w: 26, h: 10 }, { role: "price" }),
+        text(
+          "Στοιχείο 2",
+          "",
+          { x: 37, y: 68, w: 26, h: 7 },
+          { role: "eyebrow", color: "muted" },
+        ),
+        text("Τιμή 2", "", { x: 37, y: 76, w: 26, h: 10 }, { role: "price" }),
+        text(
+          "Στοιχείο 3",
+          "",
+          { x: 68, y: 68, w: 26, h: 7 },
+          { role: "eyebrow", color: "muted" },
+        ),
+        text("Τιμή 3", "", { x: 68, y: 76, w: 26, h: 10 }, { role: "price" }),
+      ],
+    }),
+  },
+  {
+    id: "floating-card",
+    label: "Κάρτα πάνω στη φωτογραφία",
+    hint: "Λευκή κάρτα με τίτλο και τιμή, πάνω σε ολόκληρη τη φωτογραφία.",
+    category: "photo",
+    suits: ["product", "offer", "none"],
+    build: () => ({
+      background: photoBg("light"),
+      layers: [
+        brandMark({ x: 72, y: 7, w: 22, h: 10 }),
+        shape({ x: 6, y: 46, w: 52, h: 44 }, "white", 100),
+        text(
+          "Υπέρτιτλος",
+          "{brand}",
+          { x: 10, y: 51, w: 40, h: 7 },
+          { role: "eyebrow", color: "red" },
+        ),
+        text(
+          "Τίτλος",
+          "{title}",
+          { x: 10, y: 55, w: 44, h: 20 },
+          { role: "title", valign: "end" },
+        ),
+        text(
+          "Πριν",
+          "{compare}",
+          { x: 10, y: 76, w: 18, h: 6 },
+          { role: "compare", color: "muted" },
+        ),
+        text(
+          "Τιμή",
+          "{price}",
+          { x: 30, y: 75, w: 26, h: 9 },
+          { role: "price", color: "red" },
+        ),
+      ],
+    }),
+  },
+  {
+    id: "brand-corner",
+    label: "Υπογραφή Κολλέρη",
+    hint: "Το σήμα επάνω αριστερά, σήμανση δεξιά, τίτλος και τιμή κάτω.",
+    category: "photo",
+    suits: ["product", "offer", "none"],
+    build: () => ({
+      background: photoBg("medium"),
+      layers: [
+        mark({ x: 5, y: 7, w: 22, h: 9 }),
+        brandMark({ x: 72, y: 7, w: 22, h: 9 }),
+        badge("{badge}", { x: 5, y: 21, w: 17, h: 9 }),
+        text(
+          "Τίτλος",
+          "{title}",
+          { x: 5, y: 62, w: 66, h: 20 },
+          { role: "title", color: "white", valign: "end" },
+        ),
+        text(
+          "Πριν",
+          "{compare}",
+          { x: 5, y: 85, w: 20, h: 7 },
+          { role: "compare", color: "white-70" },
+        ),
+        text(
+          "Τιμή",
+          "{price}",
+          { x: 26, y: 84, w: 34, h: 9 },
+          { role: "price", color: "white" },
+        ),
+      ],
+    }),
+  },
+  {
+    id: "edge-rule",
+    label: "Γραμμή στην άκρη",
+    hint: "Μόνο μια κόκκινη γραμμή και ένας μεγάλος τίτλος. Το πιο ήσυχο από όλα.",
+    category: "photo",
+    suits: ["none", "offer", "product"],
+    build: () => ({
+      background: photoBg("strong"),
+      layers: [
+        shape({ x: 6, y: 58, w: 9, h: 0.9 }, "red", 100),
+        text(
+          "Υπέρτιτλος",
+          "",
+          { x: 6, y: 63, w: 50, h: 7 },
+          { role: "eyebrow", color: "white-70" },
+        ),
+        text(
+          "Τίτλος",
+          "{title}",
+          { x: 6, y: 71, w: 78, h: 20 },
+          { role: "title", color: "white", valign: "end" },
+        ),
       ],
     }),
   },
@@ -451,9 +785,24 @@ export const CATEGORY_LABEL: Record<PresetCategory, string> = {
  * to a product should not un-bind it, and having to re-pick the product after
  * every preset change would make the gallery useless.
  */
-export function applyPreset(cell: CellComposition, presetId: string): CellComposition {
+export function applyPreset(
+  cell: CellComposition,
+  presetId: string,
+): CellComposition {
   const preset = PRESETS_BY_ID.get(presetId);
   if (!preset) return cell;
   const built = preset.build();
-  return { ...cell, background: built.background, layers: built.layers };
+  return {
+    ...cell,
+    background: built.background,
+    /*
+     * Η παραλλαγή έρχεται με τη σειρά της.
+     * ─────────────────────────────────────────────────────────────────────
+     * Τα layers γεννιούνται με `anim.preset: "none"` και ο συντάκτης έπρεπε
+     * να θυμηθεί να επιλέξει κίνηση — οπότε τα περισσότερα banner δεν είχαν
+     * καμία. Η κλιμακωτή είναι το σωστό προεπιλεγμένο: διαβάζεται με τη
+     * σειρά που διαβάζεται και το κελί, και σβήνεται με ένα κλικ.
+     */
+    layers: applyAnimRecipe(built.layers, "stagger"),
+  };
 }

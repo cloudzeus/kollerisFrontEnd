@@ -97,9 +97,17 @@ export type Binding =
 export const TOKENS = [
   { token: "{title}", label: "Τίτλος", sources: ["product", "offer"] },
   { token: "{brand}", label: "Μάρκα", sources: ["product"] },
+  /* Εικόνα, όχι κείμενο: μπαίνει σε στρώση εικόνας. Στα επαγγελματικά
+     εργαλεία η μάρκα ΕΙΝΑΙ το επιχείρημα — κανείς δεν αγοράζει «γωνιακό
+     τροχό», αγοράζει Milwaukee, και το σήμα το αναγνωρίζει από δέκα μέτρα. */
+  { token: "{brandLogo}", label: "Λογότυπο μάρκας", sources: ["product"] },
   { token: "{code}", label: "Κωδικός", sources: ["product"] },
   { token: "{price}", label: "Τιμή", sources: ["product", "offer"] },
-  { token: "{compare}", label: "Τιμή σύγκρισης", sources: ["product", "offer"] },
+  {
+    token: "{compare}",
+    label: "Τιμή σύγκρισης",
+    sources: ["product", "offer"],
+  },
   { token: "{desc}", label: "Σύντομη περιγραφή", sources: ["product"] },
   { token: "{badge}", label: "Badge προσφοράς", sources: ["offer"] },
   { token: "{ends}", label: "Λήγει σε…", sources: ["offer"] },
@@ -183,14 +191,7 @@ export type TextStyle = {
 };
 
 export type AnimPreset =
-  | "none"
-  | "fade"
-  | "rise"
-  | "words"
-  | "chars"
-  | "mask"
-  | "scale"
-  | "slide";
+  "none" | "fade" | "rise" | "words" | "chars" | "mask" | "scale" | "slide";
 
 export type Anim = {
   preset: AnimPreset;
@@ -226,7 +227,10 @@ export type BadgeLayer = LayerBase & {
   kind: "badge";
   text: LocalisedText;
   tone: "ink" | "red" | "amber" | "green" | "white";
-  style: Pick<TextStyle, "font" | "size" | "weight" | "tracking" | "uppercase" | "role" | "roleScale">;
+  style: Pick<
+    TextStyle,
+    "font" | "size" | "weight" | "tracking" | "uppercase" | "role" | "roleScale"
+  >;
 };
 
 export type ButtonLayer = LayerBase & {
@@ -245,7 +249,14 @@ export type ButtonLayer = LayerBase & {
   variant: "underline" | "solid" | "outline";
   style: Pick<
     TextStyle,
-    "font" | "size" | "weight" | "tracking" | "uppercase" | "color" | "role" | "roleScale"
+    | "font"
+    | "size"
+    | "weight"
+    | "tracking"
+    | "uppercase"
+    | "color"
+    | "role"
+    | "roleScale"
   >;
 };
 
@@ -276,12 +287,7 @@ export type TickerLayer = LayerBase & {
 };
 
 export type Layer =
-  | ImageLayer
-  | TextLayer
-  | BadgeLayer
-  | ButtonLayer
-  | ShapeLayer
-  | TickerLayer;
+  ImageLayer | TextLayer | BadgeLayer | ButtonLayer | ShapeLayer | TickerLayer;
 
 export type LayerKind = Layer["kind"];
 
@@ -432,9 +438,9 @@ export function resolveBand(
   const capPx = !maxHeight?.value
     ? Infinity
     : maxHeight.unit === "vh"
-      // A share of a window this side cannot measure; a laptop is the case
-      // worth being right about.
-      ? (maxHeight.value / 100) * 900
+      ? // A share of a window this side cannot measure; a laptop is the case
+        // worth being right about.
+        (maxHeight.value / 100) * 900
       : maxHeight.value;
   const height = Math.min(ratio ? width / ratio : Infinity, capPx);
   // No ratio and no ceiling: the banner is as tall as its rows make it, and
@@ -464,7 +470,10 @@ export function resolveBands(
 ): Record<BandKey, BandLayout> {
   const forced = choice === "grid" || choice === "row" ? choice : null;
   return Object.fromEntries(
-    BANDS.map((b) => [b.key, forced ?? resolveBand(cells, rows, aspect, maxHeight, b.from)]),
+    BANDS.map((b) => [
+      b.key,
+      forced ?? resolveBand(cells, rows, aspect, maxHeight, b.from),
+    ]),
   ) as Record<BandKey, BandLayout>;
 }
 
@@ -568,7 +577,8 @@ export function sameContent(a: BannerContent, b: BannerContent): boolean {
 
 function canonical(value: unknown): string {
   if (value === undefined) return "null";
-  if (value === null || typeof value !== "object") return JSON.stringify(value) ?? "null";
+  if (value === null || typeof value !== "object")
+    return JSON.stringify(value) ?? "null";
   if (Array.isArray(value)) return `[${value.map(canonical).join(",")}]`;
   const entries = Object.entries(value as Record<string, unknown>)
     // An absent key and a key set to undefined are the same content.
@@ -688,7 +698,13 @@ export function newLayer(kind: LayerKind): Layer {
         anim,
         text: { el: "ΝΕΟ" },
         tone: "red",
-        style: { font: "mono", size: 15, weight: 500, tracking: 8, uppercase: true },
+        style: {
+          font: "mono",
+          size: 15,
+          weight: 500,
+          tracking: 8,
+          uppercase: true,
+        },
       };
     case "button":
       return {
@@ -764,7 +780,10 @@ export function layerForToken(token: string, onDark: boolean): TextLayer {
   const light: ColorToken = onDark ? "white" : "ink";
   const quiet: ColorToken = onDark ? "white-70" : "muted";
 
-  const styles: Record<string, { name: string; frame: Frame; style: Partial<TextStyle> }> = {
+  const styles: Record<
+    string,
+    { name: string; frame: Frame; style: Partial<TextStyle> }
+  > = {
     "{title}": {
       name: "Τίτλος",
       frame: { x: 6, y: 62, w: 62, h: 20 },
@@ -773,7 +792,13 @@ export function layerForToken(token: string, onDark: boolean): TextLayer {
     "{brand}": {
       name: "Μάρκα",
       frame: { x: 6, y: 54, w: 40, h: 7 },
-      style: { font: "mono", size: 15, weight: 500, tracking: 10, color: "red" },
+      style: {
+        font: "mono",
+        size: 15,
+        weight: 500,
+        tracking: 10,
+        color: "red",
+      },
     },
     "{code}": {
       name: "Κωδικός",
@@ -908,13 +933,32 @@ export function seedProductLayers(): Layer[] {
     uppercase: false,
   };
 
+  /*
+   * Το σήμα του κατασκευαστή, πάνω δεξιά.
+   * ───────────────────────────────────────────────────────────────────────────
+   * Πάνω ΔΕΞΙΑ και όχι αριστερά: εκεί κάθεται το σήμα του καταστήματος στα
+   * βίντεο, και δύο λογότυπα στην ίδια γωνία διαβάζονται ως ένα ανακατεμένο.
+   * Λύνει σε κενό όταν η μάρκα δεν έχει αρχείο, και μια στρώση χωρίς πηγή δεν
+   * αποδίδεται καθόλου.
+   */
+  const brandMark = newLayer("image") as ImageLayer;
+  brandMark.name = "Σήμα μάρκας";
+  brandMark.src = "{brandLogo}";
+  brandMark.frame = { x: 74, y: 6, w: 20, h: 10 };
+  brandMark.fit = "contain";
+
   const price = newLayer("text") as TextLayer;
   price.name = "Τιμή";
   price.text = { el: "{price}" };
   price.frame = { x: 6, y: 86, w: 50, h: 9 };
-  price.style = { ...DEFAULT_TEXT_STYLE, role: "price", color: "white", uppercase: false };
+  price.style = {
+    ...DEFAULT_TEXT_STYLE,
+    role: "price",
+    color: "white",
+    uppercase: false,
+  };
 
-  return [plate, brand, title, compare, price];
+  return [plate, brandMark, brand, title, compare, price];
 }
 
 export function seedOfferLayers(): Layer[] {
@@ -944,25 +988,33 @@ export function validateGrid(
   columns: number,
   rows: number,
 ): { ok: true } | { ok: false; error: string } {
-  if (cells.length === 0) return { ok: false, error: "Το πλέγμα δεν έχει κελιά." };
+  if (cells.length === 0)
+    return { ok: false, error: "Το πλέγμα δεν έχει κελιά." };
 
   const seen = new Set<string>();
   for (const c of cells) {
-    if (seen.has(c.id)) return { ok: false, error: `Διπλό αναγνωριστικό κελιού: ${c.id}` };
+    if (seen.has(c.id))
+      return { ok: false, error: `Διπλό αναγνωριστικό κελιού: ${c.id}` };
     seen.add(c.id);
-    if (c.w < 1 || c.h < 1) return { ok: false, error: `Το «${c.name}» έχει μηδενικό μέγεθος.` };
+    if (c.w < 1 || c.h < 1)
+      return { ok: false, error: `Το «${c.name}» έχει μηδενικό μέγεθος.` };
     if (c.x < 0 || c.y < 0 || c.x + c.w > columns || c.y + c.h > rows) {
       return { ok: false, error: `Το «${c.name}» βγαίνει εκτός πλέγματος.` };
     }
   }
 
-  const grid: (string | null)[][] = Array.from({ length: rows }, () => Array(columns).fill(null));
+  const grid: (string | null)[][] = Array.from({ length: rows }, () =>
+    Array(columns).fill(null),
+  );
   for (const c of cells) {
     for (let y = c.y; y < c.y + c.h; y++) {
       for (let x = c.x; x < c.x + c.w; x++) {
         if (grid[y][x]) {
           const other = cells.find((o) => o.id === grid[y][x]);
-          return { ok: false, error: `Το «${c.name}» επικαλύπτει το «${other?.name}».` };
+          return {
+            ok: false,
+            error: `Το «${c.name}» επικαλύπτει το «${other?.name}».`,
+          };
         }
         grid[y][x] = c.id;
       }
@@ -988,7 +1040,8 @@ export function cellStyle(cell: GridCell): React.CSSProperties {
 
 /** How many columns a template's cells span in total — the denominator the
  *  single-row layout divides the width by. */
-export const spanTotal = (cells: GridCell[]) => cells.reduce((n, c) => n + c.w, 0);
+export const spanTotal = (cells: GridCell[]) =>
+  cells.reduce((n, c) => n + c.w, 0);
 
 /**
  * The same placement, as custom properties.
@@ -1073,7 +1126,8 @@ export const clampFrame = (frame: Frame): Frame => ({
  * Ίδιοι με τη σελίδα: eyebrow σε mono κόκκινο, τίτλος display 900 με tracking
  * −0,03em, σώμα σε Inter, αριθμοί σε JetBrains Mono.
  */
-export type TypeRole = "eyebrow" | "title" | "body" | "price" | "compare";
+export type TypeRole =
+  "eyebrow" | "title" | "body" | "price" | "compare" | "stat";
 
 export const TYPE_ROLE: Record<
   TypeRole,
@@ -1143,6 +1197,28 @@ export const TYPE_ROLE: Record<
     },
   },
   /*
+   * Ένα μέγεθος που ΕΙΝΑΙ το επιχείρημα.
+   * ───────────────────────────────────────────────────────────────────────────
+   * «9.442 κωδικοί», «48 χρόνια», «24-48 ώρες». Η σελίδα το γράφει ήδη έτσι
+   * (`t-stat-num`: mono 600, tracking −0,02em) και εδώ απλώς μεγαλώνει, γιατί
+   * σε ένα banner ο αριθμός δεν συνοδεύει το κείμενο — είναι το κείμενο.
+   *
+   * Ξεχωριστός ρόλος από την τιμή: η τιμή είναι ποσό σε ευρώ δίπλα σε ένα
+   * προϊόν και κουμπώνει με την παλιά τιμή· αυτό είναι μέγεθος καταλόγου και
+   * κάθεται μόνο του. Ίδια γραμματοσειρά, εντελώς άλλη κλίμακα.
+   */
+  stat: {
+    label: "Μέγεθος",
+    font: "mono",
+    size: [30, 13, 76],
+    css: {
+      fontWeight: 600,
+      letterSpacing: "-0.02em",
+      lineHeight: 0.95,
+    },
+  },
+
+  /*
    * Η προηγούμενη τιμή — διαγραμμένη. Το κατάστημα τη γράφει με `t-card-was`:
    * mono 400, ένα σκαλί κάτω από την τρέχουσα.
    * ───────────────────────────────────────────────────────────────────────────
@@ -1207,14 +1283,15 @@ export function roleFontSize(role: TypeRole, scale?: number): string {
  */
 export type AnimRecipe = "none" | "calm" | "stagger";
 
-export const ANIM_RECIPE: Record<AnimRecipe, { label: string; hint: string }> = {
-  none: { label: "Καμία", hint: "Όλα εμφανίζονται μαζί, ακίνητα." },
-  calm: { label: "Ήρεμη", hint: "Ένα κοινό fade, χωρίς σειρά." },
-  stagger: {
-    label: "Κλιμακωτή",
-    hint: "Τίτλος, κείμενο, τιμή — ένα-ένα, 0,15s το καθένα.",
-  },
-};
+export const ANIM_RECIPE: Record<AnimRecipe, { label: string; hint: string }> =
+  {
+    none: { label: "Καμία", hint: "Όλα εμφανίζονται μαζί, ακίνητα." },
+    calm: { label: "Ήρεμη", hint: "Ένα κοινό fade, χωρίς σειρά." },
+    stagger: {
+      label: "Κλιμακωτή",
+      hint: "Τίτλος, κείμενο, τιμή — ένα-ένα, 0,15s το καθένα.",
+    },
+  };
 
 /** Πόσο απέχει κάθε βήμα από το προηγούμενο, σε ms. */
 const ANIM_STEP = 150;
@@ -1236,6 +1313,7 @@ function animStep(layer: Layer): number {
     case "eyebrow":
       return 1;
     case "title":
+    case "stat":
       return 2;
     case "body":
       return 3;
@@ -1250,17 +1328,28 @@ function animStep(layer: Layer): number {
 
 /** Ποια κίνηση ταιριάζει σε τι: οι εικόνες σβήνουν μέσα, τα κείμενα ανεβαίνουν. */
 function animPreset(layer: Layer): AnimPreset {
-  if (layer.kind === "image" || layer.kind === "shape" || layer.kind === "ticker") return "fade";
+  if (
+    layer.kind === "image" ||
+    layer.kind === "shape" ||
+    layer.kind === "ticker"
+  )
+    return "fade";
   return "rise";
 }
 
 export function applyAnimRecipe(layers: Layer[], recipe: AnimRecipe): Layer[] {
   return layers.map((layer) => {
     if (recipe === "none") {
-      return { ...layer, anim: { preset: "none", delay: 0, duration: ANIM_DURATION } };
+      return {
+        ...layer,
+        anim: { preset: "none", delay: 0, duration: ANIM_DURATION },
+      };
     }
     if (recipe === "calm") {
-      return { ...layer, anim: { preset: "fade", delay: 0, duration: ANIM_DURATION } };
+      return {
+        ...layer,
+        anim: { preset: "fade", delay: 0, duration: ANIM_DURATION },
+      };
     }
     return {
       ...layer,
@@ -1312,7 +1401,11 @@ export function layerStyle(layer: Layer): React.CSSProperties {
     height: `${layer.frame.h}%`,
   };
 
-  if (layer.kind === "text" || layer.kind === "badge" || layer.kind === "button") {
+  if (
+    layer.kind === "text" ||
+    layer.kind === "badge" ||
+    layer.kind === "button"
+  ) {
     const style = layer.style;
     const role = style.role ? TYPE_ROLE[style.role] : null;
     if (role) {

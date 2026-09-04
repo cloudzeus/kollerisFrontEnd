@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-09-04T17:41:46.449Z",
+  "timestamp": "2026-09-04T17:51:11.498Z",
   "source": "auto-postool",
   "partial": false,
   "phase": null,
@@ -22,77 +22,21 @@
     },
     {
       "status": "M",
-      "path": "src/app/[locale]/(home)/page.tsx"
+      "path": "src/components/admin/banners/CellEditor.tsx"
     },
     {
       "status": "M",
-      "path": "src/app/[locale]/blog/page.tsx"
+      "path": "src/lib/banners/contract.ts"
     },
     {
       "status": "M",
-      "path": "src/app/[locale]/brands/[slug]/page.tsx"
+      "path": "src/lib/banners/presets.ts"
     },
     {
       "status": "M",
-      "path": "src/app/[locale]/brands/page.tsx"
-    },
-    {
-      "status": "M",
-      "path": "src/app/[locale]/epikoinonia/page.tsx"
-    },
-    {
-      "status": "M",
-      "path": "src/app/[locale]/etaireia/page.tsx"
-    },
-    {
-      "status": "M",
-      "path": "src/app/[locale]/nees-afixeis/page.tsx"
-    },
-    {
-      "status": "M",
-      "path": "src/app/[locale]/proion/[slug]/page.tsx"
-    },
-    {
-      "status": "M",
-      "path": "src/app/[locale]/proionta/page.tsx"
-    },
-    {
-      "status": "M",
-      "path": "src/app/[locale]/prosfores/page.tsx"
-    },
-    {
-      "status": "M",
-      "path": "src/components/home/AboutSplit.tsx"
-    },
-    {
-      "status": "M",
-      "path": "src/components/plp/FilterSidebar.tsx"
-    },
-    {
-      "status": "M",
-      "path": "src/lib/content/registry.ts"
-    },
-    {
-      "status": "M",
-      "path": "src/lib/seo/category-copy.ts"
-    },
-    {
-      "status": "M",
-      "path": "src/lib/seo/structured-data.ts"
-    },
-    {
-      "status": "M",
-      "path": "src/messages/el.json"
-    },
-    {
-      "status": "M",
-      "path": "src/messages/en.json"
-    },
-    {
-      "status": "M",
-      "path": "src/messages/it.json"
+      "path": "src/lib/banners/resolve.ts"
     }
   ],
   "next_action": null,
-  "context_notes": "Recent commits:\n9c7becb fix(seo): κάθε σελίδα δηλώνει τον δικό της τίτλο, canonical και δομή\n073a888 fix(banners): τα σήματα του Κολλέρη περνούν στο CDN\nc2e7694 fix(meta): Open Graph, εικόνα κοινοποίησης και το κόκκινο Κ ως favicon\nee6ea3d feat(banners): μία συνταγή κίνησης, auto-fit παντού, τα σήματα του Κολλέρη\n86e54c5 fix(type): οι επικεφαλίδες που έμειναν στην παλιά γραμματοσειρά"
+  "context_notes": "Recent commits:\n163d455 feat(seo): δομημένα δεδομένα σε κάθε τύπο σελίδας, και τα χρόνια υπολογίζονται\n9c7becb fix(seo): κάθε σελίδα δηλώνει τον δικό της τίτλο, canonical και δομή\n073a888 fix(banners): τα σήματα του Κολλέρη περνούν στο CDN\nc2e7694 fix(meta): Open Graph, εικόνα κοινοποίησης και το κόκκινο Κ ως favicon\nee6ea3d feat(banners): μία συνταγή κίνησης, auto-fit παντού, τα σήματα του Κολλέρη"
 }
