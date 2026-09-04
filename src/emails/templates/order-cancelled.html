@@ -126,10 +126,10 @@
       {{#each order.items}}
       <tr>
   <td width="72" valign="top" style="padding:14px 16px 14px 0;border-bottom:1px solid #EFEFEF;vertical-align:top;">
-    <img src="{{image}}" width="72" height="72" alt="{{name}}" style="display:block;width:72px;height:72px;border:0;background:#EFEFEF;">
+    {{#if image}}<img src="{{image}}" width="72" height="72" alt="{{name}}" style="display:block;width:72px;height:72px;border:0;background:#EFEFEF;">{{else}}<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="72" bgcolor="#EFEFEF" style="background-color:#EFEFEF;"><tr><td height="72" style="height:72px;line-height:72px;font-size:0;">&nbsp;</td></tr></table>{{/if}}
   </td>
   <td valign="top" style="padding:14px 0;font-family:'Inter',Arial,Helvetica,sans-serif;font-size:13px;line-height:20px;color:#1F1F1F;border-bottom:1px solid #EFEFEF;vertical-align:top;">
-    <p class="mono" style="font-family:'JetBrains Mono',Consolas,'Courier New',monospace;font-size:11px;line-height:16px;color:#5F6061;margin:0 0 2px 0;">{{brand}} <span style="color:#EA3E39;">/</span> {{sku}}</p>
+    <p class="mono" style="font-family:'JetBrains Mono',Consolas,'Courier New',monospace;font-size:11px;line-height:16px;color:#5F6061;margin:0 0 2px 0;">{{#if brand}}{{brand}} <span style="color:#EA3E39;">/</span> {{/if}}{{sku}}</p>
     <p style="margin:0;font-family:'Inter',Arial,Helvetica,sans-serif;font-size:12px;line-height:18px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#1F1F1F;">{{name}}</p>
     <p class="mono" style="font-family:'JetBrains Mono',Consolas,'Courier New',monospace;font-size:11px;line-height:16px;color:#5F6061;margin:4px 0 0 0;">{{qty}} × {{unit_price}}</p>
   </td>

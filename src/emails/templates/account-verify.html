@@ -82,16 +82,21 @@
   <tr><td class="k-pad" style="padding:40px 32px 0 32px;">
     <p class="mono" style="margin:0 0 12px 0;font-family:'JetBrains Mono',Consolas,'Courier New',monospace;font-size:10px;line-height:16px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:#C42A26;">Λογαριασμος <span style="color:#EA3E39;">/</span> Βημα 1 απο 2</p>
     <h1 class="k-h1" style="margin:0 0 16px 0;font-family:'Inter','Arial Black',Arial,Helvetica,sans-serif;font-size:32px;line-height:34px;font-weight:900;letter-spacing:-0.02em;text-transform:uppercase;color:#1F1F1F;">Επιβεβαιωστε<br>το email σας.</h1>
-    <p style="margin:0 0 20px 0;font-family:'Inter',Arial,Helvetica,sans-serif;font-size:18px;line-height:28px;color:#1F1F1F;">{{recipient.first_name}}, δημιουργήσατε λογαριασμό στο web.kolleris.com με τη διεύθυνση <strong>{{recipient.email}}</strong>. Ένα κλικ και ενεργοποιείται.</p>
-    <table role="presentation" cellspacing="0" cellpadding="0" border="0" class="k-btn" style=""><tr><td bgcolor="#EA3E39" style="background-color:#EA3E39;"><a href="{{verify.url}}" target="_blank" style="display:inline-block;padding:15px 24px;font-family:'Inter',Arial,Helvetica,sans-serif;font-size:12px;line-height:14px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#FFFFFF;text-decoration:none;mso-padding-alt:0;"><!--[if mso]><i style="letter-spacing:24px;mso-font-width:-100%;mso-text-raise:22pt;">&nbsp;</i><![endif]--><span style="mso-text-raise:11pt;">Επιβεβαιωση email&nbsp;&nbsp;→</span><!--[if mso]><i style="letter-spacing:24px;mso-font-width:-100%;">&nbsp;</i><![endif]--></a></td></tr></table>
+    <p style="margin:0 0 20px 0;font-family:'Inter',Arial,Helvetica,sans-serif;font-size:18px;line-height:28px;color:#1F1F1F;">{{#if verify.lead}}{{verify.lead}}{{else}}{{recipient.first_name}}, δημιουργήσατε λογαριασμό στο web.kolleris.com με τη διεύθυνση <strong>{{recipient.email}}</strong>. Ένα κλικ και ενεργοποιείται.{{/if}}</p>
+    <table role="presentation" cellspacing="0" cellpadding="0" border="0" class="k-btn" style=""><tr><td bgcolor="#EA3E39" style="background-color:#EA3E39;"><a href="{{verify.url}}" target="_blank" style="display:inline-block;padding:15px 24px;font-family:'Inter',Arial,Helvetica,sans-serif;font-size:12px;line-height:14px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#FFFFFF;text-decoration:none;mso-padding-alt:0;"><!--[if mso]><i style="letter-spacing:24px;mso-font-width:-100%;mso-text-raise:22pt;">&nbsp;</i><![endif]--><span style="mso-text-raise:11pt;">{{#if verify.cta}}{{verify.cta}}{{else}}Επιβεβαιωση email{{/if}}&nbsp;&nbsp;→</span><!--[if mso]><i style="letter-spacing:24px;mso-font-width:-100%;">&nbsp;</i><![endif]--></a></td></tr></table>
     <p style="margin:0;font-family:'Inter',Arial,Helvetica,sans-serif;font-size:13px;line-height:20px;color:#5F6061;margin-top:16px;">Ο σύνδεσμος ισχύει για <strong>{{verify.expires_in}}</strong>. Μετά τη λήξη του, ζητήστε νέο από τη σελίδα σύνδεσης.</p>
   </td></tr>
   <tr><td class="k-pad" style="padding:32px 32px 0 32px;">
     <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" bgcolor="#F7F7F7" style="background-color:#F7F7F7;border:1px solid #D8D8D8;">
       <tr><td style="padding:20px 24px;">
+        {{#if verify.code}}
         <p class="mono" style="margin:0 0 12px 0;font-family:'JetBrains Mono',Consolas,'Courier New',monospace;font-size:10px;line-height:16px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:#5F6061;margin-bottom:8px;">Δεν ανοιγει το κουμπι; Χρησιμοποιηστε τον κωδικο</p>
         <p class="mono" style="margin:0;font-family:'JetBrains Mono',Consolas,'Courier New',monospace;font-size:36px;line-height:44px;font-weight:700;letter-spacing:0.12em;color:#1F1F1F;">{{verify.code}}</p>
         <p style="margin:0;font-family:'Inter',Arial,Helvetica,sans-serif;font-size:13px;line-height:20px;color:#5F6061;margin-top:8px;">Εισάγετέ τον στη σελίδα επιβεβαίωσης: <a href="{{verify.manual_url}}" style="color:#C42A26;text-decoration:underline;">{{verify.manual_url_label}}</a></p>
+        {{else}}
+        <p class="mono" style="margin:0 0 12px 0;font-family:'JetBrains Mono',Consolas,'Courier New',monospace;font-size:10px;line-height:16px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:#5F6061;margin-bottom:8px;">Δεν ανοιγει το κουμπι; Αντιγραψτε τον συνδεσμο</p>
+        <p class="mono" style="font-family:'JetBrains Mono',Consolas,'Courier New',monospace;font-size:13px;line-height:20px;color:#1F1F1F;word-break:break-all;color:#1F1F1F;">{{verify.url}}</p>
+        {{/if}}
       </td></tr>
     </table>
   </td></tr>
@@ -99,7 +104,7 @@
     <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
   <tr><td style="border:1px solid #D8D8D8;border-left:4px solid #D8D8D8;padding:16px 20px;">
     <p class="mono" style="margin:0 0 12px 0;font-family:'JetBrains Mono',Consolas,'Courier New',monospace;font-size:10px;line-height:16px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:#5F6061;margin-bottom:6px;">Δεν το ζητησατε εσεις;</p>
-    <p style="margin:0;font-family:'Inter',Arial,Helvetica,sans-serif;font-size:13px;line-height:20px;color:#1F1F1F;">Αγνοήστε αυτό το email. Χωρίς επιβεβαίωση ο λογαριασμός δεν ενεργοποιείται και διαγράφεται αυτόματα σε 7 ημέρες.</p>
+    <p style="margin:0;font-family:'Inter',Arial,Helvetica,sans-serif;font-size:13px;line-height:20px;color:#1F1F1F;">{{#if verify.note}}{{verify.note}}{{else}}Αγνοήστε αυτό το email. Χωρίς επιβεβαίωση ο λογαριασμός δεν ενεργοποιείται και διαγράφεται αυτόματα σε 7 ημέρες.{{/if}}</p>
   </td></tr>
 </table>
   </td></tr>

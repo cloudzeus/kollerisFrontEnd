@@ -108,7 +108,7 @@
     </td>
   </tr>
 </table>
-    <p style="margin:0 0 16px 0;font-family:'Inter',Arial,Helvetica,sans-serif;font-size:15px;line-height:24px;color:#1F1F1F;margin-top:24px;">{{recipient.first_name}}, η παραγγελία {{order.number}} καταχωρήθηκε με τρόπο πληρωμής «Κατάθεση σε τράπεζα». Το απόθεμα κρατείται για <strong>{{payment.deadline_days}} εργάσιμες ημέρες</strong> (έως {{payment.deadline}}). Μόλις εμφανιστεί η κατάθεση, η παραγγελία περνά σε συλλογή.</p>
+    <p style="margin:0 0 16px 0;font-family:'Inter',Arial,Helvetica,sans-serif;font-size:15px;line-height:24px;color:#1F1F1F;margin-top:24px;">{{recipient.first_name}}, η παραγγελία {{order.number}} καταχωρήθηκε με τρόπο πληρωμής «Κατάθεση σε τράπεζα». Το απόθεμα κρατείται για <strong>{{payment.hold_for}}</strong>{{#if payment.deadline}} (έως {{payment.deadline}}){{/if}}. Μόλις εμφανιστεί η κατάθεση, η παραγγελία περνά σε συλλογή.</p>
   </td></tr>
   <tr><td class="k-pad" style="padding:8px 32px 0 32px;">
     <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" bgcolor="#D8D8D8" style="background-color:#D8D8D8;background-image:linear-gradient(225deg,#FFFFFF 22px,#D8D8D8 22px),linear-gradient(45deg,#FFFFFF 22px,#D8D8D8 22px);background-position:top right,bottom left;background-size:51% 100%,51% 100%;background-repeat:no-repeat;">
@@ -121,7 +121,7 @@
             </td>
             <td class="k-col" valign="top" width="50%" style="vertical-align:top;">
               <p class="mono" style="margin:0 0 12px 0;font-family:'JetBrains Mono',Consolas,'Courier New',monospace;font-size:10px;line-height:16px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:#5F6061;color:#454647;margin-bottom:2px;">Αιτιολογια καταθεσης</p>
-              <p class="mono" style="margin:0;font-family:'JetBrains Mono',Consolas,'Courier New',monospace;font-size:36px;line-height:44px;font-weight:700;letter-spacing:0.12em;color:#1F1F1F;font-size:24px;line-height:40px;letter-spacing:0.06em;">{{order.number}}</p>
+              <p class="mono" style="margin:0;font-family:'JetBrains Mono',Consolas,'Courier New',monospace;font-size:36px;line-height:44px;font-weight:700;letter-spacing:0.12em;color:#1F1F1F;font-size:24px;line-height:40px;letter-spacing:0.06em;">{{payment.reference}}</p>
             </td>
           </tr>
         </table>
@@ -138,12 +138,12 @@
       </tr>
       {{/each}}
     </table>
-    <p style="margin:0;font-family:'Inter',Arial,Helvetica,sans-serif;font-size:13px;line-height:20px;color:#5F6061;margin-top:12px;">Επιλέξτε την τράπεζά σας για να αποφύγετε έξοδα εμβάσματος. Γράψτε <strong>μόνο τον αριθμό παραγγελίας</strong> στην αιτιολογία.</p>
+    <p style="margin:0;font-family:'Inter',Arial,Helvetica,sans-serif;font-size:13px;line-height:20px;color:#5F6061;margin-top:12px;">Επιλέξτε την τράπεζά σας για να αποφύγετε έξοδα εμβάσματος. Γράψτε <strong>μόνο την αιτιολογία που βλέπετε παραπάνω</strong>, ακριβώς όπως είναι.</p>
   </td></tr>
   <tr><td class="k-pad" style="padding:28px 32px 0 32px;">
     <table role="presentation" cellspacing="0" cellpadding="0" border="0">
       <tr>
-        <td style="padding-right:12px;"><table role="presentation" cellspacing="0" cellpadding="0" border="0" class="k-btn" style=""><tr><td bgcolor="#EA3E39" style="background-color:#EA3E39;"><a href="{{payment.upload_url}}" target="_blank" style="display:inline-block;padding:15px 24px;font-family:'Inter',Arial,Helvetica,sans-serif;font-size:12px;line-height:14px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#FFFFFF;text-decoration:none;mso-padding-alt:0;"><!--[if mso]><i style="letter-spacing:24px;mso-font-width:-100%;mso-text-raise:22pt;">&nbsp;</i><![endif]--><span style="mso-text-raise:11pt;">Αποστολη αποδεικτικου&nbsp;&nbsp;→</span><!--[if mso]><i style="letter-spacing:24px;mso-font-width:-100%;">&nbsp;</i><![endif]--></a></td></tr></table></td>
+        <td style="padding-right:12px;">{{#if payment.card_url}}<table role="presentation" cellspacing="0" cellpadding="0" border="0" class="k-btn" style=""><tr><td bgcolor="#EA3E39" style="background-color:#EA3E39;"><a href="{{payment.card_url}}" target="_blank" style="display:inline-block;padding:15px 24px;font-family:'Inter',Arial,Helvetica,sans-serif;font-size:12px;line-height:14px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#FFFFFF;text-decoration:none;mso-padding-alt:0;"><!--[if mso]><i style="letter-spacing:24px;mso-font-width:-100%;mso-text-raise:22pt;">&nbsp;</i><![endif]--><span style="mso-text-raise:11pt;">Πληρωμη με καρτα&nbsp;&nbsp;→</span><!--[if mso]><i style="letter-spacing:24px;mso-font-width:-100%;">&nbsp;</i><![endif]--></a></td></tr></table>{{else}}{{#if payment.upload_url}}<table role="presentation" cellspacing="0" cellpadding="0" border="0" class="k-btn" style=""><tr><td bgcolor="#EA3E39" style="background-color:#EA3E39;"><a href="{{payment.upload_url}}" target="_blank" style="display:inline-block;padding:15px 24px;font-family:'Inter',Arial,Helvetica,sans-serif;font-size:12px;line-height:14px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#FFFFFF;text-decoration:none;mso-padding-alt:0;"><!--[if mso]><i style="letter-spacing:24px;mso-font-width:-100%;mso-text-raise:22pt;">&nbsp;</i><![endif]--><span style="mso-text-raise:11pt;">Αποστολη αποδεικτικου&nbsp;&nbsp;→</span><!--[if mso]><i style="letter-spacing:24px;mso-font-width:-100%;">&nbsp;</i><![endif]--></a></td></tr></table>{{/if}}{{/if}}</td>
         <td><table role="presentation" cellspacing="0" cellpadding="0" border="0" style=""><tr><td style="border:2px solid #1F1F1F;"><a href="{{order.url}}" target="_blank" style="display:inline-block;padding:13px 22px;font-family:'Inter',Arial,Helvetica,sans-serif;font-size:12px;line-height:14px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#1F1F1F;text-decoration:none;mso-padding-alt:0;"><!--[if mso]><i style="letter-spacing:22px;mso-font-width:-100%;mso-text-raise:20pt;">&nbsp;</i><![endif]--><span style="mso-text-raise:10pt;">Η παραγγελια&nbsp;&nbsp;→</span><!--[if mso]><i style="letter-spacing:22px;mso-font-width:-100%;">&nbsp;</i><![endif]--></a></td></tr></table></td>
       </tr>
     </table>
@@ -157,10 +157,10 @@
   {{#each order.items}}
   <tr>
   <td width="72" valign="top" style="padding:14px 16px 14px 0;border-bottom:1px solid #EFEFEF;vertical-align:top;">
-    <img src="{{image}}" width="72" height="72" alt="{{name}}" style="display:block;width:72px;height:72px;border:0;background:#EFEFEF;">
+    {{#if image}}<img src="{{image}}" width="72" height="72" alt="{{name}}" style="display:block;width:72px;height:72px;border:0;background:#EFEFEF;">{{else}}<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="72" bgcolor="#EFEFEF" style="background-color:#EFEFEF;"><tr><td height="72" style="height:72px;line-height:72px;font-size:0;">&nbsp;</td></tr></table>{{/if}}
   </td>
   <td valign="top" style="padding:14px 0;font-family:'Inter',Arial,Helvetica,sans-serif;font-size:13px;line-height:20px;color:#1F1F1F;border-bottom:1px solid #EFEFEF;vertical-align:top;">
-    <p class="mono" style="font-family:'JetBrains Mono',Consolas,'Courier New',monospace;font-size:11px;line-height:16px;color:#5F6061;margin:0 0 2px 0;">{{brand}} <span style="color:#EA3E39;">/</span> {{sku}}</p>
+    <p class="mono" style="font-family:'JetBrains Mono',Consolas,'Courier New',monospace;font-size:11px;line-height:16px;color:#5F6061;margin:0 0 2px 0;">{{#if brand}}{{brand}} <span style="color:#EA3E39;">/</span> {{/if}}{{sku}}</p>
     <p style="margin:0;font-family:'Inter',Arial,Helvetica,sans-serif;font-size:12px;line-height:18px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#1F1F1F;">{{name}}</p>
     <p class="mono" style="font-family:'JetBrains Mono',Consolas,'Courier New',monospace;font-size:11px;line-height:16px;color:#5F6061;margin:4px 0 0 0;">{{qty}} × {{unit_price}}</p>
   </td>
@@ -174,7 +174,7 @@
       <tr><td style="padding:6px 0;font-family:'Inter',Arial,Helvetica,sans-serif;font-size:13px;line-height:20px;color:#5F6061;text-align:right;">Υποσύνολο</td><td class="mono" style="padding:6px 0 6px 24px;font-family:'JetBrains Mono',Consolas,'Courier New',monospace;font-size:13px;line-height:20px;color:#1F1F1F;text-align:right;white-space:nowrap;">{{order.subtotal}}</td></tr>
       {{#if order.discount}}<tr><td style="padding:6px 0;font-family:'Inter',Arial,Helvetica,sans-serif;font-size:13px;line-height:20px;color:#5F6061;text-align:right;">Έκπτωση {{order.discount_label}}</td><td class="mono" style="padding:6px 0 6px 24px;font-family:'JetBrains Mono',Consolas,'Courier New',monospace;font-size:13px;line-height:20px;color:#1F1F1F;text-align:right;white-space:nowrap;color:#C42A26;">−{{order.discount}}</td></tr>{{/if}}
       <tr><td style="padding:6px 0;font-family:'Inter',Arial,Helvetica,sans-serif;font-size:13px;line-height:20px;color:#5F6061;text-align:right;">Μεταφορικά ({{order.shipping_method}})</td><td class="mono" style="padding:6px 0 6px 24px;font-family:'JetBrains Mono',Consolas,'Courier New',monospace;font-size:13px;line-height:20px;color:#1F1F1F;text-align:right;white-space:nowrap;">{{order.shipping_cost}}</td></tr>
-      <tr><td style="padding:6px 0;font-family:'Inter',Arial,Helvetica,sans-serif;font-size:13px;line-height:20px;color:#5F6061;text-align:right;">ΦΠΑ 24%</td><td class="mono" style="padding:6px 0 6px 24px;font-family:'JetBrains Mono',Consolas,'Courier New',monospace;font-size:13px;line-height:20px;color:#1F1F1F;text-align:right;white-space:nowrap;">{{order.vat}}</td></tr>
+      <tr><td style="padding:6px 0;font-family:'Inter',Arial,Helvetica,sans-serif;font-size:13px;line-height:20px;color:#5F6061;text-align:right;">ΦΠΑ{{#if order.vat_label}} {{order.vat_label}}{{/if}}</td><td class="mono" style="padding:6px 0 6px 24px;font-family:'JetBrains Mono',Consolas,'Courier New',monospace;font-size:13px;line-height:20px;color:#1F1F1F;text-align:right;white-space:nowrap;">{{order.vat}}</td></tr>
       <tr><td style="padding:12px 0 0 0;font-family:'Inter',Arial,Helvetica,sans-serif;font-size:12px;line-height:20px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#1F1F1F;text-align:right;border-top:1px solid #1F1F1F;">Συνολο</td><td class="mono" style="padding:12px 0 0 24px;font-family:'JetBrains Mono',Consolas,'Courier New',monospace;font-size:18px;line-height:24px;font-weight:700;color:#1F1F1F;text-align:right;border-top:1px solid #1F1F1F;white-space:nowrap;">{{order.total}}</td></tr>
     </table>
   </td></tr>

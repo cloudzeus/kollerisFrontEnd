@@ -2,8 +2,10 @@ import "server-only";
 import { randomBytes } from "node:crypto";
 import { hash } from "@node-rs/argon2";
 import { prisma } from "@/lib/prisma";
+import { headers } from "next/headers";
 import { sendMail, mailConfigured } from "@/lib/mail/client";
-import { block, esc, renderEmail } from "@/lib/mail/layout";
+import { renderTemplate } from "@/lib/mail/templates";
+import { requestFingerprint, stampNow } from "@/lib/mail/request-context";
 import { siteOrigin } from "@/lib/seo/urls";
 
 /**
@@ -69,35 +71,42 @@ export async function requestPasswordReset(rawEmail: string): Promise<ResetOutco
 
   const link = `${siteOrigin()}/eisodos/neos-kodikos/${token}`;
 
+  /*
+   * Ποιος ζήτησε την επαναφορά, από πού.
+   * ───────────────────────────────────────────────────────────────────────────
+   * Το template δείχνει αίτημα / συσκευή / IP ακριβώς για να μπορεί ο
+   * παραλήπτης να καταλάβει ότι δεν το ζήτησε αυτός. Χωρίς αυτά, ένα email
+   * «κάποιος ζήτησε νέο κωδικό» δεν δίνει τίποτα να συγκρίνει.
+   *
+   * Τοποθεσία δεν δηλώνεται: δεν υπάρχει geo-IP εδώ, και μια επινοημένη πόλη
+   * σε μήνυμα ασφαλείας είναι χειρότερη από καμία.
+   */
+  const fingerprint = await requestFingerprint(await headers());
+
+  const html = await renderTemplate("account-password-reset", {
+    preheader: `Ο σύνδεσμος ισχύει για ${TOKEN_TTL_HOURS} ώρες.`,
+    recipient: { first_name: customer.firstName ?? "", email },
+    reset: {
+      url: link,
+      expires_in: `${TOKEN_TTL_HOURS} ώρες`,
+      requested_at: stampNow(),
+      device: fingerprint.device,
+      location: fingerprint.location,
+      ip: fingerprint.ip,
+    },
+  });
+
   const result = await sendMail({
     to: email,
-    subject: "Επαναφορά κωδικού — Kolleris",
-    html: renderEmail({
-      preheader: `Ο σύνδεσμος ισχύει για ${TOKEN_TTL_HOURS} ώρες.`,
-      body: [
-        block.heading("Επαναφορά κωδικού"),
-        block.sub("Ζητήθηκε νέος κωδικός για τον λογαριασμό σας"),
-        block.text(
-          `${customer.firstName ? `${esc(customer.firstName)}, ε` : "Ε"}πιλέξτε νέο κωδικό ` +
-            "από τον παρακάτω σύνδεσμο. Οι υπόλοιπες συνδέσεις σας θα τερματιστούν.",
-        ),
-        block.button(link, "Ορισμός νέου κωδικού"),
-        block.space(10),
-        block.text(
-          `<span style="font-size:12px;color:#767672;">Ή αντιγράψτε τον σύνδεσμο:<br>` +
-            `<span style="word-break:break-all;">${esc(link)}</span></span>`,
-        ),
-      ],
-      footerNote:
-        `Ο σύνδεσμος ισχύει για ${TOKEN_TTL_HOURS} ώρες και χρησιμοποιείται μία φορά. ` +
-        "Αν δεν τον ζητήσατε εσείς, αγνοήστε αυτό το μήνυμα — ο κωδικός σας δεν άλλαξε.",
-    }),
+    subject: "Επαναφορά κωδικού πρόσβασης",
+    html,
     text: [
-      "Επαναφορά κωδικού — Kolleris",
+      "Επαναφορά κωδικού πρόσβασης — Kolleris",
       "",
       `Ορισμός νέου κωδικού: ${link}`,
       "",
-      `Ισχύει για ${TOKEN_TTL_HOURS} ώρες. Αν δεν τον ζητήσατε, αγνοήστε το μήνυμα.`,
+      `Ισχύει για ${TOKEN_TTL_HOURS} ώρες και χρησιμοποιείται μία φορά.`,
+      "Αν δεν τον ζητήσατε εσείς, αγνοήστε το μήνυμα — ο κωδικός σας δεν άλλαξε.",
     ].join("\n"),
   });
 
