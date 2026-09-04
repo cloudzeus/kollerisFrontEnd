@@ -1,5 +1,5 @@
 import { getLocale } from "next-intl/server";
-import { alternatesFor } from "@/lib/seo/urls";
+import { pageMeta } from "@/lib/seo/urls";
 import { getTranslations } from "next-intl/server";
 import type { Metadata } from "next";
 import Image from "next/image";
@@ -32,13 +32,15 @@ export async function generateMetadata({
   // Explicit locale: `setRequestLocale` belongs to the render pass, and
   // metadata is generated outside it.
   const t = await getTranslations({ locale, namespace: "katalogos.page" });
+  const title = t("titlos_katalogos");
+  const description = t("perigrafi_oles_oi_katigories_ergaleion");
   return {
-    // Each language is a page in its own right: its own canonical, and the
-    // other two declared as alternates so they are read as translations
-    // rather than as duplicates competing with each other.
-    alternates: alternatesFor("/katalogos", locale),
-    title: t("titlos_katalogos"),
-    description: t("perigrafi_oles_oi_katigories_ergaleion"),
+    /* Canonical, γλώσσες και Open Graph μαζί: το `openGraph` κληρονομείται
+       ολόκληρο από όποια σελίδα δεν ορίζει δικό της, οπότε 12 από 16 σελίδες
+       μοιράζονταν με τον τίτλο της αρχικής. */
+    ...pageMeta({ path: "/katalogos", locale, title, description }),
+    title,
+    description,
   };
 }
 

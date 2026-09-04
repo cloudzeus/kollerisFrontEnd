@@ -18,7 +18,8 @@ import { routing, type Locale } from "@/i18n/routing";
 const DEV_ORIGIN = "http://localhost:3000";
 
 /** Letters, digits and hyphens in dot-separated labels, optionally with a port. */
-const HOSTNAME = /^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)*$/i;
+const HOSTNAME =
+  /^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)*$/i;
 
 /**
  * Make sense of whatever NEXT_PUBLIC_SITE_URL turned out to be.
@@ -57,11 +58,17 @@ function resolveOrigin(raw: string | undefined): {
   try {
     url = new URL(cleaned);
   } catch {
-    return { origin: DEV_ORIGIN, problem: `${JSON.stringify(trimmed)} is not a URL` };
+    return {
+      origin: DEV_ORIGIN,
+      problem: `${JSON.stringify(trimmed)} is not a URL`,
+    };
   }
 
   if (url.protocol !== "https:" && url.protocol !== "http:") {
-    return { origin: DEV_ORIGIN, problem: `${JSON.stringify(trimmed)} is not http(s)` };
+    return {
+      origin: DEV_ORIGIN,
+      problem: `${JSON.stringify(trimmed)} is not http(s)`,
+    };
   }
   if (!HOSTNAME.test(url.hostname)) {
     return {
@@ -74,7 +81,10 @@ function resolveOrigin(raw: string | undefined): {
   return {
     configured: true,
     origin: url.origin,
-    problem: cleaned === trimmed ? undefined : `trailing characters removed from ${JSON.stringify(trimmed)}`,
+    problem:
+      cleaned === trimmed
+        ? undefined
+        : `trailing characters removed from ${JSON.stringify(trimmed)}`,
   };
 }
 
@@ -123,7 +133,10 @@ export function localisedPath(path: string, locale: Locale): string {
   return locale === routing.defaultLocale ? bare || "/" : `/${locale}${bare}`;
 }
 
-export function absoluteUrl(path: string, locale: Locale = routing.defaultLocale): string {
+export function absoluteUrl(
+  path: string,
+  locale: Locale = routing.defaultLocale,
+): string {
   return `${siteOrigin()}${localisedPath(path, locale)}`;
 }
 
@@ -143,6 +156,67 @@ export function alternatesFor(path: string, locale: Locale) {
   languages["x-default"] = absoluteUrl(path, routing.defaultLocale);
 
   return { canonical: absoluteUrl(path, locale), languages };
+}
+
+/**
+ * Ό,τι χρειάζεται μια σελίδα για να μοιραστεί σωστά: canonical, γλώσσες, και
+ * Open Graph με ΤΟ ΔΙΚΟ ΤΗΣ τίτλο.
+ *
+ * ── Το πρόβλημα που λύνει ──────────────────────────────────────────────────
+ *
+ * Το `openGraph` κληρονομείται ΟΛΟΚΛΗΡΟ από κάθε σελίδα που δεν ορίζει δικό
+ * της — έτσι το λέει η τεκμηρίωση του Next, και έτσι μετρήθηκε: σε 16 σελίδες
+ * του καταστήματος, οι 12 δήλωναν `og:title` «Kolleris — Εργαλεία &
+ * Επαγγελματικός Εξοπλισμός». Ο κατάλογος, οι προσφορές, το blog, η κάθε
+ * μάρκα και η κάθε κατηγορία μοιράζονταν με τον τίτλο της αρχικής. Το
+ * `<title>` ήταν σωστό σε όλες· απλώς κανένας scraper δεν το κοιτάζει.
+ *
+ * ── Γιατί ένας helper και όχι αντιγραφή σε κάθε σελίδα ─────────────────────
+ *
+ * Επειδή ακριβώς αυτό απέτυχε. Το `alternates` γραφόταν ήδη σελίδα-σελίδα και
+ * τρεις το ξέχασαν, οπότε δήλωναν canonical την αρχική. Ό,τι πρέπει να
+ * γράφεται σε είκοσι σημεία θα λείψει από κάποια.
+ *
+ * Ο τίτλος δίνεται ΧΩΡΙΣ το «| Kolleris»: το `template` του Next το προσθέτει
+ * μόνο στο `<title>`, όχι στο `og:title`, και μια προεπισκόπηση που γράφει το
+ * όνομα του καταστήματος δύο φορές διαβάζεται σαν λάθος.
+ */
+export function pageMeta(input: {
+  path: string;
+  locale: Locale;
+  title: string;
+  description: string;
+  /** Εικόνα προεπισκόπησης, όταν η σελίδα έχει δική της. Αλλιώς η γενική. */
+  image?: string;
+  /** `article` για άρθρα, `website` για τα υπόλοιπα. */
+  type?: "website" | "article";
+}) {
+  const url = absoluteUrl(input.path, input.locale);
+  return {
+    alternates: alternatesFor(input.path, input.locale),
+    openGraph: {
+      type: input.type ?? "website",
+      siteName: "Kolleris",
+      locale:
+        input.locale === "el"
+          ? "el_GR"
+          : input.locale === "it"
+            ? "it_IT"
+            : "en_US",
+      title: input.title,
+      description: input.description,
+      url,
+      ...(input.image
+        ? { images: [{ url: input.image, alt: input.title }] }
+        : {}),
+    },
+    twitter: {
+      card: "summary_large_image" as const,
+      title: input.title,
+      description: input.description,
+      ...(input.image ? { images: [input.image] } : {}),
+    },
+  };
 }
 
 /** The same thing shaped for a sitemap entry, which wants no `x-default`. */

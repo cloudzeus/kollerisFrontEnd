@@ -1,6 +1,7 @@
 import { useTranslations } from "next-intl";
 import { getTranslations } from "next-intl/server";
 import type { Metadata } from "next";
+import { alternatesFor } from "@/lib/seo/urls";
 import Image from "next/image";
 import { setRequestLocale } from "next-intl/server";
 import { SiteChrome } from "@/components/chrome/SiteChrome";
@@ -49,6 +50,10 @@ export async function generateMetadata({
   const raw = await searchParams;
   const q = (Array.isArray(raw.q) ? raw.q[0] : raw.q)?.trim() ?? "";
   return {
+    /* Canonical στη ΔΙΚΗ της διεύθυνση. Χωρίς αυτό η σελίδα κληρονομεί το
+       canonical της ρίζας, δηλαδή δηλώνει ότι ΕΙΝΑΙ η αρχική — και το
+       `noindex` δεν αναιρεί μια λάθος δήλωση ταυτότητας, απλώς την κρύβει. */
+    alternates: alternatesFor("/anazitisi", locale),
     title: q ? t("anazitisi", { q }) : t("anazitisi_titlos"),
     // A results page is a view over the catalogue, not a page that should
     // compete in search with the products it lists.

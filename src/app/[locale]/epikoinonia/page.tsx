@@ -1,5 +1,5 @@
 import { getTranslations } from "next-intl/server";
-import { alternatesFor } from "@/lib/seo/urls";
+import { pageMeta } from "@/lib/seo/urls";
 import type { Metadata } from "next";
 import { setRequestLocale } from "next-intl/server";
 import { SectionHead } from "@/components/chrome/SectionHead";
@@ -30,13 +30,15 @@ export async function generateMetadata({
   // Explicit locale: `setRequestLocale` belongs to the render pass, and
   // metadata is generated outside it.
   const t = await getTranslations({ locale, namespace: "epikoinonia.page" });
+  const title = t("titlos_epikoinonia");
+  const description = t("perigrafi_tilefono_email_kai_forma");
   return {
-    // Each language is a page in its own right: its own canonical, and the
-    // other two declared as alternates so they are read as translations
-    // rather than as duplicates competing with each other.
-    alternates: alternatesFor("/epikoinonia", locale),
-    title: t("titlos_epikoinonia"),
-    description: t("perigrafi_tilefono_email_kai_forma"),
+    /* Canonical, γλώσσες και Open Graph μαζί: το `openGraph` κληρονομείται
+       ολόκληρο από όποια σελίδα δεν ορίζει δικό της, οπότε 12 από 16 σελίδες
+       μοιράζονταν με τον τίτλο της αρχικής. */
+    ...pageMeta({ path: "/epikoinonia", locale, title, description }),
+    title,
+    description,
   };
 }
 

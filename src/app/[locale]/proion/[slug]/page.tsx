@@ -1,5 +1,5 @@
 import { getTranslations } from "next-intl/server";
-import { absoluteUrl, alternatesFor } from "@/lib/seo/urls";
+import { absoluteUrl, pageMeta } from "@/lib/seo/urls";
 import { faqJsonLd, productFaq } from "@/lib/seo/product-faq";
 import {
   priceValidUntil,
@@ -58,23 +58,22 @@ export async function generateMetadata({
   const product = await getProductBySlug(slug, locale);
   if (!product) return {};
 
+  const title = product.name;
+  const description =
+    product.shortDescription ??
+    t("kodikos_amesi_diathesimotita_paradosi_24", { name: product.name, n: product.brand ? ` — ${product.brand.name}` : "", sku: product.sku });
   return {
-
-    // Each language is a page in its own right: its own canonical, and the
-
-    // other two declared as alternates so they are read as translations
-
-    // rather than as duplicates competing with each other.
-
-    alternates: alternatesFor(`/proion/${slug}`, locale),
-    title: product.name,
-    description:
-      product.shortDescription ??
-      t("kodikos_amesi_diathesimotita_paradosi_24", { name: product.name, n: product.brand ? ` — ${product.brand.name}` : "", sku: product.sku }),
-    openGraph: {
-      title: product.name,
-      images: product.images[0] ? [product.images[0].url] : undefined,
-    },
+    /* Η φωτογραφία του προϊόντος ως εικόνα προεπισκόπησης: ένα link προϊόντος
+       που δείχνει το γενικό banner του καταστήματος δεν λέει τι μοιράστηκε. */
+    ...pageMeta({
+      path: `/proion/${slug}`,
+      locale,
+      title,
+      description,
+      image: product.images[0]?.url,
+    }),
+    title,
+    description,
   };
 }
 

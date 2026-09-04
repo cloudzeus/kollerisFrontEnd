@@ -1,6 +1,7 @@
 import { useTranslations } from "next-intl";
 import { getTranslations } from "next-intl/server";
 import type { Metadata } from "next";
+import { alternatesFor } from "@/lib/seo/urls";
 import { setRequestLocale } from "next-intl/server";
 import { CompareAdviceBand } from "@/components/compare/CompareAdviceBand";
 import { CompareMatrix } from "@/components/compare/CompareMatrix";
@@ -42,6 +43,10 @@ export async function generateMetadata({
   // metadata is generated outside it.
   const t = await getTranslations({ locale, namespace: "sygkrisi.page" });
   return {
+    /* Canonical στη ΔΙΚΗ της διεύθυνση. Χωρίς αυτό η σελίδα κληρονομεί το
+       canonical της ρίζας, δηλαδή δηλώνει ότι ΕΙΝΑΙ η αρχική — και το
+       `noindex` δεν αναιρεί μια λάθος δήλωση ταυτότητας, απλώς την κρύβει. */
+    alternates: alternatesFor("/sygkrisi", locale),
     title: t("titlos_sygkrisi_proionton"),
     description: t("perigrafi_sygkrinete_eos_4_proionta"),
     robots: { index: false, follow: true },

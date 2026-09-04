@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-09-04T17:24:52.072Z",
+  "timestamp": "2026-09-04T17:33:12.969Z",
   "source": "auto-postool",
   "partial": false,
   "phase": null,
@@ -22,9 +22,77 @@
     },
     {
       "status": "M",
-      "path": "src/components/admin/banners/CellEditor.tsx"
+      "path": "src/app/[locale]/anazitisi/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/app/[locale]/b2b/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/app/[locale]/blog/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/app/[locale]/brands/[slug]/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/app/[locale]/brands/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/app/[locale]/epikoinonia/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/app/[locale]/etaireia/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/app/[locale]/katalogos/[kathgoria]/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/app/[locale]/katalogos/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/app/[locale]/nees-afixeis/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/app/[locale]/proion/[slug]/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/app/[locale]/proionta/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/app/[locale]/prosfores/[slug]/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/app/[locale]/prosfores/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/app/[locale]/sygkrisi/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/app/[locale]/syxnes-erotiseis/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/lib/seo/structured-data.ts"
+    },
+    {
+      "status": "M",
+      "path": "src/lib/seo/urls.ts"
     }
   ],
   "next_action": null,
-  "context_notes": "Recent commits:\nc2e7694 fix(meta): Open Graph, εικόνα κοινοποίησης και το κόκκινο Κ ως favicon\nee6ea3d feat(banners): μία συνταγή κίνησης, auto-fit παντού, τα σήματα του Κολλέρη\n86e54c5 fix(type): οι επικεφαλίδες που έμειναν στην παλιά γραμματοσειρά\na578f95 feat(banners): τα widgets αλλάζουν θέση με σύρσιμο\n825487a feat(banners): αντίγραφο banner"
+  "context_notes": "Recent commits:\n073a888 fix(banners): τα σήματα του Κολλέρη περνούν στο CDN\nc2e7694 fix(meta): Open Graph, εικόνα κοινοποίησης και το κόκκινο Κ ως favicon\nee6ea3d feat(banners): μία συνταγή κίνησης, auto-fit παντού, τα σήματα του Κολλέρη\n86e54c5 fix(type): οι επικεφαλίδες που έμειναν στην παλιά γραμματοσειρά\na578f95 feat(banners): τα widgets αλλάζουν θέση με σύρσιμο"
 }

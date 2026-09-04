@@ -78,7 +78,11 @@ export function siteJsonLd(locale: Locale) {
           postalCode: SHOP.postcode,
           addressCountry: SHOP.country,
         },
-        geo: { "@type": "GeoCoordinates", latitude: SHOP.lat, longitude: SHOP.lon },
+        geo: {
+          "@type": "GeoCoordinates",
+          latitude: SHOP.lat,
+          longitude: SHOP.lon,
+        },
         openingHoursSpecification: [
           {
             "@type": "OpeningHoursSpecification",
@@ -105,6 +109,58 @@ export function siteJsonLd(locale: Locale) {
         },
       },
     ],
+  };
+}
+
+/**
+ * Μια σελίδα-λίστα, δηλωμένη ως λίστα.
+ *
+ * ── Τι έλειπε ──────────────────────────────────────────────────────────────
+ *
+ * Μετρημένο σε 16 σελίδες: μόνο η κατηγορία και το προϊόν είχαν δικό τους
+ * structured data. Οι μάρκες, οι προσφορές, οι νέες αφίξεις, ο πλήρης
+ * κατάλογος και το blog έδιναν μόνο το καθολικό `HardwareStore` + `WebSite` —
+ * δηλαδή έλεγαν ποιο είναι το κατάστημα και τίποτα για το τι δείχνει η
+ * σελίδα. Για μια μηχανή, «η σελίδα των μαρκών» ήταν κείμενο χωρίς δομή.
+ *
+ * ── Γιατί έχει σημασία πέρα από το SEO ─────────────────────────────────────
+ *
+ * Ένα γλωσσικό μοντέλο που ρωτιέται «ποιες μάρκες έχει ο Κολλέρης» πρέπει να
+ * παραθέσει κάτι. Με `ItemList` παίρνει δεκαοκτώ ονόματα με τις διευθύνσεις
+ * τους· χωρίς αυτό, μαντεύει από το κείμενο ή δεν απαντά.
+ *
+ * ── Θέσεις, όχι μόνο ονόματα ───────────────────────────────────────────────
+ *
+ * Το `position` δεν είναι διακοσμητικό: δηλώνει ότι η σειρά έχει νόημα — και
+ * εδώ έχει, γιατί οι λίστες είναι ταξινομημένες κατά πλήθος κωδικών ή κατά
+ * ημερομηνία. Χωρίς αυτό η λίστα διαβάζεται ως σύνολο χωρίς σειρά.
+ */
+export function collectionJsonLd(
+  input: {
+    name: string;
+    description?: string;
+    path: string;
+    items: Array<{ name: string; path: string }>;
+  },
+  locale: Locale,
+) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    name: input.name,
+    ...(input.description ? { description: input.description } : {}),
+    url: absoluteUrl(input.path, locale),
+    isPartOf: { "@id": `${siteOrigin()}/#website` },
+    mainEntity: {
+      "@type": "ItemList",
+      numberOfItems: input.items.length,
+      itemListElement: input.items.map((item, index) => ({
+        "@type": "ListItem",
+        position: index + 1,
+        name: item.name,
+        url: absoluteUrl(item.path, locale),
+      })),
+    },
   };
 }
 

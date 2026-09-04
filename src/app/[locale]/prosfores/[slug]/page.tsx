@@ -1,7 +1,7 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { alternatesFor } from "@/lib/seo/urls";
+import { pageMeta } from "@/lib/seo/urls";
 import { SiteChrome } from "@/components/chrome/SiteChrome";
 import { SiteFooter } from "@/components/chrome/SiteFooter";
 import { FilterSidebar } from "@/components/plp/FilterSidebar";
@@ -78,10 +78,14 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const { slug, locale } = await params;
   const offer = await getOffer(slug);
   if (!offer) return {};
+  const title = offerTitle(offer, locale);
+  /* Κενή περιγραφή σημαίνει «δεν γράφτηκε», και μια προεπισκόπηση χωρίς
+     περιγραφή είναι καλύτερη από μια με κενή γραμμή. Πέφτει στη γενική. */
+  const description = offerDescription(offer, locale) || "";
   return {
-    alternates: alternatesFor(`/prosfores/${slug}`, locale),
-    title: offerTitle(offer, locale),
-    description: offerDescription(offer, locale) || undefined,
+    ...pageMeta({ path: `/prosfores/${slug}`, locale, title, description }),
+    title,
+    description: description || undefined,
   };
 }
 

@@ -1,5 +1,5 @@
 import { getTranslations } from "next-intl/server";
-import { alternatesFor } from "@/lib/seo/urls";
+import { pageMeta } from "@/lib/seo/urls";
 import { categoryBreadcrumb, categoryItemList } from "@/lib/seo/product-schema";
 import { categoryFaq, categoryIntro } from "@/lib/seo/category-copy";
 import { faqJsonLd } from "@/lib/seo/product-faq";
@@ -66,13 +66,15 @@ export async function generateMetadata({
       : locale === "it"
         ? category.nameIt
         : category.nameEl;
+  const title = name;
+  const description = t("kodikoi_se_ypokatigories_amesi_diathesimotita", { productCount: category.productCount, childCount: category.childCount });
   return {
-    // Each language is a page in its own right: its own canonical, and the
-    // other two declared as alternates so they are read as translations
-    // rather than as duplicates competing with each other.
-    alternates: alternatesFor(`/katalogos/${kathgoria}`, locale),
-    title: name,
-    description: t("kodikoi_se_ypokatigories_amesi_diathesimotita", { productCount: category.productCount, childCount: category.childCount }),
+    /* Canonical, γλώσσες και Open Graph μαζί: το `openGraph` κληρονομείται
+       ολόκληρο από όποια σελίδα δεν ορίζει δικό της, οπότε 12 από 16 σελίδες
+       μοιράζονταν με τον τίτλο της αρχικής. */
+    ...pageMeta({ path: `/katalogos/${kathgoria}`, locale, title, description }),
+    title,
+    description,
   };
 }
 

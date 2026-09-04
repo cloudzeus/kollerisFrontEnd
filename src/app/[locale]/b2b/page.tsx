@@ -1,5 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import type { Metadata } from "next";
+import { alternatesFor } from "@/lib/seo/urls";
 import { redirect } from "next/navigation";
 import { setRequestLocale } from "next-intl/server";
 import { AccountChrome } from "@/components/account/AccountChrome";
@@ -21,6 +22,10 @@ export async function generateMetadata({
   // metadata is generated outside it.
   const t = await getTranslations({ locale, namespace: "b2b.page" });
   return {
+    /* Canonical στη ΔΙΚΗ της διεύθυνση. Χωρίς αυτό η σελίδα κληρονομεί το
+       canonical της ρίζας, δηλαδή δηλώνει ότι ΕΙΝΑΙ η αρχική — και το
+       `noindex` δεν αναιρεί μια λάθος δήλωση ταυτότητας, απλώς την κρύβει. */
+    alternates: alternatesFor("/b2b", locale),
     title: t("titlos_etairikos_logariasmos"),
     robots: { index: false, follow: false },
   };

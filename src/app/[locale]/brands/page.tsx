@@ -1,6 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import { logoScaleStyle } from "@/lib/catalog/brand-logo";
-import { alternatesFor } from "@/lib/seo/urls";
+import { pageMeta } from "@/lib/seo/urls";
 import type { Metadata } from "next";
 import Image from "next/image";
 import { setRequestLocale } from "next-intl/server";
@@ -10,7 +10,12 @@ import { SiteFooter } from "@/components/chrome/SiteFooter";
 import { Link } from "@/i18n/navigation";
 import type { Locale } from "@/i18n/routing";
 import { getMiniCart } from "@/lib/cart/cart";
-import { getBrandSpecialties, getBrandsIndex, getBrandsStats } from "@/lib/catalog/brands";
+import {
+  getBrandSpecialties,
+  getBrandsIndex,
+  getBrandsStats,
+} from "@/lib/catalog/brands";
+import { collectionJsonLd } from "@/lib/seo/structured-data";
 import {
   getCatalogueStats,
   getMenuTree,
@@ -31,13 +36,18 @@ export async function generateMetadata({
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "brands.page" });
   const { brandCount, productCount } = await getBrandsStats();
+  const title = "Brands";
+  const description = t("brands_me_kodikoys_se_apothema", {
+    brandCount: brandCount,
+    n: productCount.toLocaleString(locale),
+  });
   return {
-    // Each language is a page in its own right: its own canonical, and the
-    // other two declared as alternates so they are read as translations
-    // rather than as duplicates competing with each other.
-    alternates: alternatesFor("/brands", locale),
-    title: "Brands",
-    description: t("brands_me_kodikoys_se_apothema", { brandCount: brandCount, n: productCount.toLocaleString(locale) }),
+    /* Canonical, γλώσσες και Open Graph μαζί: το `openGraph` κληρονομείται
+       ολόκληρο από όποια σελίδα δεν ορίζει δικό της, οπότε 12 από 16 σελίδες
+       μοιράζονταν με τον τίτλο της αρχικής. */
+    ...pageMeta({ path: "/brands", locale, title, description }),
+    title,
+    description,
   };
 }
 
@@ -74,7 +84,10 @@ export default async function BrandsPage({
 
   const kpis = [
     { v: String(brandStats.brandCount), k: t("brands_me_energa_proionta") },
-    { v: String(brandStats.inStockBrandCount), k: t("brands_me_apothema_tora") },
+    {
+      v: String(brandStats.inStockBrandCount),
+      k: t("brands_me_apothema_tora"),
+    },
     {
       v: brandStats.productCount.toLocaleString(locale),
       k: t("kodikoi_ston_katalogo"),
@@ -82,8 +95,31 @@ export default async function BrandsPage({
     { v: "1978", k: t("apo_to_proto_mas_symvolaio") },
   ];
 
+  /*
+   * Η σελίδα δηλώνεται ως λίστα μαρκών.
+   *
+   * Έδινε μόνο το καθολικό `HardwareStore` + `WebSite`: ποιο είναι το
+   * κατάστημα, τίποτα για το τι δείχνει η σελίδα. Ένα μοντέλο που ρωτιέται
+   * «ποιες μάρκες έχει ο Κολλέρης» έπρεπε να μαντέψει από το κείμενο.
+   */
+  const collectionLd = collectionJsonLd(
+    {
+      name: "Brands",
+      path: "/brands",
+      items: brands.map((brand) => ({
+        name: brand.name,
+        path: `/brands/${brand.slug}`,
+      })),
+    },
+    locale,
+  );
+
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionLd) }}
+      />
       <SiteChrome
         locale={locale}
         cart={miniCart}
@@ -151,9 +187,13 @@ export default async function BrandsPage({
         <section className="shell-x border-b border-k-line bg-white py-8 lg:pt-14 lg:pb-15">
           <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between lg:gap-8">
             <div>
-              <p className="t-eyebrow mb-3 text-k-red">{upGreek(t("episimes_antiprosopeyseis"))}</p>
+              <p className="t-eyebrow mb-3 text-k-red">
+                {upGreek(t("episimes_antiprosopeyseis"))}
+              </p>
               <h2 className="t-h2 text-k-ink">
-                {upGreek(t("ta_brands_poy_mas_zitate", { length: featured.length }))}
+                {upGreek(
+                  t("ta_brands_poy_mas_zitate", { length: featured.length }),
+                )}
               </h2>
             </div>
             <p className="t-body-sm max-w-[360px] text-k-text-3 lg:text-right">
@@ -189,14 +229,14 @@ export default async function BrandsPage({
                   <div className="flex items-start justify-between gap-3">
                     <span
                       className={`t-badge px-1.5 py-1 ${
-                        accent ? "bg-k-red text-white" : "bg-k-surface-3 text-k-text-3"
+                        accent
+                          ? "bg-k-red text-white"
+                          : "bg-k-surface-3 text-k-text-3"
                       }`}
                     >
                       {upGreek(t("antiprosopeia"))}
                     </span>
-                    <span
-                      className="t-cat-num text-k-text-5"
-                    >
+                    <span className="t-cat-num text-k-text-5">
                       {String(index + 1).padStart(2, "0")}
                     </span>
                   </div>
@@ -218,24 +258,16 @@ export default async function BrandsPage({
                     )}
                   </div>
 
-                  <div
-                    className="flex items-baseline justify-between gap-3 border-t border-k-line pt-3.5"
-                  >
+                  <div className="flex items-baseline justify-between gap-3 border-t border-k-line pt-3.5">
                     <div>
-                      <p
-                        className="font-mono text-[17px] leading-none font-semibold text-k-ink"
-                      >
+                      <p className="font-mono text-[17px] leading-none font-semibold text-k-ink">
                         {brand.productCount.toLocaleString(locale)}
                       </p>
-                      <p
-                        className="t-brand-count mt-1.5 text-k-text-4"
-                      >
+                      <p className="t-brand-count mt-1.5 text-k-text-4">
                         {upGreek(t("kodikoi_se_apothema"))}
                       </p>
                     </div>
-                    <span
-                      className="text-lg text-k-ink transition-transform group-hover:translate-x-1 group-hover:text-k-red"
-                    >
+                    <span className="text-lg text-k-ink transition-transform group-hover:translate-x-1 group-hover:text-k-red">
                       →
                     </span>
                   </div>
@@ -257,8 +289,12 @@ export default async function BrandsPage({
           <section className="shell-x border-y border-k-line bg-k-surface-3 py-10 lg:py-13">
             <div className="mb-5 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
               <div>
-                <p className="t-eyebrow mb-3 text-k-red">{upGreek(t("ana_eidikotita"))}</p>
-                <h2 className="t-h2 text-k-ink">{upGreek(t("poio_brand_gia_poia_doyleia"))}</h2>
+                <p className="t-eyebrow mb-3 text-k-red">
+                  {upGreek(t("ana_eidikotita"))}
+                </p>
+                <h2 className="t-h2 text-k-ink">
+                  {upGreek(t("poio_brand_gia_poia_doyleia"))}
+                </h2>
               </div>
               <Link
                 href="/katalogos"
@@ -290,8 +326,8 @@ export default async function BrandsPage({
                     {upGreek(group.categoryName)}
                   </Link>
                   <p className="mt-1.5 text-[12px] leading-[1.6] text-k-text-3">
-                    {group.productCount.toLocaleString(locale)} {t("kodikoi_apo")}{" "}
-                    {group.brands.length} brands.
+                    {group.productCount.toLocaleString(locale)}{" "}
+                    {t("kodikoi_apo")} {group.brands.length} brands.
                   </p>
 
                   <div className="mt-3.5 flex flex-wrap gap-1.5">

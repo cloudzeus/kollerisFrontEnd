@@ -1,7 +1,7 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { alternatesFor } from "@/lib/seo/urls";
+import { pageMeta } from "@/lib/seo/urls";
 import { SiteChrome } from "@/components/chrome/SiteChrome";
 import { SiteFooter } from "@/components/chrome/SiteFooter";
 import { FilterSidebar } from "@/components/plp/FilterSidebar";
@@ -52,10 +52,15 @@ type PageProps = {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "katalogos.page" });
+  const title = t("ola_ta_proionta");
+  const description = t("olos_o_katalogos_se_mia_lista");
   return {
-    alternates: alternatesFor("/proionta", locale),
-    title: t("ola_ta_proionta"),
-    description: t("olos_o_katalogos_se_mia_lista"),
+    /* Canonical, γλώσσες και Open Graph μαζί: το `openGraph` κληρονομείται
+       ολόκληρο από όποια σελίδα δεν ορίζει δικό της, οπότε 12 από 16 σελίδες
+       μοιράζονταν με τον τίτλο της αρχικής. */
+    ...pageMeta({ path: "/proionta", locale, title, description }),
+    title,
+    description,
   };
 }
 
