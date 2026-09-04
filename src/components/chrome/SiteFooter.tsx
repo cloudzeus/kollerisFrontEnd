@@ -5,6 +5,22 @@ import type { CategoryTile } from "@/lib/catalog/queries";
 import { GoogleReviewsBadge } from "@/components/seo/GoogleReviewsBadge";
 import { upGreek } from "@/lib/greek";
 
+/*
+ * `prefetch={false}` σε κάθε σύνδεσμο αυτού του αρχείου.
+ * ─────────────────────────────────────────────────────────────────────────────
+ * Μετρημένο στην παραγωγή: μία επίσκεψη στο `/katalogos` έβγαζε **34** αιτήματα
+ * RSC — 18 για κατηγορίες, 14 για την πλοήγηση και το υποσέλιδο, καθένα 450-780ms.
+ * Κάθε ένα από αυτά είναι ΠΛΗΡΗΣ απόδοση στον διακομιστή, γιατί οι σελίδες
+ * απαντούν `cache-control: no-store` (διαβάζουν καλάθι και γλώσσα από cookies).
+ *
+ * Δηλαδή ένας επισκέπτης παρήγαγε 34 renders, και με μερικούς ταυτόχρονους ο
+ * διακομιστής κορεννύεται — γι' αυτό «αργεί σε ΟΛΕΣ τις σελίδες» και όχι σε μία.
+ *
+ * Η πλοήγηση και το υποσέλιδο είναι σε κάθε σελίδα και δείχνουν παντού· κανείς
+ * δεν πρόκειται να πατήσει και τα δεκατέσσερα. Το prefetch έχει νόημα για τον
+ * έναν σύνδεσμο που ΘΑ πατηθεί, όχι για τον κατάλογο των πάντων.
+ */
+
 const PAYMENTS = ["VISA", "MC", "MAESTRO", "IRIS", "PAYPAL"];
 
 /**
@@ -13,10 +29,26 @@ const PAYMENTS = ["VISA", "MC", "MAESTRO", "IRIS", "PAYPAL"];
  * in step by construction rather than by remembering to update both.
  */
 const SOCIALS = [
-  { label: "TikTok", short: "TT", href: "https://www.tiktok.com/@kolleris_tools_official" },
-  { label: "Facebook", short: "FB", href: "https://www.facebook.com/kolleristools/" },
-  { label: "Instagram", short: "IG", href: "https://www.instagram.com/kolleris_tools/" },
-  { label: "LinkedIn", short: "IN", href: "https://gr.linkedin.com/company/kolleris-bros-ike" },
+  {
+    label: "TikTok",
+    short: "TT",
+    href: "https://www.tiktok.com/@kolleris_tools_official",
+  },
+  {
+    label: "Facebook",
+    short: "FB",
+    href: "https://www.facebook.com/kolleristools/",
+  },
+  {
+    label: "Instagram",
+    short: "IG",
+    href: "https://www.instagram.com/kolleris_tools/",
+  },
+  {
+    label: "LinkedIn",
+    short: "IN",
+    href: "https://gr.linkedin.com/company/kolleris-bros-ike",
+  },
 ] as const;
 
 /**
@@ -113,7 +145,11 @@ export function SiteFooter({ categories }: { categories: CategoryTile[] }) {
               <ul className="flex flex-col gap-2.5 pb-4">
                 {column.links.map((link) => (
                   <li key={link.href}>
-                    <Link href={link.href} className="t-footer-link text-white/58">
+                    <Link
+                      href={link.href}
+                      className="t-footer-link text-white/58"
+                      prefetch={false}
+                    >
                       {link.label}
                     </Link>
                   </li>
@@ -133,6 +169,7 @@ export function SiteFooter({ categories }: { categories: CategoryTile[] }) {
                   <Link
                     href={link.href}
                     className="t-footer-link text-white/58 transition-colors hover:text-k-red"
+                    prefetch={false}
                   >
                     {link.label}
                   </Link>
@@ -144,12 +181,16 @@ export function SiteFooter({ categories }: { categories: CategoryTile[] }) {
       </div>
 
       <div className="mt-5 flex flex-col gap-3 lg:mt-0 lg:border-t lg:border-white/10 lg:py-[18px]">
-        <nav aria-label={upGreek(t("nomika"))} className="flex flex-wrap gap-x-5 gap-y-2">
+        <nav
+          aria-label={upGreek(t("nomika"))}
+          className="flex flex-wrap gap-x-5 gap-y-2"
+        >
           {LEGAL_LINKS.map((link) => (
             <Link
               key={link.href}
               href={link.href}
               className="t-footer-legal text-white/45 underline-offset-4 transition-colors hover:text-white hover:underline"
+              prefetch={false}
             >
               {t(link.key)}
             </Link>

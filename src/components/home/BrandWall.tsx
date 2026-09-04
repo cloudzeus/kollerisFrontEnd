@@ -6,6 +6,22 @@ import type { BrandTile } from "@/lib/catalog/queries";
 import { SectionHeading } from "./SectionHeading";
 import { upGreek } from "@/lib/greek";
 
+/*
+ * `prefetch={false}` σε κάθε σύνδεσμο αυτού του αρχείου.
+ * ─────────────────────────────────────────────────────────────────────────────
+ * Μετρημένο στην παραγωγή: μία επίσκεψη στο `/katalogos` έβγαζε **34** αιτήματα
+ * RSC — 18 για κατηγορίες, 14 για την πλοήγηση και το υποσέλιδο, καθένα 450-780ms.
+ * Κάθε ένα από αυτά είναι ΠΛΗΡΗΣ απόδοση στον διακομιστή, γιατί οι σελίδες
+ * απαντούν `cache-control: no-store` (διαβάζουν καλάθι και γλώσσα από cookies).
+ *
+ * Δηλαδή ένας επισκέπτης παρήγαγε 34 renders, και με μερικούς ταυτόχρονους ο
+ * διακομιστής κορεννύεται — γι' αυτό «αργεί σε ΟΛΕΣ τις σελίδες» και όχι σε μία.
+ *
+ * Η πλοήγηση και το υποσέλιδο είναι σε κάθε σελίδα και δείχνουν παντού· κανείς
+ * δεν πρόκειται να πατήσει και τα δεκατέσσερα. Το prefetch έχει νόημα για τον
+ * έναν σύνδεσμο που ΘΑ πατηθεί, όχι για τον κατάλογο των πάντων.
+ */
+
 /**
  * Brand wall — live brands ordered by how many listed products each has, with
  * the real count under the name. Brands with zero listed products are filtered
@@ -43,6 +59,7 @@ export async function BrandWall({
             key={brand.id}
             href={`/brands/${brand.slug}`}
             className="flex h-[132px] flex-col items-center justify-center gap-1.5 bg-white p-5 transition-colors hover:bg-k-surface-2 lg:h-[150px]"
+            prefetch={false}
           >
             {brand.logo ? (
               /* Square source art — see the note in MegaMenu. */
@@ -70,6 +87,7 @@ export async function BrandWall({
         <Link
           href="/brands"
           className="t-link-mono border-b-[1.5px] border-k-red pb-[3px] text-k-ink transition-colors hover:text-k-red"
+          prefetch={false}
         >
           {upGreek(t("ola_ta_brands", { totalBrands: totalBrands }))} →
         </Link>

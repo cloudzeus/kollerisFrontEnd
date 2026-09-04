@@ -6,8 +6,28 @@ import Image from "next/image";
 import { useCallback, useRef, useState } from "react";
 import { logoScaleStyle } from "@/lib/catalog/brand-logo";
 import { Link } from "@/i18n/navigation";
-import type { BrandTile, MenuCategory, ProductCardData } from "@/lib/catalog/queries";
+import type {
+  BrandTile,
+  MenuCategory,
+  ProductCardData,
+} from "@/lib/catalog/queries";
 import { upGreek } from "@/lib/greek";
+
+/*
+ * `prefetch={false}` σε κάθε σύνδεσμο αυτού του αρχείου.
+ * ─────────────────────────────────────────────────────────────────────────────
+ * Μετρημένο στην παραγωγή: μία επίσκεψη στο `/katalogos` έβγαζε **34** αιτήματα
+ * RSC — 18 για κατηγορίες, 14 για την πλοήγηση και το υποσέλιδο, καθένα 450-780ms.
+ * Κάθε ένα από αυτά είναι ΠΛΗΡΗΣ απόδοση στον διακομιστή, γιατί οι σελίδες
+ * απαντούν `cache-control: no-store` (διαβάζουν καλάθι και γλώσσα από cookies).
+ *
+ * Δηλαδή ένας επισκέπτης παρήγαγε 34 renders, και με μερικούς ταυτόχρονους ο
+ * διακομιστής κορεννύεται — γι' αυτό «αργεί σε ΟΛΕΣ τις σελίδες» και όχι σε μία.
+ *
+ * Η πλοήγηση και το υποσέλιδο είναι σε κάθε σελίδα και δείχνουν παντού· κανείς
+ * δεν πρόκειται να πατήσει και τα δεκατέσσερα. Το prefetch έχει νόημα για τον
+ * έναν σύνδεσμο που ΘΑ πατηθεί, όχι για τον κατάλογο των πάντων.
+ */
 
 type Panel = "categories" | "brands" | null;
 
@@ -22,7 +42,8 @@ function distribute(items: MenuCategory[], columns: number): MenuCategory[][] {
   const weights = new Array(columns).fill(0);
   for (const item of items) {
     let lightest = 0;
-    for (let i = 1; i < columns; i++) if (weights[i] < weights[lightest]) lightest = i;
+    for (let i = 1; i < columns; i++)
+      if (weights[i] < weights[lightest]) lightest = i;
     buckets[lightest].push(item);
     // A root's visual height is its own row plus one per child shown.
     weights[lightest] += 1 + Math.min(item.children.length, MEGA_CHILD_LIMIT);
@@ -128,30 +149,40 @@ export function MegaMenu({
           >
             <div className="grid grid-cols-[repeat(4,1fr)_300px]">
               {columns.map((column, i) => (
-                <div key={i} className="border-r border-[#F0F0F2] py-[26px] pr-[26px]">
+                <div
+                  key={i}
+                  className="border-r border-[#F0F0F2] py-[26px] pr-[26px]"
+                >
                   {column.map((category) => (
                     <div key={category.id} className="mb-[22px] last:mb-0">
                       <div className="mb-[9px] flex items-baseline gap-2">
                         <span className="t-cat-num text-k-red">
-                          {String(indexOf.get(category.id) ?? 0).padStart(2, "0")}
+                          {String(indexOf.get(category.id) ?? 0).padStart(
+                            2,
+                            "0",
+                          )}
                         </span>
                         <Link
                           href={`/katalogos/${category.slug}`}
                           className="text-[11.5px] leading-[1.3] font-bold tracking-[0.05em] text-k-ink transition-colors hover:text-k-red"
+                          prefetch={false}
                         >
                           {upGreek(category.name)}
                         </Link>
                       </div>
                       <div className="flex flex-col gap-[5px]">
-                        {category.children.slice(0, MEGA_CHILD_LIMIT).map((child) => (
-                          <Link
-                            key={child.id}
-                            href={`/katalogos/${category.slug}?sub=${child.slug}`}
-                            className="text-[12px] leading-[1.4] text-k-text-3 transition-colors hover:text-k-red"
-                          >
-                            {child.name}
-                          </Link>
-                        ))}
+                        {category.children
+                          .slice(0, MEGA_CHILD_LIMIT)
+                          .map((child) => (
+                            <Link
+                              key={child.id}
+                              href={`/katalogos/${category.slug}?sub=${child.slug}`}
+                              className="text-[12px] leading-[1.4] text-k-text-3 transition-colors hover:text-k-red"
+                              prefetch={false}
+                            >
+                              {child.name}
+                            </Link>
+                          ))}
                       </div>
                     </div>
                   ))}
@@ -175,15 +206,20 @@ export function MegaMenu({
                       />
                     )}
                     <div>
-                      <p className="t-cat-num text-k-red">{featured.brandName}</p>
+                      <p className="t-cat-num text-k-red">
+                        {featured.brandName}
+                      </p>
                       <p className="mt-[5px] line-clamp-2 text-[13px] leading-[1.35] font-semibold text-k-ink">
                         {featured.name}
                       </p>
-                      <p className="t-card-was mt-1 text-k-text-4">{featured.sku}</p>
+                      <p className="t-card-was mt-1 text-k-text-4">
+                        {featured.sku}
+                      </p>
                     </div>
                     <Link
                       href={`/proion/${featured.slug}`}
                       className="t-link-mono self-start border-b-[1.5px] border-k-red pb-0.5 text-k-ink"
+                      prefetch={false}
                     >
                       {upGreek(t("deite_to"))} →
                     </Link>
@@ -197,9 +233,14 @@ export function MegaMenu({
             <div className="mt-1 flex items-center justify-between border-t border-[#F0F0F2] py-4">
               <p className="text-[12px] text-k-text-3">
                 {totalCategories} {t("vasikes_katigories")} {totalSubcategories}{" "}
-                {t("ypokatigories")} {totalProducts.toLocaleString(locale)} {t("kodikoi")}
+                {t("ypokatigories")} {totalProducts.toLocaleString(locale)}{" "}
+                {t("kodikoi")}
               </p>
-              <Link href="/katalogos" className="t-link-mono text-k-ink hover:text-k-red">
+              <Link
+                href="/katalogos"
+                className="t-link-mono text-k-ink hover:text-k-red"
+                prefetch={false}
+              >
                 {upGreek(t("oles_oi_katigories"))} →
               </Link>
             </div>
@@ -228,7 +269,9 @@ export function MegaMenu({
             Ό,τι κάθεται στο chrome μιλά πια σε `k-on-dark-*`.
           */
           className={`t-nav-cond flex h-[46px] items-center gap-1.5 px-[18px] transition-colors ${
-            open === "brands" ? "text-white" : "text-k-on-dark-2 hover:text-white"
+            open === "brands"
+              ? "text-white"
+              : "text-k-on-dark-2 hover:text-white"
           }`}
         >
           BRANDS
@@ -244,7 +287,11 @@ export function MegaMenu({
               <p className="text-[12px] font-bold tracking-[0.06em] text-k-ink">
                 {upGreek(t("antiprosopeyomena_brands"))}
               </p>
-              <Link href="/brands" className="t-link-mono text-k-ink hover:text-k-red">
+              <Link
+                href="/brands"
+                className="t-link-mono text-k-ink hover:text-k-red"
+                prefetch={false}
+              >
                 {upGreek(t("ola_ta", { totalBrands: totalBrands }))} →
               </Link>
             </div>
@@ -254,6 +301,7 @@ export function MegaMenu({
                   key={brand.id}
                   href={`/brands/${brand.slug}`}
                   className="group relative flex h-[76px] items-center justify-center bg-white px-4 outline-1 -outline-offset-1 outline-transparent transition-[outline-color] hover:outline-k-red"
+                  prefetch={false}
                 >
                   {brand.logo ? (
                     /*

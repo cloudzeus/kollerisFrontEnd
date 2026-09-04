@@ -7,6 +7,22 @@ import { Link } from "@/i18n/navigation";
 import type { BrandTile, MenuCategory } from "@/lib/catalog/queries";
 import { upGreek } from "@/lib/greek";
 
+/*
+ * `prefetch={false}` σε κάθε σύνδεσμο αυτού του αρχείου.
+ * ─────────────────────────────────────────────────────────────────────────────
+ * Μετρημένο στην παραγωγή: μία επίσκεψη στο `/katalogos` έβγαζε **34** αιτήματα
+ * RSC — 18 για κατηγορίες, 14 για την πλοήγηση και το υποσέλιδο, καθένα 450-780ms.
+ * Κάθε ένα από αυτά είναι ΠΛΗΡΗΣ απόδοση στον διακομιστή, γιατί οι σελίδες
+ * απαντούν `cache-control: no-store` (διαβάζουν καλάθι και γλώσσα από cookies).
+ *
+ * Δηλαδή ένας επισκέπτης παρήγαγε 34 renders, και με μερικούς ταυτόχρονους ο
+ * διακομιστής κορεννύεται — γι' αυτό «αργεί σε ΟΛΕΣ τις σελίδες» και όχι σε μία.
+ *
+ * Η πλοήγηση και το υποσέλιδο είναι σε κάθε σελίδα και δείχνουν παντού· κανείς
+ * δεν πρόκειται να πατήσει και τα δεκατέσσερα. Το prefetch έχει νόημα για τον
+ * έναν σύνδεσμο που ΘΑ πατηθεί, όχι για τον κατάλογο των πάντων.
+ */
+
 /**
  * Mobile navigation drawer, owning its own burger trigger.
  *
@@ -97,7 +113,9 @@ export function MobileMenu({
             className="absolute inset-y-0 left-0 flex w-[min(88vw,340px)] flex-col bg-white"
           >
             <div className="flex h-14 shrink-0 items-center justify-between border-b border-k-line px-4">
-              <span className="t-footer-col text-k-ink">{upGreek(t("menoy"))}</span>
+              <span className="t-footer-col text-k-ink">
+                {upGreek(t("menoy"))}
+              </span>
               <button
                 type="button"
                 onClick={() => setOpen(false)}
@@ -145,6 +163,7 @@ export function MobileMenu({
                             className={`flex min-h-[52px] flex-1 items-center gap-2.5 py-2 pl-4 ${
                               category.children.length > 0 ? "" : "pr-4"
                             }`}
+                            prefetch={false}
                           >
                             <span className="t-cat-num shrink-0 text-k-red">
                               {String(index + 1).padStart(2, "0")}
@@ -161,8 +180,15 @@ export function MobileMenu({
                             <button
                               type="button"
                               aria-expanded={isOpen}
-                              aria-label={t(isOpen ? "hide_subcategories" : "show_subcategories", { name: category.name })}
-                              onClick={() => setExpanded(isOpen ? null : category.id)}
+                              aria-label={t(
+                                isOpen
+                                  ? "hide_subcategories"
+                                  : "show_subcategories",
+                                { name: category.name },
+                              )}
+                              onClick={() =>
+                                setExpanded(isOpen ? null : category.id)
+                              }
                               className="flex w-11 shrink-0 items-center justify-center text-k-text-4"
                             >
                               <span
@@ -184,9 +210,12 @@ export function MobileMenu({
                                 href={`/katalogos/${category.slug}?sub=${child.slug}`}
                                 onClick={() => setOpen(false)}
                                 className="flex min-h-11 items-center gap-2.5 py-2 pr-4 pl-[34px] text-[12.5px] text-k-text-2"
+                                prefetch={false}
                               >
                                 <span className="block h-px w-3 shrink-0 bg-k-line-2" />
-                                <span className="min-w-0 flex-1">{child.name}</span>
+                                <span className="min-w-0 flex-1">
+                                  {child.name}
+                                </span>
                                 <span className="t-brand-count text-k-text-5">
                                   {child.productCount.toLocaleString(locale)}
                                 </span>
@@ -196,8 +225,14 @@ export function MobileMenu({
                               href={`/katalogos/${category.slug}`}
                               onClick={() => setOpen(false)}
                               className="block pt-2 pr-4 pl-[34px] text-[10px] font-semibold tracking-[0.07em] text-k-red"
+                              prefetch={false}
                             >
-                              {upGreek(t("oles_oi_ypokatigories", { childCount: category.childCount }))} →
+                              {upGreek(
+                                t("oles_oi_ypokatigories", {
+                                  childCount: category.childCount,
+                                }),
+                              )}{" "}
+                              →
                             </Link>
                           </div>
                         )}
@@ -206,8 +241,9 @@ export function MobileMenu({
                   })}
 
                   <p className="px-4 py-4 text-[12px] text-k-text-3">
-                    {totalCategories} {t("katigories_2")} {totalSubcategories} {t("ypokatigories")}{" "}
-                    {totalProducts.toLocaleString(locale)} {t("kodikoi")}
+                    {totalCategories} {t("katigories_2")} {totalSubcategories}{" "}
+                    {t("ypokatigories")} {totalProducts.toLocaleString(locale)}{" "}
+                    {t("kodikoi")}
                   </p>
                 </>
               ) : (
@@ -218,10 +254,14 @@ export function MobileMenu({
                       href={`/brands/${brand.slug}`}
                       onClick={() => setOpen(false)}
                       className="flex min-h-[68px] flex-col items-center justify-center gap-1 bg-white px-3 py-3"
+                      prefetch={false}
                     >
-                      <span className="t-brand-name text-k-ink">{brand.name}</span>
+                      <span className="t-brand-name text-k-ink">
+                        {brand.name}
+                      </span>
                       <span className="t-brand-count text-k-text-5">
-                        {brand.productCount.toLocaleString(locale)} {upGreek(t("kod"))}
+                        {brand.productCount.toLocaleString(locale)}{" "}
+                        {upGreek(t("kod"))}
                       </span>
                     </Link>
                   ))}
@@ -238,8 +278,11 @@ export function MobileMenu({
                   className={`t-nav flex min-h-11 items-center gap-2 px-4 ${
                     link.accent ? "text-k-red" : "text-k-ink"
                   }`}
+                  prefetch={false}
                 >
-                  {link.accent && <span className="block h-[5px] w-[5px] bg-k-red" />}
+                  {link.accent && (
+                    <span className="block h-[5px] w-[5px] bg-k-red" />
+                  )}
                   {link.label}
                 </Link>
               ))}
@@ -247,6 +290,7 @@ export function MobileMenu({
                 href="/eisodos"
                 onClick={() => setOpen(false)}
                 className="t-btn-sm flex min-h-12 items-center justify-center bg-k-ink text-white"
+                prefetch={false}
               >
                 {upGreek(t("syndesi_logariasmoy"))}
               </Link>

@@ -1,8 +1,28 @@
 import { useTranslations } from "next-intl";
 import { MegaMenu } from "@/components/chrome/MegaMenu";
 import { Link } from "@/i18n/navigation";
-import type { BrandTile, MenuCategory, ProductCardData } from "@/lib/catalog/queries";
+import type {
+  BrandTile,
+  MenuCategory,
+  ProductCardData,
+} from "@/lib/catalog/queries";
 import { upGreek } from "@/lib/greek";
+
+/*
+ * `prefetch={false}` σε κάθε σύνδεσμο αυτού του αρχείου.
+ * ─────────────────────────────────────────────────────────────────────────────
+ * Μετρημένο στην παραγωγή: μία επίσκεψη στο `/katalogos` έβγαζε **34** αιτήματα
+ * RSC — 18 για κατηγορίες, 14 για την πλοήγηση και το υποσέλιδο, καθένα 450-780ms.
+ * Κάθε ένα από αυτά είναι ΠΛΗΡΗΣ απόδοση στον διακομιστή, γιατί οι σελίδες
+ * απαντούν `cache-control: no-store` (διαβάζουν καλάθι και γλώσσα από cookies).
+ *
+ * Δηλαδή ένας επισκέπτης παρήγαγε 34 renders, και με μερικούς ταυτόχρονους ο
+ * διακομιστής κορεννύεται — γι' αυτό «αργεί σε ΟΛΕΣ τις σελίδες» και όχι σε μία.
+ *
+ * Η πλοήγηση και το υποσέλιδο είναι σε κάθε σελίδα και δείχνουν παντού· κανείς
+ * δεν πρόκειται να πατήσει και τα δεκατέσσερα. Το prefetch έχει νόημα για τον
+ * έναν σύνδεσμο που ΘΑ πατηθεί, όχι για τον κατάλογο των πάντων.
+ */
 
 /**
  * Primary navigation. Desktop only — the mobile handoff replaces it with the
@@ -78,6 +98,7 @@ export function MainNav({
               key={link.href}
               href={link.href}
               className="t-nav-cond flex h-[46px] items-center px-[18px] text-k-on-dark-2 transition-colors hover:text-white"
+              prefetch={false}
             >
               {link.label}
             </Link>
@@ -88,6 +109,7 @@ export function MainNav({
               key={brand.id}
               href={`/brands/${brand.slug}`}
               className="t-nav-cond hidden h-[46px] items-center px-[18px] text-k-on-dark-2 transition-colors hover:text-white xl:flex"
+              prefetch={false}
             >
               {upGreek(brand.name)}
             </Link>
@@ -96,6 +118,7 @@ export function MainNav({
           <Link
             href="/prosfores"
             className="t-nav-cond flex h-[46px] items-center gap-[7px] px-[18px] text-k-red hover:text-k-red-hover"
+            prefetch={false}
           >
             <span className="block h-[5px] w-[5px] bg-k-red" />
             {upGreek(t("prosfores"))}
@@ -108,6 +131,7 @@ export function MainNav({
               key={link.href}
               href={link.href}
               className="t-nav-cond text-k-on-dark-3 transition-colors hover:text-white"
+              prefetch={false}
             >
               {link.label}
             </Link>

@@ -5,6 +5,22 @@ import type { CategoryTile } from "@/lib/catalog/queries";
 import { SectionHeading } from "./SectionHeading";
 import { upGreek } from "@/lib/greek";
 
+/*
+ * `prefetch={false}` σε κάθε σύνδεσμο αυτού του αρχείου.
+ * ─────────────────────────────────────────────────────────────────────────────
+ * Μετρημένο στην παραγωγή: μία επίσκεψη στο `/katalogos` έβγαζε **34** αιτήματα
+ * RSC — 18 για κατηγορίες, 14 για την πλοήγηση και το υποσέλιδο, καθένα 450-780ms.
+ * Κάθε ένα από αυτά είναι ΠΛΗΡΗΣ απόδοση στον διακομιστή, γιατί οι σελίδες
+ * απαντούν `cache-control: no-store` (διαβάζουν καλάθι και γλώσσα από cookies).
+ *
+ * Δηλαδή ένας επισκέπτης παρήγαγε 34 renders, και με μερικούς ταυτόχρονους ο
+ * διακομιστής κορεννύεται — γι' αυτό «αργεί σε ΟΛΕΣ τις σελίδες» και όχι σε μία.
+ *
+ * Η πλοήγηση και το υποσέλιδο είναι σε κάθε σελίδα και δείχνουν παντού· κανείς
+ * δεν πρόκειται να πατήσει και τα δεκατέσσερα. Το prefetch έχει νόημα για τον
+ * έναν σύνδεσμο που ΘΑ πατηθεί, όχι για τον κατάλογο των πάντων.
+ */
+
 /**
  * "ΑΓΟΡΑ ΑΝΑ ΚΑΤΗΓΟΡΙΑ" — live from the projection: names, images, real SKU
  * counts and real subcategory counts.
@@ -31,7 +47,10 @@ export async function CategoryGrid({
       <SectionHeading
         eyebrow={t("to_plires_inventory")}
         title={t("agora_ana_katigoria")}
-        action={{ href: "/katalogos", label: t("oles_oi_katigories", { totalCategories: totalCategories }) }}
+        action={{
+          href: "/katalogos",
+          label: t("oles_oi_katigories", { totalCategories: totalCategories }),
+        }}
       />
 
       <div className="grid grid-cols-2 gap-px border border-k-line bg-k-line md:grid-cols-3 lg:grid-cols-4">
@@ -40,13 +59,15 @@ export async function CategoryGrid({
             key={category.id}
             href={`/katalogos/${category.slug}`}
             className="flex min-h-[150px] flex-col justify-between gap-2.5 bg-white p-4 transition-colors hover:bg-k-surface-2 lg:min-h-[196px] lg:gap-4 lg:p-6"
+            prefetch={false}
           >
             <div className="flex items-start justify-between">
               <span className="t-cat-num text-k-red">
                 {String(index + 1).padStart(2, "0")}
               </span>
               <span className="t-cat-count text-k-text-4">
-                {category.productCount.toLocaleString(locale)} {upGreek(t("kod"))}
+                {category.productCount.toLocaleString(locale)}{" "}
+                {upGreek(t("kod"))}
               </span>
             </div>
 

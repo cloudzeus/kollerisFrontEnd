@@ -3,6 +3,22 @@ import { Link } from "@/i18n/navigation";
 import { LOCALE_LABELS, routing, type Locale } from "@/i18n/routing";
 import { upGreek } from "@/lib/greek";
 
+/*
+ * `prefetch={false}` σε κάθε σύνδεσμο αυτού του αρχείου.
+ * ─────────────────────────────────────────────────────────────────────────────
+ * Μετρημένο στην παραγωγή: μία επίσκεψη στο `/katalogos` έβγαζε **34** αιτήματα
+ * RSC — 18 για κατηγορίες, 14 για την πλοήγηση και το υποσέλιδο, καθένα 450-780ms.
+ * Κάθε ένα από αυτά είναι ΠΛΗΡΗΣ απόδοση στον διακομιστή, γιατί οι σελίδες
+ * απαντούν `cache-control: no-store` (διαβάζουν καλάθι και γλώσσα από cookies).
+ *
+ * Δηλαδή ένας επισκέπτης παρήγαγε 34 renders, και με μερικούς ταυτόχρονους ο
+ * διακομιστής κορεννύεται — γι' αυτό «αργεί σε ΟΛΕΣ τις σελίδες» και όχι σε μία.
+ *
+ * Η πλοήγηση και το υποσέλιδο είναι σε κάθε σελίδα και δείχνουν παντού· κανείς
+ * δεν πρόκειται να πατήσει και τα δεκατέσσερα. Το prefetch έχει νόημα για τον
+ * έναν σύνδεσμο που ΘΑ πατηθεί, όχι για τον κατάλογο των πάντων.
+ */
+
 /**
  * Η μαύρη λωρίδα πάνω από τα πάντα.
  *
@@ -36,7 +52,7 @@ export function UtilityBar({ locale }: { locale: Locale }) {
           {t("t_30_210_411_1355")}
         </a>
         <span className="text-white/20">·</span>
-        <Link href="/eisodos" className="text-k-gold">
+        <Link href="/eisodos" className="text-k-gold" prefetch={false}>
           {upGreek(t("b2b"))}
         </Link>
       </div>
@@ -49,7 +65,9 @@ export function UtilityBar({ locale }: { locale: Locale }) {
           >
             {t("t_30_210_411_1355")}
           </a>
-          <span className="hidden xl:inline">{t("k_mavromichali_4_peiraias")}</span>
+          <span className="hidden xl:inline">
+            {t("k_mavromichali_4_peiraias")}
+          </span>
         </div>
 
         <div className="flex shrink-0 items-center gap-5 whitespace-nowrap">
@@ -61,6 +79,7 @@ export function UtilityBar({ locale }: { locale: Locale }) {
           <Link
             href="/eisodos"
             className="text-k-gold transition-colors hover:text-white"
+            prefetch={false}
           >
             {upGreek(t("times_synergati_b2b_aitisi_logariasmoy"))}
           </Link>
@@ -73,15 +92,22 @@ export function UtilityBar({ locale }: { locale: Locale }) {
                 locale={code}
                 aria-current={code === locale ? "true" : undefined}
                 className={`t-lang px-2.5 py-[5px] transition-colors ${
-                  code === locale ? "bg-k-red text-white" : "text-white/60 hover:text-white"
+                  code === locale
+                    ? "bg-k-red text-white"
+                    : "text-white/60 hover:text-white"
                 }`}
+                prefetch={false}
               >
                 {LOCALE_LABELS[code]}
               </Link>
             ))}
           </div>
 
-          <Link href="/eisodos" className="transition-colors hover:text-k-on-dark">
+          <Link
+            href="/eisodos"
+            className="transition-colors hover:text-k-on-dark"
+            prefetch={false}
+          >
             {upGreek(t("syndesi"))}
           </Link>
         </div>

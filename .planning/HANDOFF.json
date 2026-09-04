@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-09-04T18:34:07.907Z",
+  "timestamp": "2026-09-04T18:38:32.158Z",
   "source": "auto-postool",
   "partial": false,
   "phase": null,
@@ -22,13 +22,37 @@
     },
     {
       "status": "M",
+      "path": "src/app/[locale]/katalogos/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/components/chrome/MainNav.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/components/chrome/MegaMenu.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/components/chrome/MobileMenu.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/components/chrome/SiteFooter.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/components/chrome/UtilityBar.tsx"
+    },
+    {
+      "status": "M",
       "path": "src/components/home/BrandWall.tsx"
     },
     {
       "status": "M",
-      "path": "src/lib/catalog/brand-logo.ts"
+      "path": "src/components/home/CategoryGrid.tsx"
     }
   ],
   "next_action": null,
-  "context_notes": "Recent commits:\nc6c6872 feat(home): μεγαλύτερα λογότυπα στον τοίχο των μαρκών\nf2ee6c0 fix(banners): κανένα άλυτο {token} στο κατάστημα, και η μάρκα λύνει και στις προσφορές\nc8eb0bf fix(banners): το κλικ άνοιγε ΑΛΛΟ κελί, μικρότερη τυπογραφία, προεπισκόπηση κίνησης\n7bb4ac7 fix(banners): μία κλίμακα τυπογραφίας ανά κελί, αντί για πέντε ανεξάρτητα clamp\n27ef746 feat(brand): το σήμα κόκκινο με λευκά γράμματα, σε οριζόντια διάταξη"
+  "context_notes": "Recent commits:\n0a43c2c fix(home): 20px περιθώριο γύρω από κάθε λογότυπο μάρκας\nc6c6872 feat(home): μεγαλύτερα λογότυπα στον τοίχο των μαρκών\nf2ee6c0 fix(banners): κανένα άλυτο {token} στο κατάστημα, και η μάρκα λύνει και στις προσφορές\nc8eb0bf fix(banners): το κλικ άνοιγε ΑΛΛΟ κελί, μικρότερη τυπογραφία, προεπισκόπηση κίνησης\n7bb4ac7 fix(banners): μία κλίμακα τυπογραφίας ανά κελί, αντί για πέντε ανεξάρτητα clamp"
 }
