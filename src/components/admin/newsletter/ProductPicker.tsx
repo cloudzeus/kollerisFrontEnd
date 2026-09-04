@@ -174,7 +174,21 @@ export function ProductPicker({
   };
 
   return (
-    <div className="grid gap-5 lg:grid-cols-2">
+    /*
+      Container query, ΟΧΙ viewport breakpoint.
+
+      Ήταν `lg:grid-cols-2`, που κοιτά το πλάτος της ΟΘΟΝΗΣ. Σε οθόνη 1680px
+      ενεργοποιούνταν πάντα — αλλά ο επιλογέας ζει μέσα στην αριστερή στήλη του
+      wizard, δίπλα στην προεπισκόπηση, και έχει περίπου 380px. Το αποτέλεσμα
+      ήταν δύο στήλες των 180px και ονόματα προϊόντων κομμένα σε «ΣΕΤ ΜΥΤΕΣ…».
+      Το είδα στην οθόνη: αδύνατο να ξεχωρίσεις τέσσερα παρόμοια σετ.
+
+      Το `@container` μετρά τον ΓΟΝΕΑ, οπότε ο επιλογέας σπάει σε δύο στήλες
+      μόνο όταν όντως χωράει — και μένει σε μία, με ευανάγνωστα ονόματα, όσο
+      είναι στενός.
+    */
+    <div className="@container">
+      <div className="grid gap-5 @2xl:grid-cols-2">
       {/* ── Αναζήτηση ───────────────────────────────────────────── */}
       <div className="flex min-h-0 flex-col">
         <div className="relative">
@@ -251,6 +265,16 @@ export function ProductPicker({
             const already = selectedIds.has(p.id);
             return (
               <li key={p.id}>
+                {/*
+                  Ολόκληρη η γραμμή είναι το κουμπί προσθήκης.
+
+                  Δοκιμάστηκε με εικονίδιο «άνοιγμα στο κατάστημα» δίπλα και
+                  αφαιρέθηκε: ο σύνδεσμος προς τη σελίδα προϊόντος είναι για τον
+                  ΠΑΡΑΛΗΠΤΗ του email — υπάρχει ήδη σε κάθε κάρτα του template —
+                  όχι για όποιον συνθέτει την καμπάνια. Εδώ η μία πρόθεση είναι
+                  «βάλ' το στη λίστα», και δύο στόχοι κλικ στην ίδια γραμμή
+                  σημαίνουν ότι ο μισός χρόνος πάει σε λάθος έναν.
+                */}
                 <button
                   type="button"
                   onClick={() => add(p)}
@@ -266,13 +290,13 @@ export function ProductPicker({
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={p.image} alt="" className="h-11 w-11 shrink-0 object-contain" />
                   ) : (
-                    <div className="h-11 w-11 shrink-0 bg-neutral-100" />
+                    <span className="h-11 w-11 shrink-0 bg-neutral-100" />
                   )}
                   <span className="min-w-0 flex-1">
                     <span className="block truncate font-mono text-[10px] text-neutral-500">
                       {p.brand} · {p.code}
                     </span>
-                    <span className="line-clamp-1 text-[12px] font-medium">{p.name}</span>
+                    <span className="line-clamp-2 text-[12px] leading-snug font-medium">{p.name}</span>
                     <span className="text-[12px] text-neutral-600">{p.price}</span>
                   </span>
                   <span className="shrink-0 text-neutral-400">
@@ -328,6 +352,7 @@ export function ProductPicker({
             </SortableContext>
           </DndContext>
         )}
+        </div>
       </div>
     </div>
   );
