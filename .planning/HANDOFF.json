@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-09-04T18:29:31.349Z",
+  "timestamp": "2026-09-04T18:31:21.580Z",
   "source": "auto-postool",
   "partial": false,
   "phase": null,
@@ -15,40 +15,7 @@
   "blockers": [],
   "human_actions_pending": [],
   "decisions": [],
-  "uncommitted_files": [
-    {
-      "status": "M",
-      "path": ".planning/HANDOFF.json"
-    },
-    {
-      "status": "M",
-      "path": "src/components/admin/banners/BannerEditor.tsx"
-    },
-    {
-      "status": "M",
-      "path": "src/components/admin/banners/CellCanvas.tsx"
-    },
-    {
-      "status": "M",
-      "path": "src/components/admin/banners/CellEditor.tsx"
-    },
-    {
-      "status": "M",
-      "path": "src/components/banners/BannerRenderer.tsx"
-    },
-    {
-      "status": "M",
-      "path": "src/components/banners/CompositionRenderer.tsx"
-    },
-    {
-      "status": "M",
-      "path": "src/lib/banners/contract.ts"
-    },
-    {
-      "status": "M",
-      "path": "src/lib/banners/resolve.ts"
-    }
-  ],
+  "uncommitted_files": [],
   "next_action": null,
-  "context_notes": "Recent commits:\nc8eb0bf fix(banners): το κλικ άνοιγε ΑΛΛΟ κελί, μικρότερη τυπογραφία, προεπισκόπηση κίνησης\n7bb4ac7 fix(banners): μία κλίμακα τυπογραφίας ανά κελί, αντί για πέντε ανεξάρτητα clamp\n27ef746 feat(brand): το σήμα κόκκινο με λευκά γράμματα, σε οριζόντια διάταξη\nd42f587 feat(banners): έξι νέες παραλλαγές, ο ρόλος «μέγεθος», και το σήμα της μάρκας\n163d455 feat(seo): δομημένα δεδομένα σε κάθε τύπο σελίδας, και τα χρόνια υπολογίζονται"
+  "context_notes": "Recent commits:\nf2ee6c0 fix(banners): κανένα άλυτο {token} στο κατάστημα, και η μάρκα λύνει και στις προσφορές\nc8eb0bf fix(banners): το κλικ άνοιγε ΑΛΛΟ κελί, μικρότερη τυπογραφία, προεπισκόπηση κίνησης\n7bb4ac7 fix(banners): μία κλίμακα τυπογραφίας ανά κελί, αντί για πέντε ανεξάρτητα clamp\n27ef746 feat(brand): το σήμα κόκκινο με λευκά γράμματα, σε οριζόντια διάταξη\nd42f587 feat(banners): έξι νέες παραλλαγές, ο ρόλος «μέγεθος», και το σήμα της μάρκας"
 }
