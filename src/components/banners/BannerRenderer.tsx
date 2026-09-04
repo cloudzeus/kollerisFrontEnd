@@ -64,7 +64,7 @@ export function BannerRenderer({
     <div className={cn("banner-shell", className)}>
       <div
         className="banner-grid bg-k-line"
-        style={gridVars(template, content.maxHeight, content.minHeight)}
+        style={gridVars(template, content.maxHeight, content.minHeight, content.aspectFromMedia)}
         {...bandAttrs}
         data-banner-grid
       >
@@ -77,7 +77,13 @@ export function BannerRenderer({
           const placement = {
             ...cellVars(cell),
             order: cell.mobile?.order ?? index,
-          };
+            /* Μόνο όταν υπάρχει μετρημένη αναλογία· ο επιλογέας του CSS
+               ψάχνει την ίδια τη μεταβλητή, οπότε η απουσία της σημαίνει
+               «κράτα την παλιά συμπεριφορά». */
+            ...(composition?.background?.mediaAspect
+              ? { "--bn-cell-aspect": composition.background.mediaAspect }
+              : {}),
+          } as React.CSSProperties;
           const collapse = cell.mobile?.hidden ? "bn-mobile-hidden" : undefined;
 
           if (!composition) {

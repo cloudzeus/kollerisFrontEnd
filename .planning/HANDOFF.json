@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-09-04T05:09:38.100Z",
+  "timestamp": "2026-09-04T05:20:54.917Z",
   "source": "auto-postool",
   "partial": false,
   "phase": null,
@@ -22,11 +22,7 @@
     },
     {
       "status": "M",
-      "path": "src/app/admin/(protected)/layout.tsx"
-    },
-    {
-      "status": "M",
-      "path": "src/app/admin/(protected)/media/actions.ts"
+      "path": "src/app/globals.css"
     },
     {
       "status": "M",
@@ -34,17 +30,21 @@
     },
     {
       "status": "M",
-      "path": "src/lib/media/library.ts"
+      "path": "src/components/admin/banners/CellEditor.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/components/banners/BannerRenderer.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/lib/banners/contract.ts"
     },
     {
       "status": "??",
-      "path": "src/app/admin/(protected)/media/page.tsx"
-    },
-    {
-      "status": "??",
-      "path": "src/components/admin/media/"
+      "path": "src/lib/media/measure.ts"
     }
   ],
   "next_action": null,
-  "context_notes": "Recent commits:\ndcb0b1d fix(banners): το ύψος γίνεται ρυθμιζόμενο, και το βίντεο παύει να κόβεται σιωπηλά\n3d9408e feat(newsletter): το «Νέα» διαλέγει από υπάρχον περιεχόμενο, και δύο διορθώσεις στο AI\n934937d feat(newsletter): παραγωγή κειμένων προσφορών με DeepSeek, ανά γωνία marketing\n351bbb7 feat(newsletter): γραφικά και εξαγωγές στη σελίδα MailGun\nb3ffff3 feat(newsletter): σελίδα MailGun με αναλυτικά στατιστικά αποστολών"
+  "context_notes": "Recent commits:\n6de4bcb feat(admin): βιβλιοθήκη αρχείων, και το ύψος του banner σύρεται με το χέρι\ndcb0b1d fix(banners): το ύψος γίνεται ρυθμιζόμενο, και το βίντεο παύει να κόβεται σιωπηλά\n3d9408e feat(newsletter): το «Νέα» διαλέγει από υπάρχον περιεχόμενο, και δύο διορθώσεις στο AI\n934937d feat(newsletter): παραγωγή κειμένων προσφορών με DeepSeek, ανά γωνία marketing\n351bbb7 feat(newsletter): γραφικά και εξαγωγές στη σελίδα MailGun"
 }

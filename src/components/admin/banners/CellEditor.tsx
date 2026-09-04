@@ -43,6 +43,7 @@ import { CATEGORY_LABEL, PRESETS, applyPreset, type PresetCategory } from "@/lib
 import { actionListLogos, actionRemoveBackground } from "@/app/admin/(protected)/media/actions";
 import { actionProductAssets, actionResolve } from "@/app/admin/(protected)/banners/actions";
 import { uploadFiles } from "@/lib/media/upload-client";
+import { measureMedia, roundAspect } from "@/lib/media/measure";
 import type { ResolvedCell } from "@/lib/banners/resolve-tokens";
 import type { PickerProduct } from "@/lib/media/picker";
 import { CompositionRenderer } from "@/components/banners/CompositionRenderer";
@@ -145,42 +146,21 @@ const DEMO: ResolvedCell = {
 };
 
 /**
- * Η πραγματική αναλογία του υλικού.
+ * Η πραγματική αναλογία του υλικού, ως κατάσταση.
  *
  * Χωρίς αυτήν, η περικοπή είναι αόρατη μέχρι να λείψει κάτι. Τα βίντεο των
  * social είναι 1080×1350 — κατακόρυφα — και μπαίνουν σε οριζόντιο κελί: το
  * `cover` πετάει σχεδόν το μισό καρέ, από πάνω και από κάτω, ακριβώς εκεί που
- * κάθεται το κείμενο που έχει ψηθεί μέσα στο βίντεο. Ο συντάκτης βλέπει το
- * κείμενο να κόβεται και δεν έχει κανέναν τρόπο να μαντέψει γιατί.
+ * κάθεται το κείμενο που έχει ψηθεί μέσα στο βίντεο.
  */
 function useNaturalRatio(kind: string, url: string): number | null {
   const [ratio, setRatio] = useState<number | null>(null);
 
   useEffect(() => {
     setRatio(null);
-    if (!url || (kind !== "video" && kind !== "image")) return;
+    if (kind !== "video" && kind !== "image") return;
     let alive = true;
-
-    if (kind === "video") {
-      const el = document.createElement("video");
-      el.preload = "metadata";
-      el.muted = true;
-      el.onloadedmetadata = () => {
-        if (alive && el.videoHeight) setRatio(el.videoWidth / el.videoHeight);
-      };
-      el.src = url;
-      return () => {
-        alive = false;
-        // Σταματά το κατέβασμα των metadata αν αλλάξει το αρχείο νωρίς.
-        el.removeAttribute("src");
-      };
-    }
-
-    const img = new window.Image();
-    img.onload = () => {
-      if (alive && img.naturalHeight) setRatio(img.naturalWidth / img.naturalHeight);
-    };
-    img.src = url;
+    void measureMedia(kind, url).then((r) => alive && setRatio(r));
     return () => {
       alive = false;
     };
@@ -946,6 +926,24 @@ function CellPanel({
    * να το πούμε — πάνω από αυτό η περικοπή είναι διακοσμητική άκρη.
    */
   const naturalRatio = useNaturalRatio(bg.kind, bg.kind === "video" ? bg.video : bg.image);
+
+  /*
+   * Η μέτρηση γράφεται στο προσχέδιο, δεν μένει στη μνήμη.
+   * ─────────────────────────────────────────────────────────────────────────
+   * Το κατάστημα αποδίδεται στον διακομιστή και δεν έχει το αρχείο στα χέρια
+   * του· ο μόνος που ξέρει τις πραγματικές διαστάσεις είναι αυτή η οθόνη, τη
+   * στιγμή που ο συντάκτης κοιτάει το υλικό. Αποθηκευμένη, η αναλογία γίνεται
+   * καθαρό CSS και ισχύει σε κάθε συσκευή χωρίς μέτρηση.
+   */
+  useEffect(() => {
+    if (!naturalRatio) return;
+    const rounded = roundAspect(naturalRatio);
+    setDraft((d) =>
+      d.background.mediaAspect === rounded
+        ? d
+        : { ...d, background: { ...d.background, mediaAspect: rounded } },
+    );
+  }, [naturalRatio, setDraft]);
   const cropWarning = useMemo(() => {
     if (!naturalRatio || !aspect || (bg.fit ?? "cover") !== "cover") return null;
     const visible = Math.min(naturalRatio, aspect) / Math.max(naturalRatio, aspect);

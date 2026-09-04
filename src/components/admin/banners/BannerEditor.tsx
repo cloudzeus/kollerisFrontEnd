@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, useTransition } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Eye, GripHorizontal, Loader2, Plus, Undo2, Upload, X } from "lucide-react";
 import { toast } from "sonner";
+import { measureMedia, roundAspect } from "@/lib/media/measure";
 import {
   actionAssign,
   actionDiscardDraft,
@@ -17,6 +18,7 @@ import {
 import {
   bannerState,
   cellVars,
+  bannerAspectForCell,
   gridVars,
   resolveBands,
   sameContent,
@@ -148,6 +150,108 @@ export function BannerEditor({
   const dirty = !sameContent(content, saved);
   const state = bannerState(content, banner.published);
   const template = banner.template;
+
+  /*
+   * Ποιο κελί δίνει το σχήμα.
+   * ───────────────────────────────────────────────────────────────────────
+   * Το πρώτο με μετρημένο υλικό. Θα μπορούσε να το διαλέγει ο χρήστης, αλλά
+   * σε λωρίδα με ομοιόμορφα κελιά η επιλογή δεν αλλάζει τίποτα, και σε ένα
+   * hero το μεγάλο κελί είναι σχεδόν πάντα το πρώτο. Το όνομά του γράφεται
+   * δίπλα στην επιλογή, ώστε να μη μαντεύει κανείς ποιο μέτρησε.
+   */
+  const mediaCell = useMemo(() => {
+    for (const cell of template.cells) {
+      const aspect = content.cells[cell.id]?.background?.mediaAspect;
+      if (aspect) return { cell, aspect };
+    }
+    return null;
+  }, [template.cells, content.cells]);
+
+  /*
+   * Μέτρηση όλων των κελιών, μία φορά, με ρητή εντολή.
+   * ───────────────────────────────────────────────────────────────────────
+   * Γίνεται όταν ο χρήστης διαλέξει «Από το υλικό» και όχι στο φόρτωμα:
+   * γράφει στο προσχέδιο, και μια σελίδα που σημαδεύεται «μη δημοσιευμένες
+   * αλλαγές» χωρίς να αγγίξει κανείς τίποτα είναι ανησυχητική, όχι χρήσιμη.
+   *
+   * Οι μετρήσεις τρέχουν παράλληλα και μία αποτυχία δεν ρίχνει τις άλλες —
+   * ένα αρχείο που δεν απαντά αφήνει απλώς το κελί του στην παλιά συμπεριφορά.
+   */
+  const measureRest = useCallback(async () => {
+    const pending = template.cells
+      .map((cell) => ({ cell, composition: content.cells[cell.id] }))
+      .filter(({ composition }) => {
+        const bg = composition?.background;
+        return bg && !bg.mediaAspect && (bg.kind === "image" || bg.kind === "video");
+      });
+    if (pending.length === 0) return [];
+
+    const measured = await Promise.all(
+      pending.map(async ({ cell, composition }) => {
+        const bg = composition!.background;
+        const kind = bg.kind as "image" | "video";
+        const ratio = await measureMedia(kind, kind === "video" ? bg.video : bg.image);
+        return { id: cell.id, ratio };
+      }),
+    );
+
+    setContent((c) => {
+      const cells = { ...c.cells };
+      let changed = false;
+      for (const { id, ratio } of measured) {
+        const composition = cells[id];
+        if (!ratio || !composition) continue;
+        cells[id] = {
+          ...composition,
+          background: { ...composition.background, mediaAspect: roundAspect(ratio) },
+        };
+        changed = true;
+      }
+      return changed ? { ...c, cells } : c;
+    });
+
+    return measured;
+  }, [template.cells, content.cells]);
+
+  /*
+   * «Από το υλικό»: μετράει πρώτα, ρωτάει μετά.
+   * ───────────────────────────────────────────────────────────────────────
+   * Η επιλογή ήταν κλειδωμένη μέχρι να έχει μετρηθεί κάποιο κελί, δηλαδή
+   * μέχρι να ανοίξει κανείς έναν διάλογο για άσχετο λόγο. Κλειδωμένο κουμπί
+   * χωρίς εξήγηση είναι χειρότερο από καθόλου κουμπί: μοιάζει με βλάβη.
+   * Τώρα η ίδια η επιλογή κάνει τη δουλειά — μετράει ό,τι λείπει και μετά
+   * υπολογίζει την αναλογία.
+   */
+  const applyMediaAspect = useCallback(async () => {
+    const measured = await measureRest();
+
+    setContent((c) => {
+      const reference = template.cells
+        .map((cell) => {
+          const stored = c.cells[cell.id]?.background?.mediaAspect;
+          const fresh = measured.find((m) => m.id === cell.id)?.ratio;
+          const aspect = stored ?? (fresh ? roundAspect(fresh) : null);
+          return aspect ? { cell, aspect } : null;
+        })
+        .find(Boolean);
+
+      if (!reference) {
+        toast.error("Κανένα κελί δεν έχει εικόνα ή βίντεο να μετρηθεί.");
+        return c;
+      }
+
+      /* Σταθερό ύψος και αναλογία δεν συνυπάρχουν: ένα ύψος σε εικονοστοιχεία
+         θα ακύρωνε την αναλογία και το σχήμα θα κοβόταν πάλι, όπως πριν. */
+      return {
+        ...c,
+        minHeight: null,
+        maxHeight: null,
+        aspectFromMedia: roundAspect(
+          bannerAspectForCell(template, reference.cell, reference.aspect),
+        ),
+      };
+    });
+  }, [measureRest, template]);
 
   /* ── the canvas shows what the storefront would ── */
   useEffect(() => {
@@ -454,14 +558,22 @@ export function BannerEditor({
               <div className="space-y-1.5">
                 <label className="text-[11.5px] text-k-text-3">Ύψος</label>
                 <Select
-                  value={content.minHeight?.value ? "fixed" : "auto"}
+                  value={
+                    content.aspectFromMedia ? "media" : content.minHeight?.value ? "fixed" : "auto"
+                  }
                   onValueChange={(mode) =>
                     setContent((c) => {
-                      if (mode === "auto") return { ...c, minHeight: null };
+                      if (mode === "auto") {
+                        return { ...c, minHeight: null, aspectFromMedia: null };
+                      }
+                      if (mode === "media") {
+                        void applyMediaAspect();
+                        return c;
+                      }
                       // Ξεκινά από ό,τι ήδη βλέπει ο χρήστης, όχι από μια
                       // αυθαίρετη τιμή που θα του τίναζε τη διάταξη.
                       const seed = c.maxHeight ?? { value: 320, unit: "px" as const };
-                      return { ...c, minHeight: seed, maxHeight: seed };
+                      return { ...c, minHeight: seed, maxHeight: seed, aspectFromMedia: null };
                     })
                   }
                 >
@@ -471,10 +583,11 @@ export function BannerEditor({
                   <SelectContent>
                     <SelectItem value="auto">Αυτόματο</SelectItem>
                     <SelectItem value="fixed">Σταθερό</SelectItem>
+                    <SelectItem value="media">Από το υλικό</SelectItem>
                   </SelectContent>
                 </Select>
 
-                <div className="flex gap-2">
+                <div className={cn("flex gap-2", content.aspectFromMedia && "hidden")}>
                   <Input
                     id="bn-maxh"
                     type="number"
@@ -523,7 +636,13 @@ export function BannerEditor({
                 </div>
 
                 <p className="text-[11px] leading-[1.5] text-k-text-4">
-                  {content.minHeight?.value ? (
+                  {content.aspectFromMedia ? (
+                    <>
+                      Το ύψος ακολουθεί το πλάτος, ώστε το υλικό του κελιού «
+                      {mediaCell?.cell.name}» να δείχνει ακέραιο σε κάθε συσκευή — και στα 1440
+                      και στα 390. Καμία περικοπή, κανένα σταθερό νούμερο να διαλέξετε.
+                    </>
+                  ) : content.minHeight?.value ? (
                     <>Ακριβώς αυτό το ύψος, σε κάθε οθόνη. Το πλέγμα δεν το αλλάζει.</>
                   ) : banner.template.aspect ? (
                     <>

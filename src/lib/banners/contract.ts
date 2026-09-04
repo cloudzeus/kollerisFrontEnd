@@ -277,6 +277,17 @@ export type Background = {
    * banner already saved keeps exactly the look it has.
    */
   fit?: "cover" | "contain";
+  /**
+   * Η φυσική αναλογία του αρχείου, μετρημένη από τον συντάκτη.
+   *
+   * Ο διακομιστής δεν μπορεί να τη μαντέψει: για τα βίντεο η βιβλιοθήκη δεν
+   * κρατά διαστάσεις, και το να τις διαβάσει θα σήμαινε κατέβασμα metadata σε
+   * κάθε απόδοση σελίδας. Ο επεξεργαστής όμως έχει ήδη το αρχείο φορτωμένο,
+   * οπότε τη μετράει μία φορά και τη γράφει εδώ. Από εκεί και πέρα το ύψος
+   * βγαίνει με καθαρό CSS και προσαρμόζεται μόνο του σε κάθε πλάτος οθόνης —
+   * κανένα JavaScript στο κατάστημα, καμία μέτρηση, κανένα αναπήδημα.
+   */
+  mediaAspect?: number;
 };
 
 export type CellComposition = {
@@ -433,6 +444,16 @@ export type BannerContent = {
    * exact height, which is what "make it 400 tall" means.
    */
   minHeight?: BannerHeight | null;
+  /**
+   * Η αναλογία του banner, βγαλμένη από το υλικό ενός κελιού.
+   *
+   * Σταθερό ύψος σε εικονοστοιχεία λύνει μία οθόνη και χαλάει τις υπόλοιπες:
+   * μια λωρίδα πλήρους πλάτους είναι 1440 στο γραφείο και 390 στο κινητό, και
+   * ένα νούμερο δεν μπορεί να είναι σωστό και στα δύο. Η αναλογία είναι
+   * ποσοστιαία εξ ορισμού — το ύψος ακολουθεί το πλάτος, όποιο κι αν είναι —
+   * οπότε το υλικό διατηρεί το σχήμα του παντού χωρίς περικοπή.
+   */
+  aspectFromMedia?: number | null;
   /** Arrangement above 88rem. Defaults to keeping the template's grid. */
   wideLayout?: WideLayout;
 };
@@ -916,11 +937,29 @@ export function cellVars(cell: GridCell): React.CSSProperties {
   } as React.CSSProperties;
 }
 
+/**
+ * Η αναλογία που πρέπει να έχει ΟΛΟ το banner ώστε ένα κελί να δείχνει το
+ * υλικό του ακέραιο.
+ *
+ * Αντιστροφή του `cellAspect`: το κελί παίρνει το `w/h` μερίδιό του από τη
+ * γεωμετρία του πλέγματος, οπότε για να καταλήξει σε δεδομένη αναλογία, το
+ * banner πρέπει να ξεκινήσει από αυτήν εδώ. Για κελί πλήρους πλάτους και
+ * ύψους το αποτέλεσμα είναι η ίδια η αναλογία του υλικού.
+ */
+export function bannerAspectForCell(
+  template: Pick<GridTemplateView, "columns" | "rows">,
+  cell: Pick<GridCell, "w" | "h">,
+  mediaAspect: number,
+): number {
+  return (mediaAspect * (cell.h / cell.w) * template.columns) / template.rows;
+}
+
 /** Grid-level variables: the template's own dimensions and shape. */
 export function gridVars(
   template: Pick<GridTemplateView, "columns" | "rows" | "aspect" | "cells">,
   maxHeight?: BannerHeight | null,
   minHeight?: BannerHeight | null,
+  aspectFromMedia?: number | null,
 ) {
   return {
     "--bn-cols": template.columns,
@@ -928,7 +967,10 @@ export function gridVars(
     /* The single-row layout divides the width by this, so each cell keeps the
        share of the width its column span already gave it. */
     "--bn-span-total": spanTotal(template.cells),
-    "--bn-aspect": template.aspect ?? "auto",
+    /* Η αναλογία από το υλικό υπερισχύει εκείνης του προτύπου: το πρότυπο
+       είναι επαναχρησιμοποιήσιμο σχήμα, το υλικό είναι αυτό που πρέπει να
+       χωρέσει ακέραιο σε ΑΥΤΟ το banner. */
+    "--bn-aspect": aspectFromMedia || (template.aspect ?? "auto"),
     /*
      * `aspect-ratio` derives height from width, so a 21/9 hero on a 2560px
      * screen is 1100px tall and pushes everything below it off the fold. This
