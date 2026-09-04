@@ -165,6 +165,17 @@ export type TextStyle = {
    * σε λωρίδα 1151px χωρίς να διαλέξει κανείς νούμερο.
    */
   role?: TypeRole;
+  /*
+   * Ρύθμιση μεγέθους πάνω στον ρόλο, σε ποσοστό. 100 = όπως το ορίζει το
+   * design system, 130 = ένα τρίτο μεγαλύτερο σε ΟΛΗ την κλίμακα.
+   *
+   * Ο ρόλος έδινε ένα και μόνο μέγεθος, που είναι σωστό για τη σελίδα και
+   * στενό για ένα banner: ο ίδιος τίτλος θέλει άλλο βάρος μελανιού σε μια
+   * λωρίδα πλήρους πλάτους και άλλο σε ένα κελί δίπλα σε τρία ακόμη. Αυτό
+   * μετακινεί δάπεδο, κλιμάκωση και ταβάνι μαζί — δηλαδή αλλάζει το μέγεθος
+   * χωρίς να σπάει η προστασία από τα 11-pixel γράμματα.
+   */
+  roleScale?: number;
   align: "left" | "center" | "right";
   /** Vertical placement inside the layer's own box. */
   valign: "start" | "center" | "end";
@@ -215,7 +226,7 @@ export type BadgeLayer = LayerBase & {
   kind: "badge";
   text: LocalisedText;
   tone: "ink" | "red" | "amber" | "green" | "white";
-  style: Pick<TextStyle, "font" | "size" | "weight" | "tracking" | "uppercase" | "role">;
+  style: Pick<TextStyle, "font" | "size" | "weight" | "tracking" | "uppercase" | "role" | "roleScale">;
 };
 
 export type ButtonLayer = LayerBase & {
@@ -232,7 +243,10 @@ export type ButtonLayer = LayerBase & {
    */
   href: string;
   variant: "underline" | "solid" | "outline";
-  style: Pick<TextStyle, "font" | "size" | "weight" | "tracking" | "uppercase" | "color" | "role">;
+  style: Pick<
+    TextStyle,
+    "font" | "size" | "weight" | "tracking" | "uppercase" | "color" | "role" | "roleScale"
+  >;
 };
 
 /** A flat block of colour — scrims, side panels, anything the media needs
@@ -871,13 +885,36 @@ export function seedProductLayers(): Layer[] {
   title.frame = { x: 6, y: 65, w: 80, h: 18 };
   title.style = { ...DEFAULT_TEXT_STYLE, role: "title", color: "white" };
 
+  /* Η παλιά τιμή πάνω από την τρέχουσα, όπως τη δείχνει και η λίστα
+     προϊόντων: μικρότερη, σβηστή, διαγραμμένη. Κενή όταν δεν υπάρχει
+     έκπτωση — και τότε δεν αποδίδεται καθόλου. */
+  const compare = newLayer("text") as TextLayer;
+  compare.name = "Παλιά τιμή";
+  compare.text = { el: "{compare}" };
+  /*
+   * Δίπλα στην τρέχουσα τιμή, όχι από πάνω της.
+   * ─────────────────────────────────────────────────────────────────────────
+   * Πάνω από την τιμή δεν υπάρχει χώρος: ο τίτλος σε τρεις γραμμές φτάνει ως
+   * το 83% και η τιμή ξεκινά στο 86%, οπότε μια διαγραμμένη τιμή στο 80%
+   * καθόταν ΚΑΤΩ από την τελευταία γραμμή του τίτλου και δεν φαινόταν
+   * καθόλου. Στην ίδια γραμμή, ελαφρώς χαμηλότερα ώστε να συμπέσουν οι
+   * βάσεις των δύο διαφορετικών μεγεθών.
+   */
+  compare.frame = { x: 42, y: 87.3, w: 26, h: 7 };
+  compare.style = {
+    ...DEFAULT_TEXT_STYLE,
+    role: "compare",
+    color: "white-70",
+    uppercase: false,
+  };
+
   const price = newLayer("text") as TextLayer;
   price.name = "Τιμή";
   price.text = { el: "{price}" };
   price.frame = { x: 6, y: 86, w: 50, h: 9 };
   price.style = { ...DEFAULT_TEXT_STYLE, role: "price", color: "white", uppercase: false };
 
-  return [plate, brand, title, price];
+  return [plate, brand, title, compare, price];
 }
 
 export function seedOfferLayers(): Layer[] {
@@ -1036,28 +1073,46 @@ export const clampFrame = (frame: Frame): Frame => ({
  * Ίδιοι με τη σελίδα: eyebrow σε mono κόκκινο, τίτλος display 900 με tracking
  * −0,03em, σώμα σε Inter, αριθμοί σε JetBrains Mono.
  */
-export type TypeRole = "eyebrow" | "title" | "body" | "price";
+export type TypeRole = "eyebrow" | "title" | "body" | "price" | "compare";
 
 export const TYPE_ROLE: Record<
   TypeRole,
-  { label: string; font: FontToken; css: React.CSSProperties }
+  {
+    label: string;
+    font: FontToken;
+    /**
+     * Το μέγεθος ως τριάδα: [δάπεδο σε px, κλιμάκωση σε cqw, ταβάνι σε px].
+     *
+     * Δεν γράφεται ως έτοιμο `clamp()` γιατί πολλαπλασιάζεται με το
+     * `roleScale` του layer πριν αποδοθεί — αλλιώς η ρύθμιση μεγέθους θα
+     * έπρεπε να ξαναγράφει τη συμβολοσειρά με regex.
+     *
+     * Το ταβάνι είναι το μέγεθος που έχει η ΙΔΙΑ βαθμίδα στη σελίδα: 46 για
+     * τίτλο (t-h1: 48), 21 για τιμή (t-card-price: 21), 11,5 για παλιά τιμή
+     * (t-card-was: 11,5 — εδώ 19 γιατί το banner δεν έχει τη στήλη της κάρτας).
+     */
+    size: [min: number, cqw: number, max: number];
+    css: React.CSSProperties;
+  }
 > = {
+  /* t-eyebrow: mono 500, tracking 0,14em, line-height 1. */
   eyebrow: {
     label: "Eyebrow",
     font: "mono",
+    size: [9, 3.4, 13],
     css: {
-      fontSize: "clamp(9px, 3.4cqw, 13px)",
-      fontWeight: 600,
-      letterSpacing: "0.08em",
-      lineHeight: 1.3,
+      fontWeight: 500,
+      letterSpacing: "0.14em",
+      lineHeight: 1.2,
       textTransform: "uppercase",
     },
   },
+  /* t-h1 / t-h2: display 900, tracking −0,03em, wdth 125%, line-height 1,02. */
   title: {
     label: "Τίτλος",
     font: "display",
+    size: [17, 9.5, 46],
     css: {
-      fontSize: "clamp(17px, 9.5cqw, 46px)",
       fontWeight: 900,
       letterSpacing: "-0.03em",
       lineHeight: 1.02,
@@ -1065,27 +1120,70 @@ export const TYPE_ROLE: Record<
       textTransform: "uppercase",
     },
   },
+  /* t-body: sans 400, line-height 1,68. */
   body: {
     label: "Κείμενο",
     font: "sans",
+    size: [11, 4.2, 17],
     css: {
-      fontSize: "clamp(11px, 4.2cqw, 17px)",
       fontWeight: 400,
       letterSpacing: "0",
-      lineHeight: 1.5,
+      lineHeight: 1.68,
     },
   },
+  /* t-card-price: mono 600, tracking −0,01em, line-height 1,1. */
   price: {
     label: "Τιμή",
     font: "mono",
+    size: [15, 6.4, 30],
     css: {
-      fontSize: "clamp(15px, 6.4cqw, 30px)",
       fontWeight: 600,
+      letterSpacing: "-0.01em",
+      lineHeight: 1.1,
+    },
+  },
+  /*
+   * Η προηγούμενη τιμή — διαγραμμένη. Το κατάστημα τη γράφει με `t-card-was`:
+   * mono 400, ένα σκαλί κάτω από την τρέχουσα.
+   * ───────────────────────────────────────────────────────────────────────────
+   * Ρόλος και όχι διακόπτης «διαγραφή»: η διαγραμμένη τιμή δεν είναι εφέ, είναι
+   * νόημα. Έρχεται πάντα μικρότερη και σβηστή δίπλα στην τρέχουσα, ποτέ σε
+   * λευκό δίπλα σε λευκό — αλλιώς διαβάζονται ως δύο τιμές και ο πελάτης δεν
+   * ξέρει ποια πληρώνει.
+   *
+   * Το `{compare}` λύνει σε κενό όταν δεν υπάρχει έκπτωση, και ένα layer χωρίς
+   * κείμενο δεν αποδίδεται καθόλου — οπότε δεν μένει σκουπίδι σε προϊόν που
+   * δεν είναι σε προσφορά.
+   */
+  compare: {
+    label: "Παλιά τιμή",
+    font: "mono",
+    size: [11, 4.2, 19],
+    css: {
+      fontWeight: 400,
       letterSpacing: "0",
-      lineHeight: 1.2,
+      lineHeight: 1.1,
+      textDecoration: "line-through",
+      textDecorationThickness: "0.08em",
     },
   },
 };
+
+/**
+ * Το μέγεθος ενός ρόλου, ρυθμισμένο.
+ *
+ * Ο ρόλος κλειδώνει τη ΣΧΕΣΗ — δάπεδο, κλιμάκωση, ταβάνι — και το `roleScale`
+ * μετακινεί και τα τρία μαζί. Έτσι ένας τίτλος στο 130% παραμένει τίτλος: δεν
+ * ξεχειλώνει στα στενά κελιά ούτε παγώνει στα πλατιά, απλώς κάθεται ψηλότερα
+ * σε ολόκληρη την κλίμακα. Ένα σκέτο νούμερο pixel θα ξανάφερνε ακριβώς το
+ * πρόβλημα που έλυσαν οι ρόλοι.
+ */
+export function roleFontSize(role: TypeRole, scale?: number): string {
+  const [min, cqw, max] = TYPE_ROLE[role].size;
+  const k = Math.max(50, Math.min(220, scale ?? 100)) / 100;
+  const r = (n: number) => Math.round(n * k * 10) / 10;
+  return `clamp(${r(min)}px, ${r(cqw)}cqw, ${r(max)}px)`;
+}
 
 export const FONT_STACK: Record<FontToken, string> = {
   display: "var(--font-display)",
@@ -1123,7 +1221,10 @@ export function layerStyle(layer: Layer): React.CSSProperties {
     if (role) {
       /* Ο ρόλος δίνει τα πάντα — οικογένεια, μέγεθος, βάρος, tracking. Τα
          αριθμητικά πεδία της σύνθεσης αγνοούνται όσο είναι ενεργός. */
-      Object.assign(base, role.css, { fontFamily: FONT_STACK[role.font] });
+      Object.assign(base, role.css, {
+        fontFamily: FONT_STACK[role.font],
+        fontSize: roleFontSize(style.role!, style.roleScale),
+      });
       if (layer.kind === "text") {
         base.textAlign = layer.style.align;
         base.color = COLOR_VALUE[layer.style.color];

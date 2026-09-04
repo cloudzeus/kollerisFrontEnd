@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-09-04T11:16:27.178Z",
+  "timestamp": "2026-09-04T16:29:00.729Z",
   "source": "auto-postool",
   "partial": false,
   "phase": null,
@@ -22,9 +22,17 @@
     },
     {
       "status": "M",
-      "path": "src/components/zones/WidgetRenderer.tsx"
+      "path": "src/app/globals.css"
+    },
+    {
+      "status": "M",
+      "path": "src/components/admin/banners/CellEditor.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/lib/banners/contract.ts"
     }
   ],
   "next_action": null,
-  "context_notes": "Recent commits:\n7fa5b2f style(plp): κόκκινος ο αριθμός στη μπάρα φίλτρων, χρυσός στα τσιπ\n139589c style(plp): χρυσός ο αριθμός προϊόντων στις υποκατηγορίες\n662b8c1 perf(plp): τα φίλτρα δεν προ-φορτώνονται — 62 άχρηστες αποδόσεις σελίδας ανά επίσκεψη\n2da3038 fix(banners): ίδιο πλάτος με το header, μαύρο φόντο εκατέρωθεν\ne7822a7 feat(reviews): αξιολογήσεις από πελάτες που παρέλαβαν, με έγκριση διαχειριστή"
+  "context_notes": "Recent commits:\nb65f3d3 feat(banners): κλειδωμένη τυπογραφία αντί για ελεύθερα νούμερα\n50f93ee fix(banners): η τιμή έρχεται από την προσφορά, και η γεννήτρια βρίσκεται\n0348ff1 feat(banners): ένα προϊόν σε ένα κελί, με μία κίνηση\nf717c45 feat(αρχική): η φωτογραφία του κτηρίου αντικαθιστά την κράτηση θέσης\nf0434fd feat(emails): το σύστημα email μπαίνει μέσα στην εφαρμογή"
 }

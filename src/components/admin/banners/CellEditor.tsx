@@ -1760,15 +1760,37 @@ function Typography({
           { value: "eyebrow" as const, label: "Eyebrow" },
           { value: "body" as const, label: "Κείμενο" },
           { value: "price" as const, label: "Τιμή" },
+          { value: "compare" as const, label: "Παλιά" },
           { value: "custom" as const, label: "Ελεύθερο" },
         ]}
       />
 
       {style.role ? (
-        <p className="text-[10.5px] leading-[1.5] text-k-text-4">
-          Γραμματοσειρά, μέγεθος, βάρος και απόσταση τα δίνει το design system και
-          κλιμακώνονται με το κελί. Για χειροκίνητο έλεγχο, «Ελεύθερο».
-        </p>
+        <>
+          {/*
+            Το μέγεθος πάνω στον ρόλο, όχι αντί για αυτόν.
+            ─────────────────────────────────────────────────────────────────
+            Ο ρόλος κρατά τη σχέση δαπέδου–κλιμάκωσης–ταβανιού· αυτό τη
+            μετακινεί ολόκληρη. Ένας τίτλος στο 130% μένει τίτλος σε κάθε
+            πλάτος κελιού, ενώ ένα σκέτο νούμερο pixel θα ξανάφερνε τους
+            τίτλους των 11 pixel μόλις προστεθεί μια στήλη.
+          */}
+          <Segmented
+            label="Μέγεθος"
+            value={String(style.roleScale ?? 100)}
+            onChange={(v) => patchStyle({ roleScale: Number(v) })}
+            options={[
+              { value: "75", label: "S" },
+              { value: "100", label: "M" },
+              { value: "130", label: "L" },
+              { value: "165", label: "XL" },
+            ]}
+          />
+          <p className="text-[10.5px] leading-[1.5] text-k-text-4">
+            Γραμματοσειρά, βάρος και απόσταση τα δίνει το design system — ίδια με τις
+            επικεφαλίδες της σελίδας. Για χειροκίνητο έλεγχο, «Ελεύθερο».
+          </p>
+        </>
       ) : (
         <Segmented
           label="Γραμματοσειρά"
