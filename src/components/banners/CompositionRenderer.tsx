@@ -395,7 +395,7 @@ function BadgeView({
         lineHeight: 1,
       }}
     >
-      {value}
+      <FitText>{value}</FitText>
     </div>
   );
 }
@@ -439,7 +439,7 @@ function ButtonView({
         layer.variant === "outline" && "border-[.2cqw] border-current px-[3cqw] py-[1.6cqw]",
       )}
     >
-      {value}
+      <FitText>{value}</FitText>
       {layer.variant === "underline" && <span aria-hidden>→</span>}
     </span>
   );

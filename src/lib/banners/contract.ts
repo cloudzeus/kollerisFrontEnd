@@ -1185,6 +1185,103 @@ export function roleFontSize(role: TypeRole, scale?: number): string {
   return `clamp(${r(min)}px, ${r(cqw)}cqw, ${r(max)}px)`;
 }
 
+/**
+ * Η σειρά με την οποία μπαίνουν τα στοιχεία ενός κελιού.
+ *
+ * ── Μία συνταγή, όχι δεκαέξι νούμερα ───────────────────────────────────────
+ *
+ * Η κίνηση οριζόταν ανά στοιχείο, σε χιλιοστά: καθυστέρηση και διάρκεια, σε
+ * κάθε layer χωριστά. Ένα κελί με πέντε στοιχεία είναι δέκα νούμερα που πρέπει
+ * να συμφωνούν μεταξύ τους, και συμφωνούσαν όσο θυμόταν κανείς τι είχε βάλει
+ * στο διπλανό. Στην πράξη τα banner έμπαιναν όλα μαζί ή σε τυχαία σειρά.
+ *
+ * Η σειρά δεν είναι γούστο· είναι η σειρά που διαβάζεται το κελί: υπέρτιτλος,
+ * τίτλος, κείμενο, παλιά τιμή, τιμή, κουμπί. Το φόντο και οι εικόνες πρώτα,
+ * γιατί πάνω τους κάθεται το υπόλοιπο.
+ *
+ * ── Γιατί γράφονται νούμερα και δεν υπολογίζονται στην απόδοση ─────────────
+ *
+ * Ο χρονισμός μένει στο ίδιο πεδίο `anim` που είχε πάντα κάθε layer. Έτσι ο
+ * renderer, η προεπισκόπηση και τα ήδη φτιαγμένα banner δεν αλλάζουν σε
+ * τίποτα — αλλάζει μόνο ΠΟΙΟΣ γράφει τα νούμερα.
+ */
+export type AnimRecipe = "none" | "calm" | "stagger";
+
+export const ANIM_RECIPE: Record<AnimRecipe, { label: string; hint: string }> = {
+  none: { label: "Καμία", hint: "Όλα εμφανίζονται μαζί, ακίνητα." },
+  calm: { label: "Ήρεμη", hint: "Ένα κοινό fade, χωρίς σειρά." },
+  stagger: {
+    label: "Κλιμακωτή",
+    hint: "Τίτλος, κείμενο, τιμή — ένα-ένα, 0,15s το καθένα.",
+  },
+};
+
+/** Πόσο απέχει κάθε βήμα από το προηγούμενο, σε ms. */
+const ANIM_STEP = 150;
+/** Πόσο κρατά η είσοδος ενός στοιχείου, σε ms. */
+const ANIM_DURATION = 600;
+
+/**
+ * Σε ποιο βήμα της σειράς κάθεται ένα layer.
+ *
+ * Τα layers χωρίς ρόλο δεν πέφτουν στο τέλος στην τύχη: ένα κείμενο χωρίς
+ * ρόλο είναι σώμα κειμένου, και μπαίνει εκεί που θα έμπαινε ένα σώμα κειμένου.
+ */
+function animStep(layer: Layer): number {
+  if (layer.kind === "image" || layer.kind === "shape") return 0;
+  if (layer.kind === "ticker") return 1;
+  if (layer.kind === "button") return 6;
+  const role = "style" in layer ? layer.style.role : undefined;
+  switch (role) {
+    case "eyebrow":
+      return 1;
+    case "title":
+      return 2;
+    case "body":
+      return 3;
+    case "compare":
+      return 4;
+    case "price":
+      return 5;
+    default:
+      return layer.kind === "badge" ? 1 : 3;
+  }
+}
+
+/** Ποια κίνηση ταιριάζει σε τι: οι εικόνες σβήνουν μέσα, τα κείμενα ανεβαίνουν. */
+function animPreset(layer: Layer): AnimPreset {
+  if (layer.kind === "image" || layer.kind === "shape" || layer.kind === "ticker") return "fade";
+  return "rise";
+}
+
+export function applyAnimRecipe(layers: Layer[], recipe: AnimRecipe): Layer[] {
+  return layers.map((layer) => {
+    if (recipe === "none") {
+      return { ...layer, anim: { preset: "none", delay: 0, duration: ANIM_DURATION } };
+    }
+    if (recipe === "calm") {
+      return { ...layer, anim: { preset: "fade", delay: 0, duration: ANIM_DURATION } };
+    }
+    return {
+      ...layer,
+      anim: {
+        preset: animPreset(layer),
+        delay: animStep(layer) * ANIM_STEP,
+        duration: ANIM_DURATION,
+      },
+    };
+  }) as Layer[];
+}
+
+/** Πότε μπαίνει αυτό το στοιχείο και πότε κάθεται, σε δευτερόλεπτα. */
+export function animWindow(layer: Layer): { start: number; end: number } {
+  const start = layer.anim.delay / 1000;
+  return {
+    start: Math.round(start * 100) / 100,
+    end: Math.round((start + layer.anim.duration / 1000) * 100) / 100,
+  };
+}
+
 export const FONT_STACK: Record<FontToken, string> = {
   display: "var(--font-display)",
   sans: "var(--font-sans)",

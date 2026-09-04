@@ -27,7 +27,10 @@ import {
   layerForToken,
   emptyComposition,
   COLOR_VALUE,
+  ANIM_RECIPE,
   TYPE_ROLE,
+  animWindow,
+  applyAnimRecipe,
   newLayer,
   seedOfferLayers,
   seedProductLayers,
@@ -42,6 +45,7 @@ import {
   type ShapeLayer,
   type TextLayer,
   type TextStyle,
+  type AnimRecipe,
   type TypeRole,
   type TickerLayer,
 } from "@/lib/banners/contract";
@@ -118,17 +122,6 @@ const LAYER_ICON: Record<LayerKind, React.ComponentType<{ className?: string }>>
   shape: Square,
   ticker: Repeat,
 };
-
-const ANIMATIONS = [
-  { value: "none", label: "Καμία" },
-  { value: "fade", label: "Fade" },
-  { value: "rise", label: "Άνοδος" },
-  { value: "slide", label: "Από αριστερά" },
-  { value: "scale", label: "Zoom" },
-  { value: "mask", label: "Αποκάλυψη" },
-  { value: "words", label: "Λέξη-λέξη" },
-  { value: "chars", label: "Γράμμα-γράμμα" },
-] as const;
 
 const COLORS: Array<{ value: ColorToken; label: string; swatch: string }> = [
   { value: "ink", label: "Μαύρο", swatch: "#1a1a1c" },
@@ -487,7 +480,12 @@ export function CellEditor({
                   onPatch={(patch) => patchLayer(layer.id, patch)}
                 />
               ) : (
-                <CellPanel draft={draft} setDraft={setDraft} aspect={aspect} />
+                <CellPanel
+                  draft={draft}
+                  setDraft={setDraft}
+                  aspect={aspect}
+                  onReplay={() => setMotionKey((k) => k + 1)}
+                />
               )}
             </div>
           </div>
@@ -796,6 +794,40 @@ function SourceRail({
  * hunting through a shared drive for the FACOM logo will eventually use a wrong
  * or outdated version, and that is a supplier problem rather than a design one.
  */
+/**
+ * Το σήμα του Κολλέρη, στις εκδοχές που χρειάζεται ένα banner.
+ *
+ * ── Γιατί έξι αρχεία και όχι ένα ───────────────────────────────────────────
+ *
+ * Το πρωτότυπο είναι ένα: κόκκινο σήμα, γκρίζα γράμματα, φτιαγμένο για λευκό
+ * χαρτί. Πάνω σε σκούρα φωτογραφία εξαφανίζεται, και πάνω σε κόκκινη ζώνη
+ * χάνεται το σήμα μέσα στο φόντο. Στην πράξη έμπαινε ένα PNG από κάπου, σε
+ * όποιο χρώμα βρισκόταν πρόχειρο.
+ *
+ * Οι έξι εκδοχές παράγονται από το ΙΔΙΟ διάνυσμα — ίδια γεωμετρία, μόνο το
+ * `fill` αλλάζει — οπότε δεν υπάρχει εκδοχή που να έχει ξεμείνει πίσω από τις
+ * άλλες. Το σήμα χωρίς γράμματα έχει το δικό του viewBox, κομμένο στο πλαίσιο
+ * του σχήματος: με το viewBox ολόκληρου του λογοτύπου θα ερχόταν με 190px
+ * κενού δεξιά του, και θα φαινόταν μικρό χωρίς να είναι.
+ */
+const KOLLERIS_MARKS = [
+  /* Διάφανα — για να κάτσουν πάνω σε φωτογραφία ή σε χρώμα του banner. */
+  { src: "/brand/kolleris-lockup-black.svg", name: "Κολλέρης — μαύρο", dark: false },
+  { src: "/brand/kolleris-lockup-white.svg", name: "Κολλέρης — λευκό", dark: true },
+  { src: "/brand/kolleris-lockup-red.svg", name: "Κολλέρης — κόκκινο", dark: false },
+  { src: "/brand/kolleris-symbol-black.svg", name: "Σήμα — μαύρο", dark: false },
+  { src: "/brand/kolleris-symbol-white.svg", name: "Σήμα — λευκό", dark: true },
+  { src: "/brand/kolleris-symbol-red.svg", name: "Σήμα — κόκκινο", dark: false },
+  /* Πλακίδια — το σήμα σκαλισμένο μέσα σε συμπαγές χρώμα, για όταν το φόντο
+     από κάτω είναι πολυάσχολο και ένα διάφανο λογότυπο χάνεται μέσα του. */
+  { src: "/brand/kolleris-lockup-on-red.svg", name: "Πλακίδιο κόκκινο — λευκά γράμματα", dark: false },
+  { src: "/brand/kolleris-lockup-on-ink.svg", name: "Πλακίδιο μαύρο — λευκά γράμματα", dark: false },
+  { src: "/brand/kolleris-lockup-on-white.svg", name: "Πλακίδιο λευκό — μαύρα γράμματα", dark: false },
+  { src: "/brand/kolleris-symbol-on-red.svg", name: "Σήμα σε κόκκινο πλακίδιο", dark: false },
+  { src: "/brand/kolleris-symbol-on-ink.svg", name: "Σήμα σε μαύρο πλακίδιο", dark: false },
+  { src: "/brand/kolleris-symbol-on-white.svg", name: "Σήμα σε λευκό πλακίδιο", dark: false },
+] as const;
+
 function LogoRail() {
   const [logos, setLogos] = useState<Array<{ slug: string; name: string; logo: string }>>([]);
 
@@ -809,12 +841,44 @@ function LogoRail() {
     };
   }, []);
 
-  if (logos.length === 0) return null;
-
   return (
     <div className="space-y-1">
       <p className="text-[11px] text-k-text-4">Λογότυπα — σύρετε στον καμβά</p>
       <ul className="scroll-slim flex gap-1.5 overflow-x-auto pb-1">
+        {KOLLERIS_MARKS.map((mark) => (
+          <li key={mark.src} className="shrink-0">
+            <button
+              type="button"
+              draggable
+              onDragStart={(e) => {
+                e.dataTransfer.setData(ASSET_MIME, mark.src);
+                e.dataTransfer.effectAllowed = "copy";
+              }}
+              title={mark.name}
+              className={cn(
+                "relative block size-12 cursor-grab border transition-colors active:cursor-grabbing",
+                /* Η λευκή εκδοχή σε λευκό πλακίδιο είναι ένα άδειο τετράγωνο. */
+                mark.dark
+                  ? "border-k-ink bg-k-ink hover:border-k-red"
+                  : "border-k-line bg-white hover:border-k-ink",
+              )}
+            >
+              <NextImage
+                src={mark.src}
+                alt={mark.name}
+                fill
+                sizes="48px"
+                className="object-contain p-1.5"
+                unoptimized
+              />
+            </button>
+          </li>
+        ))}
+
+        {/* Χωρίστρα: το σήμα του καταστήματος δεν είναι μια μάρκα ανάμεσα στις
+            μάρκες που διανέμει. */}
+        {logos.length > 0 && <li className="w-px shrink-0 self-stretch bg-k-line" />}
+
         {logos.map((brand) => (
           <li key={brand.slug} className="shrink-0">
             <button
@@ -1042,12 +1106,29 @@ function CellPanel({
   /** Η αναλογία του κελιού όπως θα αποδοθεί — το μέτρο σύγκρισης για την
    *  περικοπή του φόντου. */
   aspect,
+  onReplay,
 }: {
   draft: CellComposition;
   setDraft: React.Dispatch<React.SetStateAction<CellComposition>>;
   aspect: number;
+  onReplay: () => void;
 }) {
   const bg = draft.background;
+
+  /*
+   * Η τρέχουσα συνταγή διαβάζεται από τα layers, δεν κρατιέται χωριστά.
+   *
+   * Δύο πηγές αλήθειας για το ίδιο πράγμα αποκλίνουν την πρώτη φορά που
+   * αλλάζει η μία χωρίς την άλλη — εδώ, μόλις εφαρμοστεί μια παραλλαγή ή
+   * προστεθεί στοιχείο. Το state θα έλεγε «Κλιμακωτή» πάνω από ακίνητα layers.
+   */
+  const animRecipe: AnimRecipe = (() => {
+    const layers = draft.layers;
+    if (!layers.length) return "stagger";
+    if (layers.every((l) => l.anim.preset === "none")) return "none";
+    if (layers.every((l) => l.anim.delay === 0)) return "calm";
+    return "stagger";
+  })();
 
   /*
    * Πόσο από το καρέ επιβιώνει.
@@ -1180,6 +1261,42 @@ function CellPanel({
             {draft.binding.source === "product" ? "το προϊόν" : "την προσφορά"} — δεν γράφεται.
           </p>
         )}
+      </section>
+
+      {/* ── Κίνηση ── */}
+      <section className="space-y-2 border-t border-k-line pt-3">
+        <p className="text-[10px] font-medium uppercase tracking-[0.08em] text-k-text-4">
+          Κίνηση · ολόκληρο το κελί
+        </p>
+        {/*
+          Μία συνταγή, όχι δέκα νούμερα.
+          ─────────────────────────────────────────────────────────────────────
+          Η κίνηση οριζόταν ανά στοιχείο σε χιλιοστά — ένα κελί με πέντε
+          στοιχεία ήταν δέκα νούμερα που έπρεπε να συμφωνούν μεταξύ τους, και
+          συμφωνούσαν όσο θυμόταν κανείς τι είχε βάλει στο διπλανό. Η σειρά δεν
+          είναι γούστο: είναι η σειρά που διαβάζεται το κελί.
+        */}
+        <Segmented
+          value={animRecipe}
+          onChange={(recipe) => {
+            setDraft((d) => ({ ...d, layers: applyAnimRecipe(d.layers, recipe as AnimRecipe) }));
+            setTimeout(onReplay, 60);
+          }}
+          options={(Object.keys(ANIM_RECIPE) as AnimRecipe[]).map((key) => ({
+            value: key,
+            label: ANIM_RECIPE[key].label,
+            title: ANIM_RECIPE[key].hint,
+          }))}
+        />
+        <div className="flex items-center justify-between gap-2">
+          <p className="text-[10.5px] leading-[1.5] text-k-text-4">
+            {ANIM_RECIPE[animRecipe].hint} Παίζει μία φορά, όταν το banner μπει στην οθόνη.
+          </p>
+          <Button variant="outline" size="sm" onClick={onReplay} className="shrink-0 text-[11px]">
+            <Play className="size-3" />
+            Δοκιμή
+          </Button>
+        </div>
       </section>
 
       {/* ── Φόντο ── */}
@@ -1768,61 +1885,41 @@ function LayerInspector({
       </section>
 
       {/* ── Κίνηση ── */}
+      {/*
+        Πότε μπαίνει αυτό — όχι πώς.
+        ─────────────────────────────────────────────────────────────────────
+        Το «πώς» και το «πότε» τα δίνει η συνταγή του κελιού, μία για όλα τα
+        στοιχεία μαζί. Ανά στοιχείο υπήρχαν οκτώ κουμπιά κίνησης και δύο
+        νούμερα σε χιλιοστά: ένα κελί με πέντε στοιχεία ήταν δέκα νούμερα που
+        έπρεπε να συμφωνούν μεταξύ τους, και στην πράξη δεν συμφωνούσαν — τα
+        banner έμπαιναν όλα μαζί ή σε τυχαία σειρά.
+
+        Η σειρά δεν είναι γούστο: είναι η σειρά που διαβάζεται το κελί —
+        υπέρτιτλος, τίτλος, κείμενο, παλιά τιμή, τιμή, κουμπί. Εδώ μένει μόνο η
+        ανάγνωσή της, ώστε να ξέρει ο συντάκτης πού κάθεται αυτό το στοιχείο
+        μέσα στη σειρά.
+      */}
       <section className="space-y-2 border-t border-k-line pt-3">
         <p className="text-[10px] font-medium uppercase tracking-[0.08em] text-k-text-4">Κίνηση</p>
-        <div className="grid grid-cols-2 gap-1">
-          {ANIMATIONS.map((a) => (
-            <button
-              key={a.value}
-              type="button"
-              onClick={() => {
-                onPatch({ anim: { ...layer.anim, preset: a.value } } as Partial<Layer>);
-                // Play it here, now. Picking an entrance and seeing nothing is
-                // indistinguishable from a control that does not work.
-                setTimeout(onReplay, 60);
-              }}
-              className={cn(
-                "border px-2 py-1 text-[11px] transition-colors",
-                layer.anim.preset === a.value
-                  ? "border-k-ink bg-k-ink text-white"
-                  : "border-k-line text-k-text-2 hover:border-k-ink hover:text-k-ink",
-              )}
-            >
-              {a.label}
-            </button>
-          ))}
-        </div>
-        {layer.anim.preset !== "none" && (
+        {layer.anim.preset === "none" ? (
+          <p className="text-[10.5px] leading-[1.5] text-k-text-4">
+            Ακίνητο. Η κίνηση ορίζεται για ολόκληρο το κελί — πατήστε σε κενό σημείο του καμβά.
+          </p>
+        ) : (
           <>
-            <div className="grid grid-cols-2 gap-2">
-              <NumberField
-                label="Καθυστέρηση"
-                value={layer.anim.delay}
-                min={0}
-                max={3000}
-                step={50}
-                suffix="ms"
-                onChange={(delay) => onPatch({ anim: { ...layer.anim, delay } } as Partial<Layer>)}
-              />
-              <NumberField
-                label="Διάρκεια"
-                value={layer.anim.duration}
-                min={100}
-                max={3000}
-                step={50}
-                suffix="ms"
-                onChange={(duration) =>
-                  onPatch({ anim: { ...layer.anim, duration } } as Partial<Layer>)
-                }
-              />
-            </div>
+            <p className="text-[11.5px] leading-[1.6] text-k-text-2">
+              Μπαίνει στα{" "}
+              <span className="numeral text-k-ink">{animWindow(layer).start}s</span> και κάθεται
+              στα <span className="numeral text-k-ink">{animWindow(layer).end}s</span>.
+            </p>
+            <p className="text-[10.5px] leading-[1.5] text-k-text-4">
+              Από τη σειρά του κελιού. Για να αλλάξει, η «Κίνηση» του κελιού — πατήστε σε κενό
+              σημείο του καμβά.
+            </p>
             <Button variant="outline" onClick={onReplay} className="w-full">
               <Play className="size-3.5" />
               Δοκιμή
             </Button>
-            <p className="text-[10.5px] leading-[1.5] text-k-text-4">
-              Στο site παίζει μία φορά, όταν το banner μπει στην οθόνη.
-            </p>
           </>
         )}
       </section>
