@@ -44,7 +44,7 @@ export default async function AccessPage({
       <SiteChrome locale={locale} cart={miniCart} categories={menuTree} brands={brands} stats={stats} />
       <main id="main" className="shell-w bg-white">
         <div className="mx-auto max-w-[880px] px-4 py-14 lg:py-20">
-          <h1 className="font-display text-[26px] leading-[1.16] font-medium text-k-ink">
+          <h1 className="font-display text-[26px] leading-[1.16] t-display text-k-ink">
             Πρόσβαση στον λογαριασμό
           </h1>
           <p className="mt-3 text-[13.5px] leading-[1.65] text-k-text-2">

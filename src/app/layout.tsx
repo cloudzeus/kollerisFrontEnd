@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Noto_Sans, Noto_Sans_Mono, Roboto_Condensed } from "next/font/google";
+import { Inter, JetBrains_Mono, Roboto_Flex } from "next/font/google";
 import { getLocale, getTranslations } from "next-intl/server";
 import "./globals.css";
 import { alternatesFor } from "@/lib/seo/urls";
@@ -13,55 +13,82 @@ import type { Locale } from "@/i18n/routing";
  * without the storefront layout needing to own the document.
  */
 
-/** Display face for headings, per the design handoff. */
 /**
- * Η γραμματοσειρά τίτλων: Roboto Condensed.
+ * Η γραμματοσειρά τίτλων: Roboto Flex σε extended πλάτος.
  *
- * Αντικατέστησε την Artegra με το redesign του Αυγούστου 2026. Η επιλογή δεν
- * είναι αισθητική ιδιοτροπία — οι τίτλοι του καταστήματος είναι ΚΕΦΑΛΑΙΑ
- * ελληνικά («ΕΡΓΑΛΕΙΑ ΠΟΥ ΔΟΥΛΕΥΟΥΝ»), και μια στενή γραμματοσειρά χωράει τη
- * φράση σε μία σειρά αντί για δύο. Η Artegra είναι extended: η ίδια φράση
- * έσπαγε και έχανε τη δύναμή της.
+ * Αυτό ορίζει το Kolleris Design System (`tokens/kolleris.tokens.json`,
+ * `next/fonts.ts`): display = GT America Extended, με ανοιχτό fallback τη
+ * Roboto Flex σε wdth 125–150 μέχρι να αγοραστεί η άδεια webfont της Grilli
+ * Type. Ο άξονας `wdth` ενεργοποιείται με `font-stretch` στο `.font-display`.
  *
- * Μεταβλητή γραμματοσειρά, οπότε δεν δηλώνονται βάρη — το design χρησιμοποιεί
- * 400, 700 και 800, και τα παίρνουμε όλα χωρίς επιπλέον αρχεία.
+ * ── Γιατί ΟΧΙ η Inter, που είναι στα email ────────────────────────────────
+ *
+ * Στα email οι τίτλοι είναι Inter 900 — και αυτό είναι υποχώρηση, όχι επιλογή:
+ * οι extended γραμματοσειρές δεν φορτώνουν σε Gmail και Outlook, οπότε η
+ * μελέτη βάζει την πιο βαριά διαθέσιμη για να κρατήσει τον βιομηχανικό
+ * χαρακτήρα. Στον ιστότοπο ο περιορισμός δεν υπάρχει· να τον αντιγράφαμε θα
+ * σήμαινε να κληρονομήσουμε τον συμβιβασμό ενός μέσου που δεν είμαστε.
+ *
+ * Η Inter παραμένει η γραμματοσειρά ΚΕΙΜΕΝΟΥ του συστήματος — εκεί το
+ * κατάστημα χρησιμοποιεί ακόμη Noto Sans και το χρωστάει.
+ *
+ * ── Τι αλλάζει στην οθόνη ─────────────────────────────────────────────────
+ *
+ * Αντικαθιστά τη Roboto Condensed, που είχε επιλεγεί επειδή οι ελληνικοί
+ * κεφαλαίοι τίτλοι είναι μακριοί («ΕΡΓΑΛΕΙΑ ΠΟΥ ΔΟΥΛΕΥΟΥΝ. ΧΩΡΙΣ
+ * ΔΙΚΑΙΟΛΟΓΙΕΣ.») και μια στενή γραμματοσειρά τους χωρούσε σε λιγότερες
+ * γραμμές. Το extended πλάτος πάει ακριβώς αντίθετα: οι ίδιοι τίτλοι πιάνουν
+ * περισσότερο χώρο. Αυτή είναι η πρόθεση του συστήματος — τίτλοι που
+ * καταλαμβάνουν τη σελίδα αντί να χωρέσουν σε αυτήν.
+ *
+ * Μεταβλητή γραμματοσειρά: όλα τα βάρη από ένα αρχείο, χωρίς επιπλέον αιτήματα.
  */
-const display = Roboto_Condensed({
+const display = Roboto_Flex({
   variable: "--font-display-face",
   subsets: ["latin", "greek"],
+  axes: ["wdth"],
   display: "swap",
 });
 
 /**
- * Η γραμματοσειρά κειμένου: Noto Sans.
+ * Η γραμματοσειρά κειμένου: Inter.
  *
- * Ελληνικά και λατινικά από την ίδια οικογένεια, με πλήρη κάλυψη τόνων και
- * διαλυτικών — αυτό δεν το είχε δώσει η IBM Plex Sans χωρίς fallback.
+ * Την ορίζει το Kolleris Design System (`font.family.sans`) και είναι η ίδια
+ * που τυπώνεται σε κάθε email. Αντικαθιστά τη Noto Sans, που ήταν σωστή
+ * επιλογή για ελληνική κάλυψη αλλά ξένη προς το σύστημα: το κατάστημα έγραφε
+ * με μια γραμματοσειρά, τα μηνύματά του με άλλη, και ο πελάτης έβλεπε και τις
+ * δύο μέσα στην ίδια αγορά.
+ *
+ * Πλήρη ελληνικά με τόνους και διαλυτικά, από την ίδια οικογένεια με τα
+ * λατινικά — αυτό ήταν και ο λόγος που είχε επιλεγεί η Noto Sans, και η Inter
+ * το καλύπτει εξίσου.
  */
-const sans = Noto_Sans({
+const sans = Inter({
   variable: "--font-sans-face",
   subsets: ["latin", "greek"],
   display: "swap",
 });
 
-/*
- * Monospace face — NOT IBM Plex Mono, deliberately.
+/**
+ * Η monospace: JetBrains Mono.
  *
- * The handoff specifies IBM Plex Mono for every technical label, and almost all
- * of them are Greek uppercase ("ΠΑΡΑΔΟΣΗ 24-48Ω", "ΟΛΕΣ ΟΙ 23 ΚΑΤΗΓΟΡΙΕΣ",
- * "ΚΩΔΙΚΟΙ ΣΕ ΑΜΕΣΗ ΔΙΑΘΕΣΙΜΟΤΗΤΑ"). IBM Plex Mono has no Greek glyphs at all —
- * verified against the full IBM release (@ibm/plex-mono 2.5.0: 1,207 glyphs,
- * no U+0370–03FF), not just the Google Fonts subset. The handoff's own font
- * link asks for `subset=greek,latin` and silently never gets it.
+ * Την ορίζει το design system (`font.family.mono`) για κωδικούς, τιμές, SKU
+ * και ετικέτες — και είναι η ίδια που χρησιμοποιούν τα email για τον αριθμό
+ * παραγγελίας, το IBAN και το tracking.
  *
- * The result was one label rendered in two faces: digits in Plex Mono, Greek in
- * the system monospace fallback, at visibly different sizes.
+ * ── Γιατί ΟΧΙ η IBM Plex Mono που ζητούσε το αρχικό handoff ───────────────
  *
- * Noto Sans Mono covers Latin + Greek in a single humanist monospace and sits
- * closest to Plex Mono's proportions, so each label is now one typeface.
- * Swappable for JetBrains Mono or Roboto Mono — both also carry Greek.
+ * Σχεδόν όλες αυτές οι ετικέτες είναι ελληνικά κεφαλαία («ΠΑΡΑΔΟΣΗ 24-48Ω»,
+ * «ΚΩΔΙΚΟΙ ΣΕ ΑΜΕΣΗ ΔΙΑΘΕΣΙΜΟΤΗΤΑ»). Η IBM Plex Mono δεν έχει ΚΑΝΕΝΑ ελληνικό
+ * γλυφικό — επαληθεύτηκε στην πλήρη έκδοση της IBM, όχι μόνο στο υποσύνολο
+ * των Google Fonts. Το αποτέλεσμα ήταν μία ετικέτα σε δύο γραμματοσειρές:
+ * ψηφία στην Plex Mono, ελληνικά στο monospace του συστήματος, σε ορατά
+ * διαφορετικά μεγέθη.
+ *
+ * Η JetBrains Mono καλύπτει λατινικά και ελληνικά σε ένα αρχείο — γι' αυτό
+ * ακριβώς τη διαλέγει και το design system.
  */
-const mono = Noto_Sans_Mono({
+const mono = JetBrains_Mono({
   variable: "--font-mono-face",
   subsets: ["latin", "greek"],
   weight: ["400", "500", "600", "700"],

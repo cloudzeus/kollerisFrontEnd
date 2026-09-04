@@ -35,7 +35,7 @@ export function PolicyLayout({
         </nav>
 
         <div className="pt-2.5 pb-9 lg:pb-12">
-          <h1 className="font-display text-[24px] leading-[1.16] font-medium text-balance text-white lg:text-[36px]">
+          <h1 className="font-display text-[24px] leading-[1.16] t-display text-balance text-white lg:text-[36px]">
             {upGreek(content.title)}
           </h1>
           <p className="t-account-label mt-3 text-white/45">

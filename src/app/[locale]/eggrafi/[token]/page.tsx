@@ -48,7 +48,7 @@ export default async function AcceptInvitePage({
       <SiteChrome locale={locale} cart={miniCart} categories={menuTree} brands={brands} stats={stats} />
       <main id="main" className="shell-w bg-white">
         <div className="mx-auto max-w-[440px] px-4 py-14 lg:py-20">
-          <h1 className="font-display text-[26px] leading-[1.16] font-medium text-k-ink">
+          <h1 className="font-display text-[26px] leading-[1.16] t-display text-k-ink">
             Ολοκλήρωση εγγραφής
           </h1>
 

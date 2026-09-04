@@ -123,7 +123,7 @@ export default async function ComparePage({ params, searchParams }: PageProps) {
 
           <div className="flex flex-col gap-5 pt-2.5 pb-7 lg:flex-row lg:items-end lg:justify-between lg:gap-12">
             <div className="min-w-0">
-              <h1 className="font-display text-[22px] leading-[1.16] font-medium text-white lg:text-[30px]">
+              <h1 className="font-display text-[22px] leading-[1.16] t-display text-white lg:text-[30px]">
                 {upGreek(t("sygkrisi_proionton"))}
               </h1>
               <p className="mt-3.5 max-w-[640px] text-[13px] leading-[1.68] text-white/60 lg:text-sm">
@@ -224,7 +224,7 @@ export default async function ComparePage({ params, searchParams }: PageProps) {
                     canAddMore ? t("prostheste_sti_sygkrisi") : t("idia_katigoria"),
                   )}
                 </p>
-                <h2 className="font-display mt-2 text-[19px] leading-[1.2] font-medium text-k-ink lg:text-[25px]">
+                <h2 className="font-display mt-2 text-[19px] leading-[1.2] t-display text-k-ink lg:text-[25px]">
                   {upGreek(
                     view.scopeLabel
                       ? t("perissotera_se", { scopeLabel: view.scopeLabel })

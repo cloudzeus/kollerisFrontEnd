@@ -90,17 +90,17 @@
   <tr><td class="k-pad" style="padding:40px 32px 0 32px;">
     <p class="mono" style="margin:0 0 12px 0;font-family:'JetBrains Mono',Consolas,'Courier New',monospace;font-size:10px;line-height:16px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:#C42A26;">Αξιολογηση <span style="color:#EA3E39;">/</span> Παραγγελια {{order.number}}</p>
     <h1 class="k-h1" style="margin:0 0 16px 0;font-family:'Inter','Arial Black',Arial,Helvetica,sans-serif;font-size:32px;line-height:34px;font-weight:900;letter-spacing:-0.02em;text-transform:uppercase;color:#1F1F1F;">Πως<br>δουλεψαν;</h1>
-    <p style="margin:0 0 20px 0;font-family:'Inter',Arial,Helvetica,sans-serif;font-size:18px;line-height:28px;color:#1F1F1F;">{{recipient.first_name}}, πέρασε μία εβδομάδα από την παράδοση. Μια αξιολόγηση 60 δευτερολέπτων βοηθά άλλους επαγγελματίες να επιλέξουν σωστά — και εμάς να κρατάμε στον κατάλογο μόνο ό,τι δουλεύει.</p>
+    <p style="margin:0 0 20px 0;font-family:'Inter',Arial,Helvetica,sans-serif;font-size:16px;line-height:26px;color:#1F1F1F;">{{recipient.first_name}}, πέρασε μία εβδομάδα από την παράδοση. Μια αξιολόγηση 60 δευτερολέπτων βοηθά άλλους επαγγελματίες να επιλέξουν σωστά — και εμάς να κρατάμε στον κατάλογο μόνο ό,τι δουλεύει.</p>
   </td></tr>
   <tr><td class="k-pad" style="padding:8px 32px 0 32px;">
     <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="border-top:1px solid #1F1F1F;">
       {{#each order.items}}
       <tr>
         <td width="72" valign="top" style="padding:16px 16px 16px 0;border-bottom:1px solid #EFEFEF;vertical-align:top;">
-          <img src="{{image}}" width="72" height="72" alt="{{name}}" style="display:block;width:72px;height:72px;border:0;background:#EFEFEF;">
+          {{#if image}}<img src="{{image}}" width="72" height="72" alt="{{name}}" style="display:block;width:72px;height:72px;border:0;background:#EFEFEF;">{{else}}<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="72" bgcolor="#EFEFEF" style="background-color:#EFEFEF;"><tr><td height="72" style="height:72px;line-height:72px;font-size:0;">&nbsp;</td></tr></table>{{/if}}
         </td>
         <td valign="middle" style="padding:14px 0;font-family:'Inter',Arial,Helvetica,sans-serif;font-size:13px;line-height:20px;color:#1F1F1F;border-bottom:1px solid #EFEFEF;vertical-align:top;vertical-align:middle;padding:16px 0;">
-          <p class="mono" style="font-family:'JetBrains Mono',Consolas,'Courier New',monospace;font-size:11px;line-height:16px;color:#5F6061;margin:0 0 2px 0;">{{brand}} <span style="color:#EA3E39;">/</span> {{sku}}</p>
+          <p class="mono" style="font-family:'JetBrains Mono',Consolas,'Courier New',monospace;font-size:11px;line-height:16px;color:#5F6061;margin:0 0 2px 0;">{{#if brand}}{{brand}} <span style="color:#EA3E39;">/</span> {{/if}}{{sku}}</p>
           <p style="margin:0;font-family:'Inter',Arial,Helvetica,sans-serif;font-size:12px;line-height:18px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#1F1F1F;">{{name}}</p>
         </td>
         <td valign="middle" align="right" style="padding:14px 0;font-family:'JetBrains Mono',Consolas,'Courier New',monospace;font-size:13px;line-height:20px;color:#1F1F1F;border-bottom:1px solid #EFEFEF;text-align:right;vertical-align:top;white-space:nowrap;vertical-align:middle;padding:16px 0;">
@@ -110,6 +110,7 @@
       {{/each}}
     </table>
   </td></tr>
+{{#if review.scale}}
   <tr><td class="k-pad" style="padding:28px 32px 0 32px;">
     <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" bgcolor="#D8D8D8" style="background-color:#D8D8D8;background-image:linear-gradient(225deg,#FFFFFF 22px,#D8D8D8 22px),linear-gradient(45deg,#FFFFFF 22px,#D8D8D8 22px);background-position:top right,bottom left;background-size:51% 100%,51% 100%;background-repeat:no-repeat;">
       <tr><td style="padding:28px 32px;">
@@ -128,6 +129,7 @@
       </td></tr>
     </table>
   </td></tr>
+{{/if}}
   <tr><td class="k-pad" style="padding:32px 32px 40px 32px;">
     <p style="margin:0;font-family:'Inter',Arial,Helvetica,sans-serif;font-size:13px;line-height:20px;color:#5F6061;">Κάτι δεν πήγε καλά; Μη γράψετε αξιολόγηση — απαντήστε σε αυτό το email και θα το λύσουμε. Σας στέλνουμε αυτό το μήνυμα μία φορά ανά παραγγελία.</p>
   </td></tr>

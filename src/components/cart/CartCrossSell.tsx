@@ -32,7 +32,7 @@ export function CartCrossSell({ items }: { items: CrossSellItem[] }) {
             <p className="t-eyebrow mb-2.5 text-k-red">
               {upGreek(t("min_xanaparaggeilete_ayrio"))}
             </p>
-            <h2 className="font-display text-[18px] leading-[1.2] font-medium text-white lg:text-[21px]">
+            <h2 className="font-display text-[18px] leading-[1.2] t-display text-white lg:text-[21px]">
               {upGreek(t("xechasate_kati_gia_ti_doyleia"))}
             </h2>
           </div>

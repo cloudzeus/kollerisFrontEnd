@@ -55,7 +55,7 @@ export default async function RegisterPage({ params }: { params: Promise<{ local
             <span className="text-white">{upGreek(t("eggrafi"))}</span>
           </nav>
           <div className="pt-2.5 pb-7">
-            <h1 className="font-display text-[22px] leading-[1.16] font-medium text-white lg:text-[30px]">
+            <h1 className="font-display text-[22px] leading-[1.16] t-display text-white lg:text-[30px]">
               {upGreek(t("dimioyrgia_logariasmoy"))}
             </h1>
             <p className="mt-3.5 max-w-[640px] text-[13px] leading-[1.68] text-white/60 lg:text-sm">

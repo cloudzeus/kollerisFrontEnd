@@ -45,7 +45,7 @@ export default async function ConfirmPage({
       <main id="main" className="shell-x py-16 lg:py-24">
         <div className="max-w-[62ch]">
           <p className="t-eyebrow text-k-gold-ink">{upGreek("Newsletter")}</p>
-          <h1 className="font-display mt-3 text-[34px] leading-[1.08] font-extrabold uppercase lg:text-[46px]">
+          <h1 className="font-display mt-3 text-[34px] leading-[1.08] t-display uppercase lg:text-[46px]">
             {ok ? "Η εγγραφή σας ολοκληρώθηκε." : "Ο σύνδεσμος δεν ισχύει."}
           </h1>
           <p className="mt-5 text-[15px] leading-[1.7] text-k-text-2">

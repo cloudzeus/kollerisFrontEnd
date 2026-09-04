@@ -98,7 +98,7 @@ export default async function CartPage({
                   ? upGreek(t("kanena_proion"))
                   : `${cart!.totals.itemCount} ${upGreek(t("proionta"))} · ${cart!.totals.unitCount} ${upGreek(t("temachia"))}`}
               </p>
-              <h1 className="font-display text-[26px] leading-[1.14] font-medium text-white lg:text-[34px]">
+              <h1 className="font-display text-[26px] leading-[1.14] t-display text-white lg:text-[34px]">
                 {upGreek(t("to_kalathi_sas"))}
               </h1>
             </div>

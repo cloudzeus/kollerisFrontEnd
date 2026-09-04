@@ -534,7 +534,7 @@ export default async function ProductPage({ params }: PageProps) {
                 </div>
               )}
 
-              <h1 className="font-display mt-3.5 text-[21px] leading-[1.24] font-medium text-balance text-k-ink lg:text-[26px]">
+              <h1 className="font-display mt-3.5 text-[21px] leading-[1.24] t-display text-balance text-k-ink lg:text-[26px]">
                 {product.name}
               </h1>
 

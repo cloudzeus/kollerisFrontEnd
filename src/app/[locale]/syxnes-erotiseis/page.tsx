@@ -100,7 +100,7 @@ export default async function FaqPage({ params }: { params: Promise<{ locale: Lo
 
           <div className="grid gap-6 pt-2.5 pb-8 lg:grid-cols-[1fr_auto] lg:items-end lg:gap-16">
             <div className="min-w-0">
-              <h1 className="font-display text-[22px] leading-[1.16] font-medium text-balance text-white lg:text-[30px]">
+              <h1 className="font-display text-[22px] leading-[1.16] t-display text-balance text-white lg:text-[30px]">
                 {upGreek(t("sychnes_erotiseis"))}
               </h1>
               <p className="mt-3.5 max-w-[620px] text-[13px] leading-[1.68] text-white/60 lg:text-sm">

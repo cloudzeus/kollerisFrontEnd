@@ -178,7 +178,7 @@ export default async function ConfirmationPage({ params, searchParams }: PagePro
               ? upGreek(t("anamoni_pliromis"))
               : upGreek(t("eycharistoyme_gia_tin_paraggelia"))}
           </p>
-          <h1 className="font-display text-[26px] leading-[1.14] font-medium text-white lg:text-[34px]">
+          <h1 className="font-display text-[26px] leading-[1.14] t-display text-white lg:text-[34px]">
             {awaitingPayment
               ? upGreek(t("i_paraggelia_sas_kratithike"))
               : upGreek(t("i_paraggelia_sas_katachorithike"))}

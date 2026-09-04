@@ -122,46 +122,64 @@
     }
   }
 
-  .t-h1 {
-    font-family: var(--font-display-face), var(--font-sans-face), sans-serif;
-    font-weight: 500;
-    font-size: 25px;
-    line-height: 1.14;
-    letter-spacing: 0;
-  }
-  @media (min-width: 1024px) {
-    .t-h1 {
-      font-size: 44px;
-      line-height: 1.06;
-    }
+  /*
+   * Οι διαστάσεις ξαναρυθμίστηκαν μετά την αλλαγή γραμματοσειράς.
+   *
+   * Με Roboto Condensed 500 τα 44px ήταν μια στενή, ελαφριά γραμμή. Με Roboto
+   * Flex 900 σε 125% πλάτος το ίδιο νούμερο είναι πολύ περισσότερο μελάνι:
+   * το μέγεθος δεν μεταφέρεται αυτούσιο όταν αλλάζει το βάρος και το πλάτος.
+   *
+   * `clamp` αντί για media query: το design system ορίζει h1 σε clamp(40px,
+   * 6vw, 56px) και ο τίτλος κλιμακώνεται συνεχώς αντί να πηδά στα 1024px.
+   * Το άνω όριο κρατιέται στα 48px και όχι στα 56 — ο τίτλος του hero ζει σε
+   * μισή στήλη, όχι σε πλήρες πλάτος, και στα 56 έσπαγε σε τέσσερις γραμμές.
+   */
+  /*
+   * Η μεταχείριση τίτλου, χωρίς μέγεθος.
+   *
+   * Το design system ορίζει κάθε επικεφαλίδα ως display: βάρος 900, tracking
+   * −0.03em, extended πλάτος. Οι `t-h1`/`t-h2` το φέρνουν μαζί με τα δικά τους
+   * μεγέθη, αλλά οι τίτλοι σελίδων ορίζουν το μέγεθός τους inline — και έμεναν
+   * σε βάρος 500, δηλαδή η ίδια γραμματοσειρά αποδιδόταν διαφορετικά ανά
+   * σελίδα. Αυτή η κλάση δίνει τη μεταχείριση και αφήνει το μέγεθος στο σημείο
+   * που το ξέρει.
+   */
+  .t-display {
+    font-weight: 900;
+    letter-spacing: -0.03em;
+    font-stretch: 125%;
   }
 
+  .t-h1 {
+    font-family: var(--font-display-face), var(--font-sans-face), sans-serif;
+    font-weight: 900;
+    font-size: clamp(26px, 4.2vw, 48px);
+    line-height: 1.02;
+    letter-spacing: -0.03em;
+    font-stretch: 125%;
+  }
+
+  /* Το design system ορίζει h2 σε clamp(32px, 4.5vw, 40px). Το άνω όριο μένει
+     στα 32: οι επικεφαλίδες ενοτήτων εδώ κάθονται δίπλα σε συνδέσμους «όλα →»
+     στην ίδια γραμμή, και στα 40 τους έσπρωχναν κάτω. */
   .t-h2 {
     font-family: var(--font-display-face), var(--font-sans-face), sans-serif;
-    font-weight: 500;
-    font-size: 18px;
-    line-height: 1.18;
-    letter-spacing: 0;
-  }
-  @media (min-width: 1024px) {
-    .t-h2 {
-      font-size: 29px;
-      line-height: 1.12;
-    }
+    font-weight: 900;
+    font-size: clamp(20px, 2.9vw, 32px);
+    line-height: 1.06;
+    letter-spacing: -0.03em;
+    font-stretch: 125%;
   }
 
   /* About section heading — 26px on desktop, not 29px. */
+  /* Η επικεφαλίδα της ενότητας «η εταιρεία» — ένα σκαλί κάτω από τις υπόλοιπες. */
   .t-h2-about {
     font-family: var(--font-display-face), var(--font-sans-face), sans-serif;
-    font-weight: 500;
-    font-size: 18px;
-    line-height: 1.18;
-  }
-  @media (min-width: 1024px) {
-    .t-h2-about {
-      font-size: 26px;
-      line-height: 1.16;
-    }
+    font-weight: 900;
+    font-size: clamp(20px, 2.6vw, 28px);
+    line-height: 1.08;
+    letter-spacing: -0.03em;
+    font-stretch: 125%;
   }
 
   .t-tile-title {

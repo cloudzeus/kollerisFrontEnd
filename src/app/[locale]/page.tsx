@@ -112,15 +112,25 @@ export default async function HomePage({
   const statCards = [
     {
       value: `${(stats.products / 1000).toFixed(1).replace(".", ",")}K`,
+      count: stats.products / 1000,
+      decimals: 1,
+      suffix: "K",
       line1: t("kodikoi_se"),
       line2: t("diathesimo_katalogo"),
     },
-    { value: String(stats.brands), line1: t("brands_me"), line2: t("energa_proionta") },
     {
-      value: String(stats.inStock),
+      value: String(stats.brands),
+      count: stats.brands,
+      line1: t("brands_me"),
+      line2: t("energa_proionta"),
+    },
+    {
+      value: stats.inStock.toLocaleString(locale),
+      count: stats.inStock,
       line1: t("kodikoi_se"),
       line2: t("amesi_diathesimotita"),
     },
+    /* Εύρος, όχι μέγεθος — δεν μετριέται. */
     { value: t("24_48o"), line1: t("paradosi_se"), line2: t("oli_tin_ellada") },
   ];
 
@@ -188,7 +198,7 @@ export default async function HomePage({
             asideFilled ? <Zone id="home.aside" locale={locale} context={zoneContext} /> : null
           }
         />
-        <StatStrip stats={statCards} />
+        <StatStrip stats={statCards} locale={locale} />
         <CategoryGrid
           categories={categories.slice(0, 8)}
           totalCategories={stats.categories}

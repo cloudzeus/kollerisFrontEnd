@@ -120,7 +120,7 @@ export default async function BrandsPage({
                   <span className="hidden h-[1.5px] w-[26px] bg-k-red lg:block" />
                   EXCLUSIVE PARTNERSHIPS
                 </p>
-                <h1 className="font-display text-[26px] leading-[1.14] font-medium text-white lg:text-[36px]">
+                <h1 className="font-display text-[26px] leading-[1.14] t-display text-white lg:text-[36px]">
                   {upGreek(t("ta_brands_poy"))}
                   <br />
                   {upGreek(t("antiprosopeyoyme"))}

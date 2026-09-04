@@ -104,6 +104,31 @@ export async function printPickupList(massNumber: string, pickupDate: string) {
   });
 }
 
+/**
+ * Η κατάσταση παράδοσης ως σημαίες, όχι ως κείμενο.
+ *
+ * Το `trackVoucher` επιστρέφει τη λίστα σημείων ελέγχου, που είναι γραμμένη
+ * για άνθρωπο: ελληνικά ελεύθερου κειμένου που σήμερα λένε «ΠΑΡΑΔΟΘΗΚΕ ΣΕ
+ * ΠΑΡΑΛΗΠΤΗ» και αύριο μπορεί να λένε κάτι άλλο. Ό,τι ΑΠΟΦΑΣΙΖΕΙ — να
+ * σημειώσει παραγγελία ως παραδοθείσα, να στείλει email σε πελάτη — δεν
+ * επιτρέπεται να διαβάζει πρόζα· και το «ΜΗ ΠΑΡΑΔΟΘΗΚΕ» περιέχει το
+ * «ΠΑΡΑΔΟΘΗΚΕ».
+ *
+ * `summary: null` σημαίνει ότι το voucher υπάρχει αλλά δεν έχει σαρωθεί ακόμη
+ * στο δίκτυο — πραγματική απάντηση, όχι αποτυχία.
+ */
+export async function trackingSummary(voucherNo: string) {
+  return call<{
+    summary: {
+      delivered: boolean;
+      returned: boolean;
+      shipmentStatus: number | null;
+      deliveryDate: string | null;
+      deliveryInfo: string | null;
+    } | null;
+  }>("trackingSummary", { voucherNo });
+}
+
 export async function trackVoucher(voucherNo: string) {
   return call<{ checkpoints: AcsCheckpoint[] }>("tracking", { voucherNo });
 }

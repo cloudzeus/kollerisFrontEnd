@@ -95,7 +95,7 @@ export default async function BlogPage({
             <span className="text-white">BLOG</span>
           </nav>
           <div className="pt-2.5 pb-8">
-            <h1 className="font-display text-[22px] leading-[1.16] font-medium text-balance text-white lg:text-[30px]">
+            <h1 className="font-display text-[22px] leading-[1.16] t-display text-balance text-white lg:text-[30px]">
               {upGreek(t("odigoi_kai_dokimes"))}
             </h1>
             <p className="mt-3.5 max-w-[600px] text-[13px] leading-[1.68] text-white/60 lg:text-sm">

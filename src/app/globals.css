@@ -119,7 +119,7 @@
   --color-k-blue: #1f5f8b;
 
   /* ── Type ── */
-  --font-display: var(--font-display-face), var(--font-sans-face), sans-serif;
+  --font-display: var(--font-display-face), "Arial Black", var(--font-sans-face), sans-serif;
   --font-sans: var(--font-sans-face), system-ui, sans-serif;
   --font-mono: var(--font-mono-face), ui-monospace, monospace;
 
@@ -237,6 +237,23 @@
   .rounded-pill,
   .rounded-full {
     border-radius: 9999px;
+  }
+
+  /*
+   * Το extended πλάτος των τίτλων.
+   * ───────────────────────────────────────────────────────────────────────────
+   * Το design system ζητά GT America Extended, με ανοιχτό fallback τη Roboto
+   * Flex σε wdth 125–150. Η Roboto Flex είναι μεταβλητή: χωρίς `font-stretch`
+   * ο άξονας μένει στο 100% και αποδίδεται σαν οποιαδήποτε άλλη grotesque —
+   * δηλαδή φορτώνει η σωστή γραμματοσειρά και δείχνει λάθος.
+   *
+   * 125%: το κάτω άκρο του εύρους. Οι ελληνικοί κεφαλαίοι τίτλοι είναι ήδη
+   * μακριοί, και το 150% θα τους έσπαγε σε τρεις γραμμές στο κινητό.
+   */
+  .prose-kolleris h2,
+  .prose-kolleris h3 {
+    font-stretch: 125%;
+    letter-spacing: -0.03em;
   }
 
   html {

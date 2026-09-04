@@ -11,6 +11,7 @@ import { Pagination } from "@/components/plp/Pagination";
 import { PlpToolbar } from "@/components/plp/PlpToolbar";
 import { ProductCard } from "@/components/product/ProductCard";
 import { CompareTray } from "@/components/compare/CompareTray";
+import { CountUp } from "@/components/ui/CountUp";
 import { QuickViewProvider } from "@/components/product/QuickViewProvider";
 import { Link } from "@/i18n/navigation";
 import type { Locale } from "@/i18n/routing";
@@ -161,7 +162,7 @@ export default async function BrandPage({ params, searchParams }: PageProps) {
                 <p className="t-eyebrow mb-2 text-k-red">
                   {upGreek(t("episimi_antiprosopeysi"))}
                 </p>
-                <h1 className="font-display text-[24px] leading-[1.14] font-medium text-white lg:text-[32px]">
+                <h1 className="font-display text-[24px] leading-[1.14] t-display text-white lg:text-[32px]">
                   {upGreek(brand.name)}
                 </h1>
               </div>
@@ -169,18 +170,15 @@ export default async function BrandPage({ params, searchParams }: PageProps) {
 
             <dl className="grid grid-cols-2 gap-px border border-white/12 bg-white/12 lg:shrink-0">
               {[
-                {
-                  v: brand.productCount.toLocaleString(locale),
-                  k: t("kodikoi_ston_katalogo"),
-                },
-                {
-                  v: brand.inStockCount.toLocaleString(locale),
-                  k: t("se_amesi_diathesimotita"),
-                },
+                { n: brand.productCount, k: t("kodikoi_ston_katalogo") },
+                { n: brand.inStockCount, k: t("se_amesi_diathesimotita") },
               ].map((kpi) => (
                 <div key={kpi.k} className="bg-k-ink-deep px-5 py-4">
                   <dd className="font-mono text-[22px] leading-none font-semibold text-white">
-                    {kpi.v}
+                    {/* Το μέγεθος ΕΙΝΑΙ το επιχείρημα αυτής της σελίδας: 9.436
+                        κωδικοί μιας μάρκας δεν διαβάζονται ως αριθμός αλλά ως
+                        απόδειξη. Η καταμέτρηση τραβά το βλέμμα εκεί. */}
+                    <CountUp value={kpi.n} locale={locale} />
                   </dd>
                   <dt className="t-brand-count mt-2 leading-[1.4] text-white/45">
                     {kpi.k}
@@ -206,11 +204,17 @@ export default async function BrandPage({ params, searchParams }: PageProps) {
                   }`}
                 >
                   {upGreek(sub.label)}
+                  {/*
+                    Ο αριθμός σε χρυσό, όπως η «ΑΙΤΗΣΗ ΛΟΓΑΡΙΑΣΜΟΥ» στην πάνω
+                    γραμμή — το ίδιο κίτρινο για σκούρο φόντο, και βαρύ ώστε να
+                    διαβάζεται στα 10px. Στο ενεργό chip γίνεται λευκός: πάνω
+                    στο κόκκινο ο χρυσός χάνει την αντίθεσή του.
+                  */}
                   <span
-                    className={`t-brand-count transition-colors duration-200 ${
+                    className={`t-brand-count font-bold transition-colors duration-200 ${
                       sub.active
-                        ? "text-white/70"
-                        : "text-white/35 group-hover/chip:text-white/80"
+                        ? "text-white"
+                        : "text-k-gold group-hover/chip:text-white"
                     }`}
                   >
                     {sub.count}

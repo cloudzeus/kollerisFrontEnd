@@ -169,7 +169,7 @@ export default async function OfferProductsPage({ params, searchParams }: PagePr
 
           <div className="pt-2.5 pb-7">
             <div className="flex flex-wrap items-center gap-3">
-              <h1 className="font-display text-[22px] leading-[1.16] font-medium text-white lg:text-[30px]">
+              <h1 className="font-display text-[22px] leading-[1.16] t-display text-white lg:text-[30px]">
                 {upGreek(title)}
               </h1>
               {offer.badge && (

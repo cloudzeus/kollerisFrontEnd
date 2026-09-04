@@ -148,6 +148,7 @@ export async function createVoucherForOrder(orderNumber: string): Promise<Vouche
     data: {
       acsVoucherNo: voucherNo,
       status: nextStatus,
+      shippedAt: advances ? new Date() : undefined,
       history: {
         create: {
           status: nextStatus,

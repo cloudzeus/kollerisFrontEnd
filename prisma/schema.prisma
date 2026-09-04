@@ -715,6 +715,21 @@ model Order {
   acsVoucherNo String?   @db.VarChar(64)
   shippedAt    DateTime?
 
+  /// Πότε η ACS δήλωσε το δέμα παραδομένο.
+  ///
+  /// Δεν προκύπτει από το `status`: το DELIVERED λέει ΟΤΙ παραδόθηκε, όχι
+  /// ΠΟΤΕ — και το «πότε» είναι αυτό που μετράει η αίτηση αξιολόγησης, που
+  /// φεύγει επτά ημέρες μετά την παράδοση και όχι επτά ημέρες μετά τη σάρωση
+  /// που έτυχε να τη διαπιστώσει.
+  deliveredAt DateTime?
+
+  /// Πότε στάλθηκε η αίτηση αξιολόγησης — μία φορά ανά παραγγελία.
+  ///
+  /// Σφραγίδα και όχι σημαία, γιατί η σάρωση τρέχει επανειλημμένα και «το
+  /// έστειλα ήδη» πρέπει να απαντιέται χωρίς να ρωτηθεί το Mailgun. Δεύτερο
+  /// email που ζητά την ίδια αξιολόγηση διαβάζεται ως ανεπιθύμητο.
+  reviewRequestedAt DateTime?
+
   // ── SoftOne (pushed through HDCtool once paid) ──
   /// TRDR resolved from the ΑΦΜ at checkout, when the ΑΦΜ lookup found the
   /// company already registered as a Kolleris customer. Carried so the order
