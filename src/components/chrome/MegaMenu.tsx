@@ -4,6 +4,7 @@ import { useLocale } from "next-intl";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
 import { useCallback, useRef, useState } from "react";
+import { logoScaleStyle } from "@/lib/catalog/brand-logo";
 import { Link } from "@/i18n/navigation";
 import type { BrandTile, MenuCategory, ProductCardData } from "@/lib/catalog/queries";
 import { upGreek } from "@/lib/greek";
@@ -252,25 +253,43 @@ export function MegaMenu({
                 <Link
                   key={brand.id}
                   href={`/brands/${brand.slug}`}
-                  className="group flex h-[76px] items-center justify-center bg-white px-4 transition-colors hover:bg-k-ink"
+                  className="group relative flex h-[76px] items-center justify-center bg-white px-4 outline-1 -outline-offset-1 outline-transparent transition-[outline-color] hover:outline-k-red"
                 >
                   {brand.logo ? (
                     /*
-                     * HDCtool stores every brand logo as a 256×256 square with
-                     * the wordmark letterboxed inside transparent padding, so
-                     * capping the height caps the padding, not the mark. Sized
-                     * as a square instead — the visible wordmark ends up roughly
-                     * twice as large for the same cell height.
+                     * HDCtool stores τα λογότυπα ως 256×256 τετράγωνα με το
+                     * σήμα letterboxed μέσα σε διαφανή περιθώρια — γι' αυτό το
+                     * κελί είναι τετράγωνο: περιορίζοντας το ύψος θα περιόριζε
+                     * τα περιθώρια, όχι το σήμα.
+                     *
+                     * ── Κανένας επαναχρωματισμός στο hover ──────────────────
+                     *
+                     * Το κελί σκούραινε και το λογότυπο περνούσε από
+                     * `brightness-0 invert`, που κάνει ΚΑΘΕ ορατό εικονοστοιχείο
+                     * λευκό. Δουλεύει μόνο για σήματα πάνω σε διαφάνεια. Από τα
+                     * 43 λογότυπα του καταλόγου, 10 έχουν συμπαγές φόντο
+                     * (MAKITA, METABO, LOCTITE, LEATHERMAN, CISA, FERODO,
+                     * IZELTAS, GRACO, BULLE, Bosch Accessories) — μετρημένο,
+                     * 0% διαφανή εικονοστοιχεία. Αυτά γίνονταν λευκό πλακίδιο
+                     * και το σήμα εξαφανιζόταν.
+                     *
+                     * Και ανεξάρτητα από αυτό: ένα λογότυπο μάρκας δεν
+                     * επαναχρωματίζεται. Είναι ξένο σήμα με δικούς του κανόνες,
+                     * και το ίδιο το design system το λέει ρητά για το δικό μας.
+                     *
+                     * Το hover το δηλώνει το κόκκινο περίγραμμα — η γλώσσα του
+                     * συστήματος — και το πλακίδιο μένει λευκό.
                      */
                     <Image
                       src={brand.logo}
                       alt={brand.name}
                       width={128}
                       height={128}
-                      className="block h-16 w-16 object-contain transition group-hover:brightness-0 group-hover:invert"
+                      style={logoScaleStyle(brand.slug)}
+                      className="block h-16 w-16 object-contain"
                     />
                   ) : (
-                    <span className="text-[12px] font-semibold tracking-[0.04em] text-k-text-2 group-hover:text-white">
+                    <span className="text-[12px] font-semibold tracking-[0.04em] text-k-text-2 transition-colors group-hover:text-k-red">
                       {brand.name}
                     </span>
                   )}

@@ -12,6 +12,7 @@ import { PlpToolbar } from "@/components/plp/PlpToolbar";
 import { ProductCard } from "@/components/product/ProductCard";
 import { CompareTray } from "@/components/compare/CompareTray";
 import { CountUp } from "@/components/ui/CountUp";
+import { logoScaleStyle } from "@/lib/catalog/brand-logo";
 import { QuickViewProvider } from "@/components/product/QuickViewProvider";
 import { Link } from "@/i18n/navigation";
 import type { Locale } from "@/i18n/routing";
@@ -154,6 +155,7 @@ export default async function BrandPage({ params, searchParams }: PageProps) {
                     alt={brand.name}
                     width={200}
                     height={200}
+                    style={logoScaleStyle(slug)}
                     className="h-full w-full object-contain"
                   />
                 </span>

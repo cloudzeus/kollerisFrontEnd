@@ -1,4 +1,5 @@
 import { getTranslations } from "next-intl/server";
+import { logoScaleStyle } from "@/lib/catalog/brand-logo";
 import { alternatesFor } from "@/lib/seo/urls";
 import type { Metadata } from "next";
 import Image from "next/image";
@@ -188,15 +189,33 @@ export default async function BrandsPage({
 
                   <div className="flex flex-1 items-center justify-center py-6">
                     {brand.logo ? (
-                      <Image
-                        src={brand.logo}
-                        alt={brand.name}
-                        width={200}
-                        height={200}
-                        className={`block h-20 w-20 object-contain ${
-                          dark ? "brightness-0 invert" : ""
-                        }`}
-                      />
+                      /*
+                       * Στις σκούρες κάρτες το λογότυπο κάθεται σε λευκό
+                       * πλακίδιο — δεν επαναχρωματίζεται.
+                       *
+                       * Πριν έπαιρνε `brightness-0 invert`, που κάνει κάθε
+                       * ορατό εικονοστοιχείο λευκό. Δέκα από τα 43 λογότυπα του
+                       * καταλόγου έχουν συμπαγές φόντο (μετρημένο: 0% διαφανή
+                       * εικονοστοιχεία) και γίνονταν λευκό τετράγωνο με το σήμα
+                       * χαμένο μέσα του. Το ίδιο πλακίδιο χρησιμοποιεί ήδη η
+                       * σελίδα της κάθε μάρκας.
+                       */
+                      <span
+                        className={
+                          dark
+                            ? "flex h-20 w-20 items-center justify-center bg-white p-2"
+                            : "contents"
+                        }
+                      >
+                        <Image
+                          src={brand.logo}
+                          alt={brand.name}
+                          width={200}
+                          height={200}
+                          style={logoScaleStyle(brand.slug)}
+                          className={dark ? "block h-full w-full object-contain" : "block h-20 w-20 object-contain"}
+                        />
+                      </span>
                     ) : (
                       <span
                         className={`font-display text-lg ${dark ? "text-white" : "text-k-ink"}`}
