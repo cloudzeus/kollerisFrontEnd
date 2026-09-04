@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useState, useTransition } from "react";
+import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Eye, Loader2, Plus, Undo2, Upload, X } from "lucide-react";
+import { Eye, GripHorizontal, Loader2, Plus, Undo2, Upload, X } from "lucide-react";
 import { toast } from "sonner";
 import {
   actionAssign,
@@ -105,6 +105,42 @@ export function BannerEditor({
    * μετριέται τη στιγμή του κλικ και δεν χρειάζεται να μαντέψει κανείς.
    */
   const [editingAspect, setEditingAspect] = useState<number | null>(null);
+
+  /*
+   * Το ύψος με το χέρι.
+   * ───────────────────────────────────────────────────────────────────────
+   * Το ύψος ενός banner δεν είναι αριθμητικό πρόβλημα, είναι οπτικό: κανείς
+   * δεν ξέρει αν θέλει 340 ή 380 — ξέρει πότε το βίντεο δείχνει ολόκληρο το
+   * θέμα του. Η λαβή το κάνει άμεσο, και το πεδίο δίπλα κρατά τον ακριβή
+   * αριθμό για όποιον τον χρειάζεται. Το σύρσιμο περνά σε «Σταθερό», γιατί
+   * αυτό ακριβώς σημαίνει «τόσο ψηλό».
+   *
+   * Οι τιμές είναι απόλυτα px, ίδιες εδώ και στο κατάστημα· ο καμβάς μπορεί
+   * να είναι πιο στενός από τη ζώνη, οπότε οι αναλογίες των κελιών εκεί θα
+   * διαφέρουν — γι' αυτό δίπλα στη λαβή γράφεται το νούμερο, όχι μόνο το σχήμα.
+   */
+  const canvasRef = useRef<HTMLDivElement>(null);
+  const [resizing, setResizing] = useState<{ startY: number; startH: number } | null>(null);
+
+  useEffect(() => {
+    if (!resizing) return;
+    const move = (e: PointerEvent) => {
+      const next = Math.round(
+        Math.max(120, Math.min(2000, resizing.startH + (e.clientY - resizing.startY))),
+      );
+      const height = { value: next, unit: "px" as const };
+      setContent((c) => ({ ...c, minHeight: height, maxHeight: height }));
+    };
+    const up = () => setResizing(null);
+    window.addEventListener("pointermove", move);
+    window.addEventListener("pointerup", up);
+    window.addEventListener("pointercancel", up);
+    return () => {
+      window.removeEventListener("pointermove", move);
+      window.removeEventListener("pointerup", up);
+      window.removeEventListener("pointercancel", up);
+    };
+  }, [resizing]);
   const [preview, setPreview] = useState(false);
   const [resolved, setResolved] = useState<Record<string, ResolvedCell>>({});
   const [busy, start] = useTransition();
@@ -269,7 +305,7 @@ export function BannerEditor({
       <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_20rem]">
         {/* ── Καμβάς ── */}
         <div className="space-y-3">
-          <div className="relative border border-k-line bg-white">
+          <div ref={canvasRef} className="relative border border-k-line bg-white">
             <BannerRenderer
               template={template}
               content={content}
@@ -321,9 +357,41 @@ export function BannerEditor({
             </div>
           </div>
 
+          {/* Στην κάτω ακμή, εκεί που πιάνει κανείς για να ψηλώσει κάτι. */}
+          <div
+            role="separator"
+            aria-orientation="horizontal"
+            aria-label="Ύψος banner"
+            onPointerDown={(e) => {
+              const h = canvasRef.current?.querySelector<HTMLElement>("[data-banner-grid]");
+              if (!h) return;
+              e.preventDefault();
+              setResizing({ startY: e.clientY, startH: h.getBoundingClientRect().height });
+            }}
+            className={cn(
+              "group -mt-3 flex h-6 cursor-ns-resize touch-none items-center justify-center",
+              resizing && "cursor-ns-resize",
+            )}
+          >
+            <span
+              className={cn(
+                "flex items-center gap-2 border border-k-line bg-white px-2 py-0.5 text-[10.5px] text-k-text-3 transition-opacity",
+                resizing ? "opacity-100" : "opacity-0 group-hover:opacity-100",
+              )}
+            >
+              <GripHorizontal className="size-3" />
+              {content.minHeight?.value ? (
+                <span className="numeral">{content.minHeight.value} px</span>
+              ) : (
+                "σύρετε για ύψος"
+              )}
+            </span>
+          </div>
+
           <p className="text-[11.5px] leading-[1.6] text-k-text-3">
             Ο καμβάς δείχνει το πραγματικό αποτέλεσμα. Κάντε κλικ σε ένα κελί για να ορίσετε τι
-            δείχνει. Οι αλλαγές μένουν στο πρόχειρο μέχρι τη δημοσίευση.
+            δείχνει, ή σύρετε την κάτω ακμή για το ύψος. Οι αλλαγές μένουν στο πρόχειρο μέχρι τη
+            δημοσίευση.
           </p>
         </div>
 

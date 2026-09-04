@@ -96,9 +96,26 @@ export async function recordAsset(input: {
  * costs storage and nothing else; the other order risks a row pointing at bytes
  * that are already gone, which is a broken image on a live page.
  */
-export async function deleteAsset(id: string): Promise<{ ok: true } | { ok: false; error: string }> {
+export async function deleteAsset(
+  id: string,
+  /** Διαγραφή παρά τη χρήση — μόνο μετά από ρητή επιβεβαίωση του χρήστη. */
+  { force = false }: { force?: boolean } = {},
+): Promise<{ ok: true } | { ok: false; error: string; usage?: AssetUsage[] }> {
   const row = await prisma.mediaAsset.findUnique({ where: { id } });
   if (!row) return { ok: false, error: "Το αρχείο δεν βρέθηκε." };
+
+  if (!force) {
+    // Η διαγραφή είναι μη αναστρέψιμη και το αποτέλεσμα μιας λάθος διαγραφής
+    // δεν φαίνεται εδώ αλλά στην αρχική, ώρες αργότερα.
+    const used = (await assetUsage([row.url]))[row.url] ?? [];
+    if (used.length > 0) {
+      return {
+        ok: false,
+        error: `Χρησιμοποιείται σε ${used.length} ${used.length === 1 ? "σημείο" : "σημεία"}.`,
+        usage: used,
+      };
+    }
+  }
 
   await prisma.mediaAsset.delete({ where: { id } });
   await deleteFromBunny(row.url);
@@ -121,4 +138,48 @@ export async function listBrandLogos(): Promise<Array<{ slug: string; name: stri
   return rows
     .filter((r): r is typeof r & { logo: string } => Boolean(r.logo))
     .map((r) => ({ slug: r.slug, name: r.nameEl, logo: r.logo }));
+}
+
+/**
+ * Πού χρησιμοποιείται ένα αρχείο.
+ *
+ * Χωρίς αυτό, η διαγραφή είναι τυφλή: το αρχείο φεύγει από το CDN και το
+ * banner που το έδειχνε μένει με σπασμένη εικόνα, χωρίς κανένα σφάλμα πουθενά
+ * — απλώς ένα κενό ορθογώνιο στην αρχική. Η λίστα διαβάζεται πριν από κάθε
+ * διαγραφή και συνοδεύει κάθε πλακίδιο στη βιβλιοθήκη.
+ *
+ * Η αναζήτηση γίνεται στο κείμενο του JSON και όχι με ερώτημα στα πεδία του:
+ * ένα URL μπορεί να κάθεται σε φόντο, σε αφίσα βίντεο ή σε στρώμα εικόνας,
+ * και τα banners είναι δεκάδες — μια πλήρης σάρωση κοστίζει λιγότερο από τη
+ * συντήρηση τριών χειρόγραφων μονοπατιών που θα ξεχαστούν στην πρώτη αλλαγή
+ * σχήματος.
+ */
+export type AssetUsage = { kind: "banner" | "widget"; id: string; name: string };
+
+export async function assetUsage(urls: string[]): Promise<Record<string, AssetUsage[]>> {
+  const wanted = urls.filter(Boolean);
+  if (wanted.length === 0) return {};
+
+  const [banners, widgets] = await Promise.all([
+    prisma.banner.findMany({ select: { id: true, name: true, draft: true, published: true } }),
+    prisma.zoneWidget.findMany({ select: { id: true, zone: true, type: true, props: true } }),
+  ]);
+
+  const haystacks: Array<{ text: string; use: AssetUsage }> = [
+    ...banners.map((b) => ({
+      text: JSON.stringify(b.draft ?? {}) + JSON.stringify(b.published ?? {}),
+      use: { kind: "banner" as const, id: b.id, name: b.name },
+    })),
+    ...widgets.map((w) => ({
+      text: JSON.stringify(w.props ?? {}),
+      use: { kind: "widget" as const, id: w.id, name: `${w.zone} · ${w.type}` },
+    })),
+  ];
+
+  const out: Record<string, AssetUsage[]> = {};
+  for (const url of wanted) {
+    const hits = haystacks.filter((h) => h.text.includes(url)).map((h) => h.use);
+    if (hits.length) out[url] = hits;
+  }
+  return out;
 }

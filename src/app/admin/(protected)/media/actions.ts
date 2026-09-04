@@ -2,7 +2,7 @@
 
 import { auth } from "@/auth";
 import { assertCan } from "@/lib/rbac";
-import { deleteAsset, listAssets, listBrandLogos, recordAsset } from "@/lib/media/library";
+import { assetUsage, deleteAsset, listAssets, listBrandLogos, recordAsset } from "@/lib/media/library";
 import { removeBackground } from "@/lib/media/claid";
 import { uploadImage } from "@/lib/media/bunny";
 import type { MediaKind } from "@/lib/media/library-types";
@@ -32,9 +32,15 @@ export async function actionListLogos() {
   return listBrandLogos();
 }
 
-export async function actionDeleteAsset(id: string) {
+export async function actionDeleteAsset(id: string, force = false) {
   await requireEditor();
-  return deleteAsset(id);
+  return deleteAsset(id, { force });
+}
+
+/** Πού χρησιμοποιείται καθένα από τα URL — για τη βιβλιοθήκη. */
+export async function actionAssetUsage(urls: string[]) {
+  await requireEditor();
+  return assetUsage(urls);
 }
 
 /**

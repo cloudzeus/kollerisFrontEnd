@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-09-04T05:03:59.739Z",
+  "timestamp": "2026-09-04T05:09:38.100Z",
   "source": "auto-postool",
   "partial": false,
   "phase": null,
@@ -22,7 +22,11 @@
     },
     {
       "status": "M",
-      "path": "src/app/globals.css"
+      "path": "src/app/admin/(protected)/layout.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/app/admin/(protected)/media/actions.ts"
     },
     {
       "status": "M",
@@ -30,29 +34,17 @@
     },
     {
       "status": "M",
-      "path": "src/components/admin/banners/CellEditor.tsx"
+      "path": "src/lib/media/library.ts"
     },
     {
-      "status": "M",
-      "path": "src/components/admin/banners/GridBuilder.tsx"
+      "status": "??",
+      "path": "src/app/admin/(protected)/media/page.tsx"
     },
     {
-      "status": "M",
-      "path": "src/components/admin/banners/PreviewModal.tsx"
-    },
-    {
-      "status": "M",
-      "path": "src/components/banners/BannerRenderer.tsx"
-    },
-    {
-      "status": "M",
-      "path": "src/components/banners/CompositionRenderer.tsx"
-    },
-    {
-      "status": "M",
-      "path": "src/lib/banners/contract.ts"
+      "status": "??",
+      "path": "src/components/admin/media/"
     }
   ],
   "next_action": null,
-  "context_notes": "Recent commits:\n3d9408e feat(newsletter): το «Νέα» διαλέγει από υπάρχον περιεχόμενο, και δύο διορθώσεις στο AI\n934937d feat(newsletter): παραγωγή κειμένων προσφορών με DeepSeek, ανά γωνία marketing\n351bbb7 feat(newsletter): γραφικά και εξαγωγές στη σελίδα MailGun\nb3ffff3 feat(newsletter): σελίδα MailGun με αναλυτικά στατιστικά αποστολών\n93b276a fix(newsletter): το build έσπαγε — client component τραβούσε server-only κώδικα"
+  "context_notes": "Recent commits:\ndcb0b1d fix(banners): το ύψος γίνεται ρυθμιζόμενο, και το βίντεο παύει να κόβεται σιωπηλά\n3d9408e feat(newsletter): το «Νέα» διαλέγει από υπάρχον περιεχόμενο, και δύο διορθώσεις στο AI\n934937d feat(newsletter): παραγωγή κειμένων προσφορών με DeepSeek, ανά γωνία marketing\n351bbb7 feat(newsletter): γραφικά και εξαγωγές στη σελίδα MailGun\nb3ffff3 feat(newsletter): σελίδα MailGun με αναλυτικά στατιστικά αποστολών"
 }
