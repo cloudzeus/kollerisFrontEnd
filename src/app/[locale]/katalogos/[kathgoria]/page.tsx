@@ -284,15 +284,13 @@ export default async function CategoryPage({
                   }`}
                 >
                   {upGreek(sub.label)}
-                  <span
-                    className={`t-brand-count transition-colors duration-200 ${
-                      sub.active
-                        ? "text-white/70"
-                        : "text-white/35 group-hover/chip:text-white/80"
-                    }`}
-                  >
-                    {sub.count}
-                  </span>
+                  {/* Χρυσό, όπως το «ΑΙΤΗΣΗ ΛΟΓΑΡΙΑΣΜΟΥ» της μαύρης λωρίδας:
+                      είναι το ένα χρώμα που ξεχωρίζει σε σκούρο χωρίς να
+                      διεκδικεί το κόκκινο, που εδώ σημαίνει «ενεργό». */}
+                  {/* Πλήρες χρυσό, χωρίς διαφάνεια: στο 60% πάνω σε σχεδόν
+                      μαύρο έσβηνε και δεν διαβαζόταν καν ως χρώμα. Το ίδιο
+                      ακριβώς με το «ΑΙΤΗΣΗ ΛΟΓΑΡΙΑΣΜΟΥ» της λωρίδας. */}
+                  <span className="t-brand-count text-k-gold">{sub.count}</span>
                 </Link>
               ))}
             </div>

@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-09-04T11:01:41.959Z",
+  "timestamp": "2026-09-04T11:08:53.682Z",
   "source": "auto-postool",
   "partial": false,
   "phase": null,
@@ -27,12 +27,8 @@
     {
       "status": "M",
       "path": "src/components/plp/FilterSidebar.tsx"
-    },
-    {
-      "status": "M",
-      "path": "src/components/plp/PlpToolbar.tsx"
     }
   ],
   "next_action": null,
-  "context_notes": "Recent commits:\n2da3038 fix(banners): ίδιο πλάτος με το header, μαύρο φόντο εκατέρωθεν\ne7822a7 feat(reviews): αξιολογήσεις από πελάτες που παρέλαβαν, με έγκριση διαχειριστή\n95e3d61 fix(pdp): η λωρίδα «με μια ματιά» στοιχίζεται — και τα δεκαδικά γίνονται ελληνικά\n6f0b497 feat(impa): ο κωδικός στη λωρίδα «με μια ματιά», χωρίς λογότυπο\nb6e50ce fix(impa): το λογότυπο στη γραμμή της μάρκας, σε μέγεθος που διαβάζεται"
+  "context_notes": "Recent commits:\n662b8c1 perf(plp): τα φίλτρα δεν προ-φορτώνονται — 62 άχρηστες αποδόσεις σελίδας ανά επίσκεψη\n2da3038 fix(banners): ίδιο πλάτος με το header, μαύρο φόντο εκατέρωθεν\ne7822a7 feat(reviews): αξιολογήσεις από πελάτες που παρέλαβαν, με έγκριση διαχειριστή\n95e3d61 fix(pdp): η λωρίδα «με μια ματιά» στοιχίζεται — και τα δεκαδικά γίνονται ελληνικά\n6f0b497 feat(impa): ο κωδικός στη λωρίδα «με μια ματιά», χωρίς λογότυπο"
 }

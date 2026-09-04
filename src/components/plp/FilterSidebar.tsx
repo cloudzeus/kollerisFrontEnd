@@ -64,9 +64,13 @@ export function FilterSidebar({
       <div className="scroll-slim flex-1 overflow-y-auto">
         {facets.subcategories.length > 0 && (
           <Group title={t("ypokatigoria")} badge={activeSubs} defaultOpen>
+            {/* Χρυσό μόνο στις υποκατηγορίες. Σε λευκό φόντο το `k-gold` του
+                header δεν διαβάζεται — `k-gold-ink` είναι το ίδιο κίτρινο
+                σκουραμένο ώστε να περνά την αντίθεση. */}
             <CheckList
               items={facets.subcategories}
               hrefFor={(slug) => toggleMultiHref(basePath, params, "sub", slug)}
+              countClassName="text-k-gold-ink"
             />
           </Group>
         )}
@@ -224,9 +228,12 @@ function Group({
 function CheckList({
   items,
   hrefFor,
+  /** Το χρώμα του αριθμού. Οι υποκατηγορίες τον θέλουν χρυσό· τα brands όχι. */
+  countClassName = "text-k-text-4",
 }: {
   items: FacetItem[];
   hrefFor: (slug: string) => string;
+  countClassName?: string;
 }) {
   return (
     <div className="flex flex-col gap-0.5">
@@ -248,7 +255,7 @@ function CheckList({
           <span className="min-w-0 flex-1 truncate text-[12.5px] text-k-ink">
             {item.label}
           </span>
-          <span className="t-brand-count text-k-text-4">{item.count}</span>
+          <span className={`t-brand-count ${countClassName}`}>{item.count}</span>
         </Link>
       ))}
     </div>
