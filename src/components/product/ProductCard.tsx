@@ -9,6 +9,7 @@ import { Link } from "@/i18n/navigation";
 import type { ProductCardData } from "@/lib/catalog/queries";
 import { formatPrice, formatPercent, savingsOf } from "@/lib/format";
 import { upGreek } from "@/lib/greek";
+import { offerBadgeFor } from "@/lib/offers/badges";
 
 /**
  * Product card — a SERVER component.
@@ -35,6 +36,15 @@ export async function ProductCard({
 }) {
   const locale = await getLocale();
   const t = await getTranslations("product.ProductCard");
+  /*
+   * Το σήμα προσφοράς.
+   * ─────────────────────────────────────────────────────────────────────────
+   * Ρωτάει η κάρτα, όχι η σελίδα. Δεκατέσσερις σελίδες δείχνουν κάρτες, και
+   * καμία δεν θα θυμόταν να το περάσει — η υπάρχουσα `campaignsForProducts`
+   * ήταν γραμμένη γι' αυτόν ακριβώς τον σκοπό και δεν την καλούσε κανείς.
+   * Ο κατάλογος των ενεργών καμπανιών χτίζεται μία φορά ανά αίτημα.
+   */
+  const offer = await offerBadgeFor(product, locale);
   const ctx = { vatRate: product.vatRate };
   const saving =
     product.priceListNet != null && product.priceNet != null
@@ -63,10 +73,34 @@ export async function ProductCard({
      */
     <CardHoverShell className="group @container flex flex-col border border-k-line bg-white transition-colors hover:border-k-ink">
       <div className="relative overflow-hidden bg-white p-3 @[300px]:p-5">
-        {saving && (
-          <span className="t-badge absolute top-2.5 left-2.5 z-10 bg-k-red px-1.5 py-[3px] text-white lg:top-3.5 lg:left-3.5 lg:px-[7px] lg:py-1">
-            {formatPercent(saving.percent)}
-          </span>
+        {/*
+          Στοιβάζονται, δεν διαλέγουν.
+          ──────────────────────────────────────────────────────────────────
+          Η έκπτωση τιμής και η καμπάνια είναι διαφορετικά πράγματα: η πρώτη
+          λέει πόσο φθηνότερο είναι ΤΩΡΑ, η δεύτερη ότι το προϊόν ανήκει σε
+          κάτι που τρέχει. Σπάνια συνυπάρχουν — το priceList δεν συμπληρώνεται
+          — αλλά όταν συμβεί, η σιωπηλή απόκρυψη της μιας είναι το είδος του
+          σφάλματος που κανείς δεν παρατηρεί.
+
+          Το φόντο είναι το βαθύτερο κόκκινο: λευκό κείμενο 9.5px πάνω στο
+          #EA3E39 δεν περνά AA.
+        */}
+        {(offer || saving) && (
+          <div className="absolute top-2.5 left-2.5 z-10 flex flex-col items-start gap-1 lg:top-3.5 lg:left-3.5">
+            {offer && (
+              <span
+                title={offer.title}
+                className="t-badge bg-k-red-600 px-1.5 py-[3px] text-white uppercase lg:px-[7px] lg:py-1"
+              >
+                {offer.label}
+              </span>
+            )}
+            {saving && (
+              <span className="t-badge bg-k-ink px-1.5 py-[3px] text-white lg:px-[7px] lg:py-1">
+                {formatPercent(saving.percent)}
+              </span>
+            )}
+          </div>
         )}
 
         {compare && (

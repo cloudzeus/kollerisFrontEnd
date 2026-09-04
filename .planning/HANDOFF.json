@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-09-04T05:47:43.248Z",
+  "timestamp": "2026-09-04T06:53:16.197Z",
   "source": "auto-postool",
   "partial": false,
   "phase": null,
@@ -22,77 +22,21 @@
     },
     {
       "status": "M",
-      "path": "src/app/[locale]/anazitisi/page.tsx"
-    },
-    {
-      "status": "M",
-      "path": "src/app/[locale]/blog/[slug]/page.tsx"
-    },
-    {
-      "status": "M",
-      "path": "src/app/[locale]/blog/page.tsx"
-    },
-    {
-      "status": "M",
-      "path": "src/app/[locale]/brands/[slug]/page.tsx"
-    },
-    {
-      "status": "M",
-      "path": "src/app/[locale]/brands/page.tsx"
-    },
-    {
-      "status": "M",
-      "path": "src/app/[locale]/epikoinonia/page.tsx"
-    },
-    {
-      "status": "M",
-      "path": "src/app/[locale]/etaireia/page.tsx"
-    },
-    {
-      "status": "M",
-      "path": "src/app/[locale]/kalathi/page.tsx"
-    },
-    {
-      "status": "M",
-      "path": "src/app/[locale]/katalogos/[kathgoria]/page.tsx"
-    },
-    {
-      "status": "M",
-      "path": "src/app/[locale]/katalogos/page.tsx"
-    },
-    {
-      "status": "M",
-      "path": "src/app/[locale]/nees-afixeis/page.tsx"
-    },
-    {
-      "status": "M",
-      "path": "src/app/[locale]/page.tsx"
-    },
-    {
-      "status": "M",
       "path": "src/app/[locale]/proion/[slug]/page.tsx"
     },
     {
       "status": "M",
-      "path": "src/app/[locale]/prosfores/page.tsx"
+      "path": "src/app/globals.css"
     },
     {
       "status": "M",
-      "path": "src/app/[locale]/syxnes-erotiseis/page.tsx"
+      "path": "src/components/product/ProductCard.tsx"
     },
     {
-      "status": "M",
-      "path": "src/components/admin/banners/BannerEditor.tsx"
-    },
-    {
-      "status": "M",
-      "path": "src/components/zones/Zone.tsx"
-    },
-    {
-      "status": "M",
-      "path": "src/lib/zones/registry.ts"
+      "status": "??",
+      "path": "src/lib/offers/badges.ts"
     }
   ],
   "next_action": null,
-  "context_notes": "Recent commits:\nf40bcbf fix(banners): ο καμβάς του admin έλεγε ψέματα για το σχήμα — γι' αυτό το site έμενε ίδιο\nba6306e feat(banners): «Ύψος: από το υλικό» — το σχήμα κρατιέται σε κάθε συσκευή\n6de4bcb feat(admin): βιβλιοθήκη αρχείων, και το ύψος του banner σύρεται με το χέρι\ndcb0b1d fix(banners): το ύψος γίνεται ρυθμιζόμενο, και το βίντεο παύει να κόβεται σιωπηλά\n3d9408e feat(newsletter): το «Νέα» διαλέγει από υπάρχον περιεχόμενο, και δύο διορθώσεις στο AI"
+  "context_notes": "Recent commits:\n9b0f92a feat(zones): banner σε κάθε σελίδα — και τρεις ζώνες που ήταν φαντάσματα\nf40bcbf fix(banners): ο καμβάς του admin έλεγε ψέματα για το σχήμα — γι' αυτό το site έμενε ίδιο\nba6306e feat(banners): «Ύψος: από το υλικό» — το σχήμα κρατιέται σε κάθε συσκευή\n6de4bcb feat(admin): βιβλιοθήκη αρχείων, και το ύψος του banner σύρεται με το χέρι\ndcb0b1d fix(banners): το ύψος γίνεται ρυθμιζόμενο, και το βίντεο παύει να κόβεται σιωπηλά"
 }

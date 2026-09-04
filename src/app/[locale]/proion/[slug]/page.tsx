@@ -35,6 +35,7 @@ import {
 import { formatPercent, grossAmount, savingsOf } from "@/lib/format";
 import { upGreek } from "@/lib/greek";
 import { Zone } from "@/components/zones/Zone";
+import { offerBadgeFor } from "@/lib/offers/badges";
 
 type PageProps = {
   params: Promise<{ locale: Locale; slug: string }>;
@@ -90,6 +91,12 @@ export default async function ProductPage({ params }: PageProps) {
     ]);
 
   const ctx = { vatRate: product.vatRate };
+  // Η καμπάνια που καλύπτει αυτό το προϊόν, αν τρέχει κάποια.
+  const offer = await offerBadgeFor(
+    { slug: product.slug, brandSlug: product.brand?.slug ?? null },
+    locale,
+  );
+
   const saving =
     product.priceListNet != null && product.priceNet != null
       ? savingsOf(product.priceListNet, product.priceNet, locale, ctx)
@@ -451,6 +458,35 @@ export default async function ProductPage({ params }: PageProps) {
               <h1 className="font-display mt-3.5 text-[21px] leading-[1.24] font-medium text-balance text-k-ink lg:text-[26px]">
                 {product.name}
               </h1>
+
+              {/*
+                Η προσφορά, κάτω από τον τίτλο και ΠΑΝΩ από την τιμή.
+                ──────────────────────────────────────────────────────────────
+                Σύνδεσμος εδώ, ετικέτα στην κάρτα: στο πλέγμα ένα κλικ σημαίνει
+                «δείξε μου αυτό το προϊόν», και ένα σήμα που οδηγεί αλλού είναι
+                παγίδα. Εδώ το προϊόν είναι ήδη ανοιχτό, οπότε «τι άλλο έχει
+                αυτή η προσφορά» είναι εύλογη επόμενη κίνηση.
+
+                Πάνω από την τιμή, γιατί αλλάζει τον τρόπο που διαβάζεται: μια
+                τιμή που ξέρεις ότι είναι σε καμπάνια δεν είναι η ίδια τιμή.
+              */}
+              {offer && (
+                <Link
+                  href={offer.href}
+                  className="group/offer mt-3.5 inline-flex items-center gap-2.5 border border-k-red/30 bg-k-red/5 py-1.5 pr-3 pl-1.5 transition-colors hover:border-k-red"
+                >
+                  <span className="t-badge bg-k-red-600 px-[7px] py-1 text-white uppercase">
+                    {offer.label}
+                  </span>
+                  <span className="text-[12.5px] text-k-ink">{offer.title}</span>
+                  <span
+                    aria-hidden
+                    className="text-[12.5px] text-k-red transition-transform group-hover/offer:translate-x-1"
+                  >
+                    →
+                  </span>
+                </Link>
+              )}
 
               {/*
                 Codes as one inline row, not three boxed cells. At 133px each
