@@ -743,8 +743,20 @@ model OrderLine {
   imageUrl String? @db.Text
 
   quantity  Int
+  /// Η ΚΑΝΟΝΙΚΗ τιμή μονάδας, πριν την έκπτωση καμπάνιας.
+  ///
+  /// Κανονική και όχι εκπτωμένη, επειδή έτσι το θέλει η γραμμή του
+  /// παραστατικού: το SoftOne κρατά `PRICE` (κανονική) και `DISC1PRC`
+  /// (ποσοστό) χωριστά. Με προ-εκπτωμένη τιμή, το παραστατικό θα έλεγε ότι
+  /// πουλήθηκε φθηνότερα χωρίς να λέει γιατί.
   unitNet   Decimal  @db.Decimal(12, 2)
   unitGross Decimal  @db.Decimal(12, 2)
+  /// Ποσοστό έκπτωσης καμπάνιας. Μηδέν όταν δεν έτρεχε καμία τη στιγμή της
+  /// παραγγελίας — παγωμένο εδώ, γιατί η καμπάνια λήγει και η παραγγελία μένει.
+  discountPercent Decimal @default(0) @db.Decimal(5, 2)
+  /// Ο τίτλος της καμπάνιας, ως στιγμιότυπο. Ο πελάτης πρέπει να μπορεί να
+  /// διαβάσει σε έξι μήνες γιατί πλήρωσε λιγότερα.
+  offerTitle      String? @db.VarChar(160)
   vatRate   Decimal  @db.Decimal(5, 2)
   lineNet   Decimal  @db.Decimal(12, 2)
   lineGross Decimal  @db.Decimal(12, 2)

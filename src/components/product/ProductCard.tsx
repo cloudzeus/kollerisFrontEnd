@@ -9,7 +9,7 @@ import { Link } from "@/i18n/navigation";
 import type { ProductCardData } from "@/lib/catalog/queries";
 import { formatPrice, formatPercent, savingsOf } from "@/lib/format";
 import { upGreek } from "@/lib/greek";
-import { offerBadgeFor } from "@/lib/offers/badges";
+import { discountedNet, offerBadgeFor } from "@/lib/offers/badges";
 
 /**
  * Product card — a SERVER component.
@@ -44,7 +44,14 @@ export async function ProductCard({
    * ήταν γραμμένη γι' αυτόν ακριβώς τον σκοπό και δεν την καλούσε κανείς.
    * Ο κατάλογος των ενεργών καμπανιών χτίζεται μία φορά ανά αίτημα.
    */
-  const offer = await offerBadgeFor(product, locale);
+  const offer = await offerBadgeFor({ ...product, unitNet: product.priceNet }, locale);
+  /* Η τιμή που θα χρεωθεί — ο ίδιος υπολογισμός με το καλάθι, από την ίδια
+     συνάρτηση, ώστε η διαφημιζόμενη και η χρεωμένη να μη γίνουν ποτέ δύο
+     διαφορετικοί υπολογισμοί που απλώς συμφωνούν σήμερα. */
+  const finalNet =
+    product.priceNet == null
+      ? null
+      : discountedNet(product.priceNet, offer?.discountPercent ?? 0);
   const ctx = { vatRate: product.vatRate };
   const saving =
     product.priceListNet != null && product.priceNet != null
@@ -154,13 +161,28 @@ export async function ProductCard({
 
         <div className="mt-auto flex flex-col gap-2 pt-1.5 @[340px]:flex-row @[340px]:items-end @[340px]:justify-between @[340px]:gap-2.5 @[340px]:pt-2.5">
           <div>
-            {saving && product.priceListNet != null && (
-              <div className="t-card-was hidden text-k-text-5 line-through @[240px]:block">
-                {formatPrice(product.priceListNet, locale, ctx)}
+            {/*
+              Η διαγραμμένη είναι η ΚΑΝΟΝΙΚΗ, η έντονη είναι αυτή που χρεώνεται.
+              ────────────────────────────────────────────────────────────────
+              Δύο διαφορετικά «πριν» μπορούν να εμφανιστούν εδώ: η τιμή
+              καταλόγου (priceList, που δεν συμπληρώνεται) και η κανονική τιμή
+              πριν την καμπάνια. Η δεύτερη προηγείται όταν υπάρχει, γιατί
+              αντιστοιχεί σε πραγματική μείωση που χρεώνεται σήμερα.
+            */}
+            {product.priceNet != null && offer && offer.discountPercent > 0 ? (
+              <div className="t-card-was text-k-text-5 line-through">
+                {formatPrice(product.priceNet, locale, ctx)}
               </div>
+            ) : (
+              saving &&
+              product.priceListNet != null && (
+                <div className="t-card-was hidden text-k-text-5 line-through @[240px]:block">
+                  {formatPrice(product.priceListNet, locale, ctx)}
+                </div>
+              )
             )}
             <div className="t-card-price whitespace-nowrap text-k-ink">
-              {product.priceNet != null ? formatPrice(product.priceNet, locale, ctx) : "—"}
+              {finalNet != null ? formatPrice(finalNet, locale, ctx) : "—"}
             </div>
             <div className="t-card-vat mt-0.5 text-k-text-5">
               {upGreek(t("me_fpa", { vatRate: product.vatRate }))}

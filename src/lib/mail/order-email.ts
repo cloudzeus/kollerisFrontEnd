@@ -160,17 +160,47 @@ export async function buildOrderEmail(
   const link = `${siteOrigin()}/checkout/epibebaiosi/${encodeURIComponent(order.orderNumber)}?t=${encodeURIComponent(order.guestToken)}`;
 
   const lines = order.lines
-    .map(
-      (line) =>
-        `<tr>
+    .map((line) => {
+      /*
+       * Η έκπτωση φαίνεται και εδώ.
+       * ─────────────────────────────────────────────────────────────────────
+       * Το email είναι το μόνο κομμάτι της αγοράς που ο πελάτης κρατά. Αν η
+       * τιμή στο site έλεγε «από 422,15 → 337,72» και το email έδειχνε σκέτο
+       * 337,72, δεν θα υπήρχε πουθενά απόδειξη ότι η έκπτωση δόθηκε — και το
+       * πρώτο πράγμα που κάνει κανείς όταν αμφιβάλλει είναι να ανοίξει το mail.
+       *
+       * Οι τιμές είναι ΜΕΙΚΤΕΣ όπως και τα υπόλοιπα σύνολα του email· η
+       * διαγραμμένη υπολογίζεται από την ίδια μεικτή, ώστε τα δύο νούμερα να
+       * μη διαφέρουν κατά έναν κύκλο στρογγυλοποίησης.
+       */
+      const disc = Number(line.discountPercent) || 0;
+      const grossFinal = Number(line.lineGross);
+      const grossBefore = disc > 0 ? grossFinal / (1 - disc / 100) : grossFinal;
+
+      const priceCell =
+        disc > 0
+          ? `<div style="font-size:11.5px;color:#767672;text-decoration:line-through;">${money(grossBefore)}</div>
+             <div style="font-size:14px;color:#111111;font-weight:700;">${money(grossFinal)}</div>`
+          : `<div style="font-size:14px;color:#111111;">${money(grossFinal)}</div>`;
+
+      const offerNote =
+        disc > 0
+          ? `<div style="font-size:11px;color:#d9332e;margin-top:2px;">−${disc
+              .toFixed(2)
+              .replace(/\.?0+$/, "")
+              .replace(".", ",")}%${line.offerTitle ? ` · ${esc(line.offerTitle)}` : ""}</div>`
+          : "";
+
+      return `<tr>
           <td style="padding:9px 0;border-bottom:1px solid #e6e6e3;">
             <div style="font-size:14px;color:#111111;">${esc(line.name)}</div>
             <div style="font-size:11px;color:#767672;">${esc(line.sku)}</div>
+            ${offerNote}
           </td>
           <td align="center" style="padding:9px 8px;border-bottom:1px solid #e6e6e3;font-size:14px;color:#333333;">${line.quantity}</td>
-          <td align="right" style="padding:9px 0;border-bottom:1px solid #e6e6e3;font-size:14px;color:#111111;">${money(line.lineGross)}</td>
-        </tr>`,
-    )
+          <td align="right" style="padding:9px 0;border-bottom:1px solid #e6e6e3;">${priceCell}</td>
+        </tr>`;
+    })
     .join("");
 
   const heading = paid

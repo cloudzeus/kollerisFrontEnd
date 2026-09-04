@@ -23,6 +23,7 @@ export function PriceBox({
   productId,
   priceNet,
   priceListNet,
+  offer = null,
   vatRate,
   qty,
   inStock,
@@ -30,6 +31,8 @@ export function PriceBox({
   productId: string;
   priceNet: number | null;
   priceListNet: number | null;
+  /** Η ενεργή καμπάνια, όταν μειώνει την τιμή αυτής της γραμμής. */
+  offer?: { label: string; title: string; discountPercent: number; finalNet: number } | null;
   vatRate: number;
   qty: number;
   inStock: boolean;
@@ -74,7 +77,26 @@ export function PriceBox({
           dressed as a limited-time offer: 68% of the catalogue carries this
           gap permanently, and a permanent "sale" is not a sale.
         */}
-        {saving && priceListNet != null ? (
+        {/*
+          Δύο διαφορετικά «πριν», και προηγείται η καμπάνια.
+          ───────────────────────────────────────────────────────────────────
+          Η τιμή καταλόγου του SoftOne δεν είναι προσφορά — το 68% του
+          καταλόγου κουβαλά μόνιμα αυτό το κενό, και μόνιμη έκπτωση δεν είναι
+          έκπτωση. Η καμπάνια είναι: κάποιος την αποφάσισε, έχει ημερομηνίες,
+          και η μειωμένη τιμή είναι αυτή που χρεώνεται σήμερα. Όταν υπάρχει,
+          μιλάει αυτή.
+        */}
+        {offer ? (
+          <div className="flex flex-wrap items-baseline gap-x-2.5 gap-y-1">
+            <span className="t-account-label text-white/40">{upGreek(t("timi_eshop"))}</span>
+            <span className="font-mono text-[13px] font-medium text-white/45 line-through">
+              {priceNet != null ? formatPrice(priceNet, locale, ctx) : "—"}
+            </span>
+            <span className="t-badge bg-k-red-600 px-[7px] py-[3px] text-white uppercase">
+              {offer.label}
+            </span>
+          </div>
+        ) : saving && priceListNet != null ? (
           <div className="flex flex-wrap items-baseline gap-x-2.5 gap-y-1">
             <span className="t-account-label text-white/40">{upGreek(t("timi_katalogoy"))}</span>
             <span className="font-mono text-[13px] font-medium text-white/45 line-through">
@@ -89,15 +111,26 @@ export function PriceBox({
         )}
 
         <p className="mt-2 font-mono text-[38px] leading-[1.02] font-semibold tracking-[-0.03em] text-white lg:text-[44px]">
-          {priceNet != null ? formatPrice(priceNet, locale, ctx) : "—"}
+          {offer
+            ? formatPrice(offer.finalNet, locale, ctx)
+            : priceNet != null
+              ? formatPrice(priceNet, locale, ctx)
+              : "—"}
         </p>
+
+        {offer && (
+          <p className="mt-1.5 text-[12px] leading-[1.5] text-white/60">
+            Μετά την έκπτωση · {offer.title}
+          </p>
+        )}
 
         <p className="t-account-label mt-2 text-white/50">
           {upGreek(t("me_fpa", { rate: vatRate }))}
           {priceNet != null && (
             <>
               {" · "}
-              {upGreek(t("choris_fpa"))} {formatMoney(priceNet, locale)}
+              {upGreek(t("choris_fpa"))}{" "}
+              {formatMoney(offer ? offer.finalNet : priceNet, locale)}
             </>
           )}
         </p>

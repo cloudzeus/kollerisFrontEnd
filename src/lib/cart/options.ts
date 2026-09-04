@@ -85,8 +85,23 @@ export type CartLineView = {
   brandName: string | null;
   image: string | null;
   quantity: number;
-  /** Live unit price, net. */
+  /**
+   * Η ΚΑΝΟΝΙΚΗ τιμή μονάδας, καθαρή — πριν από την έκπτωση καμπάνιας.
+   *
+   * Μένει κανονική επίτηδες. Η γραμμή του παραστατικού στο SoftOne κρατά την
+   * κανονική τιμή στο `PRICE` και την έκπτωση χωριστά στο `DISC1PRC`, οπότε αν
+   * αποθηκεύαμε εδώ την εκπτωμένη, το παραστατικό θα έλεγε ότι το προϊόν
+   * πουλήθηκε φθηνότερα χωρίς να λέει γιατί — και η έκπτωση δεν θα φαινόταν σε
+   * καμία αναφορά του ERP.
+   */
   unitNet: number;
+  /** Ποσοστό έκπτωσης καμπάνιας, 0 όταν δεν τρέχει καμία. */
+  discountPercent: number;
+  /** Η τιμή που πληρώνεται. Ίση με `unitNet` όταν δεν υπάρχει έκπτωση. */
+  unitNetFinal: number;
+  /** Η καμπάνια που την έδωσε, για να λέει η γραμμή γιατί άλλαξε η τιμή. */
+  offerTitle: string | null;
+  offerHref: string | null;
   unitListNet: number | null;
   vatRate: number;
   lineNet: number;

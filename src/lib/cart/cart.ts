@@ -5,6 +5,7 @@ import { cache } from "react";
 import { prisma } from "@/lib/prisma";
 import type { Locale } from "@/i18n/routing";
 import { grossAmount, netAmount } from "@/lib/format";
+import { discountedNet, offerBadgeFor } from "@/lib/offers/badges";
 import { type ParcelItem } from "@/lib/shipping/acs-tariff";
 import { quoteLivePostage } from "@/lib/shipping/acs-live";
 import {
@@ -116,9 +117,12 @@ export const getCart = cache(async (
   const brandRows = mtrmarks.length
     ? await prisma.brand.findMany({
         where: { mtrmark: { in: mtrmarks } },
-        select: { mtrmark: true, nameEl: true, nameEn: true, nameIt: true },
+        select: { mtrmark: true, slug: true, nameEl: true, nameEn: true, nameIt: true },
       })
     : [];
+  // Το slug χρειάζεται χωριστά από το όνομα: η κάλυψη καμπάνιας ανά μάρκα
+  // ταιριάζει σε slug, ενώ η γραμμή δείχνει το όνομα.
+  const brandSlugs = new Map(brandRows.map((b) => [b.mtrmark!, b.slug]));
   const brands = new Map(
     brandRows.map((b) => [
       b.mtrmark!,
@@ -126,13 +130,33 @@ export const getCart = cache(async (
     ]),
   );
 
-  const lines: CartLineView[] = cart.lines.map((line) => {
+  const lines: CartLineView[] = await Promise.all(
+    cart.lines.map(async (line) => {
     const p = line.product;
     const unitNet = num(p.priceNet);
     const listNet = num(p.priceList);
     const vatRate = num(p.vatRate) || 24;
     const availableQty = Math.floor(num(p.qty));
     const translated = p.translations.find((t) => t.locale === locale)?.name;
+
+    /*
+     * Η έκπτωση λύνεται ΕΔΩ, όχι στην οθόνη.
+     * ───────────────────────────────────────────────────────────────────────
+     * Το καλάθι είναι το ένα σημείο που ξέρει τι πληρώνεται. Αν η έκπτωση
+     * υπολογιζόταν στην κάρτα και στη σελίδα ξεχωριστά, η τιμή που διαφημίζεται
+     * και η τιμή που χρεώνεται θα ήταν δύο διαφορετικοί υπολογισμοί που απλώς
+     * συμφωνούν σήμερα.
+     */
+    const offer = await offerBadgeFor(
+      {
+        slug: p.slug,
+        brandSlug: p.mtrmark != null ? (brandSlugs.get(p.mtrmark) ?? null) : null,
+        unitNet,
+      },
+      locale,
+    );
+    const discountPercent = offer?.discountPercent ?? 0;
+    const unitNetFinal = discountedNet(unitNet, discountPercent);
 
     return {
       id: line.id,
@@ -144,10 +168,14 @@ export const getCart = cache(async (
       image: p.images[0]?.url ?? null,
       quantity: line.quantity,
       unitNet,
+      discountPercent,
+      unitNetFinal,
+      offerTitle: discountPercent > 0 ? (offer?.title ?? null) : null,
+      offerHref: discountPercent > 0 ? (offer?.href ?? null) : null,
       unitListNet: listNet > unitNet ? listNet : null,
       vatRate,
-      lineNet: netAmount(unitNet * line.quantity),
-      lineGross: grossAmount(unitNet * line.quantity, { vatRate }),
+      lineNet: netAmount(unitNetFinal * line.quantity),
+      lineGross: grossAmount(unitNetFinal * line.quantity, { vatRate }),
       inStock: p.inStock,
       availableQty,
       overStock: p.inStock && availableQty > 0 && line.quantity > availableQty,
@@ -156,7 +184,8 @@ export const getCart = cache(async (
       length: num(p.length) || null,
       height: num(p.height) || null,
     };
-  });
+    }),
+  );
 
   const shippingMethod = (SHIPPING_METHODS.find((m) => m.id === cart.shippingMethod)?.id ??
     "courier") as ShippingMethodId;

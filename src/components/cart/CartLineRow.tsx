@@ -101,14 +101,36 @@ export function CartLineRow({ line }: { line: CartLineView }) {
         <span className="t-account-label mb-1 block text-k-text-4 lg:hidden">
           {upGreek(t("timi_monadas"))}
         </span>
-        {line.unitListNet != null && (
+        {line.discountPercent > 0 ? (
           <span className="t-card-was block whitespace-nowrap text-k-text-5 line-through">
-            {formatPrice(line.unitListNet, locale, ctx)}
+            {formatPrice(line.unitNet, locale, ctx)}
           </span>
+        ) : (
+          line.unitListNet != null && (
+            <span className="t-card-was block whitespace-nowrap text-k-text-5 line-through">
+              {formatPrice(line.unitListNet, locale, ctx)}
+            </span>
+          )
         )}
         <span className="block font-mono text-[15px] font-semibold whitespace-nowrap text-k-ink">
-          {formatPrice(line.unitNet, locale, ctx)}
+          {formatPrice(line.unitNetFinal, locale, ctx)}
         </span>
+        {/* Ο τίτλος της καμπάνιας, όχι μόνο το ποσοστό: «−20%» χωρίς αιτία
+            μοιάζει με σφάλμα τιμοκαταλόγου· «−20% · Μειωμένες τιμές σε
+            Milwaukee» είναι απόφαση που κάποιος πήρε. */}
+        {/* Το σήμα κρατά μόνο το ποσοστό — ένα σήμα είναι ετικέτα, όχι πρόταση.
+            Ο τίτλος της καμπάνιας πάει δίπλα του σε κανονικό κείμενο, γιατί
+            «−20%» χωρίς αιτία μοιάζει με λάθος τιμοκαταλόγου. */}
+        {line.discountPercent > 0 && (
+          <span className="mt-1.5 flex flex-wrap items-center gap-1.5 lg:justify-end">
+            <span className="t-badge bg-k-red-600 px-1.5 py-[3px] text-white">
+              −{line.discountPercent.toString().replace(".", ",")}%
+            </span>
+            {line.offerTitle && (
+              <span className="text-[11px] leading-tight text-k-text-3">{line.offerTitle}</span>
+            )}
+          </span>
+        )}
         <span className="t-card-vat mt-0.5 block text-k-text-5">
           {upGreek(t("me_fpa", { vatRate: line.vatRate }))}
         </span>
@@ -150,7 +172,7 @@ export function CartLineRow({ line }: { line: CartLineView }) {
       <div className="flex items-center justify-between lg:block lg:text-right">
         <span className="t-account-label text-k-text-4 lg:hidden">{upGreek(t("synolo"))}</span>
         <span className="font-mono text-[19px] font-semibold whitespace-nowrap text-k-ink">
-          {formatPrice(line.unitNet * optimisticQty, locale, ctx)}
+          {formatPrice(line.unitNetFinal * optimisticQty, locale, ctx)}
         </span>
       </div>
 

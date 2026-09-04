@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-09-04T06:53:16.197Z",
+  "timestamp": "2026-09-04T07:08:56.081Z",
   "source": "auto-postool",
   "partial": false,
   "phase": null,
@@ -22,21 +22,53 @@
     },
     {
       "status": "M",
+      "path": "prisma/schema.prisma"
+    },
+    {
+      "status": "M",
       "path": "src/app/[locale]/proion/[slug]/page.tsx"
     },
     {
       "status": "M",
-      "path": "src/app/globals.css"
+      "path": "src/components/cart/CartLineRow.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/components/pdp/PriceBox.tsx"
     },
     {
       "status": "M",
       "path": "src/components/product/ProductCard.tsx"
     },
     {
-      "status": "??",
+      "status": "M",
+      "path": "src/lib/cart/cart.ts"
+    },
+    {
+      "status": "M",
+      "path": "src/lib/cart/options.ts"
+    },
+    {
+      "status": "M",
+      "path": "src/lib/checkout/actions.ts"
+    },
+    {
+      "status": "M",
+      "path": "src/lib/mail/order-email.ts"
+    },
+    {
+      "status": "M",
       "path": "src/lib/offers/badges.ts"
+    },
+    {
+      "status": "M",
+      "path": "src/lib/orders/send-to-erp.ts"
+    },
+    {
+      "status": "??",
+      "path": "prisma/migrations/20260904090000_order_line_campaign_discount/"
     }
   ],
   "next_action": null,
-  "context_notes": "Recent commits:\n9b0f92a feat(zones): banner σε κάθε σελίδα — και τρεις ζώνες που ήταν φαντάσματα\nf40bcbf fix(banners): ο καμβάς του admin έλεγε ψέματα για το σχήμα — γι' αυτό το site έμενε ίδιο\nba6306e feat(banners): «Ύψος: από το υλικό» — το σχήμα κρατιέται σε κάθε συσκευή\n6de4bcb feat(admin): βιβλιοθήκη αρχείων, και το ύψος του banner σύρεται με το χέρι\ndcb0b1d fix(banners): το ύψος γίνεται ρυθμιζόμενο, και το βίντεο παύει να κόβεται σιωπηλά"
+  "context_notes": "Recent commits:\n461ea7b feat(offers): σήμα προσφοράς στις κάρτες και στη σελίδα προϊόντος\n9b0f92a feat(zones): banner σε κάθε σελίδα — και τρεις ζώνες που ήταν φαντάσματα\nf40bcbf fix(banners): ο καμβάς του admin έλεγε ψέματα για το σχήμα — γι' αυτό το site έμενε ίδιο\nba6306e feat(banners): «Ύψος: από το υλικό» — το σχήμα κρατιέται σε κάθε συσκευή\n6de4bcb feat(admin): βιβλιοθήκη αρχείων, και το ύψος του banner σύρεται με το χέρι"
 }

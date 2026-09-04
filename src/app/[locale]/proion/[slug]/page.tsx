@@ -35,7 +35,7 @@ import {
 import { formatPercent, grossAmount, savingsOf } from "@/lib/format";
 import { upGreek } from "@/lib/greek";
 import { Zone } from "@/components/zones/Zone";
-import { offerBadgeFor } from "@/lib/offers/badges";
+import { discountedNet, offerBadgeFor } from "@/lib/offers/badges";
 
 type PageProps = {
   params: Promise<{ locale: Locale; slug: string }>;
@@ -93,7 +93,7 @@ export default async function ProductPage({ params }: PageProps) {
   const ctx = { vatRate: product.vatRate };
   // Η καμπάνια που καλύπτει αυτό το προϊόν, αν τρέχει κάποια.
   const offer = await offerBadgeFor(
-    { slug: product.slug, brandSlug: product.brand?.slug ?? null },
+    { slug: product.slug, brandSlug: product.brand?.slug ?? null, unitNet: product.priceNet },
     locale,
   );
 
@@ -531,6 +531,16 @@ export default async function ProductPage({ params }: PageProps) {
                 productId={product.id}
                 priceNet={product.priceNet}
                 priceListNet={product.priceListNet}
+                offer={
+                  offer && offer.discountPercent > 0 && product.priceNet != null
+                    ? {
+                        label: offer.label,
+                        title: offer.title,
+                        discountPercent: offer.discountPercent,
+                        finalNet: discountedNet(product.priceNet, offer.discountPercent),
+                      }
+                    : null
+                }
                 vatRate={product.vatRate}
                 qty={product.qty}
                 inStock={product.inStock}

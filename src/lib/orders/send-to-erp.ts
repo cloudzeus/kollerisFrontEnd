@@ -145,7 +145,18 @@ function buildIntakeBody(order: OrderWithLines) {
       name: line.name,
       brand: line.brand,
       quantity: line.quantity,
+      /*
+       * Κανονική τιμή ΚΑΙ ποσοστό, όχι εκπτωμένη τιμή.
+       * ─────────────────────────────────────────────────────────────────────
+       * Η γραμμή του SoftOne έχει `PRICE` και `DISC1PRC` («Εκπτ.%1») ως
+       * χωριστές στήλες — επιβεβαιωμένο με `getTableFields` πάνω στο ζωντανό
+       * ERP. Στέλνοντας προ-εκπτωμένη τιμή, το παραστατικό θα έδειχνε ότι το
+       * είδος πουλήθηκε φθηνότερα χωρίς να λέει γιατί, και καμία αναφορά
+       * εκπτώσεων δεν θα το έβλεπε.
+       */
       unitNet: money(line.unitNet),
+      discountPercent: money(line.discountPercent),
+      offerTitle: line.offerTitle,
       unitGross: money(line.unitGross),
       vatRate: money(line.vatRate),
       lineNet: money(line.lineNet),

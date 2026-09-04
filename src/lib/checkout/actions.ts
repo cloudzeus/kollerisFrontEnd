@@ -281,7 +281,12 @@ export async function placeOrder(
           brand: line.brandName,
           imageUrl: line.image,
           quantity: line.quantity,
+          /* Κανονική τιμή και ποσοστό χωριστά — όπως τα θέλει η γραμμή του
+             παραστατικού, και όπως πρέπει να διαβάζεται η παραγγελία σε έξι
+             μήνες, όταν η καμπάνια θα έχει λήξει. */
           unitNet: line.unitNet,
+          discountPercent: line.discountPercent,
+          offerTitle: line.offerTitle,
           unitGross: line.lineGross / line.quantity,
           vatRate: line.vatRate,
           lineNet: line.lineNet,
