@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import NextImage from "next/image";
 import {
+  AlertTriangle,
   ArrowDown,
   ArrowUp,
   Copy,
@@ -142,6 +143,51 @@ const DEMO: ResolvedCell = {
     },
   ],
 };
+
+/**
+ * Η πραγματική αναλογία του υλικού.
+ *
+ * Χωρίς αυτήν, η περικοπή είναι αόρατη μέχρι να λείψει κάτι. Τα βίντεο των
+ * social είναι 1080×1350 — κατακόρυφα — και μπαίνουν σε οριζόντιο κελί: το
+ * `cover` πετάει σχεδόν το μισό καρέ, από πάνω και από κάτω, ακριβώς εκεί που
+ * κάθεται το κείμενο που έχει ψηθεί μέσα στο βίντεο. Ο συντάκτης βλέπει το
+ * κείμενο να κόβεται και δεν έχει κανέναν τρόπο να μαντέψει γιατί.
+ */
+function useNaturalRatio(kind: string, url: string): number | null {
+  const [ratio, setRatio] = useState<number | null>(null);
+
+  useEffect(() => {
+    setRatio(null);
+    if (!url || (kind !== "video" && kind !== "image")) return;
+    let alive = true;
+
+    if (kind === "video") {
+      const el = document.createElement("video");
+      el.preload = "metadata";
+      el.muted = true;
+      el.onloadedmetadata = () => {
+        if (alive && el.videoHeight) setRatio(el.videoWidth / el.videoHeight);
+      };
+      el.src = url;
+      return () => {
+        alive = false;
+        // Σταματά το κατέβασμα των metadata αν αλλάξει το αρχείο νωρίς.
+        el.removeAttribute("src");
+      };
+    }
+
+    const img = new window.Image();
+    img.onload = () => {
+      if (alive && img.naturalHeight) setRatio(img.naturalWidth / img.naturalHeight);
+    };
+    img.src = url;
+    return () => {
+      alive = false;
+    };
+  }, [kind, url]);
+
+  return ratio;
+}
 
 export function CellEditor({
   cell,
@@ -421,7 +467,7 @@ export function CellEditor({
                   onPatch={(patch) => patchLayer(layer.id, patch)}
                 />
               ) : (
-                <CellPanel draft={draft} setDraft={setDraft} />
+                <CellPanel draft={draft} setDraft={setDraft} aspect={aspect} />
               )}
             </div>
           </div>
@@ -881,11 +927,34 @@ function LayerList({
 function CellPanel({
   draft,
   setDraft,
+  /** Η αναλογία του κελιού όπως θα αποδοθεί — το μέτρο σύγκρισης για την
+   *  περικοπή του φόντου. */
+  aspect,
 }: {
   draft: CellComposition;
   setDraft: React.Dispatch<React.SetStateAction<CellComposition>>;
+  aspect: number;
 }) {
   const bg = draft.background;
+
+  /*
+   * Πόσο από το καρέ επιβιώνει.
+   * ─────────────────────────────────────────────────────────────────────────
+   * Το `cover` κλιμακώνει ώστε να γεμίσει και ΔΥΟ διαστάσεις, οπότε ό,τι
+   * περισσεύει στη μία κόβεται συμμετρικά. Ο λόγος των δύο αναλογιών δίνει
+   * ακριβώς το ποσοστό που μένει ορατό. Κάτω από 80% το θεωρούμε αρκετά για
+   * να το πούμε — πάνω από αυτό η περικοπή είναι διακοσμητική άκρη.
+   */
+  const naturalRatio = useNaturalRatio(bg.kind, bg.kind === "video" ? bg.video : bg.image);
+  const cropWarning = useMemo(() => {
+    if (!naturalRatio || !aspect || (bg.fit ?? "cover") !== "cover") return null;
+    const visible = Math.min(naturalRatio, aspect) / Math.max(naturalRatio, aspect);
+    if (visible > 0.8) return null;
+    return {
+      visible: Math.round(visible * 100),
+      where: naturalRatio < aspect ? "πάνω και κάτω" : "αριστερά και δεξιά",
+    };
+  }, [naturalRatio, aspect, bg.fit]);
   const setBg = (patch: Partial<CellComposition["background"]>) =>
     setDraft((d) => ({ ...d, background: { ...d.background, ...patch } }));
 
@@ -1066,6 +1135,39 @@ function CellPanel({
             <p className="text-[10.5px] leading-[1.5] text-k-text-4">
               Το κάδρο μετακινεί την περικοπή, όχι την εικόνα — για φωτογραφίες με το θέμα εκτός
               κέντρου.
+            </p>
+            {/*
+              Πάνω από τη σκίαση, κάτω από το κάδρο.
+              ──────────────────────────────────────────────────────────────
+              Ανήκει δίπλα στο κάδρο και στο ζουμ, γιατί και τα τρία απαντούν
+              στο ίδιο ερώτημα — τι φαίνεται από το υλικό. Το «Ολόκληρο»
+              κάνει το κάδρο άχρηστο (δεν περισσεύει τίποτα να μετακινηθεί),
+              γι' αυτό η επεξήγηση το λέει αντί να τα κρύψει σιωπηλά.
+            */}
+            <Segmented
+              label="Προσαρμογή"
+              value={bg.fit ?? "cover"}
+              onChange={(fit) => setBg({ fit })}
+              options={[
+                { value: "cover" as const, label: "Γέμισμα" },
+                { value: "contain" as const, label: "Ολόκληρο" },
+              ]}
+            />
+            {cropWarning && (
+              <p className="flex items-start gap-1.5 border border-k-amber/40 bg-k-amber/10 px-2.5 py-2 text-[10.5px] leading-[1.5] text-k-ink">
+                <AlertTriangle className="mt-px size-3 shrink-0 text-k-amber" />
+                <span>
+                  Με «Γέμισμα» φαίνεται το{" "}
+                  <span className="numeral font-medium">{cropWarning.visible}%</span> του καρέ —
+                  κόβεται {cropWarning.where}. Αν το υλικό έχει κείμενο ή λογότυπο μέσα του, θα
+                  χαθεί. Διαλέξτε «Ολόκληρο», ή δώστε στο banner ύψος που να ταιριάζει στο υλικό.
+                </span>
+              </p>
+            )}
+            <p className="text-[10.5px] leading-[1.5] text-k-text-4">
+              «Γέμισμα» πιάνει όλο το κελί και κόβει ό,τι περισσεύει — για φωτογραφίες.
+              «Ολόκληρο» δείχνει ακέραιο το καρέ, με κενό γύρω· η σωστή επιλογή για βίντεο ή
+              λογότυπο, όπου το κόψιμο χάνει το θέμα. Με «Ολόκληρο» το κάδρο δεν κάνει τίποτα.
             </p>
             <Segmented
               label="Σκίαση"

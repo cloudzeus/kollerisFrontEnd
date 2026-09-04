@@ -62,8 +62,20 @@ export function PreviewModal({
     if (!stage || !frame) return;
 
     const measure = () => {
-      const available = stage.clientWidth;
-      if (available === 0) return;
+      /*
+       * Το ΕΣΩΤΕΡΙΚΟ πλάτος, όχι το clientWidth.
+       * ────────────────────────────────────────────────────────────────────
+       * Το clientWidth περιλαμβάνει το padding του σταδίου (p-4 = 16px ανά
+       * πλευρά). Η κλίμακα έβγαινε λοιπόν για 32px παραπάνω απ' όσα υπάρχουν,
+       * το πλαίσιο κατέβαινε 32px φαρδύτερο από τη θέση του, και το στάδιο
+       * είναι overflow-hidden — οπότε το δεξί κελί κοβόταν. Με mx-auto δεν
+       * φαινόταν καν σαν υπερχείλιση: ό,τι είναι φαρδύτερο δεν κεντράρεται,
+       * κολλάει αριστερά και χάνεται μόνο η δεξιά άκρη.
+       */
+      const box = getComputedStyle(stage);
+      const available =
+        stage.clientWidth - parseFloat(box.paddingLeft) - parseFloat(box.paddingRight);
+      if (available <= 0) return;
       const next = Math.min(1, available / width);
       setScale(next);
       setHeight(frame.offsetHeight * next);

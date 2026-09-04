@@ -81,7 +81,11 @@ export function CompositionRenderer({
       className={cn("relative isolate size-full overflow-hidden", className)}
       style={{ containerType: "size", backgroundColor: COLOR_VALUE[bg.color] }}
     >
-      {/* ── Φόντο: πάντα σε πλήρη κάλυψη ── */}
+      {/* ── Φόντο ──
+          «Πάντα σε πλήρη κάλυψη» ήταν λάθος για το βίντεο. Το object-cover
+          γεμίζει το κελί κόβοντας ό,τι περισσεύει, και το κελί σπάνια έχει
+          την αναλογία του υλικού — ένα βίντεο προϊόντος έχανε το θέμα του
+          μόλις άλλαζε το ύψος του banner. Το «Ολόκληρο» το δείχνει ακέραιο. */}
       {bg.kind === "video" && bg.video ? (
         <video
           src={bg.video}
@@ -90,7 +94,10 @@ export function CompositionRenderer({
           muted
           loop
           playsInline
-          className="absolute inset-0 -z-10 size-full object-cover"
+          className={cn(
+            "absolute inset-0 -z-10 size-full",
+            bg.fit === "contain" ? "object-contain" : "object-cover",
+          )}
           style={{
             objectPosition: `${bg.focus.x}% ${bg.focus.y}%`,
             transform: bg.scale !== 100 ? `scale(${bg.scale / 100})` : undefined,
@@ -103,7 +110,11 @@ export function CompositionRenderer({
           fill
           sizes="(min-width:1024px) 60vw, 100vw"
           unoptimized
-          className={cn("-z-10 object-cover", bg.kenBurns && "banner-ken-burns")}
+          className={cn(
+            "-z-10",
+            bg.fit === "contain" ? "object-contain" : "object-cover",
+            bg.kenBurns && "banner-ken-burns",
+          )}
           style={{
             objectPosition: `${bg.focus.x}% ${bg.focus.y}%`,
             transform: bg.scale !== 100 ? `scale(${bg.scale / 100})` : undefined,

@@ -266,6 +266,17 @@ export type Background = {
   overlay: "none" | "light" | "medium" | "strong";
   /** Slow drift on the background while the banner is on screen. */
   kenBurns: boolean;
+  /**
+   * Whether the background fills the cell or fits inside it.
+   *
+   * `cover` fills and crops — right for a photograph, where the edges are
+   * scenery. `contain` shows the whole frame and letterboxes the rest, which
+   * is the only correct answer for a video that was composed: a product shot
+   * or an animated logo loses its subject the moment the cell's ratio differs
+   * from the footage, and it always differs. Absent means `cover`, so every
+   * banner already saved keeps exactly the look it has.
+   */
+  fit?: "cover" | "contain";
 };
 
 export type CellComposition = {
@@ -412,6 +423,16 @@ export type BannerContent = {
    * everything else.
    */
   maxHeight?: BannerHeight | null;
+  /**
+   * Floor on the rendered height — the other half of a real height control.
+   *
+   * A ceiling alone can only ever shorten. A grid template with no aspect
+   * ratio has no height of its own, so its banner sat on the stylesheet's
+   * floor and the ceiling did nothing at all; there was no number anywhere
+   * that made a banner taller. Setting this equal to `maxHeight` pins an
+   * exact height, which is what "make it 400 tall" means.
+   */
+  minHeight?: BannerHeight | null;
   /** Arrangement above 88rem. Defaults to keeping the template's grid. */
   wideLayout?: WideLayout;
 };
@@ -534,6 +555,7 @@ export function offerStatus(
 export const DEFAULT_ANIM: Anim = { preset: "none", delay: 0, duration: 700 };
 
 export const DEFAULT_BACKGROUND: Background = {
+  fit: "cover",
   kind: "none",
   color: "white",
   image: "",
@@ -898,6 +920,7 @@ export function cellVars(cell: GridCell): React.CSSProperties {
 export function gridVars(
   template: Pick<GridTemplateView, "columns" | "rows" | "aspect" | "cells">,
   maxHeight?: BannerHeight | null,
+  minHeight?: BannerHeight | null,
 ) {
   return {
     "--bn-cols": template.columns,
@@ -918,6 +941,8 @@ export function gridVars(
      * the banner's own ceiling on that.
      */
     "--bn-max-h": maxHeightCss(maxHeight),
+    /* Unset means "no request", and the stylesheet's own floor applies. */
+    "--bn-min-h": minHeight?.value ? maxHeightCss(minHeight) : undefined,
   } as React.CSSProperties;
 }
 

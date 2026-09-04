@@ -95,6 +95,16 @@ export function BannerEditor({
   const [content, setContent] = useState<BannerContent>(banner.draft ?? { cells: {} });
   const [saved, setSaved] = useState<BannerContent>(banner.draft ?? { cells: {} });
   const [editing, setEditing] = useState<GridCell | null>(null);
+  /*
+   * Η ΜΕΤΡΗΜΕΝΗ αναλογία του κελιού που ανοίγει.
+   * ───────────────────────────────────────────────────────────────────────
+   * Το `cellAspect` την υπολογίζει από την αναλογία του πλέγματος, και όταν
+   * το πλέγμα δεν έχει αναλογία μαντεύει 16/7 — που δεν είναι ούτε κατά
+   * προσέγγιση σωστό, αφού τότε το ύψος έρχεται από το δάπεδο ή από σταθερή
+   * τιμή. Το κουμπί που πατήθηκε ΕΙΝΑΙ το κελί, στη σωστή του γεωμετρία·
+   * μετριέται τη στιγμή του κλικ και δεν χρειάζεται να μαντέψει κανείς.
+   */
+  const [editingAspect, setEditingAspect] = useState<number | null>(null);
   const [preview, setPreview] = useState(false);
   const [resolved, setResolved] = useState<Record<string, ResolvedCell>>({});
   const [busy, start] = useTransition();
@@ -271,8 +281,11 @@ export function BannerEditor({
 
             {/* Στόχοι κλικ, στην ίδια γεωμετρία με τον renderer */}
             <div className="banner-shell absolute inset-0">
-              <div className="banner-grid" style={gridVars(template, content.maxHeight)}
-        {...bandAttrs}>
+              <div
+                className="banner-grid"
+                style={gridVars(template, content.maxHeight, content.minHeight)}
+                {...bandAttrs}
+              >
                 {template.cells.map((cell, index) => {
                   const has = Boolean(content.cells[cell.id]);
                   return (
@@ -280,7 +293,11 @@ export function BannerEditor({
                       key={cell.id}
                       type="button"
                       style={{ ...cellVars(cell), order: cell.mobile?.order ?? index }}
-                      onClick={() => setEditing(cell)}
+                      onClick={(e) => {
+                        const r = e.currentTarget.getBoundingClientRect();
+                        setEditingAspect(r.height > 0 ? r.width / r.height : null);
+                        setEditing(cell);
+                      }}
                       className={cn(
                         "group flex items-center justify-center border-2 border-transparent transition-colors hover:border-k-ink/70",
                         !has && "bg-white/40",
@@ -354,10 +371,41 @@ export function BannerEditor({
                 one zone and 40vh in another. It sits in the draft, so it is
                 previewed and published like every other edit.
               */}
+              {/*
+                Ύψος — ένα νούμερο που κάνει αυτό που λέει.
+                ────────────────────────────────────────────────────────────
+                Εδώ υπήρχε μόνο «Μέγιστο ύψος», δηλαδή ταβάνι: μόνο κονταίνει.
+                Το πραγματικό ύψος ερχόταν από την ΑΝΑΛΟΓΙΑ του πλέγματος —
+                άλλο αντικείμενο, άλλη σελίδα — και αν το πλέγμα δεν είχε
+                αναλογία, δεν υπήρχε πουθενά νούμερο που να ψηλώνει το banner.
+                Γράφοντας 600 δεν άλλαζε τίποτα και δικαίως έμοιαζε χαλασμένο.
+
+                «Σταθερό» βάζει δάπεδο και ταβάνι στην ίδια τιμή, οπότε το
+                banner έχει ακριβώς αυτό το ύψος ό,τι κι αν λέει το πλέγμα.
+              */}
               <div className="space-y-1.5">
-                <label htmlFor="bn-maxh" className="text-[11.5px] text-k-text-3">
-                  Μέγιστο ύψος
-                </label>
+                <label className="text-[11.5px] text-k-text-3">Ύψος</label>
+                <Select
+                  value={content.minHeight?.value ? "fixed" : "auto"}
+                  onValueChange={(mode) =>
+                    setContent((c) => {
+                      if (mode === "auto") return { ...c, minHeight: null };
+                      // Ξεκινά από ό,τι ήδη βλέπει ο χρήστης, όχι από μια
+                      // αυθαίρετη τιμή που θα του τίναζε τη διάταξη.
+                      const seed = c.maxHeight ?? { value: 320, unit: "px" as const };
+                      return { ...c, minHeight: seed, maxHeight: seed };
+                    })
+                  }
+                >
+                  <SelectTrigger id="bn-hmode">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="auto">Αυτόματο</SelectItem>
+                    <SelectItem value="fixed">Σταθερό</SelectItem>
+                  </SelectContent>
+                </Select>
+
                 <div className="flex gap-2">
                   <Input
                     id="bn-maxh"
@@ -365,25 +413,35 @@ export function BannerEditor({
                     min={content.maxHeight?.unit === "vh" ? 10 : 120}
                     max={content.maxHeight?.unit === "vh" ? 100 : 2000}
                     step={content.maxHeight?.unit === "vh" ? 5 : 10}
-                    placeholder="Χωρίς όριο"
+                    placeholder={content.minHeight?.value ? "Ύψος" : "Χωρίς όριο"}
+                    aria-label={content.minHeight?.value ? "Ύψος" : "Μέγιστο ύψος"}
                     value={content.maxHeight?.value ?? ""}
                     onChange={(e) =>
-                      setContent((c) => ({
-                        ...c,
-                        maxHeight: Number(e.target.value)
-                          ? { value: Number(e.target.value), unit: c.maxHeight?.unit ?? "px" }
-                          : null,
-                      }))
+                      setContent((c) => {
+                        const unit = c.maxHeight?.unit ?? "px";
+                        const next = Number(e.target.value)
+                          ? { value: Number(e.target.value), unit }
+                          : null;
+                        // Σε «Σταθερό» οι δύο τιμές κινούνται μαζί — αλλιώς το
+                        // δάπεδο θα κρατούσε το παλιό ύψος και το νούμερο θα
+                        // φαινόταν πάλι να αγνοείται.
+                        return c.minHeight?.value
+                          ? { ...c, maxHeight: next, minHeight: next }
+                          : { ...c, maxHeight: next };
+                      })
                     }
                   />
                   <Select
                     value={content.maxHeight?.unit ?? "px"}
-                    onValueChange={(unit) =>
-                      setContent((c) =>
-                        c.maxHeight
-                          ? { ...c, maxHeight: { ...c.maxHeight, unit: unit as "px" | "vh" } }
-                          : c,
-                      )
+                    onValueChange={(u) =>
+                      setContent((c) => {
+                        const unit = u as "px" | "vh";
+                        if (!c.maxHeight) return c;
+                        const next = { ...c.maxHeight, unit };
+                        return c.minHeight?.value
+                          ? { ...c, maxHeight: next, minHeight: next }
+                          : { ...c, maxHeight: next };
+                      })
                     }
                   >
                     <SelectTrigger className="w-[92px] shrink-0">
@@ -395,9 +453,23 @@ export function BannerEditor({
                     </SelectContent>
                   </Select>
                 </div>
+
                 <p className="text-[11px] leading-[1.5] text-k-text-4">
-                  Η αναλογία του πλέγματος βγάζει το ύψος από το πλάτος, οπότε σε πλατιά
-                  οθόνη το banner μεγαλώνει χωρίς όριο. Κενό = χωρίς όριο.
+                  {content.minHeight?.value ? (
+                    <>Ακριβώς αυτό το ύψος, σε κάθε οθόνη. Το πλέγμα δεν το αλλάζει.</>
+                  ) : banner.template.aspect ? (
+                    <>
+                      Το ύψος το βγάζει η αναλογία{" "}
+                      <span className="numeral">{banner.template.aspect}</span> του πλέγματος από
+                      το πλάτος — εδώ μπαίνει μόνο ταβάνι. Κενό = χωρίς όριο.
+                    </>
+                  ) : (
+                    <>
+                      Το πλέγμα «{banner.template.name}» δεν έχει αναλογία, οπότε το banner μένει
+                      στο ελάχιστο ύψος του και το ταβάνι δεν κάνει τίποτα. Για ψηλότερο,
+                      διαλέξτε «Σταθερό».
+                    </>
+                  )}
                 </p>
               </div>
 
@@ -507,7 +579,7 @@ export function BannerEditor({
         resolved={editing ? resolved[editing.id] : undefined}
         // The cell's real proportions, so the editing canvas is not a lie about
         // the shape the composition has to fit.
-        aspect={editing ? cellAspect(template, editing) : 16 / 9}
+        aspect={editingAspect ?? (editing ? cellAspect(template, editing) : 16 / 9)}
         onClose={() => setEditing(null)}
         onSave={(composition: CellComposition) => {
           if (!editing) return;

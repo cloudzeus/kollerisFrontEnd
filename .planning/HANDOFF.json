@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-09-04T04:41:01.748Z",
+  "timestamp": "2026-09-04T05:03:59.739Z",
   "source": "auto-postool",
   "partial": false,
   "phase": null,
@@ -22,33 +22,37 @@
     },
     {
       "status": "M",
-      "path": "src/components/admin/newsletter/CampaignWizard.tsx"
+      "path": "src/app/globals.css"
     },
     {
       "status": "M",
-      "path": "src/lib/newsletter/ai-copy.ts"
+      "path": "src/components/admin/banners/BannerEditor.tsx"
     },
     {
       "status": "M",
-      "path": "src/lib/newsletter/campaign-actions.ts"
+      "path": "src/components/admin/banners/CellEditor.tsx"
     },
     {
       "status": "M",
-      "path": "src/lib/newsletter/campaign.ts"
+      "path": "src/components/admin/banners/GridBuilder.tsx"
     },
     {
       "status": "M",
-      "path": "src/lib/newsletter/copy.ts"
+      "path": "src/components/admin/banners/PreviewModal.tsx"
     },
     {
-      "status": "??",
-      "path": "src/components/admin/newsletter/NewsEditor.tsx"
+      "status": "M",
+      "path": "src/components/banners/BannerRenderer.tsx"
     },
     {
-      "status": "??",
-      "path": "src/lib/newsletter/__tests__/ai-copy.test.ts"
+      "status": "M",
+      "path": "src/components/banners/CompositionRenderer.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/lib/banners/contract.ts"
     }
   ],
   "next_action": null,
-  "context_notes": "Recent commits:\n934937d feat(newsletter): παραγωγή κειμένων προσφορών με DeepSeek, ανά γωνία marketing\n351bbb7 feat(newsletter): γραφικά και εξαγωγές στη σελίδα MailGun\nb3ffff3 feat(newsletter): σελίδα MailGun με αναλυτικά στατιστικά αποστολών\n93b276a fix(newsletter): το build έσπαγε — client component τραβούσε server-only κώδικα\n486d471 fix(newsletter): τα &nbsp; τυπώνονταν κυριολεκτικά — επτά φορές σε κάθε email"
+  "context_notes": "Recent commits:\n3d9408e feat(newsletter): το «Νέα» διαλέγει από υπάρχον περιεχόμενο, και δύο διορθώσεις στο AI\n934937d feat(newsletter): παραγωγή κειμένων προσφορών με DeepSeek, ανά γωνία marketing\n351bbb7 feat(newsletter): γραφικά και εξαγωγές στη σελίδα MailGun\nb3ffff3 feat(newsletter): σελίδα MailGun με αναλυτικά στατιστικά αποστολών\n93b276a fix(newsletter): το build έσπαγε — client component τραβούσε server-only κώδικα"
 }

@@ -786,6 +786,35 @@ export function GridBuilder({
               </div>
             )}
           </div>
+
+          {/*
+            Άδειος καμβάς.
+            ────────────────────────────────────────────────────────────────
+            Η οδηγία στεκόταν από κάτω, σε 11.5px γκρι, μετά το πλαίσιο. Το
+            πλαίσιο όμως είναι το μόνο που κοιτάει κανείς, και άδειο δεν λέει
+            τίποτα: μοιάζει με σκακιέρα που περιμένει ρύθμιση, όχι με χαρτί
+            που περιμένει μολύβι. Το κείμενο μπαίνει ΜΕΣΑ, και δίπλα του η
+            γρήγορη έξοδος — γιατί οι μισές διατάξεις που θα ζητηθούν ποτέ
+            υπάρχουν ήδη έτοιμες.
+          */}
+          {cells.length === 0 && !painting && (
+            <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center gap-3 px-6 text-center">
+              <p className="max-w-[26rem] text-[13px] leading-[1.6] text-k-text-2">
+                <strong className="font-semibold text-k-ink">Σύρετε</strong> πάνω στα τετράγωνα για να
+                ζωγραφίσετε το πρώτο κελί — όπως τραβάτε ένα ορθογώνιο.
+              </p>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setGallery(true)}
+                className="pointer-events-auto bg-white"
+              >
+                <Sparkles className="size-3.5" />
+                ή διαλέξτε έτοιμο σχέδιο
+              </Button>
+            </div>
+          )}
         </div>
 
         <p className="text-[11.5px] leading-[1.6] text-k-text-3">
@@ -797,6 +826,18 @@ export function GridBuilder({
 
       {/* ── Ρυθμίσεις ── */}
       <div className="space-y-4">
+        {/*
+          Στην κορυφή, όχι στον πάτο.
+          ──────────────────────────────────────────────────────────────────
+          Είναι η συντομότερη σωστή διαδρομή — «τρία ίσα» είναι ένα κλικ εδώ
+          — και στεκόταν τελευταίο κουμπί της στήλης, κάτω από τη σειρά
+          κινητού. Ό,τι λύνει το πρόβλημα με ένα κλικ προσφέρεται πρώτο.
+        */}
+        <Button variant="outline" onClick={() => setGallery(true)} className="w-full">
+          <Sparkles className="size-3.5" />
+          Έτοιμα σχέδια
+        </Button>
+
         <div className="space-y-3 border border-k-line bg-white p-4">
           <div className="space-y-1.5">
             <Label htmlFor="tpl-name" className="text-[11.5px]">
@@ -810,6 +851,21 @@ export function GridBuilder({
               placeholder="π.χ. Hero 3-split"
             />
           </div>
+
+          {/*
+            Ο χάρακας — ΟΧΙ η διάταξη.
+            ────────────────────────────────────────────────────────────────
+            Τα δύο νούμερα δεν λένε πόσα κελιά θα υπάρχουν· λένε πόσο ψιλό
+            είναι το αόρατο πλέγμα πάνω στο οποίο κουμπώνουν. Γράφοντας
+            «Στήλες: 3» περιμένει κανείς εύλογα τρία κελιά και παίρνει ένα,
+            επειδή τα κελιά ζωγραφίζονται. Η επεξήγηση υπάρχει ακριβώς γι'
+            αυτή την παρανόηση, και δείχνει τον σωστό δρόμο: για τρία ίσα
+            κελιά, ένα κλικ στα έτοιμα σχέδια.
+          */}
+          <p className="text-[11px] leading-[1.5] text-k-text-4">
+            <span className="font-medium text-k-text-2">Ανάλυση πλέγματος:</span> ο χάρακας στον οποίο
+            κουμπώνουν τα κελιά — όχι πόσα κελιά θα υπάρχουν. Τα κελιά τα ζωγραφίζετε στον καμβά.
+          </p>
 
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
@@ -1000,11 +1056,6 @@ export function GridBuilder({
             </div>
           </div>
         )}
-
-        <Button variant="outline" onClick={() => setGallery(true)} className="w-full">
-          <Sparkles className="size-3.5" />
-          Έτοιμα σχέδια
-        </Button>
       </div>
 
       <Dialog open={gallery} onOpenChange={setGallery}>

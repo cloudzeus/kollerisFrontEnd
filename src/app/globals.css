@@ -724,7 +724,18 @@
        six-row template asked to cap at 200px would sit at 312px and look like
        the setting was ignored — an explicit ceiling has to win over a default
        floor. */
-    min-height: min(calc(var(--bn-rows) * 3.25rem), var(--bn-max-h, 9999px));
+    /*
+     * 13rem is the floor, whatever the row count.
+     * ─────────────────────────────────────────────────────────────────────
+     * `rows * 3.25rem` alone assumes a tall template. A ONE-row grid with no
+     * aspect ratio got 52px — a hairline strip, not a banner — because the
+     * cells hold absolutely-positioned layers and contribute no height of
+     * their own. 13rem is already this stylesheet's answer to "a cell with no
+     * intrinsic height" (the single-column rule above), so the grid branch
+     * uses the same number instead of collapsing. A six-row template still
+     * resolves to 312px, unchanged; only the short ones move.
+     */
+    min-height: min(max(var(--bn-min-h, 13rem), calc(var(--bn-rows) * 3.25rem)), var(--bn-max-h, 9999px));
   }
   .banner-grid > * {
     grid-column: var(--bn-col);
@@ -757,7 +768,7 @@
        which turns these off. Every band says everything it can change. */
     aspect-ratio: var(--bn-aspect);
     max-height: var(--bn-max-h, 9999px);
-    min-height: min(calc(var(--bn-rows) * 3.25rem), var(--bn-max-h, 9999px));
+    min-height: min(max(var(--bn-min-h, 13rem), calc(var(--bn-rows) * 3.25rem)), var(--bn-max-h, 9999px));
   }
   .banner-grid[data-b-tablet="grid"] > * {
     grid-column: var(--bn-col);
@@ -771,7 +782,7 @@
        which turns these off. Every band says everything it can change. */
     aspect-ratio: var(--bn-aspect);
     max-height: var(--bn-max-h, 9999px);
-    min-height: min(calc(var(--bn-rows) * 3.25rem), var(--bn-max-h, 9999px));
+    min-height: min(max(var(--bn-min-h, 13rem), calc(var(--bn-rows) * 3.25rem)), var(--bn-max-h, 9999px));
   }
   .banner-grid[data-b-tablet="row"] > * {
     grid-column: span var(--bn-w);
@@ -788,7 +799,7 @@
        which turns these off. Every band says everything it can change. */
     aspect-ratio: var(--bn-aspect);
     max-height: var(--bn-max-h, 9999px);
-    min-height: min(calc(var(--bn-rows) * 3.25rem), var(--bn-max-h, 9999px));
+    min-height: min(max(var(--bn-min-h, 13rem), calc(var(--bn-rows) * 3.25rem)), var(--bn-max-h, 9999px));
   }
   .banner-grid[data-b-desktop="grid"] > * {
     grid-column: var(--bn-col);
@@ -802,7 +813,7 @@
        which turns these off. Every band says everything it can change. */
     aspect-ratio: var(--bn-aspect);
     max-height: var(--bn-max-h, 9999px);
-    min-height: min(calc(var(--bn-rows) * 3.25rem), var(--bn-max-h, 9999px));
+    min-height: min(max(var(--bn-min-h, 13rem), calc(var(--bn-rows) * 3.25rem)), var(--bn-max-h, 9999px));
   }
   .banner-grid[data-b-desktop="row"] > * {
     grid-column: span var(--bn-w);
@@ -819,7 +830,7 @@
        which turns these off. Every band says everything it can change. */
     aspect-ratio: var(--bn-aspect);
     max-height: var(--bn-max-h, 9999px);
-    min-height: min(calc(var(--bn-rows) * 3.25rem), var(--bn-max-h, 9999px));
+    min-height: min(max(var(--bn-min-h, 13rem), calc(var(--bn-rows) * 3.25rem)), var(--bn-max-h, 9999px));
   }
   .banner-grid[data-b-wide="grid"] > * {
     grid-column: var(--bn-col);
@@ -833,7 +844,7 @@
        which turns these off. Every band says everything it can change. */
     aspect-ratio: var(--bn-aspect);
     max-height: var(--bn-max-h, 9999px);
-    min-height: min(calc(var(--bn-rows) * 3.25rem), var(--bn-max-h, 9999px));
+    min-height: min(max(var(--bn-min-h, 13rem), calc(var(--bn-rows) * 3.25rem)), var(--bn-max-h, 9999px));
   }
   .banner-grid[data-b-wide="row"] > * {
     grid-column: span var(--bn-w);
@@ -850,7 +861,7 @@
        which turns these off. Every band says everything it can change. */
     aspect-ratio: var(--bn-aspect);
     max-height: var(--bn-max-h, 9999px);
-    min-height: min(calc(var(--bn-rows) * 3.25rem), var(--bn-max-h, 9999px));
+    min-height: min(max(var(--bn-min-h, 13rem), calc(var(--bn-rows) * 3.25rem)), var(--bn-max-h, 9999px));
   }
   .banner-grid[data-b-ultra="grid"] > * {
     grid-column: var(--bn-col);
@@ -864,7 +875,7 @@
        which turns these off. Every band says everything it can change. */
     aspect-ratio: var(--bn-aspect);
     max-height: var(--bn-max-h, 9999px);
-    min-height: min(calc(var(--bn-rows) * 3.25rem), var(--bn-max-h, 9999px));
+    min-height: min(max(var(--bn-min-h, 13rem), calc(var(--bn-rows) * 3.25rem)), var(--bn-max-h, 9999px));
   }
   .banner-grid[data-b-ultra="row"] > * {
     grid-column: span var(--bn-w);
