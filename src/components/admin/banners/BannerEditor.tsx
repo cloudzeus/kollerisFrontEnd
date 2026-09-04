@@ -3,7 +3,18 @@
 import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { AlertTriangle, Eye, GripHorizontal, Loader2, Plus, Undo2, Upload, X } from "lucide-react";
+import {
+  AlertTriangle,
+  ArrowLeftRight,
+  Eye,
+  GripHorizontal,
+  GripVertical,
+  Loader2,
+  Plus,
+  Undo2,
+  Upload,
+  X,
+} from "lucide-react";
 import { toast } from "sonner";
 import { measureMedia, roundAspect } from "@/lib/media/measure";
 import {
@@ -133,6 +144,17 @@ export function BannerEditor({
   const router = useRouter();
   const [name, setName] = useState(banner.name);
   const [content, setContent] = useState<BannerContent>(banner.draft ?? { cells: {} });
+
+  /*
+   * Το widget που σέρνεται, και το κελί από κάτω του.
+   *
+   * Κρατιούνται σε state αντί για μόνο στο `dataTransfer`, γιατί το `dragover`
+   * δεν επιτρέπεται να διαβάσει τα δεδομένα του — μόνο το `drop`. Χωρίς αυτό
+   * δεν υπάρχει τρόπος να φωτιστεί ο στόχος όσο κρατάς πατημένο, δηλαδή
+   * ακριβώς όταν χρειάζεται να ξέρεις πού θα πέσει.
+   */
+  const [dragCell, setDragCell] = useState<string | null>(null);
+  const [overCell, setOverCell] = useState<string | null>(null);
   const [saved, setSaved] = useState<BannerContent>(banner.draft ?? { cells: {} });
   const [editing, setEditing] = useState<GridCell | null>(null);
 
@@ -506,6 +528,38 @@ export function BannerEditor({
     "data-b-ultra": bands.ultra,
   };
 
+  /**
+   * Ένα widget αλλάζει θέση.
+   *
+   * ── Ανταλλαγή, όχι σκέτη μετακίνηση ────────────────────────────────────
+   *
+   * Αν ο στόχος έχει ήδη περιεχόμενο, τα δύο ΑΝΤΑΛΛΑΣΣΟΝΤΑΙ. Η εναλλακτική
+   * είναι το ένα να πατηθεί πάνω στο άλλο — μια κίνηση που καταστρέφει
+   * δουλειά χωρίς να το πει. Έτσι κάθε σύρσιμο αναιρείται σέρνοντας ανάποδα.
+   *
+   * ── Το πλέγμα δεν αγγίζεται ────────────────────────────────────────────
+   *
+   * Μετακινείται η ΣΥΝΘΕΣΗ, όχι το κελί: η γεωμετρία ανήκει στο πλέγμα, που
+   * το μοιράζονται πολλά banner. Ένα σύρσιμο εδώ που άλλαζε συντεταγμένες θα
+   * αναδιάτασσε σιωπηλά κάθε άλλο banner φτιαγμένο πάνω στο ίδιο πλέγμα.
+   *
+   * Γι' αυτό ένα widget πηγαίνει μόνο σε θέση που ΥΠΑΡΧΕΙ. Για νέα θέση, το
+   * πλέγμα.
+   */
+  function swapCells(from: string, to: string) {
+    if (from === to) return;
+    setContent((c) => {
+      const cells = { ...c.cells };
+      const source = cells[from];
+      const target = cells[to];
+      if (target) cells[from] = target;
+      else delete cells[from];
+      if (source) cells[to] = source;
+      else delete cells[to];
+      return { ...c, cells };
+    });
+  }
+
   return (
     <PageShell
       title={banner.name}
@@ -558,9 +612,41 @@ export function BannerEditor({
                       type="button"
                       style={{ ...cellVars(cell), order: cell.mobile?.order ?? index }}
                       onClick={() => setEditing(cell)}
+                      /* Μόνο τα γεμάτα κελιά σέρνονται: ένα άδειο δεν έχει τι
+                         να μεταφέρει, και θα ήταν λαβή που υπόσχεται κίνηση
+                         χωρίς να συμβαίνει τίποτα. */
+                      draggable={has}
+                      onDragStart={(e) => {
+                        setDragCell(cell.id);
+                        e.dataTransfer.effectAllowed = "move";
+                        /* Το Firefox δεν ξεκινά σύρσιμο χωρίς φορτίο. */
+                        e.dataTransfer.setData("text/plain", cell.id);
+                      }}
+                      onDragEnd={() => {
+                        setDragCell(null);
+                        setOverCell(null);
+                      }}
+                      onDragOver={(e) => {
+                        if (!dragCell || dragCell === cell.id) return;
+                        /* Χωρίς αυτό ο browser απορρίπτει το drop σιωπηλά. */
+                        e.preventDefault();
+                        e.dataTransfer.dropEffect = "move";
+                        setOverCell(cell.id);
+                      }}
+                      onDragLeave={() => setOverCell((o) => (o === cell.id ? null : o))}
+                      onDrop={(e) => {
+                        e.preventDefault();
+                        const from = dragCell ?? e.dataTransfer.getData("text/plain");
+                        setDragCell(null);
+                        setOverCell(null);
+                        if (from) swapCells(from, cell.id);
+                      }}
                       className={cn(
                         "group flex items-center justify-center border-2 border-transparent transition-colors hover:border-k-ink/70",
                         !has && "bg-white/40",
+                        has && "cursor-grab active:cursor-grabbing",
+                        dragCell === cell.id && "opacity-40",
+                        overCell === cell.id && "border-k-red bg-k-red/10",
                         cell.mobile?.hidden && "bn-mobile-hidden",
                       )}
                       aria-label={`Επεξεργασία: ${cell.name}`}
@@ -569,10 +655,20 @@ export function BannerEditor({
                         className={cn(
                           "flex items-center gap-1.5 bg-k-ink px-2.5 py-1.5 text-[11.5px] font-medium text-white transition-opacity",
                           has && "opacity-0 group-hover:opacity-100",
+                          overCell === cell.id && "bg-k-red opacity-100",
                         )}
                       >
-                        <Plus className="size-3" />
-                        {has ? cell.name : "Προσθήκη widget"}
+                        {overCell === cell.id ? (
+                          <>
+                            <ArrowLeftRight className="size-3" />
+                            Εναλλαγή
+                          </>
+                        ) : (
+                          <>
+                            {has ? <GripVertical className="size-3" /> : <Plus className="size-3" />}
+                            {has ? cell.name : "Προσθήκη widget"}
+                          </>
+                        )}
                       </span>
                     </button>
                   );
@@ -614,8 +710,8 @@ export function BannerEditor({
 
           <p className="text-[11.5px] leading-[1.6] text-k-text-3">
             Ο καμβάς δείχνει το πραγματικό αποτέλεσμα. Κάντε κλικ σε ένα κελί για να ορίσετε τι
-            δείχνει, ή σύρετε την κάτω ακμή για το ύψος. Οι αλλαγές μένουν στο πρόχειρο μέχρι τη
-            δημοσίευση.
+            δείχνει, σύρετε ένα γεμάτο κελί πάνω σε άλλο για να αλλάξουν θέση, ή σύρετε την κάτω
+            ακμή για το ύψος. Οι αλλαγές μένουν στο πρόχειρο μέχρι τη δημοσίευση.
           </p>
         </div>
 
