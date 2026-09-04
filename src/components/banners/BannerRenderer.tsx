@@ -61,7 +61,20 @@ export function BannerRenderer({
   };
 
   return (
-    <div className={cn("banner-shell", className)}>
+    /*
+     * Δύο επίπεδα, όχι ένα.
+     * ───────────────────────────────────────────────────────────────────────
+     * Το εξωτερικό τρέχει από άκρη σε άκρη και κρατά το μαύρο φόντο· το
+     * εσωτερικό φράζεται στο ίδιο πλάτος με το header και είναι ο container
+     * των container queries.
+     *
+     * Χρειάζονται ΚΑΙ ΤΑ ΔΥΟ: αν το φράξιμο έμπαινε στο ίδιο στοιχείο με το
+     * `container-type`, τα κελιά θα μετρούσαν το πλήρες πλάτος της οθόνης και
+     * θα διάλεγαν διάταξη για χώρο που δεν έχουν. Και αν το μαύρο έμπαινε στο
+     * φραγμένο, θα σταματούσε στην άκρη του banner αντί να γεμίζει τη λωρίδα.
+     */
+    <div className="banner-frame">
+      <div className={cn("banner-shell", className)}>
       <div
         className="banner-grid bg-k-line"
         style={gridVars(template, content.maxHeight, content.minHeight, content.aspectFromMedia)}
@@ -123,6 +136,7 @@ export function BannerRenderer({
           );
         })}
         {motion && <BannerMotion />}
+        </div>
       </div>
     </div>
   );

@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-09-04T09:01:59.952Z",
+  "timestamp": "2026-09-04T10:53:26.470Z",
   "source": "auto-postool",
   "partial": false,
   "phase": null,
@@ -22,61 +22,13 @@
     },
     {
       "status": "M",
-      "path": "src/app/[locale]/proion/[slug]/page.tsx"
+      "path": "src/app/globals.css"
     },
     {
       "status": "M",
-      "path": "src/app/admin/(protected)/layout.tsx"
-    },
-    {
-      "status": "M",
-      "path": "src/components/account/AccountShell.tsx"
-    },
-    {
-      "status": "M",
-      "path": "src/components/admin/AdminNav.tsx"
-    },
-    {
-      "status": "M",
-      "path": "src/lib/catalog/pdp.ts"
-    },
-    {
-      "status": "M",
-      "path": "src/lib/courier/create-for-order.ts"
-    },
-    {
-      "status": "M",
-      "path": "src/messages/el.json"
-    },
-    {
-      "status": "M",
-      "path": "src/messages/en.json"
-    },
-    {
-      "status": "M",
-      "path": "src/messages/it.json"
-    },
-    {
-      "status": "??",
-      "path": "src/app/[locale]/logariasmos/axiologiseis/"
-    },
-    {
-      "status": "??",
-      "path": "src/app/admin/(protected)/reviews/"
-    },
-    {
-      "status": "??",
-      "path": "src/components/account/ReviewForm.tsx"
-    },
-    {
-      "status": "??",
-      "path": "src/components/admin/reviews/"
-    },
-    {
-      "status": "??",
-      "path": "src/components/pdp/ProductReviews.tsx"
+      "path": "src/components/banners/BannerRenderer.tsx"
     }
   ],
   "next_action": null,
-  "context_notes": "Recent commits:\n95e3d61 fix(pdp): η λωρίδα «με μια ματιά» στοιχίζεται — και τα δεκαδικά γίνονται ελληνικά\n6f0b497 feat(impa): ο κωδικός στη λωρίδα «με μια ματιά», χωρίς λογότυπο\nb6e50ce fix(impa): το λογότυπο στη γραμμή της μάρκας, σε μέγεθος που διαβάζεται\nd935b22 feat(impa): σήμα IMPA στην κάρτα και στη σελίδα, και ο κωδικός στην αναζήτηση\n383af57 feat(account): αγαπημένα προϊόντα, με καρδιά στην κάρτα και στη σελίδα"
+  "context_notes": "Recent commits:\ne7822a7 feat(reviews): αξιολογήσεις από πελάτες που παρέλαβαν, με έγκριση διαχειριστή\n95e3d61 fix(pdp): η λωρίδα «με μια ματιά» στοιχίζεται — και τα δεκαδικά γίνονται ελληνικά\n6f0b497 feat(impa): ο κωδικός στη λωρίδα «με μια ματιά», χωρίς λογότυπο\nb6e50ce fix(impa): το λογότυπο στη γραμμή της μάρκας, σε μέγεθος που διαβάζεται\nd935b22 feat(impa): σήμα IMPA στην κάρτα και στη σελίδα, και ο κωδικός στην αναζήτηση"
 }
