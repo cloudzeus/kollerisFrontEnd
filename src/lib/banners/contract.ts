@@ -128,7 +128,12 @@ export type TextStyle = {
    * a 500px one — the composition keeps its proportions at every width.
    */
   size: number;
-  weight: 400 | 500 | 600 | 700;
+  /*
+   * 800 και 900 προστέθηκαν όταν οι τίτλοι του καταστήματος πήγαν στο 900 του
+   * design system: ένα banner που δεν μπορούσε να φτάσει πιο πάνω από 700
+   * έγραφε τους τίτλους του πιο ελαφριά από κάθε άλλη επικεφαλίδα της σελίδας.
+   */
+  weight: 400 | 500 | 600 | 700 | 800 | 900;
   /** Letter spacing, in hundredths of an em. */
   tracking: number;
   /** Line height, in hundredths. 120 = 1.2. */
@@ -811,40 +816,70 @@ export function layerForToken(token: string, onDark: boolean): TextLayer {
  * are ordinary layers — move them, restyle them, delete them.
  */
 export function seedProductLayers(): Layer[] {
+  /*
+   * Η τυπογραφία του Kolleris Design System, ίδια με τις επικεφαλίδες της
+   * σελίδας: eyebrow σε mono 10px κόκκινο, τίτλος σε display 900 με tracking
+   * −0,03em, σώμα σε sans. Πριν ο τίτλος ήταν 600 με tracking −0,01 — η ίδια
+   * γραμματοσειρά, ορατά ελαφρύτερη από κάθε άλλον τίτλο του καταστήματος.
+   */
   const brand = newLayer("text") as TextLayer;
   brand.name = "Μάρκα";
   brand.text = { el: "{brand}" };
-  brand.frame = { x: 6, y: 54, w: 50, h: 7 };
+  brand.frame = { x: 6, y: 50, w: 50, h: 6 };
   brand.style = {
     ...DEFAULT_TEXT_STYLE,
     font: "mono",
-    size: 15,
-    weight: 500,
-    tracking: 10,
+    size: 13,
+    weight: 600,
+    tracking: 8,
+    leading: 130,
     color: "red",
   };
 
   const title = newLayer("text") as TextLayer;
   title.name = "Τίτλος";
   title.text = { el: "{title}" };
-  title.frame = { x: 6, y: 62, w: 62, h: 20 };
-  title.style = { ...DEFAULT_TEXT_STYLE, color: "white", size: 42 };
+  title.frame = { x: 6, y: 57, w: 62, h: 18 };
+  title.style = {
+    ...DEFAULT_TEXT_STYLE,
+    size: 44,
+    weight: 900,
+    tracking: -3,
+    leading: 102,
+    color: "white",
+  };
+
+  const desc = newLayer("text") as TextLayer;
+  desc.name = "Κείμενο";
+  desc.text = { el: "{desc}" };
+  desc.frame = { x: 6, y: 76, w: 56, h: 9 };
+  desc.style = {
+    ...DEFAULT_TEXT_STYLE,
+    font: "sans",
+    size: 17,
+    weight: 400,
+    tracking: 0,
+    leading: 150,
+    color: "white",
+    uppercase: false,
+  };
 
   const price = newLayer("text") as TextLayer;
   price.name = "Τιμή";
   price.text = { el: "{price}" };
-  price.frame = { x: 6, y: 84, w: 40, h: 10 };
+  price.frame = { x: 6, y: 87, w: 40, h: 8 };
   price.style = {
     ...DEFAULT_TEXT_STYLE,
     font: "mono",
     size: 26,
     weight: 600,
     tracking: 0,
+    leading: 120,
     color: "white",
     uppercase: false,
   };
 
-  return [brand, title, price];
+  return [brand, title, desc, price];
 }
 
 export function seedOfferLayers(): Layer[] {
@@ -1048,6 +1083,16 @@ export function layerStyle(layer: Layer): React.CSSProperties {
     base.fontSize = `max(10px, ${style.size / 10}cqw)`;
     base.fontWeight = style.weight;
     base.letterSpacing = `${style.tracking / 100}em`;
+    /*
+     * Το extended πλάτος των τίτλων.
+     * ───────────────────────────────────────────────────────────────────────
+     * Η display γραμματοσειρά είναι μεταβλητή (Roboto Flex) και το design
+     * system τη ζητά σε wdth 125%. Στο κατάστημα αυτό το δίνουν οι κλάσεις
+     * `t-h1` / `t-display`· εδώ τα στυλ γράφονται inline, οπότε χωρίς αυτή τη
+     * γραμμή ο τίτλος ενός banner αποδιδόταν σε κανονικό πλάτος — ίδια
+     * γραμματοσειρά με τις επικεφαλίδες της σελίδας, ορατά διαφορετικό σχήμα.
+     */
+    if (style.font === "display") base.fontStretch = "125%";
     if (layer.kind === "text") {
       base.lineHeight = layer.style.leading / 100;
       base.textAlign = layer.style.align;

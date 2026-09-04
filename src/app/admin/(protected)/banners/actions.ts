@@ -18,6 +18,7 @@ import {
 } from "@/lib/banners/banners";
 import { resolveCells } from "@/lib/banners/resolve";
 import { productAssets, searchProductsForPicker } from "@/lib/media/picker";
+import { productFill } from "@/lib/banners/product-fill";
 import { generateCopy, translateText } from "@/lib/ai/deepseek";
 import type { BannerContent, GridCell } from "@/lib/banners/contract";
 import type { Locale } from "@/i18n/routing";
@@ -173,4 +174,21 @@ export async function actionTranslate(input: {
 }) {
   await requireEditor();
   return translateText(input);
+}
+
+/**
+ * Ένα προϊόν, έτοιμο για κελί: φωτογραφία (κομμένη αν ζητηθεί), κείμενο
+ * (του καταλόγου, ή γραμμένο από την DeepSeek αν λείπει), και η διεύθυνση της
+ * σελίδας του.
+ *
+ * Μία κλήση αντί για έξι κινήσεις στη διεπαφή. Το πρωτότυπο αρχείο δεν
+ * πειράζεται ποτέ — η αφαίρεση φόντου ανεβάζει νέο δίπλα του.
+ */
+export async function actionProductFill(
+  slug: string,
+  locale: Locale,
+  options?: { cutout?: boolean; write?: boolean },
+) {
+  await requireEditor();
+  return productFill(slug, locale, options ?? {});
 }

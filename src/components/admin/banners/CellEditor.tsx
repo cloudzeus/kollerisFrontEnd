@@ -14,6 +14,7 @@ import {
   Play,
   Repeat,
   Scissors,
+  Wand2,
   Square,
   Trash2,
   Type,
@@ -41,7 +42,11 @@ import {
 } from "@/lib/banners/contract";
 import { CATEGORY_LABEL, PRESETS, applyPreset, type PresetCategory } from "@/lib/banners/presets";
 import { actionListLogos, actionRemoveBackground } from "@/app/admin/(protected)/media/actions";
-import { actionProductAssets, actionResolve } from "@/app/admin/(protected)/banners/actions";
+import {
+  actionProductAssets,
+  actionProductFill,
+  actionResolve,
+} from "@/app/admin/(protected)/banners/actions";
 import { uploadFiles } from "@/lib/media/upload-client";
 import { measureMedia, roundAspect } from "@/lib/media/measure";
 import type { ResolvedCell } from "@/lib/banners/resolve-tokens";
@@ -996,10 +1001,15 @@ function CellPanel({
         />
 
         {draft.binding.source === "product" && (
-          <ProductCombo
-            value={draft.binding.slug}
-            onPick={(p) => setDraft((d) => ({ ...d, binding: { source: "product", slug: p.slug } }))}
-          />
+          <>
+            <ProductCombo
+              value={draft.binding.slug}
+              onPick={(p) =>
+                setDraft((d) => ({ ...d, binding: { source: "product", slug: p.slug } }))
+              }
+            />
+            <FillFromProduct slug={draft.binding.slug} setDraft={setDraft} />
+          </>
         )}
         {draft.binding.source === "products" && (
           <ProductSetPicker
@@ -1242,6 +1252,122 @@ function CutoutButton({
         {bound
           ? "Δημιουργεί νέο αρχείο· το στοιχείο παύει να ακολουθεί το προϊόν του κελιού."
           : "Δημιουργεί νέο αρχείο στη βιβλιοθήκη. Το πρωτότυπο μένει ως έχει."}
+      </p>
+    </div>
+  );
+}
+
+/**
+ * Ένα προϊόν, με μία κίνηση.
+ *
+ * ── Γιατί υπάρχει ─────────────────────────────────────────────────────────
+ *
+ * Το κελί ήξερε ΗΔΗ να δείξει προϊόν: τα layers κρατούν `{title}`, `{brand}`,
+ * `{price}`, το φόντο δέχεται `{image}`, και ο resolver παράγει μόνος του τη
+ * διεύθυνση `/proion/{slug}`. Ό,τι έλειπε ήταν να τα ενώσει κάποιος. Ο
+ * συντάκτης έκανε έξι κινήσεις, και το κελί φαινόταν σωστό ακόμη κι όταν
+ * ξεχνούσε τη μία — ένα banner χωρίς φωτογραφία είναι απλώς μαύρο.
+ *
+ * ── Τι γράφει και τι όχι ──────────────────────────────────────────────────
+ *
+ * Το φόντο γίνεται `{image}`, ΟΧΙ η διεύθυνση της φωτογραφίας: το κελί
+ * ακολουθεί το προϊόν, οπότε μια νέα κύρια φωτογραφία στο PIM φαίνεται χωρίς
+ * να ξανανοίξει κανείς το banner. Το ίδιο για τίτλο, μάρκα και τιμή — ένα
+ * banner με γραμμένη μέσα του την τιμή δείχνει την περσινή για όσο ζει.
+ *
+ * Εξαίρεση η κομμένη φωτογραφία: είναι ΝΕΟ αρχείο, δεν υπάρχει token γι' αυτήν,
+ * και γράφεται ως διεύθυνση. Το λέει και το κουμπί.
+ *
+ * Το κείμενο γράφεται ως κείμενο επειδή αυτό ΕΙΝΑΙ: η περιγραφή του καταλόγου
+ * ή μια πρόταση της DeepSeek, που ο συντάκτης πρέπει να μπορεί να διορθώσει.
+ */
+function FillFromProduct({
+  slug,
+  setDraft,
+}: {
+  slug: string;
+  setDraft: React.Dispatch<React.SetStateAction<CellComposition>>;
+}) {
+  const [busy, setBusy] = useState(false);
+  const [cutout, setCutout] = useState(true);
+
+  if (!slug) return null;
+
+  function run() {
+    setBusy(true);
+    void actionProductFill(slug, "el", { cutout, write: true })
+      .then((fill) => {
+        setBusy(false);
+        if (!fill) {
+          toast.error("Το προϊόν δεν βρέθηκε.");
+          return;
+        }
+
+        const didCut = cutout && fill.image !== fill.originalImage;
+
+        setDraft((d) => {
+          /* Layers μόνο αν το κελί είναι άδειο — η δουλειά κανενός δεν
+             αντικαθίσταται ως παρενέργεια ενός κουμπιού. */
+          const layers = d.layers.length > 0 ? d.layers : seedProductLayers();
+          const withText = layers.map((layer) =>
+            layer.kind === "text" && (layer as TextLayer).text.el === "{desc}" && fill.text
+              ? { ...layer, text: { ...(layer as TextLayer).text, el: fill.text } }
+              : layer,
+          );
+          return {
+            ...d,
+            layers: withText,
+            background: {
+              ...d.background,
+              kind: "image" as const,
+              /* Η κομμένη είναι νέο αρχείο· η ακομμάτιστη ακολουθεί το προϊόν. */
+              image: didCut ? fill.image : "{image}",
+              /*
+               * Κομμένο σημαίνει `contain`.
+               * Ένα cutout είναι εργαλείο πάνω σε διαφάνεια — 96% της εικόνας
+               * είναι κενό. Με `cover` το κενό γεμίζει το κελί και το ίδιο το
+               * εργαλείο κόβεται στις άκρες· με `contain` φαίνεται ολόκληρο και
+               * το χρώμα του κελιού περνά από πίσω, που είναι όλο το νόημα του
+               * να αφαιρεθεί το φόντο.
+               */
+              fit: didCut ? ("contain" as const) : d.background.fit,
+            },
+          };
+        });
+
+        for (const note of fill.notes) toast.warning(note);
+        toast.success(
+          fill.textSource === "ai"
+            ? "Γέμισε από το προϊόν — το κείμενο το έγραψε η DeepSeek."
+            : fill.textSource === "catalogue"
+              ? "Γέμισε από το προϊόν, με την περιγραφή του καταλόγου."
+              : "Γέμισε από το προϊόν.",
+        );
+      })
+      .catch((error: unknown) => {
+        setBusy(false);
+        toast.error(error instanceof Error ? error.message : "Κάτι πήγε στραβά.");
+      });
+  }
+
+  return (
+    <div className="space-y-1.5 border border-k-line bg-k-surface-2 p-2.5">
+      <Button variant="outline" onClick={run} disabled={busy} className="w-full bg-white">
+        <Wand2 className="size-3.5" />
+        {busy ? "Γέμισμα…" : "Γέμισε από το προϊόν"}
+      </Button>
+      <label className="flex items-center gap-2 text-[11px] text-k-text-2">
+        <input
+          type="checkbox"
+          checked={cutout}
+          onChange={(e) => setCutout(e.target.checked)}
+          className="size-3.5 accent-[var(--color-k-red)]"
+        />
+        Αφαίρεση φόντου από τη φωτογραφία
+      </label>
+      <p className="text-[10.5px] leading-[1.5] text-k-text-4">
+        Φωτογραφία, τίτλος, μάρκα, τιμή και σύνδεσμος προς τη σελίδα του προϊόντος. Κείμενο από τον
+        κατάλογο — και αν δεν υπάρχει, το γράφει η DeepSeek.
       </p>
     </div>
   );
