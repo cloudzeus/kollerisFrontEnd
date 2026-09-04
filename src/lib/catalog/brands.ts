@@ -2,6 +2,12 @@ import "server-only";
 import { cache } from "react";
 import { prisma } from "@/lib/prisma";
 import type { Locale } from "@/i18n/routing";
+import { sharedCatalogue } from "@/lib/catalog/shared-cache";
+
+/*
+ * Κρατημένο ανάμεσα σε αιτήματα — βλ. `catalog/queries.ts` για το γιατί.
+ * Καθαρές αναγνώσεις καταλόγου, χωρίς cookies, με τη γλώσσα ως όρισμα.
+ */
 
 /** Brands index + brand detail data, all from the local projection. */
 
@@ -23,7 +29,10 @@ export type BrandListItem = {
   inStockCount: number;
 };
 
-export const getBrandsIndex = cache(
+export const getBrandsIndex = sharedCatalogue(
+  "brands-index",
+  900,
+
   async (locale: Locale): Promise<BrandListItem[]> => {
     const rows = await prisma.brand.findMany({
       where: { productCount: { gt: 0 } },
@@ -98,8 +107,15 @@ export type SpecialtyGroup = {
  * Derived from the catalogue rather than curated: a hand-kept list would drift
  * the moment a brand's range changes, and there is no CMS for it yet.
  */
-export const getBrandSpecialties = cache(
-  async (locale: Locale, groups = 4, brandsPerGroup = 6): Promise<SpecialtyGroup[]> => {
+export const getBrandSpecialties = sharedCatalogue(
+  "brand-specialties",
+  900,
+
+  async (
+    locale: Locale,
+    groups = 4,
+    brandsPerGroup = 6,
+  ): Promise<SpecialtyGroup[]> => {
     const categories = await prisma.category.findMany({
       where: { erpType: "CATEGORY", productCount: { gt: 0 } },
       orderBy: { productCount: "desc" },
@@ -122,16 +138,29 @@ export const getBrandSpecialties = cache(
     // One grouped query for all four categories, not one per category.
     const pairs = await prisma.product.groupBy({
       by: ["mtrcategory", "mtrmark"],
-      where: { isActive: true, mtrcategory: { in: codes }, mtrmark: { not: null } },
+      where: {
+        isActive: true,
+        mtrcategory: { in: codes },
+        mtrmark: { not: null },
+      },
       _count: { _all: true },
     });
 
     const brandRows = await prisma.brand.findMany({
       where: { mtrmark: { not: null } },
-      select: { mtrmark: true, slug: true, nameEl: true, nameEn: true, nameIt: true },
+      select: {
+        mtrmark: true,
+        slug: true,
+        nameEl: true,
+        nameEn: true,
+        nameIt: true,
+      },
     });
     const brandByMtrmark = new Map(
-      brandRows.map((b) => [b.mtrmark!, { slug: b.slug, name: pick(b, locale) }]),
+      brandRows.map((b) => [
+        b.mtrmark!,
+        { slug: b.slug, name: pick(b, locale) },
+      ]),
     );
 
     return categories.map((category) => {
@@ -142,7 +171,9 @@ export const getBrandSpecialties = cache(
           const brand = brandByMtrmark.get(p.mtrmark!);
           return brand ? { ...brand, count: p._count._all } : null;
         })
-        .filter((b): b is { slug: string; name: string; count: number } => b !== null)
+        .filter(
+          (b): b is { slug: string; name: string; count: number } => b !== null,
+        )
         .sort((a, b) => b.count - a.count)
         .slice(0, brandsPerGroup);
 
@@ -158,12 +189,13 @@ export const getBrandSpecialties = cache(
 );
 
 /** Headline figures for the brands hero. */
-export const getBrandsStats = cache(async () => {
-  const [brandCount, inStockBrandCount, productCount, inStockCount] = await Promise.all([
-    prisma.brand.count({ where: { productCount: { gt: 0 } } }),
-    prisma.brand.count({ where: { inStockCount: { gt: 0 } } }),
-    prisma.product.count({ where: { isActive: true } }),
-    prisma.product.count({ where: { isActive: true, inStock: true } }),
-  ]);
+export const getBrandsStats = sharedCatalogue("brands-stats", 300, async () => {
+  const [brandCount, inStockBrandCount, productCount, inStockCount] =
+    await Promise.all([
+      prisma.brand.count({ where: { productCount: { gt: 0 } } }),
+      prisma.brand.count({ where: { inStockCount: { gt: 0 } } }),
+      prisma.product.count({ where: { isActive: true } }),
+      prisma.product.count({ where: { isActive: true, inStock: true } }),
+    ]);
   return { brandCount, inStockBrandCount, productCount, inStockCount };
 });

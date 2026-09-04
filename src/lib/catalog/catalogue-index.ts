@@ -3,7 +3,16 @@ import { cache } from "react";
 import { prisma } from "@/lib/prisma";
 import type { Locale } from "@/i18n/routing";
 import { searchKey } from "@/lib/greek";
-import type { CatalogueNode, CatalogueTier } from "@/lib/catalog/catalogue-index-types";
+import type {
+  CatalogueNode,
+  CatalogueTier,
+} from "@/lib/catalog/catalogue-index-types";
+import { sharedCatalogue } from "@/lib/catalog/shared-cache";
+
+/*
+ * Κρατημένο ανάμεσα σε αιτήματα — βλ. `catalog/queries.ts` για το γιατί.
+ * Καθαρές αναγνώσεις καταλόγου, χωρίς cookies, με τη γλώσσα ως όρισμα.
+ */
 
 /**
  * The catalogue index.
@@ -26,7 +35,11 @@ import type { CatalogueNode, CatalogueTier } from "@/lib/catalog/catalogue-index
 
 type Row = { nameEl: string; nameEn: string; nameIt: string };
 const pick = (row: Row, locale: Locale) =>
-  locale === "en" ? row.nameEn || row.nameEl : locale === "it" ? row.nameIt || row.nameEl : row.nameEl;
+  locale === "en"
+    ? row.nameEn || row.nameEl
+    : locale === "it"
+      ? row.nameIt || row.nameEl
+      : row.nameEl;
 
 const SELECT = {
   id: true,
@@ -78,99 +91,103 @@ function tierFor(count: number, total: number): CatalogueTier {
   return "tail";
 }
 
-export const getCatalogueIndex = cache(async (locale: Locale): Promise<CatalogueIndex> => {
-  const [nodes, totalProducts] = await Promise.all([
-    prisma.category.findMany({
-      where: { productCount: { gt: 0 } },
-      orderBy: [{ productCount: "desc" }],
-      select: SELECT,
-    }),
-    prisma.product.count({ where: { isActive: true } }),
-  ]);
+export const getCatalogueIndex = sharedCatalogue(
+  "catalogue-index",
+  900,
+  async (locale: Locale): Promise<CatalogueIndex> => {
+    const [nodes, totalProducts] = await Promise.all([
+      prisma.category.findMany({
+        where: { productCount: { gt: 0 } },
+        orderBy: [{ productCount: "desc" }],
+        select: SELECT,
+      }),
+      prisma.product.count({ where: { isActive: true } }),
+    ]);
 
-  const byId = new Map(nodes.map((n) => [n.id, n]));
-  const childrenOf = new Map<string, typeof nodes>();
-  for (const node of nodes) {
-    if (!node.parentId) continue;
-    const list = childrenOf.get(node.parentId) ?? [];
-    list.push(node);
-    childrenOf.set(node.parentId, list);
-  }
-
-  /*
-   * Breadcrumb path, walked up through `parentId`.
-   *
-   * This is what makes the finder useful rather than confusing: 327 subgroups
-   * include several called "ΔΙΑΦΟΡΑ" and several called "ΣΕΤ", and a result
-   * list of bare names could not tell you which is which.
-   */
-  const pathOf = (node: (typeof nodes)[number]): string[] => {
-    const out: string[] = [];
-    let current = node.parentId ? byId.get(node.parentId) : undefined;
-    // Bounded: the ERP hierarchy is three levels, and the guard means a cycle
-    // in the data cannot hang a page render.
-    for (let depth = 0; current && depth < 4; depth += 1) {
-      out.unshift(pick(current, locale));
-      current = current.parentId ? byId.get(current.parentId) : undefined;
+    const byId = new Map(nodes.map((n) => [n.id, n]));
+    const childrenOf = new Map<string, typeof nodes>();
+    for (const node of nodes) {
+      if (!node.parentId) continue;
+      const list = childrenOf.get(node.parentId) ?? [];
+      list.push(node);
+      childrenOf.set(node.parentId, list);
     }
-    return out;
-  };
-
-  const toNode = (node: (typeof nodes)[number]): CatalogueNode => {
-    const name = pick(node, locale);
-    const path = pathOf(node);
-    return {
-      slug: node.slug,
-      name,
-      level: node.erpType,
-      count: node.productCount,
-      childCount: node.childCount,
-      path,
-      // Normalised once here so the finder filters with a plain `includes`
-      // instead of re-normalising 490 strings on every keystroke.
-      key: searchKey([name, ...path].join(" ")),
-    };
-  };
-
-  const rootRows = nodes.filter((n) => n.erpType === "CATEGORY");
-
-  const roots: CatalogueRoot[] = rootRows.map((root) => {
-    const groups = childrenOf.get(root.id) ?? [];
-    const subgroups = groups.flatMap((g) => childrenOf.get(g.id) ?? []);
 
     /*
-     * The children a customer is offered are the biggest ones at ANY level
-     * below — for a category whose groups are thin but whose subgroups are
-     * fat, offering the groups would be offering the emptier choice.
+     * Breadcrumb path, walked up through `parentId`.
+     *
+     * This is what makes the finder useful rather than confusing: 327 subgroups
+     * include several called "ΔΙΑΦΟΡΑ" and several called "ΣΕΤ", and a result
+     * list of bare names could not tell you which is which.
      */
-    const offered = [...groups, ...subgroups]
-      .sort((a, b) => b.productCount - a.productCount)
-      .slice(0, 8);
+    const pathOf = (node: (typeof nodes)[number]): string[] => {
+      const out: string[] = [];
+      let current = node.parentId ? byId.get(node.parentId) : undefined;
+      // Bounded: the ERP hierarchy is three levels, and the guard means a cycle
+      // in the data cannot hang a page render.
+      for (let depth = 0; current && depth < 4; depth += 1) {
+        out.unshift(pick(current, locale));
+        current = current.parentId ? byId.get(current.parentId) : undefined;
+      }
+      return out;
+    };
+
+    const toNode = (node: (typeof nodes)[number]): CatalogueNode => {
+      const name = pick(node, locale);
+      const path = pathOf(node);
+      return {
+        slug: node.slug,
+        name,
+        level: node.erpType,
+        count: node.productCount,
+        childCount: node.childCount,
+        path,
+        // Normalised once here so the finder filters with a plain `includes`
+        // instead of re-normalising 490 strings on every keystroke.
+        key: searchKey([name, ...path].join(" ")),
+      };
+    };
+
+    const rootRows = nodes.filter((n) => n.erpType === "CATEGORY");
+
+    const roots: CatalogueRoot[] = rootRows.map((root) => {
+      const groups = childrenOf.get(root.id) ?? [];
+      const subgroups = groups.flatMap((g) => childrenOf.get(g.id) ?? []);
+
+      /*
+       * The children a customer is offered are the biggest ones at ANY level
+       * below — for a category whose groups are thin but whose subgroups are
+       * fat, offering the groups would be offering the emptier choice.
+       */
+      const offered = [...groups, ...subgroups]
+        .sort((a, b) => b.productCount - a.productCount)
+        .slice(0, 8);
+
+      return {
+        ...toNode(root),
+        tier: tierFor(root.productCount, totalProducts),
+        children: offered.map(toNode),
+        groupCount: groups.length,
+        subgroupCount: subgroups.length,
+        image: root.mainImage,
+      };
+    });
+
+    const groupNodes = nodes.filter((n) => n.erpType === "GROUP");
+    const subgroupNodes = nodes.filter((n) => n.erpType === "SUBGROUP");
 
     return {
-      ...toNode(root),
-      tier: tierFor(root.productCount, totalProducts),
-      children: offered.map(toNode),
-      groupCount: groups.length,
-      subgroupCount: subgroups.length,
-      image: root.mainImage,
+      roots,
+      all: nodes.map(toNode),
+      totals: {
+        products: totalProducts,
+        categories: rootRows.length,
+        groups: groupNodes.length,
+        subgroups: subgroupNodes.length,
+        topShare: rootRows.length
+          ? Math.round((rootRows[0].productCount / totalProducts) * 100)
+          : 0,
+      },
     };
-  });
-
-  const groupNodes = nodes.filter((n) => n.erpType === "GROUP");
-  const subgroupNodes = nodes.filter((n) => n.erpType === "SUBGROUP");
-
-  return {
-    roots,
-    all: nodes.map(toNode),
-    totals: {
-      products: totalProducts,
-      categories: rootRows.length,
-      groups: groupNodes.length,
-      subgroups: subgroupNodes.length,
-      topShare: rootRows.length
-        ? Math.round((rootRows[0].productCount / totalProducts) * 100)
-        : 0,
-    },
-  };
-});
+  },
+);

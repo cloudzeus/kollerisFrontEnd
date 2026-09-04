@@ -1,6 +1,7 @@
 import "server-only";
 import { cache } from "react";
 import { prisma } from "@/lib/prisma";
+import { sharedCatalogue } from "@/lib/catalog/shared-cache";
 import type { Locale } from "@/i18n/routing";
 import { nameWithoutSize } from "@/lib/catalog/variant-name";
 
@@ -8,15 +9,22 @@ import { nameWithoutSize } from "@/lib/catalog/variant-name";
  * Read queries against the local catalogue projection.
  *
  * Everything here hits our own Postgres, never HDCtool — that is the whole
- * point of the projection (BACKEND_ALIGNMENT.md §2). `cache()` dedupes within a
- * single render pass; page-level `revalidate` handles cross-request caching.
+ * point of the projection (BACKEND_ALIGNMENT.md §2).
  */
 
+/*
+ * Οι χρόνοι ζωής του κοινού cache.
+ *
+ * Η ταξινομία αλλάζει λίγες φορές τον μήνα· τα αποθέματα κάθε δέκα λεπτά, από
+ * τον συγχρονισμό. Γι' αυτό ό,τι κουβαλά τιμή ή διαθεσιμότητα ζει λιγότερο.
+ */
+const SLOW = 900; // ταξινομία, μάρκες — αλλάζουν σπάνια
+const FAST = 300; // ό,τι κουβαλά τιμή ή απόθεμα
+
 /** Picks the right translated column for the active locale, Greek as fallback. */
-function localised<T extends { nameEl: string; nameEn: string; nameIt: string }>(
-  row: T,
-  locale: Locale,
-): string {
+function localised<
+  T extends { nameEl: string; nameEn: string; nameIt: string },
+>(row: T, locale: Locale): string {
   if (locale === "en") return row.nameEn || row.nameEl;
   if (locale === "it") return row.nameIt || row.nameEl;
   return row.nameEl;
@@ -38,7 +46,9 @@ export type CategoryTile = {
  * zero eshop-listed SKUs (ΑΝΥΨΩΤΙΚΑ is one), and a tile reading "0 ΚΩΔ." is
  * worse than no tile.
  */
-export const getRootCategories = cache(
+export const getRootCategories = sharedCatalogue(
+  "root-categories",
+  SLOW,
   async (locale: Locale, limit?: number): Promise<CategoryTile[]> => {
     const rows = await prisma.category.findMany({
       where: { erpType: "CATEGORY", productCount: { gt: 0 } },
@@ -68,7 +78,12 @@ export const getRootCategories = cache(
 );
 
 export type MenuCategory = CategoryTile & {
-  children: Array<{ id: string; slug: string; name: string; productCount: number }>;
+  children: Array<{
+    id: string;
+    slug: string;
+    name: string;
+    productCount: number;
+  }>;
 };
 
 /**
@@ -78,7 +93,9 @@ export type MenuCategory = CategoryTile & {
  * One query for roots, one for children — not one per root. There are 23 roots,
  * so the naive version would be 24 round trips on every page render.
  */
-export const getMenuTree = cache(
+export const getMenuTree = sharedCatalogue(
+  "menu-tree",
+  SLOW,
   async (locale: Locale, childrenPerCategory = 5): Promise<MenuCategory[]> => {
     const roots = await prisma.category.findMany({
       where: { erpType: "CATEGORY", productCount: { gt: 0 } },
@@ -146,7 +163,9 @@ export type BrandTile = {
 };
 
 /** Brands with at least one listed product, biggest first. */
-export const getTopBrands = cache(
+export const getTopBrands = sharedCatalogue(
+  "top-brands",
+  SLOW,
   async (locale: Locale, limit = 16): Promise<BrandTile[]> => {
     const rows = await prisma.brand.findMany({
       where: { productCount: { gt: 0 } },
@@ -287,13 +306,24 @@ function toCard(
 
 /** MTRMARK → brand, so product cards can show a brand without a join per row. */
 const getBrandsByMtrmark = cache(
-  async (locale: Locale): Promise<Map<number, { name: string; slug: string }>> => {
+  async (
+    locale: Locale,
+  ): Promise<Map<number, { name: string; slug: string }>> => {
     const rows = await prisma.brand.findMany({
       where: { mtrmark: { not: null } },
-      select: { mtrmark: true, slug: true, nameEl: true, nameEn: true, nameIt: true },
+      select: {
+        mtrmark: true,
+        slug: true,
+        nameEl: true,
+        nameEn: true,
+        nameIt: true,
+      },
     });
     return new Map(
-      rows.map((row) => [row.mtrmark!, { name: localised(row, locale), slug: row.slug }]),
+      rows.map((row) => [
+        row.mtrmark!,
+        { name: localised(row, locale), slug: row.slug },
+      ]),
     );
   },
 );
@@ -310,13 +340,23 @@ const getBrandsByMtrmark = cache(
  * first version of this query filled the whole band with safety boots, which
  * reads as a shoe shop rather than a tool merchant.
  */
-export const getFeaturedProducts = cache(
-  async (locale: Locale, limit = 8, perCategory = 2): Promise<ProductCardData[]> => {
+export const getFeaturedProducts = sharedCatalogue(
+  "featured-products",
+  FAST,
+  async (
+    locale: Locale,
+    limit = 8,
+    perCategory = 2,
+  ): Promise<ProductCardData[]> => {
     const [rows, brands] = await Promise.all([
       prisma.product.findMany({
         // Over-fetch so there is enough to spread across categories.
         where: { isActive: true, inStock: true, priceNet: { gt: 0 } },
-        orderBy: [{ onSale: "desc" }, { erpInsertedAt: "desc" }, { mtrl: "desc" }],
+        orderBy: [
+          { onSale: "desc" },
+          { erpInsertedAt: "desc" },
+          { mtrl: "desc" },
+        ],
         take: limit * 12,
         select: PRODUCT_CARD_SELECT,
       }),
@@ -349,16 +389,25 @@ export const getFeaturedProducts = cache(
 );
 
 /** Newest additions, for the "ΝΕΕΣ ΑΦΙΞΕΙΣ" promo tile copy. */
-export const getCatalogueStats = cache(async () => {
-  const [products, inStock, brands, categories] = await Promise.all([
-    prisma.product.count({ where: { isActive: true } }),
-    prisma.product.count({ where: { isActive: true, inStock: true } }),
-    prisma.brand.count({ where: { productCount: { gt: 0 } } }),
-    prisma.category.count({ where: { erpType: "CATEGORY", productCount: { gt: 0 } } }),
-  ]);
-  const subcategories = await prisma.category.count({
-    where: { erpType: { in: ["GROUP", "SUBGROUP"] }, productCount: { gt: 0 } },
-  });
+export const getCatalogueStats = sharedCatalogue(
+  "catalogue-stats",
+  FAST,
+  async () => {
+    const [products, inStock, brands, categories] = await Promise.all([
+      prisma.product.count({ where: { isActive: true } }),
+      prisma.product.count({ where: { isActive: true, inStock: true } }),
+      prisma.brand.count({ where: { productCount: { gt: 0 } } }),
+      prisma.category.count({
+        where: { erpType: "CATEGORY", productCount: { gt: 0 } },
+      }),
+    ]);
+    const subcategories = await prisma.category.count({
+      where: {
+        erpType: { in: ["GROUP", "SUBGROUP"] },
+        productCount: { gt: 0 },
+      },
+    });
 
-  return { products, inStock, brands, categories, subcategories };
-});
+    return { products, inStock, brands, categories, subcategories };
+  },
+);
