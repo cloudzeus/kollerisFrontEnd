@@ -26,6 +26,7 @@ import {
   layerForToken,
   emptyComposition,
   COLOR_VALUE,
+  TYPE_ROLE,
   newLayer,
   seedOfferLayers,
   seedProductLayers,
@@ -39,6 +40,8 @@ import {
   type LayerKind,
   type ShapeLayer,
   type TextLayer,
+  type TextStyle,
+  type TypeRole,
   type TickerLayer,
 } from "@/lib/banners/contract";
 import { CATEGORY_LABEL, PRESETS, applyPreset, type PresetCategory } from "@/lib/banners/presets";
@@ -1734,18 +1737,52 @@ function Typography({
       {/* The three faces the site actually uses. Nothing else is on offer —
           a banner in a fourth typeface is the fastest way to look like a
           different company. */}
+      {/*
+        Ρόλος πρώτα, νούμερα μόνο αν τον σβήσεις.
+        ───────────────────────────────────────────────────────────────────────
+        Το «μέγεθος» εδώ είναι pixel σε κελί πλάτους 1000px, και ο container
+        είναι το ΚΕΛΙ: μια σύνθεση φτιαγμένη σε πλατύ κελί, με μια στήλη
+        παραπάνω, συρρικνώνεται σιωπηλά — τίτλος «38» σε στήλη 287px βγαίνει
+        10,9px. Ο ρόλος το λύνει με `clamp()` και δεν αφήνει να συμβεί.
+      */}
       <Segmented
-        label="Γραμματοσειρά"
-        value={style.font}
-        onChange={(font) => patchStyle({ font })}
+        label="Ρόλος"
+        value={style.role ?? "custom"}
+        onChange={(role) =>
+          patchStyle(
+            role === "custom"
+              ? ({ role: undefined } as Partial<TextStyle>)
+              : ({ role, font: TYPE_ROLE[role as TypeRole].font } as Partial<TextStyle>),
+          )
+        }
         options={[
-          { value: "display" as const, label: "Τίτλων", title: "Roboto Flex — τίτλοι, extended" },
-          { value: "sans" as const, label: "Κειμένου", title: "Inter — σώμα κειμένου" },
-          { value: "mono" as const, label: "Αριθμών", title: "JetBrains Mono — τιμές, κωδικοί" },
+          { value: "title" as const, label: "Τίτλος" },
+          { value: "eyebrow" as const, label: "Eyebrow" },
+          { value: "body" as const, label: "Κείμενο" },
+          { value: "price" as const, label: "Τιμή" },
+          { value: "custom" as const, label: "Ελεύθερο" },
         ]}
       />
 
-      <div className="grid grid-cols-3 gap-1.5">
+      {style.role ? (
+        <p className="text-[10.5px] leading-[1.5] text-k-text-4">
+          Γραμματοσειρά, μέγεθος, βάρος και απόσταση τα δίνει το design system και
+          κλιμακώνονται με το κελί. Για χειροκίνητο έλεγχο, «Ελεύθερο».
+        </p>
+      ) : (
+        <Segmented
+          label="Γραμματοσειρά"
+          value={style.font}
+          onChange={(font) => patchStyle({ font })}
+          options={[
+            { value: "display" as const, label: "Τίτλων", title: "Roboto Flex — τίτλοι, extended" },
+            { value: "sans" as const, label: "Κειμένου", title: "Inter — σώμα κειμένου" },
+            { value: "mono" as const, label: "Αριθμών", title: "JetBrains Mono — τιμές, κωδικοί" },
+          ]}
+        />
+      )}
+
+      <div className={cn("grid grid-cols-3 gap-1.5", style.role && "hidden")}>
         <NumberField
           label="Μέγεθος"
           value={style.size}
@@ -1769,9 +1806,12 @@ function Typography({
           onChange={(tracking) => patchStyle({ tracking })}
         />
       </div>
-      <p className="text-[10.5px] leading-[1.5] text-k-text-4">
-        Το μέγεθος είναι σε κελί πλάτους 1000px και κλιμακώνεται μαζί του.
-      </p>
+      {!style.role && (
+        <p className="text-[10.5px] leading-[1.5] text-k-text-4">
+          Το μέγεθος είναι σε κελί πλάτους 1000px και κλιμακώνεται μαζί του — μια στήλη
+          παραπάνω το μικραίνει.
+        </p>
+      )}
 
       {layer.kind === "text" && (
         <>

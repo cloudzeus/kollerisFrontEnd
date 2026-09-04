@@ -148,6 +148,23 @@ export type TextStyle = {
    * και δεν υπήρχε τρόπος να αποκτήσει.
    */
   background?: ColorToken;
+  /*
+   * Ρόλος τυπογραφίας — κλειδωμένος στο design system.
+   * ───────────────────────────────────────────────────────────────────────────
+   * Όταν οριστεί, ΑΓΝΟΟΥΝΤΑΙ τα `font`, `size`, `weight`, `tracking`: τα
+   * δίνει το σύστημα.
+   *
+   * Ο λόγος είναι μετρημένος. Το `size` σημαίνει «pixel σε κελί πλάτους
+   * 1000px» και το κελί είναι ο container — οπότε μια σύνθεση φτιαγμένη σε
+   * πλατύ κελί, όταν προστεθεί μια στήλη, συρρικνώνεται σιωπηλά: τίτλος
+   * «μέγεθος 38» σε στήλη 287px αποδίδεται στα 10,9px. Κανείς δεν θα έγραφε
+   * επίτηδες τίτλο 11 pixel· απλώς άλλαξε το πλέγμα και κανείς δεν το είπε.
+   *
+   * Οι ρόλοι λύνουν σε `clamp()`: ελάχιστο αναγνώσιμο, κλιμάκωση με το κελί,
+   * ανώτατο που δεν ξεχειλώνει. Το ίδιο κείμενο διαβάζεται σε στήλη 287px και
+   * σε λωρίδα 1151px χωρίς να διαλέξει κανείς νούμερο.
+   */
+  role?: TypeRole;
   align: "left" | "center" | "right";
   /** Vertical placement inside the layer's own box. */
   valign: "start" | "center" | "end";
@@ -198,7 +215,7 @@ export type BadgeLayer = LayerBase & {
   kind: "badge";
   text: LocalisedText;
   tone: "ink" | "red" | "amber" | "green" | "white";
-  style: Pick<TextStyle, "font" | "size" | "weight" | "tracking" | "uppercase">;
+  style: Pick<TextStyle, "font" | "size" | "weight" | "tracking" | "uppercase" | "role">;
 };
 
 export type ButtonLayer = LayerBase & {
@@ -215,7 +232,7 @@ export type ButtonLayer = LayerBase & {
    */
   href: string;
   variant: "underline" | "solid" | "outline";
-  style: Pick<TextStyle, "font" | "size" | "weight" | "tracking" | "uppercase" | "color">;
+  style: Pick<TextStyle, "font" | "size" | "weight" | "tracking" | "uppercase" | "color" | "role">;
 };
 
 /** A flat block of colour — scrims, side panels, anything the media needs
@@ -826,69 +843,41 @@ export function layerForToken(token: string, onDark: boolean): TextLayer {
  */
 export function seedProductLayers(): Layer[] {
   /*
-   * Η τυπογραφία του Kolleris Design System, ίδια με τις επικεφαλίδες της
-   * σελίδας: eyebrow σε mono 10px κόκκινο, τίτλος σε display 900 με tracking
-   * −0,03em, σώμα σε sans. Πριν ο τίτλος ήταν 600 με tracking −0,01 — η ίδια
-   * γραμματοσειρά, ορατά ελαφρύτερη από κάθε άλλον τίτλο του καταστήματος.
+   * Ρόλοι, όχι νούμερα.
+   *
+   * Τα μεγέθη τα δίνει το design system και κλιμακώνονται με το κελί: ο ίδιος
+   * τίτλος διαβάζεται σε στήλη 287px και σε λωρίδα 1151px. Πριν ήταν σταθεροί
+   * αριθμοί, και μια στήλη παραπάνω τους έκανε 11 pixel χωρίς να το πει κανείς.
+   *
+   * Το σκούρο πλαίσιο στο κάτω μέρος δεν είναι διακόσμηση: το υλικό είναι
+   * φωτογραφία προϊόντος, συχνά σε λευκό, και λευκό κείμενο πάνω σε λευκό δεν
+   * διαβάζεται. Το πλαίσιο είναι το έδαφος του κειμένου.
    */
+  const plate = newLayer("shape") as ShapeLayer;
+  plate.name = "Πλαίσιο";
+  plate.color = "ink";
+  plate.opacity = 84;
+  plate.frame = { x: 0, y: 52, w: 100, h: 48 };
+
   const brand = newLayer("text") as TextLayer;
   brand.name = "Μάρκα";
   brand.text = { el: "{brand}" };
-  brand.frame = { x: 6, y: 50, w: 50, h: 6 };
-  brand.style = {
-    ...DEFAULT_TEXT_STYLE,
-    font: "mono",
-    size: 13,
-    weight: 600,
-    tracking: 8,
-    leading: 130,
-    color: "red",
-  };
+  brand.frame = { x: 6, y: 57, w: 60, h: 7 };
+  brand.style = { ...DEFAULT_TEXT_STYLE, role: "eyebrow", color: "red" };
 
   const title = newLayer("text") as TextLayer;
   title.name = "Τίτλος";
   title.text = { el: "{title}" };
-  title.frame = { x: 6, y: 57, w: 62, h: 18 };
-  title.style = {
-    ...DEFAULT_TEXT_STYLE,
-    size: 44,
-    weight: 900,
-    tracking: -3,
-    leading: 102,
-    color: "white",
-  };
-
-  const desc = newLayer("text") as TextLayer;
-  desc.name = "Κείμενο";
-  desc.text = { el: "{desc}" };
-  desc.frame = { x: 6, y: 76, w: 56, h: 9 };
-  desc.style = {
-    ...DEFAULT_TEXT_STYLE,
-    font: "sans",
-    size: 17,
-    weight: 400,
-    tracking: 0,
-    leading: 150,
-    color: "white",
-    uppercase: false,
-  };
+  title.frame = { x: 6, y: 65, w: 80, h: 18 };
+  title.style = { ...DEFAULT_TEXT_STYLE, role: "title", color: "white" };
 
   const price = newLayer("text") as TextLayer;
   price.name = "Τιμή";
   price.text = { el: "{price}" };
-  price.frame = { x: 6, y: 87, w: 40, h: 8 };
-  price.style = {
-    ...DEFAULT_TEXT_STYLE,
-    font: "mono",
-    size: 26,
-    weight: 600,
-    tracking: 0,
-    leading: 120,
-    color: "white",
-    uppercase: false,
-  };
+  price.frame = { x: 6, y: 86, w: 50, h: 9 };
+  price.style = { ...DEFAULT_TEXT_STYLE, role: "price", color: "white", uppercase: false };
 
-  return [brand, title, desc, price];
+  return [plate, brand, title, price];
 }
 
 export function seedOfferLayers(): Layer[] {
@@ -1041,6 +1030,63 @@ export const clampFrame = (frame: Frame): Frame => ({
   h: Math.max(2, Math.min(140, Math.round(frame.h * 10) / 10)),
 });
 
+/**
+ * Οι τέσσερις ρόλοι τυπογραφίας ενός banner, από το Kolleris Design System.
+ *
+ * Ίδιοι με τη σελίδα: eyebrow σε mono κόκκινο, τίτλος display 900 με tracking
+ * −0,03em, σώμα σε Inter, αριθμοί σε JetBrains Mono.
+ */
+export type TypeRole = "eyebrow" | "title" | "body" | "price";
+
+export const TYPE_ROLE: Record<
+  TypeRole,
+  { label: string; font: FontToken; css: React.CSSProperties }
+> = {
+  eyebrow: {
+    label: "Eyebrow",
+    font: "mono",
+    css: {
+      fontSize: "clamp(9px, 3.4cqw, 13px)",
+      fontWeight: 600,
+      letterSpacing: "0.08em",
+      lineHeight: 1.3,
+      textTransform: "uppercase",
+    },
+  },
+  title: {
+    label: "Τίτλος",
+    font: "display",
+    css: {
+      fontSize: "clamp(17px, 9.5cqw, 46px)",
+      fontWeight: 900,
+      letterSpacing: "-0.03em",
+      lineHeight: 1.02,
+      fontStretch: "125%",
+      textTransform: "uppercase",
+    },
+  },
+  body: {
+    label: "Κείμενο",
+    font: "sans",
+    css: {
+      fontSize: "clamp(11px, 4.2cqw, 17px)",
+      fontWeight: 400,
+      letterSpacing: "0",
+      lineHeight: 1.5,
+    },
+  },
+  price: {
+    label: "Τιμή",
+    font: "mono",
+    css: {
+      fontSize: "clamp(15px, 6.4cqw, 30px)",
+      fontWeight: 600,
+      letterSpacing: "0",
+      lineHeight: 1.2,
+    },
+  },
+};
+
 export const FONT_STACK: Record<FontToken, string> = {
   display: "var(--font-display)",
   sans: "var(--font-sans)",
@@ -1073,6 +1119,22 @@ export function layerStyle(layer: Layer): React.CSSProperties {
 
   if (layer.kind === "text" || layer.kind === "badge" || layer.kind === "button") {
     const style = layer.style;
+    const role = style.role ? TYPE_ROLE[style.role] : null;
+    if (role) {
+      /* Ο ρόλος δίνει τα πάντα — οικογένεια, μέγεθος, βάρος, tracking. Τα
+         αριθμητικά πεδία της σύνθεσης αγνοούνται όσο είναι ενεργός. */
+      Object.assign(base, role.css, { fontFamily: FONT_STACK[role.font] });
+      if (layer.kind === "text") {
+        base.textAlign = layer.style.align;
+        base.color = COLOR_VALUE[layer.style.color];
+        if (layer.style.background) {
+          base.backgroundColor = COLOR_VALUE[layer.style.background];
+          base.padding = "0.9cqw 2.2cqw";
+          base.width = "fit-content";
+        }
+      }
+      return base;
+    }
     base.fontFamily = FONT_STACK[style.font];
     /*
      * Sized by the cell's width.
