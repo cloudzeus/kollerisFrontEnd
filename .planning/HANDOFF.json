@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-09-04T16:43:37.302Z",
+  "timestamp": "2026-09-04T16:47:30.899Z",
   "source": "auto-postool",
   "partial": false,
   "phase": null,
@@ -22,21 +22,9 @@
     },
     {
       "status": "M",
-      "path": "src/app/globals.css"
-    },
-    {
-      "status": "M",
-      "path": "src/components/admin/banners/CellEditor.tsx"
-    },
-    {
-      "status": "M",
-      "path": "src/components/banners/CompositionRenderer.tsx"
-    },
-    {
-      "status": "??",
-      "path": "src/components/banners/FitText.tsx"
+      "path": "src/lib/banners/resolve.ts"
     }
   ],
   "next_action": null,
-  "context_notes": "Recent commits:\n8655e8f fix(banners): η τυπογραφία των banner γίνεται ίδια με της σελίδας\nb65f3d3 feat(banners): κλειδωμένη τυπογραφία αντί για ελεύθερα νούμερα\n50f93ee fix(banners): η τιμή έρχεται από την προσφορά, και η γεννήτρια βρίσκεται\n0348ff1 feat(banners): ένα προϊόν σε ένα κελί, με μία κίνηση\nf717c45 feat(αρχική): η φωτογραφία του κτηρίου αντικαθιστά την κράτηση θέσης"
+  "context_notes": "Recent commits:\n647d079 fix(banners): το πλαίσιο δεν πέφτει πάνω στα κελιά, τα κείμενα δεν κόβονται\n8655e8f fix(banners): η τυπογραφία των banner γίνεται ίδια με της σελίδας\nb65f3d3 feat(banners): κλειδωμένη τυπογραφία αντί για ελεύθερα νούμερα\n50f93ee fix(banners): η τιμή έρχεται από την προσφορά, και η γεννήτρια βρίσκεται\n0348ff1 feat(banners): ένα προϊόν σε ένα κελί, με μία κίνηση"
 }

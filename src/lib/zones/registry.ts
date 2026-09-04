@@ -185,6 +185,26 @@ export const BADGE_FIELDS: ReadonlyArray<WidgetField> = [
   },
 ] as const;
 
+/**
+ * Πού πηγαίνει το widget.
+ *
+ * Κοινό σε ΟΛΟΥΣ τους τύπους, όχι σε όσους έτυχε να το έχουν. Το widget
+ * αποδίδεται ολόκληρο μέσα σε έναν σύνδεσμο — αυτό ίσχυε πάντα — αλλά μόνο το
+ * «Πλακίδιο προβολής» και το «Κείμενο» είχαν πεδίο για να τον ορίσεις. Μια
+ * κάρτα κατηγορίας ή ένα widget με βίντεο φόντου έπεφταν σιωπηλά στο
+ * `/katalogos`, χωρίς τρόπο να αλλάξει: το πιο εντυπωσιακό στοιχείο της
+ * σελίδας οδηγούσε στο πιο γενικό μέρος του καταστήματος.
+ */
+export const LINK_FIELDS: ReadonlyArray<WidgetField> = [
+  {
+    name: "href",
+    label: "Σύνδεσμος",
+    kind: "link",
+    help: "Πού πηγαίνει όποιος το πατήσει. Κενό σημαίνει ο κατάλογος.",
+    default: "/katalogos",
+  },
+] as const;
+
 export const BACKGROUND_FIELDS: ReadonlyArray<WidgetField> = [
   {
     name: "bgKind",
@@ -246,7 +266,6 @@ export const WIDGETS: ReadonlyArray<WidgetDef> = [
         kind: "image",
         help: "Ανεβάστε δική σας ή διαλέξτε φωτογραφία από προϊόν.",
       },
-      { name: "href", label: "Σύνδεσμος", kind: "link", required: true, default: "/katalogos" },
       {
         name: "dark",
         label: "Σκούρο πλακίδιο",
@@ -294,7 +313,6 @@ export const WIDGETS: ReadonlyArray<WidgetDef> = [
       { name: "title", label: "Τίτλος", kind: "text", localised: true, maxChars: 60 },
       { name: "body", label: "Κείμενο", kind: "long", localised: true, maxChars: 400 },
       { name: "cta", label: "Κουμπί", kind: "text", localised: true, maxChars: 24 },
-      { name: "href", label: "Σύνδεσμος κουμπιού", kind: "link" },
     ],
   },
 ] as const;
@@ -573,7 +591,9 @@ export const WIDGETS_BY_TYPE = new Map(WIDGETS.map((w) => [w.type, w]));
 /** A widget's own fields followed by the background group every widget shares. */
 export function fieldsFor(type: string): ReadonlyArray<WidgetField> {
   const def = WIDGETS_BY_TYPE.get(type);
-  return def ? [...def.fields, ...BADGE_FIELDS, ...ANIMATION_FIELDS, ...BACKGROUND_FIELDS] : [];
+  return def
+    ? [...def.fields, ...LINK_FIELDS, ...BADGE_FIELDS, ...ANIMATION_FIELDS, ...BACKGROUND_FIELDS]
+    : [];
 }
 export const ZONES_BY_ID = new Map(ZONES.map((z) => [z.id, z]));
 
