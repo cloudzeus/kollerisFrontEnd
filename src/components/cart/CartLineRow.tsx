@@ -89,8 +89,14 @@ export function CartLineRow({ line }: { line: CartLineView }) {
             <span className="t-card-sku text-k-text-4">{line.sku}</span>
           </span>
 
+          {/* Το `title` και όχι δικό μας tooltip: το όνομα κόβεται στις δύο
+              σειρές, και ο μόνος λόγος να δεις το υπόλοιπο είναι να
+              επιβεβαιώσεις ότι είναι το σωστό προϊόν — μια στιγμιαία ματιά,
+              όχι στοιχείο διεπαφής. Το native το κάνει σε κάθε συσκευή με
+              ποντίκι, χωρίς κώδικα και χωρίς να μπλέκεται με το scroll. */}
           <Link
             href={`/proion/${line.slug}`}
+            title={line.name}
             className="line-clamp-2 text-[13.5px] leading-[1.4] font-semibold text-k-ink hover:text-k-red"
           >
             {line.name}
@@ -115,7 +121,14 @@ export function CartLineRow({ line }: { line: CartLineView }) {
             }`}
           >
             <span className="rounded-pill block h-1.5 w-1.5 shrink-0 bg-current" />
-            <span className="truncate">
+            <span
+              className="truncate"
+              title={
+                line.inStock
+                  ? `${upGreek(t("amesa_diathesimo"))} · ${line.availableQty} ${upGreek(t("tem"))}`
+                  : upGreek(t("katopin_paraggelias"))
+              }
+            >
               {line.inStock
                 ? `${upGreek(t("amesa_diathesimo"))} · ${line.availableQty} ${upGreek(t("tem"))}`
                 : upGreek(t("katopin_paraggelias"))}

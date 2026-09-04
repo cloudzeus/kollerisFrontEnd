@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-09-04T07:19:21.799Z",
+  "timestamp": "2026-09-04T07:21:19.407Z",
   "source": "auto-postool",
   "partial": false,
   "phase": null,
@@ -15,36 +15,7 @@
   "blockers": [],
   "human_actions_pending": [],
   "decisions": [],
-  "uncommitted_files": [
-    {
-      "status": "M",
-      "path": ".planning/HANDOFF.json"
-    },
-    {
-      "status": "M",
-      "path": "src/app/[locale]/kalathi/page.tsx"
-    },
-    {
-      "status": "M",
-      "path": "src/components/cart/CartLineRow.tsx"
-    },
-    {
-      "status": "M",
-      "path": "src/lib/offers/badges.ts"
-    },
-    {
-      "status": "M",
-      "path": "src/messages/el.json"
-    },
-    {
-      "status": "M",
-      "path": "src/messages/en.json"
-    },
-    {
-      "status": "M",
-      "path": "src/messages/it.json"
-    }
-  ],
+  "uncommitted_files": [],
   "next_action": null,
-  "context_notes": "Recent commits:\n1a0d80c feat(offers): η έκπτωση καμπάνιας χρεώνεται, φαίνεται παντού, και φτάνει σωστά στο ERP\n461ea7b feat(offers): σήμα προσφοράς στις κάρτες και στη σελίδα προϊόντος\n9b0f92a feat(zones): banner σε κάθε σελίδα — και τρεις ζώνες που ήταν φαντάσματα\nf40bcbf fix(banners): ο καμβάς του admin έλεγε ψέματα για το σχήμα — γι' αυτό το site έμενε ίδιο\nba6306e feat(banners): «Ύψος: από το υλικό» — το σχήμα κρατιέται σε κάθε συσκευή"
+  "context_notes": "Recent commits:\n41d4733 fix(cart): τα γράμματα έπεφταν το ένα πάνω στο άλλο — breakpoint οθόνης σε στενή στήλη\n1a0d80c feat(offers): η έκπτωση καμπάνιας χρεώνεται, φαίνεται παντού, και φτάνει σωστά στο ERP\n461ea7b feat(offers): σήμα προσφοράς στις κάρτες και στη σελίδα προϊόντος\n9b0f92a feat(zones): banner σε κάθε σελίδα — και τρεις ζώνες που ήταν φαντάσματα\nf40bcbf fix(banners): ο καμβάς του admin έλεγε ψέματα για το σχήμα — γι' αυτό το site έμενε ίδιο"
 }
