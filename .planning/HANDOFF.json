@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-09-04T18:52:34.058Z",
+  "timestamp": "2026-09-04T18:54:23.659Z",
   "source": "auto-postool",
   "partial": false,
   "phase": null,
@@ -15,16 +15,7 @@
   "blockers": [],
   "human_actions_pending": [],
   "decisions": [],
-  "uncommitted_files": [
-    {
-      "status": "M",
-      "path": ".planning/HANDOFF.json"
-    },
-    {
-      "status": "M",
-      "path": "src/lib/prisma.ts"
-    }
-  ],
+  "uncommitted_files": [],
   "next_action": null,
-  "context_notes": "Recent commits:\n3680093 perf: ο κατάλογος κρατιέται ανάμεσα σε αιτήματα\n386d39b perf: 34 αιτήματα RSC ανά σελίδα → 0\n0a43c2c fix(home): 20px περιθώριο γύρω από κάθε λογότυπο μάρκας\nc6c6872 feat(home): μεγαλύτερα λογότυπα στον τοίχο των μαρκών\nf2ee6c0 fix(banners): κανένα άλυτο {token} στο κατάστημα, και η μάρκα λύνει και στις προσφορές"
+  "context_notes": "Recent commits:\n7d5e0a5 fix(db): η δεξαμενή συνδέσεων ήταν δέκα — από εκεί βγαίνει το 502\n3680093 perf: ο κατάλογος κρατιέται ανάμεσα σε αιτήματα\n386d39b perf: 34 αιτήματα RSC ανά σελίδα → 0\n0a43c2c fix(home): 20px περιθώριο γύρω από κάθε λογότυπο μάρκας\nc6c6872 feat(home): μεγαλύτερα λογότυπα στον τοίχο των μαρκών"
 }
