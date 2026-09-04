@@ -187,6 +187,8 @@ export type ProductCardData = {
   vatRate: number;
   qty: number;
   inStock: boolean;
+  /** Κωδικός IMPA, όπου υπάρχει — για το σήμα της κάρτας. */
+  impaCode?: string | null;
   /**
    * Compare scope (`sub:311`). Set only where a comparison is offered — the PLP
    * and the brand grid — so a card can be greyed out before the click rather
@@ -217,6 +219,7 @@ const PRODUCT_CARD_SELECT = {
   translations: {
     select: { locale: true, name: true },
   },
+  impaCode: true,
   variantGroup: true,
   /* Μία ετικέτα αρκεί: ένας κωδικός είναι ΕΝΑ νούμερο, και η ομάδα χτίζεται
      πάνω σε αυτή την παραδοχή. */
@@ -240,6 +243,7 @@ type ProductRow = {
   images: Array<{ url: string }>;
   translations: Array<{ locale: string; name: string }>;
   variantGroup: string | null;
+  impaCode: string | null;
   sizes: Array<{ label: string }>;
 };
 
@@ -269,6 +273,7 @@ function toCard(
       sizeLabel: row.sizes[0]?.label,
     }),
     sku: row.code2 || row.code,
+    impaCode: row.impaCode,
     brandName: brand?.name ?? null,
     brandSlug: brand?.slug ?? null,
     image: row.images[0]?.url ?? null,

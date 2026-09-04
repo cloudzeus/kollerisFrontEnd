@@ -271,6 +271,7 @@ const CARD_SELECT = {
   inStock: true,
   images: { where: { isFeature: true }, take: 1, select: { url: true } },
   translations: { select: { locale: true, name: true } },
+  impaCode: true,
   variantGroup: true,
   /* Μία ετικέτα αρκεί: ένας κωδικός είναι ΕΝΑ νούμερο, και η ομάδα χτίζεται
      πάνω σε αυτή την παραδοχή. */
@@ -344,6 +345,7 @@ export async function getPlpData(
         sizeLabel: row.sizes[0]?.label,
       }),
       sku: row.code2 || row.code,
+      impaCode: row.impaCode,
       brandName: brand?.name ?? null,
       brandSlug: brand?.slug ?? null,
       image: row.images[0]?.url ?? null,

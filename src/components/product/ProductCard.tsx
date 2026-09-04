@@ -11,6 +11,7 @@ import { formatPrice, formatPercent, savingsOf } from "@/lib/format";
 import { upGreek } from "@/lib/greek";
 import { cn } from "@/lib/utils";
 import { FavouriteButton } from "@/components/product/FavouriteButton";
+import { ImpaBadge } from "@/components/product/ImpaBadge";
 import { favouriteIds } from "@/lib/account/favourite-ids";
 import { discountedNet, offerBadgeFor } from "@/lib/offers/badges";
 
@@ -132,7 +133,10 @@ export async function ProductCard({
             offer || saving ? "top-11 lg:top-[52px]" : "top-2.5 lg:top-3.5",
           )}
         >
-          <FavouriteButton productId={product.id} initial={favourite} size="sm" />
+          <span className="flex items-center gap-1.5">
+            <FavouriteButton productId={product.id} initial={favourite} size="sm" />
+            {product.impaCode && <ImpaBadge code={product.impaCode} className="h-[22px]" />}
+          </span>
           {compare ? (
             <CompareCheckbox
               slug={product.slug}

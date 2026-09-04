@@ -450,9 +450,13 @@ async function upsertProduct(
     /* Αντιγράφεται, δεν παράγεται: δύο συστήματα που ομαδοποιούν με δικό του
        κανόνα το καθένα είναι δύο διαφορετικές λίστες προϊόντων. */
     variantGroup: p.variantGroup?.trim() || null,
+    impaCode: p.impaCode?.trim() || null,
     name,
     slug,
-    searchKey: [name, p.code, p.code1, p.code2, p.brand?.name]
+    /* Ο IMPA μέσα στο κλειδί αναζήτησης: είναι ο ΜΟΝΟΣ κωδικός με τον οποίο
+       ψάχνει ένας αγοραστής πλοίου, και χωρίς αυτόν η αναζήτηση δεν βρίσκει
+       τίποτα για ό,τι ζητά. */
+    searchKey: [name, p.code, p.code1, p.code2, p.impaCode, p.brand?.name]
       .filter(Boolean)
       .join(" "),
     mtrmark: p.brand?.mtrmark ?? null,

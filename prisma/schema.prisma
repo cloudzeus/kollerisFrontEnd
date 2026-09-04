@@ -209,6 +209,12 @@ model Product {
   ratingAvg   Decimal? @db.Decimal(3, 2)
   ratingCount Int      @default(0)
 
+  /// Κωδικός IMPA — το διεθνές πρότυπο ναυτιλιακών προμηθειών.
+  ///
+  /// Ο αγοραστής πλοίου ψάχνει με αυτόν και όχι με το όνομά μας, οπότε μπαίνει
+  /// και στο κλειδί αναζήτησης.
+  impaCode String? @db.VarChar(32)
+
   variantGroup String? @db.VarChar(255)
   /// Ο ΕΝΑΣ κωδικός της ομάδας που εμφανίζεται στις λίστες.
   ///

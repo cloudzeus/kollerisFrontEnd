@@ -208,6 +208,8 @@ export type HdctoolProduct = {
    * 12άρι δεν είναι παραλλαγή του 10άρι· είναι άλλο εργαλείο.
    */
   variantGroup?: string | null;
+  /** Κωδικός IMPA (MTRL.VARCHAR02), όπου υπάρχει. */
+  impaCode?: string | null;
   specifications: Array<Record<string, unknown> & { language: "el" | "en" | "it" }>;
   features: Array<{
     language: "el" | "en" | "it";

@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-09-04T08:33:40.430Z",
+  "timestamp": "2026-09-04T08:39:54.318Z",
   "source": "auto-postool",
   "partial": false,
   "phase": null,
@@ -30,33 +30,45 @@
     },
     {
       "status": "M",
-      "path": "src/components/account/AccountShell.tsx"
-    },
-    {
-      "status": "M",
       "path": "src/components/product/ProductCard.tsx"
     },
     {
-      "status": "??",
-      "path": "prisma/migrations/20260904110000_reviews_and_favourites/"
+      "status": "M",
+      "path": "src/lib/catalog/pdp.ts"
+    },
+    {
+      "status": "M",
+      "path": "src/lib/catalog/plp.ts"
+    },
+    {
+      "status": "M",
+      "path": "src/lib/catalog/queries.ts"
+    },
+    {
+      "status": "M",
+      "path": "src/lib/hdctool/client.ts"
+    },
+    {
+      "status": "M",
+      "path": "src/lib/sync/catalog-sync.ts"
     },
     {
       "status": "??",
-      "path": "src/app/[locale]/logariasmos/agapimena/"
+      "path": "prisma/migrations/20260904120000_product_impa_code/"
     },
     {
       "status": "??",
-      "path": "src/components/product/FavouriteButton.tsx"
+      "path": "src/components/product/ImpaBadge.tsx"
     },
     {
       "status": "??",
-      "path": "src/lib/account/favourite-ids.ts"
+      "path": "src/lib/account/review-actions.ts"
     },
     {
       "status": "??",
-      "path": "src/lib/account/favourites.ts"
+      "path": "src/lib/account/reviews.ts"
     }
   ],
   "next_action": null,
-  "context_notes": "Recent commits:\nb97fff4 fix(pdp): φεύγει το «ΜΕΓΕΘΟΣ» από τη λωρίδα όταν υπάρχει επιλογέας\n86c087e fix(cart): ο κωδικός του ERP στη γραμμή, και ολόκληρο το όνομα με το νούμερο\na0455a7 fix(variants): φεύγει το «No 36» από τον τίτλο, και το EAN από τα προϊόντα με νούμερα\n5613922 feat(variants): ένα προϊόν αντί για δεκατρία, με επιλογέα νούμερου\n6a3acf0 fix(cart): το κομμένο όνομα δείχνει ολόκληρο σε hover"
+  "context_notes": "Recent commits:\n383af57 feat(account): αγαπημένα προϊόντα, με καρδιά στην κάρτα και στη σελίδα\nb97fff4 fix(pdp): φεύγει το «ΜΕΓΕΘΟΣ» από τη λωρίδα όταν υπάρχει επιλογέας\n86c087e fix(cart): ο κωδικός του ERP στη γραμμή, και ολόκληρο το όνομα με το νούμερο\na0455a7 fix(variants): φεύγει το «No 36» από τον τίτλο, και το EAN από τα προϊόντα με νούμερα\n5613922 feat(variants): ένα προϊόν αντί για δεκατρία, με επιλογέα νούμερου"
 }
