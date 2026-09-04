@@ -6,6 +6,7 @@ import { ArrowLeft, ArrowRight, Monitor, Save, Send, Smartphone } from "lucide-r
 import { StepRail, EmailPreview, type StepDef } from "./WizardShell";
 import { ProductPicker } from "./ProductPicker";
 import { RecipientPicker, type RecipientChoice } from "./RecipientPicker";
+import { AiCopyPanel } from "./AiCopyPanel";
 import {
   previewCampaignAction,
   saveCampaignAction,
@@ -273,6 +274,31 @@ export function CampaignWizard({
                 <div className="border border-neutral-200 bg-white p-4">
                   <ProductPicker selected={products} onChange={setProducts} />
                 </div>
+              )}
+
+              {/*
+                Το AI ΜΕΤΑ τον επιλογέα προϊόντων, όχι πριν.
+
+                Γράφει από τα πραγματικά δεδομένα — μάρκες, εκπτώσεις, εύρος
+                τιμών — οπότε πριν επιλεγούν προϊόντα δεν έχει από τι να γράψει.
+                Πάνω από τον επιλογέα θα έμπαινε στον δρόμο και θα παρήγαγε
+                γενικότητες.
+              */}
+              {template.takesRichText && (
+                <AiCopyPanel
+                  products={products}
+                  validUntil={campaign.valid_until}
+                  onApply={(c) => {
+                    if (c.subject) setSubject(c.subject);
+                    if (c.preheader) setPreheader(c.preheader);
+                    setCampaign((prev) => ({
+                      ...prev,
+                      eyebrow: c.eyebrow || prev.eyebrow,
+                      title: c.title || prev.title,
+                      text: c.text || prev.text,
+                    }));
+                  }}
+                />
               )}
 
               {/*

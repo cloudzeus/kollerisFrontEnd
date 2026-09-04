@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-09-04T04:25:15.843Z",
+  "timestamp": "2026-09-04T04:30:31.966Z",
   "source": "auto-postool",
   "partial": false,
   "phase": null,
@@ -22,17 +22,17 @@
     },
     {
       "status": "M",
-      "path": "src/app/admin/(protected)/newsletter/mailgun/page.tsx"
+      "path": "src/lib/newsletter/campaign-actions.ts"
     },
     {
       "status": "??",
-      "path": "src/app/admin/(protected)/newsletter/mailgun/export/"
+      "path": "src/components/admin/newsletter/AiCopyPanel.tsx"
     },
     {
       "status": "??",
-      "path": "src/components/admin/newsletter/Charts.tsx"
+      "path": "src/lib/newsletter/ai-copy.ts"
     }
   ],
   "next_action": null,
-  "context_notes": "Recent commits:\nb3ffff3 feat(newsletter): σελίδα MailGun με αναλυτικά στατιστικά αποστολών\n93b276a fix(newsletter): το build έσπαγε — client component τραβούσε server-only κώδικα\n486d471 fix(newsletter): τα &nbsp; τυπώνονταν κυριολεκτικά — επτά φορές σε κάθε email\n50a7903 fix(newsletter): ένα στα δέκα προϊόντα έβγαζε σπασμένη εικόνα στο email\nb2fbed7 feat(newsletter): πλούσιο κείμενο, επεξεργάσιμα σταθερά κείμενα, δοκιμαστικό και αποστολή"
+  "context_notes": "Recent commits:\n351bbb7 feat(newsletter): γραφικά και εξαγωγές στη σελίδα MailGun\nb3ffff3 feat(newsletter): σελίδα MailGun με αναλυτικά στατιστικά αποστολών\n93b276a fix(newsletter): το build έσπαγε — client component τραβούσε server-only κώδικα\n486d471 fix(newsletter): τα &nbsp; τυπώνονταν κυριολεκτικά — επτά φορές σε κάθε email\n50a7903 fix(newsletter): ένα στα δέκα προϊόντα έβγαζε σπασμένη εικόνα στο email"
 }

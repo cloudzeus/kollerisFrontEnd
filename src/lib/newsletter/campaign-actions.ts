@@ -5,6 +5,7 @@ import { auth } from "@/auth";
 import { assertCan } from "@/lib/rbac";
 import { prisma } from "@/lib/prisma";
 import { sendTest } from "@/lib/newsletter/send";
+import { generateCampaignCopy, type AngleId, type GeneratedCopy } from "@/lib/newsletter/ai-copy";
 import {
   renderCampaign,
   searchCampaignProducts,
@@ -181,6 +182,42 @@ export async function sendTestAction(input: {
   }
   const res = await sendTest({ to, templateId: input.templateId, subject: input.subject, payload: input.payload });
   return res.ok ? { ok: true, to } : { ok: false, error: res.error };
+}
+
+/**
+ * Παραγωγή κειμένων με DeepSeek.
+ *
+ * Επιστρέφει ΠΡΟΤΑΣΗ, όχι απόφαση: ο συντάκτης βλέπει τι βγήκε και διαλέγει αν
+ * θα το εφαρμόσει. Τίποτα δεν αντικαθίσταται αυτόματα — κείμενο που άλλαξε μόνο
+ * του, ενώ ο άνθρωπος κοίταζε αλλού, είναι ο πιο σίγουρος τρόπος να φύγει
+ * καμπάνια που κανείς δεν διάβασε.
+ */
+export async function generateCopyAction(input: {
+  angle: AngleId;
+  products: PickedProduct[];
+  validUntil: string;
+}): Promise<{ ok: true; copy: GeneratedCopy } | { ok: false; error: string }> {
+  await guard();
+  try {
+    return { ok: true, copy: await generateCampaignCopy(input) };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    /*
+     * Το «401 / invalid api key» ξεχωρίζει επίτηδες από τα υπόλοιπα σφάλματα.
+     * Είναι ρύθμιση, όχι βλάβη, και το γενικό «η παραγωγή απέτυχε» στέλνει
+     * κάποιον να ψάχνει τον κώδικα για μισή ώρα. Το κλειδί στο περιβάλλον ήταν
+     * ήδη άκυρο όταν χτίστηκε αυτό (4 Σεπ 2026).
+     */
+    const invalidKey = /401|invalid|authentication fails/i.test(message);
+    return {
+      ok: false,
+      error: message.includes("DEEPSEEK_API_KEY")
+        ? "Το DEEPSEEK_API_KEY δεν έχει οριστεί σε αυτό το περιβάλλον."
+        : invalidKey
+          ? "Το DeepSeek απορρίπτει το κλειδί. Χρειάζεται νέο DEEPSEEK_API_KEY — δεν είναι πρόβλημα του κειμένου ή των προϊόντων."
+          : `Η παραγωγή απέτυχε: ${message.slice(0, 160)}`,
+    };
+  }
 }
 
 /** Οι επιβεβαιωμένοι συνδρομητές — το κοινό που μπορεί να λάβει καμπάνια. */
