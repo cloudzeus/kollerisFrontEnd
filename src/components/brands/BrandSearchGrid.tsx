@@ -1,5 +1,6 @@
 "use client";
 
+import { logoScaleStyle } from "@/lib/catalog/brand-logo";
 import { useLocale } from "next-intl";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
@@ -112,6 +113,7 @@ export function BrandSearchGrid({ brands }: { brands: BrandListItem[] }) {
                     alt={brand.name}
                     width={160}
                     height={160}
+                    style={logoScaleStyle(brand.slug)}
                     className="block h-14 w-14 object-contain"
                   />
                 ) : (

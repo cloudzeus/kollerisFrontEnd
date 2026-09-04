@@ -1,4 +1,5 @@
 import { getTranslations, getLocale } from "next-intl/server";
+import { logoScaleStyle } from "@/lib/catalog/brand-logo";
 import Image from "next/image";
 import { Link } from "@/i18n/navigation";
 import type { BrandTile } from "@/lib/catalog/queries";
@@ -50,6 +51,7 @@ export async function BrandWall({
                 alt={brand.name}
                 width={176}
                 height={176}
+                style={logoScaleStyle(brand.slug)}
                 className="block h-[72px] w-[72px] object-contain lg:h-[88px] lg:w-[88px]"
               />
             ) : (

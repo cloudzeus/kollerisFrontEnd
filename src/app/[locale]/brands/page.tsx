@@ -163,25 +163,39 @@ export default async function BrandsPage({
 
           <div className="grid grid-cols-2 gap-px border border-k-line bg-k-line lg:grid-cols-4">
             {featured.map((brand, index) => {
-              const dark = index % 2 === 1;
+              /*
+               * Οι κάρτες είναι όλες λευκές. Ο ρυθμός μένει στο σήμα.
+               * ─────────────────────────────────────────────────────────────
+               * Εναλλάσσονταν λευκή/μαύρη, και η μαύρη διάβαζε τα λογότυπα
+               * μόνο επειδή τα γύριζε σε λευκή σιλουέτα με `brightness-0
+               * invert`. Χωρίς αυτό — που έσπαγε δέκα λογότυπα με συμπαγές
+               * φόντο — μια σκούρα κάρτα δεν μπορεί να φιλοξενήσει ξένα σήματα:
+               * τα σκουρόχρωμα (Facom, DeWalt, Stanley, KARNASCH) χάνονται.
+               *
+               * Το λευκό πλακίδιο πίσω από το λογότυπο ήταν το μπάλωμα, και
+               * φαινόταν ακριβώς σαν μπάλωμα. Η κάρτα γίνεται λευκή και ο
+               * ρυθμός κρατιέται από το κόκκινο σήμα «ΑΝΤΙΠΡΟΣΩΠΕΙΑ» — κείμενο
+               * δικό μας, που μπορούμε να χρωματίσουμε όπως θέλουμε.
+               *
+               * Ίδια λογική με το μενού, όπου κάθε κελί είναι λευκό.
+               */
+              const accent = index % 2 === 1;
               return (
                 <Link
                   key={brand.id}
                   href={`/brands/${brand.slug}`}
-                  className={`group flex min-h-[210px] flex-col p-5 transition-colors ${
-                    dark ? "bg-k-ink hover:bg-k-ink-deep" : "bg-white hover:bg-k-surface-2"
-                  }`}
+                  className="group flex min-h-[210px] flex-col bg-white p-5 outline-1 -outline-offset-1 outline-transparent transition-[outline-color,background-color] hover:bg-k-surface-2 hover:outline-k-red"
                 >
                   <div className="flex items-start justify-between gap-3">
                     <span
                       className={`t-badge px-1.5 py-1 ${
-                        dark ? "bg-k-red text-white" : "bg-k-surface-3 text-k-text-3"
+                        accent ? "bg-k-red text-white" : "bg-k-surface-3 text-k-text-3"
                       }`}
                     >
                       {upGreek(t("antiprosopeia"))}
                     </span>
                     <span
-                      className={`t-cat-num ${dark ? "text-white/35" : "text-k-text-5"}`}
+                      className="t-cat-num text-k-text-5"
                     >
                       {String(index + 1).padStart(2, "0")}
                     </span>
@@ -189,67 +203,38 @@ export default async function BrandsPage({
 
                   <div className="flex flex-1 items-center justify-center py-6">
                     {brand.logo ? (
-                      /*
-                       * Στις σκούρες κάρτες το λογότυπο κάθεται σε λευκό
-                       * πλακίδιο — δεν επαναχρωματίζεται.
-                       *
-                       * Πριν έπαιρνε `brightness-0 invert`, που κάνει κάθε
-                       * ορατό εικονοστοιχείο λευκό. Δέκα από τα 43 λογότυπα του
-                       * καταλόγου έχουν συμπαγές φόντο (μετρημένο: 0% διαφανή
-                       * εικονοστοιχεία) και γίνονταν λευκό τετράγωνο με το σήμα
-                       * χαμένο μέσα του. Το ίδιο πλακίδιο χρησιμοποιεί ήδη η
-                       * σελίδα της κάθε μάρκας.
-                       */
-                      <span
-                        className={
-                          dark
-                            ? "flex h-20 w-20 items-center justify-center bg-white p-2"
-                            : "contents"
-                        }
-                      >
-                        <Image
-                          src={brand.logo}
-                          alt={brand.name}
-                          width={200}
-                          height={200}
-                          style={logoScaleStyle(brand.slug)}
-                          className={dark ? "block h-full w-full object-contain" : "block h-20 w-20 object-contain"}
-                        />
-                      </span>
+                      <Image
+                        src={brand.logo}
+                        alt={brand.name}
+                        width={200}
+                        height={200}
+                        style={logoScaleStyle(brand.slug)}
+                        className="block h-20 w-20 object-contain"
+                      />
                     ) : (
-                      <span
-                        className={`font-display text-lg ${dark ? "text-white" : "text-k-ink"}`}
-                      >
+                      <span className="font-display text-lg text-k-ink">
                         {brand.name}
                       </span>
                     )}
                   </div>
 
                   <div
-                    className={`flex items-baseline justify-between gap-3 border-t pt-3.5 ${
-                      dark ? "border-white/12" : "border-k-line"
-                    }`}
+                    className="flex items-baseline justify-between gap-3 border-t border-k-line pt-3.5"
                   >
                     <div>
                       <p
-                        className={`font-mono text-[17px] leading-none font-semibold ${
-                          dark ? "text-white" : "text-k-ink"
-                        }`}
+                        className="font-mono text-[17px] leading-none font-semibold text-k-ink"
                       >
                         {brand.productCount.toLocaleString(locale)}
                       </p>
                       <p
-                        className={`t-brand-count mt-1.5 ${
-                          dark ? "text-white/45" : "text-k-text-4"
-                        }`}
+                        className="t-brand-count mt-1.5 text-k-text-4"
                       >
                         {upGreek(t("kodikoi_se_apothema"))}
                       </p>
                     </div>
                     <span
-                      className={`text-lg transition-transform group-hover:translate-x-1 ${
-                        dark ? "text-k-red" : "text-k-ink"
-                      }`}
+                      className="text-lg text-k-ink transition-transform group-hover:translate-x-1 group-hover:text-k-red"
                     >
                       →
                     </span>
