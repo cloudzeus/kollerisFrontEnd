@@ -98,8 +98,8 @@ export const TOKENS = [
   { token: "{title}", label: "Τίτλος", sources: ["product", "offer"] },
   { token: "{brand}", label: "Μάρκα", sources: ["product"] },
   { token: "{code}", label: "Κωδικός", sources: ["product"] },
-  { token: "{price}", label: "Τιμή", sources: ["product"] },
-  { token: "{compare}", label: "Τιμή σύγκρισης", sources: ["product"] },
+  { token: "{price}", label: "Τιμή", sources: ["product", "offer"] },
+  { token: "{compare}", label: "Τιμή σύγκρισης", sources: ["product", "offer"] },
   { token: "{desc}", label: "Σύντομη περιγραφή", sources: ["product"] },
   { token: "{badge}", label: "Badge προσφοράς", sources: ["offer"] },
   { token: "{ends}", label: "Λήγει σε…", sources: ["offer"] },
@@ -139,6 +139,15 @@ export type TextStyle = {
   /** Line height, in hundredths. 120 = 1.2. */
   leading: number;
   color: ColorToken;
+  /*
+   * Πλακίδιο πίσω από το κείμενο, προαιρετικό.
+   * ───────────────────────────────────────────────────────────────────────────
+   * Τα badge layers είχαν πάντα `tone` — φόντο και χρώμα μαζί. Τα text layers
+   * όχι, και στην πράξη ένα «badge» φτιάχνεται συχνά ως text layer με το token
+   * `{badge}` μέσα του, ώστε να ακολουθεί την καμπάνια. Αυτό έμενε χωρίς φόντο
+   * και δεν υπήρχε τρόπος να αποκτήσει.
+   */
+  background?: ColorToken;
   align: "left" | "center" | "right";
   /** Vertical placement inside the layer's own box. */
   valign: "start" | "center" | "end";
@@ -1097,6 +1106,13 @@ export function layerStyle(layer: Layer): React.CSSProperties {
       base.lineHeight = layer.style.leading / 100;
       base.textAlign = layer.style.align;
       base.color = COLOR_VALUE[layer.style.color];
+      if (layer.style.background) {
+        base.backgroundColor = COLOR_VALUE[layer.style.background];
+        /* Σε μονάδες του καμβά, όπως και η τυπογραφία: ένα πλακίδιο με padding
+           σε pixel θα ήταν χοντρό στο κινητό και τριχούλα στα 2560. */
+        base.padding = "0.9cqw 2.2cqw";
+        base.width = "fit-content";
+      }
     }
   }
 

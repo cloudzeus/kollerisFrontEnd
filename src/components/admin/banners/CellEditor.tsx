@@ -25,6 +25,7 @@ import {
   clampFrame,
   layerForToken,
   emptyComposition,
+  COLOR_VALUE,
   newLayer,
   seedOfferLayers,
   seedProductLayers,
@@ -644,7 +645,17 @@ function SourceRail({
         )
       : [];
 
-  const gallery = binding.source === "product" ? images : offerImages;
+  /*
+   * Χωρίς διπλότυπα, και όχι μόνο για το κλειδί του React.
+   * ───────────────────────────────────────────────────────────────────────────
+   * Δύο πανομοιότυπα πλακίδια στη ράγα είναι σφάλμα από μόνα τους: ο συντάκτης
+   * δεν έχει τρόπο να ξέρει ποιο σύρει, και η επιλογή του δεν αλλάζει τίποτα.
+   *
+   * Συμβαίνει σε προσφορά που έχει την ίδια εικόνα και στις δύο περικοπές, και
+   * σε προϊόν που έχει το ίδιο αρχείο συνδεδεμένο δύο φορές — το `productAssets`
+   * το φιλτράρει ήδη, αλλά ο φιλτραρισμός ανήκει εδώ, όπου γίνεται η απόδοση.
+   */
+  const gallery = [...new Set(binding.source === "product" ? images : offerImages)];
   if (binding.source === "products") {
     // A set lends a ticker rather than a gallery: dragging one of ten
     // photographs out of it would be picking a favourite, which is the opposite
@@ -1306,9 +1317,28 @@ function FillFromProduct({
         const didCut = cutout && fill.image !== fill.originalImage;
 
         setDraft((d) => {
-          /* Layers μόνο αν το κελί είναι άδειο — η δουλειά κανενός δεν
-             αντικαθίσταται ως παρενέργεια ενός κουμπιού. */
-          const layers = d.layers.length > 0 ? d.layers : seedProductLayers();
+          /*
+           * Προστίθεται ό,τι λείπει· δεν αντικαθίσταται τίποτα.
+           * ─────────────────────────────────────────────────────────────────
+           * Πρώτη εκδοχή έβαζε layers ΜΟΝΟ σε άδειο κελί, για να μη σβήσει τη
+           * δουλειά κανενός. Το αποτέλεσμα ήταν χειρότερο: ένα κελί που είχε
+           * ήδη έναν τίτλο από παλιά έπαιρνε φωτογραφία και τίποτε άλλο — ούτε
+           * τιμή, ούτε μάρκα — και το κουμπί έλεγε ψέματα για το όνομά του.
+           *
+           * Τώρα ελέγχεται ανά token: υπάρχει layer με `{price}`; αν όχι,
+           * μπαίνει. Ό,τι έχει γράψει ο συντάκτης μένει ανέγγιχτο.
+           */
+          const has = (token: string) =>
+            d.layers.some(
+              (l) => l.kind === "text" && (l as TextLayer).text.el?.includes(token),
+            );
+          const missing = seedProductLayers().filter((l) => {
+            const body = (l as TextLayer).text.el ?? "";
+            const token = body.match(/\{\w+\}/)?.[0];
+            return token ? !has(token) : true;
+          });
+          const layers = [...d.layers, ...missing];
+
           const withText = layers.map((layer) =>
             layer.kind === "text" && (layer as TextLayer).text.el === "{desc}" && fill.text
               ? { ...layer, text: { ...(layer as TextLayer).text, el: fill.text } }
@@ -1709,9 +1739,9 @@ function Typography({
         value={style.font}
         onChange={(font) => patchStyle({ font })}
         options={[
-          { value: "display" as const, label: "Τίτλων", title: "Artegra — τίτλοι" },
-          { value: "sans" as const, label: "Κειμένου", title: "IBM Plex Sans" },
-          { value: "mono" as const, label: "Αριθμών", title: "Noto Sans Mono — τιμές, κωδικοί" },
+          { value: "display" as const, label: "Τίτλων", title: "Roboto Flex — τίτλοι, extended" },
+          { value: "sans" as const, label: "Κειμένου", title: "Inter — σώμα κειμένου" },
+          { value: "mono" as const, label: "Αριθμών", title: "JetBrains Mono — τιμές, κωδικοί" },
         ]}
       />
 
@@ -1727,7 +1757,7 @@ function Typography({
           label="Βάρος"
           value={style.weight}
           min={400}
-          max={700}
+          max={900}
           step={100}
           onChange={(weight) => patchStyle({ weight })}
         />
@@ -1760,6 +1790,44 @@ function Typography({
               value={layer.style.color}
               onChange={(color) => patchStyle({ color })}
             />
+          </div>
+          {/* Πλακίδιο πίσω από το κείμενο — ό,τι έχουν τα badge layers ως
+              `tone`, τώρα και εδώ: ένα «badge» φτιάχνεται συχνά ως κείμενο με
+              το token `{badge}` μέσα του, ώστε να ακολουθεί την καμπάνια. */}
+          <div className="space-y-1">
+            <Label className="text-[11px] text-k-text-3">Φόντο κειμένου</Label>
+            <div className="flex flex-wrap gap-1.5">
+              <button
+                type="button"
+                onClick={() => patchStyle({ background: undefined })}
+                aria-pressed={!layer.style.background}
+                title="Χωρίς φόντο"
+                className={cn(
+                  "flex h-7 w-7 items-center justify-center border text-[13px] leading-none",
+                  !layer.style.background
+                    ? "border-k-ink text-k-ink"
+                    : "border-k-line text-k-text-5 hover:border-k-ink",
+                )}
+              >
+                ⊘
+              </button>
+              {(["ink", "red", "white", "muted"] as const).map((token) => (
+                <button
+                  key={token}
+                  type="button"
+                  onClick={() => patchStyle({ background: token })}
+                  aria-pressed={layer.style.background === token}
+                  title={token}
+                  style={{ background: COLOR_VALUE[token] }}
+                  className={cn(
+                    "h-7 w-7 border",
+                    layer.style.background === token
+                      ? "border-k-ink ring-1 ring-k-ink ring-offset-1"
+                      : "border-k-line hover:border-k-ink",
+                  )}
+                />
+              ))}
+            </div>
           </div>
           <div className="grid grid-cols-2 gap-2">
             <Segmented

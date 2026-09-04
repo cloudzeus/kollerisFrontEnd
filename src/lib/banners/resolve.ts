@@ -1,4 +1,6 @@
 import "server-only";
+import { offerBadgeFor, discountedNet, campaignDiscountPercent } from "@/lib/offers/badges";
+import { campaignWhere } from "@/lib/offers/coverage";
 import { prisma } from "@/lib/prisma";
 import type { BannerContent, Binding } from "@/lib/banners/contract";
 import type { ResolvedCell } from "@/lib/banners/resolve-tokens";
@@ -100,7 +102,7 @@ export async function resolveCells(
   const brands = marks.length
     ? await prisma.brand.findMany({
         where: { mtrmark: { in: marks } },
-        select: { mtrmark: true, nameEl: true, nameEn: true, nameIt: true },
+        select: { mtrmark: true, slug: true, nameEl: true, nameEn: true, nameIt: true },
       })
     : [];
   const brandByMark = new Map(
@@ -109,6 +111,8 @@ export async function resolveCells(
       (locale === "en" ? b.nameEn : locale === "it" ? b.nameIt : b.nameEl) || b.nameEl,
     ]),
   );
+  /* Η καμπάνια μπορεί να στοχεύει μάρκα, οπότε χρειάζεται το slug της. */
+  const brandSlugByMark = new Map(brands.map((b) => [b.mtrmark, b.slug]));
 
   const productBySlug = new Map(products.map((p) => [p.slug, p]));
   const offerBySlug = new Map(offers.map((o) => [o.slug, o]));
@@ -127,15 +131,38 @@ export async function resolveCells(
       const net = p.priceNet == null ? null : Number(p.priceNet);
       const list = p.priceList == null ? null : Number(p.priceList);
 
+      /*
+       * Η τιμή έρχεται από την προσφορά, όχι από τον κατάλογο.
+       * ───────────────────────────────────────────────────────────────────────
+       * Ένα banner που διαφημίζει προϊόν σε καμπάνια και δείχνει την τιμή
+       * καταλόγου διαφημίζει λάθος τιμή — και μάλιστα υψηλότερη από αυτήν που
+       * θα πληρώσει ο πελάτης, δηλαδή διώχνει αγορές που θα γίνονταν.
+       *
+       * Ίδιος μηχανισμός με τη λίστα και τη σελίδα προϊόντος: `offerBadgeFor`
+       * πάνω στις ζωντανές καμπάνιες. Όταν υπάρχει έκπτωση, το `{compare}`
+       * γίνεται η τιμή ΠΡΙΝ — η διαγραμμένη που απαιτεί και η Omnibus.
+       */
+      const brandSlug = p.mtrmark != null ? (brandSlugByMark.get(p.mtrmark) ?? null) : null;
+      const badge =
+        net == null ? null : await offerBadgeFor({ slug: p.slug, brandSlug, unitNet: net }, locale);
+      const offerPct = badge?.discountPercent ?? 0;
+      const sellNet = net == null ? null : offerPct > 0 ? discountedNet(net, offerPct) : net;
+
       out.set(cellId, {
         tokens: {
           "{title}": p.translations[0]?.name ?? p.name,
           "{brand}": p.mtrmark != null ? (brandByMark.get(p.mtrmark) ?? "") : "",
           "{code}": p.code,
-          "{price}": net == null ? "" : format(net * vat, locale),
-          // Only when there genuinely is one above the selling price — a
-          // compare price equal to the price is a discount that does not exist.
-          "{compare}": list != null && net != null && list > net ? format(list * vat, locale) : "",
+          "{price}": sellNet == null ? "" : format(sellNet * vat, locale),
+          // Η τιμή πριν: της καμπάνιας όπου υπάρχει, αλλιώς η τιμή καταλόγου —
+          // και μόνο όταν είναι όντως ψηλότερα, γιατί ίση τιμή σύγκρισης είναι
+          // έκπτωση που δεν υπάρχει.
+          "{compare}":
+            offerPct > 0 && net != null
+              ? format(net * vat, locale)
+              : list != null && net != null && list > net
+                ? format(list * vat, locale)
+                : "",
           "{desc}": p.translations[0]?.shortDescription ?? "",
           "{image}": p.images[0]?.url ?? "",
         },
@@ -182,8 +209,48 @@ export async function resolveCells(
         continue;
       }
 
+      /*
+       * Η τιμή μιας ΚΑΜΠΑΝΙΑΣ.
+       * ───────────────────────────────────────────────────────────────────────
+       * Μια προσφορά δεν είναι ένα προϊόν — είναι μια μάρκα, μια κατηγορία ή
+       * μια λίστα. Δεν έχει «τιμή»· έχει σημείο εκκίνησης. Το `{price}` λύνει
+       * στη ΦΘΗΝΟΤΕΡΗ τιμή της καμπάνιας ΜΕΤΑ την έκπτωση, και το `{compare}`
+       * στην ίδια τιμή πριν — ό,τι ακριβώς δείχνει και η σελίδα προσφορών.
+       *
+       * Μέχρι τώρα το `{price}` δεν υπήρχε καθόλου στις προσφορές: ένα κελί που
+       * το είχε τύπωνε κυριολεκτικά «{price}» στον καμβά και στο site.
+       */
+      const where = await campaignWhere({
+        scope: o.scope,
+        productSlugs: o.productSlugs,
+        brandSlug: o.brandSlug,
+        categorySlug: o.categorySlug,
+      } as never);
+      let offerPrice = "";
+      let offerCompare = "";
+      if (where) {
+        const cheapest = await prisma.product.findFirst({
+          where: { ...where, priceNet: { gt: 0 } },
+          orderBy: { priceNet: "asc" },
+          select: { priceNet: true, vatRate: true },
+        });
+        if (cheapest?.priceNet != null) {
+          const base = Number(cheapest.priceNet);
+          const rate = 1 + Number(cheapest.vatRate ?? 24) / 100;
+          const pct = campaignDiscountPercent(
+            o.discount,
+            o.discountValue == null ? null : Number(o.discountValue),
+            base,
+          );
+          offerPrice = format(discountedNet(base, pct) * rate, locale);
+          if (pct > 0) offerCompare = format(base * rate, locale);
+        }
+      }
+
       out.set(cellId, {
         tokens: {
+          "{price}": offerPrice,
+          "{compare}": offerCompare,
           "{title}": (locale === "en" ? o.titleEn : locale === "it" ? o.titleIt : o.titleEl) || o.titleEl,
           "{desc}":
             (locale === "en" ? o.descriptionEn : locale === "it" ? o.descriptionIt : o.descriptionEl) ||

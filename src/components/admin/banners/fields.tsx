@@ -273,10 +273,14 @@ export function LocalisedField({
           type="button"
           onClick={generate}
           disabled={busy}
-          className="flex items-center gap-1 text-[10.5px] text-k-text-3 transition-colors hover:text-k-ink disabled:opacity-50"
+          className="flex items-center gap-1.5 border border-k-line bg-white px-2 py-1 text-[11px] font-medium text-k-ink transition-colors hover:border-k-red hover:text-k-red disabled:opacity-50"
         >
-          {busy ? <Loader2 className="size-3 animate-spin" /> : <Sparkles className="size-3" />}
-          Πρόταση
+          {busy ? (
+            <Loader2 className="size-3.5 animate-spin" />
+          ) : (
+            <Sparkles className="size-3.5 text-k-red" />
+          )}
+          {busy ? "Γράφει…" : "Γράψε με AI"}
         </button>
         <button
           type="button"
