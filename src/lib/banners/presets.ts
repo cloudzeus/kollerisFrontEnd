@@ -673,7 +673,7 @@ export const PRESETS: Preset[] = [
       background: photoBg("light"),
       layers: [
         brandMark({ x: 72, y: 7, w: 22, h: 10 }),
-        shape({ x: 6, y: 46, w: 52, h: 44 }, "white", 100),
+        shape({ x: 5, y: 40, w: 58, h: 52 }, "white", 100),
         text(
           "Υπέρτιτλος",
           "{brand}",

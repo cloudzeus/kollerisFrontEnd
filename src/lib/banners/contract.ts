@@ -1135,17 +1135,25 @@ export const TYPE_ROLE: Record<
     label: string;
     font: FontToken;
     /**
-     * Το μέγεθος ως τριάδα: [δάπεδο σε px, κλιμάκωση σε cqw, ταβάνι σε px].
+     * Πολλαπλάσιο της ΒΑΣΗΣ, και ένα δάπεδο σε px.
      *
-     * Δεν γράφεται ως έτοιμο `clamp()` γιατί πολλαπλασιάζεται με το
-     * `roleScale` του layer πριν αποδοθεί — αλλιώς η ρύθμιση μεγέθους θα
-     * έπρεπε να ξαναγράφει τη συμβολοσειρά με regex.
+     * ── Γιατί όχι ξεχωριστό `clamp()` ανά ρόλο ───────────────────────────
      *
-     * Το ταβάνι είναι το μέγεθος που έχει η ΙΔΙΑ βαθμίδα στη σελίδα: 46 για
-     * τίτλο (t-h1: 48), 21 για τιμή (t-card-price: 21), 11,5 για παλιά τιμή
-     * (t-card-was: 11,5 — εδώ 19 γιατί το banner δεν έχει τη στήλη της κάρτας).
+     * Έτσι ήταν, και κατέρρεε. Πέντε ανεξάρτητα `clamp()` συγκλίνουν στα
+     * δάπεδά τους μόλις στενέψει το κελί: σε πλάτος 207px ο τίτλος έβγαινε
+     * 17px και η τιμή 15px — δηλαδή σχεδόν ίδια. Μετρημένο στη γκαλερί: ο
+     * τίτλος αποδιδόταν 14,7px και η τιμή 15px, ο τίτλος ΜΙΚΡΟΤΕΡΟΣ από την
+     * τιμή. Δεν ήταν μέγεθος το πρόβλημα, ήταν ότι έπαυε να υπάρχει κλίμακα.
+     *
+     * Μία βάση κλιμακώνεται με το κελί και όλοι οι ρόλοι είναι πολλαπλάσιά
+     * της, οπότε οι ΑΝΑΛΟΓΙΕΣ κρατούν σε κάθε πλάτος: ο τίτλος είναι πάντα
+     * 2,4 φορές το σώμα κειμένου, είτε το κελί είναι 200px είτε 1200px.
+     *
+     * Το δάπεδο υπάρχει μόνο για τα μικρά: ένας υπέρτιτλος στο 0,7 της βάσης
+     * βγαίνει 8px σε στενό κελί, και τα 8px δεν διαβάζονται.
      */
-    size: [min: number, cqw: number, max: number];
+    scale: number;
+    floor: number;
     css: React.CSSProperties;
   }
 > = {
@@ -1153,7 +1161,8 @@ export const TYPE_ROLE: Record<
   eyebrow: {
     label: "Eyebrow",
     font: "mono",
-    size: [9, 3.4, 13],
+    scale: 0.7,
+    floor: 9,
     css: {
       fontWeight: 500,
       letterSpacing: "0.14em",
@@ -1165,7 +1174,8 @@ export const TYPE_ROLE: Record<
   title: {
     label: "Τίτλος",
     font: "display",
-    size: [17, 9.5, 46],
+    scale: 2,
+    floor: 18,
     css: {
       fontWeight: 900,
       letterSpacing: "-0.03em",
@@ -1178,7 +1188,8 @@ export const TYPE_ROLE: Record<
   body: {
     label: "Κείμενο",
     font: "sans",
-    size: [11, 4.2, 17],
+    scale: 1,
+    floor: 11,
     css: {
       fontWeight: 400,
       letterSpacing: "0",
@@ -1189,7 +1200,8 @@ export const TYPE_ROLE: Record<
   price: {
     label: "Τιμή",
     font: "mono",
-    size: [15, 6.4, 30],
+    scale: 1.55,
+    floor: 14,
     css: {
       fontWeight: 600,
       letterSpacing: "-0.01em",
@@ -1210,7 +1222,8 @@ export const TYPE_ROLE: Record<
   stat: {
     label: "Μέγεθος",
     font: "mono",
-    size: [30, 13, 76],
+    scale: 3.2,
+    floor: 26,
     css: {
       fontWeight: 600,
       letterSpacing: "-0.02em",
@@ -1234,7 +1247,8 @@ export const TYPE_ROLE: Record<
   compare: {
     label: "Παλιά τιμή",
     font: "mono",
-    size: [11, 4.2, 19],
+    scale: 0.8,
+    floor: 10,
     css: {
       fontWeight: 400,
       letterSpacing: "0",
@@ -1248,17 +1262,16 @@ export const TYPE_ROLE: Record<
 /**
  * Το μέγεθος ενός ρόλου, ρυθμισμένο.
  *
- * Ο ρόλος κλειδώνει τη ΣΧΕΣΗ — δάπεδο, κλιμάκωση, ταβάνι — και το `roleScale`
- * μετακινεί και τα τρία μαζί. Έτσι ένας τίτλος στο 130% παραμένει τίτλος: δεν
- * ξεχειλώνει στα στενά κελιά ούτε παγώνει στα πλατιά, απλώς κάθεται ψηλότερα
- * σε ολόκληρη την κλίμακα. Ένα σκέτο νούμερο pixel θα ξανάφερνε ακριβώς το
- * πρόβλημα που έλυσαν οι ρόλοι.
+ * Η βάση `--bn-type` ορίζεται στο ίδιο το κελί και κλιμακώνεται μαζί του· εδώ
+ * βγαίνει μόνο το πολλαπλάσιο. Το `roleScale` μετακινεί αναλογία και δάπεδο
+ * ΜΑΖΙ, οπότε ένας τίτλος στο 130% παραμένει τίτλος σε κάθε πλάτος: κρατά τη
+ * θέση του στην κλίμακα αντί να παγώνει σε ένα νούμερο pixel.
  */
 export function roleFontSize(role: TypeRole, scale?: number): string {
-  const [min, cqw, max] = TYPE_ROLE[role].size;
+  const { scale: step, floor } = TYPE_ROLE[role];
   const k = Math.max(50, Math.min(220, scale ?? 100)) / 100;
-  const r = (n: number) => Math.round(n * k * 10) / 10;
-  return `clamp(${r(min)}px, ${r(cqw)}cqw, ${r(max)}px)`;
+  const round = (n: number) => Math.round(n * 100) / 100;
+  return `max(${round(floor * k)}px, calc(var(--bn-type) * ${round(step * k)}))`;
 }
 
 /**

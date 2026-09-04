@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { Link } from "@/i18n/navigation";
-import { FitText } from "@/components/banners/FitText";
+import { FitCell, FitText } from "@/components/banners/FitText";
 import {
   COLOR_VALUE,
   FONT_STACK,
@@ -82,6 +82,7 @@ export function CompositionRenderer({
       className={cn("bn-clip relative isolate size-full overflow-hidden", className)}
       style={{ containerType: "size", backgroundColor: COLOR_VALUE[bg.color] }}
     >
+      <FitCell />
       {/* ── Φόντο ──
           «Πάντα σε πλήρη κάλυψη» ήταν λάθος για το βίντεο. Το object-cover
           γεμίζει το κελί κόβοντας ό,τι περισσεύει, και το κελί σπάνια έχει
