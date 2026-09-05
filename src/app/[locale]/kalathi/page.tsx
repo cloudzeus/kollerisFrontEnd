@@ -52,14 +52,20 @@ export default async function CartPage({
   const lines = cart?.lines ?? [];
   const isEmpty = lines.length === 0;
 
-  const [crossSell, menuTree, brands, stats, rootCategories, miniCart] = await Promise.all([
-    isEmpty ? Promise.resolve([]) : getCartCrossSell(locale, lines.map((l) => l.productId)),
-    getMenuTree(locale),
-    getTopBrands(locale, 16),
-    getCatalogueStats(),
-    getRootCategories(locale),
-    getMiniCart(locale),
-  ]);
+  const [crossSell, menuTree, brands, stats, rootCategories, miniCart] =
+    await Promise.all([
+      isEmpty
+        ? Promise.resolve([])
+        : getCartCrossSell(
+            locale,
+            lines.map((l) => l.productId),
+          ),
+      getMenuTree(locale),
+      getTopBrands(locale, 16),
+      getCatalogueStats(),
+      getRootCategories(locale),
+      getMiniCart(locale),
+    ]);
 
   const steps = [
     { n: "01", label: t("kalathi"), active: true },
@@ -78,6 +84,7 @@ export default async function CartPage({
       />
 
       <main id="main">
+        <Zone id="cart.top" locale={locale} />
         <div className="shell-x bg-k-ink-deep">
           <nav
             aria-label="Breadcrumb"
@@ -121,6 +128,8 @@ export default async function CartPage({
           </div>
         </div>
 
+        <Zone id="cart.middle" locale={locale} />
+
         {/*
           The summary panel is rendered only when there is something to total.
           Showing it at €0,00 beside an empty-cart message is the flash the spec
@@ -139,7 +148,8 @@ export default async function CartPage({
               {upGreek(t("to_kalathi_einai_adeio"))}
             </p>
             <p className="mt-2.5 text-[13.5px] text-k-text-3">
-              {stats.products.toLocaleString(locale)} {t("kodikoi_sas_perimenoyn_ston_katalogo")}
+              {stats.products.toLocaleString(locale)}{" "}
+              {t("kodikoi_sas_perimenoyn_ston_katalogo")}
             </p>
             <Link
               href="/katalogos"
@@ -165,11 +175,21 @@ export default async function CartPage({
             <div className="@container min-w-0 border-k-line lg:border-r">
               {/* Column headings — wide rows only; each narrow row labels itself. */}
               <div className="hidden grid-cols-[minmax(0,1fr)_110px_112px_104px_40px] gap-4 border-b border-k-ink px-5 py-3.5 @[600px]:grid @[900px]:grid-cols-[minmax(0,1fr)_150px_150px_140px_52px] @[900px]:gap-5 @[900px]:px-10 @[900px]:py-4">
-                {[t("proion"), `${t("timi_monadas")} (${t("me_fpa_short")})`, t("posotita"), t("synolo"), ""].map((label, i) => (
+                {[
+                  t("proion"),
+                  `${t("timi_monadas")} (${t("me_fpa_short")})`,
+                  t("posotita"),
+                  t("synolo"),
+                  "",
+                ].map((label, i) => (
                   <span
                     key={label || i}
                     className={`t-footer-col text-k-text-4 ${
-                      i === 1 || i === 3 ? "text-right" : i === 2 ? "text-center" : ""
+                      i === 1 || i === 3
+                        ? "text-right"
+                        : i === 2
+                          ? "text-center"
+                          : ""
                     }`}
                   >
                     {upGreek(label)}

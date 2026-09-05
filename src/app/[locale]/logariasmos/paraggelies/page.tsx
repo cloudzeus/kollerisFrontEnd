@@ -75,14 +75,20 @@ export default async function OrdersPage({
 
   return (
     <AccountChrome locale={locale}>
-      <AccountShell user={user} active="/logariasmos/paraggelies" title={t("titlos")}>
+      <AccountShell
+        user={user}
+        active="/logariasmos/paraggelies"
+        title={t("titlos")}
+      >
         {orders.length === 0 ? (
           /*
            * An empty state that says what to do, not just that there is nothing.
            * A new account with no orders is the normal first visit, not an error.
            */
           <div className="border border-k-line bg-k-surface-2 px-5 py-10 text-center lg:py-14">
-            <p className="text-[14px] font-semibold text-k-ink">{t("kamia_paraggelia")}</p>
+            <p className="text-[14px] font-semibold text-k-ink">
+              {t("kamia_paraggelia")}
+            </p>
             <p className="mx-auto mt-2 max-w-[44ch] text-[12.5px] leading-[1.6] text-k-text-3">
               {t("kamia_paraggelia_body")}
             </p>
@@ -139,7 +145,9 @@ export default async function OrdersPage({
                     {order.voucherNo && (
                       <p className="mt-1 flex items-center gap-1.5 text-[11.5px] text-k-text-3">
                         <Truck className="size-3" aria-hidden />
-                        <span className="font-mono tabular-nums">ACS {order.voucherNo}</span>
+                        <span className="font-mono tabular-nums">
+                          ACS {order.voucherNo}
+                        </span>
                       </p>
                     )}
                   </div>
@@ -147,12 +155,15 @@ export default async function OrdersPage({
                   <div className="flex items-center gap-4 sm:gap-6">
                     <span
                       className={`t-stat-label uppercase ${
-                        order.status === "FAILED" || order.status === "CANCELLED"
+                        order.status === "FAILED" ||
+                        order.status === "CANCELLED"
                           ? "text-k-text-4"
                           : "text-k-red"
                       }`}
                     >
-                      {upGreek(statusLabel[order.status] ?? statusLabel.CONFIRMED)}
+                      {upGreek(
+                        statusLabel[order.status] ?? statusLabel.CONFIRMED,
+                      )}
                     </span>
                     <span className="ml-auto shrink-0 font-mono text-[13.5px] font-semibold tabular-nums text-k-ink sm:ml-0">
                       {formatMoney(order.totalGross, locale)}

@@ -191,7 +191,8 @@ export default async function SearchPage({ params, searchParams }: PageProps) {
                       )}
                       {inStockCount > 0 && (
                         <>
-                          , {inStockCount.toLocaleString(locale)} {t("amesa_diathesima")}
+                          , {inStockCount.toLocaleString(locale)}{" "}
+                          {t("amesa_diathesima")}
                         </>
                       )}
                       {t("filtrarete_aristera_oles_oi_times")}
@@ -202,12 +203,15 @@ export default async function SearchPage({ params, searchParams }: PageProps) {
                 </p>
               ) : (
                 <p className="mt-3.5 max-w-[640px] text-[13px] leading-[1.68] text-white/60 lg:text-sm">
-                  {t("grapste_toylachiston")} {SUGGEST_MIN_LENGTH} {t("charaktires_kodiko_onoma_proiontos_i")}
+                  {t("grapste_toylachiston")} {SUGGEST_MIN_LENGTH}{" "}
+                  {t("charaktires_kodiko_onoma_proiontos_i")}
                 </p>
               )}
             </div>
           </div>
         </div>
+
+        <Zone id="search.middle" locale={locale} />
 
         {/* Exact code — its own band, above everything. */}
         {exact && (
@@ -253,7 +257,9 @@ export default async function SearchPage({ params, searchParams }: PageProps) {
               <div className="shrink-0 text-right">
                 <p className="font-mono text-[19px] leading-none font-semibold text-k-ink">
                   {exact.priceNet != null
-                    ? formatPrice(exact.priceNet, locale, { vatRate: exact.vatRate })
+                    ? formatPrice(exact.priceNet, locale, {
+                        vatRate: exact.vatRate,
+                      })
                     : "—"}
                 </p>
                 <p
@@ -292,7 +298,7 @@ export default async function SearchPage({ params, searchParams }: PageProps) {
 
             <div className="shell-w bg-white lg:grid lg:grid-cols-[326px_1fr] lg:items-start">
               <FilterSidebar
-              locale={locale}
+                locale={locale}
                 facets={data.facets}
                 basePath="/anazitisi"
                 params={raw}
@@ -322,6 +328,7 @@ export default async function SearchPage({ params, searchParams }: PageProps) {
         ) : (
           query.length >= SUGGEST_MIN_LENGTH && <NoResults query={query} />
         )}
+        <Zone id="search.bottom" locale={locale} />
       </main>
 
       <SiteFooter categories={rootCategories} />

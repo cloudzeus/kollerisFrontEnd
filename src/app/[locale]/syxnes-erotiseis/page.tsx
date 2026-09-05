@@ -27,7 +27,10 @@ export async function generateMetadata({
   const { locale } = await params;
   // Explicit locale: `setRequestLocale` belongs to the render pass, and
   // metadata is generated outside it.
-  const t = await getTranslations({ locale, namespace: "syxnes-erotiseis.page" });
+  const t = await getTranslations({
+    locale,
+    namespace: "syxnes-erotiseis.page",
+  });
   const title = t("titlos_sychnes_erotiseis");
   const description = t("perigrafi_apostoli_times_eggyisi_epistrofes");
   return {
@@ -40,19 +43,24 @@ export async function generateMetadata({
   };
 }
 
-export default async function FaqPage({ params }: { params: Promise<{ locale: Locale }> }) {
+export default async function FaqPage({
+  params,
+}: {
+  params: Promise<{ locale: Locale }>;
+}) {
   const t = await getTranslations("syxnes-erotiseis.page");
   const { locale } = await params;
   setRequestLocale(locale);
 
-  const [sections, menuTree, brands, stats, rootCategories, miniCart] = await Promise.all([
-    getFaq(locale),
-    getMenuTree(locale),
-    getTopBrands(locale, 16),
-    getCatalogueStats(),
-    getRootCategories(locale),
-    getMiniCart(locale),
-  ]);
+  const [sections, menuTree, brands, stats, rootCategories, miniCart] =
+    await Promise.all([
+      getFaq(locale),
+      getMenuTree(locale),
+      getTopBrands(locale, 16),
+      getCatalogueStats(),
+      getRootCategories(locale),
+      getMiniCart(locale),
+    ]);
 
   const total = sections.reduce((n, s) => n + s.entries.length, 0);
 
@@ -91,13 +99,19 @@ export default async function FaqPage({ params }: { params: Promise<{ locale: Lo
       />
 
       <main id="main">
+        <Zone id="faq.top" locale={locale} />
         <div className="shell-x bg-k-ink-deep">
-          <nav aria-label="Breadcrumb" className="t-util flex h-11 items-center gap-2.5 text-white/45">
+          <nav
+            aria-label="Breadcrumb"
+            className="t-util flex h-11 items-center gap-2.5 text-white/45"
+          >
             <Link href="/" className="text-white/60 hover:text-white">
               {upGreek(t("archiki"))}
             </Link>
             <span className="text-k-red">/</span>
-            <span className="text-white">{upGreek(t("sychnes_erotiseis"))}</span>
+            <span className="text-white">
+              {upGreek(t("sychnes_erotiseis"))}
+            </span>
           </nav>
 
           <div className="grid gap-6 pt-2.5 pb-8 lg:grid-cols-[1fr_auto] lg:items-end lg:gap-16">
@@ -111,14 +125,18 @@ export default async function FaqPage({ params }: { params: Promise<{ locale: Lo
             </div>
 
             <div className="shrink-0 border-l-[3px] border-k-red pl-5">
-              <p className="t-account-label text-white/50">{upGreek(t("den_to_vrikate"))}</p>
+              <p className="t-account-label text-white/50">
+                {upGreek(t("den_to_vrikate"))}
+              </p>
               <a
                 href="tel:+302104111355"
                 className="mt-1.5 block font-mono text-[19px] leading-none font-semibold text-white transition-colors hover:text-k-red lg:text-[24px]"
               >
                 210 411 1355
               </a>
-              <p className="t-brand-count mt-2 text-white/45">{upGreek(t("dey_par_08_00_16"))}</p>
+              <p className="t-brand-count mt-2 text-white/45">
+                {upGreek(t("dey_par_08_00_16"))}
+              </p>
             </div>
           </div>
         </div>
@@ -128,6 +146,8 @@ export default async function FaqPage({ params }: { params: Promise<{ locale: Lo
             <FaqAccordion sections={sections} />
           </div>
         </section>
+
+        <Zone id="faq.middle" locale={locale} />
 
         <section className="band-alt border-t border-k-line">
           <div className="shell-x py-8 lg:py-12">

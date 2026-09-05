@@ -55,16 +55,17 @@ export default async function CheckoutPage({
   const { locale } = await params;
   setRequestLocale(locale);
 
-  const [cart, miniCart, menuTree, brands, stats, rootCategories, viewer] = await Promise.all([
-    getCart(locale),
-    getMiniCart(locale),
-    getMenuTree(locale),
-    getTopBrands(locale, 16),
-    getCatalogueStats(),
-    getRootCategories(locale),
+  const [cart, miniCart, menuTree, brands, stats, rootCategories, viewer] =
+    await Promise.all([
+      getCart(locale),
+      getMiniCart(locale),
+      getMenuTree(locale),
+      getTopBrands(locale, 16),
+      getCatalogueStats(),
+      getRootCategories(locale),
       // Somebody with an account is not offered another one.
-    getViewer(),
-  ]);
+      getViewer(),
+    ]);
 
   /*
    * What we already know about them.
@@ -135,19 +136,27 @@ export default async function CheckoutPage({
                       : "border-k-line-2 bg-white text-k-text-5"
                 }`}
               >
-                <span className="t-brand-count opacity-70">{step.done ? "✓" : step.n}</span>
+                <span className="t-brand-count opacity-70">
+                  {step.done ? "✓" : step.n}
+                </span>
                 {step.label}
               </li>
             ))}
           </ol>
 
-          <Link href="/kalathi" className="t-link-mono text-k-text-3 hover:text-k-red">
+          <Link
+            href="/kalathi"
+            className="t-link-mono text-k-text-3 hover:text-k-red"
+          >
             ‹ {upGreek(t("piso_sto_kalathi"))}
           </Link>
         </div>
       </div>
 
-      <main id="main" className="shell-w bg-white lg:grid lg:grid-cols-[1fr_460px] lg:items-start">
+      <main
+        id="main"
+        className="shell-w bg-white lg:grid lg:grid-cols-[1fr_460px] lg:items-start"
+      >
         <div className="min-w-0 border-k-line px-4 py-8 lg:border-r lg:px-10 lg:py-10">
           {!isVivaConfigured() && (
             <p className="mb-6 border-l-[3px] border-k-amber bg-k-surface-2 px-4 py-3 text-[12.5px] leading-[1.55] text-k-text-2">
@@ -164,7 +173,10 @@ export default async function CheckoutPage({
             <p className="mb-6 border-l-[3px] border-k-line-2 bg-k-surface-2 px-4 py-3 text-[12.5px] leading-[1.55] text-k-text-2">
               Έχετε λογαριασμό;{" "}
               <Link
-                href={{ pathname: "/eisodos", query: { redirectTo: "/checkout" } }}
+                href={{
+                  pathname: "/eisodos",
+                  query: { redirectTo: "/checkout" },
+                }}
                 className="text-k-ink underline-offset-2 hover:underline"
               >
                 Συνδεθείτε
@@ -187,7 +199,9 @@ export default async function CheckoutPage({
         <aside className="lg:sticky lg:top-0">
           <div className="border-b border-k-line px-4 py-6 lg:px-8">
             <p className="t-footer-col mb-4 text-k-text-4">
-              {upGreek(t("i_paraggelia_sas_proionta", { itemCount: totals.itemCount }))}
+              {upGreek(
+                t("i_paraggelia_sas_proionta", { itemCount: totals.itemCount }),
+              )}
             </p>
 
             <div className="max-h-[280px] overflow-y-auto">
@@ -230,7 +244,10 @@ export default async function CheckoutPage({
           <div className="bg-k-ink px-4 py-6 lg:px-8">
             <dl className="flex flex-col gap-2.5">
               {[
-                { k: t("kathari_axia"), v: formatMoney(totals.subtotalNet, locale) },
+                {
+                  k: t("kathari_axia"),
+                  v: formatMoney(totals.subtotalNet, locale),
+                },
                 {
                   k: t("metaforika"),
                   v:
@@ -240,9 +257,14 @@ export default async function CheckoutPage({
                 },
                 { k: t("fpa"), v: formatMoney(totals.vatAmount, locale) },
               ].map((row) => (
-                <div key={row.k} className="flex items-baseline justify-between gap-4">
+                <div
+                  key={row.k}
+                  className="flex items-baseline justify-between gap-4"
+                >
                   <dt className="text-[12.5px] text-white/55">{row.k}</dt>
-                  <dd className="font-mono text-[13px] font-medium text-white">{row.v}</dd>
+                  <dd className="font-mono text-[13px] font-medium text-white">
+                    {row.v}
+                  </dd>
                 </div>
               ))}
             </dl>
@@ -252,14 +274,19 @@ export default async function CheckoutPage({
                 {totals.postage.carrier} · {totals.postage.zoneLabel} ·{" "}
                 {totals.postage.chargeableKg} kg
                 {totals.postage.estimated && t("ektimisi")}
-                {" — "}{t("oristikopoieitai_me_to_t_k")}
+                {" — "}
+                {t("oristikopoieitai_me_to_t_k")}
               </p>
             )}
 
             <div className="mt-4 flex items-end justify-between gap-4 border-t border-white/16 pt-4">
               <div>
-                <p className="t-footer-col text-white/50">{upGreek(t("synolo"))}</p>
-                <p className="t-account-label mt-1.5 text-white/40">{upGreek(t("me_fpa"))}</p>
+                <p className="t-footer-col text-white/50">
+                  {upGreek(t("synolo"))}
+                </p>
+                <p className="t-account-label mt-1.5 text-white/40">
+                  {upGreek(t("me_fpa"))}
+                </p>
               </div>
               <p className="font-mono text-[30px] leading-none font-semibold tracking-[-0.03em] text-white lg:text-[36px]">
                 {formatMoney(totals.totalGross, locale)}

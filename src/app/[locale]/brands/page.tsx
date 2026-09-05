@@ -142,6 +142,7 @@ export default async function BrandsPage({
 
       <main id="main">
         <Zone id="brands.top" locale={locale} />
+        <Zone id="brands.bottom" locale={locale} />
         {/* Hero */}
         <div className="relative overflow-hidden bg-k-ink-deep">
           <span
@@ -288,6 +289,8 @@ export default async function BrandsPage({
             })}
           </div>
         </section>
+
+        <Zone id="brands.middle" locale={locale} />
 
         {/* All in-stock brands + search */}
         <section className="shell-x bg-white pb-10 lg:pb-14">

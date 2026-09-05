@@ -202,6 +202,7 @@ export default async function CompanyPage({
       />
 
       <main id="main">
+        <Zone id="about.top" locale={locale} />
         {/* Hero */}
         <div className="shell-x bg-k-ink-deep">
           <nav
@@ -298,6 +299,8 @@ export default async function CompanyPage({
             )}
           </div>
         </section>
+
+        <Zone id="about.middle" locale={locale} />
 
         {/* Timeline */}
         <section className="band-alt border-t border-k-line">

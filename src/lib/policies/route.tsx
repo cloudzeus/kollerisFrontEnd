@@ -4,9 +4,15 @@ import { setRequestLocale } from "next-intl/server";
 import { SiteChrome } from "@/components/chrome/SiteChrome";
 import { SiteFooter } from "@/components/chrome/SiteFooter";
 import { PolicyLayout } from "@/components/policies/PolicyLayout";
+import { Zone } from "@/components/zones/Zone";
 import type { Locale } from "@/i18n/routing";
 import { getMiniCart } from "@/lib/cart/cart";
-import { getCatalogueStats, getMenuTree, getRootCategories, getTopBrands } from "@/lib/catalog/queries";
+import {
+  getCatalogueStats,
+  getMenuTree,
+  getRootCategories,
+  getTopBrands,
+} from "@/lib/catalog/queries";
 import { getPolicyContent } from "@/lib/policies/content";
 import type { PolicySlug } from "@/lib/policies/types";
 import { alternatesFor } from "@/lib/seo/urls";
@@ -40,30 +46,47 @@ export function createPolicyRoute(slug: PolicySlug, path: string) {
     };
   }
 
-  async function PolicyRoute({ params }: { params: Promise<{ locale: Locale }> }) {
+  async function PolicyRoute({
+    params,
+  }: {
+    params: Promise<{ locale: Locale }>;
+  }) {
     const { locale } = await params;
     setRequestLocale(locale);
 
-    const [t, menuTree, brands, stats, rootCategories, miniCart] = await Promise.all([
-      getTranslations({ locale, namespace: "policies" }),
-      getMenuTree(locale),
-      getTopBrands(locale, 16),
-      getCatalogueStats(),
-      getRootCategories(locale),
-      getMiniCart(locale),
-    ]);
+    const [t, menuTree, brands, stats, rootCategories, miniCart] =
+      await Promise.all([
+        getTranslations({ locale, namespace: "policies" }),
+        getMenuTree(locale),
+        getTopBrands(locale, 16),
+        getCatalogueStats(),
+        getRootCategories(locale),
+        getMiniCart(locale),
+      ]);
 
     const content = getPolicyContent(slug, locale);
 
     return (
       <>
-        <SiteChrome locale={locale} cart={miniCart} categories={menuTree} brands={brands} stats={stats} />
+        <SiteChrome
+          locale={locale}
+          cart={miniCart}
+          categories={menuTree}
+          brands={brands}
+          stats={stats}
+        />
+        <Zone id="policy.top" locale={locale} />
         <PolicyLayout
           content={content}
+          locale={locale}
           homeLabel={t("archiki")}
           contactLabel={t("miliste_mas")}
           updatedLabel={t("teleftaia_enimerosi")}
         />
+        {/* Μία ζώνη για ΟΛΕΣ τις θεσμικές σελίδες — όροι, απόρρητο, αποστολή,
+            επιστροφές, εγγυήσεις, τρόποι πληρωμής. Ξεχωριστή ζώνη ανά σελίδα θα
+            ήταν έξι κουτιά που ο συντάκτης θα συμπλήρωνε με το ίδιο πράγμα. */}
+        <Zone id="policy.below" locale={locale} />
         <SiteFooter categories={rootCategories} />
       </>
     );

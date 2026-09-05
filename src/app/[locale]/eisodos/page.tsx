@@ -45,13 +45,17 @@ export default async function SignInPage({
   if (session.state === "signed-in") redirect("/logariasmos");
 
   const raw = await searchParams;
-  const redirectTo = typeof raw.redirect === "string" ? raw.redirect : undefined;
+  const redirectTo =
+    typeof raw.redirect === "string" ? raw.redirect : undefined;
 
   return (
     <AccountChrome locale={locale}>
       <main id="main">
         <div className="shell-x bg-k-ink-deep">
-          <nav aria-label="Breadcrumb" className="t-util flex h-11 items-center gap-2.5 text-white/45">
+          <nav
+            aria-label="Breadcrumb"
+            className="t-util flex h-11 items-center gap-2.5 text-white/45"
+          >
             <Link href="/" className="text-white/60 hover:text-white">
               {upGreek(t("archiki"))}
             </Link>
@@ -98,7 +102,9 @@ export default async function SignInPage({
           </div>
 
           <aside className="border-t border-k-line bg-k-surface-2 px-4 py-8 lg:border-t-0 lg:border-l lg:px-8 lg:py-12">
-            <p className="t-eyebrow text-k-red">{upGreek(t("etairikos_logariasmos"))}</p>
+            <p className="t-eyebrow text-k-red">
+              {upGreek(t("etairikos_logariasmos"))}
+            </p>
             <p className="font-display t-display mt-2.5 text-[18px] leading-[1.28] text-k-ink">
               {upGreek(t("agorazete_gia_etaireia"))}
             </p>
@@ -109,8 +115,14 @@ export default async function SignInPage({
                 t("polloi_christes_me_roloys_kai"),
                 t("istoriko_paraggelion_olis_tis_etaireias"),
               ].map((item) => (
-                <li key={item} className="flex items-start gap-2.5 text-[12.5px] leading-[1.55] text-k-text-2">
-                  <span aria-hidden className="mt-1.5 block h-1.5 w-1.5 shrink-0 bg-k-red" />
+                <li
+                  key={item}
+                  className="flex items-start gap-2.5 text-[12.5px] leading-[1.55] text-k-text-2"
+                >
+                  <span
+                    aria-hidden
+                    className="mt-1.5 block h-1.5 w-1.5 shrink-0 bg-k-red"
+                  />
                   {item}
                 </li>
               ))}

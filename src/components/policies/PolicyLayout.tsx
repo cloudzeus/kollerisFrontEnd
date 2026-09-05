@@ -1,6 +1,8 @@
 import { Link } from "@/i18n/navigation";
 import type { PolicyContent } from "@/lib/policies/types";
 import { upGreek } from "@/lib/greek";
+import { Zone } from "@/components/zones/Zone";
+import type { Locale } from "@/i18n/routing";
 
 /**
  * The shell every legal page uses.
@@ -13,11 +15,13 @@ import { upGreek } from "@/lib/greek";
  */
 export function PolicyLayout({
   content,
+  locale,
   homeLabel,
   contactLabel,
   updatedLabel,
 }: {
   content: PolicyContent;
+  locale: Locale;
   homeLabel: string;
   contactLabel: string;
   /** e.g. "Τελευταία ενημέρωση" / "Last updated" / "Ultimo aggiornamento". */
@@ -26,7 +30,10 @@ export function PolicyLayout({
   return (
     <main id="main">
       <div className="shell-x bg-k-ink-deep">
-        <nav aria-label="Breadcrumb" className="t-util flex h-11 items-center gap-2.5 text-white/45">
+        <nav
+          aria-label="Breadcrumb"
+          className="t-util flex h-11 items-center gap-2.5 text-white/45"
+        >
           <Link href="/" className="text-white/60 hover:text-white">
             {upGreek(homeLabel)}
           </Link>
@@ -51,7 +58,9 @@ export function PolicyLayout({
             {content.sections.map((section, index) => (
               <div key={section.heading ?? index}>
                 {section.heading && <h2>{section.heading}</h2>}
-                {section.paragraphs?.map((paragraph, i) => <p key={i}>{paragraph}</p>)}
+                {section.paragraphs?.map((paragraph, i) => (
+                  <p key={i}>{paragraph}</p>
+                ))}
                 {section.list && (
                   <ul>
                     {section.list.map((item, i) => (
@@ -65,11 +74,16 @@ export function PolicyLayout({
         </div>
       </section>
 
+      {/* Κοινή μεσαία ζώνη για όλες τις θεσμικές σελίδες. */}
+      <Zone id="policy.middle" locale={locale} />
+
       <section className="band-ink band-grid">
         <div className="rule-hazard" />
         <div className="shell-x py-9 lg:py-12">
           <div className="flex flex-wrap items-center justify-between gap-6">
-            <p className="t-h2 text-balance text-white">{upGreek(contactLabel)}</p>
+            <p className="t-h2 text-balance text-white">
+              {upGreek(contactLabel)}
+            </p>
             <div className="flex flex-wrap gap-3">
               <a
                 href="tel:+302104111355"

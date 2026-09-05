@@ -112,7 +112,11 @@ export type ZoneDef = {
  * the next says "προσφορα!!" reads as a shop that does not check its own work.
  * Custom text is still allowed — it just is not the first thing offered.
  */
-export const BADGE_PRESETS: ReadonlyArray<{ value: string; label: string; tone: BadgeTone }> = [
+export const BADGE_PRESETS: ReadonlyArray<{
+  value: string;
+  label: string;
+  tone: BadgeTone;
+}> = [
   { value: "ΝΕΟ", label: "ΝΕΟ", tone: "ink" },
   { value: "ΠΡΟΣΦΟΡΑ", label: "ΠΡΟΣΦΟΡΑ", tone: "red" },
   { value: "ΤΕΛΕΥΤΑΙΑ ΤΕΜΑΧΙΑ", label: "ΤΕΛΕΥΤΑΙΑ ΤΕΜΑΧΙΑ", tone: "amber" },
@@ -123,7 +127,11 @@ export const BADGE_PRESETS: ReadonlyArray<{ value: string; label: string; tone: 
 
 export type BadgeTone = "ink" | "red" | "amber" | "green";
 
-export const BADGE_TONES: ReadonlyArray<{ value: BadgeTone; label: string; className: string }> = [
+export const BADGE_TONES: ReadonlyArray<{
+  value: BadgeTone;
+  label: string;
+  className: string;
+}> = [
   { value: "ink", label: "Μαύρο", className: "bg-k-ink text-white" },
   { value: "red", label: "Κόκκινο", className: "bg-k-red text-white" },
   { value: "amber", label: "Πορτοκαλί", className: "bg-k-amber text-white" },
@@ -257,9 +265,28 @@ export const WIDGETS: ReadonlyArray<WidgetDef> = [
     description: "Εικόνα με μικρό τίτλο, τίτλο και μία γραμμή κειμένου.",
     preview: "Εικόνα + κείμενο + σύνδεσμος",
     fields: [
-      { name: "eyebrow", label: "Μικρός τίτλος", kind: "text", localised: true, maxChars: 24 },
-      { name: "title", label: "Τίτλος", kind: "text", localised: true, required: true, maxChars: 40 },
-      { name: "body", label: "Κείμενο", kind: "text", localised: true, maxChars: 90 },
+      {
+        name: "eyebrow",
+        label: "Μικρός τίτλος",
+        kind: "text",
+        localised: true,
+        maxChars: 24,
+      },
+      {
+        name: "title",
+        label: "Τίτλος",
+        kind: "text",
+        localised: true,
+        required: true,
+        maxChars: 40,
+      },
+      {
+        name: "body",
+        label: "Κείμενο",
+        kind: "text",
+        localised: true,
+        maxChars: 90,
+      },
       {
         name: "image",
         label: "Εικόνα",
@@ -278,10 +305,16 @@ export const WIDGETS: ReadonlyArray<WidgetDef> = [
   {
     type: "category-card",
     label: "Κάρτα κατηγορίας",
-    description: "Δείχνει μια κατηγορία με τη φωτογραφία και το πλήθος προϊόντων της.",
+    description:
+      "Δείχνει μια κατηγορία με τη φωτογραφία και το πλήθος προϊόντων της.",
     preview: "Κατηγορία + πλήθος",
     fields: [
-      { name: "category", label: "Κατηγορία", kind: "category", required: true },
+      {
+        name: "category",
+        label: "Κατηγορία",
+        kind: "category",
+        required: true,
+      },
       {
         name: "titleOverride",
         label: "Τίτλος (προαιρετικός)",
@@ -300,8 +333,19 @@ export const WIDGETS: ReadonlyArray<WidgetDef> = [
     preview: "Προϊόν + τιμή",
     fields: [
       { name: "product", label: "Προϊόν", kind: "product", required: true },
-      { name: "eyebrow", label: "Μικρός τίτλος", kind: "text", localised: true, maxChars: 24 },
-      { name: "image", label: "Εικόνα (προαιρετική)", kind: "image", help: "Αφήστε κενό για την κύρια φωτογραφία του προϊόντος." },
+      {
+        name: "eyebrow",
+        label: "Μικρός τίτλος",
+        kind: "text",
+        localised: true,
+        maxChars: 24,
+      },
+      {
+        name: "image",
+        label: "Εικόνα (προαιρετική)",
+        kind: "image",
+        help: "Αφήστε κενό για την κύρια φωτογραφία του προϊόντος.",
+      },
     ],
   },
   {
@@ -310,9 +354,27 @@ export const WIDGETS: ReadonlyArray<WidgetDef> = [
     description: "Τίτλος και παράγραφος, χωρίς εικόνα προϊόντος.",
     preview: "Τίτλος + παράγραφος",
     fields: [
-      { name: "title", label: "Τίτλος", kind: "text", localised: true, maxChars: 60 },
-      { name: "body", label: "Κείμενο", kind: "long", localised: true, maxChars: 400 },
-      { name: "cta", label: "Κουμπί", kind: "text", localised: true, maxChars: 24 },
+      {
+        name: "title",
+        label: "Τίτλος",
+        kind: "text",
+        localised: true,
+        maxChars: 60,
+      },
+      {
+        name: "body",
+        label: "Κείμενο",
+        kind: "long",
+        localised: true,
+        maxChars: 400,
+      },
+      {
+        name: "cta",
+        label: "Κουμπί",
+        kind: "text",
+        localised: true,
+        maxChars: 24,
+      },
     ],
   },
 ] as const;
@@ -361,7 +423,8 @@ export const ZONES: ReadonlyArray<ZoneDef> = [
     id: "home.top",
     page: "Αρχική",
     label: "Πάνω από το hero",
-    description: "Λεπτή λωρίδα στην κορυφή. Για ανακοινώσεις με ημερομηνία λήξης.",
+    description:
+      "Λεπτή λωρίδα στην κορυφή. Για ανακοινώσεις με ημερομηνία λήξης.",
     layout: "band",
     accepts: ALL,
     max: 1,
@@ -389,7 +452,8 @@ export const ZONES: ReadonlyArray<ZoneDef> = [
     id: "home.band",
     page: "Αρχική",
     label: "Λωρίδα πλήρους πλάτους",
-    description: "Μία λωρίδα ανά widget, από άκρη σε άκρη. Δυνατό με βίντεο φόντο.",
+    description:
+      "Μία λωρίδα ανά widget, από άκρη σε άκρη. Δυνατό με βίντεο φόντο.",
     layout: "band",
     accepts: ALL,
     max: 3,
@@ -424,6 +488,15 @@ export const ZONES: ReadonlyArray<ZoneDef> = [
     accepts: ALL,
     max: 4,
   },
+  {
+    id: "catalogue.middle",
+    page: "Κατάλογος",
+    label: "Ανάμεσα στις κατηγορίες",
+    description: "Λωρίδα στη μέση του καταλόγου.",
+    layout: "band",
+    accepts: ALL,
+    max: 1,
+  },
 
   /* ── Κατηγορία ── */
   {
@@ -431,6 +504,15 @@ export const ZONES: ReadonlyArray<ZoneDef> = [
     page: "Κατηγορία",
     label: "Πάνω από τα προϊόντα",
     description: "Κάτω από τον τίτλο της κατηγορίας, πριν τα φίλτρα.",
+    layout: "band",
+    accepts: ALL,
+    max: 1,
+  },
+  {
+    id: "category.middle",
+    page: "Κατηγορία",
+    label: "Στη μέση",
+    description: "Λωρίδα ανάμεσα στα προϊόντα.",
     layout: "band",
     accepts: ALL,
     max: 1,
@@ -457,6 +539,15 @@ export const ZONES: ReadonlyArray<ZoneDef> = [
     max: 1,
   },
   {
+    id: "product.middle",
+    page: "Σελίδα προϊόντος",
+    label: "Στη μέση",
+    description: "Ανάμεσα στην περιγραφή και τα σχετικά.",
+    layout: "band",
+    accepts: ALL,
+    max: 1,
+  },
+  {
     id: "product.below",
     page: "Σελίδα προϊόντος",
     label: "Κάτω από τα σχετικά προϊόντα",
@@ -473,6 +564,15 @@ export const ZONES: ReadonlyArray<ZoneDef> = [
     page: "Προσφορές",
     label: "Κορυφή σελίδας",
     description: "Μία λωρίδα πλήρους πλάτους πάνω από τις προσφορές.",
+    layout: "band",
+    accepts: ALL,
+    max: 1,
+  },
+  {
+    id: "offers.middle",
+    page: "Προσφορές",
+    label: "Στη μέση",
+    description: "Λωρίδα ανάμεσα στις καμπάνιες.",
     layout: "band",
     accepts: ALL,
     max: 1,
@@ -499,6 +599,25 @@ export const ZONES: ReadonlyArray<ZoneDef> = [
     max: 1,
   },
   {
+    id: "arrivals.middle",
+    page: "Νέες αφίξεις",
+    label: "Στη μέση",
+    description: "Ανάμεσα στους μήνες.",
+    layout: "band",
+    accepts: ALL,
+    max: 1,
+  },
+  {
+    id: "arrivals.bottom",
+    page: "Νέες αφίξεις",
+    label: "Τέλος σελίδας",
+    description: "Κάτω από τις αφίξεις.",
+    layout: "grid",
+    columns: 3,
+    accepts: ALL,
+    max: 3,
+  },
+  {
     id: "brands.top",
     page: "Μάρκες",
     label: "Κορυφή σελίδας",
@@ -506,6 +625,25 @@ export const ZONES: ReadonlyArray<ZoneDef> = [
     layout: "band",
     accepts: ALL,
     max: 1,
+  },
+  {
+    id: "brands.middle",
+    page: "Μάρκες",
+    label: "Στη μέση",
+    description: "Ανάμεσα στο πλέγμα και τις ειδικότητες.",
+    layout: "band",
+    accepts: ALL,
+    max: 1,
+  },
+  {
+    id: "brands.bottom",
+    page: "Μάρκες",
+    label: "Τέλος σελίδας",
+    description: "Κάτω από το πλέγμα μαρκών. Για κατηγορίες ή προσφορές.",
+    layout: "grid",
+    columns: 3,
+    accepts: ALL,
+    max: 3,
   },
   {
     id: "brand.top",
@@ -517,6 +655,25 @@ export const ZONES: ReadonlyArray<ZoneDef> = [
     max: 1,
   },
   {
+    id: "brand.middle",
+    page: "Σελίδα μάρκας",
+    label: "Στη μέση",
+    description: "Ανάμεσα στα προϊόντα.",
+    layout: "band",
+    accepts: ALL,
+    max: 1,
+  },
+  {
+    id: "brand.bottom",
+    page: "Σελίδα μάρκας",
+    label: "Κάτω από τα προϊόντα",
+    description: "Μετά το πλέγμα. Για σχετικές μάρκες ή εγγύηση.",
+    layout: "grid",
+    columns: 3,
+    accepts: ALL,
+    max: 3,
+  },
+  {
     id: "search.top",
     page: "Αναζήτηση",
     label: "Πάνω από τα αποτελέσματα",
@@ -524,6 +681,25 @@ export const ZONES: ReadonlyArray<ZoneDef> = [
     layout: "band",
     accepts: ALL,
     max: 1,
+  },
+  {
+    id: "search.middle",
+    page: "Αναζήτηση",
+    label: "Στη μέση",
+    description: "Ανάμεσα στα αποτελέσματα.",
+    layout: "band",
+    accepts: ALL,
+    max: 1,
+  },
+  {
+    id: "search.bottom",
+    page: "Αναζήτηση",
+    label: "Τέλος αποτελεσμάτων",
+    description: "Δείχνεται και όταν η αναζήτηση δεν βρήκε τίποτα.",
+    layout: "grid",
+    columns: 3,
+    accepts: ALL,
+    max: 3,
   },
 
   /* ── Περιεχόμενο ── */
@@ -537,6 +713,25 @@ export const ZONES: ReadonlyArray<ZoneDef> = [
     max: 1,
   },
   {
+    id: "blog.middle",
+    page: "Blog",
+    label: "Στη μέση",
+    description: "Ανάμεσα στα άρθρα.",
+    layout: "band",
+    accepts: ALL,
+    max: 1,
+  },
+  {
+    id: "blog.bottom",
+    page: "Blog",
+    label: "Τέλος σελίδας",
+    description: "Κάτω από τα άρθρα. Για εγγραφή ή κατηγορίες.",
+    layout: "grid",
+    columns: 3,
+    accepts: ALL,
+    max: 3,
+  },
+  {
     id: "article.below",
     page: "Άρθρο",
     label: "Τέλος άρθρου",
@@ -546,6 +741,24 @@ export const ZONES: ReadonlyArray<ZoneDef> = [
     accepts: ALL,
     max: 2,
   },
+  {
+    id: "article.top",
+    page: "Άρθρο",
+    label: "Πάνω από το άρθρο",
+    description: "Λεπτή λωρίδα πριν το κείμενο. Χωρίς να κόβει την ανάγνωση.",
+    layout: "band",
+    accepts: ALL,
+    max: 1,
+  },
+  {
+    id: "article.middle",
+    page: "Άρθρο",
+    label: "Στη μέση",
+    description: "Μέσα στο κείμενο, μετά την εισαγωγή.",
+    layout: "band",
+    accepts: ALL,
+    max: 1,
+  },
 
   /* ── Αγορά και εταιρικές ── */
   {
@@ -553,6 +766,24 @@ export const ZONES: ReadonlyArray<ZoneDef> = [
     page: "Καλάθι",
     label: "Κάτω από το καλάθι",
     description: "Για συμπληρωματικά ή για το όριο δωρεάν μεταφορικών.",
+    layout: "band",
+    accepts: ALL,
+    max: 1,
+  },
+  {
+    id: "cart.top",
+    page: "Καλάθι",
+    label: "Πάνω από το καλάθι",
+    description: "Για δωρεάν μεταφορικά ή συμπληρωματικά.",
+    layout: "band",
+    accepts: ALL,
+    max: 1,
+  },
+  {
+    id: "cart.middle",
+    page: "Καλάθι",
+    label: "Στη μέση",
+    description: "Ανάμεσα στο καλάθι και τη σύνοψη.",
     layout: "band",
     accepts: ALL,
     max: 1,
@@ -567,10 +798,46 @@ export const ZONES: ReadonlyArray<ZoneDef> = [
     max: 1,
   },
   {
+    id: "contact.top",
+    page: "Επικοινωνία",
+    label: "Πάνω από τη φόρμα",
+    description: "Ώρες, τηλέφωνο, κατάστημα.",
+    layout: "band",
+    accepts: ALL,
+    max: 1,
+  },
+  {
+    id: "contact.middle",
+    page: "Επικοινωνία",
+    label: "Στη μέση",
+    description: "Ανάμεσα στη φόρμα και τον χάρτη.",
+    layout: "band",
+    accepts: ALL,
+    max: 1,
+  },
+  {
     id: "about.below",
     page: "Εταιρεία",
     label: "Τέλος σελίδας",
     description: "Κάτω από το ιστορικό.",
+    layout: "band",
+    accepts: ALL,
+    max: 1,
+  },
+  {
+    id: "about.top",
+    page: "Εταιρεία",
+    label: "Πάνω από το κείμενο",
+    description: "Λωρίδα εισαγωγής.",
+    layout: "band",
+    accepts: ALL,
+    max: 1,
+  },
+  {
+    id: "about.middle",
+    page: "Εταιρεία",
+    label: "Στη μέση",
+    description: "Ανάμεσα στις ενότητες.",
     layout: "band",
     accepts: ALL,
     max: 1,
@@ -584,6 +851,168 @@ export const ZONES: ReadonlyArray<ZoneDef> = [
     accepts: ALL,
     max: 1,
   },
+  {
+    id: "faq.top",
+    page: "Συχνές ερωτήσεις",
+    label: "Πάνω από τις ερωτήσεις",
+    description: "Για επικοινωνία ή B2B.",
+    layout: "band",
+    accepts: ALL,
+    max: 1,
+  },
+  {
+    id: "faq.middle",
+    page: "Συχνές ερωτήσεις",
+    label: "Στη μέση",
+    description: "Ανάμεσα στις ομάδες ερωτήσεων.",
+    layout: "band",
+    accepts: ALL,
+    max: 1,
+  },
+
+  /* ── Όλα τα προϊόντα ── */
+  {
+    id: "products.top",
+    page: "Όλα τα προϊόντα",
+    label: "Πάνω από τη λίστα",
+    description: "Οριζόντιος κύλινδρος πάνω από το πλέγμα.",
+    layout: "carousel",
+    accepts: ALL,
+    max: 4,
+  },
+  {
+    id: "products.middle",
+    page: "Όλα τα προϊόντα",
+    label: "Στη μέση",
+    description: "Ανάμεσα στα προϊόντα.",
+    layout: "band",
+    accepts: ALL,
+    max: 1,
+  },
+  {
+    id: "products.bottom",
+    page: "Όλα τα προϊόντα",
+    label: "Τέλος σελίδας",
+    description: "Κάτω από τη σελιδοποίηση.",
+    layout: "grid",
+    columns: 3,
+    accepts: ALL,
+    max: 3,
+  },
+
+  /* ── Σελίδα προσφοράς ── */
+  {
+    id: "offer.top",
+    page: "Σελίδα προσφοράς",
+    label: "Πάνω από τα προϊόντα",
+    description: "Λωρίδα κάτω από τον τίτλο της καμπάνιας.",
+    layout: "band",
+    accepts: ALL,
+    max: 1,
+  },
+  {
+    id: "offer.middle",
+    page: "Σελίδα προσφοράς",
+    label: "Στη μέση",
+    description: "Ανάμεσα στα προϊόντα της καμπάνιας.",
+    layout: "band",
+    accepts: ALL,
+    max: 1,
+  },
+  {
+    id: "offer.bottom",
+    page: "Σελίδα προσφοράς",
+    label: "Τέλος σελίδας",
+    description: "Κάτω από τα προϊόντα της προσφοράς.",
+    layout: "grid",
+    columns: 3,
+    accepts: ALL,
+    max: 3,
+  },
+
+  /* ── Υπόλοιπες σελίδες ── */
+  {
+    id: "compare.below",
+    page: "Σύγκριση",
+    label: "Κάτω από τον πίνακα",
+    description: "Για βοήθεια επιλογής ή επικοινωνία.",
+    layout: "band",
+    accepts: ALL,
+    max: 1,
+  },
+  {
+    id: "compare.top",
+    page: "Σύγκριση",
+    label: "Πάνω από τον πίνακα",
+    description: "Λωρίδα πριν τη σύγκριση.",
+    layout: "band",
+    accepts: ALL,
+    max: 1,
+  },
+  {
+    id: "compare.middle",
+    page: "Σύγκριση",
+    label: "Στη μέση",
+    description: "Ανάμεσα στον πίνακα και τις προτάσεις.",
+    layout: "band",
+    accepts: ALL,
+    max: 1,
+  },
+  {
+    id: "b2b.below",
+    page: "Εταιρικός λογαριασμός",
+    label: "Κάτω από τα στοιχεία",
+    description: "Για τιμοκατάλογο ή επικοινωνία με πωλητή.",
+    layout: "band",
+    accepts: ALL,
+    max: 1,
+  },
+  {
+    id: "b2b.top",
+    page: "Εταιρικός λογαριασμός",
+    label: "Πάνω από τα στοιχεία",
+    description: "Λωρίδα καλωσορίσματος.",
+    layout: "band",
+    accepts: ALL,
+    max: 1,
+  },
+  {
+    id: "b2b.middle",
+    page: "Εταιρικός λογαριασμός",
+    label: "Στη μέση",
+    description: "Ανάμεσα στα μεγέθη και τους ρόλους.",
+    layout: "band",
+    accepts: ALL,
+    max: 1,
+  },
+  {
+    id: "policy.below",
+    page: "Θεσμικές σελίδες",
+    label: "Κάτω από το κείμενο",
+    description:
+      "Κοινή ζώνη σε όρους, απόρρητο, αποστολή, επιστροφές, εγγυήσεις, πληρωμές.",
+    layout: "band",
+    accepts: ALL,
+    max: 2,
+  },
+  {
+    id: "policy.top",
+    page: "Θεσμικές σελίδες",
+    label: "Πάνω από το κείμενο",
+    description: "Κοινή λωρίδα σε όλες τις θεσμικές.",
+    layout: "band",
+    accepts: ALL,
+    max: 1,
+  },
+  {
+    id: "policy.middle",
+    page: "Θεσμικές σελίδες",
+    label: "Στη μέση",
+    description: "Ανάμεσα στις ενότητες του κειμένου.",
+    layout: "band",
+    accepts: ALL,
+    max: 1,
+  },
 ] as const;
 
 export const WIDGETS_BY_TYPE = new Map(WIDGETS.map((w) => [w.type, w]));
@@ -592,7 +1021,13 @@ export const WIDGETS_BY_TYPE = new Map(WIDGETS.map((w) => [w.type, w]));
 export function fieldsFor(type: string): ReadonlyArray<WidgetField> {
   const def = WIDGETS_BY_TYPE.get(type);
   return def
-    ? [...def.fields, ...LINK_FIELDS, ...BADGE_FIELDS, ...ANIMATION_FIELDS, ...BACKGROUND_FIELDS]
+    ? [
+        ...def.fields,
+        ...LINK_FIELDS,
+        ...BADGE_FIELDS,
+        ...ANIMATION_FIELDS,
+        ...BACKGROUND_FIELDS,
+      ]
     : [];
 }
 export const ZONES_BY_ID = new Map(ZONES.map((z) => [z.id, z]));
@@ -629,17 +1064,26 @@ export function propText(
   return "";
 }
 
-export function propString(props: Record<string, unknown>, name: string): string {
+export function propString(
+  props: Record<string, unknown>,
+  name: string,
+): string {
   const raw = props[name];
   return typeof raw === "string" ? raw : "";
 }
 
 /** Replaces {tokens} with live figures. Unknown tokens are left alone rather
  *  than blanked — a typo should be visible, not silently swallowed. */
-export function resolveTokens(text: string, values: Record<string, string>): string {
+export function resolveTokens(
+  text: string,
+  values: Record<string, string>,
+): string {
   return text.replace(/\{(\w+)\}/g, (match, name) => values[name] ?? match);
 }
 
-export function propBool(props: Record<string, unknown>, name: string): boolean {
+export function propBool(
+  props: Record<string, unknown>,
+  name: string,
+): boolean {
   return props[name] === true;
 }

@@ -58,13 +58,15 @@ export default async function TrackOrderPage({
   // Deep-linkable from the confirmation email: `?order=KOL-…` prefills the field.
   const initial = (Array.isArray(raw.order) ? raw.order[0] : raw.order)?.trim();
 
-  const [menuTree, brands, stats, rootCategories, miniCart] = await Promise.all([
-    getMenuTree(locale),
-    getTopBrands(locale, 16),
-    getCatalogueStats(),
-    getRootCategories(locale),
-    getMiniCart(locale),
-  ]);
+  const [menuTree, brands, stats, rootCategories, miniCart] = await Promise.all(
+    [
+      getMenuTree(locale),
+      getTopBrands(locale, 16),
+      getCatalogueStats(),
+      getRootCategories(locale),
+      getMiniCart(locale),
+    ],
+  );
 
   return (
     <>
@@ -78,12 +80,17 @@ export default async function TrackOrderPage({
 
       <main id="main">
         <div className="shell-x bg-k-ink-deep">
-          <nav aria-label="Breadcrumb" className="t-util flex h-11 items-center gap-2.5 text-white/45">
+          <nav
+            aria-label="Breadcrumb"
+            className="t-util flex h-11 items-center gap-2.5 text-white/45"
+          >
             <Link href="/" className="text-white/60 hover:text-white">
               {upGreek(t("archiki"))}
             </Link>
             <span className="text-k-red">/</span>
-            <span className="text-white">{upGreek(t("entopismos_paraggelias"))}</span>
+            <span className="text-white">
+              {upGreek(t("entopismos_paraggelias"))}
+            </span>
           </nav>
 
           <div className="pt-2.5 pb-8">

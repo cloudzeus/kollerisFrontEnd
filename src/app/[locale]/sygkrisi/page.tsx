@@ -27,6 +27,7 @@ import {
   parseIdsParam,
 } from "@/lib/compare/compare";
 import { upGreek } from "@/lib/greek";
+import { Zone } from "@/components/zones/Zone";
 
 type PageProps = {
   params: Promise<{ locale: Locale }>;
@@ -107,6 +108,8 @@ export default async function ComparePage({ params, searchParams }: PageProps) {
       />
 
       <main id="main">
+        <Zone id="compare.top" locale={locale} />
+
         <div className="shell-x bg-k-ink-deep">
           <nav
             aria-label="Breadcrumb"
@@ -136,8 +139,10 @@ export default async function ComparePage({ params, searchParams }: PageProps) {
                   <>
                     {view.columns.length}{" "}
                     {view.columns.length === 1 ? t("proion") : t("proionta")}
-                    {view.scopeLabel ? t("apo", { scopeLabel: view.scopeLabel }) : ""} —{" "}
-                    {view.totalRows} {t("charaktiristika_dipla_dipla_apo_ta")}{" "}
+                    {view.scopeLabel
+                      ? t("apo", { scopeLabel: view.scopeLabel })
+                      : ""}{" "}
+                    — {view.totalRows} {t("charaktiristika_dipla_dipla_apo_ta")}{" "}
                     <strong className="font-semibold text-white">
                       {view.differingRows}
                     </strong>{" "}
@@ -145,7 +150,8 @@ export default async function ComparePage({ params, searchParams }: PageProps) {
                   </>
                 ) : (
                   <>
-                    {t("epilexte_eos")} {COMPARE_MAX} {t("proionta_tis_idias_katigorias_apo")}
+                    {t("epilexte_eos")} {COMPARE_MAX}{" "}
+                    {t("proionta_tis_idias_katigorias_apo")}
                   </>
                 )}
               </p>
@@ -178,6 +184,8 @@ export default async function ComparePage({ params, searchParams }: PageProps) {
           </div>
         </div>
 
+        <Zone id="compare.middle" locale={locale} />
+
         {view.columns.length === 0 ? (
           <EmptyCompare />
         ) : (
@@ -208,9 +216,7 @@ export default async function ComparePage({ params, searchParams }: PageProps) {
 
               <p className="t-brand-count mt-4 flex flex-wrap items-center gap-2.5 text-k-text-4">
                 <span className="block h-1.5 w-1.5 bg-k-green" />
-                {upGreek(
-                  t("i_endeixi_kalyteri_timi_mpainei"),
-                )}
+                {upGreek(t("i_endeixi_kalyteri_timi_mpainei"))}
                 <span className="block h-[14px] w-px bg-k-line-2" />
                 {upGreek(t("times_me_fpa_diathesimotita_se"))}
               </p>
@@ -226,7 +232,9 @@ export default async function ComparePage({ params, searchParams }: PageProps) {
               <div>
                 <p className="t-eyebrow text-k-red">
                   {upGreek(
-                    canAddMore ? t("prostheste_sti_sygkrisi") : t("idia_katigoria"),
+                    canAddMore
+                      ? t("prostheste_sti_sygkrisi")
+                      : t("idia_katigoria"),
                   )}
                 </p>
                 <h2 className="font-display mt-2 text-[19px] leading-[1.2] t-display text-k-ink lg:text-[25px]">
@@ -241,7 +249,9 @@ export default async function ComparePage({ params, searchParams }: PageProps) {
               {!canAddMore && (
                 <p className="t-brand-count text-k-text-4">
                   {upGreek(
-                    t("i_sygkrisi_choraei_proionta_afaireste", { COMPARE_MAX: COMPARE_MAX }),
+                    t("i_sygkrisi_choraei_proionta_afaireste", {
+                      COMPARE_MAX: COMPARE_MAX,
+                    }),
                   )}
                 </p>
               )}
@@ -258,6 +268,7 @@ export default async function ComparePage({ params, searchParams }: PageProps) {
             </div>
           </section>
         )}
+        <Zone id="compare.below" locale={locale} />
       </main>
 
       <SiteFooter categories={rootCategories} />
@@ -288,7 +299,8 @@ function EmptyCompare() {
         {upGreek(t("den_echete_epilexei_proionta"))}
       </p>
       <p className="mx-auto mt-2.5 max-w-md text-[13.5px] leading-[1.6] text-k-text-3">
-        {t("ston_katalogo_patiste_sygkrisi_se")} {COMPARE_MAX} {t("proionta_tis_idias_katigorias_tha")}
+        {t("ston_katalogo_patiste_sygkrisi_se")} {COMPARE_MAX}{" "}
+        {t("proionta_tis_idias_katigorias_tha")}
       </p>
       <Link
         href="/katalogos"

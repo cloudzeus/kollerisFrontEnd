@@ -62,7 +62,11 @@ export async function generateMetadata({
   const title = product.name;
   const description =
     product.shortDescription ??
-    t("kodikos_amesi_diathesimotita_paradosi_24", { name: product.name, n: product.brand ? ` — ${product.brand.name}` : "", sku: product.sku });
+    t("kodikos_amesi_diathesimotita_paradosi_24", {
+      name: product.name,
+      n: product.brand ? ` — ${product.brand.name}` : "",
+      sku: product.sku,
+    });
   return {
     /* Η φωτογραφία του προϊόντος ως εικόνα προεπισκόπησης: ένα link προϊόντος
        που δείχνει το γενικό banner του καταστήματος δεν λέει τι μοιράστηκε. */
@@ -100,7 +104,11 @@ export default async function ProductPage({ params }: PageProps) {
   const ctx = { vatRate: product.vatRate };
   // Η καμπάνια που καλύπτει αυτό το προϊόν, αν τρέχει κάποια.
   const offer = await offerBadgeFor(
-    { slug: product.slug, brandSlug: product.brand?.slug ?? null, unitNet: product.priceNet },
+    {
+      slug: product.slug,
+      brandSlug: product.brand?.slug ?? null,
+      unitNet: product.priceNet,
+    },
     locale,
   );
 
@@ -184,12 +192,19 @@ export default async function ProductPage({ params }: PageProps) {
       product.colors.length > 0
         ? { k: t("chroma"), v: product.colors.join(", ") }
         : null,
-      product.weight != null ? { k: t("varos"), v: `${el(product.weight)} kg` } : null,
+      product.weight != null
+        ? { k: t("varos"), v: `${el(product.weight)} kg` }
+        : null,
       product.guaranteeMonths
-        ? { k: t("eggyisi"), v: t("mines", { guaranteeMonths: product.guaranteeMonths }) }
+        ? {
+            k: t("eggyisi"),
+            v: t("mines", { guaranteeMonths: product.guaranteeMonths }),
+          }
         : null,
       dimensions ? { k: t("diastaseis_cm"), v: dimensions } : null,
-      product.length != null ? { k: t("mikos"), v: `${product.length} cm` } : null,
+      product.length != null
+        ? { k: t("mikos"), v: `${product.length} cm` }
+        : null,
       product.brand ? { k: t("kataskeyastis"), v: product.brand.name } : null,
       { k: t("kodikos"), v: product.sku },
     ].filter(Boolean) as Array<{ k: string; v: string }>
@@ -281,7 +296,11 @@ export default async function ProductPage({ params }: PageProps) {
      */
     weight:
       product.weight != null && product.weight > 0
-        ? { "@type": "QuantitativeValue", value: product.weight, unitCode: "KGM" }
+        ? {
+            "@type": "QuantitativeValue",
+            value: product.weight,
+            unitCode: "KGM",
+          }
         : undefined,
     category: product.category?.name ?? undefined,
   };
@@ -304,16 +323,22 @@ export default async function ProductPage({ params }: PageProps) {
    * είναι χειρότερη από καμία ερώτηση: λέει στη μηχανή ότι η σελίδα είναι
    * ελληνική ενώ το `lang` της λέει το αντίθετο.
    */
-  const faq = locale === "el" ? productFaq({
-    name: product.name,
-    sku: product.sku,
-    brandName: product.brand?.name ?? null,
-    inStock: product.inStock,
-    qty: product.qty,
-    guaranteeMonths: product.guaranteeMonths,
-    priceGross: product.priceNet != null ? grossAmount(product.priceNet, ctx) : null,
-    specs: product.specs,
-  }) : [];
+  const faq =
+    locale === "el"
+      ? productFaq({
+          name: product.name,
+          sku: product.sku,
+          brandName: product.brand?.name ?? null,
+          inStock: product.inStock,
+          qty: product.qty,
+          guaranteeMonths: product.guaranteeMonths,
+          priceGross:
+            product.priceNet != null
+              ? grossAmount(product.priceNet, ctx)
+              : null,
+          specs: product.specs,
+        })
+      : [];
   const faqLd = faqJsonLd(faq);
 
   return (
@@ -426,7 +451,10 @@ export default async function ProductPage({ params }: PageProps) {
                 */
                 <dl className="@container mt-5 grid grid-cols-2 gap-px border border-k-line bg-k-line lg:mt-6 @[30rem]:grid-cols-4">
                   {glance.map((item) => (
-                    <div key={item.k} className="bg-white px-4 py-4 @[44rem]:px-6">
+                    <div
+                      key={item.k}
+                      className="bg-white px-4 py-4 @[44rem]:px-6"
+                    >
                       <dt className="t-account-label text-k-text-4">
                         {upGreek(item.k)}
                       </dt>
@@ -463,7 +491,8 @@ export default async function ProductPage({ params }: PageProps) {
                       )}
                       <div className="min-w-0">
                         <p className="text-[13px] font-semibold text-k-ink">
-                          {t("episimi_antiprosopeysi")} {product.brand.name} {t("stin_ellada")}
+                          {t("episimi_antiprosopeysi")} {product.brand.name}{" "}
+                          {t("stin_ellada")}
                         </p>
                         <p className="mt-1 text-[12.5px] leading-[1.55] text-k-text-3">
                           {t("gnisio_proion_eggyisi_kataskeyasti_servis")}
@@ -484,7 +513,9 @@ export default async function ProductPage({ params }: PageProps) {
                     <p className="t-account-label text-k-text-4">
                       {upGreek(
                         product.category
-                          ? t("ypeythynos_katigorias", { name: product.category.name })
+                          ? t("ypeythynos_katigorias", {
+                              name: product.category.name,
+                            })
                           : t("ypeythynos_katigorias"),
                       )}
                     </p>
@@ -492,7 +523,9 @@ export default async function ProductPage({ params }: PageProps) {
                       {t("den_xerete_an_kanei_gia")}
                     </p>
                     <p className="mt-1 text-[12px] leading-[1.55] text-k-text-3">
-                      {t("kaleste_mas_46_chronia_sta", { years: yearsInBusiness() })}
+                      {t("kaleste_mas_46_chronia_sta", {
+                        years: yearsInBusiness(),
+                      })}
                     </p>
                   </div>
                   <a
@@ -557,7 +590,9 @@ export default async function ProductPage({ params }: PageProps) {
                   <span className="t-badge bg-k-red-600 px-[7px] py-1 text-white uppercase">
                     {offer.label}
                   </span>
-                  <span className="text-[12.5px] text-k-ink">{offer.title}</span>
+                  <span className="text-[12.5px] text-k-ink">
+                    {offer.title}
+                  </span>
                   <span
                     aria-hidden
                     className="text-[12.5px] text-k-red transition-transform group-hover/offer:translate-x-1"
@@ -635,7 +670,10 @@ export default async function ProductPage({ params }: PageProps) {
                         label: offer.label,
                         title: offer.title,
                         discountPercent: offer.discountPercent,
-                        finalNet: discountedNet(product.priceNet, offer.discountPercent),
+                        finalNet: discountedNet(
+                          product.priceNet,
+                          offer.discountPercent,
+                        ),
                       }
                     : null
                 }
@@ -696,7 +734,9 @@ export default async function ProductPage({ params }: PageProps) {
                   },
                   {
                     t: product.guaranteeMonths
-                      ? t("eggyisi_minon", { guaranteeMonths: product.guaranteeMonths })
+                      ? t("eggyisi_minon", {
+                          guaranteeMonths: product.guaranteeMonths,
+                        })
                       : t("episimi_eggyisi"),
                     d: t("servis_antallaktika"),
                     tone: "green" as const,
@@ -784,7 +824,10 @@ export default async function ProductPage({ params }: PageProps) {
                 </h2>
                 <div className="border-t border-k-line">
                   {faq.map((item) => (
-                    <details key={item.q} className="group border-b border-k-line">
+                    <details
+                      key={item.q}
+                      className="group border-b border-k-line"
+                    >
                       <summary className="flex cursor-pointer items-center justify-between gap-4 py-3.5 text-[14px] font-medium text-k-ink marker:content-none [&::-webkit-details-marker]:hidden">
                         {item.q}
                         <span
@@ -821,7 +864,9 @@ export default async function ProductPage({ params }: PageProps) {
                 <SectionHead
                   eyebrow={
                     product.category
-                      ? t("stin_idia_katigoria", { name: product.category.name })
+                      ? t("stin_idia_katigoria", {
+                          name: product.category.name,
+                        })
                       : t("stin_idia_katigoria")
                   }
                   title={t("schetika_proionta")}
@@ -861,6 +906,8 @@ export default async function ProductPage({ params }: PageProps) {
             </div>
           </section>
         )}
+        <Zone id="product.middle" locale={locale} />
+
         <Zone id="product.below" locale={locale} />
       </main>
 

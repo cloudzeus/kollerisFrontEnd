@@ -131,6 +131,7 @@ export default async function BlogPage({
 
       <main id="main">
         <Zone id="blog.top" locale={locale} />
+        <Zone id="blog.bottom" locale={locale} />
         <div className="shell-x bg-k-ink-deep">
           <nav
             aria-label="Breadcrumb"
@@ -200,6 +201,8 @@ export default async function BlogPage({
             )}
           </div>
         </section>
+
+        <Zone id="blog.middle" locale={locale} />
       </main>
 
       <SiteFooter categories={rootCategories} />

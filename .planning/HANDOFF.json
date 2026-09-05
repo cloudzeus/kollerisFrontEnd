@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-09-04T19:05:10.231Z",
+  "timestamp": "2026-09-05T13:06:28.058Z",
   "source": "auto-postool",
   "partial": false,
   "phase": null,
@@ -22,9 +22,169 @@
     },
     {
       "status": "M",
-      "path": "src/lib/seo/urls.ts"
+      "path": "src/app/[locale]/(home)/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/app/[locale]/anazitisi/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/app/[locale]/aporrito/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/app/[locale]/apostoli-paradosi/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/app/[locale]/b2b/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/app/[locale]/blog/[slug]/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/app/[locale]/blog/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/app/[locale]/brands/[slug]/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/app/[locale]/brands/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/app/[locale]/checkout/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/app/[locale]/eggrafi/[token]/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/app/[locale]/eggrafi/anamoni/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/app/[locale]/eggrafi/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/app/[locale]/eggyiseis/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/app/[locale]/eisodos/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/app/[locale]/eisodos/prosvasi/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/app/[locale]/epikoinonia/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/app/[locale]/epistrofes/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/app/[locale]/etaireia/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/app/[locale]/kalathi/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/app/[locale]/katalogos/[kathgoria]/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/app/[locale]/katalogos/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/app/[locale]/logariasmos/agapimena/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/app/[locale]/logariasmos/axiologiseis/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/app/[locale]/logariasmos/dieuthynseis/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/app/[locale]/logariasmos/entopismos/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/app/[locale]/logariasmos/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/app/[locale]/logariasmos/paraggelies/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/app/[locale]/logariasmos/stoicheia/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/app/[locale]/nees-afixeis/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/app/[locale]/oroi-chrisis/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/app/[locale]/proion/[slug]/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/app/[locale]/proionta/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/app/[locale]/prosfores/[slug]/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/app/[locale]/prosfores/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/app/[locale]/sygkrisi/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/app/[locale]/syxnes-erotiseis/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/app/[locale]/tropoi-pliromis/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/components/policies/PolicyLayout.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/lib/policies/route.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/lib/zones/registry.ts"
     }
   ],
   "next_action": null,
-  "context_notes": "Recent commits:\n0e8553a docs(env): το DATABASE_POOL_MAX στο .env.example\n7d5e0a5 fix(db): η δεξαμενή συνδέσεων ήταν δέκα — από εκεί βγαίνει το 502\n3680093 perf: ο κατάλογος κρατιέται ανάμεσα σε αιτήματα\n386d39b perf: 34 αιτήματα RSC ανά σελίδα → 0\n0a43c2c fix(home): 20px περιθώριο γύρω από κάθε λογότυπο μάρκας"
+  "context_notes": "Recent commits:\n3729078 feat(etaireia): μεγαλύτερα λογότυπα, ίδια γεωμετρία με την αρχική\n48af1c9 fix(seo): η εικόνα κοινοποίησης επέστρεψε στις σελίδες που είχαν χάσει\n0e8553a docs(env): το DATABASE_POOL_MAX στο .env.example\n7d5e0a5 fix(db): η δεξαμενή συνδέσεων ήταν δέκα — από εκεί βγαίνει το 502\n3680093 perf: ο κατάλογος κρατιέται ανάμεσα σε αιτήματα"
 }

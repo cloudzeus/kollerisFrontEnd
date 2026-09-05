@@ -8,9 +8,14 @@ import { AccountShell } from "@/components/account/AccountShell";
 import { Link } from "@/i18n/navigation";
 import type { Locale } from "@/i18n/routing";
 import { requireCustomer } from "@/lib/account/guard";
-import { COMPANY_CAPABILITIES, COMPANY_ROLE_HELP, COMPANY_ROLE_LABELS } from "@/lib/account/contract";
+import {
+  COMPANY_CAPABILITIES,
+  COMPANY_ROLE_HELP,
+  COMPANY_ROLE_LABELS,
+} from "@/lib/account/contract";
 import { formatMoney } from "@/lib/format";
 import { upGreek } from "@/lib/greek";
+import { Zone } from "@/components/zones/Zone";
 
 export async function generateMetadata({
   params,
@@ -38,7 +43,11 @@ export async function generateMetadata({
  * 403 — they have not done anything wrong, they simply have a different kind of
  * account, and the upsell lives there.
  */
-export default async function B2BPage({ params }: { params: Promise<{ locale: Locale }> }) {
+export default async function B2BPage({
+  params,
+}: {
+  params: Promise<{ locale: Locale }>;
+}) {
   const t = await getTranslations("b2b.page");
   const { locale } = await params;
   setRequestLocale(locale);
@@ -49,7 +58,9 @@ export default async function B2BPage({ params }: { params: Promise<{ locale: Lo
   if (user.accountType !== "company" || !company) redirect("/logariasmos");
 
   const pending = company.status !== "active";
-  const discount = company.partnerFactor ? Math.round((1 - company.partnerFactor) * 100) : null;
+  const discount = company.partnerFactor
+    ? Math.round((1 - company.partnerFactor) * 100)
+    : null;
 
   return (
     <AccountChrome locale={locale}>
@@ -63,9 +74,14 @@ export default async function B2BPage({ params }: { params: Promise<{ locale: Lo
             : t("afm", { afm: company.afm })
         }
       >
+        <Zone id="b2b.top" locale={locale} />
+
         {pending && (
           <p className="mb-6 flex items-start gap-2.5 border-l-[3px] border-k-amber bg-k-surface-2 px-4 py-3 text-[12.5px] leading-[1.55] text-k-text-2">
-            <span aria-hidden className="mt-1 block h-1.5 w-1.5 shrink-0 bg-k-amber" />
+            <span
+              aria-hidden
+              className="mt-1 block h-1.5 w-1.5 shrink-0 bg-k-amber"
+            />
             {t("o_etairikos_logariasmos_einai_se")}
           </p>
         )}
@@ -74,7 +90,11 @@ export default async function B2BPage({ params }: { params: Promise<{ locale: Lo
           <Metric
             label={t("ekptosi_synergati")}
             value={discount != null ? `−${discount}%` : "—"}
-            meta={discount != null ? t("stin_timi_katalogoy") : t("meta_tin_egkrisi")}
+            meta={
+              discount != null
+                ? t("stin_timi_katalogoy")
+                : t("meta_tin_egkrisi")
+            }
           />
           {/*
             The two credit metrics that stood here are gone with the payment
@@ -86,9 +106,15 @@ export default async function B2BPage({ params }: { params: Promise<{ locale: Lo
           <Metric
             label={t("kodikos_pelati")}
             value={company.trdr != null ? String(company.trdr) : "—"}
-            meta={company.trdr != null ? "SoftOne TRDR" : t("den_echei_dimioyrgithei_akomi")}
+            meta={
+              company.trdr != null
+                ? "SoftOne TRDR"
+                : t("den_echei_dimioyrgithei_akomi")
+            }
           />
         </div>
+
+        <Zone id="b2b.middle" locale={locale} />
 
         <section className="mt-10">
           <p className="t-eyebrow text-k-red">{upGreek(t("o_rolos_sas"))}</p>
@@ -99,16 +125,18 @@ export default async function B2BPage({ params }: { params: Promise<{ locale: Lo
             <p className="mt-2 max-w-xl text-[12.5px] leading-[1.6] text-k-text-3">
               {COMPANY_ROLE_HELP[user.role]}
               {user.spendLimit != null &&
-                t("to_orio_sas_einai_ana", { n: formatMoney(user.spendLimit, locale) })}
+                t("to_orio_sas_einai_ana", {
+                  n: formatMoney(user.spendLimit, locale),
+                })}
             </p>
           )}
 
           {user.role && (
             <ul className="mt-4 flex flex-wrap gap-1.5">
               {CAPABILITY_LABELS.map(({ capability, label }) => {
-                const allowed = (COMPANY_CAPABILITIES[user.role!] as readonly string[]).includes(
-                  capability,
-                );
+                const allowed = (
+                  COMPANY_CAPABILITIES[user.role!] as readonly string[]
+                ).includes(capability);
                 return (
                   <li
                     key={capability}
@@ -143,6 +171,7 @@ export default async function B2BPage({ params }: { params: Promise<{ locale: Lo
             {upGreek(t("stoicheia_logariasmoy"))}
           </Link>
         </div>
+        <Zone id="b2b.below" locale={locale} />
       </AccountShell>
     </AccountChrome>
   );
@@ -152,16 +181,29 @@ export default async function B2BPage({ params }: { params: Promise<{ locale: Lo
 const CAPABILITY_LABELS: Array<{ capability: string; label: string }> = [
   { capability: "order", label: "dynatotita_paraggelies" },
   { capability: "viewPartnerPrices", label: "dynatotita_times_synergati" },
-  { capability: "viewCompanyOrders", label: "dynatotita_paraggelies_etaireias" },
+  {
+    capability: "viewCompanyOrders",
+    label: "dynatotita_paraggelies_etaireias",
+  },
   { capability: "manageUsers", label: "dynatotita_diacheirisi_christon" },
   { capability: "manageCompany", label: "dynatotita_stoicheia_etaireias" },
 ];
 
-function Metric({ label, value, meta }: { label: string; value: string; meta?: string }) {
+function Metric({
+  label,
+  value,
+  meta,
+}: {
+  label: string;
+  value: string;
+  meta?: string;
+}) {
   return (
     <div className="flex flex-col gap-1.5 bg-white p-4 lg:p-5">
       <span className="t-account-label text-k-text-4">{upGreek(label)}</span>
-      <span className="font-mono text-[19px] leading-none font-semibold text-k-ink">{value}</span>
+      <span className="font-mono text-[19px] leading-none font-semibold text-k-ink">
+        {value}
+      </span>
       {meta && <span className="t-brand-count text-k-text-4">{meta}</span>}
     </div>
   );

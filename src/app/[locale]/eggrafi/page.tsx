@@ -29,13 +29,25 @@ const COMPARISON = [
   { feature: "paraggelies_kai_istoriko", individual: true, company: true },
   { feature: "dieuthynseis_kai_eggyiseis", individual: true, company: true },
   { feature: "times_synergati", individual: false, company: true },
-  { feature: "timologio_me_stoicheia_etaireias", individual: false, company: true },
+  {
+    feature: "timologio_me_stoicheia_etaireias",
+    individual: false,
+    company: true,
+  },
   { feature: "polloi_christes_me_roloys", individual: false, company: true },
   { feature: "oria_dapanis_ana_christi", individual: false, company: true },
-  { feature: "listes_ylikon_gia_epanaparaggelia", individual: false, company: true },
+  {
+    feature: "listes_ylikon_gia_epanaparaggelia",
+    individual: false,
+    company: true,
+  },
 ];
 
-export default async function RegisterPage({ params }: { params: Promise<{ locale: Locale }> }) {
+export default async function RegisterPage({
+  params,
+}: {
+  params: Promise<{ locale: Locale }>;
+}) {
   const t = await getTranslations("eggrafi.page");
   const { locale } = await params;
   setRequestLocale(locale);
@@ -47,7 +59,10 @@ export default async function RegisterPage({ params }: { params: Promise<{ local
     <AccountChrome locale={locale}>
       <main id="main">
         <div className="shell-x bg-k-ink-deep">
-          <nav aria-label="Breadcrumb" className="t-util flex h-11 items-center gap-2.5 text-white/45">
+          <nav
+            aria-label="Breadcrumb"
+            className="t-util flex h-11 items-center gap-2.5 text-white/45"
+          >
             <Link href="/" className="text-white/60 hover:text-white">
               {upGreek(t("archiki"))}
             </Link>
@@ -79,7 +94,10 @@ export default async function RegisterPage({ params }: { params: Promise<{ local
 
             <dl className="mt-5 border-t border-k-line">
               {COMPARISON.map((row) => (
-                <div key={row.feature} className="flex items-center gap-3 border-b border-k-line py-2.5">
+                <div
+                  key={row.feature}
+                  className="flex items-center gap-3 border-b border-k-line py-2.5"
+                >
                   <dt className="min-w-0 flex-1 text-[12px] leading-[1.4] text-k-text-2">
                     {t(row.feature)}
                   </dt>
@@ -106,7 +124,9 @@ function Mark({ on, title }: { on: boolean; title: string }) {
     <span
       title={title}
       className={`flex h-4 w-4 items-center justify-center border text-[10px] leading-none ${
-        on ? "border-k-green bg-k-green text-white" : "border-k-line-2 text-k-text-6"
+        on
+          ? "border-k-green bg-k-green text-white"
+          : "border-k-line-2 text-k-text-6"
       }`}
     >
       {on ? "✓" : "—"}

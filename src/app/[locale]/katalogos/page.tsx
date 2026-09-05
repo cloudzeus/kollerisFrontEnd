@@ -117,6 +117,7 @@ export default async function CataloguePage({
       />
 
       <main id="main">
+        <Zone id="catalogue.middle" locale={locale} />
         <Zone id="catalogue.top" locale={locale} />
         <div className="shell-x bg-k-ink-deep">
           <nav

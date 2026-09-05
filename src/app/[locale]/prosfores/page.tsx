@@ -217,6 +217,8 @@ export default async function OffersPage({
           null on purpose — so no campaign, however many were published, could
           ever reach it.
         */}
+          <Zone id="offers.middle" locale={locale} />
+
           {campaigns.length > 0 && (
             <section className="band-base border-b border-k-line">
               <div className="shell-x flex flex-col gap-5 py-8 lg:gap-6 lg:py-12">

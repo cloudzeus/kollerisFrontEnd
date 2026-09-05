@@ -22,7 +22,9 @@ import { Zone } from "@/components/zones/Zone";
 
 type PageProps = { params: Promise<{ locale: Locale; slug: string }> };
 
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps): Promise<Metadata> {
   const { slug, locale } = await params;
   try {
     const post = await getBlogPost(slug, locale);
@@ -48,13 +50,15 @@ export default async function BlogPostPage({ params }: PageProps) {
   const { locale, slug } = await params;
   setRequestLocale(locale);
 
-  const [menuTree, brands, stats, rootCategories, miniCart] = await Promise.all([
-    getMenuTree(locale),
-    getTopBrands(locale, 16),
-    getCatalogueStats(),
-    getRootCategories(locale),
-    getMiniCart(locale),
-  ]);
+  const [menuTree, brands, stats, rootCategories, miniCart] = await Promise.all(
+    [
+      getMenuTree(locale),
+      getTopBrands(locale, 16),
+      getCatalogueStats(),
+      getRootCategories(locale),
+      getMiniCart(locale),
+    ],
+  );
 
   let post: BlogPost | null = null;
   let missing: string | null = null;
@@ -82,6 +86,7 @@ export default async function BlogPostPage({ params }: PageProps) {
       />
 
       <main id="main">
+        <Zone id="article.top" locale={locale} />
         <div className="shell-x bg-k-ink-deep">
           <nav
             aria-label="Breadcrumb"
@@ -91,7 +96,10 @@ export default async function BlogPostPage({ params }: PageProps) {
               {upGreek(t("archiki"))}
             </Link>
             <span className="text-k-red">/</span>
-            <Link href="/blog" className="shrink-0 text-white/60 hover:text-white">
+            <Link
+              href="/blog"
+              className="shrink-0 text-white/60 hover:text-white"
+            >
               BLOG
             </Link>
             {post && (
@@ -124,8 +132,15 @@ export default async function BlogPostPage({ params }: PageProps) {
                 )}
                 {post.readingMinutes != null && (
                   <>
-                    <span aria-hidden className="block h-[12px] w-px bg-white/20" />
-                    <span>{upGreek(t("anagnosi", { readingMinutes: post.readingMinutes }))}</span>
+                    <span
+                      aria-hidden
+                      className="block h-[12px] w-px bg-white/20"
+                    />
+                    <span>
+                      {upGreek(
+                        t("anagnosi", { readingMinutes: post.readingMinutes }),
+                      )}
+                    </span>
                   </>
                 )}
               </p>
@@ -168,6 +183,8 @@ export default async function BlogPostPage({ params }: PageProps) {
             )}
           </div>
         </section>
+
+        <Zone id="article.middle" locale={locale} />
 
         <section className="band-alt border-t border-k-line">
           <div className="shell-x flex flex-wrap items-center justify-between gap-4 py-7">

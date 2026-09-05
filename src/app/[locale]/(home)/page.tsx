@@ -54,20 +54,29 @@ export default async function HomePage({
   const { locale } = await params;
   setRequestLocale(locale);
 
-  const [categories, menuTree, brands, products, stats, miniCart, heroCopy, aboutCopy, reviewsCopy] =
-    await Promise.all([
-      getRootCategories(locale),
-      getMenuTree(locale),
-      getTopBrands(locale, 16),
-      getFeaturedProducts(locale, 8),
-      getCatalogueStats(),
-      getMiniCart(locale),
-      // Editable copy. In the same batch as everything else — a separate await
-      // would put the homepage on an extra round-trip for four short strings.
-      getSection("hero", locale),
-      getSection("about", locale),
-      getSection("reviews", locale),
-    ]);
+  const [
+    categories,
+    menuTree,
+    brands,
+    products,
+    stats,
+    miniCart,
+    heroCopy,
+    aboutCopy,
+    reviewsCopy,
+  ] = await Promise.all([
+    getRootCategories(locale),
+    getMenuTree(locale),
+    getTopBrands(locale, 16),
+    getFeaturedProducts(locale, 8),
+    getCatalogueStats(),
+    getMiniCart(locale),
+    // Editable copy. In the same batch as everything else — a separate await
+    // would put the homepage on an extra round-trip for four short strings.
+    getSection("hero", locale),
+    getSection("about", locale),
+    getSection("reviews", locale),
+  ]);
 
   /*
    * Whether the hero's right-hand column has anything to show.
@@ -105,7 +114,8 @@ export default async function HomePage({
       title: t("knipex_pensika_tsimpidika"),
       body: t("germaniki_poiotita_eggyisi_ef_oroy"),
       href: "/prosfores",
-      image: "https://kolleris.b-cdn.net/mtrl-files/images/81%2011%20250_1.webp",
+      image:
+        "https://kolleris.b-cdn.net/mtrl-files/images/81%2011%20250_1.webp",
       dark: true,
     },
   ];
@@ -158,7 +168,9 @@ export default async function HomePage({
     {
       n: "01",
       title: t("pragmatiko_apothema_ochi_yposcheseis"),
-      body: t("kodikoi_se_amesi_diathesimotita_ayti", { n: stats.inStock.toLocaleString(locale) }),
+      body: t("kodikoi_se_amesi_diathesimotita_ayti", {
+        n: stats.inStock.toLocaleString(locale),
+      }),
     },
     {
       n: "02",
@@ -196,7 +208,9 @@ export default async function HomePage({
              hero's 400px column empty and made its own fallback unreachable.
           */
           aside={
-            asideFilled ? <Zone id="home.aside" locale={locale} context={zoneContext} /> : null
+            asideFilled ? (
+              <Zone id="home.aside" locale={locale} context={zoneContext} />
+            ) : null
           }
         />
         <StatStrip stats={statCards} locale={locale} />
@@ -209,7 +223,12 @@ export default async function HomePage({
         <QuickOrder />
         <BrandWall brands={brands} totalBrands={stats.brands} />
         <Zone id="home.band" locale={locale} context={zoneContext} />
-        <ReviewsBand rating="4,9" reviewCount={214} reviews={reviews} copy={reviewsCopy} />
+        <ReviewsBand
+          rating="4,9"
+          reviewCount={214}
+          reviews={reviews}
+          copy={reviewsCopy}
+        />
         <AboutSplit usps={usps} copy={aboutCopy} />
         <NewsletterBand />
         <Zone id="home.beforeFooter" locale={locale} context={zoneContext} />

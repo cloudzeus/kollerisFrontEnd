@@ -24,7 +24,11 @@ export async function generateMetadata({
 }
 
 /** Personal details. Identical for both account types — a person is a person. */
-export default async function ProfilePage({ params }: { params: Promise<{ locale: Locale }> }) {
+export default async function ProfilePage({
+  params,
+}: {
+  params: Promise<{ locale: Locale }>;
+}) {
   const t = await getTranslations("stoicheia.page");
   const { locale } = await params;
   setRequestLocale(locale);
@@ -45,7 +49,9 @@ export default async function ProfilePage({ params }: { params: Promise<{ locale
 
         {company && (
           <section className="mt-10 border-t border-k-line pt-8">
-            <p className="t-eyebrow text-k-red">{upGreek(t("stoicheia_etaireias"))}</p>
+            <p className="t-eyebrow text-k-red">
+              {upGreek(t("stoicheia_etaireias"))}
+            </p>
             <p className="mt-2 max-w-xl text-[12.5px] leading-[1.6] text-k-text-3">
               {t("proerchontai_apo_to_mitroo_tis")}
             </p>
@@ -57,11 +63,24 @@ export default async function ProfilePage({ params }: { params: Promise<{ locale
                 [t("doy"), company.doy],
                 [t("drastiriotita"), company.profession],
                 [t("edra"), company.billAddress],
-                [t("poli"), [company.billPostcode, company.billCity].filter(Boolean).join(" ")],
-                [t("kodikos_pelati"), company.trdr != null ? String(company.trdr) : null],
+                [
+                  t("poli"),
+                  [company.billPostcode, company.billCity]
+                    .filter(Boolean)
+                    .join(" "),
+                ],
+                [
+                  t("kodikos_pelati"),
+                  company.trdr != null ? String(company.trdr) : null,
+                ],
               ].map(([label, value]) => (
-                <div key={label} className="flex gap-4 border-b border-k-line py-2.5">
-                  <dt className="w-2/5 shrink-0 text-[12px] text-k-text-3">{label}</dt>
+                <div
+                  key={label}
+                  className="flex gap-4 border-b border-k-line py-2.5"
+                >
+                  <dt className="w-2/5 shrink-0 text-[12px] text-k-text-3">
+                    {label}
+                  </dt>
                   <dd className="min-w-0 flex-1 font-mono text-[12.5px] font-medium text-k-ink">
                     {value || "—"}
                   </dd>

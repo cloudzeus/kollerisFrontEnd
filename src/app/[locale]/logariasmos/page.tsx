@@ -31,7 +31,11 @@ export async function generateMetadata({
  * additionally sees the company card: ΑΦΜ, partner discount, credit, and who
  * else may order on its behalf.
  */
-export default async function AccountPage({ params }: { params: Promise<{ locale: Locale }> }) {
+export default async function AccountPage({
+  params,
+}: {
+  params: Promise<{ locale: Locale }>;
+}) {
   const t = await getTranslations("logariasmos.page");
   const { locale } = await params;
   setRequestLocale(locale);

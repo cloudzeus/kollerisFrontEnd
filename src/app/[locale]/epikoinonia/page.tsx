@@ -170,6 +170,7 @@ export default async function ContactPage({
       />
 
       <main id="main">
+        <Zone id="contact.top" locale={locale} />
         <div className="shell-x bg-k-ink-deep">
           <nav
             aria-label="Breadcrumb"
@@ -323,6 +324,8 @@ export default async function ContactPage({
             </div>
           </div>
         </section>
+
+        <Zone id="contact.middle" locale={locale} />
 
         {/* Self-service, so the obvious questions never become a message */}
         <section className="band-alt border-t border-k-line">

@@ -74,17 +74,29 @@ export default async function PendingApprovalPage({
         <section className="shell-x bg-white py-8 lg:py-12">
           <ol className="grid gap-px border border-k-line bg-k-line lg:grid-cols-3">
             {STEPS.map((step) => (
-              <li key={step.n} className="flex flex-col gap-2 bg-white p-5 lg:p-6">
+              <li
+                key={step.n}
+                className="flex flex-col gap-2 bg-white p-5 lg:p-6"
+              >
                 <span className="flex items-center gap-2.5">
-                  <span className={`t-cat-num ${step.done ? "text-k-green" : "text-k-text-5"}`}>
+                  <span
+                    className={`t-cat-num ${step.done ? "text-k-green" : "text-k-text-5"}`}
+                  >
                     {step.n}
                   </span>
                   {step.done && (
-                    <span aria-hidden className="block h-1.5 w-1.5 bg-k-green" />
+                    <span
+                      aria-hidden
+                      className="block h-1.5 w-1.5 bg-k-green"
+                    />
                   )}
                 </span>
-                <span className="text-[13.5px] font-semibold text-k-ink">{t(step.title)}</span>
-                <span className="text-[12.5px] leading-[1.6] text-k-text-3">{t(step.body)}</span>
+                <span className="text-[13.5px] font-semibold text-k-ink">
+                  {t(step.title)}
+                </span>
+                <span className="text-[12.5px] leading-[1.6] text-k-text-3">
+                  {t(step.body)}
+                </span>
               </li>
             ))}
           </ol>

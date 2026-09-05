@@ -231,6 +231,7 @@ export default async function NewArrivalsPage({
               </dd>
             </div>
           ))}
+          <Zone id="arrivals.middle" locale={locale} />
         </dl>
 
         {arrivals.periods.length === 0 ? (
@@ -343,6 +344,7 @@ export default async function NewArrivalsPage({
             />
           </div>
         </section>
+        <Zone id="arrivals.bottom" locale={locale} />
       </main>
 
       <SiteFooter categories={rootCategories} />

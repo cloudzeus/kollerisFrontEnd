@@ -28,6 +28,7 @@ import {
   getTopBrands,
 } from "@/lib/catalog/queries";
 import { upGreek } from "@/lib/greek";
+import { Zone } from "@/components/zones/Zone";
 
 /**
  * Every product, in one list.
@@ -181,6 +182,7 @@ export default async function AllProductsPage({
       />
 
       <main id="main">
+        <Zone id="products.top" locale={locale} />
         <div className="shell-x bg-k-ink-deep">
           <nav
             aria-label="Breadcrumb"
@@ -249,6 +251,8 @@ export default async function AllProductsPage({
           </div>
         )}
 
+        <Zone id="products.middle" locale={locale} />
+
         <PlpToolbar
           total={data.total}
           facets={data.facets}
@@ -304,6 +308,7 @@ export default async function AllProductsPage({
             )}
           </div>
         </div>
+        <Zone id="products.bottom" locale={locale} />
       </main>
 
       <SiteFooter categories={rootCategories} />

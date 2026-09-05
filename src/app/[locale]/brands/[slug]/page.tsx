@@ -208,6 +208,7 @@ export default async function BrandPage({ params, searchParams }: PageProps) {
 
       <main id="main">
         <Zone id="brand.top" locale={locale} />
+        <Zone id="brand.bottom" locale={locale} />
         <div className="shell-x bg-k-ink-deep">
           <nav
             aria-label="Breadcrumb"
@@ -304,6 +305,8 @@ export default async function BrandPage({ params, searchParams }: PageProps) {
             </div>
           )}
         </div>
+
+        <Zone id="brand.middle" locale={locale} />
 
         <PlpToolbar
           total={data.total}

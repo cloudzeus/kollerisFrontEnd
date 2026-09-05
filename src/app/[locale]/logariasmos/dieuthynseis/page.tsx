@@ -46,8 +46,17 @@ export default async function AddressesPage({
     // normally opened to find.
     orderBy: [{ isDefault: "desc" }, { updatedAt: "desc" }],
     select: {
-      id: true, label: true, firstName: true, lastName: true, phone: true,
-      line1: true, line2: true, city: true, postcode: true, region: true, adminRegion: true,
+      id: true,
+      label: true,
+      firstName: true,
+      lastName: true,
+      phone: true,
+      line1: true,
+      line2: true,
+      city: true,
+      postcode: true,
+      region: true,
+      adminRegion: true,
       isDefault: true,
     },
   });

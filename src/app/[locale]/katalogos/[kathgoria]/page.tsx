@@ -67,12 +67,20 @@ export async function generateMetadata({
         ? category.nameIt
         : category.nameEl;
   const title = name;
-  const description = t("kodikoi_se_ypokatigories_amesi_diathesimotita", { productCount: category.productCount, childCount: category.childCount });
+  const description = t("kodikoi_se_ypokatigories_amesi_diathesimotita", {
+    productCount: category.productCount,
+    childCount: category.childCount,
+  });
   return {
     /* Canonical, γλώσσες και Open Graph μαζί: το `openGraph` κληρονομείται
        ολόκληρο από όποια σελίδα δεν ορίζει δικό της, οπότε 12 από 16 σελίδες
        μοιράζονταν με τον τίτλο της αρχικής. */
-    ...pageMeta({ path: `/katalogos/${kathgoria}`, locale, title, description }),
+    ...pageMeta({
+      path: `/katalogos/${kathgoria}`,
+      locale,
+      title,
+      description,
+    }),
     title,
     description,
   };
@@ -175,7 +183,8 @@ export default async function CategoryPage({
    * ακριβώς το διπλότυπο περιεχόμενο που το canonical προσπαθεί να αποφύγει.
    */
   const copyInput = { name, total: data.total, facets: data.facets };
-  const intro = locale === "el" && data.page === 1 ? categoryIntro(copyInput) : null;
+  const intro =
+    locale === "el" && data.page === 1 ? categoryIntro(copyInput) : null;
   const faq = locale === "el" && data.page === 1 ? categoryFaq(copyInput) : [];
   const faqLd = faqJsonLd(faq);
 
@@ -244,7 +253,8 @@ export default async function CategoryPage({
             */}
             <p className="mt-3.5 max-w-[640px] text-[13px] leading-[1.68] text-white/60 lg:text-sm">
               {category.productCount.toLocaleString(locale)} {t("kodikoi_se")}{" "}
-              {category.childCount} {t("ypokatigories_filtrarete_aristera_oles_oi")}
+              {category.childCount}{" "}
+              {t("ypokatigories_filtrarete_aristera_oles_oi")}
             </p>
           </div>
         </div>
@@ -299,6 +309,8 @@ export default async function CategoryPage({
           </div>
         )}
 
+        <Zone id="category.middle" locale={locale} />
+
         <PlpToolbar
           total={data.total}
           facets={data.facets}
@@ -309,7 +321,7 @@ export default async function CategoryPage({
 
         <div className="shell-w bg-white lg:grid lg:grid-cols-[326px_1fr] lg:items-start">
           <FilterSidebar
-              locale={locale}
+            locale={locale}
             facets={data.facets}
             basePath={`/katalogos/${kathgoria}`}
             params={raw}
@@ -369,29 +381,32 @@ export default async function CategoryPage({
               </p>
             )}
             {faq.length > 0 && (
-            <>
-            <h2 className="t-eyebrow mb-5 text-k-text-4">
-              {upGreek("Συχνές ερωτήσεις")}
-            </h2>
-            <div className="max-w-[860px] border-t border-k-line">
-              {faq.map((item) => (
-                <details key={item.q} className="group border-b border-k-line">
-                  <summary className="flex cursor-pointer items-center justify-between gap-4 py-3.5 text-[14px] font-medium text-k-ink marker:content-none [&::-webkit-details-marker]:hidden">
-                    {item.q}
-                    <span
-                      aria-hidden
-                      className="shrink-0 text-k-text-4 transition-transform group-open:rotate-45"
+              <>
+                <h2 className="t-eyebrow mb-5 text-k-text-4">
+                  {upGreek("Συχνές ερωτήσεις")}
+                </h2>
+                <div className="max-w-[860px] border-t border-k-line">
+                  {faq.map((item) => (
+                    <details
+                      key={item.q}
+                      className="group border-b border-k-line"
                     >
-                      +
-                    </span>
-                  </summary>
-                  <p className="max-w-[70ch] pb-4 text-[13.5px] leading-[1.7] text-k-text-2">
-                    {item.a}
-                  </p>
-                </details>
-              ))}
-            </div>
-            </>
+                      <summary className="flex cursor-pointer items-center justify-between gap-4 py-3.5 text-[14px] font-medium text-k-ink marker:content-none [&::-webkit-details-marker]:hidden">
+                        {item.q}
+                        <span
+                          aria-hidden
+                          className="shrink-0 text-k-text-4 transition-transform group-open:rotate-45"
+                        >
+                          +
+                        </span>
+                      </summary>
+                      <p className="max-w-[70ch] pb-4 text-[13.5px] leading-[1.7] text-k-text-2">
+                        {item.a}
+                      </p>
+                    </details>
+                  ))}
+                </div>
+              </>
             )}
           </div>
         )}

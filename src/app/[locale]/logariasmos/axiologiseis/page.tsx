@@ -45,7 +45,9 @@ export default async function ReviewsPage({
       >
         {items.length === 0 ? (
           <div className="border border-k-line bg-white px-6 py-12 text-center">
-            <p className="text-[14px] text-k-ink">Δεν υπάρχει ακόμη κάτι να αξιολογήσετε.</p>
+            <p className="text-[14px] text-k-ink">
+              Δεν υπάρχει ακόμη κάτι να αξιολογήσετε.
+            </p>
             <p className="mt-1.5 text-[12.5px] leading-[1.6] text-k-text-3">
               Μόλις παραλάβετε μια παραγγελία, τα προϊόντα της εμφανίζονται εδώ.
             </p>
@@ -60,8 +62,11 @@ export default async function ReviewsPage({
           <>
             {pending > 0 && (
               <p className="mb-3 text-[12.5px] text-k-text-3">
-                <span className="numeral font-semibold text-k-ink">{pending}</span>{" "}
-                {pending === 1 ? "προϊόν περιμένει" : "προϊόντα περιμένουν"} τη γνώμη σας.
+                <span className="numeral font-semibold text-k-ink">
+                  {pending}
+                </span>{" "}
+                {pending === 1 ? "προϊόν περιμένει" : "προϊόντα περιμένουν"} τη
+                γνώμη σας.
               </p>
             )}
             <ul className="space-y-2.5">

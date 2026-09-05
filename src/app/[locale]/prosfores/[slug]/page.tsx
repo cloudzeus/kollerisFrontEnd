@@ -13,7 +13,11 @@ import { QuickViewProvider } from "@/components/product/QuickViewProvider";
 import { Link } from "@/i18n/navigation";
 import type { Locale } from "@/i18n/routing";
 import { getMiniCart } from "@/lib/cart/cart";
-import { COMPARE_MAX, getCompareSelection, getCompareTray } from "@/lib/compare/compare";
+import {
+  COMPARE_MAX,
+  getCompareSelection,
+  getCompareTray,
+} from "@/lib/compare/compare";
 import { getPlpData, parsePlpParams } from "@/lib/catalog/plp";
 import {
   getCatalogueStats,
@@ -25,6 +29,7 @@ import { campaignWhere } from "@/lib/offers/coverage";
 import { offerDescription, offerTitle } from "@/lib/offers/offers";
 import { prisma } from "@/lib/prisma";
 import { upGreek } from "@/lib/greek";
+import { Zone } from "@/components/zones/Zone";
 
 /**
  * One campaign, and the products in it.
@@ -74,7 +79,9 @@ const getOffer = async (slug: string) =>
     },
   });
 
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps): Promise<Metadata> {
   const { slug, locale } = await params;
   const offer = await getOffer(slug);
   if (!offer) return {};
@@ -89,7 +96,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   };
 }
 
-export default async function OfferProductsPage({ params, searchParams }: PageProps) {
+export default async function OfferProductsPage({
+  params,
+  searchParams,
+}: PageProps) {
   const t = await getTranslations("katalogos.page");
   const { locale, slug } = await params;
   setRequestLocale(locale);
@@ -101,24 +111,32 @@ export default async function OfferProductsPage({ params, searchParams }: PagePr
   const plpParams = parsePlpParams(raw);
   const where = await campaignWhere(offer);
 
-  const [data, menuTree, brands, stats, rootCategories, miniCart, compareSelection, compareTray] =
-    await Promise.all([
-      /*
-       * `campaignWhere` returns null for a campaign that selects nothing — an
-       * empty slug list, a brand that no longer exists. That is NOT the same as
-       * "no filter", so it is turned into a clause that matches nothing rather
-       * than being passed through as undefined, which would silently show the
-       * entire catalogue as if it were on offer.
-       */
-      getPlpData(plpParams, locale, where ?? { id: { in: [] } }),
-      getMenuTree(locale),
-      getTopBrands(locale, 16),
-      getCatalogueStats(),
-      getRootCategories(locale),
-      getMiniCart(locale),
-      getCompareSelection(),
-      getCompareTray(locale),
-    ]);
+  const [
+    data,
+    menuTree,
+    brands,
+    stats,
+    rootCategories,
+    miniCart,
+    compareSelection,
+    compareTray,
+  ] = await Promise.all([
+    /*
+     * `campaignWhere` returns null for a campaign that selects nothing — an
+     * empty slug list, a brand that no longer exists. That is NOT the same as
+     * "no filter", so it is turned into a clause that matches nothing rather
+     * than being passed through as undefined, which would silently show the
+     * entire catalogue as if it were on offer.
+     */
+    getPlpData(plpParams, locale, where ?? { id: { in: [] } }),
+    getMenuTree(locale),
+    getTopBrands(locale, 16),
+    getCatalogueStats(),
+    getRootCategories(locale),
+    getMiniCart(locale),
+    getCompareSelection(),
+    getCompareTray(locale),
+  ]);
 
   if (!data) notFound();
 
@@ -142,7 +160,8 @@ export default async function OfferProductsPage({ params, searchParams }: PagePr
       disabled:
         !selected &&
         (compareSelection.slugs.length >= COMPARE_MAX ||
-          (compareSelection.scopeKey != null && scopeKey !== compareSelection.scopeKey)),
+          (compareSelection.scopeKey != null &&
+            scopeKey !== compareSelection.scopeKey)),
     };
   };
 
@@ -158,13 +177,20 @@ export default async function OfferProductsPage({ params, searchParams }: PagePr
       />
 
       <main id="main">
+        <Zone id="offer.top" locale={locale} />
         <div className="shell-x bg-k-ink-deep">
-          <nav aria-label="Breadcrumb" className="t-util flex h-11 items-center gap-2.5 text-white/45">
+          <nav
+            aria-label="Breadcrumb"
+            className="t-util flex h-11 items-center gap-2.5 text-white/45"
+          >
             <Link href="/" className="text-white/60 hover:text-white">
               {upGreek(t("archiki"))}
             </Link>
             <span className="text-k-red">/</span>
-            <Link href="/prosfores" className="hidden text-white/60 hover:text-white sm:inline">
+            <Link
+              href="/prosfores"
+              className="hidden text-white/60 hover:text-white sm:inline"
+            >
               {upGreek(t("prosfores"))}
             </Link>
             <span className="hidden text-k-red sm:inline">/</span>
@@ -188,7 +214,8 @@ export default async function OfferProductsPage({ params, searchParams }: PagePr
               </p>
             )}
             <p className="mt-2 text-[13px] text-white/45">
-              {data.total.toLocaleString(locale)} {t("kodikoi_filtrarete_aristera")}
+              {data.total.toLocaleString(locale)}{" "}
+              {t("kodikoi_filtrarete_aristera")}
             </p>
           </div>
         </div>
@@ -200,6 +227,8 @@ export default async function OfferProductsPage({ params, searchParams }: PagePr
           basePath={`/prosfores/${slug}`}
           params={raw}
         />
+
+        <Zone id="offer.middle" locale={locale} />
 
         <div className="shell-w bg-white lg:grid lg:grid-cols-[326px_1fr] lg:items-start">
           <FilterSidebar
@@ -248,6 +277,7 @@ export default async function OfferProductsPage({ params, searchParams }: PagePr
             )}
           </div>
         </div>
+        <Zone id="offer.bottom" locale={locale} />
       </main>
 
       <SiteFooter categories={rootCategories} />

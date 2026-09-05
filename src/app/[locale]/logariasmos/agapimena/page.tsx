@@ -40,25 +40,60 @@ export default async function FavouritesPage({
     select: {
       product: {
         select: {
-          id: true, mtrl: true, slug: true, name: true, code: true, code2: true,
-          mtrmark: true, mtrcategory: true, priceNet: true, priceList: true,
-          vatRate: true, qty: true, inStock: true, variantGroup: true,
-          images: { where: { isFeature: true }, take: 1, select: { url: true } },
+          id: true,
+          mtrl: true,
+          slug: true,
+          name: true,
+          code: true,
+          code2: true,
+          mtrmark: true,
+          mtrcategory: true,
+          priceNet: true,
+          priceList: true,
+          vatRate: true,
+          qty: true,
+          inStock: true,
+          variantGroup: true,
+          images: {
+            where: { isFeature: true },
+            take: 1,
+            select: { url: true },
+          },
           translations: { select: { locale: true, name: true } },
-          sizes: { select: { label: true }, orderBy: { order: "asc" }, take: 1 },
+          sizes: {
+            select: { label: true },
+            orderBy: { order: "asc" },
+            take: 1,
+          },
         },
       },
     },
   });
 
   const brandRows = await prisma.brand.findMany({
-    where: { mtrmark: { in: rows.map((r) => r.product.mtrmark).filter((m): m is number => m != null) } },
-    select: { mtrmark: true, slug: true, nameEl: true, nameEn: true, nameIt: true },
+    where: {
+      mtrmark: {
+        in: rows
+          .map((r) => r.product.mtrmark)
+          .filter((m): m is number => m != null),
+      },
+    },
+    select: {
+      mtrmark: true,
+      slug: true,
+      nameEl: true,
+      nameEn: true,
+      nameIt: true,
+    },
   });
   const brands = new Map(
     brandRows.map((b) => [
       b.mtrmark!,
-      { slug: b.slug, name: locale === "en" ? b.nameEn : locale === "it" ? b.nameIt : b.nameEl },
+      {
+        slug: b.slug,
+        name:
+          locale === "en" ? b.nameEn : locale === "it" ? b.nameIt : b.nameEl,
+      },
     ]),
   );
 
@@ -94,7 +129,9 @@ export default async function FavouritesPage({
           /* Άδεια οθόνη με έξοδο, όχι με λύπηση: ο πελάτης δεν έκανε λάθος που
              δεν έχει αποθηκεύσει τίποτα ακόμη. */
           <div className="border border-k-line bg-white px-6 py-12 text-center">
-            <p className="text-[14px] text-k-ink">Δεν έχετε αποθηκεύσει προϊόντα.</p>
+            <p className="text-[14px] text-k-ink">
+              Δεν έχετε αποθηκεύσει προϊόντα.
+            </p>
             <p className="mt-1.5 text-[12.5px] leading-[1.6] text-k-text-3">
               Πατήστε την καρδιά σε οποιοδήποτε προϊόν για να το κρατήσετε εδώ.
             </p>
