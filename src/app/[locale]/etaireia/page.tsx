@@ -19,6 +19,7 @@ import {
 } from "@/lib/catalog/queries";
 import { upGreek } from "@/lib/greek";
 import { Zone } from "@/components/zones/Zone";
+import { logoScaleStyle } from "@/lib/catalog/brand-logo";
 
 export async function generateMetadata({
   params,
@@ -376,15 +377,20 @@ export default async function CompanyPage({
                   <Link
                     key={brand.slug}
                     href={`/brands/${brand.slug}`}
-                    className="flex min-h-[96px] flex-col items-center justify-center gap-2 bg-white p-4 transition-colors hover:bg-k-surface-2"
+                    className="flex min-h-[132px] flex-col items-center justify-center gap-1.5 bg-white p-5 transition-colors hover:bg-k-surface-2 lg:min-h-[150px]"
                   >
                     {brand.logo ? (
+                      /* Ίδια γεωμετρία με τον τοίχο μαρκών της αρχικής: 20px
+                         περιθώριο γύρω από κάθε λογότυπο, `max-w-full` ώστε να
+                         μη βγαίνει ποτέ από το κουτί. Ήταν 44px — υποδιπλάσιο
+                         από τα 90 της αρχικής, στο ίδιο κατάστημα. */
                       <Image
                         src={brand.logo}
                         alt={brand.name}
-                        width={128}
-                        height={128}
-                        className="block h-11 w-11 object-contain"
+                        width={200}
+                        height={200}
+                        style={logoScaleStyle(brand.slug)}
+                        className="block h-[76px] w-[76px] max-w-full object-contain lg:h-[90px] lg:w-[90px]"
                       />
                     ) : (
                       <span className="t-brand-name text-center text-k-ink">
