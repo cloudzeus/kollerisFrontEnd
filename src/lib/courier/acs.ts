@@ -49,6 +49,8 @@ export type AcsVoucher = {
   statusDate?: string | null;
   delivered?: boolean;
   pickupListNo?: string | null;
+  /** Η παραγγελία πίσω από το δέμα, όταν την ξέρουμε από τη δική μας βάση. */
+  orderNumber?: string | null;
 };
 
 export type AcsPickupList = {

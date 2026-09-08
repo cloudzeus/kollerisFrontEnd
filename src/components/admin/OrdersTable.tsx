@@ -13,11 +13,13 @@ import {
   Mail,
   MoreHorizontal,
   Phone,
+  Printer,
   Search,
   Truck,
 } from "lucide-react";
 import { toast } from "sonner";
 import { createOrderVoucher, pushOrderToErp, resendOrderEmail } from "@/app/admin/(protected)/orders/actions";
+import { actionPrintVoucher } from "@/app/admin/(protected)/courier/actions";
 import type { RecentOrder } from "@/lib/admin/dashboard";
 import { formatMoney } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -97,6 +99,8 @@ export function OrdersTable({
   const [sending, setSending] = useState<string | null>(null);
   /** Which order is having its ACS voucher issued. */
   const [voucherFor, setVoucherFor] = useState<string | null>(null);
+  /** Ποιο αποστολικό τυπώνεται τώρα. */
+  const [printing, setPrinting] = useState<string | null>(null);
   /** Which order is having its confirmation email sent again. */
   const [mailing, setMailing] = useState<string | null>(null);
   const [, startTransition] = useTransition();
@@ -151,6 +155,39 @@ export function OrdersTable({
         toast.error(error instanceof Error ? error.message : "Η αποστολή απέτυχε");
       } finally {
         setMailing(null);
+      }
+    });
+  }
+
+  /**
+   * Εκτύπωση αποστολικού από τη γραμμή της παραγγελίας.
+   *
+   * Υπήρχε μόνο στη σανίδα αποστολών, που οργανώνεται ανά ημέρα παραλαβής. Όταν
+   * ψάχνεις ΜΙΑ παραγγελία —γιατί τηλεφώνησε ο πελάτης, γιατί χάθηκε η
+   * ετικέτα— η μέρα είναι ακριβώς αυτό που δεν ξέρεις.
+   *
+   * Νέα καρτέλα, όχι λήψη: η ετικέτα τυπώνεται και πετιέται· ένα PDF στον
+   * φάκελο λήψεων είναι σκουπίδι που συσσωρεύεται.
+   */
+  function printVoucher(voucherNo: string, printType: 1 | 2) {
+    setPrinting(voucherNo);
+    startTransition(async () => {
+      try {
+        const result = await actionPrintVoucher(voucherNo, printType);
+        if (!result.ok) {
+          toast.error(result.error);
+          return;
+        }
+        const bytes = Uint8Array.from(atob(result.data.pdfBase64), (c) => c.charCodeAt(0));
+        const url = URL.createObjectURL(new Blob([bytes], { type: "application/pdf" }));
+        const win = window.open(url, "_blank");
+        if (!win) toast.error("Ο περιηγητής μπλόκαρε το παράθυρο εκτύπωσης.");
+        /* Αργεί σκόπιμα: αν ελευθερωθεί πριν φορτώσει η καρτέλα, ανοίγει κενή. */
+        setTimeout(() => URL.revokeObjectURL(url), 60_000);
+      } catch (error) {
+        toast.error(error instanceof Error ? error.message : "Η εκτύπωση απέτυχε");
+      } finally {
+        setPrinting(null);
       }
     });
   }
@@ -377,7 +414,7 @@ export function OrdersTable({
                             ? "Αποστολή…"
                             : "Επαναποστολή email παραγγελίας"}
                         </DropdownMenuItem>
-                        {o.paymentStatus === "PAID" && (
+                        {o.paymentStatus === "PAID" && !o.acsVoucherNo && (
                           <>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem
@@ -391,6 +428,34 @@ export function OrdersTable({
                               {voucherFor === o.orderNumber
                                 ? "Έκδοση…"
                                 : "Έκδοση αποστολής ACS"}
+                            </DropdownMenuItem>
+                          </>
+                        )}
+                        {o.acsVoucherNo && (
+                          <>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuLabel className="numeral text-[11px] text-k-text-3">
+                              ACS {o.acsVoucherNo}
+                            </DropdownMenuLabel>
+                            <DropdownMenuItem
+                              disabled={printing === o.acsVoucherNo}
+                              onSelect={(event) => {
+                                event.preventDefault();
+                                printVoucher(o.acsVoucherNo!, 1);
+                              }}
+                            >
+                              <Printer className="size-3.5" />
+                              Ετικέτα (θερμικό)
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              disabled={printing === o.acsVoucherNo}
+                              onSelect={(event) => {
+                                event.preventDefault();
+                                printVoucher(o.acsVoucherNo!, 2);
+                              }}
+                            >
+                              <Printer className="size-3.5" />
+                              Εκτύπωση A4
                             </DropdownMenuItem>
                           </>
                         )}
@@ -472,6 +537,18 @@ export function OrdersTable({
                               <span className="numeral">ΑΦΜ {o.vatNumber ?? "—"}</span>
                             </Detail>
                           )}
+                          <Detail label="Αποστολή ACS">
+                            {o.acsVoucherNo ? (
+                              <span className="numeral">
+                                {o.acsVoucherNo}
+                                {o.acsPickupDate ? (
+                                  <span className="text-k-text-3"> · παραλαβή {o.acsPickupDate}</span>
+                                ) : null}
+                              </span>
+                            ) : (
+                              <span className="text-k-text-3">χωρίς αποστολικό</span>
+                            )}
+                          </Detail>
                           <Detail label="SoftOne">
                             {o.erpPushed ? (
                               <span className="numeral text-k-green">FINDOC {o.erpFindoc}</span>

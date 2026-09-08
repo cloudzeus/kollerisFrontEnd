@@ -2,6 +2,7 @@ import "server-only";
 import { prisma } from "@/lib/prisma";
 import { createVoucher } from "@/lib/courier/acs";
 import { chargeableWeight } from "@/lib/shipping/acs-tariff";
+import { acsPickupDateFor } from "@/lib/courier/pickup-date";
 import { sendShippedEmail } from "@/lib/mail/order-shipped-email";
 
 /**
@@ -84,8 +85,14 @@ export async function createVoucherForOrder(orderNumber: string): Promise<Vouche
 
   const zip = Number(order.shipPostcode.replace(/\D/g, ""));
 
+  /* Όχι «σήμερα σε UTC» — βλ. `acsPickupDateFor`: μετά τις 15:30 η παραλαβή
+     πάει στην επόμενη εργάσιμη, και ποτέ σαββατοκύριακο. Κρατιέται σε
+     μεταβλητή γιατί αποθηκεύεται κιόλας: η σανίδα αποστολών ομαδοποιεί με
+     αυτήν, όχι με το πότε πατήθηκε το κουμπί. */
+  const pickupDate = acsPickupDateFor();
+
   const result = await createVoucher({
-    pickupDate: new Date().toISOString().slice(0, 10),
+    pickupDate,
     sender: process.env.ACS_SENDER_NAME ?? "KOLLERIS",
     recipientName: `${order.firstName} ${order.lastName}`.trim(),
     recipientAddress: street,
@@ -147,6 +154,7 @@ export async function createVoucherForOrder(orderNumber: string): Promise<Vouche
     where: { id: order.id },
     data: {
       acsVoucherNo: voucherNo,
+      acsPickupDate: pickupDate,
       status: nextStatus,
       shippedAt: advances ? new Date() : undefined,
       history: {

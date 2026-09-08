@@ -84,6 +84,7 @@ export function CourierBoard({
     return vouchers.filter(
       (v) =>
         v.voucherNo.toLowerCase().includes(q) ||
+        (v.orderNumber ?? "").toLowerCase().includes(q) ||
         (v.recipient ?? "").toLowerCase().includes(q) ||
         (v.area ?? "").toLowerCase().includes(q) ||
         (v.zipCode ?? "").includes(q),
@@ -281,6 +282,11 @@ export function CourierBoard({
                         {v.voucherNo}
                         {!v.pickupListNo && (
                           <span className="ml-1.5 text-[10px] text-k-amber">ΕΚΤΟΣ ΛΙΣΤΑΣ</span>
+                        )}
+                        {/* Η παραγγελία κάτω από το voucher: το προσωπικό ψάχνει
+                            με τον αριθμό παραγγελίας, όχι με τον αριθμό ACS. */}
+                        {v.orderNumber && (
+                          <span className="block text-[10.5px] text-k-text-4">{v.orderNumber}</span>
                         )}
                       </td>
                       <td className="max-w-[14rem] truncate px-3 py-2.5 text-[12.5px] text-k-text-2">

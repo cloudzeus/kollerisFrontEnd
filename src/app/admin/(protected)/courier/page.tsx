@@ -1,11 +1,12 @@
 import Link from "next/link";
 import { auth } from "@/auth";
 import { assertCan } from "@/lib/rbac";
-import { listPickupLists, listVouchers } from "@/lib/courier/acs";
+import { listPickupLists, listVouchers, type AcsVoucher } from "@/lib/courier/acs";
 import { PageShell } from "@/components/admin/PageShell";
 import { CourierBoard } from "@/components/admin/CourierBoard";
 import { DispatchQueue } from "@/components/admin/DispatchQueue";
 import { listDispatchQueue } from "@/lib/courier/dispatch-queue";
+import { listOwnVouchersForDate } from "@/lib/courier/own-vouchers";
 
 export const dynamic = "force-dynamic";
 
@@ -51,15 +52,50 @@ export default async function CourierPage({
    * even when ACS does not — which matters, because "ACS is down" and "nothing
    * to ship" must not look the same on this screen.
    */
-  const [vouchers, lists, queue] = await Promise.all([
+  const [vouchers, lists, queue, own] = await Promise.all([
     listVouchers(date),
     listPickupLists(date),
     listDispatchQueue(),
+    listOwnVouchersForDate(date),
   ]);
 
-  // One failure is enough to explain the empty board; showing two copies of the
-  // same "ACS is down" is noise.
-  const error = !vouchers.ok ? vouchers.error : !lists.ok ? lists.error : null;
+  /*
+   * Οι δύο πηγές, ενωμένες.
+   * ───────────────────────────────────────────────────────────────────────────
+   * Η ACS ξέρει πού βρίσκεται το δέμα και σε ποια λίστα παραλαβής μπήκε· εμείς
+   * ξέρουμε ΤΙ στείλαμε. Όποια απαντήσει, το αποστολικό εμφανίζεται.
+   *
+   * Χρειάζεται γιατί η μέθοδος που απαριθμεί τα αποστολικά μιας ημέρας δεν
+   * είναι ενεργοποιημένη στον λογαριασμό ACS — απαντά «Definition not found or
+   * you dont have access to it» σε κάθε ονομασία. Ό,τι δεν έχει μπει ακόμη σε
+   * εκδομένη λίστα ήταν αόρατο, δηλαδή ΚΑΘΕ φρέσκο δέμα.
+   *
+   * Η εγγραφή της ACS υπερισχύει όπου υπάρχει: κουβαλά κατάσταση παράδοσης και
+   * αριθμό λίστας, που η δική μας δεν μπορεί να ξέρει.
+   */
+  const merged = new Map<string, (typeof own)[number] | AcsVoucher>();
+  for (const v of own) merged.set(v.voucherNo, v);
+  for (const v of vouchers.ok ? vouchers.data.vouchers : []) {
+    const mine = merged.get(v.voucherNo);
+    merged.set(v.voucherNo, mine ? { ...mine, ...v } : v);
+  }
+  const allVouchers = [...merged.values()];
+
+  /*
+   * Σφάλμα ACS μόνο όταν δεν έχουμε τίποτα να δείξουμε.
+   *
+   * Με τις δικές μας γραμμές στην οθόνη, το «η ACS δεν απάντησε» είναι
+   * υποσημείωση — η σανίδα λέει ήδη τι έφυγε. Πάνω από άδειο πίνακα είναι η
+   * εξήγηση, και πρέπει να φαίνεται.
+   */
+  const error =
+    allVouchers.length > 0
+      ? null
+      : !vouchers.ok
+        ? vouchers.error
+        : !lists.ok
+          ? lists.error
+          : null;
 
   const label = new Intl.DateTimeFormat("el-GR", {
     weekday: "long",
@@ -87,7 +123,7 @@ export default async function CourierPage({
       <DispatchQueue orders={queue} />
       <CourierBoard
         date={date}
-        vouchers={vouchers.ok ? vouchers.data.vouchers : []}
+        vouchers={allVouchers}
         lists={lists.ok ? lists.data.lists : []}
         error={error}
       />

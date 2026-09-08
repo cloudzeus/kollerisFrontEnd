@@ -37,6 +37,11 @@ export type RecentOrder = {
   vatNumber: string | null;
   erpPushed: boolean;
   erpFindoc: number | null;
+  /** Το αποστολικό ACS, ώστε η γραμμή να μπορεί να το τυπώσει χωρίς να ανοίξει
+   *  η σανίδα αποστολών — που οργανώνεται ανά ημέρα, δηλαδή ακριβώς αυτό που
+   *  δεν ξέρεις όταν ψάχνεις μία παραγγελία. */
+  acsVoucherNo: string | null;
+  acsPickupDate: string | null;
   erpError: string | null;
   /** Loaded up front so expanding a row costs no round-trip. Eight orders of a
    *  handful of lines each is far cheaper than a request per expand. */
@@ -112,6 +117,8 @@ export async function getDashboard(): Promise<DashboardData> {
         vatNumber: true,
         erpPushedAt: true,
         erpFindoc: true,
+        acsVoucherNo: true,
+        acsPickupDate: true,
         erpError: true,
         lines: {
           select: { sku: true, name: true, quantity: true, lineGross: true },
@@ -195,6 +202,8 @@ export async function getDashboard(): Promise<DashboardData> {
       vatNumber: o.vatNumber,
       erpPushed: o.erpPushedAt != null,
       erpFindoc: o.erpFindoc,
+      acsVoucherNo: o.acsVoucherNo,
+      acsPickupDate: o.acsPickupDate,
       erpError: o.erpError,
       lines: o.lines.map((l) => ({
         sku: l.sku,

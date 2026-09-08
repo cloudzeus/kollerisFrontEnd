@@ -110,6 +110,8 @@ export async function getOrders({
         erpPushedAt: true,
         erpFindoc: true,
         erpError: true,
+        acsVoucherNo: true,
+        acsPickupDate: true,
         lines: {
           select: { sku: true, name: true, quantity: true, lineGross: true },
           orderBy: { id: "asc" },
@@ -143,6 +145,11 @@ export async function getOrders({
       erpPushed: o.erpPushedAt != null,
       erpFindoc: o.erpFindoc,
       erpError: o.erpError,
+      /* Το αποστολικό στη γραμμή: χωρίς αυτό, η μόνη ένδειξη ότι το δέμα έφυγε
+         ήταν η κατάσταση «Απεστάλη» — που δεν λέει ΜΕ ΤΙ έφυγε, ούτε δίνει
+         τίποτα να τυπωθεί. */
+      acsVoucherNo: o.acsVoucherNo,
+      acsPickupDate: o.acsPickupDate,
       lines: o.lines.map((l) => ({
         sku: l.sku,
         name: l.name,
