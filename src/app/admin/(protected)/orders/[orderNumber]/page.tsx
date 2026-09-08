@@ -227,17 +227,26 @@ export default async function OrderDetailPage({
             {order.erpFindoc ? (
               <>
                 {/*
-                  Series AND number. A FINDOC is unique only within its series,
-                  so a bare number is not something anybody can look up in
-                  SoftOne — they would have to know which book to open.
+                  Ο αριθμός παραστατικού, όχι το FINDOC.
+
+                  Το FINDOC είναι κλειδί πίνακα — αύξων αριθμός όλων των
+                  παραστατικών της εγκατάστασης, χωρίς νόημα έξω από τη βάση
+                  του SoftOne. Ο πελάτης, το λογιστήριο και η ΑΑΔΕ μιλούν με το
+                  ΠΑΡΚ000123. Το FINDOC μένει από κάτω, μικρό: χρειάζεται μόνο
+                  όταν κάποιος ψάχνει την εγγραφή στην ίδια τη βάση.
                 */}
                 <div className="numeral text-[13px] text-k-green">
-                  {order.erpSeries ? `${order.erpSeries} / ` : ""}
-                  {order.erpFindoc}
+                  {order.erpFincode ?? `${order.erpSeries ? `${order.erpSeries} / ` : ""}${order.erpFindoc}`}
                 </div>
                 <div className="text-[11px] text-k-text-3">
                   Παραστατικό · {when(order.erpPushedAt)}
                 </div>
+                {order.erpFincode && (
+                  <div className="numeral text-[10.5px] text-k-text-4">
+                    FINDOC {order.erpFindoc}
+                    {order.erpSeries ? ` · σειρά ${order.erpSeries}` : ""}
+                  </div>
+                )}
               </>
             ) : (
               <div className="text-[13px] text-k-text-2">Δεν έχει σταλεί</div>

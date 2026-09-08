@@ -121,9 +121,9 @@ export function OrdersTable({
         if (result.ok) {
           toast.success(
             result.alreadySent
-              ? `Είχε ήδη σταλεί — FINDOC ${result.findoc}`
+              ? `Είχε ήδη σταλεί — ${result.fincode ?? `FINDOC ${result.findoc}`}`
               : result.findoc
-                ? `Στάλθηκε στο SoftOne — FINDOC ${result.findoc}`
+                ? `Στάλθηκε στο SoftOne — ${result.fincode ?? `FINDOC ${result.findoc}`}`
                 : "Στάλθηκε στο SoftOne",
           );
         } else {
@@ -357,7 +357,7 @@ export function OrdersTable({
                   </td>
                   <td className="px-2 py-2.5 text-center">
                     {o.erpPushed ? (
-                      <span className="numeral text-[11px] text-k-green" title={`FINDOC ${o.erpFindoc}`}>
+                      <span className="numeral text-[11px] text-k-green" title={o.erpFincode ?? `FINDOC ${o.erpFindoc}`}>
                         ✓
                       </span>
                     ) : o.paymentStatus === "PAID" ? (
@@ -551,7 +551,7 @@ export function OrdersTable({
                           </Detail>
                           <Detail label="SoftOne">
                             {o.erpPushed ? (
-                              <span className="numeral text-k-green">FINDOC {o.erpFindoc}</span>
+                              <span className="numeral text-k-green">{o.erpFincode ?? `FINDOC ${o.erpFindoc}`}</span>
                             ) : o.erpError ? (
                               <span className="text-k-red">{o.erpError.slice(0, 120)}</span>
                             ) : (

@@ -760,6 +760,13 @@ model Order {
 
   erpTrdr     Int?
   erpFindoc   Int?
+  /// Ο αριθμός παραστατικού — «ΠΑΡΚ000123».
+  ///
+  /// Το `erpFindoc` είναι το εσωτερικό κλειδί του SoftOne: αύξων αριθμός όλων
+  /// των παραστατικών της εγκατάστασης, χωρίς νόημα έξω από τη βάση του. Οι
+  /// οθόνες έδειχναν «FINDOC 1086915» για παραστατικό που ο πελάτης, το
+  /// λογιστήριο και η ΑΑΔΕ ξέρουν ως ΠΑΡΚ000123.
+  erpFincode  String?   @db.VarChar(32)
   /// The document series SoftOne filed it under (7020 for eshop orders).
   erpSeries   Int?
   /**

@@ -109,6 +109,7 @@ export async function getOrders({
         vatNumber: true,
         erpPushedAt: true,
         erpFindoc: true,
+        erpFincode: true,
         erpError: true,
         acsVoucherNo: true,
         acsPickupDate: true,
@@ -144,6 +145,7 @@ export async function getOrders({
       vatNumber: o.vatNumber,
       erpPushed: o.erpPushedAt != null,
       erpFindoc: o.erpFindoc,
+      erpFincode: o.erpFincode,
       erpError: o.erpError,
       /* Το αποστολικό στη γραμμή: χωρίς αυτό, η μόνη ένδειξη ότι το δέμα έφυγε
          ήταν η κατάσταση «Απεστάλη» — που δεν λέει ΜΕ ΤΙ έφυγε, ούτε δίνει

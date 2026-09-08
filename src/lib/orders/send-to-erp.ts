@@ -36,7 +36,9 @@ import { resolvePaymentMethod } from "@/lib/orders/viva-payment-method";
  */
 
 export type SendToErpResult =
-  | { ok: true; findoc: number | null; alreadySent: boolean }
+  /* `fincode` είναι ο αριθμός παραστατικού («ΠΑΡΚ000123»)· το `findoc` το
+     εσωτερικό κλειδί του SoftOne. Ό,τι δείχνει σε άνθρωπο θέλει το πρώτο. */
+  | { ok: true; findoc: number | null; fincode: string | null; alreadySent: boolean }
   | { ok: false; stage: "intake" | "push" | "order"; error: string };
 
 /**
@@ -52,6 +54,8 @@ type PushResponse = {
   success?: boolean;
   error?: string;
   softOneOrderId?: number | string | null;
+  /** Ο αριθμός παραστατικού — «ΠΑΡΚ000123». Το FINDOC είναι κλειδί, όχι αριθμός. */
+  fincode?: string | null;
   findoc?: number | string | null;
   saldoc?: number | string | null;
   trdr?: number | null;
@@ -187,7 +191,7 @@ export async function sendOrderToErp(orderNumber: string): Promise<SendToErpResu
    * a double click and a double invoice.
    */
   if (order.erpFindoc) {
-    return { ok: true, findoc: order.erpFindoc, alreadySent: true };
+    return { ok: true, findoc: order.erpFindoc, fincode: order.erpFincode, alreadySent: true };
   }
 
   /*
@@ -234,6 +238,7 @@ export async function sendOrderToErp(orderNumber: string): Promise<SendToErpResu
     where: { id: order.id },
     data: {
       erpFindoc: Number.isFinite(findoc) && findoc ? findoc : null,
+      erpFincode: push.fincode?.trim() || null,
       erpSeries: push.series ?? null,
       erpTrdr: push.trdr ?? order.erpTrdr,
       /*
@@ -249,7 +254,12 @@ export async function sendOrderToErp(orderNumber: string): Promise<SendToErpResu
     },
   });
 
-  return { ok: true, findoc: Number.isFinite(findoc) ? findoc : null, alreadySent: false };
+  return {
+    ok: true,
+    findoc: Number.isFinite(findoc) ? findoc : null,
+    fincode: push.fincode?.trim() || null,
+    alreadySent: false,
+  };
 }
 
 /**

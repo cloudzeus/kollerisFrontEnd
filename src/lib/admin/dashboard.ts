@@ -37,6 +37,8 @@ export type RecentOrder = {
   vatNumber: string | null;
   erpPushed: boolean;
   erpFindoc: number | null;
+  /** Ο αριθμός παραστατικού («ΠΑΡΚ000123»), αυτό που αναγνωρίζει ο άνθρωπος. */
+  erpFincode: string | null;
   /** Το αποστολικό ACS, ώστε η γραμμή να μπορεί να το τυπώσει χωρίς να ανοίξει
    *  η σανίδα αποστολών — που οργανώνεται ανά ημέρα, δηλαδή ακριβώς αυτό που
    *  δεν ξέρεις όταν ψάχνεις μία παραγγελία. */
@@ -117,6 +119,7 @@ export async function getDashboard(): Promise<DashboardData> {
         vatNumber: true,
         erpPushedAt: true,
         erpFindoc: true,
+        erpFincode: true,
         acsVoucherNo: true,
         acsPickupDate: true,
         erpError: true,
@@ -202,6 +205,7 @@ export async function getDashboard(): Promise<DashboardData> {
       vatNumber: o.vatNumber,
       erpPushed: o.erpPushedAt != null,
       erpFindoc: o.erpFindoc,
+      erpFincode: o.erpFincode,
       acsVoucherNo: o.acsVoucherNo,
       acsPickupDate: o.acsPickupDate,
       erpError: o.erpError,
