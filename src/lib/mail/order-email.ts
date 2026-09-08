@@ -1,3 +1,4 @@
+import { mailProductImage } from "@/lib/mail/product-image";
 import "server-only";
 import { prisma } from "@/lib/prisma";
 import { paymentPageUrl } from "@/lib/payment/viva";
@@ -91,9 +92,17 @@ export type OrderEmailOutcome = { ok: true; id: string } | { ok: false; error: s
  * ξαναφορτώνεται, και ο τρόπος να μάθεις ότι κάτι σπάει στο Outlook δεν πρέπει
  * να είναι ένας πελάτης που σου το λέει.
  */
-export async function buildOrderEmail(
-  orderNumber: string,
-): Promise<{ to: string; subject: string; html: string; text: string } | null> {
+/**
+ * Τα δεδομένα της παραγγελίας, έτοιμα για τα templates.
+ *
+ * Χωρίστηκε από το `buildOrderEmail` όταν χρειάστηκε δεύτερος παραλήπτης: η
+ * ειδοποίηση προς το κατάστημα θέλει ΤΑ ΙΔΙΑ νούμερα με του πελάτη — τιμές
+ * πριν την έκπτωση, μεταφορικά μαζί με τα έξοδα πληρωμής, συντελεστή ΦΠΑ μόνο
+ * όταν είναι ένας. Αντιγραμμένος υπολογισμός σημαίνει δύο email που διαφωνούν
+ * για το ίδιο ποσό, και το κατάστημα να εκτελεί με νούμερα που ο πελάτης δεν
+ * είδε ποτέ.
+ */
+export async function buildOrderContext(orderNumber: string) {
   const order = await prisma.order.findUnique({
     where: { orderNumber },
     include: { lines: true },
@@ -144,7 +153,7 @@ export async function buildOrderEmail(
     qty: String(line.quantity),
     unit_price: money(unitBefore),
     line_total: money(lineBefore),
-    image: line.imageUrl ?? "",
+    image: mailProductImage(line.imageUrl),
   }));
 
   const sumLineNet = round2(priced.reduce((t, p) => t + Number(p.line.lineNet), 0));
@@ -228,6 +237,16 @@ export async function buildOrderEmail(
     last_name: order.lastName,
     email: order.email,
   };
+
+  return { order, orderData, recipient, paid, awaitingTransfer, link };
+}
+
+export async function buildOrderEmail(
+  orderNumber: string,
+): Promise<{ to: string; subject: string; html: string; text: string } | null> {
+  const context = await buildOrderContext(orderNumber);
+  if (!context) return null;
+  const { order, orderData, recipient, paid, awaitingTransfer, link } = context;
 
   /*
    * ΠΟΙΑ αιτιολογία γράφει ο πελάτης στην κατάθεση.

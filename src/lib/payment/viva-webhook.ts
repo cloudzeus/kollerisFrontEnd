@@ -3,6 +3,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { VIVA_STATUS_PAID, getTransaction } from "@/lib/payment/viva";
 import { sendOrderEmail } from "@/lib/mail/order-email";
+import { sendInternalOrderEmail } from "@/lib/mail/order-internal-email";
 import { sendPaymentFailedEmail } from "@/lib/mail/payment-failed-email";
 import { syncPaymentToErp } from "@/lib/orders/send-to-erp";
 
@@ -231,6 +232,12 @@ async function handleTransaction(payload: Body, event: VivaEventName) {
      */
     const mail = await sendOrderEmail(orderNumber);
     if (!mail.ok) console.error(`[viva] ${orderNumber} receipt not sent: ${mail.error}`);
+
+    /* Και στο κατάστημα. Ίδιος κανόνας με την απόδειξη: περιμένουμε, γράφουμε
+       το σφάλμα, δεν αφήνουμε ποτέ να αποτύχει η απάντηση — τα χρήματα έχουν
+       ήδη κινηθεί, και ένα webhook που δηλώνεται αποτυχημένο ξαναστέλνεται. */
+    const internal = await sendInternalOrderEmail(orderNumber);
+    if (!internal.ok) console.error(`[viva] ${orderNumber} internal email not sent: ${internal.error}`);
 
     /*
      * And tell HDCtool, if the order ever got there.

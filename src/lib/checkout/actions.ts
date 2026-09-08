@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { hash as hashPassword } from "@node-rs/argon2";
 import { sendOrderEmail } from "@/lib/mail/order-email";
+import { sendInternalOrderEmail } from "@/lib/mail/order-internal-email";
 import { randomBytes } from "node:crypto";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
@@ -433,6 +434,14 @@ export async function placeOrder(
     const mail = await sendOrderEmail(order.orderNumber);
     if (!mail.ok) {
       console.error(`[checkout] ${order.orderNumber} email not sent: ${mail.error}`);
+    }
+
+    /* Και στο κατάστημα, στην ίδια στιγμή. Ξεχωριστή αποστολή και όχι BCC: το
+       προσωπικό χρειάζεται άλλα στοιχεία από τον πελάτη — τηλέφωνο, ΑΦΜ, αν
+       εισπράχθηκαν τα χρήματα, σύνδεσμο στη διαχείριση. */
+    const internal = await sendInternalOrderEmail(order.orderNumber);
+    if (!internal.ok) {
+      console.error(`[checkout] ${order.orderNumber} internal email not sent: ${internal.error}`);
     }
 
     redirect(`/checkout/epibebaiosi/${order.orderNumber}?t=${order.guestToken}`);

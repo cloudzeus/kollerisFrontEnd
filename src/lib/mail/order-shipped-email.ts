@@ -1,3 +1,4 @@
+import { mailProductImage } from "@/lib/mail/product-image";
 import "server-only";
 import { prisma } from "@/lib/prisma";
 import { sendTemplateMail } from "@/lib/mail/send-template";
@@ -90,7 +91,7 @@ export async function sendShippedEmail(orderNumber: string, voucherNo: string) {
           qty: String(line.quantity),
           unit_price: money(line.unitNet),
           line_total: money(line.lineNet),
-          image: line.imageUrl ?? "",
+          image: mailProductImage(line.imageUrl),
         })),
         shipping: {
           name: `${order.firstName} ${order.lastName}`.trim(),

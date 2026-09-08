@@ -1,3 +1,4 @@
+import { mailProductImage } from "@/lib/mail/product-image";
 import "server-only";
 import { prisma } from "@/lib/prisma";
 import { sendTemplateMail } from "@/lib/mail/send-template";
@@ -56,7 +57,7 @@ export async function sendReviewRequestEmail(orderNumber: string) {
       brand: line.brand ?? "",
       sku: line.sku,
       name: line.name,
-      image: line.imageUrl ?? "",
+      image: mailProductImage(line.imageUrl),
       review_url: reviewsUrl,
     }));
 
