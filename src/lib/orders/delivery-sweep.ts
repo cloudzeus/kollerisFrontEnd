@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { trackingSummary } from "@/lib/courier/acs";
 import { sendDeliveredEmail } from "@/lib/mail/order-delivered-email";
 import { sendReviewRequestEmail } from "@/lib/mail/review-request-email";
+import { sendOrderToErp } from "@/lib/orders/send-to-erp";
 
 /**
  * Οι δύο σαρώσεις που κλείνουν τον κύκλο μιας παραγγελίας.
@@ -47,6 +48,8 @@ export type SweepReport = {
   checked: number;
   delivered: number;
   reviewsRequested: number;
+  /** Παραστατικά που εκδόθηκαν από τη σάρωση, επειδή τα έχασε το webhook. */
+  documentsIssued: number;
   errors: string[];
 };
 
@@ -164,13 +167,68 @@ export async function sweepReviewRequests(): Promise<Pick<SweepReport, "reviewsR
   return { reviewsRequested: requested, errors };
 }
 
+/**
+ * Πληρωμένες παραγγελίες χωρίς παραστατικό.
+ *
+ * ── Γιατί υπάρχει, αφού το webhook το κάνει ήδη ───────────────────────────
+ *
+ * Το webhook της Viva εκδίδει το παραστατικό τη στιγμή της πληρωμής. Είναι μία
+ * κλήση σε μια στιγμή: αν το SoftOne είναι κάτω, αν λήξει ο χρόνος, αν γίνει
+ * deploy ακριβώς τότε, η παραγγελία μένει πληρωμένη και χωρίς παραστατικό — και
+ * μέχρι τώρα το μάθαινε κάποιος όταν κοίταζε την οθόνη. Η KOL-20260907-0001
+ * περίμενε δεκαπέντε ώρες.
+ *
+ * ── Ασφαλές να τρέχει ξανά και ξανά ───────────────────────────────────────
+ *
+ * Το `sendOrderToErp` επιστρέφει νωρίς όταν η παραγγελία έχει ήδη `erpFindoc`,
+ * και το HDCtool είναι ιδιεπαναληπτικό από μόνο του. Δύο δίχτυα, γιατί το
+ * κόστος του λάθους εδώ είναι δεύτερο παραστατικό για μία πώληση.
+ *
+ * Οι αποτυχίες ΔΕΝ σταματούν τη σάρωση: μια παραγγελία με λάθος διεύθυνση δεν
+ * είναι λόγος να μείνουν οι υπόλοιπες χωρίς παραστατικό. Καταγράφονται και
+ * φαίνονται στην οθόνη ως «Εκτός ERP».
+ */
+export async function sweepErpPushes(): Promise<{ documentsIssued: number; errors: string[] }> {
+  const orders = await prisma.order.findMany({
+    where: { paymentStatus: "PAID", erpFindoc: null },
+    select: { orderNumber: true },
+    orderBy: { createdAt: "asc" },
+    take: BATCH,
+  });
+
+  let documentsIssued = 0;
+  const errors: string[] = [];
+
+  for (const order of orders) {
+    try {
+      const result = await sendOrderToErp(order.orderNumber);
+      if (result.ok && !result.alreadySent) {
+        documentsIssued += 1;
+        console.log(
+          `[sweep] ${order.orderNumber} → SoftOne ${result.fincode ?? result.findoc ?? "—"}`,
+        );
+      } else if (!result.ok) {
+        errors.push(`${order.orderNumber}: ${result.error}`);
+      }
+    } catch (error) {
+      errors.push(`${order.orderNumber}: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  }
+
+  return { documentsIssued, errors };
+}
+
 export async function sweepOrders(): Promise<SweepReport> {
+  /* Τα παραστατικά πρώτα: μια παραγγελία χωρίς παραστατικό είναι είσπραξη που
+     δεν έχει τιμολογηθεί, και προηγείται μιας αίτησης αξιολόγησης. */
+  const documents = await sweepErpPushes();
   const deliveries = await sweepDeliveries();
   const reviews = await sweepReviewRequests();
   return {
     checked: deliveries.checked,
     delivered: deliveries.delivered,
     reviewsRequested: reviews.reviewsRequested,
-    errors: [...deliveries.errors, ...reviews.errors],
+    documentsIssued: documents.documentsIssued,
+    errors: [...documents.errors, ...deliveries.errors, ...reviews.errors],
   };
 }

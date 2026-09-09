@@ -5,7 +5,7 @@ import { VIVA_STATUS_PAID, getTransaction } from "@/lib/payment/viva";
 import { sendOrderEmail } from "@/lib/mail/order-email";
 import { sendInternalOrderEmail } from "@/lib/mail/order-internal-email";
 import { sendPaymentFailedEmail } from "@/lib/mail/payment-failed-email";
-import { syncPaymentToErp } from "@/lib/orders/send-to-erp";
+import { sendOrderToErp, syncPaymentToErp } from "@/lib/orders/send-to-erp";
 
 /**
  * The one implementation behind every Viva webhook route.
@@ -253,6 +253,33 @@ async function handleTransaction(payload: Body, event: VivaEventName) {
      */
     const synced = await syncPaymentToErp(orderNumber);
     if (!synced.ok) console.error(`[viva] ${orderNumber} payment not synced to HDCtool: ${synced.error}`);
+
+    /*
+     * Και το παραστατικό, εδώ.
+     * ─────────────────────────────────────────────────────────────────────────
+     * Μέχρι τώρα το πατούσε άνθρωπος από τη διαχείριση. Αυτό σημαίνει ότι κάθε
+     * παραγγελία περίμενε κάποιον να ανοίξει την οθόνη — και η KOL-20260907-0001
+     * περίμενε από τις 02:32 ως τις 17:48.
+     *
+     * ΕΔΩ και όχι στο checkout: αυτή είναι η στιγμή που τα χρήματα κινήθηκαν.
+     * Το `sendOrderToErp` αρνείται απλήρωτη παραγγελία — παραστατικό για
+     * εμπόρευμα που δεν πληρώθηκε είναι λογιστικό λάθος, όχι ταχύτητα.
+     *
+     * Ίδιος κανόνας με την απόδειξη: αναμένεται, καταγράφεται, ποτέ δεν ρίχνει
+     * την απάντηση. Το να δηλωθεί αποτυχία στη Viva την κάνει να ξαναστείλει το
+     * webhook, και τα χρήματα έχουν ήδη κινηθεί. Ό,τι δεν περάσει εδώ το πιάνει
+     * η σάρωση — βλ. `sweepErpPushes`.
+     */
+    const issued = await sendOrderToErp(orderNumber);
+    if (issued.ok) {
+      console.log(
+        `[viva] ${orderNumber} → SoftOne ${issued.fincode ?? issued.findoc ?? "—"}${
+          issued.alreadySent ? " (υπήρχε ήδη)" : ""
+        }`,
+      );
+    } else {
+      console.error(`[viva] ${orderNumber} document not issued (${issued.stage}): ${issued.error}`);
+    }
 
     return NextResponse.json({ ok: true, paid: true });
   }

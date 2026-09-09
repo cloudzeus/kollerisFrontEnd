@@ -58,8 +58,8 @@ export async function GET(request: NextRequest) {
     console.error(`[cron:orders] ${report.errors.length} σφάλματα`, report.errors);
   }
   console.info(
-    `[cron:orders] ελέγχθηκαν ${report.checked} · παραδόθηκαν ${report.delivered} · ` +
-      `αιτήσεις αξιολόγησης ${report.reviewsRequested}`,
+    `[cron:orders] παραστατικά ${report.documentsIssued} · ελέγχθηκαν ${report.checked} · ` +
+      `παραδόθηκαν ${report.delivered} · αιτήσεις αξιολόγησης ${report.reviewsRequested}`,
   );
 
   return NextResponse.json({ ok: true, ...report });
