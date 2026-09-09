@@ -45,6 +45,8 @@ export type Mail = {
   /** Plain-text alternative. Some clients show it, and spam filters read it. */
   text: string;
   replyTo?: string;
+  /** Ορατή κοινοποίηση — ο παραλήπτης βλέπει ποιος άλλος το έλαβε. */
+  cc?: string;
   bcc?: string;
 };
 
@@ -65,6 +67,7 @@ export async function sendMail(mail: Mail): Promise<SendResult> {
     text: mail.text,
   });
   if (mail.replyTo) form.set("h:Reply-To", mail.replyTo);
+  if (mail.cc) form.set("cc", mail.cc);
   if (mail.bcc) form.set("bcc", mail.bcc);
 
   try {
