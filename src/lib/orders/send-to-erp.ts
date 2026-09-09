@@ -10,7 +10,7 @@ import { resolvePaymentMethod } from "@/lib/orders/viva-payment-method";
  * Everything else already existed. HDCtool has intake
  * (`POST /api/public/orders`), a push that creates the document
  * (`POST /api/public/orders/{orderNumber}/push`), the retail-customer lookup
- * for a buyer with no ΑΦΜ, and the document configuration: series 7020,
+ * for a buyer with no ΑΦΜ, and the document configuration: the series,
  * warehouse 1000, payment 1025 card / 1007 bank transfer / 1024 IRIS. The
  * admin even had the menu item.
  *
@@ -136,7 +136,7 @@ function buildIntakeBody(order: OrderWithLines) {
     /*
      * The document configuration is NOT sent.
      *
-     * HDCtool holds it — series 7020, warehouse 1000, and the payment code
+     * HDCtool holds it — the document series, warehouse 1000, and the payment code
      * chosen from `paymentMethod` — in `eshop-order-erp-config.ts`. Sending it
      * from here would put the same four numbers in two places, and the one that
      * issues the document is the one that should own them. `paymentMethod`
