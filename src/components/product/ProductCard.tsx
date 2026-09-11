@@ -8,6 +8,7 @@ import { QuickViewTrigger } from "@/components/product/QuickViewTrigger";
 import { Link } from "@/i18n/navigation";
 import type { ProductCardData } from "@/lib/catalog/queries";
 import { formatPrice, formatPercent, savingsOf } from "@/lib/format";
+import { showsExactQty } from "@/lib/stock-display";
 import { upGreek } from "@/lib/greek";
 import { cn } from "@/lib/utils";
 import { FavouriteButton } from "@/components/product/FavouriteButton";
@@ -64,13 +65,15 @@ export async function ProductCard({
       ? savingsOf(product.priceListNet, product.priceNet, locale, ctx)
       : null;
 
+  /* Ακριβής αριθμός μόνο στα τρία και κάτω — βλ. `stock-display`. Το όριο ήταν
+     πέντε εδώ και πουθενά αλλού, οπότε η κάρτα έκρυβε ό,τι αποκάλυπτε η σελίδα. */
   const stock = product.inStock
-    ? product.qty > 5
-      ? { label: upGreek(t("amesa_diathesimo")), className: "text-k-green" }
-      : {
+    ? showsExactQty(product.qty)
+      ? {
           label: `${upGreek(t("teleytaia"))} ${product.qty} ${upGreek(t("tem"))}`,
           className: "text-k-amber",
         }
+      : { label: upGreek(t("amesa_diathesimo")), className: "text-k-green" }
     : { label: upGreek(t("katopin_paraggelias")), className: "text-k-text-4" };
 
   return (

@@ -9,6 +9,7 @@ import type { SuggestResult } from "@/lib/catalog/suggest-types";
 import { SUGGEST_DEBOUNCE_MS, SUGGEST_MIN_LENGTH } from "@/lib/catalog/suggest-options";
 import { formatPrice } from "@/lib/format";
 import { upGreek } from "@/lib/greek";
+import { showsExactQty } from "@/lib/stock-display";
 
 /**
  * Search-as-you-type.
@@ -546,7 +547,11 @@ function ProductRow({
           }`}
         >
           <span aria-hidden className="rounded-pill block h-1.5 w-1.5 bg-current" />
-          {product.inStock ? `${product.qty} ${upGreek(t("tem"))}` : upGreek(t("katopin"))}
+          {product.inStock
+            ? showsExactQty(product.qty)
+              ? `${product.qty} ${upGreek(t("tem"))}`
+              : upGreek(t("diathesimo"))
+            : upGreek(t("katopin"))}
         </span>
       </span>
     </button>

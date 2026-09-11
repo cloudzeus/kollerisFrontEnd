@@ -32,6 +32,7 @@ import {
 } from "@/lib/compare/compare";
 import { formatPrice } from "@/lib/format";
 import { upGreek } from "@/lib/greek";
+import { showsExactQty } from "@/lib/stock-display";
 import { Zone } from "@/components/zones/Zone";
 
 type PageProps = {
@@ -272,7 +273,9 @@ export default async function SearchPage({ params, searchParams }: PageProps) {
                     className="rounded-pill block h-1.5 w-1.5 bg-current"
                   />
                   {exact.inStock
-                    ? `${exact.qty} ${upGreek(t("tem"))}`
+                    ? showsExactQty(exact.qty)
+                      ? `${exact.qty} ${upGreek(t("tem"))}`
+                      : upGreek(t("diathesimo"))
                     : upGreek(t("katopin"))}
                 </p>
               </div>

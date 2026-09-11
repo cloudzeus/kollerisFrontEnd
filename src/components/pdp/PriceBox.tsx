@@ -8,6 +8,7 @@ import { BuyNowButton } from "@/components/cart/BuyNowButton";
 import { Link } from "@/i18n/navigation";
 import { formatMoney, formatPrice, savingsOf } from "@/lib/format";
 import { upGreek } from "@/lib/greek";
+import { showsExactQty, STOCK_EXACT_MAX } from "@/lib/stock-display";
 
 /**
  * Buy box.
@@ -63,7 +64,15 @@ export function PriceBox({
     priceListNet != null && priceNet != null ? savingsOf(priceListNet, priceNet, locale, ctx) : null;
   const cutoff = tick != null ? nextCutoff(new Date(tick)) : null;
 
-  const stockRatio = Math.min(1, qty / 20);
+  /*
+   * Η μπάρα δεν πρέπει να προδίδει ό,τι κρύβει η ετικέτα.
+   *
+   * Ήταν `qty / 20`: με κρυμμένο τον αριθμό, μια μπάρα στο 40% εξακολουθούσε
+   * να λέει «περίπου οκτώ». Όταν δεν αποκαλύπτουμε ποσότητα, η μπάρα είναι
+   * γεμάτη· όταν αποκαλύπτουμε (τρία και κάτω), δείχνει πόσο κοντά στο τέλος.
+   */
+  const showsQty = showsExactQty(qty);
+  const stockRatio = showsQty ? Math.min(1, qty / (STOCK_EXACT_MAX + 1)) : 1;
 
   return (
     <div>
@@ -186,7 +195,9 @@ export function PriceBox({
           >
             <span className="rounded-pill block h-[7px] w-[7px] bg-current" />
             {inStock
-              ? `${upGreek(t("diathesimo"))} · ${qty} ${upGreek(t("tem"))}`
+              ? showsQty
+                ? `${upGreek(t("diathesimo"))} · ${qty} ${upGreek(t("tem"))}`
+                : upGreek(t("diathesimo"))
               : upGreek(t("katopin_paraggelias"))}
           </span>
           <span className="relative h-[5px] flex-1 overflow-hidden bg-white/12">

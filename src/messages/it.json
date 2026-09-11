@@ -434,7 +434,8 @@
       "katopin": "Su ordinazione",
       "ola_ta_apotelesmata": "Tutti i {totalProducts} risultati",
       "apotelesmata_gia": "{totalProducts} risultati per {query}",
-      "ola_ta_apotelesmata_2": "Tutti i {totalProducts} risultati"
+      "ola_ta_apotelesmata_2": "Tutti i {totalProducts} risultati",
+      "diathesimo": "Disponibile"
     },
     "SiteFooter": {
       "katigories": "Categorie",
@@ -964,7 +965,8 @@
       "ola_ta": "Tutti i {name}",
       "eggyisi_minon": "Garanzia di {guaranteeMonths} mesi",
       "megethos": "Taglia",
-      "chroma": "Colore"
+      "chroma": "Colore",
+      "diathesimo": "Disponibile"
     }
   },
   "nees-afixeis": {
@@ -1415,7 +1417,8 @@
       "t_210_411_1355": "Tel. 210 411 1355",
       "den_vrethike_kati_gia": "Non è stato trovato nulla per «{query}»",
       "anazitisi_titlos": "Cerca",
-      "den_vrethike_proion_me_aytoys": "Nessun prodotto trovato con questi termini."
+      "den_vrethike_proion_me_aytoys": "Nessun prodotto trovato con questi termini.",
+      "diathesimo": "Disponibile"
     }
   },
   "layout": {

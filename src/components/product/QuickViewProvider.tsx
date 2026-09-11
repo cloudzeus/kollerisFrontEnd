@@ -9,6 +9,7 @@ import { BuyNowButton } from "@/components/cart/BuyNowButton";
 import { Link } from "@/i18n/navigation";
 import { formatPercent, formatPrice, savingsOf } from "@/lib/format";
 import { upGreek } from "@/lib/greek";
+import { showsExactQty } from "@/lib/stock-display";
 
 type QuickViewProduct = {
   id: string;
@@ -235,7 +236,9 @@ function QuickViewBody({
         >
           <span className="rounded-pill block h-1.5 w-1.5 bg-current" />
           {product.inStock
-            ? `${upGreek(t("amesa_diathesimo"))} · ${product.qty} ${upGreek(t("tem"))}`
+            ? showsExactQty(product.qty)
+              ? `${upGreek(t("amesa_diathesimo"))} · ${product.qty} ${upGreek(t("tem"))}`
+              : upGreek(t("amesa_diathesimo"))
             : upGreek(t("katopin_paraggelias"))}
         </p>
 

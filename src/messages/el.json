@@ -434,7 +434,8 @@
       "katopin": "Κατόπιν",
       "ola_ta_apotelesmata": "Όλα τα {totalProducts} αποτελέσματα",
       "apotelesmata_gia": "{totalProducts} αποτελέσματα για {query}",
-      "ola_ta_apotelesmata_2": "Όλα τα {totalProducts} αποτελέσματα"
+      "ola_ta_apotelesmata_2": "Όλα τα {totalProducts} αποτελέσματα",
+      "diathesimo": "Διαθέσιμο"
     },
     "SiteFooter": {
       "katigories": "Κατηγορίες",
@@ -964,7 +965,8 @@
       "ola_ta": "Όλα τα {name}",
       "eggyisi_minon": "Εγγύηση {guaranteeMonths} μηνών",
       "megethos": "Μέγεθος",
-      "chroma": "Χρώμα"
+      "chroma": "Χρώμα",
+      "diathesimo": "Διαθέσιμο"
     }
   },
   "nees-afixeis": {
@@ -1415,7 +1417,8 @@
       "t_210_411_1355": "Τ. 210 411 1355",
       "den_vrethike_kati_gia": "Δεν βρέθηκε κάτι για «{query}»",
       "anazitisi_titlos": "Αναζήτηση",
-      "den_vrethike_proion_me_aytoys": "Δεν βρέθηκε προϊόν με αυτούς τους όρους."
+      "den_vrethike_proion_me_aytoys": "Δεν βρέθηκε προϊόν με αυτούς τους όρους.",
+      "diathesimo": "Διαθέσιμο"
     }
   },
   "layout": {

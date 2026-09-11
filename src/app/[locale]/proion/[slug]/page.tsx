@@ -2,6 +2,7 @@ import { getTranslations } from "next-intl/server";
 import { yearsInBusiness } from "@/lib/seo/structured-data";
 import { absoluteUrl, pageMeta } from "@/lib/seo/urls";
 import { faqJsonLd, productFaq } from "@/lib/seo/product-faq";
+import { showsExactQty } from "@/lib/stock-display";
 import {
   priceValidUntil,
   productBreadcrumb,
@@ -153,7 +154,12 @@ export default async function ProductPage({ params }: PageProps) {
     [
       {
         k: t("diathesimotita"),
-        v: product.inStock ? t("tem", { qty: product.qty }) : t("katopin"),
+        /* Ακριβής αριθμός μόνο στα τρία και κάτω — βλ. `stock-display`. */
+        v: product.inStock
+          ? showsExactQty(product.qty)
+            ? t("tem", { qty: product.qty })
+            : t("diathesimo")
+          : t("katopin"),
       },
       /*
        * Ο κωδικός IMPA, δεύτερος μετά τη διαθεσιμότητα.

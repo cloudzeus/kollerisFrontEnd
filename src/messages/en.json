@@ -434,7 +434,8 @@
       "katopin": "On request",
       "ola_ta_apotelesmata": "All {totalProducts} results",
       "apotelesmata_gia": "{totalProducts} results for {query}",
-      "ola_ta_apotelesmata_2": "All {totalProducts} results"
+      "ola_ta_apotelesmata_2": "All {totalProducts} results",
+      "diathesimo": "In stock"
     },
     "SiteFooter": {
       "katigories": "Categories",
@@ -964,7 +965,8 @@
       "ola_ta": "All {name}",
       "eggyisi_minon": "{guaranteeMonths}-month warranty",
       "megethos": "Size",
-      "chroma": "Colour"
+      "chroma": "Colour",
+      "diathesimo": "In stock"
     }
   },
   "nees-afixeis": {
@@ -1415,7 +1417,8 @@
       "t_210_411_1355": "Tel. 210 411 1355",
       "den_vrethike_kati_gia": "Nothing found for \"{query}\"",
       "anazitisi_titlos": "Search",
-      "den_vrethike_proion_me_aytoys": "No product found with these terms."
+      "den_vrethike_proion_me_aytoys": "No product found with these terms.",
+      "diathesimo": "In stock"
     }
   },
   "layout": {
