@@ -132,8 +132,21 @@ model Product {
   // ── Display pricing. INDICATIVE ONLY. ──
   // Never used for a purchase decision: PDP, cart and order placement all
   // re-read live values from HDCtool H3. See BACKEND_ALIGNMENT.md §2.
-  priceNet  Decimal? @db.Decimal(12, 2) // PRICER02, the eshop web price
-  priceList Decimal? @db.Decimal(12, 2) // struck-through "was", when higher
+  /// ΚΑΘΑΡΗ τιμή, χωρίς ΦΠΑ — και το όνομα λέει πια την αλήθεια.
+  ///
+  /// Εδώ γραφόταν αυτούσιο το `PRICER02` του SoftOne, που ΕΧΕΙ ΦΠΑ ΜΕΣΑ: ο
+  /// κανόνας τιμολόγησης το υπολογίζει `κόστος × περιθώριο × 1,24`, και όσα δεν
+  /// έχουν κανόνα παίρνουν `χονδρική × 1,24`. Η βιτρίνα το πολλαπλασίαζε ΞΑΝΑ
+  /// με 1,24 σε κάθε εμφάνιση, οπότε κάθε τιμή στο site ήταν 24% πάνω από αυτή
+  /// που όριζε ο κανόνας — και 16% πάνω από τη δική μας τιμή στο Skroutz, που
+  /// παίρνει το `PRICER01` αυτούσιο.
+  ///
+  /// ΤΕΣΣΕΡΑ ΔΕΚΑΔΙΚΑ, όχι δύο. Η καθαρή τιμή είναι πηλίκο: `63,92 / 1,24 =
+  /// 51,5484…`. Στρογγυλεμένη στα δύο, η αναπαραγωγή της μεικτής έπεφτε ένα
+  /// λεπτό έξω σε 1.316 από τα 9.182 προϊόντα. Με τέσσερα, και τα 9.182
+  /// επιστρέφουν ακριβώς την τιμή του ERP.
+  priceNet  Decimal? @db.Decimal(12, 4)
+  priceList Decimal? @db.Decimal(12, 4) // struck-through "was", when higher
   vatRate   Decimal? @db.Decimal(5, 2) // resolved percentage, not a code
   /// ΠΩΛΗΣΙΜΟ απόθεμα: ό,τι μπορεί να παραγγείλει πελάτης σήμερα.
   ///

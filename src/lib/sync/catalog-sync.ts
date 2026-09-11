@@ -2,6 +2,7 @@ import "server-only";
 import { prisma } from "@/lib/prisma";
 import { refreshVariantLeads } from "@/lib/catalog/variant-lead";
 import { slugify } from "@/lib/greek";
+import { DEFAULT_VAT_RATE } from "@/lib/format";
 import {
   hdctool,
   HDCTOOL_MAX_LIMIT,
@@ -401,13 +402,46 @@ function buildSpecRows(p: HdctoolProduct, productId: string) {
   return rows;
 }
 
+
+/**
+ * Τέσσερα δεκαδικά, γιατί η καθαρή τιμή είναι πηλίκο.
+ *
+ * `63,92 / 1,24 = 51,5484…`. Στρογγυλεμένη στα δύο, η μεικτή που ξαναβγαίνει
+ * από αυτήν έπεφτε ένα λεπτό έξω σε 1.316 από τα 9.182 προϊόντα. Με τέσσερα,
+ * και τα 9.182 δίνουν πίσω ακριβώς την τιμή του ERP.
+ */
+function roundTo4(value: number): number {
+  return Math.round(value * 10000) / 10000;
+}
+
 async function upsertProduct(
   p: HdctoolProduct,
   slug: string,
 ): Promise<"created" | "updated"> {
   const name = displayName(p);
 
-  const priceNet = p.pricer02 ?? p.priceWeb ?? p.priceRetail ?? null;
+  /*
+   * ΤΟ `PRICER02` ΕΧΕΙ ΦΠΑ ΜΕΣΑ. Εδώ βγαίνει έξω.
+   *
+   * Ο κανόνας τιμολόγησης στο HDCtool υπολογίζει `κόστος × περιθώριο × 1,24`,
+   * και όσα προϊόντα δεν έχουν κανόνα παίρνουν `χονδρική × 1,24`. Αυτό που
+   * φτάνει εδώ είναι επομένως η ΤΕΛΙΚΗ τιμή του πελάτη.
+   *
+   * Γραφόταν αυτούσιο σε στήλη που λέγεται `priceNet`, και κάθε εμφάνιση —
+   * σελίδα, κάρτα, καλάθι, παραστατικό — πρόσθετε ΦΠΑ από πάνω. Το FACOM
+   * SL.171 με κανόνα −25% έβγαινε 63,92 € από τον κανόνα, 68,18 € στο Skroutz,
+   * και 79,26 € στη βιτρίνα μας: ακριβότερο στο δικό μας μαγαζί απ' ό,τι στη
+   * δική μας καταχώρηση στο Skroutz.
+   *
+   * Ο συντελεστής πέφτει πίσω στο 24 όταν λείπει: 5.330 προϊόντα έχουν κενό
+   * `VAT` στο HDCtool επειδή ο συγχρονισμός καταλόγου δεν το κουβαλά, και ένα
+   * κενό δεν σημαίνει «απαλλαγή» — σημαίνει «δεν το ξέρουμε ακόμα». Με μηδέν,
+   * η τιμή θα έμενε μεικτή σε στήλη καθαρής.
+   */
+  const grossFromErp = p.pricer02 ?? p.priceWeb ?? p.priceRetail ?? null;
+  const vatPercent = Number(p.vat?.percentage ?? 0) || DEFAULT_VAT_RATE;
+  const priceNet =
+    grossFromErp == null ? null : roundTo4(Number(grossFromErp) / (1 + vatPercent / 100));
 
   /*
    * NO derived discount.
