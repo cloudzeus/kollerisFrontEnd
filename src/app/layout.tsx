@@ -4,6 +4,7 @@ import { getLocale, getTranslations } from "next-intl/server";
 import "./globals.css";
 import { alternatesFor } from "@/lib/seo/urls";
 import { siteJsonLd } from "@/lib/seo/structured-data";
+import { GoogleAnalytics } from "@/components/analytics/GoogleAnalytics";
 import type { Locale } from "@/i18n/routing";
 
 /*
@@ -216,6 +217,7 @@ export default async function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(siteJsonLd(locale as Locale)) }}
         />
         {children}
+        <GoogleAnalytics />
       </body>
     </html>
   );
