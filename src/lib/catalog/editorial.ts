@@ -345,3 +345,54 @@ export const getCompanyProof = cache(async (locale: Locale): Promise<CompanyProo
       : null,
   };
 });
+
+/**
+ * Το πιο πρόσφατο προϊόν που μπήκε στη βιτρίνα — για το banner της αρχικής.
+ *
+ * ── Γιατί `firstListedAt` και όχι `erpInsertedAt` ─────────────────────────
+ *
+ * Ίδιος λόγος με τις νέες αφίξεις παραπάνω: το `erpInsertedAt` λέει πότε το
+ * αγόρασε η αποθήκη, που μπορεί να είναι το 2019 για κάτι που δημοσιεύτηκε
+ * χθες. «Νέο» για τον επισκέπτη σημαίνει «δεν το είχα ξαναδεί εδώ».
+ *
+ * ── Γιατί απαιτείται φωτογραφία ───────────────────────────────────────────
+ *
+ * Το banner έχει θέση εικόνας 128 πίξελ. Προϊόν χωρίς φωτογραφία θα το άφηνε
+ * άδεια, και το «νεότερο» είναι ακριβώς η κατηγορία που είναι πιθανότερο να μην
+ * έχει ακόμη εικόνα — μπαίνει στον κατάλογο πριν φωτογραφηθεί. Οπότε το
+ * ερώτημα ζητά το νεότερο ΜΕ φωτογραφία, κι ας μην είναι το απολύτως νεότερο.
+ */
+export const getNewestListedProduct = cache(
+  async (locale: Locale) => {
+    const row = await prisma.product.findFirst({
+      where: {
+        isActive: true,
+        firstListedAt: { not: null },
+        images: { some: { isFeature: true } },
+      },
+      orderBy: [{ firstListedAt: "desc" }, { mtrl: "desc" }],
+      select: {
+        slug: true,
+        name: true,
+        code: true,
+        mtrmark: true,
+        firstListedAt: true,
+        images: { where: { isFeature: true }, take: 1, select: { url: true } },
+        translations: { select: { locale: true, name: true } },
+      },
+    });
+    if (!row) return null;
+
+    const brands = await brandMap(locale);
+    const translated = row.translations.find((t) => t.locale === locale)?.name;
+
+    return {
+      name: (translated || row.name).trim(),
+      href: `/proion/${row.slug}`,
+      image: row.images[0]?.url ?? null,
+      brand: row.mtrmark == null ? null : (brands.get(row.mtrmark)?.name ?? null),
+      code: row.code,
+      firstListedAt: row.firstListedAt,
+    };
+  }
+);

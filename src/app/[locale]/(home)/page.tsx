@@ -16,6 +16,7 @@ import { StatStrip } from "@/components/home/StatStrip";
 import type { Locale } from "@/i18n/routing";
 import { getMiniCart } from "@/lib/cart/cart";
 import { getSection } from "@/lib/content/content";
+import { getNewestListedProduct } from "@/lib/catalog/editorial";
 import { Zone, zoneHasContent } from "@/components/zones/Zone";
 import { FREE_SHIPPING_THRESHOLD_NET } from "@/lib/cart/options";
 import {
@@ -64,6 +65,7 @@ export default async function HomePage({
     heroCopy,
     aboutCopy,
     reviewsCopy,
+    newest,
   ] = await Promise.all([
     getRootCategories(locale),
     getMenuTree(locale),
@@ -76,6 +78,7 @@ export default async function HomePage({
     getSection("hero", locale),
     getSection("about", locale),
     getSection("reviews", locale),
+    getNewestListedProduct(locale),
   ]);
 
   /*
@@ -98,17 +101,63 @@ export default async function HomePage({
     freeShipping: `${FREE_SHIPPING_THRESHOLD_NET}\u00A0€`,
   };
 
-  // Promo tiles: CMS-bound in Phase 3. The images are real catalogue products
-  // so the tiles are not placeholder art.
+  /*
+   * ΤΟ ΟΡΙΟ ΤΩΝ 36 ΧΑΡΑΚΤΗΡΩΝ ΕΙΝΑΙ ΜΕΤΡΗΜΕΝΟ, ΟΧΙ ΔΙΑΛΕΓΜΕΝΟ.
+   *
+   * Η στήλη του tile: 400px συνολικά, μείον 52 για το padding, μείον 128 για
+   * την εικόνα, μείον 16 για το κενό — μένουν 204px για το κείμενο. Ο τίτλος
+   * είναι `t-tile-title`, δηλαδή 18px / weight 900 / font-stretch 125% στο
+   * desktop, που είναι εκεί που εμφανίζονται τα tiles.
+   *
+   * Μετρήθηκε στη ζωντανή γραμματοσειρά (Roboto Flex) με πραγματικά ονόματα
+   * καταλόγου: 10,41px ανά χαρακτήρα κατά μέσο όρο. Άρα 19 χαρακτήρες ανά
+   * γραμμή, 39 στις δύο γραμμές που δικαιούται ο τίτλος.
+   *
+   * Κόβουμε στους 36 και όχι στους 39, γιατί το σπάσιμο λέξεων χαλά χώρο στο
+   * τέλος κάθε γραμμής: μια λέξη που δεν χωράει κατεβαίνει ολόκληρη.
+   *
+   * Το κόψιμο γίνεται σε κενό όταν υπάρχει αρκετά κοντά — «ΣΕΤ ΚΑΤΣΑΒΙΔΙΑ ΗΛ…»
+   * διαβάζεται, «ΣΕΤ ΚΑΤΣΑΒΙΔΙΑ ΗΛΕΚΤΡΟΓ…» κομμένο στη μέση λέξης όχι.
+   */
+  const MAX_TILE_TITLE = 36;
+  const clampTitle = (name: string) => {
+    if (name.length <= MAX_TILE_TITLE) return name;
+    const cut = name.slice(0, MAX_TILE_TITLE - 1);
+    const lastSpace = cut.lastIndexOf(" ");
+    return `${(lastSpace > MAX_TILE_TITLE * 0.6 ? cut.slice(0, lastSpace) : cut).trimEnd()}…`;
+  };
+
+  /*
+   * Το ΕΠΑΝΩ tile δείχνει το ΠΡΑΓΜΑΤΙΚΑ νεότερο προϊόν, όχι ένα καρφωμένο.
+   *
+   * Έλεγε «νέα άφιξη» και έδειχνε το ίδιο Milwaukee για μήνες: τίτλος, κείμενο
+   * και διεύθυνση εικόνας ήταν γραμμένα με το χέρι εδώ, οπότε τίποτα δεν
+   * μπορούσε να το αλλάξει εκτός από deploy. Ένα banner που λέει «νέο» και δεν
+   * αλλάζει ποτέ εκπαιδεύει τον επισκέπτη να το προσπερνά.
+   *
+   * Η σελίδα είναι `force-dynamic`, οπότε το νούμερο δεν παγώνει σε κρυφή
+   * μνήμη — αλλιώς θα είχαμε ξαναφτιάξει το ίδιο πρόβλημα με άλλο τρόπο.
+   *
+   * Το καρφωμένο μένει ως εφεδρεία: αν για οποιονδήποτε λόγο δεν βρεθεί
+   * προϊόν με φωτογραφία, η στήλη δεν πρέπει να αδειάσει.
+   */
   const promoTiles = [
-    {
-      eyebrow: t("nea_afixi"),
-      title: t("milwaukee_ergaleia_mpatarias"),
-      body: t("seires_m12_m18_se_amesi"),
-      href: "/katalogos",
-      image:
-        "https://kolleris.b-cdn.net/papatheo/4932359490/primary-0-1751206821802.webp",
-    },
+    newest
+      ? {
+          eyebrow: t("nea_afixi"),
+          title: clampTitle(newest.name),
+          body: newest.brand ?? newest.code,
+          href: newest.href,
+          image: newest.image,
+        }
+      : {
+          eyebrow: t("nea_afixi"),
+          title: t("milwaukee_ergaleia_mpatarias"),
+          body: t("seires_m12_m18_se_amesi"),
+          href: "/katalogos",
+          image:
+            "https://kolleris.b-cdn.net/papatheo/4932359490/primary-0-1751206821802.webp",
+        },
     {
       eyebrow: t("eos_25"),
       title: t("knipex_pensika_tsimpidika"),

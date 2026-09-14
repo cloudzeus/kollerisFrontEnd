@@ -147,8 +147,17 @@ export async function HeroBanner({
                 {tile.eyebrow}
               </span>
 
+              {/*
+                ΚΟΒΕΤΑΙ ΣΤΙΣ ΔΥΟ ΓΡΑΜΜΕΣ, ΓΙΑΤΙ Ο ΤΙΤΛΟΣ ΔΕΝ ΕΙΝΑΙ ΠΙΑ ΔΙΚΟΣ ΜΑΣ.
+
+                Ήταν καρφωμένο κείμενο μάρκετινγκ, πάντα δύο-τρεις λέξεις. Τώρα
+                το επάνω tile δείχνει το νεότερο προϊόν, και τα ονόματα του
+                καταλόγου φτάνουν τους σαράντα χαρακτήρες με κωδικούς μέσα. Σε
+                στήλη 212 πίξελ αυτό είναι τέσσερις γραμμές, που σπρώχνουν τον
+                σύνδεσμο έξω από το πλαίσιο.
+              */}
               <p
-                className={`t-tile-title mt-3 whitespace-pre-line ${
+                className={`t-tile-title mt-3 line-clamp-2 whitespace-pre-line ${
                   tile.dark ? "text-white" : "text-k-ink"
                 }`}
               >
