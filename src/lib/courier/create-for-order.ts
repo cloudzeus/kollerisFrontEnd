@@ -52,7 +52,38 @@ function phoneDigits(value: string | null | undefined): number {
   return Number.isFinite(n) ? n : 0;
 }
 
+/*
+ * ΤΑ ΑΠΟΣΤΟΛΙΚΑ ΒΓΑΙΝΟΥΝ ΜΟΝΟ ΑΠΟ ΤΟ HDCTOOL.
+ *
+ * Τα έβγαζαν και τα δύο συστήματα, και το αποτέλεσμα μετρήθηκε στη ζωντανή
+ * βάση: η KOL-20260907-0001 πήρε ΔΥΟ αποστολικά για ένα δέμα — 9805563515 από
+ * εδώ και 9805602995 από το HDCtool. Δύο ετικέτες, δύο χρεώσεις από την ACS,
+ * και ο πελάτης ενημερωμένος για τη μία από τις δύο.
+ *
+ * Η ACS δουλεύεται συνολικά από το HDCtool: εκεί φτιάχνονται οι λίστες
+ * παραλαβής, εκεί κοστολογείται το δέμα, και εκεί ζουν οι παραγγελίες Skroutz
+ * και Magento που φεύγουν με το ίδιο δρομολόγιο. Ένας εκδότης, και είναι αυτός.
+ *
+ * Το αποστολικό επιστρέφει εδώ μέσω `/api/webhooks/hdctool/order-shipped`, που
+ * το αποθηκεύει, περνά την παραγγελία σε SHIPPED και στέλνει το email με το
+ * tracking — με τη σχεδίαση που ζει ΕΔΩ.
+ *
+ * Η συνάρτηση μένει γιατί κουβαλά τη διεύθυνση, το βάρος και την αντιστοίχιση
+ * με την ACS που το HDCtool δεν έχει. Αν χρειαστεί ποτέ να ξαναδοθεί έκδοση
+ * από εδώ, ο διακόπτης είναι ρητός και όχι σιωπηλή επαναφορά.
+ */
+const ISSUING_ENABLED = process.env.ESHOP_ACS_VOUCHER_ISSUING === "enabled";
+
 export async function createVoucherForOrder(orderNumber: string): Promise<VoucherResult> {
+  if (!ISSUING_ENABLED) {
+    return {
+      ok: false,
+      error:
+        "Τα αποστολικά ACS εκδίδονται από το HDCtool. " +
+        "Άνοιξε τη σελίδα παραγγελιών e-shop εκεί και έκδωσε το αποστολικό από εκείνη.",
+    };
+  }
+
   const order = await prisma.order.findUnique({
     where: { orderNumber },
     include: { lines: true },
