@@ -1,13 +1,14 @@
 import { verify } from "@node-rs/argon2";
-import NextAuth from "next-auth";
+import NextAuth, { type Session } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { z } from "zod";
 import { authConfig } from "@/auth.config";
 import { prisma } from "@/lib/prisma";
+import { refreshRoleCapabilities } from "@/lib/admin/roles";
 
 /** 5 failed attempts inside the window → locked out for the window. Spec §19. */
-const MAX_ATTEMPTS = 5;
-const LOCKOUT_MINUTES = 15;
+export const MAX_ATTEMPTS = 5;
+export const LOCKOUT_MINUTES = 15;
 
 const credentialsSchema = z.object({
   email: z.email().max(320),
@@ -22,7 +23,7 @@ async function isLockedOut(email: string): Promise<boolean> {
   return failures >= MAX_ATTEMPTS;
 }
 
-export const { handlers, auth, signIn, signOut } = NextAuth({
+const nextAuth = NextAuth({
   ...authConfig,
   providers: [
     Credentials({
@@ -43,6 +44,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
         const user = await prisma.adminUser.findUnique({
           where: { email: identifier },
+          select: { id: true, email: true, name: true, role: true, isActive: true, passwordHash: true },
         });
 
         // Verify even when the user is missing or inactive, against a dummy
@@ -78,6 +80,62 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     }),
   ],
 });
+
+export const { handlers, signIn, signOut } = nextAuth;
+
+export type AdminSessionState = "valid" | "none" | "revoked";
+
+/**
+ * The JWT alone is not enough to trust.
+ *
+ * It carries the role the user had at sign-in and stays valid for eight hours,
+ * so without this a deactivated operator keeps working until the token expires
+ * and a demoted one keeps their old sections. One primary-key read per admin
+ * request makes both take effect on the next click.
+ */
+async function resolveSession(): Promise<{ state: AdminSessionState; session: Session | null }> {
+  const session = await nextAuth.auth();
+  if (!session?.user?.id) return { state: "none", session: null };
+
+  const [user] = await Promise.all([loadSessionUser(session.user.id), refreshRoleCapabilities()]);
+
+  const signedInAt = session.user.signedInAt ?? 0;
+  if (
+    !user ||
+    !user.isActive ||
+    (user.sessionsValidFrom && signedInAt < user.sessionsValidFrom.getTime())
+  ) {
+    return { state: "revoked", session: null };
+  }
+
+  session.user.role = user.role;
+  session.user.email = user.email;
+  session.user.name = user.name;
+  return { state: "valid", session };
+}
+
+async function loadSessionUser(id: string) {
+  const select = { email: true, name: true, role: true, isActive: true } as const;
+  try {
+    return await prisma.adminUser.findUnique({ where: { id }, select: { ...select, sessionsValidFrom: true } });
+  } catch (err) {
+    // The code can reach production before its migration does (migrations are
+    // applied by hand). Without the column, password resets cannot revoke
+    // sessions yet — but /admin keeps working instead of throwing on every page.
+    console.error("[auth] sessionsValidFrom unavailable:", (err as Error).message);
+    const user = await prisma.adminUser.findUnique({ where: { id }, select });
+    return user && { ...user, sessionsValidFrom: null };
+  }
+}
+
+export async function auth(): Promise<Session | null> {
+  return (await resolveSession()).session;
+}
+
+/** For the layout: tells a missing session apart from one that was revoked. */
+export async function authState(): Promise<AdminSessionState> {
+  return (await resolveSession()).state;
+}
 
 /** argon2id hash of a value nobody knows — used only to equalise timing. */
 const DUMMY_HASH =

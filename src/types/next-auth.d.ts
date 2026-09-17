@@ -6,6 +6,8 @@ declare module "next-auth" {
     user: {
       id: string;
       role: AdminRole;
+      /** Epoch ms of sign-in; 0 for tokens issued before it was recorded. */
+      signedInAt: number;
     } & DefaultSession["user"];
   }
 
@@ -18,6 +20,7 @@ declare module "next-auth/jwt" {
   interface JWT {
     userId: string;
     role: AdminRole;
+    signedInAt?: number;
   }
 }
 

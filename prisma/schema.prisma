@@ -56,6 +56,9 @@ model AdminUser {
   role         AdminRole @default(EDITOR)
   isActive     Boolean   @default(true)
   lastLoginAt  DateTime?
+  /// Sessions signed in before this moment are no longer honoured. Set when a
+  /// password is reset, so a leaked session dies with the leaked password.
+  sessionsValidFrom DateTime?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -64,6 +67,20 @@ model AdminUser {
 
   @@index([isActive])
   @@map("admin_users")
+}
+
+/// What a role may do, when it differs from the defaults in `src/lib/rbac.ts`.
+///
+/// No row means the code defaults apply, so an empty table is a working
+/// install. ADMIN is never stored: it always holds every capability, which is
+/// what keeps somebody able to fix a matrix they broke.
+model AdminRoleCapabilities {
+  role         AdminRole @id
+  capabilities String[]
+  updatedAt    DateTime  @updatedAt
+  updatedById  String?
+
+  @@map("admin_role_capabilities")
 }
 
 /// Who changed what in /admin. Content edits are invisible in git, so this is

@@ -21,6 +21,9 @@ export const authConfig = {
       if (user) {
         token.role = user.role;
         token.userId = user.id;
+        // Compared with AdminUser.sessionsValidFrom: a password reset ends
+        // every session that signed in before it.
+        token.signedInAt = Date.now();
       }
       return token;
     },
@@ -29,6 +32,7 @@ export const authConfig = {
       if (session.user) {
         session.user.id = token.userId as string;
         session.user.role = token.role as typeof session.user.role;
+        session.user.signedInAt = (token.signedInAt as number | undefined) ?? 0;
       }
       return session;
     },

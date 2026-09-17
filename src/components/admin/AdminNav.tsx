@@ -23,6 +23,7 @@ import {
   Package,
   RefreshCw,
   Settings,
+  ShieldCheck,
   Tag,
   Truck,
   Users,
@@ -70,6 +71,7 @@ const ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
   sync: RefreshCw,
   settings: Settings,
   users: Users,
+  roles: ShieldCheck,
 };
 
 export function AdminNav({
@@ -86,6 +88,13 @@ export function AdminNav({
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
 
+  // The longest href that prefixes the path wins, so /admin/users/roles lights
+  // up "Ρόλοι" alone rather than "Χρήστες" as well.
+  const activeHref = groups
+    .flatMap((g) => g.items.map((i) => i.href))
+    .filter((href) => pathname === href || pathname.startsWith(`${href}/`))
+    .sort((a, b) => b.length - a.length)[0];
+
   const nav = (
     <nav className="flex-1 overflow-y-auto py-2" aria-label="Ενότητες διαχείρισης">
       {groups.map((group) => (
@@ -95,10 +104,7 @@ export function AdminNav({
           </p>
           {group.items.map((item) => {
             const Icon = ICONS[item.icon] ?? LayoutDashboard;
-            // Exact match for the dashboard, prefix for everything else, or
-            // every section would light up while on /admin.
-            const active =
-              item.href === "/admin" ? pathname === "/admin" : pathname.startsWith(item.href);
+            const active = item.href === activeHref;
 
             return (
               <Link

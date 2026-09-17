@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { Toaster } from "sonner";
-import { auth, signOut } from "@/auth";
+import { auth, authState, signOut } from "@/auth";
 import { capabilitiesOf, type Capability } from "@/lib/rbac";
 import { AdminNav, type NavGroup } from "@/components/admin/AdminNav";
 import { StorefrontPreview } from "@/components/admin/StorefrontPreview";
@@ -69,13 +69,20 @@ const GROUPS: Array<{ title: string; sections: Section[] }> = [
       { href: "/admin/sync", label: "Συγχρονισμός", icon: "sync", capability: "sync" },
       { href: "/admin/settings", label: "Ρυθμίσεις", icon: "settings", capability: "settings" },
       { href: "/admin/users", label: "Χρήστες", icon: "users", capability: "users" },
+      { href: "/admin/users/roles", label: "Ρόλοι", icon: "roles", capability: "users" },
     ],
   },
 ];
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const session = await auth();
-  if (!session?.user) redirect("/admin/login");
+  if (!session?.user) {
+    // A revoked token still passes the middleware, which only checks the JWT,
+    // so redirecting to the login page would bounce straight back here. The
+    // route handler clears the cookie first.
+    if ((await authState()) === "revoked") redirect("/api/admin/session-ended");
+    redirect("/admin/login");
+  }
 
   const allowed = capabilitiesOf(session.user.role);
   const groups: NavGroup[] = GROUPS.map((g) => ({

@@ -82,12 +82,17 @@ export default async function AdminLoginPage({
             />
           </div>
 
-          {error && (
+          {error === "revoked" ? (
+            <p role="alert" className="text-sm text-k-red">
+              Η συνεδρία σας έληξε επειδή άλλαξε ο κωδικός ή η πρόσβαση του
+              λογαριασμού. Συνδεθείτε ξανά.
+            </p>
+          ) : error ? (
             <p role="alert" className="text-sm text-k-red">
               Λάθος στοιχεία ή ο λογαριασμός δεν είναι ενεργός. Μετά από 5
               αποτυχημένες προσπάθειες η πρόσβαση κλειδώνει για 15 λεπτά.
             </p>
-          )}
+          ) : null}
 
           <button
             type="submit"
