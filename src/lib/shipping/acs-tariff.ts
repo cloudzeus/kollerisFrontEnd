@@ -71,6 +71,27 @@ const PACKING_FACTOR = (() => {
 const MAX_PLAUSIBLE_CM = 200;
 
 /**
+ * The lightest an item can plausibly be for its size, in grams per litre.
+ *
+ * MAX_PLAUSIBLE_CM only catches millimetres on LONG items. A small tool in
+ * millimetres has every side under 200 and sails through:
+ *
+ *   ΚΑΡΥΔΑΚΙ ΑΛΛΕΝ 3/4" GEDORE   0,38 kg   stored as 135×56×45
+ *
+ * — read as centimetres that is a 340-litre box, 81,65 volumetric kilos, and
+ * it quoted 163,99 EUR of postage on a 41 EUR socket (KOL-20260916-0002..4).
+ * Nearly 400 active rows look like this, most of them one brand.
+ *
+ * Weight and volume together settle the unit. In centimetres that socket
+ * weighs 1,1 g per litre, far lighter than polystyrene (15-30 g/L); in
+ * millimetres it is 1,1 kg per litre, which is what a tool weighs. Steel is
+ * about 7.800 g/L, so anything stored in millimetres lands below 8 g/L here,
+ * and the emptiest real item in a tool catalogue — a bag, a plastic case — is
+ * well above 10. Below the line the dimensions are read as millimetres.
+ */
+const MIN_PLAUSIBLE_DENSITY_G_PER_L = 10;
+
+/**
  * The heaviest a single courier-shipped item can plausibly be, in kilograms.
  *
  * The same failure as the dimensions, in the other column and far more common:
@@ -243,10 +264,17 @@ export function chargeableWeight(items: ParcelItem[]): {
         item.length > MAX_PLAUSIBLE_CM ||
         item.height > MAX_PLAUSIBLE_CM;
 
+      const cm3 = item.width * item.length * item.height;
+      const gramsPerLitre = weighable ? (item.weight! * 1000) / (cm3 / 1000) : null;
+
       if (oversize) {
         implausibleItems += qty;
+      } else if (gramsPerLitre != null && gramsPerLitre < MIN_PLAUSIBLE_DENSITY_G_PER_L) {
+        // Millimetres — see MIN_PLAUSIBLE_DENSITY_G_PER_L. 1 cm³ = 1.000 mm³.
+        implausibleItems += qty;
+        volumetricKg += (cm3 / 1000 / VOLUMETRIC_DIVISOR) * qty;
       } else {
-        volumetricKg += ((item.width * item.length * item.height) / VOLUMETRIC_DIVISOR) * qty;
+        volumetricKg += (cm3 / VOLUMETRIC_DIVISOR) * qty;
       }
     }
   }

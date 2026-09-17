@@ -1,6 +1,7 @@
 import "server-only";
 import { hdctoolRequest } from "@/lib/hdctool/client";
 import {
+  ZONES,
   chargeableWeight,
   quotePostage,
   zoneForPostcode,
@@ -89,6 +90,9 @@ export async function quoteLivePostage({
       totalNet: q.totalNet,
       // Remoteness from ACS overrides whatever the postcode ranges concluded.
       zone: q.remote ? "remote" : table.zone,
+      // The label and delivery time follow the zone, or an order priced as
+      // remote says "Ηπειρωτική Ελλάδα, 1-2 ημέρες" to the customer.
+      ...(q.remote ? { zoneLabel: ZONES.remote.label, etaDays: ZONES.remote.etaDays } : {}),
       source: "acs",
       station: q.stationId,
       remote: q.remote,

@@ -142,6 +142,26 @@ describe("implausible dimensions", () => {
     expect(result.implausibleItems).toBe(0);
   });
 
+  it("reads a small tool stored in millimetres as millimetres", () => {
+    // KOL-20260916-0004: 3/4" socket, 0,38 kg, stored as 135×56×45. Read as cm
+    // it was 81,65 volumetric kg and 163,99 EUR of postage.
+    const result = chargeableWeight([
+      { quantity: 1, weight: 0.38, width: 135, length: 56, height: 45 },
+    ]);
+    expect(result.volumetricKg).toBe(0.08);
+    expect(result.chargeableKg).toBe(0.5);
+    expect(result.implausibleItems).toBe(1);
+  });
+
+  it("keeps a genuinely light, bulky item in centimetres", () => {
+    // A soft tool bag: 45×30×30 cm, 1 kg → 25 g/L. Light, but real.
+    const result = chargeableWeight([
+      { quantity: 1, weight: 1, width: 45, length: 30, height: 30 },
+    ]);
+    expect(result.volumetricKg).toBe(9.72);
+    expect(result.implausibleItems).toBe(0);
+  });
+
   it("leaves ordinary items untouched", () => {
     const result = chargeableWeight([
       { quantity: 1, weight: 2.7, width: 37, length: 9, height: 26 },

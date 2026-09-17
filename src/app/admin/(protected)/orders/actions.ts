@@ -4,6 +4,14 @@ import { revalidatePath } from "next/cache";
 import { sendOrderToErp, type SendToErpResult } from "@/lib/orders/send-to-erp";
 import { createVoucherForOrder, type VoucherResult } from "@/lib/courier/create-for-order";
 import { sendOrderEmail } from "@/lib/mail/order-email";
+import { auth } from "@/auth";
+import { assertCan } from "@/lib/rbac";
+import {
+  applyPostageCorrection,
+  previewPostageCorrection,
+  type ApplyResult,
+  type PreviewResult,
+} from "@/lib/orders/postage-correction";
 
 /**
  * The action behind "Αποστολή στο SoftOne", which until now had none.
@@ -14,6 +22,7 @@ import { sendOrderEmail } from "@/lib/mail/order-email";
  * column stops saying "δεν έχει σταλεί" the moment it stops being true.
  */
 export async function pushOrderToErp(orderNumber: string): Promise<SendToErpResult> {
+  await requireOrders();
   const result = await sendOrderToErp(orderNumber);
 
   // Refreshed on failure too: `erpError` is now on the order and the row shows
@@ -32,6 +41,7 @@ export async function pushOrderToErp(orderNumber: string): Promise<SendToErpResu
  * `/admin/courier` reads what this produces.
  */
 export async function createOrderVoucher(orderNumber: string): Promise<VoucherResult> {
+  await requireOrders();
   const result = await createVoucherForOrder(orderNumber);
   revalidatePath("/admin/orders");
   revalidatePath("/admin/courier");
@@ -55,7 +65,37 @@ export async function createOrderVoucher(orderNumber: string): Promise<VoucherRe
 export async function resendOrderEmail(
   orderNumber: string,
 ): Promise<{ ok: true } | { ok: false; error: string }> {
+  await requireOrders();
   const result = await sendOrderEmail(orderNumber);
   if (!result.ok) return { ok: false, error: result.error };
   return { ok: true };
+}
+
+/**
+ * Re-price the postage of an unpaid order, and optionally apologise.
+ *
+ * Every action in this file checks the role: a server action is a public
+ * POST endpoint, and hiding the button is not authorisation.
+ */
+async function requireOrders() {
+  const session = await auth();
+  assertCan(session?.user.role, "orders");
+  return { id: session!.user.id, email: session!.user.email ?? "unknown" };
+}
+
+export async function previewOrderPostage(orderNumber: string): Promise<PreviewResult> {
+  await requireOrders();
+  return previewPostageCorrection(orderNumber);
+}
+
+export async function applyOrderPostage(
+  orderNumber: string,
+  options: { notify: boolean; message?: string },
+): Promise<ApplyResult> {
+  const actor = await requireOrders();
+  const result = await applyPostageCorrection(orderNumber, actor, options);
+  revalidatePath(`/admin/orders/${orderNumber}`);
+  revalidatePath("/admin/orders");
+  revalidatePath("/admin");
+  return result;
 }

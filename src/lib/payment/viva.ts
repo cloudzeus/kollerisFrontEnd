@@ -136,6 +136,12 @@ export type CreatePaymentOrderInput = {
   locale: Locale;
   /** Minutes the payment link stays valid. */
   expiryMinutes?: number;
+  /**
+   * Whether Viva emails the customer its own payment link. Off when we have
+   * already written to them ourselves — two emails about one payment, one of
+   * them expiring in half an hour, is how a customer pays the wrong one.
+   */
+  notifyCustomer?: boolean;
 };
 
 export type PaymentOrder = {
@@ -174,7 +180,7 @@ export async function createPaymentOrder(
       preauth: false,
       allowRecurring: false,
       maxInstallments: 0,
-      paymentNotification: true,
+      paymentNotification: input.notifyCustomer ?? true,
       disableExactAmount: false,
       disableCash: true,
       disableWallet: false,
