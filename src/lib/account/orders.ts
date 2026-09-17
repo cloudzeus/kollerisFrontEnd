@@ -1,5 +1,6 @@
 import "server-only";
 import { prisma } from "@/lib/prisma";
+import { hasProvenEmail } from "@/lib/account/email-proof";
 
 /**
  * A customer's own orders.
@@ -13,6 +14,11 @@ import { prisma } from "@/lib/prisma";
  * The email comparison is case-insensitive because an address typed at checkout
  * and one typed at registration are the same address whatever the shift key was
  * doing.
+ *
+ * The email match applies only once the account has proven its address (see
+ * `hasProvenEmail`). Direct registration does not check the email, and matching
+ * on it regardless handed a stranger's guest orders to whoever registered with
+ * their address first.
  */
 
 export type AccountOrder = {
@@ -44,10 +50,11 @@ export async function listCustomerOrders(
   customerId: string,
   email: string,
 ): Promise<AccountOrder[]> {
+  const proven = await hasProvenEmail(email);
   const orders = await prisma.order.findMany({
-    where: {
-      OR: [{ customerId }, { email: { equals: email, mode: "insensitive" } }],
-    },
+    where: proven
+      ? { OR: [{ customerId }, { email: { equals: email, mode: "insensitive" } }] }
+      : { customerId },
     orderBy: { createdAt: "desc" },
     // Bounded. An account with hundreds of orders needs paging, not a longer
     // page, and nobody has hundreds yet.
@@ -95,6 +102,8 @@ export async function listCustomerOrders(
  * between accounts.
  */
 export async function claimGuestOrders(customerId: string, email: string): Promise<number> {
+  // An unproven address claims nothing: the email is not yet known to be theirs.
+  if (!(await hasProvenEmail(email))) return 0;
   const result = await prisma.order.updateMany({
     where: { customerId: null, email: { equals: email, mode: "insensitive" } },
     data: { customerId },

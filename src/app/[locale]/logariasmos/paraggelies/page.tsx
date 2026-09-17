@@ -9,6 +9,8 @@ import { Link } from "@/i18n/navigation";
 import type { Locale } from "@/i18n/routing";
 import { requireCustomer } from "@/lib/account/guard";
 import { claimGuestOrders, listCustomerOrders } from "@/lib/account/orders";
+import { hasProvenEmail } from "@/lib/account/email-proof";
+import { EmailProofPanel } from "@/components/account/EmailProofPanel";
 import { formatMoney } from "@/lib/format";
 import { upGreek } from "@/lib/greek";
 
@@ -33,8 +35,8 @@ export async function generateMetadata({
  *
  * Orders placed before today still have no `customerId`, and so do orders placed
  * as a guest before registering, which is how most accounts begin. Those are
- * matched on the email address and adopted on sight, so a customer sees their
- * history rather than an empty page that is technically correct.
+ * matched on the email address and adopted — but only once the account has
+ * proven that address (`hasProvenEmail`); until then the page explains how.
  *
  * Each row opens the confirmation page, which already shows the progress steps,
  * the lines, the totals and the courier reference. A second order-detail page
@@ -54,7 +56,10 @@ export default async function OrdersPage({
   // Stamp the guest orders onto the account, so the index on `customerId` can
   // answer next time instead of a case-insensitive scan on email.
   await claimGuestOrders(user.id, user.email);
-  const orders = await listCustomerOrders(user.id, user.email);
+  const [orders, proven] = await Promise.all([
+    listCustomerOrders(user.id, user.email),
+    hasProvenEmail(user.email),
+  ]);
 
   /*
    * Resolved here rather than looked up by a key built at render time.
@@ -80,6 +85,24 @@ export default async function OrdersPage({
         active="/logariasmos/paraggelies"
         title={t("titlos")}
       >
+        {/*
+          Guest orders are matched by email only once the address is proven.
+          Until then the customer is told how to prove it, in words that do
+          not reveal whether any guest orders exist.
+        */}
+        {!proven && (
+          <EmailProofPanel
+            text={{
+              title: t("epivevaiosi_titlos"),
+              body: t("epivevaiosi_body", { email: user.email }),
+              steps: [t("epivevaiosi_vima_1"), t("epivevaiosi_vima_2"), t("epivevaiosi_vima_3")],
+              button: t("epivevaiosi_koumpi"),
+              sending: t("epivevaiosi_apostoli"),
+              sent: t("epivevaiosi_stalthike", { email: user.email }),
+              sentHint: t("epivevaiosi_den_irthe"),
+            }}
+          />
+        )}
         {orders.length === 0 ? (
           /*
            * An empty state that says what to do, not just that there is nothing.

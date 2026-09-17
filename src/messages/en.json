@@ -1438,7 +1438,16 @@
       "status_shipped": "Shipped",
       "status_delivered": "Delivered",
       "status_cancelled": "Cancelled",
-      "status_failed": "Failed"
+      "status_failed": "Failed",
+      "epivevaiosi_titlos": "Ordered before without an account?",
+      "epivevaiosi_body": "If you placed orders as a guest with {email}, they will appear here as soon as you confirm the address is yours. We ask so that nobody else can see your orders and details.",
+      "epivevaiosi_vima_1": "Click “Send link”.",
+      "epivevaiosi_vima_2": "Open the email you receive from Kolleris.",
+      "epivevaiosi_vima_3": "Click the confirmation button in that email. Your orders will appear straight away.",
+      "epivevaiosi_koumpi": "Send link",
+      "epivevaiosi_apostoli": "Sending…",
+      "epivevaiosi_stalthike": "We sent a confirmation link to {email}. Open it within 72 hours.",
+      "epivevaiosi_den_irthe": "Not there after a few minutes? Check your Spam or Promotions folder. You can ask for a new link in 10 minutes."
     }
   },
   "dieuthynseis": {

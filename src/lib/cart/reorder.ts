@@ -2,6 +2,7 @@ import "server-only";
 import { prisma } from "@/lib/prisma";
 import { getCustomerSession } from "@/lib/account/session";
 import { matchOrderLines } from "@/lib/cart/reorder-match";
+import { hasProvenEmail } from "@/lib/account/email-proof";
 
 /**
  * Buy this again.
@@ -138,8 +139,11 @@ async function mayReorder(
 
   const session = await getCustomerSession();
   if (session.state !== "signed-in") return false;
+  if (order.customerId === session.user.id) return true;
+  // The email match only for an account that has proven its address.
   return (
-    order.customerId === session.user.id ||
-    order.email.toLowerCase() === session.user.email.toLowerCase()
+    order.customerId === null &&
+    order.email.toLowerCase() === session.user.email.toLowerCase() &&
+    (await hasProvenEmail(session.user.email))
   );
 }

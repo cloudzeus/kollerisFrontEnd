@@ -462,3 +462,23 @@ export async function acceptInvitation(
   if (result.token) await setCustomerSession(result.token);
   redirect(result.token ? "/logariasmos" : "/eisodos");
 }
+
+/**
+ * «Επιβεβαίωση email» from the account pages.
+ *
+ * Only for the signed-in customer's own address — the action takes no email
+ * from the form, so it cannot be pointed at somebody else's mailbox.
+ */
+export async function requestEmailProofAction(
+  _prev: AuthState & { sent?: boolean },
+  _formData: FormData,
+): Promise<AuthState & { sent?: boolean }> {
+  const { getCustomerSession } = await import("@/lib/account/session");
+  const session = await getCustomerSession();
+  if (session.state !== "signed-in") return { error: "Συνδεθείτε ξανά και δοκιμάστε πάλι." };
+
+  const { requestEmailProof } = await import("@/lib/account/email-proof");
+  const result = await requestEmailProof(session.user.id);
+  if (!result.ok) return { error: result.error };
+  return { sent: true };
+}

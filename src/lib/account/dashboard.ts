@@ -1,6 +1,7 @@
 import "server-only";
 import { prisma } from "@/lib/prisma";
 import { trackVoucher } from "@/lib/courier/acs";
+import { hasProvenEmail } from "@/lib/account/email-proof";
 
 /**
  * What a customer's account page should have been showing all along.
@@ -68,9 +69,10 @@ export async function getAccountDashboard(
    * that shows five of their seven orders is worse than one that shows none —
    * it looks like the shop lost two.
    */
-  const where = {
-    OR: [{ customerId }, { email: { equals: email, mode: "insensitive" as const } }],
-  };
+  // The email half only once the address is proven — see `hasProvenEmail`.
+  const where = (await hasProvenEmail(email))
+    ? { OR: [{ customerId }, { email: { equals: email, mode: "insensitive" as const } }] }
+    : { customerId };
 
   const yearStart = new Date(new Date().getFullYear(), 0, 1);
 
