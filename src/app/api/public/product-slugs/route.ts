@@ -29,8 +29,12 @@ import { prisma } from "@/lib/prisma";
  * αντικαθιστά.
  */
 
-/* Ο κατάλογος αλλάζει με ρυθμό ωρών, όχι δευτερολέπτων. */
-export const revalidate = 900;
+/*
+ * Δυναμικό, όχι `revalidate`: με `revalidate` το Next το προ-αποδίδει στο build,
+ * όπου η βάση δεν είναι προσβάσιμη, και το deploy αποτυγχάνει. Ο κατάλογος
+ * αλλάζει με ρυθμό ωρών, οπότε την κρυφή μνήμη την κρατά το cache-control.
+ */
+export const dynamic = "force-dynamic";
 
 export async function GET() {
   const rows = await prisma.product.findMany({
