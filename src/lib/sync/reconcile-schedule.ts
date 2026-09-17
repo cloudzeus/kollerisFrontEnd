@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { reconcileCatalog, recomputeCounts } from "@/lib/sync/catalog-sync";
+import { drainPendingHdcIds } from "@/lib/sync/hdc-feed";
 
 /**
  * The nightly reconcile, running inside the server.
@@ -104,6 +105,15 @@ async function runNow(trigger: string): Promise<void> {
   if (running) return;
   running = true;
   try {
+    /*
+     * Ids the webhook accepted but could not apply. The reconcile below only
+     * compares WHICH products are listed, never what they cost, so a failed
+     * price change is invisible to it — this is what makes sure a failure on
+     * the last delivery before a quiet weekend is still applied overnight.
+     * Never throws; runs on the webhook's own queue.
+     */
+    await drainPendingHdcIds(`reconcile-${trigger}`);
+
     const result = await reconcileCatalog();
 
     // Loud on purpose, and loudest when it found something. A reconcile that

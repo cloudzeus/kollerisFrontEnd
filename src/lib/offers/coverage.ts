@@ -1,4 +1,5 @@
 import "server-only";
+import { cache } from "react";
 import { prisma } from "@/lib/prisma";
 import type { Prisma } from "@/generated/prisma/client";
 
@@ -69,75 +70,6 @@ export async function campaignWhere(
 }
 
 /**
- * The campaigns covering a given set of products.
- *
- * One query per campaign rather than per product: there are at most a handful
- * of live campaigns and thousands of products, so the cheap direction is to ask
- * each campaign which of these it claims.
- *
- * Returns a map keyed by product slug, because that is what a card and a
- * product page both already hold.
- */
-export type CampaignMark = {
-  slug: string;
-  title: string;
-  badge: string;
-  href: string;
-};
-
-export async function campaignsForProducts(
-  productSlugs: string[],
-  locale: string,
-): Promise<Map<string, CampaignMark[]>> {
-  const marks = new Map<string, CampaignMark[]>();
-  if (productSlugs.length === 0) return marks;
-
-  const now = new Date();
-  const campaigns = await prisma.offer.findMany({
-    where: {
-      isActive: true,
-      AND: [
-        { OR: [{ startsAt: null }, { startsAt: { lte: now } }] },
-        { OR: [{ endsAt: null }, { endsAt: { gte: now } }] },
-      ],
-    },
-    select: {
-      slug: true, titleEl: true, titleEn: true, titleIt: true, badge: true,
-      scope: true, productSlugs: true, brandSlug: true, categorySlug: true,
-    },
-  });
-  if (campaigns.length === 0) return marks;
-
-  for (const campaign of campaigns) {
-    const where = await campaignWhere(campaign);
-    if (!where) continue;
-
-    const covered = await prisma.product.findMany({
-      where: { AND: [where, { slug: { in: productSlugs } }] },
-      select: { slug: true },
-    });
-    if (covered.length === 0) continue;
-
-    const mark: CampaignMark = {
-      slug: campaign.slug,
-      title:
-        (locale === "en" ? campaign.titleEn : locale === "it" ? campaign.titleIt : campaign.titleEl) ||
-        campaign.titleEl,
-      badge: campaign.badge ?? "",
-      href: `/prosfores/${campaign.slug}`,
-    };
-
-    for (const product of covered) {
-      const list = marks.get(product.slug);
-      if (list) list.push(mark);
-      else marks.set(product.slug, [mark]);
-    }
-  }
-
-  return marks;
-}
-
-/**
  * Everything covered by ANY live campaign, as one clause.
  *
  * This is what "με προσφορά" on a listing has to mean. It used to mean
@@ -154,8 +86,14 @@ export async function campaignsForProducts(
  * Returns null when nothing is live, which the caller must turn into "match
  * nothing" rather than "no filter": an empty campaign list means no product is
  * on offer, not that every product is.
+ *
+ * Memoised per render with `cache()`: one listing asks for it from the main
+ * where clause and again from the sale-count facet, and each call is an
+ * `offer.findMany` plus one lookup per brand- or category-scoped campaign.
+ * Deliberately NOT shared across requests — a campaign that an admin switches
+ * off must leave the "με προσφορά" grid on the next page view.
  */
-export async function activeCampaignsWhere(): Promise<Prisma.ProductWhereInput | null> {
+export const activeCampaignsWhere = cache(async (): Promise<Prisma.ProductWhereInput | null> => {
   const now = new Date();
   const campaigns = await prisma.offer.findMany({
     where: {
@@ -176,4 +114,4 @@ export async function activeCampaignsWhere(): Promise<Prisma.ProductWhereInput |
 
   if (clauses.length === 0) return null;
   return clauses.length === 1 ? clauses[0] : { OR: clauses };
-}
+});

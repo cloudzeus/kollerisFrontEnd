@@ -4,6 +4,7 @@ import { categoryBreadcrumb, categoryItemList } from "@/lib/seo/product-schema";
 import { categoryFaq, categoryIntro } from "@/lib/seo/category-copy";
 import { faqJsonLd } from "@/lib/seo/product-faq";
 import type { Metadata } from "next";
+import { cache } from "react";
 import { notFound } from "next/navigation";
 import { setRequestLocale } from "next-intl/server";
 import { SiteChrome } from "@/components/chrome/SiteChrome";
@@ -38,7 +39,9 @@ type PageProps = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
 
-const getCategory = async (slug: string) =>
+/* `cache()`: the metadata and the page both ask for this row in one request,
+   and without it that was two identical lookups per page view. */
+const getCategory = cache(async (slug: string) =>
   prisma.category.findUnique({
     where: { slug },
     select: {
@@ -49,7 +52,8 @@ const getCategory = async (slug: string) =>
       productCount: true,
       childCount: true,
     },
-  });
+  }),
+);
 
 export async function generateMetadata({
   params,

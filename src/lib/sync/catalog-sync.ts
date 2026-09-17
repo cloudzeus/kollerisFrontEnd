@@ -1,7 +1,15 @@
 import "server-only";
 import { prisma } from "@/lib/prisma";
 import { refreshVariantLeads } from "@/lib/catalog/variant-lead";
-import { slugify } from "@/lib/greek";
+import {
+  changedChildTables,
+  pickFreeSlug,
+  slugCandidates,
+  slugRoot,
+  type ChildRows,
+  type ChildTable,
+  type SpecRow,
+} from "./product-children";
 import { DEFAULT_VAT_RATE } from "@/lib/format";
 import {
   hdctool,
@@ -35,7 +43,7 @@ export type SyncResult = {
 
 /** Slugs must be unique; disambiguate collisions with the ERP code. */
 function uniqueSlug(base: string, fallback: string, taken: Set<string>): string {
-  const root = slugify(base) || slugify(fallback) || "item";
+  const root = slugRoot(base, fallback);
   let candidate = root;
   let n = 2;
   while (taken.has(candidate)) candidate = `${root}-${n++}`;
@@ -360,23 +368,17 @@ function displayName(p: HdctoolProduct): string {
 }
 
 /**
- * How many product writes run at once. The pg pool defaults to 10 connections;
- * staying at 8 leaves headroom for the count queries that follow.
+ * How many product writes run at once.
+ *
+ * The pool is 20 connections per process (`DATABASE_POOL_MAX`) and the same
+ * Postgres serves three other databases, so a sync must leave most of it to
+ * the shop. Four is plenty now that an unchanged product costs one statement
+ * instead of fourteen: the round trips, not the parallelism, were the cost.
  */
-const WRITE_CONCURRENCY = 8;
+const WRITE_CONCURRENCY = 4;
 
-function buildSpecRows(p: HdctoolProduct, productId: string) {
-  const rows: Array<{
-    productId: string;
-    locale: "el" | "en" | "it";
-    fieldKey: string;
-    fieldGroup: string;
-    label: string | null;
-    value: string;
-    valueNumeric: number | null;
-    unit: string | null;
-    order: number;
-  }> = [];
+function buildSpecRows(p: HdctoolProduct): SpecRow[] {
+  const rows: SpecRow[] = [];
 
   for (const spec of p.specifications ?? []) {
     const locale = spec.language;
@@ -386,7 +388,6 @@ function buildSpecRows(p: HdctoolProduct, productId: string) {
       const value = String(raw).trim();
       if (!value || value === "-") return;
       rows.push({
-        productId,
         locale,
         fieldKey: field.key,
         fieldGroup: field.group,
@@ -402,6 +403,191 @@ function buildSpecRows(p: HdctoolProduct, productId: string) {
   return rows;
 }
 
+/**
+ * Every child row a product should have, without `productId` — the shape the
+ * comparison in `product-children.ts` works on, and the shape written.
+ */
+function desiredChildRows(p: HdctoolProduct): ChildRows {
+  return {
+    images: p.images.slice(0, 12).map((img, i) => ({
+      url: img.url,
+      isFeature: img.isFeature || i === 0,
+      order: img.order ?? i,
+    })),
+    /*
+     * A translation is worth keeping for its DESCRIPTION, not only its name.
+     *
+     * This used to filter on `t.name`, and the Greek name is empty by
+     * design: HDCtool never writes one, because the Greek name is
+     * `MTRL.NAME` from the ERP and `displayName()` falls back to exactly
+     * that. So every Greek row arrived with an empty name, was dropped whole,
+     * and took its description with it.
+     *
+     * 1.538 live products reached the storefront with no text at all while
+     * HDCtool held a full description for each — including every product
+     * written by the AI passes, whose entire output is description.
+     *
+     * The name now falls back to the product's own, which is what the page
+     * renders anyway, so nothing displays differently and the description
+     * survives.
+     */
+    translations: p.translations
+      .filter((t) => t.name || t.shortDescription || t.longDescription)
+      .map((t) => {
+        const name = t.name?.trim() || p.name;
+        return {
+          locale: t.language,
+          name,
+          shortDescription: t.shortDescription ?? null,
+          longDescription: t.longDescription ?? null,
+          searchKey: normaliseSearchKey(name),
+        };
+      }),
+    specs: buildSpecRows(p),
+    /*
+     * `?? []` on colours and sizes: HDCtool only started returning these
+     * fields recently, and a deploy where the eshop is ahead of it would
+     * otherwise throw on every product rather than simply having nothing to
+     * write.
+     */
+    colors: (p.colors ?? []).map((c, i) => ({ externalId: c.id, name: c.name, order: i })),
+    sizes: (p.sizes ?? []).map((s, i) => ({
+      externalId: s.id,
+      label: s.label,
+      family: s.category ?? null,
+      order: i,
+    })),
+  };
+}
+
+/** What is already stored for a product, read in one batch per chunk. */
+type StoredProduct = {
+  slug: string;
+  firstListedAt: Date | null;
+  children: ChildRows;
+};
+
+/**
+ * The stored side of the comparison, for a whole chunk at once.
+ *
+ * One query per table for the chunk — six in all — instead of a delete and an
+ * insert per table per product. A product missing from the map does not exist
+ * yet.
+ */
+async function loadStoredProducts(mtrls: number[]): Promise<Map<number, StoredProduct>> {
+  if (mtrls.length === 0) return new Map();
+  const rows = await prisma.product.findMany({
+    where: { mtrl: { in: mtrls } },
+    select: {
+      mtrl: true,
+      slug: true,
+      firstListedAt: true,
+      images: { select: { url: true, isFeature: true, order: true } },
+      translations: {
+        select: {
+          locale: true,
+          name: true,
+          shortDescription: true,
+          longDescription: true,
+          searchKey: true,
+        },
+      },
+      specs: {
+        select: {
+          locale: true,
+          fieldKey: true,
+          fieldGroup: true,
+          label: true,
+          value: true,
+          valueNumeric: true,
+          unit: true,
+          order: true,
+        },
+      },
+      colors: { select: { externalId: true, name: true, order: true } },
+      sizes: { select: { externalId: true, label: true, family: true, order: true } },
+    },
+  });
+  return new Map(
+    rows.map((r) => [
+      r.mtrl,
+      {
+        slug: r.slug,
+        firstListedAt: r.firstListedAt,
+        children: {
+          images: r.images,
+          translations: r.translations,
+          specs: r.specs,
+          colors: r.colors,
+          sizes: r.sizes,
+        },
+      },
+    ]),
+  );
+}
+
+/**
+ * Slugs for products that do not have one yet, without loading every slug in
+ * the table.
+ *
+ * The old way read all ~9.000 slugs on every delivery to hand out, usually,
+ * none. This asks only about the candidates it might use — `root`, `root-2` …
+ * — for the products that are actually new, widening the window only for the
+ * rare root that is taken that many times over.
+ *
+ * `taken` is shared across chunks of one run, so two new products with the
+ * same name in the same run still get different slugs. Allocation happens
+ * before any concurrent write for the same reason it always did.
+ */
+const SLUG_WINDOWS: ReadonlyArray<readonly [number, number]> = [
+  [1, 25],
+  [26, 500],
+  [501, 5_000],
+];
+
+const SLUG_LOOKUP_BATCH = 5_000;
+
+async function allocateSlugs(
+  requests: Array<{ mtrl: number; root: string }>,
+  taken: Set<string>,
+): Promise<Map<number, string>> {
+  const allocated = new Map<number, string>();
+  let open = requests;
+
+  for (const [from, to] of SLUG_WINDOWS) {
+    if (open.length === 0) break;
+    const candidates = [
+      ...new Set(open.flatMap(({ root }) => slugCandidates(root, from, to))),
+    ].filter((c) => !taken.has(c));
+    // Bounded IN lists: a wide window times many roots must not become one
+    // statement with more bind parameters than Postgres accepts.
+    for (let i = 0; i < candidates.length; i += SLUG_LOOKUP_BATCH) {
+      const found = await prisma.product.findMany({
+        where: { slug: { in: candidates.slice(i, i + SLUG_LOOKUP_BATCH) } },
+        select: { slug: true },
+      });
+      for (const { slug } of found) taken.add(slug);
+    }
+
+    const stillOpen: typeof open = [];
+    for (const request of open) {
+      const slug = pickFreeSlug(request.root, taken, to);
+      if (slug) {
+        taken.add(slug);
+        allocated.set(request.mtrl, slug);
+      } else {
+        stillOpen.push(request);
+      }
+    }
+    open = stillOpen;
+  }
+
+  // Five thousand products with one name. Not expected to happen; if it does,
+  // the ERP id makes it unique, and a collision still fails loudly on the
+  // unique index rather than overwriting anything.
+  for (const { mtrl, root } of open) allocated.set(mtrl, `${root}-${mtrl}`);
+  return allocated;
+}
 
 /**
  * Τέσσερα δεκαδικά, γιατί η καθαρή τιμή είναι πηλίκο.
@@ -417,6 +603,8 @@ function roundTo4(value: number): number {
 async function upsertProduct(
   p: HdctoolProduct,
   slug: string,
+  /** What is stored now; undefined when the product does not exist yet. */
+  stored: StoredProduct | undefined,
 ): Promise<"created" | "updated"> {
   const name = displayName(p);
 
@@ -544,91 +732,89 @@ async function upsertProduct(
    * catalogue today, every night. A row that has been listed once keeps its
    * date forever; a row that has never been listed is NULL until the day it is.
    */
-  if (data.isActive) {
+  /*
+   * Skipped when the batched read already showed a date: the statement would
+   * match no row. A product that did not exist got the date from `create`.
+   */
+  if (data.isActive && stored && stored.firstListedAt == null) {
     await prisma.$executeRaw`
       UPDATE products SET "firstListedAt" = now()
        WHERE mtrl = ${p.mtrl} AND "firstListedAt" IS NULL
     `;
   }
 
-  // Images and translations are small per product; replace wholesale rather
-  // than diffing — the sync is not hot-path and this avoids stale rows.
-  await prisma.$transaction([
-    prisma.productImage.deleteMany({ where: { productId: product.id } }),
-    prisma.productImage.createMany({
-      data: p.images.slice(0, 12).map((img, i) => ({
-        productId: product.id,
-        url: img.url,
-        isFeature: img.isFeature || i === 0,
-        order: img.order ?? i,
-      })),
-    }),
-    prisma.productTranslation.deleteMany({ where: { productId: product.id } }),
-    prisma.productTranslation.createMany({
-      /*
-       * A translation is worth keeping for its DESCRIPTION, not only its name.
-       *
-       * This used to filter on `t.name`, and the Greek name is empty by
-       * design: HDCtool never writes one, because the Greek name is
-       * `MTRL.NAME` from the ERP and `displayName()` twenty lines above falls
-       * back to exactly that. So every Greek row arrived with an empty name,
-       * was dropped whole, and took its description with it.
-       *
-       * 1.538 live products reached the storefront with no text at all while
-       * HDCtool held a full description for each — including every product
-       * written by the AI passes, whose entire output is description.
-       *
-       * The name now falls back to the product's own, which is what the page
-       * renders anyway, so nothing displays differently and the description
-       * survives.
-       */
-      data: p.translations
-        .filter((t) => t.name || t.shortDescription || t.longDescription)
-        .map((t) => {
-          const name = t.name?.trim() || p.name;
-          return {
-            productId: product.id,
-            locale: t.language,
-            name,
-            shortDescription: t.shortDescription,
-            longDescription: t.longDescription,
-            searchKey: normaliseSearchKey(name),
-          };
-        }),
-    }),
-    prisma.productSpec.deleteMany({ where: { productId: product.id } }),
-    prisma.productSpec.createMany({ data: buildSpecRows(p, product.id) }),
-    /*
-     * Colours and sizes, replaced wholesale like everything else here.
-     *
-     * `?? []` on both: HDCtool only started returning these fields today, and a
-     * deploy where the eshop is ahead of it would otherwise throw on every
-     * product rather than simply having nothing to write.
-     */
-    prisma.productColor.deleteMany({ where: { productId: product.id } }),
-    prisma.productColor.createMany({
-      data: (p.colors ?? []).map((c, i) => ({
-        productId: product.id,
-        externalId: c.id,
-        name: c.name,
-        order: i,
-      })),
-    }),
-    prisma.productSize.deleteMany({ where: { productId: product.id } }),
-    prisma.productSize.createMany({
-      data: (p.sizes ?? []).map((s, i) => ({
-        productId: product.id,
-        externalId: s.id,
-        label: s.label,
-        family: s.category ?? null,
-        order: i,
-      })),
-    }),
-  ]);
+  /*
+   * Child rows are replaced wholesale — but only the tables whose content
+   * actually changed.
+   *
+   * Replacing everything on every sync was ten statements per product and a
+   * steady stream of dead tuples in `product_specs` and `product_images`, to
+   * express, nearly always, no change. The comparison is against the rows
+   * read for the whole chunk (`loadStoredProducts`), so an unchanged product
+   * costs nothing here at all. Anything uncertain reads as changed: see
+   * `product-children.ts`.
+   */
+  const desired = desiredChildRows(p);
+  const changed = changedChildTables(desired, stored?.children);
+  if (changed.length > 0) {
+    await prisma.$transaction(
+      changed.flatMap((table) => replaceChildren(table, product.id, desired)),
+    );
+  }
 
   return product.createdAt.getTime() === product.updatedAt.getTime()
     ? "created"
     : "updated";
+}
+
+/** The delete + insert pair for one child table of one product. */
+function replaceChildren(table: ChildTable, productId: string, rows: ChildRows) {
+  switch (table) {
+    case "images":
+      return [
+        prisma.productImage.deleteMany({ where: { productId } }),
+        prisma.productImage.createMany({
+          data: rows.images.map((r) => ({ ...r, productId })),
+        }),
+      ];
+    case "translations":
+      return [
+        prisma.productTranslation.deleteMany({ where: { productId } }),
+        prisma.productTranslation.createMany({
+          data: rows.translations.map((r) => ({
+            ...r,
+            locale: r.locale as "el" | "en" | "it",
+            productId,
+          })),
+        }),
+      ];
+    case "specs":
+      return [
+        prisma.productSpec.deleteMany({ where: { productId } }),
+        prisma.productSpec.createMany({
+          data: rows.specs.map((r) => ({
+            ...r,
+            locale: r.locale as "el" | "en" | "it",
+            valueNumeric: r.valueNumeric == null ? null : Number(r.valueNumeric.toString()),
+            productId,
+          })),
+        }),
+      ];
+    case "colors":
+      return [
+        prisma.productColor.deleteMany({ where: { productId } }),
+        prisma.productColor.createMany({
+          data: rows.colors.map((r) => ({ ...r, productId })),
+        }),
+      ];
+    case "sizes":
+      return [
+        prisma.productSize.deleteMany({ where: { productId } }),
+        prisma.productSize.createMany({
+          data: rows.sizes.map((r) => ({ ...r, productId })),
+        }),
+      ];
+  }
 }
 
 function normaliseSearchKey(raw: string): string {
@@ -644,20 +830,85 @@ function normaliseSearchKey(raw: string): string {
     .trim();
 }
 
+/**
+ * Write one chunk of products fetched from HDCtool.
+ *
+ * Per chunk: one batched read of what is stored (six queries), one slug
+ * lookup for the products that are new, then the writes in bounded batches.
+ * Per product: the upsert, plus only whatever actually changed.
+ */
+async function writeProductChunk(
+  products: HdctoolProduct[],
+  taken: Set<string>,
+): Promise<{
+  processed: number;
+  created: number;
+  updated: number;
+  errors: string[];
+  written: number[];
+  failedMtrl: number[];
+}> {
+  const stored = await loadStoredProducts(products.map((p) => p.mtrl));
+
+  // Slugs are allocated before any concurrent write, because `taken` is shared
+  // state and two tasks racing on it would hand out the same slug twice.
+  const fresh = await allocateSlugs(
+    products
+      .filter((p) => !stored.has(p.mtrl))
+      .map((p) => ({
+        mtrl: p.mtrl,
+        root: slugRoot(`${displayName(p)}-${p.code2 || p.code}`, `p-${p.mtrl}`),
+      })),
+    taken,
+  );
+
+  const prepared = products.map((p) => ({
+    product: p,
+    stored: stored.get(p.mtrl),
+    slug: stored.get(p.mtrl)?.slug ?? fresh.get(p.mtrl)!,
+  }));
+
+  let processed = 0;
+  let created = 0;
+  let updated = 0;
+  const errors: string[] = [];
+  const written: number[] = [];
+  const failedMtrl: number[] = [];
+
+  for (let j = 0; j < prepared.length; j += WRITE_CONCURRENCY) {
+    const batch = prepared.slice(j, j + WRITE_CONCURRENCY);
+    const outcomes = await Promise.allSettled(
+      batch.map(({ product, slug, stored: row }) => upsertProduct(product, slug, row)),
+    );
+    outcomes.forEach((outcome, index) => {
+      const { product } = batch[index];
+      processed++;
+      if (outcome.status === "fulfilled") {
+        if (outcome.value === "created") created++;
+        else updated++;
+        written.push(product.mtrl);
+      } else {
+        failedMtrl.push(product.mtrl);
+        errors.push(
+          `mtrl ${product.mtrl}: ${
+            outcome.reason instanceof Error ? outcome.reason.message : outcome.reason
+          }`,
+        );
+      }
+    });
+  }
+
+  return { processed, created, updated, errors, written, failedMtrl };
+}
+
 export async function syncProducts(
   { maxPages = 100 }: { maxPages?: number } = {},
 ): Promise<SyncResult> {
   return withRun("catalog-snapshot", async () => {
     const startedAt = Date.now();
 
-    const taken = new Set(
-      (await prisma.product.findMany({ select: { slug: true } })).map((p) => p.slug),
-    );
-    const existingSlugs = new Map(
-      (await prisma.product.findMany({ select: { mtrl: true, slug: true } })).map(
-        (p) => [p.mtrl, p.slug],
-      ),
-    );
+    // Slugs handed out during this run; the database is asked per chunk.
+    const taken = new Set<string>();
 
     let cursor: HdctoolCursor | null = null;
     let processed = 0;
@@ -685,45 +936,12 @@ export async function syncProducts(
         }
       }
 
-      /**
-       * Each product costs several round trips to a remote Postgres, so a
-       * serial loop is latency-bound (~1 product/sec over the VPN). Slugs are
-       * allocated up front — `taken` is a shared Set and must not be mutated
-       * from concurrent tasks — then the writes run in bounded batches.
-       */
-      const prepared = response.products.map((p) => ({
-        product: p,
-        slug:
-          existingSlugs.get(p.mtrl) ??
-          uniqueSlug(
-            `${displayName(p)}-${p.code2 || p.code}`,
-            `p-${p.mtrl}`,
-            taken,
-          ),
-      }));
-
-      for (let i = 0; i < prepared.length; i += WRITE_CONCURRENCY) {
-        const batch = prepared.slice(i, i + WRITE_CONCURRENCY);
-        const outcomes = await Promise.allSettled(
-          batch.map(({ product, slug }) => upsertProduct(product, slug)),
-        );
-
-        outcomes.forEach((outcome, index) => {
-          const { product } = batch[index];
-          if (outcome.status === "fulfilled") {
-            if (outcome.value === "created") created++;
-            else updated++;
-            seen.add(product.mtrl);
-          } else {
-            errors.push(
-              `mtrl ${product.mtrl}: ${
-                outcome.reason instanceof Error ? outcome.reason.message : outcome.reason
-              }`,
-            );
-          }
-          processed++;
-        });
-      }
+      const chunk = await writeProductChunk(response.products, taken);
+      processed += chunk.processed;
+      created += chunk.created;
+      updated += chunk.updated;
+      errors.push(...chunk.errors);
+      for (const mtrl of chunk.written) seen.add(mtrl);
 
       cursor = response.pagination.nextCursor;
       if (!cursor || response.products.length === 0) break;
@@ -832,7 +1050,15 @@ export async function recomputeCounts(): Promise<{
 
 // ─── Targeted sync (webhook + reconcile) ────────────────────────────────────
 
-export type TargetedSyncResult = SyncResult & { removed: number };
+export type TargetedSyncResult = SyncResult & {
+  removed: number;
+  /**
+   * Ids that came back from HDCtool but could not be written. Carried by the
+   * webhook as pending so a one-off write failure is retried rather than left
+   * stale until the product next changes upstream.
+   */
+  failedMtrl: number[];
+};
 
 /**
  * Bring a named set of products up to date.
@@ -852,27 +1078,20 @@ export async function syncProductsByMtrl(mtrls: number[]): Promise<TargetedSyncR
   const wanted = [...new Set(mtrls.filter((m) => Number.isInteger(m) && m > 0))];
 
   const empty: TargetedSyncResult = {
-    processed: 0, created: 0, updated: 0, removed: 0, failed: 0,
+    processed: 0, created: 0, updated: 0, removed: 0, failed: 0, failedMtrl: [],
     durationMs: 0, errors: [],
   };
   if (wanted.length === 0) return empty;
 
-  // Slugs are allocated before any concurrent write, because `taken` is shared
-  // state and two tasks racing on it would hand out the same slug twice.
-  const [allSlugs, mine] = await Promise.all([
-    prisma.product.findMany({ select: { slug: true } }),
-    prisma.product.findMany({
-      where: { mtrl: { in: wanted } },
-      select: { mtrl: true, slug: true },
-    }),
-  ]);
-  const taken = new Set(allSlugs.map((p) => p.slug));
-  const existingSlugs = new Map(mine.map((p) => [p.mtrl, p.slug]));
+  // Slugs handed out during this run. The database is asked per chunk, and
+  // only about candidates for products that are new (`allocateSlugs`).
+  const taken = new Set<string>();
 
   let created = 0;
   let updated = 0;
   let processed = 0;
   const errors: string[] = [];
+  const failedMtrl: number[] = [];
   const seen = new Set<number>();
 
   for (let i = 0; i < wanted.length; i += HDCTOOL_MAX_LIMIT) {
@@ -898,34 +1117,13 @@ export async function syncProductsByMtrl(mtrls: number[]): Promise<TargetedSyncR
       );
     }
 
-    const prepared = response.products.map((p) => ({
-      product: p,
-      slug:
-        existingSlugs.get(p.mtrl) ??
-        uniqueSlug(`${displayName(p)}-${p.code2 || p.code}`, `p-${p.mtrl}`, taken),
-    }));
-
-    for (let j = 0; j < prepared.length; j += WRITE_CONCURRENCY) {
-      const batch = prepared.slice(j, j + WRITE_CONCURRENCY);
-      const outcomes = await Promise.allSettled(
-        batch.map(({ product, slug }) => upsertProduct(product, slug)),
-      );
-      outcomes.forEach((outcome, index) => {
-        const { product } = batch[index];
-        processed++;
-        if (outcome.status === "fulfilled") {
-          if (outcome.value === "created") created++;
-          else updated++;
-          seen.add(product.mtrl);
-        } else {
-          errors.push(
-            `mtrl ${product.mtrl}: ${
-              outcome.reason instanceof Error ? outcome.reason.message : outcome.reason
-            }`,
-          );
-        }
-      });
-    }
+    const written = await writeProductChunk(response.products, taken);
+    processed += written.processed;
+    created += written.created;
+    updated += written.updated;
+    errors.push(...written.errors);
+    failedMtrl.push(...written.failedMtrl);
+    for (const mtrl of written.written) seen.add(mtrl);
   }
 
   /*
@@ -951,6 +1149,7 @@ export async function syncProductsByMtrl(mtrls: number[]): Promise<TargetedSyncR
   return {
     processed, created, updated, removed,
     failed: errors.length,
+    failedMtrl,
     durationMs: Date.now() - startedAt,
     errors: errors.slice(0, 50),
   };
@@ -1011,7 +1210,7 @@ export async function reconcileCatalog(): Promise<TargetedSyncResult> {
     const toRemove = [...localActive].filter((m) => !remote.has(m));
 
     let result: TargetedSyncResult = {
-      processed: 0, created: 0, updated: 0, removed: 0, failed: 0,
+      processed: 0, created: 0, updated: 0, removed: 0, failed: 0, failedMtrl: [],
       durationMs: 0, errors: [],
     };
     if (toSync.length > 0) result = await syncProductsByMtrl(toSync);
