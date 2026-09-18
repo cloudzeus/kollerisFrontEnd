@@ -285,6 +285,33 @@ export async function syncBrands(): Promise<SyncResult> {
       }
     }
 
+    /*
+     * Τα προϊόντα του δεύτερου κωδικού περνούν στον κανονικό.
+     *
+     * Η ίδια μάρκα με δύο MTRMARK στο ERP (Facom 1308 + 1443 «FACOM PB») έχει
+     * μία γραμμή εδώ, και τα είδη του δεύτερου κωδικού δεν ενώνονταν με τίποτα:
+     * 77 προϊόντα Facom χωρίς μάρκα, χωρίς πλήθος, εκτός φίλτρου. Το
+     * `canonicalMark` το αποτρέπει για ό,τι γράφεται από δω και πέρα· αυτό εδώ
+     * καθαρίζει ό,τι γράφτηκε πριν, και τρέχει μόνο όταν όντως υπάρχει δεύτερος
+     * κωδικός.
+     */
+    let realigned = 0;
+    for (const brand of brands) {
+      const marks = (brand.mtrmarks ?? []).filter((m) => Number.isFinite(m));
+      if (marks.length < 2) continue;
+      const canonical = [...marks].sort((a, b) => a - b)[0];
+      const secondaries = marks.filter((m) => m !== canonical);
+      if (secondaries.length === 0) continue;
+      const moved = await prisma.product.updateMany({
+        where: { mtrmark: { in: secondaries } },
+        data: { mtrmark: canonical },
+      });
+      realigned += moved.count;
+    }
+    if (realigned > 0) {
+      console.log(`[sync:brands] ${realigned} προϊόντα πέρασαν στον κύριο κωδικό της μάρκας τους`);
+    }
+
     return {
       processed: brands.length,
       created,
@@ -600,6 +627,42 @@ function roundTo4(value: number): number {
   return Math.round(value * 10000) / 10000;
 }
 
+/*
+ * Μία μάρκα, ένας κωδικός — ακόμη κι όταν το ERP έχει δύο.
+ * ───────────────────────────────────────────────────────────────────────────
+ * Η Facom υπάρχει στο SoftOne δύο φορές: MTRMARK 1308 και 1443 («FACOM PB»).
+ * Το HDCtool τις δένει στην ίδια μάρκα και επιστρέφει `mtrmarks: [1308, 1443]`·
+ * εδώ όμως το προϊόν κουβαλούσε τον δικό του κωδικό, και επειδή το eshop ενώνει
+ * προϊόν–μάρκα με ΕΝΑΝ αριθμό, τα 77 είδη του 1443 δεν μετριόνταν πουθενά: ούτε
+ * στη σελίδα της Facom, ούτε στο φίλτρο, ούτε στο πλήθος.
+ *
+ * Λύνεται στην εγγραφή, όχι σε δεκαπέντε ερωτήματα: το προϊόν παίρνει τον
+ * κωδικό ΤΗΣ ΜΑΡΚΑΣ του, δηλαδή αυτόν που κρατά η γραμμή `brands` (ο μικρότερος
+ * των `mtrmarks`). Ο δεύτερος κωδικός δεν χάνεται από πουθενά που τον χρειάζεται
+ * κανείς — το eshop δεν τον δείχνει και δεν τον στέλνει σε κανένα feed.
+ */
+const CANONICAL_TTL_MS = 60_000;
+let canonicalMarks: { at: number; byHdcId: Map<string, number> } | null = null;
+
+async function canonicalMark(p: HdctoolProduct): Promise<number | null> {
+  const fallback = p.brand?.mtrmark ?? null;
+  const hdcId = p.brand?.id;
+  if (!hdcId) return fallback;
+
+  if (!canonicalMarks || Date.now() - canonicalMarks.at > CANONICAL_TTL_MS) {
+    const rows = await prisma.brand.findMany({
+      where: { mtrmark: { not: null } },
+      select: { hdcId: true, mtrmark: true },
+    });
+    canonicalMarks = {
+      at: Date.now(),
+      byHdcId: new Map(rows.map((row) => [row.hdcId, row.mtrmark!])),
+    };
+  }
+
+  return canonicalMarks.byHdcId.get(hdcId) ?? fallback;
+}
+
 async function upsertProduct(
   p: HdctoolProduct,
   slug: string,
@@ -681,7 +744,7 @@ async function upsertProduct(
     searchKey: [name, p.code, p.code1, p.code2, p.impaCode, p.brand?.name]
       .filter(Boolean)
       .join(" "),
-    mtrmark: p.brand?.mtrmark ?? null,
+    mtrmark: await canonicalMark(p),
     mtrcategory: p.mtrcategory ?? null,
     mtrgroup: p.mtrgroup ?? null,
     cccSubgroup2: p.cccSubgroup2 ?? null,
@@ -947,10 +1010,18 @@ export async function syncProducts(
       if (!cursor || response.products.length === 0) break;
     }
 
-    // Persist the brand → MTRMARK links discovered above.
+    /*
+     * Οι σύνδεσμοι μάρκα → MTRMARK που βρέθηκαν παραπάνω, ΜΟΝΟ όπου λείπουν.
+     *
+     * Ήταν άνευ όρων `update`, δηλαδή η μάρκα κρατούσε τον κωδικό του τελευταίου
+     * προϊόντος που έτυχε: η Facom μπορούσε να καταλήξει 1443 («FACOM PB») αντί
+     * για 1308 και να χάσει τα 2.018 είδη της. Ο έγκυρος κωδικός έρχεται από το
+     * `/api/public/brands` (ο μικρότερος των `mtrmarks`)· αυτό εδώ είναι μόνο
+     * δίχτυ για μάρκα που δεν τον έχει ακόμη.
+     */
     for (const [hdcId, mtrmark] of brandMtrmark) {
       await prisma.brand
-        .update({ where: { hdcId }, data: { mtrmark } })
+        .updateMany({ where: { hdcId, mtrmark: null }, data: { mtrmark } })
         .catch(() => undefined); // brand not synced yet — next run picks it up
     }
 
