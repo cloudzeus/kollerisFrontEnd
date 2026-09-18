@@ -82,7 +82,7 @@ export default async function ComparePage({ params, searchParams }: PageProps) {
     await Promise.all([
       getCompareView(requested, locale),
       getMenuTree(locale),
-      getTopBrands(locale, 16),
+      getTopBrands(locale),
       getCatalogueStats(),
       getRootCategories(locale),
       getMiniCart(locale),

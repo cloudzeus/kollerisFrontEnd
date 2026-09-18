@@ -66,7 +66,7 @@ export default async function ConfirmationPage({ params, searchParams }: PagePro
     prisma.order.findUnique({ where: { orderNumber }, include: { lines: true } }),
     getMiniCart(locale),
     getMenuTree(locale),
-    getTopBrands(locale, 16),
+    getTopBrands(locale),
     getCatalogueStats(),
     getRootCategories(locale),
   ]);

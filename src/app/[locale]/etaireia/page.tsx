@@ -72,7 +72,7 @@ export default async function CompanyPage({
     await Promise.all([
       getCompanyProof(locale),
       getMenuTree(locale),
-      getTopBrands(locale, 16),
+      getTopBrands(locale),
       getCatalogueStats(),
       getRootCategories(locale),
       getMiniCart(locale),

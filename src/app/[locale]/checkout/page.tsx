@@ -60,7 +60,7 @@ export default async function CheckoutPage({
       getCart(locale),
       getMiniCart(locale),
       getMenuTree(locale),
-      getTopBrands(locale, 16),
+      getTopBrands(locale),
       getCatalogueStats(),
       getRootCategories(locale),
       // Somebody with an account is not offered another one.

@@ -34,7 +34,7 @@ export default async function ConfirmEmailPage({
   const [result, menuTree, brands, stats, rootCategories, miniCart] = await Promise.all([
     confirmEmailProof(token),
     getMenuTree(locale),
-    getTopBrands(locale, 16),
+    getTopBrands(locale),
     getCatalogueStats(),
     getRootCategories(locale),
     getMiniCart(locale),

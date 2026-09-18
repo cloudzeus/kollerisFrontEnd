@@ -88,7 +88,7 @@ export default async function BrandPage({ params, searchParams }: PageProps) {
     getBrandBySlug(slug, locale),
     getPlpData(plpParams, locale),
     getMenuTree(locale),
-    getTopBrands(locale, 16),
+    getTopBrands(locale),
     getCatalogueStats(),
     getRootCategories(locale),
     getMiniCart(locale),

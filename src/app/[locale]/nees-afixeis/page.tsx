@@ -83,7 +83,7 @@ export default async function NewArrivalsPage({
   ] = await Promise.all([
     getNewArrivals(locale),
     getMenuTree(locale),
-    getTopBrands(locale, 16),
+    getTopBrands(locale),
     getCatalogueStats(),
     getRootCategories(locale),
     getMiniCart(locale),

@@ -24,7 +24,7 @@ export async function AccountChrome({
 }) {
   const [menuTree, brands, stats, rootCategories, miniCart] = await Promise.all([
     getMenuTree(locale),
-    getTopBrands(locale, 16),
+    getTopBrands(locale),
     getCatalogueStats(),
     getRootCategories(locale),
     getMiniCart(locale),

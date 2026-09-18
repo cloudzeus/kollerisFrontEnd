@@ -115,7 +115,7 @@ export default async function CategoryPage({
     getCategory(kathgoria),
     getPlpData(plpParams, locale),
     getMenuTree(locale),
-    getTopBrands(locale, 16),
+    getTopBrands(locale),
     getCatalogueStats(),
     getRootCategories(locale),
     getMiniCart(locale),

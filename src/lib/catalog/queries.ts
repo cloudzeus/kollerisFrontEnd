@@ -162,11 +162,22 @@ export type BrandTile = {
   productCount: number;
 };
 
-/** Brands with at least one listed product, biggest first. */
+/**
+ * Οι μάρκες με τουλάχιστον ένα δημοσιευμένο είδος, από τη μεγαλύτερη.
+ *
+ * Το όριο ήταν 16 και οι μάρκες με προϊόντα είναι 19: η BOSCH, η CAT και η
+ * LEATHERMAN έμεναν έξω από το μενού ενώ τα είδη τους πωλούνταν κανονικά — «στο
+ * eshop εμφανίζονται προϊόντα από τις 2 νέες μάρκες, στο μενού brands δεν
+ * φαίνονται». Ένα όριο που κόβει μια μάρκα που αντιπροσωπεύουμε είναι λάθος
+ * όριο· το 48 είναι φράγμα για το ερώτημα, όχι κανόνας παρουσίασης.
+ *
+ * Όποιος θέλει συγκεκριμένο πλήθος πλακιδίων το κόβει στην όψη — ο τοίχος της
+ * αρχικής κρατά 16 για δύο γεμάτες σειρές.
+ */
 export const getTopBrands = sharedCatalogue(
   "top-brands",
   SLOW,
-  async (locale: Locale, limit = 16): Promise<BrandTile[]> => {
+  async (locale: Locale, limit = 48): Promise<BrandTile[]> => {
     const rows = await prisma.brand.findMany({
       where: { productCount: { gt: 0 } },
       orderBy: { productCount: "desc" },

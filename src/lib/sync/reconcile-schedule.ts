@@ -1,5 +1,10 @@
 import { prisma } from "@/lib/prisma";
-import { reconcileCatalog, recomputeCounts } from "@/lib/sync/catalog-sync";
+import {
+  reconcileCatalog,
+  recomputeCounts,
+  syncBrands,
+  syncCategories,
+} from "@/lib/sync/catalog-sync";
 import { drainPendingHdcIds } from "@/lib/sync/hdc-feed";
 
 /**
@@ -114,6 +119,38 @@ async function runNow(trigger: string): Promise<void> {
      */
     await drainPendingHdcIds(`reconcile-${trigger}`);
 
+    /*
+     * Οι μάρκες και οι κατηγορίες, πριν από τα προϊόντα.
+     *
+     * Το feed στέλνει μόνο προϊόντα, και ο reconcile από κάτω συγκρίνει μόνο
+     * MTRL: μια μάρκα που γεννήθηκε σήμερα στο HDCtool δεν έφτανε ποτέ εδώ —
+     * μόνο ένα χειροκίνητο `syncAll` την έφερνε. Στις 17/9 η CAT είχε 6
+     * δημοσιευμένα είδη στο eshop και καμία γραμμή στον πίνακα `brands`: τα
+     * προϊόντα φαίνονταν, η μάρκα πουθενά, γιατί το τελευταίο `syncBrands`
+     * είχε τρέξει στις 6 Αυγούστου.
+     *
+     * Είναι δύο κλήσεις και μερικές εκατοντάδες γραμμές upsert — κοστίζουν
+     * δευτερόλεπτα μία φορά τη νύχτα. Αν αποτύχουν, ο reconcile των προϊόντων
+     * συνεχίζει: μια χαλασμένη λίστα μαρκών δεν είναι λόγος να μείνει το
+     * κατάλογος στα χθεσινά.
+     */
+    let taxonomyMoved = false;
+    for (const [label, run] of [
+      ["categories", syncCategories],
+      ["brands", syncBrands],
+    ] as const) {
+      try {
+        const taxonomy = await run();
+        taxonomyMoved ||= taxonomy.created > 0;
+        console.log(
+          `[reconcile-cron] ${trigger}: ${label} — ${taxonomy.created} νέες, ` +
+            `${taxonomy.updated} ενημερωμένες, ${taxonomy.failed} αποτυχίες`,
+        );
+      } catch (error) {
+        console.error(`[reconcile-cron] ${trigger}: ${label} απέτυχε`, error);
+      }
+    }
+
     const result = await reconcileCatalog();
 
     // Loud on purpose, and loudest when it found something. A reconcile that
@@ -131,8 +168,9 @@ async function runNow(trigger: string): Promise<void> {
       );
     }
 
-    // Full-table aggregates. Only worth paying for when something moved.
-    if (result.processed > 0 || result.removed > 0) {
+    // Full-table aggregates. Only worth paying for when something moved — και
+    // μια καινούργια μάρκα ξεκινά με productCount 0, οπότε μετράει κι αυτή.
+    if (result.processed > 0 || result.removed > 0 || taxonomyMoved) {
       const counts = await recomputeCounts();
       console.log(
         `[reconcile-cron] recomputed ${counts.categories} categories, ${counts.brands} brands`,

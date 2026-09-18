@@ -69,7 +69,7 @@ export default async function HomePage({
   ] = await Promise.all([
     getRootCategories(locale),
     getMenuTree(locale),
-    getTopBrands(locale, 16),
+    getTopBrands(locale),
     getFeaturedProducts(locale, 8),
     getCatalogueStats(),
     getMiniCart(locale),

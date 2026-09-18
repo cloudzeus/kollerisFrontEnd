@@ -93,7 +93,7 @@ export default async function OffersPage({
     getActiveOffers(locale),
     getNewArrivals(locale, 1, 5),
     getMenuTree(locale),
-    getTopBrands(locale, 16),
+    getTopBrands(locale),
     getCatalogueStats(),
     getRootCategories(locale),
     getMiniCart(locale),

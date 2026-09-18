@@ -66,7 +66,7 @@ export default async function BlogPage({
   const [chrome, rootCategories, miniCart] = await Promise.all([
     Promise.all([
       getMenuTree(locale),
-      getTopBrands(locale, 16),
+      getTopBrands(locale),
       getCatalogueStats(),
     ]),
     getRootCategories(locale),

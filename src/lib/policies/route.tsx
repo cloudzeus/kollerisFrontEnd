@@ -58,7 +58,7 @@ export function createPolicyRoute(slug: PolicySlug, path: string) {
       await Promise.all([
         getTranslations({ locale, namespace: "policies" }),
         getMenuTree(locale),
-        getTopBrands(locale, 16),
+        getTopBrands(locale),
         getCatalogueStats(),
         getRootCategories(locale),
         getMiniCart(locale),

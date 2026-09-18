@@ -41,6 +41,11 @@ export async function BrandWall({
   const t = await getTranslations("home.BrandWall");
   if (brands.length === 0) return null;
 
+  // Δύο γεμάτες σειρές στα 8 κελιά του desktop. Το `getTopBrands` δίνει πλέον
+  // ΟΛΕΣ τις μάρκες με προϊόντα (τις θέλει το μενού), οπότε το πλήθος των
+  // πλακιδίων το ορίζει ο τοίχος — εδώ, όχι στο ερώτημα.
+  const wall = brands.slice(0, 16);
+
   return (
     <section className="border-t border-k-line bg-white shell-x py-7 lg:pt-15 lg:pb-16">
       <SectionHeading
@@ -54,7 +59,7 @@ export async function BrandWall({
       </SectionHeading>
 
       <div className="grid grid-cols-3 gap-px border border-k-line bg-k-line sm:grid-cols-4 lg:grid-cols-8">
-        {brands.map((brand) => (
+        {wall.map((brand) => (
           <Link
             key={brand.id}
             href={`/brands/${brand.slug}`}

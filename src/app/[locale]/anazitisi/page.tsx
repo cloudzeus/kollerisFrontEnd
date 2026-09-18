@@ -101,7 +101,7 @@ export default async function SearchPage({ params, searchParams }: PageProps) {
     query.length >= SUGGEST_MIN_LENGTH ? getPlpData(plpParams, locale) : null,
     query.length >= SUGGEST_MIN_LENGTH ? findByExactCode(query, locale) : null,
     getMenuTree(locale),
-    getTopBrands(locale, 16),
+    getTopBrands(locale),
     getCatalogueStats(),
     getRootCategories(locale),
     getMiniCart(locale),

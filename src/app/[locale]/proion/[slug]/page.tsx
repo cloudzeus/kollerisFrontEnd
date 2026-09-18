@@ -96,7 +96,7 @@ export default async function ProductPage({ params }: PageProps) {
       // Twelve, not five: the rail reaches the rest with its arrows.
       getRelatedProducts(product.mtrl, locale, 12),
       getMenuTree(locale),
-      getTopBrands(locale, 16),
+      getTopBrands(locale),
       getCatalogueStats(),
       getRootCategories(locale),
       getMiniCart(locale),

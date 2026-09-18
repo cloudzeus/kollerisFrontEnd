@@ -61,7 +61,7 @@ export default async function CartPage({
             lines.map((l) => l.productId),
           ),
       getMenuTree(locale),
-      getTopBrands(locale, 16),
+      getTopBrands(locale),
       getCatalogueStats(),
       getRootCategories(locale),
       getMiniCart(locale),

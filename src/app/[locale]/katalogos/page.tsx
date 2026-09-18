@@ -96,7 +96,7 @@ export default async function CataloguePage({
     await Promise.all([
       getCatalogueIndex(locale),
       getMenuTree(locale),
-      getTopBrands(locale, 16),
+      getTopBrands(locale),
       getCatalogueStats(),
       getRootCategories(locale),
       getMiniCart(locale),

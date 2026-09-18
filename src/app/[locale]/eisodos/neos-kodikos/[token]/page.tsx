@@ -28,7 +28,7 @@ export default async function NewPasswordPage({
   const [resolved, menuTree, brands, stats, rootCategories, miniCart] = await Promise.all([
     resolveResetToken(token),
     getMenuTree(locale),
-    getTopBrands(locale, 16),
+    getTopBrands(locale),
     getCatalogueStats(),
     getRootCategories(locale),
     getMiniCart(locale),

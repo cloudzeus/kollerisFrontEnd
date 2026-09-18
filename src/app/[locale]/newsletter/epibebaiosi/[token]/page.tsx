@@ -31,7 +31,7 @@ export default async function ConfirmPage({
     confirmSubscription(token),
     getRootCategories(locale),
     getMenuTree(locale),
-    getTopBrands(locale, 16),
+    getTopBrands(locale),
     getCatalogueStats(),
     getMiniCart(locale),
   ]);

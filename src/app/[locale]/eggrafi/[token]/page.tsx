@@ -41,7 +41,7 @@ export default async function AcceptInvitePage({
     await Promise.all([
       resolveInvite(token),
       getMenuTree(locale),
-      getTopBrands(locale, 16),
+      getTopBrands(locale),
       getCatalogueStats(),
       getRootCategories(locale),
       getMiniCart(locale),
