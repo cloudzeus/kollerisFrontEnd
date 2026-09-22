@@ -117,9 +117,16 @@ USER node
 EXPOSE 3000
 
 # The platform restarts a container that reports unhealthy. Asking for a real
-# page rather than a socket check, because a Next server that has crashed
+# route rather than a socket check, because a Next server that has crashed
 # inside its request handler still accepts connections.
-HEALTHCHECK --interval=30s --timeout=5s --start-period=40s --retries=3 \
-  CMD node -e "fetch('http://127.0.0.1:'+(process.env.PORT||3000)+'/').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
+#
+# NOT the homepage. It used to be `/` with a 5s timeout, and the homepage reads
+# the catalogue through `unstable_cache`, which lives on this container's disk
+# and is wiped on every restart. A cold homepage slower than 5s failed the
+# check, the platform restarted the container, the cache was wiped again: once
+# down, the shop could never come back up (22/9/2026, "no available server").
+# `/api/health` goes through the same request handler and does a `SELECT 1`.
+HEALTHCHECK --interval=30s --timeout=10s --start-period=90s --retries=3 \
+  CMD node -e "fetch('http://127.0.0.1:'+(process.env.PORT||3000)+'/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
 
 CMD ["node", "server.js"]
