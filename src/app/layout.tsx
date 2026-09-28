@@ -20,6 +20,7 @@ import "./globals.css";
 import { alternatesFor } from "@/lib/seo/urls";
 import { siteJsonLd } from "@/lib/seo/structured-data";
 import { GoogleAnalytics } from "@/components/analytics/GoogleAnalytics";
+import { GoogleTagManager, GoogleTagManagerNoScript } from "@/components/analytics/GoogleTagManager";
 import type { Locale } from "@/i18n/routing";
 
 /*
@@ -199,6 +200,7 @@ export default async function RootLayout({
       className="h-full antialiased"
     >
       <body className="flex min-h-full flex-col">
+        <GoogleTagManagerNoScript />
         {/*
           Who runs this shop, where it is, and how to search it.
           The product page already describes one item; this describes the
@@ -213,6 +215,7 @@ export default async function RootLayout({
         />
         {children}
         <GoogleAnalytics />
+        <GoogleTagManager />
       </body>
     </html>
   );
