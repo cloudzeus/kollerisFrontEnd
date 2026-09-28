@@ -119,6 +119,15 @@
   --color-k-blue: #1f5f8b;
 
   /* ── Type ── */
+  /*
+   * Οι οικογένειες, με τα ονόματα που δηλώνουν τα πακέτα `@fontsource-variable`.
+   * Έπαιρναν τιμή από κλάσεις του `next/font` πάνω στο <html>· τώρα είναι
+   * σταθερές, και ό,τι διαβάζει τα `--font-*-face` συνεχίζει να δουλεύει.
+   */
+  --font-display-face: "Roboto Flex Variable";
+  --font-sans-face: "Inter Variable";
+  --font-mono-face: "JetBrains Mono Variable";
+
   --font-display: var(--font-display-face), "Arial Black", var(--font-sans-face), sans-serif;
   --font-sans: var(--font-sans-face), system-ui, sans-serif;
   --font-mono: var(--font-mono-face), ui-monospace, monospace;

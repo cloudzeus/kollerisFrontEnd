@@ -1,5 +1,20 @@
 import type { Metadata } from "next";
-import { Inter, JetBrains_Mono, Roboto_Flex } from "next/font/google";
+/*
+ * Οι γραμματοσειρές ΑΠΟ ΤΟ PROJECT, όχι από το Google.
+ *
+ * Το `next/font/google` κατεβάζει το CSS της κάθε οικογένειας την ώρα του
+ * build. Στις 25/9/2026 ένα deploy έπεσε ακριβώς εκεί — ο loader διάβασε κενή
+ * απάντηση και τερμάτισε το build, με τον κώδικα σωστό. Τα πακέτα
+ * `@fontsource-variable` φέρνουν τα ΙΔΙΑ αρχεία woff2, με το ίδιο
+ * `unicode-range` ανά υποσύνολο, μέσα από το `npm ci` που τρέχει ούτως ή άλλως.
+ *
+ * `roboto-flex/wdth.css` και όχι ολόκληρη η οικογένεια: κρατά τον άξονα
+ * πλάτους που ζητά το design system (`font-stretch: 25%–151%`) σε 59 KB, αντί
+ * για 326 KB με όλους τους άξονες που δεν χρησιμοποιούμε.
+ */
+import "@fontsource-variable/inter";
+import "@fontsource-variable/jetbrains-mono";
+import "@fontsource-variable/roboto-flex/wdth.css";
 import { getLocale, getTranslations } from "next-intl/server";
 import "./globals.css";
 import { alternatesFor } from "@/lib/seo/urls";
@@ -44,13 +59,6 @@ import type { Locale } from "@/i18n/routing";
  *
  * Μεταβλητή γραμματοσειρά: όλα τα βάρη από ένα αρχείο, χωρίς επιπλέον αιτήματα.
  */
-const display = Roboto_Flex({
-  variable: "--font-display-face",
-  subsets: ["latin", "greek"],
-  axes: ["wdth"],
-  display: "swap",
-});
-
 /**
  * Η γραμματοσειρά κειμένου: Inter.
  *
@@ -64,12 +72,6 @@ const display = Roboto_Flex({
  * λατινικά — αυτό ήταν και ο λόγος που είχε επιλεγεί η Noto Sans, και η Inter
  * το καλύπτει εξίσου.
  */
-const sans = Inter({
-  variable: "--font-sans-face",
-  subsets: ["latin", "greek"],
-  display: "swap",
-});
-
 /**
  * Η monospace: JetBrains Mono.
  *
@@ -89,13 +91,6 @@ const sans = Inter({
  * Η JetBrains Mono καλύπτει λατινικά και ελληνικά σε ένα αρχείο — γι' αυτό
  * ακριβώς τη διαλέγει και το design system.
  */
-const mono = JetBrains_Mono({
-  variable: "--font-mono-face",
-  subsets: ["latin", "greek"],
-  weight: ["400", "500", "600", "700"],
-  display: "swap",
-});
-
 /*
  * The site-wide default title and description.
  *
@@ -201,7 +196,7 @@ export default async function RootLayout({
   return (
     <html
       lang={locale}
-      className={`${sans.variable} ${mono.variable} ${display.variable} h-full antialiased`}
+      className="h-full antialiased"
     >
       <body className="flex min-h-full flex-col">
         {/*
