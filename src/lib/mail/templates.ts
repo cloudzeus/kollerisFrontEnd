@@ -3,6 +3,7 @@ import { readFile, readdir } from "node:fs/promises";
 import path from "node:path";
 import Handlebars from "handlebars";
 import { SHOP } from "@/lib/seo/structured-data";
+import { siteOrigin } from "@/lib/seo/urls";
 import { mailUrls } from "@/lib/mail/urls";
 
 /**
@@ -44,6 +45,11 @@ const TEMPLATE_DIR = path.join(process.cwd(), "src", "emails", "templates");
  * Η αντικατάσταση γίνεται εδώ και όχι στο markup: πηγή των HTML παραμένει το
  * άλλο project. Μία γραμμή, ένα σημείο.
  */
+/**
+ * Το host που είναι ΓΡΑΜΜΕΝΟ μέσα στα HTML — δηλαδή τι ψάχνουμε, όχι πού
+ * δείχνουμε. Μένει `web.` όσο τα templates το γράφουν· ο ανακατευθυντής του
+ * `web.` κρατά ζωντανά τα ήδη σταλμένα μηνύματα.
+ */
 const HARDCODED_ASSET_ORIGIN = "https://web.kolleris.com";
 
 /**
@@ -57,7 +63,30 @@ const HARDCODED_ASSET_ORIGIN = "https://web.kolleris.com";
  * Με `MAIL_ASSET_ORIGIN` μπορούν να δείξουν σε CDN που ήδη τα σερβίρει, χωρίς
  * να περιμένει η αποστολή το deploy.
  */
-const ASSET_ORIGIN = process.env.MAIL_ASSET_ORIGIN?.trim().replace(/\/$/, "") || HARDCODED_ASSET_ORIGIN;
+const ASSET_ORIGIN =
+  process.env.MAIL_ASSET_ORIGIN?.trim().replace(/\/$/, "") ||
+  /*
+   * Προεπιλογή: το ΙΔΙΟ host με το κατάστημα.
+   *
+   * Ήταν καρφωμένο στο `web.kolleris.com` — σωστό όσο εκεί ζούσε το κατάστημα,
+   * λάθος από τη στιγμή που το κανονικό όνομα έγινε το `kolleris.com`: κάθε νέο
+   * email θα έστελνε τον παραλήπτη σε ανακατεύθυνση για να δει ένα λογότυπο.
+   * Τώρα ακολουθεί το `NEXT_PUBLIC_SITE_URL`, και το `MAIL_ASSET_ORIGIN` μένει
+   * για CDN που σερβίρει τα ίδια αρχεία.
+   *
+   * ΠΟΤΕ localhost: σε ανάπτυξη το `siteOrigin()` απαντά `http://localhost:3000`,
+   * και μια αληθινή αποστολή από μηχάνημα ανάπτυξης θα έστελνε τον παραλήπτη
+   * στον ΔΙΚΟ ΤΟΥ υπολογιστή για να δει το λογότυπο. Εκεί μένει το γραμμένο
+   * host, που σερβίρει πραγματικά αρχεία.
+   */
+  publicOrigin();
+
+function publicOrigin(): string {
+  const origin = siteOrigin();
+  return /^https:\/\//.test(origin) && !/localhost|127\.0\.0\.1/.test(origin)
+    ? origin
+    : HARDCODED_ASSET_ORIGIN;
+}
 
 /** Μεταγλωττισμένα μία φορά ανά διεργασία — το parse δεν είναι δωρεάν. */
 const compiled = new Map<string, HandlebarsTemplateDelegate>();
