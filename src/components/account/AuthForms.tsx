@@ -7,6 +7,7 @@ import { register, signIn, updateProfile, type AuthState } from "@/lib/account/a
 import type { AccountUser } from "@/lib/account/contract";
 import { Link } from "@/i18n/navigation";
 import { upGreek } from "@/lib/greek";
+import { B2B_REGISTRATION_OPEN } from "@/lib/account/b2b-registration";
 
 /**
  * Sign in, register and profile — three forms, one file.
@@ -103,7 +104,13 @@ export function RegisterForm() {
         </div>
       </fieldset>
 
-      {accountType === "company" && (
+      {accountType === "company" && !B2B_REGISTRATION_OPEN && (
+        <p role="status" className="border-l-[3px] border-k-red bg-k-surface-2 p-4 text-[13px] font-semibold text-k-ink">
+          {t("b2b_den_energopoiithike")}
+        </p>
+      )}
+
+      {accountType === "company" && B2B_REGISTRATION_OPEN && (
         <div className="border-l-[3px] border-k-red bg-k-surface-2 p-4">
           <p className="t-eyebrow mb-3.5 text-k-red">{upGreek(t("stoicheia_etaireias"))}</p>
           {/* Same component as checkout — the ΑΦΜ fills the rest from the ΑΑΔΕ. */}
@@ -145,7 +152,7 @@ export function RegisterForm() {
 
       <button
         type="submit"
-        disabled={pending}
+        disabled={pending || (accountType === "company" && !B2B_REGISTRATION_OPEN)}
         className="t-btn h-13 bg-k-red py-4 text-white transition-colors hover:bg-k-red-hover disabled:opacity-60"
       >
         {pending ? "…" : upGreek(accountType === "company" ? t("aitisi_etairikoy_logariasmoy") : t("eggrafi"))}

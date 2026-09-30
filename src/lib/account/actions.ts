@@ -12,6 +12,7 @@ import {
 } from "@/lib/account/session";
 import { lookupVat } from "@/lib/account/vat-lookup";
 import { isValidAfm, normaliseAfm, type VatLookupResult } from "@/lib/account/vat";
+import { B2B_CLOSED_MESSAGE, B2B_REGISTRATION_OPEN } from "@/lib/account/b2b-registration";
 
 /**
  * Account server actions.
@@ -120,6 +121,9 @@ const REGISTER_ERRORS: Record<string, string> = {
 
 export async function register(_prev: AuthState, formData: FormData): Promise<AuthState> {
   const raw = Object.fromEntries(formData);
+  if (raw.accountType === "company" && !B2B_REGISTRATION_OPEN) {
+    return { error: B2B_CLOSED_MESSAGE };
+  }
   const parsed = registerSchema.safeParse(raw);
 
   if (!parsed.success) {
