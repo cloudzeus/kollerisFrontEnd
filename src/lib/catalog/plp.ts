@@ -417,6 +417,8 @@ export function listingKeyOf(
   params: PlpParams,
   locale: Locale,
   extraWhere?: Prisma.ProductWhereInput | null,
+  /** The live campaigns' clause, when the listing is `?sale=1`. */
+  campaigns?: Prisma.ProductWhereInput | null,
 ): string {
   return JSON.stringify([
     facetKeyOf(params),
@@ -425,6 +427,7 @@ export function listingKeyOf(
     params.sort ?? "relevance",
     locale,
     extraWhere ?? null,
+    campaigns ?? null,
   ]);
 }
 
@@ -500,8 +503,14 @@ export async function getPlpData(
   const perPage = params.perPage ?? 24;
   const page = params.page ?? 1;
 
+  /* `?sale=1` selects the LIVE campaigns, which start and stop on their own
+     schedule: their clause is part of the key, so a campaign that starts or
+     ends changes the key instead of waiting out the TTL. The same per-render
+     memo the where clause reads, so it costs no extra query. */
+  const campaigns = params.sale ? await activeCampaignsWhere() : null;
+
   const { products, total } = await listingCache().getOrLoad(
-    listingKeyOf(params, locale, extraWhere),
+    listingKeyOf(params, locale, extraWhere, campaigns),
     () => loadListing(params, locale, extraWhere, page, perPage),
   );
 

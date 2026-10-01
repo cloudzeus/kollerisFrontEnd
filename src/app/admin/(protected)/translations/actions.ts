@@ -5,6 +5,7 @@ import { auth } from "@/auth";
 import { assertCan } from "@/lib/rbac";
 import { listMissing, setTranslation, translateMissing, type TargetLocale } from "@/lib/i18n/coverage";
 import type { TranslatableSource } from "@/lib/i18n/coverage-types";
+import { clearListingCache } from "@/lib/catalog/listing-cache";
 
 /**
  * Translation management.
@@ -25,6 +26,8 @@ export async function actionTranslateMissing(
 ) {
   await requireEditor();
   const result = await translateMissing(source, locale, { limit });
+  // Also on a partial failure: whatever landed before the error stays.
+  clearListingCache(`translations (${source}, ${locale}) filled in`);
   revalidatePath("/", "layout");
   revalidatePath("/admin/translations");
   return result;
@@ -43,6 +46,9 @@ export async function actionSetTranslation(
 ) {
   await requireEditor();
   const result = await setTranslation(source, locale, id, value);
-  if (result.ok) revalidatePath("/", "layout");
+  if (result.ok) {
+    clearListingCache(`translation (${source}, ${locale}) set`);
+    revalidatePath("/", "layout");
+  }
   return result;
 }
