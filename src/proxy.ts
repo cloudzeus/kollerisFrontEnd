@@ -86,8 +86,11 @@ function canonicalHostRedirect(request: NextRequest): NextResponse | null {
  * GET and HEAD only: a Server Action is a POST to the page's own URL, and
  * redirecting it would turn the action into a page load.
  *
- * The Location is relative. Behind Traefik the host the server sees is not
- * necessarily the public one, and a relative redirect cannot get it wrong.
+ * The target is built on `request.nextUrl`, so it is same-origin by
+ * construction; Next writes a same-origin redirect out as a relative
+ * Location, so the host Traefik hands the server never leaks into it. (A raw
+ * relative `Location` header is rejected by the proxy adapter: it parses it
+ * with `new URL()`.)
  */
 function listingCanonicalRedirect(request: NextRequest): NextResponse | null {
   if (request.method !== "GET" && request.method !== "HEAD") return null;
@@ -109,12 +112,11 @@ function listingCanonicalRedirect(request: NextRequest): NextResponse | null {
     });
   }
 
-  const location = `${pathname}${result.search}`;
+  const target = new URL(request.nextUrl);
+  target.search = result.search;
   if (result.perRow != null) {
-    const response = new NextResponse(null, {
-      status: 307,
-      headers: { Location: location, "Cache-Control": "no-store" },
-    });
+    const response = NextResponse.redirect(target, 307);
+    response.headers.set("Cache-Control", "no-store");
     response.cookies.set(PER_ROW_COOKIE, String(result.perRow), {
       path: "/",
       maxAge: 60 * 60 * 24 * 365,
@@ -122,10 +124,9 @@ function listingCanonicalRedirect(request: NextRequest): NextResponse | null {
     });
     return response;
   }
-  return new NextResponse(null, {
-    status: 301,
-    headers: { Location: location, "Cache-Control": "public, max-age=3600" },
-  });
+  const response = NextResponse.redirect(target, 301);
+  response.headers.set("Cache-Control", "public, max-age=3600");
+  return response;
 }
 
 /**
