@@ -28,6 +28,7 @@ import {
 } from "@/lib/compare/compare";
 import { getBrandBySlug } from "@/lib/catalog/brands";
 import { getPlpData, parsePlpParams } from "@/lib/catalog/plp";
+import { getPerRow } from "@/lib/catalog/per-row";
 import {
   getCatalogueStats,
   getMenuTree,
@@ -98,7 +99,7 @@ export default async function BrandPage({ params, searchParams }: PageProps) {
 
   if (!brand || !data) notFound();
 
-  const perRow = Number(raw.perRow) || 4;
+  const perRow = await getPerRow();
   const gridCols =
     perRow === 2
       ? "sm:grid-cols-2"

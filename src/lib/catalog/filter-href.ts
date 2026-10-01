@@ -7,6 +7,8 @@
  * would otherwise need `router.push` and a hydrated component.
  */
 
+import { toggleCappedValue } from "@/lib/catalog/listing-query";
+
 export type RawParams = Record<string, string | string[] | undefined>;
 
 function toSearchParams(raw: RawParams): URLSearchParams {
@@ -22,6 +24,9 @@ function finish(basePath: string, next: URLSearchParams): string {
   // Any filter change returns to page 1 — staying on page 7 of a result set
   // that just shrank to 2 pages is how people land on an empty grid.
   next.delete("page");
+  // Defaults are not spelled out: the canonical URL is the one without them.
+  if (next.get("perPage") === "24") next.delete("perPage");
+  if (next.get("sort") === "relevance") next.delete("sort");
   const query = next.toString();
   return query ? `${basePath}?${query}` : basePath;
 }
@@ -34,11 +39,15 @@ export function toggleMultiHref(
   slug: string,
 ): string {
   const next = toSearchParams(raw);
-  const current = new Set((next.get(key) ?? "").split(",").filter(Boolean));
-  if (current.has(slug)) current.delete(slug);
-  else current.add(slug);
+  /* Sorted and capped exactly as the proxy would canonicalise it, so a click
+     never costs a redirect. At the cap the new value stays and the oldest goes:
+     that is what the person who just ticked it meant. */
+  const values = toggleCappedValue(
+    (next.get(key) ?? "").split(",").filter(Boolean),
+    slug,
+  );
 
-  if (current.size) next.set(key, [...current].join(","));
+  if (values.length) next.set(key, values.join(","));
   else next.delete(key);
   return finish(basePath, next);
 }

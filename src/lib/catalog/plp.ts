@@ -9,6 +9,7 @@ import { nameWithoutSize } from "@/lib/catalog/variant-name";
 import { scopeKeyOf } from "@/lib/compare/options";
 import { searchKey } from "@/lib/greek";
 import type { ProductCardData } from "@/lib/catalog/queries";
+import { capFacetValues } from "@/lib/catalog/listing-query";
 import {
   PER_PAGE_OPTIONS,
   SORT_OPTIONS,
@@ -75,8 +76,10 @@ export function parsePlpParams(
   return {
     categorySlug: scope.categorySlug,
     brandScopeSlug: scope.brandScopeSlug,
-    sub: list(raw.sub),
-    brand: list(raw.brand),
+    /* Capped here as well as in the proxy: the proxy is the gate, this is the
+       guarantee that no path into the page can ask for an unbounded IN list. */
+    sub: capFacetValues(list(raw.sub)),
+    brand: capFacetValues(list(raw.brand)),
     min: num(raw.min),
     max: num(raw.max),
     avail: raw.avail === "in-stock" ? "in-stock" : "all",

@@ -24,6 +24,7 @@ import {
   getCompareTray,
 } from "@/lib/compare/compare";
 import { getPlpData, parsePlpParams } from "@/lib/catalog/plp";
+import { getPerRow } from "@/lib/catalog/per-row";
 import {
   getCatalogueStats,
   getMenuTree,
@@ -133,7 +134,7 @@ export default async function CategoryPage({
       : locale === "it"
         ? category.nameIt
         : category.nameEl;
-  const perRow = Number(raw.perRow) || 4;
+  const perRow = await getPerRow();
   const gridCols =
     perRow === 2
       ? "sm:grid-cols-2"

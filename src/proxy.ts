@@ -1,8 +1,14 @@
 import NextAuth from "next-auth";
 import createIntlMiddleware from "next-intl/middleware";
-import { NextResponse, type NextRequest } from "next/server";
+import { NextResponse, type NextFetchEvent, type NextRequest } from "next/server";
 import { authConfig } from "@/auth.config";
 import { routing } from "@/i18n/routing";
+import {
+  PER_ROW_COOKIE,
+  canonicalizeListingQuery,
+  listingKindOf,
+} from "@/lib/catalog/listing-query";
+import { tinyPage } from "@/lib/security/tiny-response";
 
 // Edge-safe: authConfig carries no providers and no database access.
 const { auth } = NextAuth(authConfig);
@@ -58,16 +64,72 @@ function canonicalHostRedirect(request: NextRequest): NextResponse | null {
 }
 
 /**
+ * One spelling per listing URL — before auth, before i18n, before any render.
+ *
+ * The facet space used to be infinite, and a scraper walked it: every random
+ * `sub`/`brand`/`min`/`max`/`perPage` combination was a cache miss and a full
+ * render of up to 96 products. `canonicalizeListingQuery` reduces the query to
+ * the parameters the page reads, in one order, within limits; here the answer
+ * is turned into a response that costs nothing:
+ *
+ *   - redirect  301 to the canonical URL (307 when it carries a `perRow`
+ *               preference — that one sets a cookie and must not be cached);
+ *   - reject    a few hundred bytes of static HTML, `noindex`, no database
+ *               and no render.
+ *
+ * GET and HEAD only: a Server Action is a POST to the page's own URL, and
+ * redirecting it would turn the action into a page load.
+ *
+ * The Location is relative. Behind Traefik the host the server sees is not
+ * necessarily the public one, and a relative redirect cannot get it wrong.
+ */
+function listingCanonicalRedirect(request: NextRequest): NextResponse | null {
+  if (request.method !== "GET" && request.method !== "HEAD") return null;
+  const { pathname, search } = request.nextUrl;
+  if (!search) return null;
+  const kind = listingKindOf(pathname);
+  if (!kind) return null;
+
+  const result = canonicalizeListingQuery(kind, request.nextUrl.searchParams);
+  if (result.action === "ok") return null;
+
+  if (result.action === "reject") {
+    const base = pathname.replace(/\/+$/, "") || "/";
+    return tinyPage(result.status, {
+      title: result.status === 404 ? "Not found" : "Too many filters",
+      message:
+        "Αυτός ο συνδυασμός φίλτρων δεν υποστηρίζεται. / This filter combination is not supported.",
+      link: { href: base, label: "Καθαρισμός φίλτρων / Clear filters" },
+    });
+  }
+
+  const location = `${pathname}${result.search}`;
+  if (result.perRow != null) {
+    const response = new NextResponse(null, {
+      status: 307,
+      headers: { Location: location, "Cache-Control": "no-store" },
+    });
+    response.cookies.set(PER_ROW_COOKIE, String(result.perRow), {
+      path: "/",
+      maxAge: 60 * 60 * 24 * 365,
+      sameSite: "lax",
+    });
+    return response;
+  }
+  return new NextResponse(null, {
+    status: 301,
+    headers: { Location: location, "Cache-Control": "public, max-age=3600" },
+  });
+}
+
+/**
  * Two middlewares, one matcher.
  *
  * /admin is NOT localised (staff UI is Greek only) and is gated on a valid JWT.
  * Everything else goes through next-intl locale negotiation.
  */
-export default auth((request) => {
+const authProxy = auth((request) => {
   const { pathname } = request.nextUrl;
-
-  const canonical = canonicalHostRedirect(request as NextRequest);
-  if (canonical) return canonical;
 
   if (pathname.startsWith("/admin")) {
     const isLoginPage = pathname === "/admin/login";
@@ -86,6 +148,16 @@ export default auth((request) => {
 
   return intlMiddleware(request as NextRequest);
 });
+
+/**
+ * The cheap checks run first and answer on their own; only what survives them
+ * pays for the session decode and the locale negotiation.
+ */
+export default function proxy(request: NextRequest, event: NextFetchEvent) {
+  const early = canonicalHostRedirect(request) ?? listingCanonicalRedirect(request);
+  if (early) return early;
+  return authProxy(request, event as never);
+}
 
 export const config = {
   // Skip Next internals, the auth endpoints and anything with a file extension.
