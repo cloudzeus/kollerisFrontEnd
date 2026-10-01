@@ -37,7 +37,7 @@ import { siteOrigin } from "@/lib/seo/urls";
  *
  *   Disallow /katalogos/*?           any query …
  *   Allow    /katalogos/*?page=       … except one that starts with page= …
- *   Disallow /katalogos/*?page=*&     … and has nothing after it.
+ *   Disallow /katalogos/*?page=*=     … and has no second parameter.
  */
 
 export default function robots(): MetadataRoute.Robots {

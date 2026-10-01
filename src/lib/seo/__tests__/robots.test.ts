@@ -69,4 +69,14 @@ describe("robots.txt", () => {
   ])("keeps crawlers off %s", (url) => {
     expect(allowed(rules, url)).toBe(false);
   });
+
+  /*
+   * Next writes robots.txt through an XML-ish escaper: a rule with `&` came
+   * out as `&amp;` and matched nothing, which let `?page=2&sub=...` through.
+   */
+  it("has no rule that Next would escape", () => {
+    for (const rule of [...rules.allow, ...rules.disallow]) {
+      expect(rule).not.toMatch(/[&<>"']/);
+    }
+  });
 });

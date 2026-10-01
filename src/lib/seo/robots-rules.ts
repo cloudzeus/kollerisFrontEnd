@@ -22,7 +22,9 @@ export function facetRules(): { allow: string[]; disallow: string[] } {
   for (const prefix of LOCALE_PREFIXES) {
     for (const listing of LISTINGS) {
       const base = `${prefix}${listing}`;
-      disallow.push(`${base}?`, `${base}?page=*&`);
+      /* `=` and not `&`: Next escapes `&` to `&amp;` in robots.txt, and a
+         second parameter always brings its own `=`. */
+      disallow.push(`${base}?`, `${base}?page=*=`);
       allow.push(`${base}?page=`);
     }
   }
