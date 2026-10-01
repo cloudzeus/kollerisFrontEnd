@@ -76,7 +76,8 @@ function canonicalHostRedirect(request: NextRequest): NextResponse | null {
  * The facet space used to be infinite, and a scraper walked it: every random
  * `sub`/`brand`/`min`/`max`/`perPage` combination was a cache miss and a full
  * render of up to 96 products. `canonicalizeListingQuery` reduces the query to
- * the parameters the page reads, in one order, within limits; anything else
+ * the parameters the page reads, their values in one order (the parameters'
+ * own order is left as it came) and within limits; anything else
  * is answered here with a redirect that costs nothing: 301 to the canonical
  * URL, or 307 when it carries a `perRow` preference (that one sets a cookie
  * and must not be cached). Nothing is refused: an old or hand-made link over
@@ -114,7 +115,8 @@ function listingCanonicalRedirect(request: NextRequest): NextResponse | null {
     return response;
   }
   const response = NextResponse.redirect(target, 301);
-  response.headers.set("Cache-Control", "public, max-age=3600");
+  // Cacheable, briefly: the rules are new and may still be tuned.
+  response.headers.set("Cache-Control", "public, max-age=600");
   return response;
 }
 
@@ -212,6 +214,8 @@ const authProxy = auth((request) => {
  * pays for the session decode and the locale negotiation.
  */
 export default function proxy(request: NextRequest, event: NextFetchEvent) {
+  // The host fold first: a `?perRow=` on www./web. reaches the apex untouched
+  // and gets its cookie there, on the host the visitor stays on.
   const early =
     canonicalHostRedirect(request) ?? rateLimit(request) ?? listingCanonicalRedirect(request);
   if (early) return early;

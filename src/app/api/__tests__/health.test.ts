@@ -18,8 +18,21 @@ describe("/api/health (liveness)", () => {
     expect(response.status).toBe(200);
     const body = await response.json();
     expect(body.ok).toBe(true);
-    expect(body.listingRenders).toMatchObject({ max: 8, active: 0 });
     expect(queryRaw).not.toHaveBeenCalled();
+  });
+
+  it("tells the public only that it is up, and logs the heap and the render gate", async () => {
+    vi.resetModules();
+    const log = vi.spyOn(console, "log").mockImplementation(() => {});
+    const { GET } = await import("@/app/api/health/route");
+    const body = await GET().json();
+    expect(Object.keys(body).sort()).toEqual(["ok", "uptimeS"]);
+    expect(log.mock.calls.flat().join(" ")).toMatch(/heap.*listing renders/);
+    // Every 30 s from the container check: not a line each time.
+    log.mockClear();
+    GET();
+    expect(log).not.toHaveBeenCalled();
+    log.mockRestore();
   });
 });
 

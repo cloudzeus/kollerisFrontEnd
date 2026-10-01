@@ -22,6 +22,30 @@ beforeAll(async () => {
 const call = (path: string, headers: Record<string, string> = {}, host = "kolleris.com") =>
   proxy(new NextRequest(`https://${host}${path}`, { headers: { host, ...headers } }));
 
+describe("proxy: canonical listing redirects", () => {
+  it("are cacheable for ten minutes only", async () => {
+    const res = await call("/katalogos/drapana?sub=b,a");
+    expect(res.status).toBe(301);
+    expect(res.headers.get("cache-control")).toBe("public, max-age=600");
+  });
+
+  it("send perRow on www. to the apex first, query untouched and no cookie", async () => {
+    const res = await call("/proionta?perRow=3&sub=b,a", {}, "www.kolleris.com");
+    expect(res.status).toBe(301);
+    expect(res.headers.get("location")).toBe("https://kolleris.com/proionta?perRow=3&sub=b,a");
+    expect(res.headers.get("set-cookie")).toBeNull();
+  });
+
+  it("keep the newer attribution parameters", async () => {
+    const res = await call("/katalogos/drapana?sub=b,a&irclickid=1&pk_campaign=x&mtm_source=y");
+    expect(res.status).toBe(301);
+    const to = new URL(res.headers.get("location")!);
+    expect(to.searchParams.get("irclickid")).toBe("1");
+    expect(to.searchParams.get("pk_campaign")).toBe("x");
+    expect(to.searchParams.get("mtm_source")).toBe("y");
+  });
+});
+
 describe("proxy: rate buckets", () => {
   const from = (ip: string, path: string, headers: Record<string, string> = {}) =>
     call(path, { "cf-connecting-ip": ip, ...headers });

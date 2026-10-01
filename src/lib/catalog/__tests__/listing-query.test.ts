@@ -108,6 +108,10 @@ describe("canonicalizeListingQuery", () => {
     expect(canon("?utm_source=google&gclid=abc&sub=a")).toEqual({ action: "ok" });
     // Any utm_*, by prefix.
     expect(canon("?utm_whatever=1&utm_source_platform=x")).toEqual({ action: "ok" });
+    // Affiliate networks, Matomo and Piwik: _ga, irclickid, awc, cjevent, pk_*, mtm_*, matomo_*.
+    expect(
+      canon("?sub=a&_ga=1&_gl=2&irclickid=3&awc=4&cjevent=5&pk_campaign=6&mtm_source=7&matomo_kwd=8"),
+    ).toEqual({ action: "ok" });
     const tracking =
       "mc_cid mc_eid _kx ttclid twclid li_fat_id dclid yclid igshid _hsenc _hsmi gclsrc wbraid gbraid msclkid fbclid";
     for (const key of tracking.split(" ")) {

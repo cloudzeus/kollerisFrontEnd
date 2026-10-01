@@ -73,7 +73,8 @@ const VIEW_PARAMS = ["sort", "page", "perPage"] as const;
  * Kept untouched and never counted as a filter: campaign attribution.
  * Stripping these with a redirect would erase the click from analytics before
  * the tag manager ever saw it. None of them changes what the page renders,
- * and none of them is part of any cache key. Every `utm_*` passes by prefix.
+ * and none of them is part of any cache key. Every `utm_*`, `mtm_*`,
+ * `matomo_*` and `pk_*` passes by prefix.
  *
  * (Not `_rsc`: Next 16 strips it, with the `rsc` and prefetch headers, before
  * the proxy runs, so it never reaches this code.)
@@ -88,6 +89,10 @@ const PASS_THROUGH = new Set([
   "gad_campaignid",
   "srsltid",
   "_gl",
+  "_ga",
+  "irclickid",
+  "awc",
+  "cjevent",
   "fbclid",
   "msclkid",
   "ttclid",
@@ -102,8 +107,11 @@ const PASS_THROUGH = new Set([
   "_hsmi",
 ]);
 
+/** Campaign parameter families, by prefix: UTM, Matomo and Piwik. */
+const PASS_THROUGH_PREFIXES = ["utm_", "mtm_", "matomo_", "pk_"];
+
 function isPassThrough(key: string): boolean {
-  return PASS_THROUGH.has(key) || key.startsWith("utm_");
+  return PASS_THROUGH.has(key) || PASS_THROUGH_PREFIXES.some((prefix) => key.startsWith(prefix));
 }
 
 /** Attribution parameters, as the canonicalisation and the rate limit see them. */

@@ -21,21 +21,39 @@ import { listingRenderStats } from "@/lib/server/render-gate";
  *
  * Kept from the old check: a Next server that has broken inside its request
  * handler still accepts TCP connections, so the check must go through the
- * handler. The body reports the listing render gate and the heap, which are
- * the two numbers that would have explained the incident at a glance.
+ * handler. Publicly it says only that it is alive; the listing render gate
+ * and the heap, the two numbers that would have explained the incident at a
+ * glance, go to the log.
  */
 
 export const dynamic = "force-dynamic";
 
+/*
+ * Heap and render-gate numbers go to the log, not the public body: at most
+ * once every five minutes, and at once when the gate has refused renders since
+ * the last line. The check runs every 30 s; a line each time would be noise.
+ */
+const LOG_EVERY_MS = 5 * 60_000;
+let lastLogAt = 0;
+let lastRefused = -1;
+
+function logVitals(): void {
+  const gate = listingRenderStats();
+  const now = Date.now();
+  if (now - lastLogAt < LOG_EVERY_MS && gate.refused === lastRefused) return;
+  lastLogAt = now;
+  lastRefused = gate.refused;
+  const heapMb = Math.round(process.memoryUsage().heapUsed / 1_048_576);
+  console.log(
+    `[health] heap ${heapMb} MB; listing renders active ${gate.active}/${gate.max}, ` +
+      `waiting ${gate.waiting}, refused ${gate.refused}`,
+  );
+}
+
 export function GET() {
-  const memory = process.memoryUsage();
+  logVitals();
   return Response.json(
-    {
-      ok: true,
-      uptimeS: Math.round(process.uptime()),
-      heapUsedMb: Math.round(memory.heapUsed / 1_048_576),
-      listingRenders: listingRenderStats(),
-    },
+    { ok: true, uptimeS: Math.round(process.uptime()) },
     { headers: { "Cache-Control": "no-store" } },
   );
 }
