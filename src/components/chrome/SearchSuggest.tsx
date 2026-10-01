@@ -126,20 +126,23 @@ export function SearchSuggest({
         .then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
         .then((result: SuggestResult) => setEntry({ q: trimmed, result }))
         .catch((error) => {
-          // An empty result for this query beats spinning forever.
-          if (error.name !== "AbortError") {
-            setEntry({
-              q: trimmed,
-              result: {
-                query: trimmed,
-                exact: null,
-                products: [],
-                categories: [],
-                brands: [],
-                totalProducts: 0,
-              },
-            });
-          }
+          if (error.name === "AbortError") return;
+          const empty: SuggestResult = {
+            query: trimmed,
+            exact: null,
+            products: [],
+            categories: [],
+            brands: [],
+            totalProducts: 0,
+          };
+          /* Typing faster than the rate limit (429): the last answer stays on
+             screen rather than a "nothing found" that is not true. Otherwise
+             an empty result for this query beats spinning forever. */
+          setEntry((previous) =>
+            error.message === "429" && previous
+              ? { q: trimmed, result: previous.result }
+              : { q: trimmed, result: empty },
+          );
         });
     }, SUGGEST_DEBOUNCE_MS);
 

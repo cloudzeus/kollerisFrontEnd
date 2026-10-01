@@ -166,7 +166,7 @@ function rateLimit(request: NextRequest): NextResponse | null {
 
   noteRefused(ip);
   const headers = { "Retry-After": String(verdict.retryAfterSeconds) };
-  if (policy === "api") {
+  if (request.nextUrl.pathname.startsWith("/api/")) {
     return NextResponse.json(
       { error: "rate_limited", retry_after_seconds: verdict.retryAfterSeconds },
       { status: 429, headers: { ...headers, "Cache-Control": "no-store" } },
@@ -215,7 +215,7 @@ export default function proxy(request: NextRequest, event: NextFetchEvent) {
   const early =
     canonicalHostRedirect(request) ?? rateLimit(request) ?? listingCanonicalRedirect(request);
   if (early) return early;
-  // The two APIs below are matched only to be rate-limited; they are not
+  // The APIs in the matcher are there only to be rate-limited; they are not
   // localised and carry their own auth.
   if (request.nextUrl.pathname.startsWith("/api/")) return NextResponse.next();
   return authProxy(request, event as never);
@@ -225,8 +225,9 @@ export const config = {
   matcher: [
     // Skip Next internals, the auth endpoints and anything with a file extension.
     "/((?!api|_next|_vercel|.*\\..*).*)",
-    // The product listing APIs, for the rate limit only.
+    // The product listing APIs and the database check, for the rate limit only.
     "/api/suggest",
     "/api/acp/products",
+    "/api/ready",
   ],
 };

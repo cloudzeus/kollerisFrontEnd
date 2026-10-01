@@ -1,4 +1,8 @@
-import { listingKindOf, isFilteredListing } from "@/lib/catalog/listing-query";
+import {
+  isFilteredListing,
+  isPassThroughParam,
+  listingKindOf,
+} from "@/lib/catalog/listing-query";
 
 /**
  * Per-IP token buckets for the routes that cost a render.
@@ -14,21 +18,29 @@ import { listingKindOf, isFilteredListing } from "@/lib/catalog/listing-query";
  *
  * ── Policies ───────────────────────────────────────────────────────────────
  *
- *   filtered    catalogue/brand/offer/search listings WITH a query: the scraper
- *               case. 20 a minute, bursting to 10 — a person clicking filters
- *               does not come close. Applies to everyone, Googlebot included:
- *               user agents are spoofed, and the facet space is closed to
- *               crawlers by robots.txt anyway.
- *   listing     the same listings without filters (and with ?page=). Generous,
- *               because router prefetches DO count: Next 16 strips the
- *               prefetch headers (`rsc`, `next-router-prefetch`) before the
- *               proxy runs, so a prefetch cannot be told from a visit. Pages
- *               that render many listing links (the brand index, the
- *               category pickers, the menus) set `prefetch={false}`.
- *   listing-bot the same, for a Googlebot/bingbot user agent: a higher rate on
- *               the pages that ARE meant to be crawled. Spoofing it buys
- *               nothing on filtered URLs.
- *   api         the product listing APIs (search suggestions, the agent API).
+ *   filtered    real facet combinations on catalogue/brand/offer/search
+ *               listings (anything beyond paging, attribution or a bare
+ *               search): the scraper case. 20 a minute, bursting to 10 — a
+ *               person clicking filters does not come close. Applies to
+ *               everyone, Googlebot included: user agents are spoofed, and the
+ *               facet space is closed to crawlers by robots.txt anyway.
+ *   listing     the same listings without filters, and their ?page= at any
+ *               depth. Generous, because router prefetches DO count: Next 16
+ *               strips the prefetch headers (`rsc`, `next-router-prefetch`)
+ *               before the proxy runs, so a prefetch cannot be told from a
+ *               visit. Pages that render many listing links (the brand index,
+ *               the category pickers, the menus) set `prefetch={false}`.
+ *   listing-bot the same, for a Googlebot/bingbot user agent, and their bare
+ *               searches: a higher rate on the pages that ARE meant to be
+ *               crawled. Spoofing it buys nothing on facet combinations.
+ *   search      a bare `/anazitisi?q=` (with its page): 60 a minute, bursting
+ *               to 20 — every query is a render nobody else shares.
+ *   suggest     `/api/suggest`, the search box as you type: 180 a minute,
+ *               bursting to 60.
+ *   acp         `/api/acp/products` WITHOUT a key (it can only answer 401).
+ *               A call that carries a key is not limited here: the route
+ *               enforces the key's own contract (120 a minute, acp/auth.ts).
+ *   api         `/api/ready`, the database check: 30 a minute.
  *
  * ── Memory ─────────────────────────────────────────────────────────────────
  *
@@ -49,7 +61,10 @@ export const POLICIES = {
   filtered: { capacity: 10, perMinute: 20 },
   listing: { capacity: 80, perMinute: 240 },
   "listing-bot": { capacity: 120, perMinute: 600 },
-  api: { capacity: 30, perMinute: 60 },
+  search: { capacity: 20, perMinute: 60 },
+  suggest: { capacity: 60, perMinute: 180 },
+  acp: { capacity: 30, perMinute: 60 },
+  api: { capacity: 10, perMinute: 30 },
 } as const satisfies Record<string, BucketPolicy>;
 
 export type PolicyName = keyof typeof POLICIES;
@@ -162,7 +177,18 @@ export function isGoodBotUserAgent(userAgent: string | null): boolean {
   return userAgent != null && GOOD_BOT.test(userAgent);
 }
 
-const LIMITED_APIS = new Set(["/api/suggest", "/api/acp/products"]);
+/** An agent-API key, in either header the route reads (acp/auth.ts). */
+function carriesAcpKey(headers: Headers): boolean {
+  const authorization = headers.get("authorization") ?? "";
+  if (authorization.startsWith("Bearer ") && authorization.slice(7).trim()) return true;
+  return Boolean(headers.get("x-api-key")?.trim());
+}
+
+/** `/anazitisi?q=…`, optionally with its page and attribution: no facet next to the query. */
+function isBareSearch(searchParams: URLSearchParams): boolean {
+  if (!searchParams.get("q")?.trim()) return false;
+  return [...searchParams.keys()].every((key) => key === "q" || key === "page" || isPassThroughParam(key));
+}
 
 /**
  * Which bucket a request draws from, or null when it is not limited. Only
@@ -176,10 +202,14 @@ export function policyFor(request: {
   headers: Headers;
 }): PolicyName | null {
   if (request.method !== "GET" && request.method !== "HEAD") return null;
-  if (LIMITED_APIS.has(request.pathname)) return "api";
+  if (request.pathname === "/api/suggest") return "suggest";
+  if (request.pathname === "/api/acp/products") return carriesAcpKey(request.headers) ? null : "acp";
+  if (request.pathname === "/api/ready") return "api";
 
   const kind = listingKindOf(request.pathname);
   if (!kind) return null;
+  const bot = isGoodBotUserAgent(request.headers.get("user-agent"));
+  if (kind === "search" && isBareSearch(request.searchParams)) return bot ? "listing-bot" : "search";
   if (isFilteredListing(request.searchParams)) return "filtered";
-  return isGoodBotUserAgent(request.headers.get("user-agent")) ? "listing-bot" : "listing";
+  return bot ? "listing-bot" : "listing";
 }

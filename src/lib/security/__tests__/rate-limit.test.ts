@@ -117,11 +117,15 @@ describe("isGoodBotUserAgent", () => {
 });
 
 describe("POLICIES", () => {
-  it("leaves room for a page full of listing links on unfiltered pages", () => {
+  it("holds facet combinations tight and leaves real browsing plenty of room", () => {
     // Prefetch headers never reach the proxy in Next 16, so prefetches count.
     expect(POLICIES.listing).toEqual({ capacity: 80, perMinute: 240 });
     expect(POLICIES["listing-bot"].perMinute).toBeGreaterThan(POLICIES.listing.perMinute);
     expect(POLICIES.filtered).toEqual({ capacity: 10, perMinute: 20 });
+    expect(POLICIES.search).toEqual({ capacity: 20, perMinute: 60 });
+    expect(POLICIES.suggest).toEqual({ capacity: 60, perMinute: 180 });
+    expect(POLICIES.acp).toEqual({ capacity: 30, perMinute: 60 });
+    expect(POLICIES.api).toEqual({ capacity: 10, perMinute: 30 });
   });
 });
 
@@ -132,10 +136,26 @@ describe("policyFor", () => {
   };
   const googlebot = { "user-agent": "Mozilla/5.0 (compatible; Googlebot/2.1)" };
 
-  it("puts filtered listings in the strict bucket, for everyone", () => {
+  it("puts real facet combinations in the strict bucket, for everyone", () => {
     expect(policyFor(req("/en/katalogos/x?sub=a,b"))).toBe("filtered");
     expect(policyFor(req("/brands/m?avail=in-stock", googlebot))).toBe("filtered");
-    expect(policyFor(req("/anazitisi?q=drill"))).toBe("filtered");
+    expect(policyFor(req("/katalogos/x?sort=price-asc&page=3"))).toBe("filtered");
+    expect(policyFor(req("/anazitisi?q=drill&brand=x"))).toBe("filtered");
+    expect(policyFor(req("/anazitisi?q=drill&cat=drapana"))).toBe("filtered");
+  });
+
+  it("keeps paging of a bare listing in the listing bucket, at any depth", () => {
+    expect(policyFor(req("/katalogos/x?page=2"))).toBe("listing");
+    expect(policyFor(req("/katalogos/x?page=180"))).toBe("listing");
+    expect(policyFor(req("/katalogos/x?page=180", googlebot))).toBe("listing-bot");
+    expect(policyFor(req("/proionta?page=7&utm_source=x"))).toBe("listing");
+  });
+
+  it("gives a bare search its own bucket", () => {
+    expect(policyFor(req("/anazitisi?q=drill"))).toBe("search");
+    expect(policyFor(req("/en/anazitisi?q=drill&page=3&gclid=1"))).toBe("search");
+    expect(policyFor(req("/anazitisi?q=drill", googlebot))).toBe("listing-bot");
+    expect(policyFor(req("/anazitisi"))).toBe("listing");
   });
 
   it("gives verified-looking bots a higher rate only on unfiltered listings", () => {
@@ -143,9 +163,19 @@ describe("policyFor", () => {
     expect(policyFor(req("/katalogos/x?page=2", googlebot))).toBe("listing-bot");
   });
 
-  it("limits the product listing APIs", () => {
-    expect(policyFor(req("/api/suggest?q=dr"))).toBe("api");
-    expect(policyFor(req("/api/acp/products?q=x"))).toBe("api");
+  it("gives search suggestions their own bucket", () => {
+    expect(policyFor(req("/api/suggest?q=dr"))).toBe("suggest");
+  });
+
+  it("leaves a keyed agent call to the route's per-key limit, and buckets the rest", () => {
+    expect(policyFor(req("/api/acp/products?q=x", { authorization: "Bearer k1" }))).toBeNull();
+    expect(policyFor(req("/api/acp/products?q=x", { "x-api-key": "k1" }))).toBeNull();
+    expect(policyFor(req("/api/acp/products?q=x"))).toBe("acp");
+    expect(policyFor(req("/api/acp/products?q=x", { authorization: "Basic abc" }))).toBe("acp");
+  });
+
+  it("limits the database readiness check", () => {
+    expect(policyFor(req("/api/ready"))).toBe("api");
   });
 
   it("leaves everything else alone", () => {

@@ -106,6 +106,9 @@ function isPassThrough(key: string): boolean {
   return PASS_THROUGH.has(key) || key.startsWith("utm_");
 }
 
+/** Attribution parameters, as the canonicalisation and the rate limit see them. */
+export const isPassThroughParam = isPassThrough;
+
 /** Slugs are produced by `slugify` — kept permissive so no real slug is lost. */
 const SLUG = /^[\p{L}\p{N}][\p{L}\p{N}._-]*$/u;
 
