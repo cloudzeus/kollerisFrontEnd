@@ -1,5 +1,5 @@
 import type { MetadataRoute } from "next";
-import { facetRules } from "@/lib/seo/robots-rules";
+import { facetRules, privateRules } from "@/lib/seo/robots-rules";
 import { siteOrigin } from "@/lib/seo/urls";
 
 /**
@@ -12,7 +12,11 @@ import { siteOrigin } from "@/lib/seo/urls";
  *   /api          machine surfaces; the agent API is metered per key
  *   /kalathi      a basket is one visitor's, and every crawl of it is a session
  *   /checkout     the same, plus it would index a form
- *   /logariasmos  somebody's orders and addresses
+ *   /logariasmos  somebody's orders and addresses (but not the public
+ *                 order-tracking page under it, which is in the sitemap)
+ *
+ * Each of them under /en and /it as well: a basket one prefix away is still a
+ * basket.
  *
  * The confirmation page is excluded through /checkout. It carries a guest token
  * in the query string, so an indexed copy would be a stranger's order with the
@@ -38,21 +42,13 @@ import { siteOrigin } from "@/lib/seo/urls";
 
 export default function robots(): MetadataRoute.Robots {
   const facets = facetRules();
+  const privatePaths = privateRules();
   return {
     rules: [
       {
         userAgent: "*",
-        allow: ["/", ...facets.allow],
-        disallow: [
-          "/admin",
-          "/api",
-          "/kalathi",
-          "/checkout",
-          "/logariasmos",
-          "/eisodos",
-          "/eggrafi",
-          ...facets.disallow,
-        ],
+        allow: ["/", ...privatePaths.allow, ...facets.allow],
+        disallow: [...privatePaths.disallow, ...facets.disallow],
       },
     ],
     sitemap: `${siteOrigin()}/sitemap.xml`,

@@ -40,6 +40,8 @@ describe("robots.txt", () => {
     "/proionta?page=2",
     "/prosfores/summer",
     "/proion/some-product",
+    "/logariasmos/entopismos",
+    "/en/logariasmos/entopismos",
     "/",
   ])("lets crawlers fetch %s", (url) => {
     expect(allowed(rules, url)).toBe(true);
@@ -54,8 +56,16 @@ describe("robots.txt", () => {
     "/proionta?sort=price-asc",
     "/en/prosfores/summer?brand=x",
     "/kalathi",
+    "/en/kalathi",
+    "/it/kalathi",
     "/checkout/epibebaiosi/123?token=x",
+    "/en/checkout/epibebaiosi/123?token=x",
+    "/it/logariasmos/paraggelies",
+    "/en/logariasmos",
+    "/en/eisodos",
+    "/it/eggrafi",
     "/admin",
+    "/api/suggest?q=x",
   ])("keeps crawlers off %s", (url) => {
     expect(allowed(rules, url)).toBe(false);
   });

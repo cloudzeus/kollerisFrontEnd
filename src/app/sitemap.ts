@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 import { prisma } from "@/lib/prisma";
-import { absoluteUrl, sitemapAlternates } from "@/lib/seo/urls";
+import { buildSitemap } from "@/lib/seo/sitemap-entries";
 
 /**
  * The sitemap.
@@ -23,20 +23,6 @@ import { absoluteUrl, sitemapAlternates } from "@/lib/seo/urls";
 /** Bounded so one query cannot become a 200 MB response as the catalogue grows. */
 const MAX_PRODUCTS = 45_000;
 
-/** Pages that exist without a database row. */
-const STATIC_PATHS: Array<{ path: string; priority: number; changeFrequency: MetadataRoute.Sitemap[number]["changeFrequency"] }> = [
-  { path: "/", priority: 1, changeFrequency: "daily" },
-  { path: "/katalogos", priority: 0.9, changeFrequency: "daily" },
-  { path: "/prosfores", priority: 0.8, changeFrequency: "daily" },
-  { path: "/nees-afixeis", priority: 0.8, changeFrequency: "daily" },
-  { path: "/brands", priority: 0.7, changeFrequency: "weekly" },
-  { path: "/etaireia", priority: 0.5, changeFrequency: "monthly" },
-  { path: "/epikoinonia", priority: 0.6, changeFrequency: "monthly" },
-  { path: "/syxnes-erotiseis", priority: 0.5, changeFrequency: "monthly" },
-  { path: "/blog", priority: 0.6, changeFrequency: "weekly" },
-  { path: "/logariasmos/entopismos", priority: 0.4, changeFrequency: "monthly" },
-];
-
 /*
  * Built per request, not at deploy time.
  *
@@ -48,8 +34,6 @@ const STATIC_PATHS: Array<{ path: string; priority: number; changeFrequency: Met
 export const dynamic = "force-dynamic";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const now = new Date();
-
   const [products, categories, brands] = await Promise.all([
     prisma.product.findMany({
       where: { isActive: true },
@@ -75,24 +59,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
    * Listing `/blog` itself is right; inventing entries under it is not, and a
    * sitemap full of 404s is worse than a short one.
    */
-
-  const entry = (
-    path: string,
-    lastModified: Date,
-    priority: number,
-    changeFrequency: MetadataRoute.Sitemap[number]["changeFrequency"],
-  ) => ({
-    url: absoluteUrl(path),
-    lastModified,
-    changeFrequency,
-    priority,
-    alternates: { languages: sitemapAlternates(path) },
-  });
-
-  return [
-    ...STATIC_PATHS.map((s) => entry(s.path, now, s.priority, s.changeFrequency)),
-    ...categories.map((c: { slug: string; updatedAt: Date }) => entry(`/katalogos/${c.slug}`, c.updatedAt, 0.7, "weekly" as const)),
-    ...brands.map((b: { slug: string; updatedAt: Date }) => entry(`/brands/${b.slug}`, b.updatedAt, 0.6, "weekly" as const)),
-    ...products.map((p: { slug: string; updatedAt: Date }) => entry(`/proion/${p.slug}`, p.updatedAt, 0.6, "weekly" as const)),
-  ];
+  return buildSitemap({ products, categories, brands });
 }

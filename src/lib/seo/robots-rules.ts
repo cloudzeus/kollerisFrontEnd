@@ -29,3 +29,31 @@ export function facetRules(): { allow: string[]; disallow: string[] } {
   return { allow, disallow };
 }
 
+
+/**
+ * Private pages, in every language.
+ *
+ * Only the bare paths used to be listed, so `/en/kalathi`, `/it/checkout` and
+ * the rest were open to every crawler — the same basket and the same account
+ * pages, one prefix away. `/admin` and `/api` are not localised and stay as
+ * they are.
+ */
+const PRIVATE_LOCALISED = ["/kalathi", "/checkout", "/logariasmos", "/eisodos", "/eggrafi"];
+const NOT_LOCALISED = ["/admin", "/api"];
+
+/**
+ * Public pages that live under a private prefix. The order-tracking page is in
+ * the sitemap, and a sitemap URL that robots.txt blocks is a Search Console
+ * error; the longer Allow wins over `/logariasmos`.
+ */
+const PUBLIC_UNDER_PRIVATE = ["/logariasmos/entopismos"];
+
+export function privateRules(): { allow: string[]; disallow: string[] } {
+  const disallow = [...NOT_LOCALISED];
+  const allow: string[] = [];
+  for (const prefix of LOCALE_PREFIXES) {
+    for (const path of PRIVATE_LOCALISED) disallow.push(`${prefix}${path}`);
+    for (const path of PUBLIC_UNDER_PRIVATE) allow.push(`${prefix}${path}`);
+  }
+  return { allow, disallow };
+}
