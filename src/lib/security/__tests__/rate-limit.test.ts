@@ -116,6 +116,15 @@ describe("isGoodBotUserAgent", () => {
   });
 });
 
+describe("POLICIES", () => {
+  it("leaves room for a page full of listing links on unfiltered pages", () => {
+    // Prefetch headers never reach the proxy in Next 16, so prefetches count.
+    expect(POLICIES.listing).toEqual({ capacity: 80, perMinute: 240 });
+    expect(POLICIES["listing-bot"].perMinute).toBeGreaterThan(POLICIES.listing.perMinute);
+    expect(POLICIES.filtered).toEqual({ capacity: 10, perMinute: 20 });
+  });
+});
+
 describe("policyFor", () => {
   const req = (url: string, headers: Record<string, string> = {}, method = "GET") => {
     const u = new URL(url, "https://kolleris.com");
@@ -143,6 +152,5 @@ describe("policyFor", () => {
     expect(policyFor(req("/proion/x"))).toBeNull();
     expect(policyFor(req("/api/health"))).toBeNull();
     expect(policyFor(req("/katalogos/x?sub=a", {}, "POST"))).toBeNull();
-    expect(policyFor(req("/katalogos/x", { "next-router-prefetch": "1" }))).toBeNull();
   });
 });

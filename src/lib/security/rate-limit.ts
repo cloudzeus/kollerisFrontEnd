@@ -20,8 +20,11 @@ import { listingKindOf, isFilteredListing } from "@/lib/catalog/listing-query";
  *               user agents are spoofed, and the facet space is closed to
  *               crawlers by robots.txt anyway.
  *   listing     the same listings without filters (and with ?page=). Generous,
- *               and prefetches are not counted: the header menu prefetches
- *               category links in bulk on every page view.
+ *               because router prefetches DO count: Next 16 strips the
+ *               prefetch headers (`rsc`, `next-router-prefetch`) before the
+ *               proxy runs, so a prefetch cannot be told from a visit. Pages
+ *               that render many listing links (the brand index, the
+ *               category pickers, the menus) set `prefetch={false}`.
  *   listing-bot the same, for a Googlebot/bingbot user agent: a higher rate on
  *               the pages that ARE meant to be crawled. Spoofing it buys
  *               nothing on filtered URLs.
@@ -44,8 +47,8 @@ export type BucketPolicy = {
 
 export const POLICIES = {
   filtered: { capacity: 10, perMinute: 20 },
-  listing: { capacity: 40, perMinute: 120 },
-  "listing-bot": { capacity: 60, perMinute: 300 },
+  listing: { capacity: 80, perMinute: 240 },
+  "listing-bot": { capacity: 120, perMinute: 600 },
   api: { capacity: 30, perMinute: 60 },
 } as const satisfies Record<string, BucketPolicy>;
 
@@ -178,8 +181,5 @@ export function policyFor(request: {
   const kind = listingKindOf(request.pathname);
   if (!kind) return null;
   if (isFilteredListing(request.searchParams)) return "filtered";
-
-  // The router prefetches unfiltered listings from menus in bulk; not counted.
-  if (request.headers.get("next-router-prefetch")) return null;
   return isGoodBotUserAgent(request.headers.get("user-agent")) ? "listing-bot" : "listing";
 }

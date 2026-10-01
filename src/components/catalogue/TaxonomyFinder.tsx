@@ -110,6 +110,7 @@ export function TaxonomyFinder({ nodes }: { nodes: CatalogueNode[] }) {
           {results.map((node) => (
             <li key={node.slug}>
               <Link
+                prefetch={false}
                 href={`/katalogos/${node.slug}`}
                 className="flex items-center gap-4 border-b border-k-line px-4 py-3 transition-colors last:border-b-0 hover:bg-k-surface-2 lg:px-5"
               >

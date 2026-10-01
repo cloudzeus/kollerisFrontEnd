@@ -378,6 +378,7 @@ export default async function CompanyPage({
               <div className="mt-8 grid grid-cols-3 gap-px border border-k-line bg-k-line sm:grid-cols-4 lg:mt-10 lg:grid-cols-8">
                 {brands.map((brand) => (
                   <Link
+                    prefetch={false}
                     key={brand.slug}
                     href={`/brands/${brand.slug}`}
                     className="flex min-h-[132px] flex-col items-center justify-center gap-1.5 bg-white p-5 transition-colors hover:bg-k-surface-2 lg:min-h-[150px]"

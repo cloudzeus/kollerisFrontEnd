@@ -235,6 +235,7 @@ export default async function BrandsPage({
               const accent = index % 2 === 1;
               return (
                 <Link
+                  prefetch={false}
                   key={brand.id}
                   href={`/brands/${brand.slug}`}
                   className="group flex min-h-[210px] flex-col bg-white p-5 outline-1 -outline-offset-1 outline-transparent transition-[outline-color,background-color] hover:bg-k-surface-2 hover:outline-k-red"
@@ -335,6 +336,7 @@ export default async function BrandsPage({
                   )}
 
                   <Link
+                    prefetch={false}
                     href={`/katalogos/${group.categorySlug}`}
                     className="mt-4 block text-[12.5px] font-bold tracking-[0.04em] text-k-ink hover:text-k-red"
                   >
@@ -348,6 +350,7 @@ export default async function BrandsPage({
                   <div className="mt-3.5 flex flex-wrap gap-1.5">
                     {group.brands.map((brand) => (
                       <Link
+                        prefetch={false}
                         key={brand.slug}
                         href={`/brands/${brand.slug}`}
                         className="bg-k-surface-3 px-2 py-1.5 text-[10px] font-semibold tracking-[0.05em] text-k-text-2 transition-colors hover:bg-k-ink hover:text-white"

@@ -91,6 +91,7 @@ export function BrandSearchGrid({ brands }: { brands: BrandListItem[] }) {
         <div className="grid grid-cols-2 gap-px border border-k-line bg-k-line sm:grid-cols-3 lg:grid-cols-6">
           {filtered.map((brand) => (
             <Link
+              prefetch={false}
               key={brand.id}
               href={`/brands/${brand.slug}`}
               className="group flex min-h-[132px] flex-col gap-2 bg-white p-4 transition-colors hover:bg-k-surface-2"

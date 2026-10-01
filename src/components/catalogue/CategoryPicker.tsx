@@ -166,6 +166,7 @@ export function CategoryPicker({
                       <p className="flex items-baseline justify-between gap-3 border-b border-k-line pb-2">
                         {group.self ? (
                           <Link
+                            prefetch={false}
                             href={`/katalogos/${group.self.slug}`}
                             onClick={() => setOpen(false)}
                             className="t-eyebrow min-w-0 truncate text-k-ink transition-colors hover:text-k-red"
@@ -186,6 +187,7 @@ export function CategoryPicker({
                         {group.items.map((item) => (
                           <li key={item.slug}>
                             <Link
+                              prefetch={false}
                               href={`/katalogos/${item.slug}`}
                               onClick={() => setOpen(false)}
                               className="flex items-baseline justify-between gap-3 py-1.5 transition-colors hover:text-k-red"
