@@ -9,12 +9,8 @@ import {
   listingKindOf,
 } from "@/lib/catalog/listing-query";
 import { tinyPage } from "@/lib/security/tiny-response";
-import {
-  POLICIES,
-  TokenBucketLimiter,
-  clientIp,
-  policyFor,
-} from "@/lib/security/rate-limit";
+import { clientIp } from "@/lib/security/client-ip";
+import { POLICIES, TokenBucketLimiter, policyFor } from "@/lib/security/rate-limit";
 
 // authConfig carries no providers and no database access: the proxy runs in
 // front of every request (Node runtime in Next 16) and must stay that cheap.

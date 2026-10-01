@@ -2,7 +2,6 @@ import { describe, expect, it } from "vitest";
 import {
   POLICIES,
   TokenBucketLimiter,
-  clientIp,
   isGoodBotUserAgent,
   policyFor,
 } from "@/lib/security/rate-limit";
@@ -82,26 +81,6 @@ describe("TokenBucketLimiter", () => {
     c.advance(120_000);
     limiter.take("trigger", POLICIES.filtered);
     expect(limiter.size).toBe(1);
-  });
-});
-
-describe("clientIp", () => {
-  const h = (init: Record<string, string>) => new Headers(init);
-
-  it("prefers cf-connecting-ip, then the first x-forwarded-for hop", () => {
-    expect(clientIp(h({ "cf-connecting-ip": "43.1.2.3", "x-forwarded-for": "10.0.0.1" }))).toBe(
-      "43.1.2.3",
-    );
-    expect(clientIp(h({ "x-forwarded-for": "129.226.1.1, 172.18.0.2" }))).toBe("129.226.1.1");
-    expect(clientIp(h({ "x-real-ip": "170.106.0.9" }))).toBe("170.106.0.9");
-    expect(clientIp(h({}))).toBeNull();
-  });
-
-  it("groups IPv6 clients by /64", () => {
-    expect(clientIp(h({ "cf-connecting-ip": "2001:db8:abcd:12:1::5" }))).toBe("2001:db8:abcd:12::/64");
-    expect(clientIp(h({ "cf-connecting-ip": "2001:db8:abcd:12:ffff:1:2:3" }))).toBe(
-      "2001:db8:abcd:12::/64",
-    );
   });
 });
 

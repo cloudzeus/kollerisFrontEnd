@@ -3,6 +3,7 @@
 import { headers } from "next/headers";
 import { getLocale } from "next-intl/server";
 import { subscribeNewsletter } from "@/lib/newsletter/subscribe";
+import { clientAddress } from "@/lib/security/client-ip";
 import type { Locale } from "@/i18n/routing";
 
 export type NewsletterFormState = { status: "idle" | "ok" | "error"; message: string };
@@ -36,8 +37,8 @@ export async function subscribeAction(
     email,
     locale,
     source,
-    // Πίσω από proxy η πραγματική IP είναι στο πρώτο βήμα της αλυσίδας.
-    ip: h.get("x-forwarded-for")?.split(",")[0]?.trim() ?? null,
+    // Ο επισκέπτης κατά Cloudflare/Traefik, όχι ό,τι γράφει ο ίδιος (client-ip.ts).
+    ip: clientAddress(h),
     userAgent: h.get("user-agent"),
   });
 

@@ -133,43 +133,6 @@ export class TokenBucketLimiter {
   }
 }
 
-/**
- * Expands an IPv6 address and keeps its /64: one subscriber is handed a whole
- * /64, and a scraper rotating through it must not get 2^64 buckets.
- */
-function ipv6Prefix64(ip: string): string | null {
-  const [head, tail] = ip.split("::");
-  if (ip.split("::").length > 2) return null;
-  const headParts = head ? head.split(":") : [];
-  const tailParts = tail ? tail.split(":") : [];
-  const missing = 8 - headParts.length - tailParts.length;
-  if (tail === undefined ? headParts.length !== 8 : missing < 0) return null;
-  const parts = tail === undefined ? headParts : [...headParts, ...Array(missing).fill("0"), ...tailParts];
-  if (!parts.every((p) => /^[0-9a-f]{1,4}$/i.test(p))) return null;
-  return `${parts
-    .slice(0, 4)
-    .map((p) => p.toLowerCase().replace(/^0+(?=.)/, ""))
-    .join(":")}::/64`;
-}
-
-/**
- * The client's address. Cloudflare's `cf-connecting-ip` first — the site is
- * behind Cloudflare and Traefik, so the socket address is a proxy's — then
- * the first `x-forwarded-for` hop, then `x-real-ip`. Null when none is
- * present, which only happens for requests that did not come through the
- * proxies (the container's own health check); those are not limited.
- */
-export function clientIp(headers: Headers): string | null {
-  const raw =
-    headers.get("cf-connecting-ip")?.trim() ||
-    headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
-    headers.get("x-real-ip")?.trim() ||
-    "";
-  if (!raw) return null;
-  if (raw.includes(":") && !raw.includes(".")) return ipv6Prefix64(raw) ?? raw;
-  return raw;
-}
-
 /** By user agent only — spoofable, which is why it never relaxes the filtered policy. */
 const GOOD_BOT = /\b(Googlebot|Google-InspectionTool|Storebot-Google|AdsBot-Google|bingbot)\b/i;
 

@@ -1,5 +1,7 @@
 import "server-only";
 
+import { clientAddress } from "@/lib/security/client-ip";
+
 /**
  * Ποιος ζήτησε, από πού, πότε — για τα email ασφαλείας.
  *
@@ -61,23 +63,14 @@ function describeDevice(userAgent: string): string {
 }
 
 /**
- * Η διεύθυνση του επισκέπτη πίσω από το proxy.
- *
- * Το `x-forwarded-for` είναι αλυσίδα «πελάτης, proxy1, proxy2» και μόνο το
- * ΠΡΩΤΟ στοιχείο είναι ο επισκέπτης. Παίρνοντας το τελευταίο θα γράφαμε στο
- * email τη διεύθυνση του δικού μας load balancer — ίδια για κάθε παραλήπτη,
- * και άχρηστη ακριβώς εκεί που πρέπει να είναι χρήσιμη.
- *
- * Η τιμή έρχεται από κεφαλίδα, δηλαδή από τον πελάτη, και μπορεί να είναι
- * οτιδήποτε. Δεν χρησιμοποιείται για απόφαση — μόνο εμφανίζεται — αλλά κόβεται
- * σε λογικό μήκος ώστε μια τεράστια κεφαλίδα να μη γίνει σελίδα κειμένου μέσα
- * στο email.
+ * Η διεύθυνση του επισκέπτη πίσω από Cloudflare και Traefik — από το
+ * `security/client-ip.ts`, τον ίδιο κανόνα με το rate limit: το
+ * `cf-connecting-ip` μόνο όταν το αίτημα ήρθε από διεύθυνση της Cloudflare,
+ * αλλιώς ο peer του Traefik (`x-real-ip`). Το πρώτο στοιχείο του
+ * `x-forwarded-for` το γράφει ο ίδιος ο πελάτης και δεν διαβάζεται πια.
  */
 function clientIp(headers: Headers): string {
-  const chain = headers.get("x-forwarded-for") ?? "";
-  const first = chain.split(",")[0]?.trim();
-  const ip = first || headers.get("x-real-ip")?.trim() || "";
-  return ip.slice(0, 45) || "άγνωστη";
+  return clientAddress(headers)?.slice(0, 45) || "άγνωστη";
 }
 
 export async function requestFingerprint(headers: Headers): Promise<RequestFingerprint> {

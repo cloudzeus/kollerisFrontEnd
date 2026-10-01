@@ -47,8 +47,9 @@ describe("proxy: canonical listing redirects", () => {
 });
 
 describe("proxy: rate buckets", () => {
+  // As production sees it: Traefik's peer is a Cloudflare edge, which names the visitor.
   const from = (ip: string, path: string, headers: Record<string, string> = {}) =>
-    call(path, { "cf-connecting-ip": ip, ...headers });
+    call(path, { "x-real-ip": "173.245.48.1", "cf-connecting-ip": ip, ...headers });
 
   it("gives /api/suggest its own burst of 60, then a JSON 429", async () => {
     for (let i = 0; i < 60; i++) expect((await from("203.0.113.1", "/api/suggest?q=dr")).status).toBe(200);
@@ -80,5 +81,12 @@ describe("proxy: rate buckets", () => {
   it("gives a bare search a burst of 20", async () => {
     for (let i = 0; i < 20; i++) expect((await from("203.0.113.6", "/anazitisi?q=drill")).status).toBe(200);
     expect((await from("203.0.113.6", "/anazitisi?q=drill")).status).toBe(429);
+  });
+
+  it("buckets a direct-to-origin client by its peer, whatever cf-connecting-ip it claims", async () => {
+    const direct = (claimed: string) =>
+      call("/api/ready", { "x-real-ip": "198.51.100.66", "cf-connecting-ip": claimed });
+    for (let i = 0; i < 10; i++) expect((await direct(`43.0.0.${i}`)).status).toBe(200);
+    expect((await direct("43.0.0.99")).status).toBe(429);
   });
 });
