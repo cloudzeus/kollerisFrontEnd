@@ -10,7 +10,7 @@ import { scopeKeyOf } from "@/lib/compare/options";
 import { searchKey } from "@/lib/greek";
 import type { ProductCardData } from "@/lib/catalog/queries";
 import { capFacetValues } from "@/lib/catalog/listing-query";
-import { TtlCache } from "@/lib/server/ttl-cache";
+import { listingCache, type Listing } from "@/lib/catalog/listing-cache";
 import {
   PER_PAGE_OPTIONS,
   SORT_OPTIONS,
@@ -378,8 +378,6 @@ export type PlpResult = {
   facets: PlpFacets;
 };
 
-type Listing = { products: ProductCardData[]; total: number };
-
 /**
  * The grid, shared across requests for five minutes.
  *
@@ -396,30 +394,24 @@ type Listing = { products: ProductCardData[]; total: number };
  * `unstable_cache` persists every entry to the container's disk with no
  * eviction. Keyed by facet combination and page, that is a disk that fills at
  * the scraper's pace. This cache is bounded (LRU, 300 entries, about 30 MB at
- * the worst case of 96 products each) and lives as long as the process. One
- * per process, on `globalThis`, because each listing route is its own bundle.
+ * the worst case of 96 products each) and lives as long as the process; it is
+ * cleared when the HDCtool feed applies a delivery or a campaign changes
+ * (`listing-cache.ts`).
  *
  * ── What it may hold ───────────────────────────────────────────────────────
  *
  * Catalogue data only. Prices are `Product.priceNet`, the same for every
  * visitor (pricing belongs to HDCtool and is not per customer here); the
  * basket, the compare selection and the account are read by the pages
- * separately and never enter this cache. Stock and price on a listing may
- * trail a sync by up to five minutes; the product page and the basket read
- * live.
- */
-const LISTING_KEY = Symbol.for("kolleris.listingCache");
-type ListingCacheHolder = { [LISTING_KEY]?: TtlCache<Listing> };
-
-function listingCache(): TtlCache<Listing> {
-  const holder = globalThis as ListingCacheHolder;
-  holder[LISTING_KEY] ??= new TtlCache<Listing>({ maxEntries: 300, ttlMs: 300_000 });
-  return holder[LISTING_KEY];
-}
-
-/**
- * The listing cache key: the normalised facet key plus what selects the page.
- * Exported for the test — two spellings of one listing must be one key.
+ * separately and never enter this cache. A feed delivery clears it; a change
+ * made elsewhere (a full sync from the command line runs in another process)
+ * shows on listings within five minutes. The product page and the basket
+ * read live.
+ *
+ * ── The key ────────────────────────────────────────────────────────────────
+ *
+ * The normalised facet key plus what selects the page. Exported for the test:
+ * two spellings of one listing must be one key.
  */
 export function listingKeyOf(
   params: PlpParams,
@@ -605,7 +597,7 @@ const NO_FACETS: PlpFacets = {
  *
  * Counts may trail the catalogue by up to five minutes after a sync, and the
  * "με προσφορά" count by as long after a campaign starts or stops. The grid
- * has its own five-minute cache (see `listingCache` above).
+ * has its own five-minute cache (`listing-cache.ts`).
  */
 const getFacets = sharedCatalogue(
   "plp-facets",

@@ -8,7 +8,9 @@
  *   - entries expire after `ttlMs`;
  *   - concurrent callers for the same key share ONE load. Under a burst of
  *     identical requests that is the difference between one query and fifty.
- *   - a failed load is not cached; the next caller tries again.
+ *   - a failed load is not cached; the next caller tries again;
+ *   - `clear()` drops everything, and a load that was already running when
+ *     it was called is not stored when it finishes — it read the old data.
  */
 
 type Entry<V> = { value: V; expires: number };
@@ -19,6 +21,7 @@ export class TtlCache<V> {
   private readonly maxEntries: number;
   private readonly ttlMs: number;
   private readonly now: () => number;
+  private generation = 0;
 
   constructor(options: { maxEntries: number; ttlMs: number; now?: () => number }) {
     this.maxEntries = options.maxEntries;
@@ -28,6 +31,12 @@ export class TtlCache<V> {
 
   get size(): number {
     return this.entries.size;
+  }
+
+  clear(): void {
+    this.generation++;
+    this.entries.clear();
+    this.inflight.clear();
   }
 
   async getOrLoad(key: string, load: () => Promise<V>): Promise<V> {
@@ -43,8 +52,10 @@ export class TtlCache<V> {
     const pending = this.inflight.get(key);
     if (pending) return pending;
 
+    const generation = this.generation;
     const promise = load().then(
       (value) => {
+        if (generation !== this.generation) return value; // cleared meanwhile
         this.inflight.delete(key);
         this.entries.set(key, { value, expires: this.now() + this.ttlMs });
         while (this.entries.size > this.maxEntries) {
@@ -55,7 +66,7 @@ export class TtlCache<V> {
         return value;
       },
       (error: unknown) => {
-        this.inflight.delete(key);
+        if (generation === this.generation) this.inflight.delete(key);
         throw error;
       },
     );

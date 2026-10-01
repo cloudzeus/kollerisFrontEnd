@@ -2,6 +2,7 @@ import "server-only";
 import { prisma } from "@/lib/prisma";
 import { hdctool } from "@/lib/hdctool/client";
 import { syncProductsByMtrl } from "./catalog-sync";
+import { clearListingCache } from "@/lib/catalog/listing-cache";
 import {
   createSerialQueue,
   cursorAfterFailure,
@@ -166,6 +167,9 @@ async function runDelivery(delivery: HdcDelivery): Promise<void> {
       catchUpFailed = result.failedMtrl;
     }
 
+    // Listings cache the grid for five minutes; the products just changed.
+    clearListingCache(`hdc delivery seq ${delivery.seq}`);
+
     const next = cursorAfterRun(cursor, delivery, {
       caughtUp,
       stillPending: uniqueIds(later, applied.failedMtrl, catchUpFailed),
@@ -236,6 +240,7 @@ async function runDrain(trigger: string): Promise<void> {
 
     const { now, later } = planRun(cursor.pendingMtrl, [], MAX_PER_DELIVERY);
     const applied = await syncProductsByMtrl(now);
+    clearListingCache(`hdc drain (${trigger})`);
 
     // The sequence is left alone: a drain accounts for ids, not deliveries.
     // Reading and writing the cursor here is safe because this runs on the

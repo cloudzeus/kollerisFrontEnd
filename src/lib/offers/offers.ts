@@ -1,5 +1,6 @@
 import "server-only";
 import { prisma } from "@/lib/prisma";
+import { clearListingCache } from "@/lib/catalog/listing-cache";
 import { chat } from "@/lib/ai/deepseek";
 import type { OfferDraft, OfferRow } from "@/lib/offers/offer-types";
 import { validate } from "@/lib/offers/offer-types";
@@ -118,11 +119,14 @@ export async function saveOffer(
     ? await prisma.offer.update({ where: { id: draft.id }, data, select: { id: true } })
     : await prisma.offer.create({ data, select: { id: true } });
 
+  // What a campaign covers is part of cached listings ("Σε προσφορά", /prosfores).
+  clearListingCache(`offer ${draft.slug} saved`);
   return { ok: true, id: row.id };
 }
 
 export async function deleteOffer(id: string): Promise<{ ok: true }> {
   await prisma.offer.delete({ where: { id } });
+  clearListingCache(`offer ${id} deleted`);
   return { ok: true };
 }
 

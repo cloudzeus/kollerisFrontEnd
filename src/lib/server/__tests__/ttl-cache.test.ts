@@ -54,4 +54,26 @@ describe("TtlCache", () => {
     expect(await cache.getOrLoad("a", async () => "reloaded")).toBe("a");
     expect(await cache.getOrLoad("b", async () => "reloaded")).toBe("reloaded");
   });
+
+  it("clear() empties the cache", async () => {
+    const cache = new TtlCache<number>({ maxEntries: 10, ttlMs: 300_000 });
+    await cache.getOrLoad("k", async () => 1);
+    cache.clear();
+    expect(cache.size).toBe(0);
+    expect(await cache.getOrLoad("k", async () => 2)).toBe(2);
+  });
+
+  it("does not let a load that started before clear() repopulate stale data", async () => {
+    const cache = new TtlCache<string>({ maxEntries: 10, ttlMs: 300_000 });
+    let finishOld!: (v: string) => void;
+    const old = cache.getOrLoad("k", () => new Promise<string>((r) => (finishOld = r)));
+    cache.clear();
+    // A caller after the clear does not join the stale load.
+    const fresh = cache.getOrLoad("k", async () => "new");
+    finishOld("old");
+    expect(await old).toBe("old");
+    expect(await fresh).toBe("new");
+    expect(await cache.getOrLoad("k", async () => "again")).toBe("new");
+  });
 });
+
