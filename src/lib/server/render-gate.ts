@@ -31,7 +31,7 @@ import { Semaphore, type SemaphoreStats } from "@/lib/server/semaphore";
  * The listing routes have a `loading.tsx`, so by the time the page component
  * runs the response has already started streaming with status 200: a render
  * cannot turn itself into a 503. A refused render therefore returns a small
- * "busy" view (noindex, refreshes itself after 5 s) instead of the grid — no
+ * "busy" view (noindex, `router.refresh()` after 5 s) instead of the grid — no
  * queries, no products. The HTTP-level back-pressure with a real status code
  * is the proxy's 429; this gate is what keeps the process alive when the
  * traffic is spread thin enough to pass the per-IP limit.
