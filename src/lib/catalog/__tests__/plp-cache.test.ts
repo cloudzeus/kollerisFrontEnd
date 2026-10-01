@@ -63,3 +63,26 @@ describe("getPlpData", () => {
     expect(await getPlpData(parsePlpParams({}, { categorySlug: "nope" }), "el")).toBeNull();
   });
 });
+
+describe("brand facet", () => {
+  it("is not offered on a brand page, so it can never build a ?brand= link there", async () => {
+    db.brand.findMany.mockResolvedValue([
+      { mtrmark: 7, slug: "milwaukee", nameEl: "Milwaukee", nameEn: "Milwaukee", nameIt: "Milwaukee" },
+      { mtrmark: 8, slug: "makita", nameEl: "Makita", nameEn: "Makita", nameIt: "Makita" },
+    ] as never);
+    db.product.groupBy.mockImplementation((async (args: { by: string[] }) =>
+      args.by.includes("mtrmark")
+        ? [
+            { mtrmark: 7, isNew: false, _count: { _all: 3 } },
+            { mtrmark: 8, isNew: false, _count: { _all: 2 } },
+          ]
+        : []) as never);
+
+    const onBrandPage = await getPlpData(parsePlpParams({}, { brandScopeSlug: "milwaukee" }), "el");
+    expect(onBrandPage?.facets.brands).toEqual([]);
+
+    const onCategory = await getPlpData(parsePlpParams({}, { categorySlug: "brand-facet" }), "el");
+    expect(onCategory?.facets.brands.map((b) => b.slug)).toEqual(["milwaukee", "makita"]);
+  });
+});
+
