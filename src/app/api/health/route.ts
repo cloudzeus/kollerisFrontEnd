@@ -1,42 +1,41 @@
-import { prisma } from "@/lib/prisma";
+import { listingRenderStats } from "@/lib/server/render-gate";
 
 /**
- * Ο έλεγχος υγείας του container.
+ * Liveness: is this process able to answer an HTTP request at all?
  *
- * ── Γιατί όχι η αρχική σελίδα ─────────────────────────────────────────────
+ * ── Why no database ────────────────────────────────────────────────────────
  *
- * Ο έλεγχος ζητούσε ολόκληρη την αρχική, με όριο 5″. Η αρχική διαβάζει
- * κατηγορίες, μενού, μάρκες, προτεινόμενα και στατιστικά μέσα από το
- * `unstable_cache` — και αυτή η cache ζει στον δίσκο του container, άρα
- * ΣΒΗΝΕΤΑΙ σε κάθε επανεκκίνηση. Η πρώτη αρχική μετά από restart χτίζεται από το
- * μηδέν· αν αργήσει πάνω από 5″, ο έλεγχος αποτυγχάνει, η πλατφόρμα ξαναξεκινά
- * το container, η cache αδειάζει ξανά. Φαύλος κύκλος: ένα eshop που δούλευε
- * μέρες δεν μπορεί να ξανασηκωθεί από τη στιγμή που θα πέσει μία φορά.
- * Έτσι έπεσε στις 22/9/2026 — Traefik «no available server», ενώ το container
- * άνοιγε διαρκώς νέες συνδέσεις στη βάση (25 σε 4 λεπτά).
+ * It used to run `SELECT 1`. On 1/10/2026 a scraper kept 140+ filtered
+ * catalogue renders in flight; the event loop and the connection pool were
+ * both queued behind them, the `SELECT 1` waited its turn, the 10 s check
+ * timed out, and Traefik took the container out of rotation — "no available
+ * server" for every visitor, while the database itself sat idle at 34 of 97
+ * connections. A liveness check that depends on a shared resource turns that
+ * resource's queue into an outage.
  *
- * ── Τι ελέγχει ───────────────────────────────────────────────────────────
+ * So this answers from memory and nothing else: if the process can run this
+ * handler, it is alive. Whether the database answers is a different question,
+ * asked by `/api/ready` — for people and monitoring, not for the restart loop.
  *
- * Περνά από τον χειριστή αιτημάτων του Next — όπως ήθελε και ο παλιός έλεγχος,
- * γιατί ένας server που έχει σπάσει μέσα στον χειριστή δέχεται ακόμη συνδέσεις
- * — και κάνει ένα `SELECT 1`: η βάση απαντά, ο server απαντά. Τίποτα βαρύ, και
- * τίποτα που να εξαρτάται από ζεστή cache.
+ * ── Why still a route ──────────────────────────────────────────────────────
+ *
+ * Kept from the old check: a Next server that has broken inside its request
+ * handler still accepts TCP connections, so the check must go through the
+ * handler. The body reports the listing render gate and the heap, which are
+ * the two numbers that would have explained the incident at a glance.
  */
 
 export const dynamic = "force-dynamic";
 
-export async function GET() {
-  const started = Date.now();
-  try {
-    await prisma.$queryRaw`SELECT 1`;
-    return Response.json(
-      { ok: true, db: "up", ms: Date.now() - started },
-      { headers: { "Cache-Control": "no-store" } },
-    );
-  } catch (error) {
-    return Response.json(
-      { ok: false, db: "down", error: error instanceof Error ? error.message : String(error) },
-      { status: 503, headers: { "Cache-Control": "no-store" } },
-    );
-  }
+export function GET() {
+  const memory = process.memoryUsage();
+  return Response.json(
+    {
+      ok: true,
+      uptimeS: Math.round(process.uptime()),
+      heapUsedMb: Math.round(memory.heapUsed / 1_048_576),
+      listingRenders: listingRenderStats(),
+    },
+    { headers: { "Cache-Control": "no-store" } },
+  );
 }

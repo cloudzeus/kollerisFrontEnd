@@ -125,7 +125,14 @@ EXPOSE 3000
 # and is wiped on every restart. A cold homepage slower than 5s failed the
 # check, the platform restarted the container, the cache was wiped again: once
 # down, the shop could never come back up (22/9/2026, "no available server").
-# `/api/health` goes through the same request handler and does a `SELECT 1`.
+#
+# Liveness only: `/api/health` goes through the request handler and answers
+# from memory, with NO database query. It used to do a `SELECT 1`, and on
+# 1/10/2026 a scraper kept 140+ catalogue renders in flight; the query queued
+# behind them, the check timed out and Traefik answered 503 "no available
+# server" for everyone while the database sat idle. A restart loop must not
+# depend on a shared resource. The database is checked by `/api/ready`
+# (`SELECT 1`, 1.5 s budget) for people and monitoring, not here.
 HEALTHCHECK --interval=30s --timeout=10s --start-period=90s --retries=3 \
   CMD node -e "fetch('http://127.0.0.1:'+(process.env.PORT||3000)+'/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
 
