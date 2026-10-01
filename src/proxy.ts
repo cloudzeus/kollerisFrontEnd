@@ -9,6 +9,12 @@ import {
   listingKindOf,
 } from "@/lib/catalog/listing-query";
 import { tinyPage } from "@/lib/security/tiny-response";
+import {
+  POLICIES,
+  TokenBucketLimiter,
+  clientIp,
+  policyFor,
+} from "@/lib/security/rate-limit";
 
 // Edge-safe: authConfig carries no providers and no database access.
 const { auth } = NextAuth(authConfig);
@@ -123,6 +129,68 @@ function listingCanonicalRedirect(request: NextRequest): NextResponse | null {
 }
 
 /**
+ * Per-IP rate limit on the routes that cost a render (see `rate-limit.ts` for
+ * the policies). One limiter per process: the proxy module lives as long as
+ * the server does.
+ */
+const limiter = new TokenBucketLimiter();
+
+/*
+ * What was refused, summarised once a minute. Logging every 429 during an
+ * attack would be its own load; a count and the top offenders is what someone
+ * reading the log needs.
+ */
+const refused = new Map<string, number>();
+let refusedSince = Date.now();
+
+function noteRefused(ip: string): void {
+  refused.set(ip, (refused.get(ip) ?? 0) + 1);
+  const now = Date.now();
+  if (now - refusedSince < 60_000) return;
+  const total = [...refused.values()].reduce((a, b) => a + b, 0);
+  const top = [...refused]
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 5)
+    .map(([who, n]) => `${who}=${n}`)
+    .join(" ");
+  console.warn(
+    `[rate-limit] refused ${total} requests from ${refused.size} clients in ${Math.round((now - refusedSince) / 1000)}s; top: ${top}`,
+  );
+  refused.clear();
+  refusedSince = now;
+}
+
+function rateLimit(request: NextRequest): NextResponse | null {
+  const policy = policyFor({
+    method: request.method,
+    pathname: request.nextUrl.pathname,
+    searchParams: request.nextUrl.searchParams,
+    headers: request.headers,
+  });
+  if (!policy) return null;
+  const ip = clientIp(request.headers);
+  if (!ip) return null;
+
+  const verdict = limiter.take(`${policy}:${ip}`, POLICIES[policy]);
+  if (verdict.ok) return null;
+
+  noteRefused(ip);
+  const headers = { "Retry-After": String(verdict.retryAfterSeconds) };
+  if (policy === "api") {
+    return NextResponse.json(
+      { error: "rate_limited", retry_after_seconds: verdict.retryAfterSeconds },
+      { status: 429, headers: { ...headers, "Cache-Control": "no-store" } },
+    );
+  }
+  return tinyPage(429, {
+    title: "Too many requests",
+    message:
+      "Πάρα πολλά αιτήματα σε λίγο χρόνο — δοκιμάστε ξανά σε λίγα δευτερόλεπτα. / Too many requests — please try again in a few seconds.",
+    headers,
+  });
+}
+
+/**
  * Two middlewares, one matcher.
  *
  * /admin is NOT localised (staff UI is Greek only) and is gated on a valid JWT.
@@ -154,12 +222,21 @@ const authProxy = auth((request) => {
  * pays for the session decode and the locale negotiation.
  */
 export default function proxy(request: NextRequest, event: NextFetchEvent) {
-  const early = canonicalHostRedirect(request) ?? listingCanonicalRedirect(request);
+  const early =
+    canonicalHostRedirect(request) ?? rateLimit(request) ?? listingCanonicalRedirect(request);
   if (early) return early;
+  // The two APIs below are matched only to be rate-limited; they are not
+  // localised and carry their own auth.
+  if (request.nextUrl.pathname.startsWith("/api/")) return NextResponse.next();
   return authProxy(request, event as never);
 }
 
 export const config = {
-  // Skip Next internals, the auth endpoints and anything with a file extension.
-  matcher: ["/((?!api|_next|_vercel|.*\\..*).*)"],
+  matcher: [
+    // Skip Next internals, the auth endpoints and anything with a file extension.
+    "/((?!api|_next|_vercel|.*\\..*).*)",
+    // The product listing APIs, for the rate limit only.
+    "/api/suggest",
+    "/api/acp/products",
+  ],
 };
