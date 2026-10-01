@@ -7,7 +7,11 @@
  * would otherwise need `router.push` and a hydrated component.
  */
 
-import { toggleCappedValue } from "@/lib/catalog/listing-query";
+import {
+  canonicalizeListingQuery,
+  listingKindOf,
+  toggleCappedValue,
+} from "@/lib/catalog/listing-query";
 
 export type RawParams = Record<string, string | string[] | undefined>;
 
@@ -24,9 +28,16 @@ function finish(basePath: string, next: URLSearchParams): string {
   // Any filter change returns to page 1 — staying on page 7 of a result set
   // that just shrank to 2 pages is how people land on an empty grid.
   next.delete("page");
-  // Defaults are not spelled out: the canonical URL is the one without them.
-  if (next.get("perPage") === "24") next.delete("perPage");
-  if (next.get("sort") === "relevance") next.delete("sort");
+  /*
+   * Through the same canonicaliser the proxy runs, so a link is never one the
+   * proxy would rewrite: defaults dropped, values sorted, parameters the
+   * listing does not read removed, and the combined facet cap respected.
+   */
+  const kind = listingKindOf(basePath);
+  if (kind) {
+    const result = canonicalizeListingQuery(kind, next);
+    if (result.action === "redirect") return `${basePath}${result.search}`;
+  }
   const query = next.toString();
   return query ? `${basePath}?${query}` : basePath;
 }

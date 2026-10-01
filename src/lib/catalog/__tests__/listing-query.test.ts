@@ -62,9 +62,33 @@ describe("canonicalizeListingQuery", () => {
     expect(LISTING_LIMITS.maxValuesPerFacet).toBe(3);
   });
 
-  it("rejects more facet values than the combined cap, without rewriting", () => {
-    const tooMany = "?sub=a,b,c&brand=x,y,z&avail=in-stock&sale=1";
-    expect(canon(tooMany)).toMatchObject({ action: "reject", status: 400 });
+  it("accepts everything the filter UI can produce at once", () => {
+    // 3 subs + 3 brands + price + avail + sale + new = 10, the combined cap.
+    expect(LISTING_LIMITS.maxFacetValues).toBe(10);
+    expect(canon("?sub=a,b,c&brand=x,y,z&min=50&max=150&avail=in-stock&sale=1&new=1")).toEqual({
+      action: "ok",
+    });
+  });
+
+  it("trims past the combined cap with a redirect, never a 400", () => {
+    const limits = { ...LISTING_LIMITS, maxFacetValues: 4 };
+    // Dropped first: new, sale, avail, price; then the last brand, then the last sub.
+    expect(
+      canonicalizeListingQuery("category", "?sub=a,b&brand=x,y&avail=in-stock&sale=1&new=1", limits),
+    ).toEqual({ action: "redirect", search: "?sub=a,b&brand=x,y", perRow: null });
+    expect(
+      canonicalizeListingQuery("category", "?sub=a,b,c&brand=x,y,z&max=50", limits),
+    ).toEqual({ action: "redirect", search: "?sub=a,b,c&brand=x", perRow: null });
+  });
+
+  it("never rejects: every input has a canonical URL", () => {
+    for (const q of [
+      "?sub=a,b,c,d,e&brand=1,2,3,4&min=1&max=2&avail=in-stock&sale=1&new=1&page=999999",
+      `?q=${"x".repeat(5_000)}`,
+      "?%E0%A4%A=1&sub=%ZZ",
+    ]) {
+      expect(["ok", "redirect"]).toContain(canon(q, "search").action);
+    }
   });
 
   it("drops unknown params through a redirect", () => {
@@ -80,9 +104,19 @@ describe("canonicalizeListingQuery", () => {
     expect(canon("?q=drill", "category")).toEqual({ action: "redirect", search: "", perRow: null });
   });
 
-  it("keeps attribution and router params untouched", () => {
+  it("keeps attribution params untouched", () => {
     expect(canon("?utm_source=google&gclid=abc&sub=a")).toEqual({ action: "ok" });
-    expect(canon("?_rsc=1x2y&sub=a")).toEqual({ action: "ok" });
+    // Any utm_*, by prefix.
+    expect(canon("?utm_whatever=1&utm_source_platform=x")).toEqual({ action: "ok" });
+    const tracking =
+      "mc_cid mc_eid _kx ttclid twclid li_fat_id dclid yclid igshid _hsenc _hsmi gclsrc wbraid gbraid msclkid fbclid";
+    for (const key of tracking.split(" ")) {
+      expect(canon(`?${key}=v&sub=a`), key).toEqual({ action: "ok" });
+    }
+  });
+
+  it("does not treat _rsc as a pass-through (Next strips it before the proxy)", () => {
+    expect(canon("?_rsc=1x2y")).toEqual({ action: "redirect", search: "", perRow: null });
   });
 
   it("drops defaults", () => {
@@ -129,14 +163,26 @@ describe("canonicalizeListingQuery", () => {
     expect(canon(`?brand=${"x".repeat(200)}`)).toEqual({ action: "redirect", search: "", perRow: null });
   });
 
-  it("404s a page past anything real and drops a malformed one", () => {
-    expect(canon("?page=99999")).toMatchObject({ action: "reject", status: 404 });
+  it("clamps a huge page instead of 404ing, and drops a malformed one", () => {
+    expect(LISTING_LIMITS.maxPage).toBe(2000);
+    expect(canon("?page=2000")).toEqual({ action: "ok" });
+    expect(canon("?page=99999")).toEqual({ action: "redirect", search: "?page=2000", perRow: null });
     expect(canon("?page=abc")).toEqual({ action: "redirect", search: "", perRow: null });
   });
 
-  it("handles search: q and cat are allowed, an over-long q is rejected", () => {
+  it("handles search: q and cat are allowed, an over-long q is truncated", () => {
     expect(canon("?q=drill&cat=drapana&brand=x", "search")).toEqual({ action: "ok" });
-    expect(canon(`?q=${"a".repeat(500)}`, "search")).toMatchObject({ action: "reject", status: 400 });
+    expect(canon(`?q=${"a".repeat(500)}`, "search")).toEqual({
+      action: "redirect",
+      search: `?q=${"a".repeat(200)}`,
+      perRow: null,
+    });
+    // Code points, not UTF-16 units: an emoji at the cut is not split in half.
+    const emoji = "\u{1F527}".repeat(201);
+    const result = canon(`?q=${encodeURIComponent(emoji)}`, "search");
+    expect(result.action).toBe("redirect");
+    if (result.action !== "redirect") throw new Error("unreachable");
+    expect([...new URLSearchParams(result.search).get("q")!]).toHaveLength(200);
   });
 
   it("canonicalises the production scraper URL in one hop and is idempotent", () => {
@@ -156,7 +202,7 @@ describe("canonicalizeListingQuery", () => {
 describe("isFilteredListing", () => {
   it("treats paging and pass-through params as unfiltered", () => {
     expect(isFilteredListing(new URLSearchParams(""))).toBe(false);
-    expect(isFilteredListing(new URLSearchParams("page=2&utm_source=x&_rsc=1"))).toBe(false);
+    expect(isFilteredListing(new URLSearchParams("page=2&utm_source=x&fbclid=1"))).toBe(false);
     expect(isFilteredListing({ page: "2", sub: undefined })).toBe(false);
   });
 

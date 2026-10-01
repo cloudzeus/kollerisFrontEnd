@@ -1,5 +1,6 @@
 "use client";
 
+import { LISTING_LIMITS } from "@/lib/catalog/listing-query";
 import { useLocale } from "next-intl";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
@@ -266,6 +267,9 @@ export function SearchSuggest({
           ref={input}
           id={`q-${variant}`}
           name="q"
+          /* The proxy truncates a longer query anyway; this keeps it from
+             being typed. Same number as LISTING_LIMITS.maxQueryLength. */
+          maxLength={LISTING_LIMITS.maxQueryLength}
           data-search-input
           role="combobox"
           aria-expanded={showPanel}

@@ -38,10 +38,17 @@ export type ListingKind = "category" | "brand" | "products" | "offers" | "search
 export const LISTING_LIMITS = {
   /** `sub` and `brand` values. The filter UI replaces the oldest beyond this. */
   maxValuesPerFacet: 3,
-  /** Every facet value counted together: subs + brands + price + avail + sale + new. */
-  maxFacetValues: 7,
-  /** The largest category is ~250 pages at 24; nothing legitimate goes past this. */
-  maxPage: 400,
+  /**
+   * Every facet value counted together: subs + brands + price + avail + sale +
+   * new. Exactly the most the filter UI can produce (3 + 3 + 1 + 1 + 1 + 1), so
+   * a person can never click past it; only hand-made URLs are trimmed.
+   */
+  maxFacetValues: 10,
+  /**
+   * The largest category is ~250 pages at 24. A higher page is clamped here;
+   * a page past the real end renders the normal empty state.
+   */
+  maxPage: 2000,
   maxQueryLength: 200,
   maxSlugLength: 120,
 } as const;
@@ -63,32 +70,41 @@ const FACETS_BY_KIND: Record<ListingKind, readonly string[]> = {
 const VIEW_PARAMS = ["sort", "page", "perPage"] as const;
 
 /**
- * Kept untouched and never counted as a filter.
+ * Kept untouched and never counted as a filter: campaign attribution.
+ * Stripping these with a redirect would erase the click from analytics before
+ * the tag manager ever saw it. None of them changes what the page renders,
+ * and none of them is part of any cache key. Every `utm_*` passes by prefix.
  *
- * `_rsc` is the router's own cache-busting parameter on client navigations —
- * redirecting it away would break every filter click. The rest are campaign
- * attribution: stripping them with a redirect would erase the click from
- * analytics before the tag manager ever saw it. None of them changes what the
- * page renders, and none of them is part of any cache key.
+ * (Not `_rsc`: Next 16 strips it, with the `rsc` and prefetch headers, before
+ * the proxy runs, so it never reaches this code.)
  */
 const PASS_THROUGH = new Set([
-  "_rsc",
-  "utm_source",
-  "utm_medium",
-  "utm_campaign",
-  "utm_term",
-  "utm_content",
-  "utm_id",
   "gclid",
+  "gclsrc",
+  "dclid",
   "gbraid",
   "wbraid",
   "gad_source",
   "gad_campaignid",
-  "fbclid",
-  "msclkid",
   "srsltid",
   "_gl",
+  "fbclid",
+  "msclkid",
+  "ttclid",
+  "twclid",
+  "li_fat_id",
+  "yclid",
+  "igshid",
+  "mc_cid",
+  "mc_eid",
+  "_kx",
+  "_hsenc",
+  "_hsmi",
 ]);
+
+function isPassThrough(key: string): boolean {
+  return PASS_THROUGH.has(key) || key.startsWith("utm_");
+}
 
 /** Slugs are produced by `slugify` — kept permissive so no real slug is lost. */
 const SLUG = /^[\p{L}\p{N}][\p{L}\p{N}._-]*$/u;
@@ -114,8 +130,7 @@ export function listingKindOf(pathname: string): ListingKind | null {
 export type CanonicalResult =
   | { action: "ok" }
   /** `search` is "" or starts with "?". `perRow` is the preference to store, if any. */
-  | { action: "redirect"; search: string; perRow: number | null }
-  | { action: "reject"; status: 400 | 404; reason: string };
+  | { action: "redirect"; search: string; perRow: number | null };
 
 type Pair = [string, string];
 
@@ -157,19 +172,56 @@ function matchBand(min: number | null, max: number | null) {
   );
 }
 
+/** Truncates by code point, so a character is never cut in half. */
+function truncate(value: string, max: number): string {
+  const chars = Array.from(value);
+  return chars.length > max ? chars.slice(0, max).join("") : value;
+}
+
+type Facets = {
+  sub: string[];
+  brand: string[];
+  band: (typeof PRICE_BANDS)[number] | null;
+  avail: boolean;
+  sale: boolean;
+  isNew: boolean;
+};
+
+const countOf = (f: Facets) =>
+  f.sub.length + f.brand.length + (f.band ? 1 : 0) + (f.avail ? 1 : 0) + (f.sale ? 1 : 0) + (f.isNew ? 1 : 0);
+
+/**
+ * Brings the facets within the combined cap, giving up the least specific
+ * first: the flags, availability and price, then the last brand, then the
+ * last subcategory. Deterministic, so the trimmed URL is itself canonical.
+ */
+function trimToTotal(f: Facets, max: number): void {
+  while (countOf(f) > max) {
+    if (f.isNew) f.isNew = false;
+    else if (f.sale) f.sale = false;
+    else if (f.avail) f.avail = false;
+    else if (f.band) f.band = null;
+    else if (f.brand.length) f.brand.pop();
+    else f.sub.pop();
+  }
+}
+
 /**
  * Canonicalises a listing query string.
  *
  * Returns `ok` when the input is already canonical (semantically — encoding
- * differences such as `%2C` versus `,` do not cause a redirect), `redirect`
- * with the canonical query when something was dropped, reordered or trimmed,
- * and `reject` when no cheap and safe rewrite exists.
+ * differences such as `%2C` versus `,` do not cause a redirect), and otherwise
+ * `redirect` with the canonical query: unknown parameters dropped, values
+ * sorted, anything over a limit trimmed. There is no rejection: every input,
+ * however hand-made or old, has a canonical URL that is one cheap redirect
+ * away — a person following an old link lands on a listing, not an error.
  *
  * Idempotent: the canonical output of a redirect is itself `ok`.
  */
 export function canonicalizeListingQuery(
   kind: ListingKind,
   search: string | URLSearchParams,
+  limits: { maxValuesPerFacet: number; maxFacetValues: number; maxPage: number; maxQueryLength: number } = LISTING_LIMITS,
 ): CanonicalResult {
   const params = typeof search === "string" ? new URLSearchParams(search) : search;
   const allowed = new Set<string>([...FACETS_BY_KIND[kind], ...VIEW_PARAMS]);
@@ -178,25 +230,33 @@ export function canonicalizeListingQuery(
   const keys: string[] = [];
   for (const [key] of original) if (!keys.includes(key)) keys.push(key);
 
-  const first = (key: string) => params.get(key) ?? undefined;
+  const first = (key: string) => (allowed.has(key) ? (params.get(key) ?? undefined) : undefined);
 
-  // Price is a pair: decided once, emitted where each key first appeared.
-  const minRaw = allowed.has("min") ? first("min") : undefined;
-  const maxRaw = allowed.has("max") ? first("max") : undefined;
-  const band =
-    minRaw != null || maxRaw != null ? matchBand(priceNumber(minRaw), priceNumber(maxRaw)) : null;
+  const minRaw = first("min");
+  const maxRaw = first("max");
+  const facets: Facets = {
+    sub: allowed.has("sub") ? multiValues(params.getAll("sub")).slice(0, limits.maxValuesPerFacet) : [],
+    brand: allowed.has("brand")
+      ? multiValues(params.getAll("brand")).slice(0, limits.maxValuesPerFacet)
+      : [],
+    band:
+      minRaw != null || maxRaw != null ? matchBand(priceNumber(minRaw), priceNumber(maxRaw)) : null,
+    avail: first("avail") === "in-stock",
+    sale: first("sale") === "1",
+    isNew: first("new") === "1",
+  };
+  trimToTotal(facets, limits.maxFacetValues);
 
   let perRow: number | null = null;
-  let facetValues = band ? 1 : 0;
   const out: Pair[] = [];
 
   for (const key of keys) {
-    if (PASS_THROUGH.has(key)) {
+    if (isPassThrough(key)) {
       for (const value of params.getAll(key)) out.push([key, value]);
       continue;
     }
     if (key === "perRow") {
-      const n = Number(first(key));
+      const n = Number(params.get(key));
       if ((PER_ROW_OPTIONS as readonly number[]).includes(n)) perRow = n;
       continue;
     }
@@ -205,33 +265,23 @@ export function canonicalizeListingQuery(
     const value = first(key) ?? "";
     switch (key) {
       case "sub":
-      case "brand": {
-        const values = multiValues(params.getAll(key)).slice(0, LISTING_LIMITS.maxValuesPerFacet);
-        if (values.length) {
-          out.push([key, values.join(",")]);
-          facetValues += values.length;
-        }
+      case "brand":
+        if (facets[key].length) out.push([key, facets[key].join(",")]);
         break;
-      }
       case "min":
       case "max": {
-        if (!band) break;
-        const bound = key === "min" ? band.min : band.max;
+        const bound = facets.band ? (key === "min" ? facets.band.min : facets.band.max) : null;
         if (bound != null) out.push([key, String(bound)]);
         break;
       }
       case "avail":
-        if (value === "in-stock") {
-          out.push([key, value]);
-          facetValues += 1;
-        }
+        if (facets.avail) out.push([key, "in-stock"]);
         break;
       case "sale":
+        if (facets.sale) out.push([key, "1"]);
+        break;
       case "new":
-        if (value === "1") {
-          out.push([key, value]);
-          facetValues += 1;
-        }
+        if (facets.isNew) out.push([key, "1"]);
         break;
       case "sort":
         if (value !== "relevance" && SORT_OPTIONS.some((o) => o.value === value)) {
@@ -239,11 +289,8 @@ export function canonicalizeListingQuery(
         }
         break;
       case "page": {
-        if (!/^\d{1,9}$/.test(value)) break;
-        const n = Number(value);
-        if (n > LISTING_LIMITS.maxPage) {
-          return { action: "reject", status: 404, reason: "page out of range" };
-        }
+        if (!/^\d{1,12}$/.test(value)) break;
+        const n = Math.min(Number(value), limits.maxPage);
         if (n > 1) out.push([key, String(n)]);
         break;
       }
@@ -255,20 +302,14 @@ export function canonicalizeListingQuery(
         break;
       }
       case "q": {
-        if (value.length > LISTING_LIMITS.maxQueryLength) {
-          return { action: "reject", status: 400, reason: "query too long" };
-        }
-        if (value.trim()) out.push([key, value]);
+        const q = truncate(value, limits.maxQueryLength);
+        if (q.trim()) out.push([key, q]);
         break;
       }
       case "cat":
         if (isSlug(value.trim())) out.push([key, value.trim()]);
         break;
     }
-  }
-
-  if (facetValues > LISTING_LIMITS.maxFacetValues) {
-    return { action: "reject", status: 400, reason: "too many filters" };
   }
 
   const unchanged =
@@ -292,7 +333,7 @@ export function isFilteredListing(params: URLSearchParams | RawParams): boolean 
     params instanceof URLSearchParams
       ? [...new Set(params.keys())]
       : Object.keys(params).filter((k) => params[k] != null);
-  return keys.some((key) => key !== "page" && !PASS_THROUGH.has(key));
+  return keys.some((key) => key !== "page" && !isPassThrough(key));
 }
 
 /**

@@ -21,4 +21,21 @@ describe("filter links are already canonical", () => {
     expect(setParamHref("/katalogos/x", { perPage: "96" }, "perPage", "24")).toBe("/katalogos/x");
     expect(setParamHref("/katalogos/x", {}, "sort", "relevance")).toBe("/katalogos/x");
   });
+
+  it("never builds a URL the proxy would rewrite, even with every facet on", () => {
+    const raw = { sub: "a,b,c", brand: "d,e,f", avail: "in-stock" };
+    const withSale = setParamHref("/katalogos/x", raw, "sale", "1");
+    expect(withSale).toContain("sale=1");
+    expect(canonicalizeListingQuery("category", queryOf(withSale))).toEqual({ action: "ok" });
+
+    const all = setParamHref("/katalogos/x", { ...raw, sale: "1", min: "50", max: "150" }, "new", "1");
+    expect(canonicalizeListingQuery("category", queryOf(all))).toEqual({ action: "ok" });
+  });
+
+  it("drops what the listing kind does not read (no ?brand= on a brand page)", () => {
+    expect(toggleMultiHref("/brands/m", { foo: "1" }, "sub", "a")).toBe("/brands/m?sub=a");
+    expect(setParamHref("/brands/m", { brand: "x" }, "avail", "in-stock")).toBe(
+      "/brands/m?avail=in-stock",
+    );
+  });
 });

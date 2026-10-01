@@ -16,7 +16,8 @@ import {
   policyFor,
 } from "@/lib/security/rate-limit";
 
-// Edge-safe: authConfig carries no providers and no database access.
+// authConfig carries no providers and no database access: the proxy runs in
+// front of every request (Node runtime in Next 16) and must stay that cheap.
 const { auth } = NextAuth(authConfig);
 const intlMiddleware = createIntlMiddleware(routing);
 
@@ -75,13 +76,11 @@ function canonicalHostRedirect(request: NextRequest): NextResponse | null {
  * The facet space used to be infinite, and a scraper walked it: every random
  * `sub`/`brand`/`min`/`max`/`perPage` combination was a cache miss and a full
  * render of up to 96 products. `canonicalizeListingQuery` reduces the query to
- * the parameters the page reads, in one order, within limits; here the answer
- * is turned into a response that costs nothing:
- *
- *   - redirect  301 to the canonical URL (307 when it carries a `perRow`
- *               preference — that one sets a cookie and must not be cached);
- *   - reject    a few hundred bytes of static HTML, `noindex`, no database
- *               and no render.
+ * the parameters the page reads, in one order, within limits; anything else
+ * is answered here with a redirect that costs nothing: 301 to the canonical
+ * URL, or 307 when it carries a `perRow` preference (that one sets a cookie
+ * and must not be cached). Nothing is refused: an old or hand-made link over
+ * the limits is trimmed, so a person following it still lands on a listing.
  *
  * GET and HEAD only: a Server Action is a POST to the page's own URL, and
  * redirecting it would turn the action into a page load.
@@ -101,16 +100,6 @@ function listingCanonicalRedirect(request: NextRequest): NextResponse | null {
 
   const result = canonicalizeListingQuery(kind, request.nextUrl.searchParams);
   if (result.action === "ok") return null;
-
-  if (result.action === "reject") {
-    const base = pathname.replace(/\/+$/, "") || "/";
-    return tinyPage(result.status, {
-      title: result.status === 404 ? "Not found" : "Too many filters",
-      message:
-        "Αυτός ο συνδυασμός φίλτρων δεν υποστηρίζεται. / This filter combination is not supported.",
-      link: { href: base, label: "Καθαρισμός φίλτρων / Clear filters" },
-    });
-  }
 
   const target = new URL(request.nextUrl);
   target.search = result.search;
