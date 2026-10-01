@@ -22,6 +22,7 @@ import {
 } from "@/lib/compare/compare";
 import { getPlpData, parsePlpParams } from "@/lib/catalog/plp";
 import { getPerRow } from "@/lib/catalog/per-row";
+import { filteredListingRobots } from "@/lib/catalog/listing-query";
 import {
   getCatalogueStats,
   getMenuTree,
@@ -59,6 +60,7 @@ type PageProps = {
 
 export async function generateMetadata({
   params,
+  searchParams,
 }: PageProps): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "katalogos.page" });
@@ -71,6 +73,8 @@ export async function generateMetadata({
     ...pageMeta({ path: "/proionta", locale, title, description }),
     title,
     description,
+    // Filtered views: noindex, follow — the canonical above is the bare listing.
+    robots: filteredListingRobots(await searchParams),
   };
 }
 
@@ -229,6 +233,8 @@ export default async function AllProductsPage({
                 <Link
                   key={sub.slug}
                   href={`/proionta?sub=${sub.slug}`}
+                  rel="nofollow"
+                  prefetch={false}
                   scroll={false}
                   className={`group/chip flex items-center gap-1.5 border px-2.5 py-1.5 text-[10px] font-semibold tracking-[0.02em] transition-colors duration-200 ${
                     sub.active

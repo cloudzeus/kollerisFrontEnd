@@ -296,6 +296,19 @@ export function isFilteredListing(params: URLSearchParams | RawParams): boolean 
 }
 
 /**
+ * `noindex, follow` for a filtered listing, nothing for a bare one.
+ *
+ * The canonical already points every filtered view at the unfiltered listing;
+ * a canonical is a hint, `noindex` is not. `follow` keeps the products linked
+ * from the view discoverable.
+ */
+export function filteredListingRobots(
+  params: RawParams,
+): { index: false; follow: true } | undefined {
+  return isFilteredListing(params) ? { index: false, follow: true } : undefined;
+}
+
+/**
  * Applies the per-facet cap the way a person expects when ticking one more:
  * the new value is kept and the oldest one (first in canonical order) gives
  * way. Used by the filter links so the UI never produces a URL the proxy would

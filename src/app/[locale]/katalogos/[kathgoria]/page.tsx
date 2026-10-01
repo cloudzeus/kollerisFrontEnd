@@ -25,6 +25,7 @@ import {
 } from "@/lib/compare/compare";
 import { getPlpData, parsePlpParams } from "@/lib/catalog/plp";
 import { getPerRow } from "@/lib/catalog/per-row";
+import { filteredListingRobots } from "@/lib/catalog/listing-query";
 import {
   getCatalogueStats,
   getMenuTree,
@@ -58,6 +59,7 @@ const getCategory = cache(async (slug: string) =>
 
 export async function generateMetadata({
   params,
+  searchParams,
 }: PageProps): Promise<Metadata> {
   const { kathgoria, locale } = await params;
   // Explicit locale: `setRequestLocale` belongs to the render pass, and metadata
@@ -88,6 +90,8 @@ export async function generateMetadata({
     }),
     title,
     description,
+    // Filtered views: noindex, follow — the canonical above is the bare listing.
+    robots: filteredListingRobots(await searchParams),
   };
 }
 
@@ -292,6 +296,7 @@ export default async function CategoryPage({
                 <Link
                   key={sub.slug}
                   href={`/katalogos/${kathgoria}?sub=${sub.slug}`}
+                  rel="nofollow"
                   prefetch={false}
                   scroll={false}
                   className={`group/chip flex items-center gap-1.5 border px-2.5 py-1.5 text-[10px] font-semibold tracking-[0.02em] transition-colors duration-200 ${

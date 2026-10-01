@@ -3,6 +3,7 @@ import {
   LISTING_LIMITS,
   canonicalizeListingQuery,
   capFacetValues,
+  filteredListingRobots,
   isFilteredListing,
   listingKindOf,
   toggleCappedValue,
@@ -182,5 +183,13 @@ describe("capFacetValues", () => {
     expect(capFacetValues(["d", "c", "b", "a", "a"])).toEqual(["a", "b", "c"]);
     expect(capFacetValues([])).toBeUndefined();
     expect(capFacetValues(undefined)).toBeUndefined();
+  });
+});
+
+describe("filteredListingRobots", () => {
+  it("noindexes filtered views and leaves bare listings and paging indexable", () => {
+    expect(filteredListingRobots({ sub: "a" })).toEqual({ index: false, follow: true });
+    expect(filteredListingRobots({ page: "2" })).toBeUndefined();
+    expect(filteredListingRobots({})).toBeUndefined();
   });
 });

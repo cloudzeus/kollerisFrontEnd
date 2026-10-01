@@ -93,6 +93,7 @@ export async function PlpToolbar({
                 key={chip.label}
                 href={chip.href}
                 scroll={false}
+                rel="nofollow"
                 className="flex items-center gap-2 bg-k-ink px-2.5 py-[7px] text-[10px] font-semibold tracking-[0.05em] whitespace-nowrap text-white transition-colors hover:bg-k-red"
                prefetch={false}>
                 {chip.label}
@@ -119,6 +120,7 @@ export async function PlpToolbar({
                   key={n}
                   href={setParamKeepingPage(basePath, params, "perRow", String(n))}
                   scroll={false}
+                  rel="nofollow"
                   className={`flex h-[30px] w-[30px] items-center justify-center text-[11px] font-semibold transition-colors ${
                     perRow === n ? "bg-k-ink text-white" : "text-k-text-2 hover:text-k-ink"
                   }`}
@@ -137,6 +139,7 @@ export async function PlpToolbar({
                   key={n}
                   href={setParamHref(basePath, params, "perPage", String(n))}
                   scroll={false}
+                  rel="nofollow"
                   className={`flex h-[30px] items-center px-2.5 text-[11px] font-semibold transition-colors ${
                     perPage === n ? "bg-k-ink text-white" : "text-k-text-2 hover:text-k-ink"
                   }`}

@@ -95,6 +95,7 @@ export function FilterSidebar({
                   key={band.label}
                   href={priceHref(basePath, params, band, active)}
                   scroll={false}
+                  rel="nofollow"
                   className={`border px-2.5 py-1.5 text-[10.5px] font-medium transition-colors ${
                     active
                       ? "border-k-ink bg-k-ink text-white"
@@ -124,6 +125,7 @@ export function FilterSidebar({
                   item.slug === "in-stock" ? "in-stock" : null,
                 )}
                 scroll={false}
+                rel="nofollow"
                 className="flex min-h-[34px] items-center gap-2.5 py-1"
                prefetch={false}>
                 <span
@@ -154,6 +156,7 @@ export function FilterSidebar({
                   key={flag.key}
                   href={setParamHref(basePath, params, flag.key, active ? null : "1")}
                   scroll={false}
+                  rel="nofollow"
                   role="switch"
                   aria-checked={active}
                   className="flex min-h-[34px] items-center gap-3"
@@ -244,6 +247,7 @@ function CheckList({
           key={item.slug}
           href={hrefFor(item.slug)}
           scroll={false}
+          rel="nofollow"
           aria-pressed={item.active}
           className="flex min-h-[34px] items-center gap-2.5 py-1"
          prefetch={false}>

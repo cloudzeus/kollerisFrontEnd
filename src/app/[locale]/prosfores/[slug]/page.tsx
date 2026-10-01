@@ -20,6 +20,7 @@ import {
 } from "@/lib/compare/compare";
 import { getPlpData, parsePlpParams } from "@/lib/catalog/plp";
 import { getPerRow } from "@/lib/catalog/per-row";
+import { filteredListingRobots } from "@/lib/catalog/listing-query";
 import {
   getCatalogueStats,
   getMenuTree,
@@ -82,6 +83,7 @@ const getOffer = async (slug: string) =>
 
 export async function generateMetadata({
   params,
+  searchParams,
 }: PageProps): Promise<Metadata> {
   const { slug, locale } = await params;
   const offer = await getOffer(slug);
@@ -94,6 +96,8 @@ export async function generateMetadata({
     ...pageMeta({ path: `/prosfores/${slug}`, locale, title, description }),
     title,
     description: description || undefined,
+    // Filtered views: noindex, follow — the canonical above is the bare listing.
+    robots: filteredListingRobots(await searchParams),
   };
 }
 

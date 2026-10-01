@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+import { facetRules } from "@/lib/seo/robots-rules";
 import { siteOrigin } from "@/lib/seo/urls";
 
 /**
@@ -17,18 +18,41 @@ import { siteOrigin } from "@/lib/seo/urls";
  * in the query string, so an indexed copy would be a stranger's order with the
  * key attached.
  *
- * Search parameters are not blocked here. Facet combinations are handled with
- * canonicals on the pages themselves, which is the tool that can tell a useful
- * filter from an infinite one; a `Disallow: /*?` would also hide the ones worth
- * ranking.
+ * ── Filtered listings ──────────────────────────────────────────────────────
+ *
+ * A category, a brand, "all products" and an offer are crawlable, and so is
+ * their `?page=`. Every OTHER query on them — facets, sorting, density — is
+ * disallowed. They used to be left to canonicals alone, on the theory that a
+ * canonical can tell a useful filter from an infinite one; in practice the
+ * facet space was infinite, every combination was a full server render, and
+ * a crawler that respects robots.txt has no business walking it. The pages
+ * themselves still say `noindex, follow` with a canonical to the unfiltered
+ * listing, for the crawler that arrives anyway through a link.
+ *
+ * Google and Bing pick the MOST SPECIFIC (longest) matching rule, so:
+ *
+ *   Disallow /katalogos/*?           any query …
+ *   Allow    /katalogos/*?page=       … except one that starts with page= …
+ *   Disallow /katalogos/*?page=*&     … and has nothing after it.
  */
+
 export default function robots(): MetadataRoute.Robots {
+  const facets = facetRules();
   return {
     rules: [
       {
         userAgent: "*",
-        allow: "/",
-        disallow: ["/admin", "/api", "/kalathi", "/checkout", "/logariasmos", "/eisodos", "/eggrafi"],
+        allow: ["/", ...facets.allow],
+        disallow: [
+          "/admin",
+          "/api",
+          "/kalathi",
+          "/checkout",
+          "/logariasmos",
+          "/eisodos",
+          "/eggrafi",
+          ...facets.disallow,
+        ],
       },
     ],
     sitemap: `${siteOrigin()}/sitemap.xml`,

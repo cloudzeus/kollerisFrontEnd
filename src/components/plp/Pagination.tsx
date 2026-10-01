@@ -1,6 +1,7 @@
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { upGreek } from "@/lib/greek";
+import { isFilteredListing } from "@/lib/catalog/listing-query";
 
 /**
  * Server-rendered pagination: real `<a>` elements, so pages are crawlable and
@@ -19,6 +20,15 @@ export function Pagination({
 }) {
   const t = useTranslations("plp.Pagination");
   if (totalPages <= 1) return null;
+
+  /*
+   * Paging a bare listing is crawlable; paging a FILTERED one is a walk through
+   * the facet space. Those links say nofollow, and are not prefetched — each
+   * prefetch would be a request against the visitor's own rate limit.
+   */
+  const filtered = isFilteredListing(params);
+  const follow = filtered ? "nofollow" : undefined;
+  const rel = (direction: "prev" | "next") => (filtered ? `${direction} nofollow` : direction);
 
   const href = (target: number) => {
     const next = new URLSearchParams();
@@ -45,7 +55,8 @@ export function Pagination({
       {page > 1 && (
         <Link
           href={href(page - 1)}
-          rel="prev"
+          rel={rel("prev")}
+          prefetch={filtered ? false : undefined}
           className="t-card-cta flex h-10 items-center border border-k-line-2 px-3 text-k-ink transition-colors hover:border-k-ink"
         >
           ‹ {upGreek(t("proigoymeni"))}
@@ -59,6 +70,8 @@ export function Pagination({
           )}
           <Link
             href={href(target)}
+            rel={follow}
+            prefetch={filtered ? false : undefined}
             aria-current={target === page ? "page" : undefined}
             className={`t-card-cta flex h-10 min-w-10 items-center justify-center border px-2 transition-colors ${
               target === page
@@ -74,7 +87,8 @@ export function Pagination({
       {page < totalPages && (
         <Link
           href={href(page + 1)}
-          rel="next"
+          rel={rel("next")}
+          prefetch={filtered ? false : undefined}
           className="t-card-cta flex h-10 items-center border border-k-line-2 px-3 text-k-ink transition-colors hover:border-k-ink"
         >
           {upGreek(t("epomeni"))} ›
