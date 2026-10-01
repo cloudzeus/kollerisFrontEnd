@@ -22,7 +22,7 @@ import {
 } from "@/lib/compare/compare";
 import { getPlpData, parsePlpParams } from "@/lib/catalog/plp";
 import { getPerRow } from "@/lib/catalog/per-row";
-import { admitListingRender } from "@/lib/server/render-gate";
+import { admitListingRender, listingBusyRobots } from "@/lib/server/render-gate";
 import { ListingBusy } from "@/components/plp/ListingBusy";
 import { filteredListingRobots } from "@/lib/catalog/listing-query";
 import {
@@ -76,7 +76,9 @@ export async function generateMetadata({
     title,
     description,
     // Filtered views: noindex, follow — the canonical above is the bare listing.
-    robots: filteredListingRobots(await searchParams),
+    // Filtered views and a render the gate turned away (the busy view): noindex.
+    robots:
+      filteredListingRobots(await searchParams) ?? (await listingBusyRobots(await searchParams)),
   };
 }
 

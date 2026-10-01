@@ -1,4 +1,5 @@
 import "server-only";
+import { cache } from "react";
 import { after } from "next/server";
 import { isFilteredListing } from "@/lib/catalog/listing-query";
 import { Semaphore, type SemaphoreStats } from "@/lib/server/semaphore";
@@ -60,13 +61,13 @@ export function listingRenderStats(): SemaphoreStats {
 }
 
 /**
- * True when this render may proceed. Unfiltered listings always may; a
- * filtered one waits for a slot and holds it until the response is done.
+ * The admission itself, ONCE per request: `generateMetadata` and the page body
+ * may both ask, and React's `cache` is shared between them for one request,
+ * so they get the same answer and one slot (released in `after()`). Keyed by
+ * a string so the memo holds across the two calls' separate param objects.
  */
-export async function admitListingRender(
-  params: Record<string, string | string[] | undefined>,
-): Promise<boolean> {
-  if (!isFilteredListing(params)) return true;
+const admitOnce = cache(async (query: string): Promise<boolean> => {
+  if (!isFilteredListing(new URLSearchParams(query))) return true;
 
   const release = await gate().acquire(LISTING_RENDER_WAIT_MS);
   if (!release) return false;
@@ -78,4 +79,41 @@ export async function admitListingRender(
     release();
   });
   return true;
+});
+
+function queryOf(params: Record<string, string | string[] | undefined>): string {
+  const pairs: Array<[string, string]> = [];
+  for (const [key, value] of Object.entries(params)) {
+    if (value == null) continue;
+    for (const v of Array.isArray(value) ? value : [value]) pairs.push([key, v]);
+  }
+  pairs.sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0));
+  return new URLSearchParams(pairs).toString();
+}
+
+/**
+ * True when this render may proceed. Unfiltered listings always may; a
+ * filtered one waits for a slot and holds it until the response is done.
+ */
+export async function admitListingRender(
+  params: Record<string, string | string[] | undefined>,
+): Promise<boolean> {
+  return admitOnce(queryOf(params));
+}
+
+/**
+ * `noindex, follow` for the metadata of a render the gate refused (the busy
+ * view), undefined otherwise. Used as `filteredListingRobots(p) ??
+ * await listingBusyRobots(p)`: every view the gate can refuse is filtered and
+ * already noindex, so in practice this never has to queue from the metadata;
+ * it is the guarantee that the two can never drift apart.
+ *
+ * Why not a header: the listing body streams inside Suspense, so status and
+ * headers are already sent when the gate decides; an `X-Robots-Tag` cannot be
+ * added any more. `ListingBusy` also renders its own robots meta tag.
+ */
+export async function listingBusyRobots(
+  params: Record<string, string | string[] | undefined>,
+): Promise<{ index: false; follow: true } | undefined> {
+  return (await admitListingRender(params)) ? undefined : { index: false, follow: true };
 }
