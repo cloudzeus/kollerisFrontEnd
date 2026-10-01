@@ -10,6 +10,7 @@ import { scopeKeyOf } from "@/lib/compare/options";
 import { searchKey } from "@/lib/greek";
 import type { ProductCardData } from "@/lib/catalog/queries";
 import { capFacetValues } from "@/lib/catalog/listing-query";
+import { TtlCache } from "@/lib/server/ttl-cache";
 import {
   PER_PAGE_OPTIONS,
   SORT_OPTIONS,
@@ -377,18 +378,77 @@ export type PlpResult = {
   facets: PlpFacets;
 };
 
-export async function getPlpData(
+type Listing = { products: ProductCardData[]; total: number };
+
+/**
+ * The grid, shared across requests for five minutes.
+ *
+ * ── Why ────────────────────────────────────────────────────────────────────
+ *
+ * Facet counts were already cached; the grid was not, so every request for a
+ * listing — and every repeat of one — ran its `findMany` and `count` again.
+ * Under the scrape of 1/10/2026 the same canonical combinations came back
+ * from hundreds of addresses. Now a repeat within five minutes is a Map
+ * lookup, and fifty concurrent requests for one combination share one query.
+ *
+ * ── Why in memory and not `unstable_cache` ─────────────────────────────────
+ *
+ * `unstable_cache` persists every entry to the container's disk with no
+ * eviction. Keyed by facet combination and page, that is a disk that fills at
+ * the scraper's pace. This cache is bounded (LRU, 300 entries, about 30 MB at
+ * the worst case of 96 products each) and lives as long as the process. One
+ * per process, on `globalThis`, because each listing route is its own bundle.
+ *
+ * ── What it may hold ───────────────────────────────────────────────────────
+ *
+ * Catalogue data only. Prices are `Product.priceNet`, the same for every
+ * visitor (pricing belongs to HDCtool and is not per customer here); the
+ * basket, the compare selection and the account are read by the pages
+ * separately and never enter this cache. Stock and price on a listing may
+ * trail a sync by up to five minutes; the product page and the basket read
+ * live.
+ */
+const LISTING_KEY = Symbol.for("kolleris.listingCache");
+type ListingCacheHolder = { [LISTING_KEY]?: TtlCache<Listing> };
+
+function listingCache(): TtlCache<Listing> {
+  const holder = globalThis as ListingCacheHolder;
+  holder[LISTING_KEY] ??= new TtlCache<Listing>({ maxEntries: 300, ttlMs: 300_000 });
+  return holder[LISTING_KEY];
+}
+
+/**
+ * The listing cache key: the normalised facet key plus what selects the page.
+ * Exported for the test — two spellings of one listing must be one key.
+ */
+export function listingKeyOf(
   params: PlpParams,
   locale: Locale,
-  /** See `buildWhere`: the campaign scope, when this listing has one. */
   extraWhere?: Prisma.ProductWhereInput | null,
-): Promise<PlpResult | null> {
+): string {
+  return JSON.stringify([
+    facetKeyOf(params),
+    params.page ?? 1,
+    params.perPage ?? 24,
+    params.sort ?? "relevance",
+    locale,
+    extraWhere ?? null,
+  ]);
+}
+
+async function loadListing(
+  params: PlpParams,
+  locale: Locale,
+  extraWhere: Prisma.ProductWhereInput | null | undefined,
+  page: number,
+  perPage: number,
+): Promise<Listing> {
   const filters = await resolveFilters(params);
-  if (filters === null) return null; // unknown category slug → 404
+  // `getPlpData` has already 404'd an unknown category; this only guards one
+  // deleted in between.
+  if (filters === null) return { products: [], total: 0 };
 
   const where = buildWhere(params, filters, undefined, extraWhere);
-  const perPage = params.perPage ?? 24;
-  const page = params.page ?? 1;
 
   const [rows, total, linkedBrands] = await Promise.all([
     prisma.product.findMany({
@@ -430,6 +490,28 @@ export async function getPlpData(
       scopeKey: scopeKeyOf(row),
     };
   });
+
+  return { products, total };
+}
+
+export async function getPlpData(
+  params: PlpParams,
+  locale: Locale,
+  /** See `buildWhere`: the campaign scope, when this listing has one. */
+  extraWhere?: Prisma.ProductWhereInput | null,
+): Promise<PlpResult | null> {
+  // Outside the cache: an unknown category must stay a 404, not a cached
+  // empty grid. One `findUnique`, memoised for the render.
+  const category = await resolveCategoryScope(params.categorySlug);
+  if (category === null) return null;
+
+  const perPage = params.perPage ?? 24;
+  const page = params.page ?? 1;
+
+  const { products, total } = await listingCache().getOrLoad(
+    listingKeyOf(params, locale, extraWhere),
+    () => loadListing(params, locale, extraWhere, page, perPage),
+  );
 
   const facets = await getFacets(facetKeyOf(params), locale, extraWhere ?? null);
 
@@ -523,7 +605,7 @@ const NO_FACETS: PlpFacets = {
  *
  * Counts may trail the catalogue by up to five minutes after a sync, and the
  * "με προσφορά" count by as long after a campaign starts or stops. The grid
- * itself is never cached, so the products shown are always current.
+ * has its own five-minute cache (see `listingCache` above).
  */
 const getFacets = sharedCatalogue(
   "plp-facets",
