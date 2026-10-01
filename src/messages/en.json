@@ -88,6 +88,11 @@
       "amesa_diathesima": "In stock",
       "se_prosfora": "On sale",
       "nea": "New"
+    },
+    "ListingBusy": {
+      "titlos": "Very busy right now",
+      "minima": "This filtered list could not be loaded because the server is busy. The page will try again in a few seconds.",
+      "choris_filtra": "View the listing without filters"
     }
   },
   "pdp": {

@@ -25,6 +25,8 @@ import {
 } from "@/lib/compare/compare";
 import { getPlpData, parsePlpParams } from "@/lib/catalog/plp";
 import { getPerRow } from "@/lib/catalog/per-row";
+import { admitListingRender } from "@/lib/server/render-gate";
+import { ListingBusy } from "@/components/plp/ListingBusy";
 import { filteredListingRobots } from "@/lib/catalog/listing-query";
 import {
   getCatalogueStats,
@@ -104,6 +106,8 @@ export default async function CategoryPage({
   setRequestLocale(locale);
 
   const raw = await searchParams;
+  // Filtered views queue for one of a few render slots; see render-gate.ts.
+  if (!(await admitListingRender(raw))) return <ListingBusy basePath={`/katalogos/${kathgoria}`} />;
   const plpParams = parsePlpParams(raw, { categorySlug: kathgoria });
 
   const [
