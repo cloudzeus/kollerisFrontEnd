@@ -24,6 +24,8 @@ import { ADMIN_LOCALE } from "@/lib/admin/locale";
 import { SHIPPING_METHODS } from "@/lib/cart/options";
 import { chargeableWeight } from "@/lib/shipping/acs-tariff";
 import { PostageCorrection } from "@/components/admin/PostageCorrection";
+import { PaymentActions } from "@/components/admin/PaymentActions";
+import { athensDay } from "@/lib/payment/manual-payment";
 
 export const dynamic = "force-dynamic";
 
@@ -584,8 +586,17 @@ export default async function OrderDetailPage({
                 Viva orderCode {order.vivaOrderCode}
               </div>
             )}
-            <div className={cn("numeral text-[11px]", order.vivaTransactionId ? "text-k-text-3" : "text-k-amber")}>
-              {order.vivaTransactionId ? `Συναλλαγή ${order.vivaTransactionId}` : "Χωρίς συναλλαγή — η κάρτα δεν χρεώθηκε"}
+            <div
+              className={cn(
+                "numeral text-[11px]",
+                order.vivaTransactionId || order.paymentStatus === "PAID" ? "text-k-text-3" : "text-k-amber",
+              )}
+            >
+              {order.vivaTransactionId
+                ? `Συναλλαγή ${order.vivaTransactionId}`
+                : order.paymentStatus === "PAID"
+                  ? "Χωρίς συναλλαγή Viva — καταχωρίστηκε χειροκίνητα (βλ. ιστορικό)"
+                  : "Χωρίς συναλλαγή Viva — δεν έχει καταγραφεί πληρωμή"}
             </div>
             {order.reservedUntil && (
               <div className="numeral text-[11px] text-k-text-3">Δέσμευση αποθέματος έως {when(order.reservedUntil)}</div>
@@ -601,6 +612,23 @@ export default async function OrderDetailPage({
                 Viva paymentMethodId {order.vivaPaymentMethodId}
               </div>
             )}
+            {/*
+             * The way out of «Εκκρεμεί» when Viva's notification never came, or
+             * the money reached the IBAN without the Viva code. Not offered on
+             * a cancelled or refunded order; the server refuses those anyway.
+             */}
+            {order.paymentStatus !== "PAID" &&
+              order.paymentStatus !== "REFUNDED" &&
+              order.status !== "CANCELLED" && (
+                <PaymentActions
+                  orderNumber={order.orderNumber}
+                  paymentMethod={order.paymentMethod}
+                  totalCents={Math.round(Number(order.totalGross) * 100)}
+                  vivaOrderCode={order.vivaOrderCode}
+                  createdOn={athensDay(order.createdAt)}
+                  today={athensDay(new Date())}
+                />
+              )}
           </Panel>
 
           <Panel title="SoftOne" icon={Database} tone="blue">

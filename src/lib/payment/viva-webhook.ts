@@ -1,11 +1,13 @@
 import "server-only";
 import { NextResponse, type NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { VIVA_STATUS_PAID, getTransaction } from "@/lib/payment/viva";
-import { sendOrderEmail } from "@/lib/mail/order-email";
-import { sendInternalOrderEmail } from "@/lib/mail/order-internal-email";
+import { VIVA_STATUS_PAID, getTransaction, isVivaBasicConfigured } from "@/lib/payment/viva";
 import { sendPaymentFailedEmail } from "@/lib/mail/payment-failed-email";
-import { sendOrderToErp, syncPaymentToErp } from "@/lib/orders/send-to-erp";
+import {
+  afterPaymentConfirmed,
+  applyVivaPayment,
+  recheckVivaPayment,
+} from "@/lib/payment/confirm-payment";
 
 /**
  * The one implementation behind every Viva webhook route.
@@ -108,15 +110,20 @@ function handleTransfer(payload: Body) {
 /**
  * 4865 — a payment order changed.
  *
- * Recorded, not acted on. The event carries an OrderCode and no transaction, so
- * there is nothing here that can be verified against Viva the way a payment is,
- * and a payment status changed on the strength of an unauthenticated POST is
- * exactly what the read-back rule exists to prevent. What it does give is a
- * timeline entry: it is how a bank-transfer code that expired, or an order
- * amended in Viva's portal, becomes visible on the order rather than being
- * discovered by a customer.
+ * Viva documents this event as the cancellation notice (Smart Checkout's back
+ * button, or a cancel via API; `IsCancelled` in the body). It carries an
+ * OrderCode and no transaction, so the body itself proves nothing and changes
+ * nothing — a payment status set on the strength of an unauthenticated POST is
+ * exactly what the read-back rule exists to prevent.
  *
- * Payment itself always arrives as 1796 on its own route.
+ * What it IS used for: a timeline entry, as before, and a prompt to ask Viva.
+ * When the Merchant ID / API Key are configured, the order code is read back
+ * through the same recheck the admin button runs, and if Viva holds a finished
+ * payment for it the order goes through the normal paid path. That is a
+ * second chance for a payment whose 1796 never arrived — an e-banking (ΔΙΑΣ)
+ * deposit made against the Viva code lands asynchronously, possibly after the
+ * code expired. Any failure in that read-back is logged and acknowledged: this
+ * event is not the payment signal, and retrying it forever helps nobody.
  */
 async function handleOrderUpdated(payload: Body) {
   const code = payload.EventData?.OrderCode;
@@ -124,7 +131,7 @@ async function handleOrderUpdated(payload: Body) {
 
   const order = await prisma.order.findUnique({
     where: { vivaOrderCode: String(code) },
-    select: { id: true, orderNumber: true },
+    select: { id: true, orderNumber: true, paymentStatus: true },
   });
   if (!order) return NextResponse.json({ ok: true, ignored: "unknown_order" });
 
@@ -140,6 +147,20 @@ async function handleOrderUpdated(payload: Body) {
       },
     },
   });
+
+  if (order.paymentStatus !== "PAID" && isVivaBasicConfigured()) {
+    try {
+      const outcome = await recheckVivaPayment(order.orderNumber, "viva-webhook");
+      if (outcome.kind === "paid") {
+        return NextResponse.json({ ok: true, noted: "order_updated", paid: true });
+      }
+      if (outcome.kind === "error") {
+        console.error(`[viva] 4865 ${order.orderNumber}: read-back failed: ${outcome.error}`);
+      }
+    } catch (error) {
+      console.error(`[viva] 4865 ${order.orderNumber}: read-back failed`, error);
+    }
+  }
   return NextResponse.json({ ok: true, noted: "order_updated" });
 }
 
@@ -161,13 +182,42 @@ async function handleTransaction(payload: Body, event: VivaEventName) {
   }
 
   const orderNumber = transaction.merchantTrns ?? payload.EventData?.MerchantTrns;
-  if (!orderNumber) return NextResponse.json({ ok: true, ignored: "no_order_reference" });
-
-  const order = await prisma.order.findUnique({
-    where: { orderNumber },
-    select: { id: true, paymentStatus: true, totalGross: true },
-  });
-  if (!order) return NextResponse.json({ ok: true, ignored: "unknown_order" });
+  /*
+   * Found by our order number first, and by Viva's order code when that fails.
+   *
+   * The order code comes from the transaction as Viva's API returned it, not
+   * from the body, so it is as trustworthy as the amount. A payment that does
+   * not echo `merchantTrns` back — an e-banking (ΔΙΑΣ) deposit made against the
+   * Viva code is the likely case — used to be acknowledged as
+   * "no_order_reference" and silently dropped, leaving a paid order at
+   * «Εκκρεμεί» with nothing in the log.
+   */
+  const select = {
+    id: true,
+    orderNumber: true,
+    status: true,
+    paymentStatus: true,
+    totalGross: true,
+  } as const;
+  let order = orderNumber
+    ? await prisma.order.findUnique({ where: { orderNumber }, select })
+    : null;
+  if (!order && transaction.orderCode != null) {
+    order = await prisma.order.findUnique({
+      where: { vivaOrderCode: String(transaction.orderCode) },
+      select,
+    });
+  }
+  if (!order) {
+    console.warn(
+      `[viva] ${event}: transaction ${transactionId} matches no order ` +
+        `(merchantTrns=${orderNumber ?? "—"}, orderCode=${transaction.orderCode ?? "—"})`,
+    );
+    return NextResponse.json({
+      ok: true,
+      ignored: orderNumber || transaction.orderCode != null ? "unknown_order" : "no_order_reference",
+    });
+  }
 
   // Idempotent: Viva retries, and a second delivery must not double-confirm.
   if (order.paymentStatus === "PAID") {
@@ -177,109 +227,28 @@ async function handleTransaction(payload: Body, event: VivaEventName) {
   const paid = transaction.statusId === VIVA_STATUS_PAID;
 
   if (paid) {
-    // Guard against a captured amount that does not match what was ordered.
-    const expectedCents = Math.round(Number(order.totalGross) * 100);
-    const capturedCents = Math.round(transaction.amount * 100);
-    if (capturedCents !== expectedCents) {
-      await prisma.order.update({
-        where: { id: order.id },
-        data: {
-          history: {
-            create: {
-              status: "PENDING_PAYMENT",
-              actor: "viva-webhook",
-              note: `Amount mismatch: captured ${capturedCents}, expected ${expectedCents}`,
-            },
-          },
-        },
-      });
+    /*
+     * Amount check, conditional write, history row — shared with the admin's
+     * recheck so the two cannot drift. See `confirm-payment.ts`.
+     */
+    const result = await applyVivaPayment(order, transactionId, transaction, {
+      actor: "viva-webhook",
+      note: "Payment captured",
+    });
+    if (result.kind === "amount_mismatch") {
       return NextResponse.json({ ok: true, flagged: "amount_mismatch" });
     }
-
-    await prisma.order.update({
-      where: { id: order.id },
-      data: {
-        status: "CONFIRMED",
-        paymentStatus: "PAID",
-        paidAt: new Date(),
-        vivaTransactionId: transactionId,
-        /*
-         * What Viva says was used, not what was chosen here.
-         *
-         * The shopper picks again inside Viva's page — IRIS, instalments,
-         * another card — and the ERP needs a different payment code for each.
-         * Recorded raw and logged, so the first payment through each method
-         * teaches us its number instead of a guess hardening into a mapping.
-         */
-        vivaPaymentMethodId: transaction.paymentMethodId,
-        history: {
-          create: { status: "CONFIRMED", actor: "viva-webhook", note: "Payment captured" },
-        },
-      },
-    });
-    console.log(
-      `[viva] ${orderNumber} paid · chosen at checkout, Viva paymentMethodId=${transaction.paymentMethodId ?? "—"}`,
-    );
-
-    /*
-     * The receipt goes out from HERE, not from the return URL.
-     *
-     * The browser coming back proves only that a browser came back; this runs
-     * after the transaction has been read from Viva's API. And it is awaited
-     * but never allowed to fail the response: the money has moved, and telling
-     * Viva the webhook failed — which makes it retry — because a mail server
-     * was slow would turn a sent receipt into a duplicate one.
-     */
-    const mail = await sendOrderEmail(orderNumber);
-    if (!mail.ok) console.error(`[viva] ${orderNumber} receipt not sent: ${mail.error}`);
-
-    /* Και στο κατάστημα. Ίδιος κανόνας με την απόδειξη: περιμένουμε, γράφουμε
-       το σφάλμα, δεν αφήνουμε ποτέ να αποτύχει η απάντηση — τα χρήματα έχουν
-       ήδη κινηθεί, και ένα webhook που δηλώνεται αποτυχημένο ξαναστέλνεται. */
-    const internal = await sendInternalOrderEmail(orderNumber);
-    if (!internal.ok) console.error(`[viva] ${orderNumber} internal email not sent: ${internal.error}`);
-
-    /*
-     * And tell HDCtool, if the order ever got there.
-     *
-     * The copy in HDCtool was written at checkout, when this order was
-     * PENDING with no `paidAt` — a bank transfer lands hours later, and
-     * nothing was updating it. Anybody reconciling from that screen was
-     * reading a snapshot taken before the customer paid.
-     *
-     * Same rule as the receipt: awaited, logged, never allowed to fail the
-     * response. Reporting a failed webhook to Viva makes it retry, and the
-     * money has already moved.
-     */
-    const synced = await syncPaymentToErp(orderNumber);
-    if (!synced.ok) console.error(`[viva] ${orderNumber} payment not synced to HDCtool: ${synced.error}`);
-
-    /*
-     * Και το παραστατικό, εδώ.
-     * ─────────────────────────────────────────────────────────────────────────
-     * Μέχρι τώρα το πατούσε άνθρωπος από τη διαχείριση. Αυτό σημαίνει ότι κάθε
-     * παραγγελία περίμενε κάποιον να ανοίξει την οθόνη — και η KOL-20260907-0001
-     * περίμενε από τις 02:32 ως τις 17:48.
-     *
-     * ΕΔΩ και όχι στο checkout: αυτή είναι η στιγμή που τα χρήματα κινήθηκαν.
-     * Το `sendOrderToErp` αρνείται απλήρωτη παραγγελία — παραστατικό για
-     * εμπόρευμα που δεν πληρώθηκε είναι λογιστικό λάθος, όχι ταχύτητα.
-     *
-     * Ίδιος κανόνας με την απόδειξη: αναμένεται, καταγράφεται, ποτέ δεν ρίχνει
-     * την απάντηση. Το να δηλωθεί αποτυχία στη Viva την κάνει να ξαναστείλει το
-     * webhook, και τα χρήματα έχουν ήδη κινηθεί. Ό,τι δεν περάσει εδώ το πιάνει
-     * η σάρωση — βλ. `sweepErpPushes`.
-     */
-    const issued = await sendOrderToErp(orderNumber);
-    if (issued.ok) {
-      console.log(
-        `[viva] ${orderNumber} → SoftOne ${issued.fincode ?? issued.findoc ?? "—"}${
-          issued.alreadySent ? " (υπήρχε ήδη)" : ""
-        }`,
-      );
-    } else {
-      console.error(`[viva] ${orderNumber} document not issued (${issued.stage}): ${issued.error}`);
+    if (result.kind === "already_paid") {
+      return NextResponse.json({ ok: true, ignored: "already_paid" });
     }
+
+    /*
+     * Receipt, internal email, HDCtool payment sync, SoftOne document — awaited
+     * but never allowed to fail the response: the money has moved, and telling
+     * Viva the webhook failed makes it retry, which would turn a sent receipt
+     * into a duplicate one. Ό,τι δεν περάσει το πιάνει η σάρωση.
+     */
+    await afterPaymentConfirmed(order.orderNumber, "[viva]");
 
     return NextResponse.json({ ok: true, paid: true });
   }
@@ -311,11 +280,11 @@ async function handleTransaction(payload: Body, event: VivaEventName) {
    * Viva να ξαναστείλει το ίδιο γεγονός, και ο πελάτης παίρνει το μήνυμα δύο
    * φορές.
    */
-  const failedMail = await sendPaymentFailedEmail(orderNumber, {
+  const failedMail = await sendPaymentFailedEmail(order.orderNumber, {
     statusId: transaction.statusId == null ? null : String(transaction.statusId),
   });
   if (!failedMail.ok) {
-    console.error(`[viva] ${orderNumber} failure notice not sent: ${failedMail.error}`);
+    console.error(`[viva] ${order.orderNumber} failure notice not sent: ${failedMail.error}`);
   }
 
   return NextResponse.json({ ok: true, paid: false });

@@ -231,6 +231,11 @@ export type VivaTransaction = {
   orderCode: number | null;
   /** Viva's own identifier for the method used. Null when it did not say. */
   paymentMethodId: number | null;
+  /**
+   * Viva's transaction type — 5 card charge, 15 DIAS (e-banking payment code),
+   * 60 IRIS, … Null when it did not say. Informational: logged, never decides.
+   */
+  transactionTypeId?: number | null;
 };
 
 /**
@@ -270,6 +275,7 @@ export async function getTransaction(transactionId: string): Promise<VivaTransac
      * truth and returns it; we were discarding it.
      */
     paymentMethodId?: number;
+    transactionTypeId?: number;
   };
 
   return {
@@ -278,8 +284,137 @@ export async function getTransaction(transactionId: string): Promise<VivaTransac
     merchantTrns: data.merchantTrns ?? null,
     orderCode: data.orderCode ?? null,
     paymentMethodId: typeof data.paymentMethodId === "number" ? data.paymentMethodId : null,
+    transactionTypeId: typeof data.transactionTypeId === "number" ? data.transactionTypeId : null,
   };
 }
 
 /** `F` is Viva's "payment successful" status. */
 export const VIVA_STATUS_PAID = "F";
+
+/*
+ * ── Reading a payment order back ────────────────────────────────────────────
+ *
+ * Why this exists: a bank deposit made with the Viva payment code (e-banking /
+ * ΔΙΑΣ) is asynchronous. Viva's docs say the customer may pay even after the
+ * payment order has expired, and the only signal we get is the webhook. When
+ * that webhook is missed — not delivered, delivered while we were down past
+ * Viva's retries, or ignored — the order sits at «Εκκρεμεί» with the money in
+ * the account. These two calls let the admin ask Viva directly.
+ *
+ * They are the LEGACY Payment API endpoints, and they use Basic auth with the
+ * Merchant ID + API Key — not the OAuth client credentials the Smart Checkout
+ * calls above use. Viva offers no OAuth equivalent for "transactions of an
+ * order code". Host is www.vivapayments.com (demo.vivapayments.com in demo).
+ * Endpoints and field names from Viva's Payment API spec, 2026-10-12:
+ *   GET /api/orders/{orderCode}              → { OrderCode, StateId, RequestAmount, MerchantTrns, ExpirationDate, … }
+ *   GET /api/transactions/?ordercode={code}  → { Transactions: [{ TransactionId, StatusId, Amount, MerchantTrns, InsDate, TransactionType: { TransactionTypeId }, Order: { OrderCode } }] }
+ */
+
+export class VivaBasicNotConfiguredError extends Error {
+  constructor() {
+    super("Viva Merchant ID / API Key are not configured: set VIVA_MERCHANT_ID and VIVA_API_KEY.");
+    this.name = "VivaBasicNotConfiguredError";
+  }
+}
+
+export function isVivaBasicConfigured(): boolean {
+  return Boolean(process.env.VIVA_MERCHANT_ID && process.env.VIVA_API_KEY);
+}
+
+function basicAuthHeader(): string {
+  if (!isVivaBasicConfigured()) throw new VivaBasicNotConfiguredError();
+  const basic = Buffer.from(
+    `${process.env.VIVA_MERCHANT_ID}:${process.env.VIVA_API_KEY}`,
+  ).toString("base64");
+  return `Basic ${basic}`;
+}
+
+/** `StateId` of a Viva payment order. */
+export const VIVA_ORDER_STATE = {
+  pending: 0,
+  expired: 1,
+  cancelled: 2,
+  paid: 3,
+} as const;
+
+export type VivaPaymentOrderInfo = {
+  orderCode: string;
+  /** 0 pending · 1 expired · 2 cancelled · 3 paid. Null if Viva sent something else. */
+  stateId: number | null;
+  requestAmount: number | null;
+  merchantTrns: string | null;
+  expirationDate: string | null;
+};
+
+export async function getPaymentOrder(orderCode: string): Promise<VivaPaymentOrderInfo> {
+  const response = await fetch(`${CHECKOUT_URL}/api/orders/${encodeURIComponent(orderCode)}`, {
+    headers: { Authorization: basicAuthHeader() },
+    cache: "no-store",
+  });
+  if (!response.ok) {
+    throw new VivaError(`Viva order lookup failed (${response.status})`, response.status);
+  }
+  const data = (await response.json()) as {
+    OrderCode?: number | string;
+    StateId?: number | string;
+    RequestAmount?: number;
+    MerchantTrns?: string | null;
+    ExpirationDate?: string | null;
+  };
+  // The spec types StateId as a string and the example returns a number.
+  const state = data.StateId == null ? NaN : Number(data.StateId);
+  return {
+    orderCode: String(data.OrderCode ?? orderCode),
+    stateId: Number.isInteger(state) ? state : null,
+    requestAmount: typeof data.RequestAmount === "number" ? data.RequestAmount : null,
+    merchantTrns: data.MerchantTrns ?? null,
+    expirationDate: data.ExpirationDate ?? null,
+  };
+}
+
+export type VivaOrderTransaction = {
+  transactionId: string;
+  statusId: string;
+  amount: number;
+  merchantTrns: string | null;
+  orderCode: string | null;
+  transactionTypeId: number | null;
+  /** When Viva recorded it — Europe/Athens local time with offset. */
+  insDate: string | null;
+};
+
+/** Every transaction Viva holds against one payment order code. */
+export async function listOrderTransactions(orderCode: string): Promise<VivaOrderTransaction[]> {
+  const response = await fetch(
+    `${CHECKOUT_URL}/api/transactions/?ordercode=${encodeURIComponent(orderCode)}`,
+    { headers: { Authorization: basicAuthHeader() }, cache: "no-store" },
+  );
+  if (!response.ok) {
+    throw new VivaError(`Viva transactions lookup failed (${response.status})`, response.status);
+  }
+  const data = (await response.json()) as {
+    Transactions?: Array<{
+      TransactionId?: string;
+      StatusId?: string;
+      Amount?: number;
+      MerchantTrns?: string | null;
+      InsDate?: string | null;
+      TransactionType?: { TransactionTypeId?: number } | null;
+      Order?: { OrderCode?: number | string } | null;
+    }> | null;
+  };
+  return (data.Transactions ?? [])
+    .filter((t) => typeof t.TransactionId === "string" && t.TransactionId.length > 0)
+    .map((t) => ({
+      transactionId: t.TransactionId!,
+      statusId: t.StatusId ?? "",
+      amount: typeof t.Amount === "number" ? t.Amount : 0,
+      merchantTrns: t.MerchantTrns ?? null,
+      orderCode: t.Order?.OrderCode != null ? String(t.Order.OrderCode) : null,
+      transactionTypeId:
+        typeof t.TransactionType?.TransactionTypeId === "number"
+          ? t.TransactionType.TransactionTypeId
+          : null,
+      insDate: t.InsDate ?? null,
+    }));
+}

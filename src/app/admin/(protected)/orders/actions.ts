@@ -12,6 +12,13 @@ import {
   type ApplyResult,
   type PreviewResult,
 } from "@/lib/orders/postage-correction";
+import { recheckVivaPayment } from "@/lib/payment/confirm-payment";
+import { recordManualPayment, type ManualPaymentInput } from "@/lib/payment/manual-payment";
+import {
+  describeFollowUps,
+  describeRecheck,
+  type PaymentActionResult,
+} from "@/lib/payment/payment-messages";
 
 /**
  * The action behind "Αποστολή στο SoftOne", which until now had none.
@@ -98,4 +105,50 @@ export async function applyOrderPostage(
   revalidatePath("/admin/orders");
   revalidatePath("/admin");
   return result;
+}
+
+/** Who the history row names. The column is 64 characters. */
+function adminActor(actor: { email: string }): string {
+  return `admin:${actor.email}`.slice(0, 64);
+}
+
+function refreshOrder(orderNumber: string) {
+  revalidatePath(`/admin/orders/${orderNumber}`);
+  revalidatePath("/admin/orders");
+  revalidatePath("/admin");
+}
+
+/**
+ * «Καταχώριση πληρωμής» — record a deposit Viva cannot know about.
+ *
+ * The rules (exact amount, date window, explicit confirmation, idempotence)
+ * live in `recordManualPayment`; this checks the role, names the admin, and
+ * turns the follow-ups into something the dialog can show.
+ */
+export async function recordOrderPayment(
+  orderNumber: string,
+  input: ManualPaymentInput,
+): Promise<PaymentActionResult> {
+  const actor = await requireOrders();
+  const result = await recordManualPayment(orderNumber, input, adminActor(actor));
+  if (!result.ok) return { ok: false, error: result.error };
+  if (result.alreadyPaid) {
+    refreshOrder(orderNumber);
+    return { ok: true, message: "Η παραγγελία είναι ήδη πληρωμένη — δεν έγινε καμία αλλαγή.", warnings: [] };
+  }
+  refreshOrder(orderNumber);
+  return describeFollowUps("Η πληρωμή καταχωρίστηκε", result.followUps);
+}
+
+/**
+ * «Επανέλεγχος πληρωμής» — ask Viva about the order's payment code and, if a
+ * finished payment exists, run the same path the webhook would have.
+ */
+export async function recheckOrderPayment(orderNumber: string): Promise<PaymentActionResult> {
+  const actor = await requireOrders();
+  const outcome = await recheckVivaPayment(orderNumber, adminActor(actor));
+  if (outcome.kind === "paid" || outcome.kind === "amount_mismatch" || outcome.kind === "already_paid") {
+    refreshOrder(orderNumber);
+  }
+  return describeRecheck(outcome);
 }
