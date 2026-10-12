@@ -13,6 +13,8 @@ const session = vi.hoisted(() => ({ current: null as null | { user: { id: string
 vi.mock("@/auth", () => ({ auth: async () => session.current }));
 vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
 vi.mock("@/lib/courier/create-for-order", () => ({ createVoucherForOrder: vi.fn() }));
+const sweepMock = vi.hoisted(() => vi.fn());
+vi.mock("@/lib/payment/payment-sweep", () => ({ sweepPendingPayments: sweepMock }));
 vi.mock("@/lib/orders/postage-correction", () => ({
   applyPostageCorrection: vi.fn(),
   previewPostageCorrection: vi.fn(),
@@ -26,7 +28,7 @@ import {
   validateManualPayment,
   type ManualPaymentInput,
 } from "@/lib/payment/manual-payment";
-import { recheckOrderPayment, recordOrderPayment } from "@/app/admin/(protected)/orders/actions";
+import { recheckOrderPayment, recordOrderPayment, sweepOrderPayments } from "@/app/admin/(protected)/orders/actions";
 
 const NOW = new Date("2026-10-12T10:00:00Z"); // 13:00 in Athens
 
@@ -282,5 +284,41 @@ describe("server actions", () => {
     const r = await recordOrderPayment("KOL-20261004-0001", input({ amount: "1,00" }));
     expect(r).toMatchObject({ ok: false });
     expect(!r.ok && r.error).toMatch(/1,00\s€.*123,45\s€/);
+  });
+});
+
+describe("«Έλεγχος εκκρεμών πληρωμών»", () => {
+  it("refuses a session without the 'orders' capability", async () => {
+    session.current = { user: { id: "u1", email: "editor@kolleris.com", role: "EDITOR" } };
+    await expect(sweepOrderPayments()).rejects.toThrow(/Forbidden/);
+    expect(sweepMock).not.toHaveBeenCalled();
+  });
+
+  it("sums the run up in Greek, naming completed orders and what needs a look", async () => {
+    session.current = { user: { id: "u1", email: "ops@kolleris.com", role: "OPS" } };
+    sweepMock.mockResolvedValue({
+      ok: true,
+      checked: 4,
+      paid: [{ orderNumber: "KOL-20261004-0001", transactionId: "t", warnings: [] }],
+      stillPending: 1,
+      mismatches: [{ orderNumber: "KOL-20261005-0002", capturedCents: 10000, expectedCents: 12345 }],
+      errors: [{ orderNumber: "KOL-20261006-0003", message: "Η Viva δεν απάντησε: 503" }],
+      truncated: false,
+      durationMs: 5,
+    });
+    const r = await sweepOrderPayments();
+    expect(sweepMock).toHaveBeenCalledWith({ actor: "admin:ops@kolleris.com", budgetMs: 40_000 });
+    expect(r.message).toBe(
+      "Ελέγχθηκαν 4 · Ολοκληρώθηκαν 1 (KOL-20261004-0001) · Σε αναμονή 1 · Σφάλματα 1",
+    );
+    expect(r.details).toHaveLength(2);
+    expect(r.details[0]).toMatch(/^KOL-20261005-0002: η Viva έχει 100,00\s€ αντί για 123,45\s€/);
+    expect(r.details[1]).toBe("KOL-20261006-0003: Η Viva δεν απάντησε: 503");
+  });
+
+  it("passes a skipped run's reason through", async () => {
+    session.current = { user: { id: "u1", email: "ops@kolleris.com", role: "OPS" } };
+    sweepMock.mockResolvedValue({ ok: false, skipped: "already_running", message: "Ο έλεγχος πληρωμών τρέχει ήδη" });
+    expect(await sweepOrderPayments()).toEqual({ ok: false, message: "Ο έλεγχος πληρωμών τρέχει ήδη", details: [] });
   });
 });

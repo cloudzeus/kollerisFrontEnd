@@ -103,3 +103,44 @@ export function describeRecheck(outcome: RecheckOutcome): PaymentActionResult {
       return { ok: false, error: `Η Viva δεν απάντησε: ${outcome.error}` };
   }
 }
+
+export type SweepSummary = {
+  ok: boolean;
+  /** «Ελέγχθηκαν N · Ολοκληρώθηκαν X (…) · Σε αναμονή Y · Σφάλματα Z» */
+  message: string;
+  /** One line per thing somebody should look at. */
+  details: string[];
+};
+
+export function describeSweep(
+  result:
+    | {
+        ok: true;
+        checked: number;
+        paid: Array<{ orderNumber: string; warnings: string[] }>;
+        stillPending: number;
+        mismatches: Array<{ orderNumber: string; capturedCents: number; expectedCents: number }>;
+        errors: Array<{ orderNumber: string; message: string }>;
+        truncated: boolean;
+      }
+    | { ok: false; message: string },
+): SweepSummary {
+  if (!result.ok) return { ok: false, message: result.message, details: [] };
+
+  const paid = result.paid.map((p) => p.orderNumber);
+  const message =
+    `Ελέγχθηκαν ${result.checked} · Ολοκληρώθηκαν ${paid.length}` +
+    (paid.length ? ` (${paid.join(", ")})` : "") +
+    ` · Σε αναμονή ${result.stillPending} · Σφάλματα ${result.errors.length}`;
+
+  const details = [
+    ...result.mismatches.map(
+      (m) =>
+        `${m.orderNumber}: η Viva έχει ${euro(m.capturedCents)} αντί για ${euro(m.expectedCents)} — δεν σημειώθηκε πληρωμένη.`,
+    ),
+    ...result.errors.map((e) => `${e.orderNumber}: ${e.message}`),
+    ...result.paid.flatMap((p) => p.warnings.map((w) => `${p.orderNumber}: ${w}`)),
+    ...(result.truncated ? ["Δεν ελέγχθηκαν όλες στον διαθέσιμο χρόνο — πατήστε ξανά για τις υπόλοιπες."] : []),
+  ];
+  return { ok: true, message, details };
+}

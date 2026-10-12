@@ -83,6 +83,9 @@ export const prismaFake = {
     ),
   },
   orderStatusHistory: {
+    findFirst: vi.fn(async ({ where }: { where: { note?: string } }) =>
+      state.history.find((h) => h.note === where.note) ?? null,
+    ),
     create: vi.fn(async ({ data }: { data: FakeHistory & { orderId: string } }) => {
       state.history.push({ status: data.status, actor: data.actor, note: data.note ?? null });
       return data;

@@ -1,10 +1,13 @@
 /**
  * Runs once when a server instance starts.
  *
- * The only thing here is the nightly catalogue reconcile — the backstop under
- * HDCtool's change feed, which is a push and therefore lossy. See
- * `src/lib/sync/reconcile-schedule.ts` for why it lives in the server rather
- * than in a platform scheduled task.
+ * Two backstops live here, each under a push that can be lost:
+ *   - the nightly catalogue reconcile, under HDCtool's change feed — see
+ *     `src/lib/sync/reconcile-schedule.ts` for why it lives in the server
+ *     rather than in a platform scheduled task;
+ *   - the payment sweep, under Viva's webhooks — every ~15 minutes it asks
+ *     Viva about orders still waiting for their money. See
+ *     `src/lib/payment/payment-sweep-schedule.ts`.
  *
  * `register` blocks the server from accepting requests until it resolves, so
  * nothing in here may wait for work. It arms a timer and returns.
@@ -41,4 +44,7 @@ export async function register(): Promise<void> {
 
   const { startReconcileSchedule } = await import("@/lib/sync/reconcile-schedule");
   startReconcileSchedule();
+
+  const { startPaymentSweepSchedule } = await import("@/lib/payment/payment-sweep-schedule");
+  startPaymentSweepSchedule();
 }

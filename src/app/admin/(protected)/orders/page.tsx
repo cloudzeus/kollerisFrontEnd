@@ -5,6 +5,7 @@ import { assertCan } from "@/lib/rbac";
 import { FILTERS, getOrders, type OrderFilter } from "@/lib/admin/orders";
 import { PageShell } from "@/components/admin/PageShell";
 import { OrdersTable } from "@/components/admin/OrdersTable";
+import { PaymentSweepButton } from "@/components/admin/PaymentSweepButton";
 import { cn } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
@@ -55,6 +56,7 @@ export default async function OrdersPage({
       description={`${data.total} ${data.total === 1 ? "παραγγελία" : "παραγγελίες"}${
         query ? ` για «${query}»` : ""
       }`}
+      actions={<PaymentSweepButton />}
     >
       <div className="space-y-4">
         <div className="flex flex-wrap items-center gap-2">

@@ -86,6 +86,14 @@ describe("Viva 1796 — payment created (behaviour kept from before the refactor
     expect(calls).toEqual([]);
   });
 
+  it("writes the same mismatch only once, however often it is reported", async () => {
+    seedOrder();
+    vivaMocks.getTransaction.mockResolvedValue(paidTx({ amount: 120 }));
+    await handleVivaEvent(post({ EventData: { TransactionId: "tx-1" } }), "paymentCreated");
+    await handleVivaEvent(post({ EventData: { TransactionId: "tx-1" } }), "paymentCreated");
+    expect(state.history).toHaveLength(1);
+  });
+
   it("answers 500 when the transaction cannot be read back, so Viva retries", async () => {
     seedOrder();
     vivaMocks.getTransaction.mockRejectedValue(new Error("down"));

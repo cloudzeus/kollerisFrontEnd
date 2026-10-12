@@ -17,8 +17,11 @@ import { recordManualPayment, type ManualPaymentInput } from "@/lib/payment/manu
 import {
   describeFollowUps,
   describeRecheck,
+  describeSweep,
   type PaymentActionResult,
+  type SweepSummary,
 } from "@/lib/payment/payment-messages";
+import { sweepPendingPayments } from "@/lib/payment/payment-sweep";
 
 /**
  * The action behind "Αποστολή στο SoftOne", which until now had none.
@@ -151,4 +154,21 @@ export async function recheckOrderPayment(orderNumber: string): Promise<PaymentA
     refreshOrder(orderNumber);
   }
   return describeRecheck(outcome);
+}
+
+/**
+ * «Έλεγχος εκκρεμών πληρωμών» — the payment sweep, now, from the list.
+ *
+ * The same run the in-process schedule makes every ~15 minutes, so it shares
+ * its lock: pressed while a replica is sweeping, it says so instead of asking
+ * Viva everything twice. Budget under the server-action timeout.
+ */
+export async function sweepOrderPayments(): Promise<SweepSummary> {
+  const actor = await requireOrders();
+  const result = await sweepPendingPayments({ actor: adminActor(actor), budgetMs: 40_000 });
+  if (result.ok && (result.paid.length > 0 || result.mismatches.length > 0)) {
+    revalidatePath("/admin/orders");
+    revalidatePath("/admin");
+  }
+  return describeSweep(result);
 }

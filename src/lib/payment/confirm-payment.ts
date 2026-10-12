@@ -148,6 +148,16 @@ export async function markOrderPaid(input: MarkPaidInput): Promise<MarkPaidResul
   const expectedCents = toCents(Number(order.totalGross));
   const capturedCents = toCents(input.amount);
   if (capturedCents !== expectedCents) {
+    const note = `Amount mismatch: captured ${capturedCents}, expected ${expectedCents}`;
+    /*
+     * Once per discrepancy. The payment sweep asks again every few minutes and
+     * Viva retries webhooks; the same sentence forty times buries the history.
+     */
+    const noted = await prisma.orderStatusHistory.findFirst({
+      where: { orderId: order.id, note },
+      select: { id: true },
+    });
+    if (noted) return { kind: "amount_mismatch", capturedCents, expectedCents };
     await prisma.order.update({
       where: { id: order.id },
       data: {
@@ -155,7 +165,7 @@ export async function markOrderPaid(input: MarkPaidInput): Promise<MarkPaidResul
           create: {
             status: "PENDING_PAYMENT",
             actor: input.actor.slice(0, 64),
-            note: `Amount mismatch: captured ${capturedCents}, expected ${expectedCents}`,
+            note,
           },
         },
       },
