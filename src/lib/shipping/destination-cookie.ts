@@ -17,6 +17,7 @@ import { normalizeCountry, validateCountryPostcode } from "@/lib/shipping/countr
  */
 export const DESTINATION_COOKIE = "KOLLERIS_DEST";
 
+/** `postcode` is "" until a valid one for `country` has been typed. */
 export type StoredDestination = { country: string; postcode: string; city: string };
 
 /** Pure, for the tests: the cookie's value back into a destination, or null. */
@@ -26,10 +27,11 @@ export function parseDestination(value: string | null | undefined): StoredDestin
     const raw = JSON.parse(value) as Partial<StoredDestination>;
     const country = normalizeCountry(raw.country ?? "", true);
     if (!country || country === "GR") return null;
+    // A country chosen before its Τ.Κ. is typed (or with a malformed one) is
+    // kept, with no postcode: the page asks for one instead of pricing.
     const postcode = validateCountryPostcode(country, raw.postcode ?? "");
-    if (!postcode.ok) return null;
     const city = typeof raw.city === "string" ? raw.city.trim().slice(0, 120) : "";
-    return { country, postcode: postcode.postcode, city };
+    return { country, postcode: postcode.ok ? postcode.postcode : "", city };
   } catch {
     return null;
   }

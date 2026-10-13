@@ -17,12 +17,19 @@ import { vatRateForDestination } from "@/lib/shipping/vat";
  * A price. A refusal about the place — 422 `unserviceable_postcode`,
  * `unsupported_country`, `invalid_postcode` — which is shown on the Τ.Κ. field
  * and never priced from a table (the same rule as the ACS no-station fix,
- * 43abb07). And no answer — a 5xx, a timeout, HDCtool down — which blocks
+ * 43abb07). A 400 (no city, a weight HDCtool rejects) is shown on the form
+ * the same way. And no answer — a 5xx (502 DHL failure), a timeout (504),
+ * HDCtool down — which blocks
  * checkout for that destination with «δοκιμάστε ξανά»: there is no table for
  * Italy, and a guessed price abroad is a loss or a lost sale.
  */
 
-export type DhlRefusalCode = "unserviceable_postcode" | "unsupported_country" | "invalid_postcode";
+export type DhlRefusalCode =
+  | "unserviceable_postcode"
+  | "unsupported_country"
+  | "invalid_postcode"
+  /** HDCtool's 400 (missing city, invalid weight): something on the form to fix. */
+  | "invalid_address";
 
 const REFUSAL_CODES: readonly DhlRefusalCode[] = [
   "unserviceable_postcode",
@@ -220,6 +227,11 @@ export async function quoteDhl({
   try {
     response = await hdctoolRequest<DhlQuoteResponse>("/api/public/courier/quote", body);
   } catch (error) {
+    /* 400: the request itself (no city, a weight HDCtool rejects) — the form says so. */
+    if (error instanceof HdctoolError && error.status === 400) {
+      console.warn(`[dhl-quote] ${c} ${checked.postcode}: 400 — ${error.message}`);
+      return { source: "refused", error: "invalid_address", message: error.message, country: c, postcode: checked.postcode };
+    }
     if (error instanceof HdctoolError && error.status === 422) {
       const { code, message } = errorBody(error);
       if (code) {

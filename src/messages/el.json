@@ -176,7 +176,9 @@
       "arithmos_apostolis_acs": "Αριθμός αποστολής ACS",
       "parakoloythisi_stin_acs": "Παρακολούθηση στην ACS",
       "kati_den_paei_kala": "Κάτι δεν πάει καλά;",
-      "alli_paraggelia": "Άλλη παραγγελία"
+      "alli_paraggelia": "Άλλη παραγγελία",
+      "arithmos_apostolis_dhl": "Αριθμός αποστολής DHL",
+      "parakoloythisi_stin_dhl": "Παρακολούθηση στην DHL"
     }
   },
   "home": {
@@ -539,7 +541,8 @@
       "refused_unsupported_country": "Δεν αποστέλλουμε σε αυτή τη χώρα.",
       "refused_invalid_postcode": "Ο Τ.Κ. δεν είναι έγκυρος για τη χώρα που επιλέξατε.",
       "refused_unserviceable": "Ο Τ.Κ. δεν αντιστοιχεί σε περιοχή που εξυπηρετούμε.",
-      "cost_abroad": "Το κόστος υπολογίζεται από το χρεώσιμο βάρος και τον Τ.Κ. της χώρας παράδοσης — δείτε τη σύνοψη δεξιά."
+      "cost_abroad": "Το κόστος υπολογίζεται από το χρεώσιμο βάρος και τον Τ.Κ. της χώρας παράδοσης — δείτε τη σύνοψη δεξιά.",
+      "refused_invalid_address": "Ελέγξτε τον Τ.Κ. και την πόλη της διεύθυνσης."
     },
     "page": {
       "kalathi": "ΚΑΛΑΘΙ",

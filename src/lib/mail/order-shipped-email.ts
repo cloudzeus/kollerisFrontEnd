@@ -4,7 +4,8 @@ import { prisma } from "@/lib/prisma";
 import { sendTemplateMail } from "@/lib/mail/send-template";
 import { siteOrigin } from "@/lib/seo/urls";
 import { chargeableWeight } from "@/lib/shipping/acs-tariff";
-import { carrierLabel, localityLine } from "@/lib/shipping/countries";
+import { localityLine } from "@/lib/shipping/countries";
+import { trackingFor } from "@/lib/shipping/tracking";
 
 /**
  * «Η παραγγελία σας απεστάλη» — το email που δεν στελνόταν ποτέ.
@@ -19,11 +20,6 @@ import { carrierLabel, localityLine } from "@/lib/shipping/countries";
  * Το template τον βάζει σε mono, μεγάλο, πάνω από το fold, με κουμπί
  * παρακολούθησης δίπλα. Είναι το μόνο που θέλει κάποιος που περιμένει δέμα.
  */
-
-/** Ο δημόσιος ιχνηλάτης της ACS — ο ίδιος σύνδεσμος με τη σελίδα παραγγελίας. */
-function trackingUrl(voucherNo: string): string {
-  return `https://www.acscourier.net/el/track-and-trace/?paramtracknr=${encodeURIComponent(voucherNo)}`;
-}
 
 const money = (value: unknown) => `${Number(value).toFixed(2).replace(".", ",")} €`;
 
@@ -66,13 +62,20 @@ export async function sendShippedEmail(orderNumber: string, voucherNo: string) {
 
   const quote = order.shippingQuote as { etaDays?: unknown } | null;
   const etaDays = Number(quote?.etaDays);
+  /* ACS, or DHL Express abroad with HDCtool's tracking link (docs/dhl-express.md §3). */
+  const tracking = trackingFor(order, voucherNo);
+  const dhlEta = tracking.carrier === "DHL" && typeof quote?.etaDays === "string" ? quote.etaDays : null;
 
   return sendTemplateMail({
     to: order.email,
     templateId: "order-shipped",
     subject: `Η παραγγελία ${order.orderNumber} απεστάλη`,
-    preheader: `ACS · ${voucherNo}${
-      Number.isFinite(etaDays) && etaDays > 0 ? ` · παράδοση σε ${etaDays} εργάσιμες` : ""
+    preheader: `${tracking.carrier === "DHL" ? "DHL Express" : "ACS"} · ${voucherNo}${
+      dhlEta
+        ? ` · παράδοση σε ${dhlEta} εργάσιμες`
+        : Number.isFinite(etaDays) && etaDays > 0
+          ? ` · παράδοση σε ${etaDays} εργάσιμες`
+          : ""
     }`,
     context: order.orderNumber,
     data: {
@@ -102,11 +105,12 @@ export async function sendShippedEmail(orderNumber: string, voucherNo: string) {
         },
       },
       shipment: {
-        courier: carrierLabel(order.shipCountry, order.shippingMethod) ?? "ACS Courier",
+        courier: tracking.courier,
         tracking: voucherNo,
-        tracking_url: trackingUrl(voucherNo),
-        eta:
-          Number.isFinite(etaDays) && etaDays > 0
+        tracking_url: tracking.url,
+        eta: dhlEta
+          ? `${dhlEta} εργάσιμες`
+          : Number.isFinite(etaDays) && etaDays > 0
             ? `${etaDays} ${etaDays === 1 ? "εργάσιμη" : "εργάσιμες"}`
             : "1–3 εργάσιμες",
         /* Ένα voucher ανά παραγγελία — το ίδιο το `createVoucherForOrder` το
@@ -124,8 +128,8 @@ export async function sendShippedEmail(orderNumber: string, voucherNo: string) {
     text: [
       `Η παραγγελία ${order.orderNumber} απεστάλη`,
       "",
-      `Courier: ACS · Αριθμός αποστολής: ${voucherNo}`,
-      `Παρακολούθηση: ${trackingUrl(voucherNo)}`,
+      `Courier: ${tracking.courier} · Αριθμός αποστολής: ${voucherNo}`,
+      `Παρακολούθηση: ${tracking.url}`,
       "",
       ...order.lines.map((l) => `${l.quantity} × ${l.name}`),
       "",

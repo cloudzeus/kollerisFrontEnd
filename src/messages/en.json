@@ -176,7 +176,9 @@
       "arithmos_apostolis_acs": "ACS tracking number",
       "parakoloythisi_stin_acs": "Track on ACS",
       "kati_den_paei_kala": "Something wrong?",
-      "alli_paraggelia": "Another order"
+      "alli_paraggelia": "Another order",
+      "arithmos_apostolis_dhl": "DHL waybill number",
+      "parakoloythisi_stin_dhl": "Track with DHL"
     }
   },
   "home": {
@@ -539,7 +541,8 @@
       "refused_unsupported_country": "We do not ship to this country.",
       "refused_invalid_postcode": "This postcode is not valid for the country you chose.",
       "refused_unserviceable": "This postcode is not in an area we deliver to.",
-      "cost_abroad": "The cost is calculated from the chargeable weight and the destination postcode — see the summary."
+      "cost_abroad": "The cost is calculated from the chargeable weight and the destination postcode — see the summary.",
+      "refused_invalid_address": "Please check the postcode and the city of the address."
     },
     "page": {
       "kalathi": "CART",

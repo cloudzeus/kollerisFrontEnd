@@ -622,7 +622,9 @@ export default async function OrderDetailPage({
             </div>
             <div className="pt-1">
               {carrierLabel(order.shipCountry, order.shippingMethod) ? (
-                <Chip tone="amber">DHL Express · αποστολή από το HDCtool</Chip>
+                <Chip tone={order.acsVoucherNo ? "green" : "amber"}>
+                  {order.acsVoucherNo ? `DHL ${order.acsVoucherNo}` : "DHL Express · αποστολή από το HDCtool"}
+                </Chip>
               ) : (
                 <Chip tone={order.acsVoucherNo ? "green" : "grey"}>
                   {order.acsVoucherNo ? `ACS ${order.acsVoucherNo}` : "Χωρίς αποστολικό ACS"}

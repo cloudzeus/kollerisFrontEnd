@@ -3,6 +3,7 @@
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import type { OrderStatus } from "@/generated/prisma/enums";
+import { trackingFor, type Tracking } from "@/lib/shipping/tracking";
 
 /**
  * Order tracking, without an account.
@@ -35,8 +36,10 @@ export type TrackedOrder = {
   itemCount: number;
   lines: Array<{ name: string; sku: string; quantity: number; image: string | null }>;
   steps: TrackedStep[];
-  /** ACS voucher, once the parcel is handed over. */
+  /** ACS voucher (or DHL AWB), once the parcel is handed over. */
   voucher: string | null;
+  /** Who carries it and where to follow it — ACS unless it went DHL Express. */
+  tracking: Tracking | null;
   shippedAt: string | null;
   city: string;
 };
@@ -142,6 +145,7 @@ export async function trackOrder(_prev: TrackState, formData: FormData): Promise
       })),
       steps,
       voucher: order.acsVoucherNo,
+      tracking: order.acsVoucherNo ? trackingFor(order, order.acsVoucherNo) : null,
       shippedAt: order.shippedAt?.toISOString() ?? null,
       city: order.shipCity,
     },

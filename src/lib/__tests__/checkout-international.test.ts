@@ -292,6 +292,13 @@ describe("flag ON", () => {
     expect(mocks.orderCreate).not.toHaveBeenCalled();
   });
 
+  it("HDCtool's 400 (no city) is shown on the form, no order", async () => {
+    mocks.request.mockRejectedValue(new HdctoolError(`${ENDPOINT} failed (400) {"error":"city is required"}`, 400, ENDPOINT));
+    const result = await placeOrder({}, form({ ...verona, shipCountry: "IT", shippingMethod: "dhl" }));
+    expect(result.fieldErrors).toEqual({ shipPostcode: "Ελέγξτε τον Τ.Κ. και την πόλη της διεύθυνσης." });
+    expect(mocks.orderCreate).not.toHaveBeenCalled();
+  });
+
   it("5xx / timeout blocks the checkout with «δοκιμάστε ξανά» — no table abroad", async () => {
     mocks.request.mockRejectedValue(new HdctoolError(`${ENDPOINT} failed (502) bad gateway`, 502, ENDPOINT));
     const result = await placeOrder({}, form({ ...verona, shipCountry: "IT", shippingMethod: "dhl" }));

@@ -100,10 +100,14 @@ describe("the remembered destination", () => {
     });
   });
 
-  it("ignores Greece, garbage and countries outside the EU", () => {
+  it("ignores Greece, garbage and countries outside the EU; keeps a country without a valid Τ.Κ.", () => {
     expect(parseDestination(JSON.stringify({ country: "GR", postcode: "18545" }))).toBeNull();
     expect(parseDestination(JSON.stringify({ country: "GB", postcode: "SW1A 1AA" }))).toBeNull();
-    expect(parseDestination(JSON.stringify({ country: "IT", postcode: "12" }))).toBeNull();
+    expect(parseDestination(JSON.stringify({ country: "IT", postcode: "12" }))).toEqual({
+      country: "IT",
+      postcode: "",
+      city: "",
+    });
     expect(parseDestination("{not json")).toBeNull();
     expect(parseDestination(undefined)).toBeNull();
   });

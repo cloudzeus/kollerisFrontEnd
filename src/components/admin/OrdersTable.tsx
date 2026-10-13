@@ -424,7 +424,7 @@ export function OrdersTable({
                             ? "Αποστολή…"
                             : "Επαναποστολή email παραγγελίας"}
                         </DropdownMenuItem>
-                        {o.paymentStatus === "PAID" && !o.acsVoucherNo && (
+                        {o.paymentStatus === "PAID" && !o.acsVoucherNo && o.shippingMethod !== "dhl" && (
                           <>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem
@@ -441,7 +441,16 @@ export function OrdersTable({
                             </DropdownMenuItem>
                           </>
                         )}
-                        {o.acsVoucherNo && (
+                        {o.acsVoucherNo && o.shippingMethod === "dhl" && (
+                          <>
+                            <DropdownMenuSeparator />
+                            {/* DHL Express: label and tracking live in HDCtool (docs/dhl-express.md §3). */}
+                            <DropdownMenuLabel className="numeral text-[11px] text-k-text-3">
+                              DHL {o.acsVoucherNo}
+                            </DropdownMenuLabel>
+                          </>
+                        )}
+                        {o.acsVoucherNo && o.shippingMethod !== "dhl" && (
                           <>
                             <DropdownMenuSeparator />
                             <DropdownMenuLabel className="numeral text-[11px] text-k-text-3">
@@ -548,7 +557,7 @@ export function OrdersTable({
                               <span className="numeral">ΑΦΜ {o.vatNumber ?? "—"}</span>
                             </Detail>
                           )}
-                          <Detail label="Αποστολή ACS">
+                          <Detail label={o.shippingMethod === "dhl" ? "Αποστολή DHL" : "Αποστολή ACS"}>
                             {o.acsVoucherNo ? (
                               <span className="numeral">
                                 {o.acsVoucherNo}

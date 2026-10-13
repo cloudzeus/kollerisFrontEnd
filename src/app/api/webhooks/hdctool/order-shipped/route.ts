@@ -6,6 +6,7 @@ import {
 } from "@/lib/webhooks/hdc-signature";
 import { prisma } from "@/lib/prisma";
 import { sendShippedEmail } from "@/lib/mail/order-shipped-email";
+import { dhlTrackingUrl, orderShippedSchema, withShipment } from "@/lib/shipping/tracking";
 
 /**
  * Το HDCtool μας λέει ότι εκδόθηκε αποστολικό ACS.
@@ -35,13 +36,17 @@ import { sendShippedEmail } from "@/lib/mail/order-shipped-email";
  * δικτυακή αποτυχία, χειροκίνητο ξαναπάτημα — δεν ξαναειδοποιεί κανέναν.
  */
 
-export const runtime = "nodejs";
+/*
+ * ── DHL Express (docs/dhl-express.md §3) ──────────────────────────────────
+ *
+ * For a DHL shipment the body also carries `carrier: "DHL"` and `trackingUrl`,
+ * and `voucherNo` is the DHL AWB. It is kept in the same courier-number column
+ * every page reads, the carrier and link beside the DHL quote
+ * (`shippingQuote.shipment`), and the email links to DHL. An ACS body has no
+ * carrier field and takes exactly the path below as before.
+ */
 
-type Payload = {
-  orderNumber?: string;
-  voucherNo?: string;
-  pickupDate?: string | null;
-};
+export const runtime = "nodejs";
 
 export async function POST(request: NextRequest) {
   const secret = process.env.HDCTOOL_WEBHOOK_SECRET?.trim();
@@ -64,25 +69,35 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ ok: false, error: verified.reason }, { status: 401 });
   }
 
-  let payload: Payload;
+  let json: unknown;
   try {
-    payload = JSON.parse(rawBody) as Payload;
+    json = JSON.parse(rawBody);
   } catch {
     return NextResponse.json({ ok: false, error: "Άκυρο JSON" }, { status: 400 });
   }
 
-  const orderNumber = payload.orderNumber?.trim();
-  const voucherNo = payload.voucherNo?.trim();
-  if (!orderNumber || !voucherNo) {
+  const parsed = orderShippedSchema.safeParse(json);
+  if (!parsed.success) {
+    const missing = parsed.error.issues.some(
+      (i) => i.path[0] === "orderNumber" || i.path[0] === "voucherNo",
+    );
     return NextResponse.json(
-      { ok: false, error: "orderNumber και voucherNo απαιτούνται" },
+      {
+        ok: false,
+        error: missing
+          ? "orderNumber και voucherNo απαιτούνται"
+          : `Άκυρα πεδία: ${parsed.error.issues.map((i) => i.path.join(".")).join(", ")}`,
+      },
       { status: 400 },
     );
   }
+  const payload = parsed.data;
+  const { orderNumber, voucherNo } = payload;
+  const dhl = payload.carrier === "DHL";
 
   const order = await prisma.order.findUnique({
     where: { orderNumber },
-    select: { id: true, orderNumber: true, status: true, acsVoucherNo: true },
+    select: { id: true, orderNumber: true, status: true, acsVoucherNo: true, shippingQuote: true },
   });
   if (!order) {
     return NextResponse.json({ ok: false, error: "Δεν βρέθηκε η παραγγελία" }, { status: 404 });
@@ -105,13 +120,23 @@ export async function POST(request: NextRequest) {
     data: {
       acsVoucherNo: voucherNo,
       acsPickupDate: payload.pickupDate?.trim() || undefined,
+      ...(dhl
+        ? {
+            shippingQuote: withShipment(order.shippingQuote, {
+              carrier: "DHL",
+              awb: voucherNo,
+              trackingUrl: payload.trackingUrl ?? dhlTrackingUrl(voucherNo),
+              at: new Date().toISOString(),
+            }) as object,
+          }
+        : {}),
       status: nextStatus,
       shippedAt: advances ? new Date() : undefined,
       history: {
         create: {
           status: nextStatus,
           actor: "hdctool",
-          note: `ACS voucher ${voucherNo}`,
+          note: dhl ? `DHL AWB ${voucherNo}` : `ACS voucher ${voucherNo}`,
         },
       },
     },

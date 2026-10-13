@@ -59,6 +59,8 @@ export async function listOwnVouchersForDate(date: string): Promise<OwnVoucher[]
   const orders = await prisma.order.findMany({
     where: {
       acsVoucherNo: { not: null },
+      // A DHL AWB sits in the same column; DHL is not on ACS's pickup list.
+      shippingMethod: { not: "dhl" },
       OR: [{ acsPickupDate: date }, { shippedAt: { gte: from, lt: to } }],
     },
     select: {

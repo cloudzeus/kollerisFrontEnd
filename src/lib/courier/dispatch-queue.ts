@@ -41,8 +41,9 @@ export async function listDispatchQueue(): Promise<DispatchOrder[]> {
       paymentStatus: "PAID",
       acsVoucherNo: null,
       status: { notIn: ["CANCELLED", "FAILED"] },
-      // Collection from the shop is not a courier parcel.
-      shippingMethod: { not: "pickup" },
+      // Collection from the shop is not a courier parcel, and DHL abroad is
+      // not an ACS one — HDCtool ships it (docs/dhl-express.md §3).
+      shippingMethod: { notIn: ["pickup", "dhl"] },
     },
     orderBy: { paidAt: "asc" },
     /*

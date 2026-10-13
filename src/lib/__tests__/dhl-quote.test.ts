@@ -125,6 +125,18 @@ describe("quoteDestination", () => {
     },
   );
 
+  it("400 (missing city / invalid weight) is a form error, not an outage", async () => {
+    request.mockRejectedValue(httpError(400, { success: false, error: "city is required" }));
+    const quote = await quoteDestination({ country: "IT", postcode: "37015", city: "", items });
+    expect(quote).toMatchObject({ source: "refused", error: "invalid_address" });
+  });
+
+  it.each([502, 504])("%i (DHL failure / timeout at HDCtool) is unavailable", async (status) => {
+    request.mockRejectedValue(httpError(status, { success: false, error: "dhl_error" }));
+    const quote = await quoteDestination({ country: "IT", postcode: "37015", city: "Verona", items });
+    expect(isQuoteUnavailable(quote)).toBe(true);
+  });
+
   it("a refusal with success:false and status 200 is a refusal too", async () => {
     request.mockResolvedValue({ success: false, error: "unserviceable_postcode", message: "x" });
     const quote = await quoteDestination({ country: "DE", postcode: "10117", city: "Berlin", items });

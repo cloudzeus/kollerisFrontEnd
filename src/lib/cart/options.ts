@@ -178,7 +178,12 @@ export type CartTotals = {
    */
   destination?: { country: string; carrier: "ACS" | "DHL" | null };
   /** DHL's 422 code when it refused the destination (docs/dhl-express.md §1). */
-  refusal?: "unserviceable_postcode" | "unsupported_country" | "invalid_postcode" | null;
+  refusal?:
+    | "unserviceable_postcode"
+    | "unsupported_country"
+    | "invalid_postcode"
+    | "invalid_address"
+    | null;
   /**
    * Abroad, nobody could price it (HDCtool/DHL down, timeout). No table
    * fallback outside Greece: checkout is blocked with «δοκιμάστε ξανά».

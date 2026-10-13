@@ -90,6 +90,11 @@ export async function createVoucherForOrder(orderNumber: string): Promise<Vouche
   });
   if (!order) return { ok: false, error: "Η παραγγελία δεν βρέθηκε." };
 
+  /* ACS carries inside Greece here; abroad is DHL, shipped from HDCtool (docs/dhl-express.md §3). */
+  if (order.shipCountry !== "GR" || order.shippingMethod === "dhl") {
+    return { ok: false, error: "Αποστολή εκτός Ελλάδας — δεν εκδίδεται αποστολικό ACS από εδώ." };
+  }
+
   /*
    * One parcel per order. A second voucher for the same sale is a second
    * parcel ACS will collect, invoice and try to deliver.

@@ -176,7 +176,9 @@
       "arithmos_apostolis_acs": "Numero spedizione ACS",
       "parakoloythisi_stin_acs": "Tracciamento su ACS",
       "kati_den_paei_kala": "Qualcosa non va?",
-      "alli_paraggelia": "Altro ordine"
+      "alli_paraggelia": "Altro ordine",
+      "arithmos_apostolis_dhl": "Numero di spedizione DHL",
+      "parakoloythisi_stin_dhl": "Traccia con DHL"
     }
   },
   "home": {
@@ -539,7 +541,8 @@
       "refused_unsupported_country": "Non spediamo in questo paese.",
       "refused_invalid_postcode": "Questo CAP non è valido per il paese scelto.",
       "refused_unserviceable": "Questo CAP non rientra in una zona che serviamo.",
-      "cost_abroad": "Il costo è calcolato dal peso tassabile e dal CAP di destinazione — vedi il riepilogo."
+      "cost_abroad": "Il costo è calcolato dal peso tassabile e dal CAP di destinazione — vedi il riepilogo.",
+      "refused_invalid_address": "Controlla il CAP e la città dell'indirizzo."
     },
     "page": {
       "kalathi": "CARRELLO",

@@ -159,16 +159,26 @@ function Result({ order }: { order: Extract<TrackState, { state: "found" }>["ord
       {order.voucher && (
         <div className="mt-px flex flex-wrap items-center justify-between gap-4 border border-t-0 border-k-line bg-k-surface-2 px-5 py-4 lg:px-6">
           <div className="min-w-0">
-            <p className="t-account-label text-k-text-4">{upGreek(t("arithmos_apostolis_acs"))}</p>
+            <p className="t-account-label text-k-text-4">
+              {upGreek(
+                order.tracking?.carrier === "DHL" ? t("arithmos_apostolis_dhl") : t("arithmos_apostolis_acs"),
+              )}
+            </p>
             <p className="mt-1 font-mono text-[14px] font-semibold text-k-ink">{order.voucher}</p>
           </div>
           <a
-            href={`https://www.acscourier.net/el/track-and-trace/?paramtracknr=${encodeURIComponent(order.voucher)}`}
+            href={
+              order.tracking?.url ??
+              `https://www.acscourier.net/el/track-and-trace/?paramtracknr=${encodeURIComponent(order.voucher)}`
+            }
             target="_blank"
             rel="noreferrer"
             className="t-btn-sm bg-k-ink px-6 py-3.5 text-white transition-colors hover:bg-k-red"
           >
-            {upGreek(t("parakoloythisi_stin_acs"))} →
+            {upGreek(
+              order.tracking?.carrier === "DHL" ? t("parakoloythisi_stin_dhl") : t("parakoloythisi_stin_acs"),
+            )}{" "}
+            →
           </a>
         </div>
       )}

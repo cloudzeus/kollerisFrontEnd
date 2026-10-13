@@ -229,12 +229,16 @@ export const getCart = cache(async (
    * SHIPPING_METHODS, so it falls back to the courier as any unknown id did.
    */
   const abroad = isDhlCountry(destination?.country);
+  const stored = (SHIPPING_METHODS.find((m) => m.id === cart.shippingMethod)?.id ??
+    "courier") as ShippingMethodId;
   const shippingMethod: AnyShippingMethodId = abroad
     ? cart.shippingMethod === "pickup"
       ? "pickup"
       : "dhl"
-    : ((SHIPPING_METHODS.find((m) => m.id === cart.shippingMethod)?.id ??
-        "courier") as ShippingMethodId);
+    : // Cyprus: ACS courier, no next-day Express.
+      destination?.country?.toUpperCase() === "CY" && stored === "express"
+      ? "courier"
+      : stored;
   const paymentMethod = (PAYMENT_METHODS.find((m) => m.id === cart.paymentMethod)?.id ??
     "card") as PaymentMethodId;
 

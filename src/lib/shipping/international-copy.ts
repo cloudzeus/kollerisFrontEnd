@@ -37,6 +37,7 @@ export const INTERNATIONAL_COPY: Record<"el" | "en", InternationalCopy> = {
       unserviceable_postcode: "Η DHL δεν εξυπηρετεί αυτόν τον Τ.Κ.",
       unsupported_country: "Δεν αποστέλλουμε σε αυτή τη χώρα.",
       invalid_postcode: "Ο Τ.Κ. δεν είναι έγκυρος για τη χώρα που επιλέξατε.",
+      invalid_address: "Ελέγξτε τον Τ.Κ. και την πόλη της διεύθυνσης.",
     },
   },
   en: {
@@ -53,6 +54,7 @@ export const INTERNATIONAL_COPY: Record<"el" | "en", InternationalCopy> = {
       unserviceable_postcode: "DHL does not deliver to this postcode.",
       unsupported_country: "We do not ship to this country.",
       invalid_postcode: "This postcode is not valid for the country you chose.",
+      invalid_address: "Please check the postcode and the city of the address.",
     },
   },
 };
