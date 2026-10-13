@@ -30,6 +30,7 @@ export type OrderBase = Pick<
   | "shipLine2"
   | "shipCity"
   | "shipPostcode"
+  | "shipCountry"
   | "shipRegion"
   | "shipAdminRegion"
   | "wantsInvoice"

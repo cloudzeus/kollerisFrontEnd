@@ -1,7 +1,14 @@
 import "server-only";
 import { prisma } from "@/lib/prisma";
-import { FREE_SHIPPING_THRESHOLD_NET, SHIPPING_METHODS } from "@/lib/cart/options";
+import { FREE_SHIPPING_THRESHOLD_NET, SHIPPING_METHODS, findShippingMethod } from "@/lib/cart/options";
 import { isUnserviceable, quoteLivePostage } from "@/lib/shipping/acs-live";
+import {
+  isDhlQuote,
+  isQuoteUnavailable,
+  isRefused,
+  quoteDestination,
+  type DhlQuote,
+} from "@/lib/shipping/courier-quote";
 import type { ParcelItem } from "@/lib/shipping/acs-tariff";
 import { priceLines, type PricedLine } from "@/lib/requests/model";
 
@@ -14,12 +21,24 @@ import { priceLines, type PricedLine } from "@/lib/requests/model";
  * weight and dimensions, ACS live with the table as fallback, the express
  * multiplier, and free delivery over the threshold for the methods that offer
  * it. Collection from the shop costs nothing.
+ *
+ * A request abroad (docs/dhl-express.md) is priced by the same quote the
+ * checkout uses: DHL Express through HDCtool for the EU, ACS for Cyprus; no
+ * table, never free. Greece is the call below, unchanged.
  */
 export async function quoteOfferShipping(
-  order: { shippingMethod: string; shipPostcode: string },
+  order: {
+    shippingMethod: string;
+    shipPostcode: string;
+    shipCountry?: string | null;
+    shipCity?: string | null;
+  },
   lines: ReadonlyArray<PricedLine & { mtrl: number | null }>,
-): Promise<{ ok: true; shippingNet: number } | { ok: false; reason: "unserviceable" }> {
-  const method = SHIPPING_METHODS.find((m) => m.id === order.shippingMethod) ?? SHIPPING_METHODS[0];
+): Promise<
+  | { ok: true; shippingNet: number; dhl?: DhlQuote }
+  | { ok: false; reason: "unserviceable" | "unavailable" }
+> {
+  const method = findShippingMethod(order.shippingMethod) ?? SHIPPING_METHODS[0];
   if (method.expressMultiplier <= 0) return { ok: true, shippingNet: 0 };
 
   const mtrls = [...new Set(lines.map((l) => l.mtrl).filter((m): m is number => m != null))];
@@ -46,10 +65,26 @@ export async function quoteOfferShipping(
     };
   });
 
-  const live = await quoteLivePostage({ items, postcode: order.shipPostcode });
-  if (isUnserviceable(live)) return { ok: false, reason: "unserviceable" };
+  const country = (order.shipCountry ?? "GR").toUpperCase();
+  const subtotal = priceLines(lines, 0);
+  const live =
+    country === "GR"
+      ? await quoteLivePostage({ items, postcode: order.shipPostcode })
+      : await quoteDestination({
+          country,
+          postcode: order.shipPostcode,
+          city: order.shipCity,
+          items,
+          declaredValue: subtotal.subtotalGross,
+        });
+  if (isUnserviceable(live) || isRefused(live)) return { ok: false, reason: "unserviceable" };
+  if (isQuoteUnavailable(live)) return { ok: false, reason: "unavailable" };
+  if (isDhlQuote(live)) {
+    // DHL: HDCtool's price as it is — no multiplier, no free threshold.
+    return { ok: true, shippingNet: live.totalNet, dhl: live };
+  }
 
-  const subtotalNet = priceLines(lines, 0).subtotalNet;
+  const subtotalNet = subtotal.subtotalNet;
   if (method.freeOverThreshold && subtotalNet >= FREE_SHIPPING_THRESHOLD_NET) {
     return { ok: true, shippingNet: 0 };
   }

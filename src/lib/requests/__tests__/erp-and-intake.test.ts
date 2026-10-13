@@ -158,3 +158,68 @@ describe("syncRequestToHdctool — intake only, on every state change", () => {
     expect(hdctoolRequest).not.toHaveBeenCalled();
   });
 });
+
+describe("intake body — DHL Express abroad (docs/dhl-express.md §2)", () => {
+  const dhlQuote = {
+    source: "dhl",
+    carrier: "DHL",
+    productCode: "U",
+    netAmount: 31.4,
+    totalNet: 31.4,
+    vatRate: 24,
+    quotedAt: "2026-10-13T10:00:00.000Z",
+  };
+
+  it("a Greek order posts no `shipping` block — the body HDCtool always had", () => {
+    const body = buildIntakeBody(intakeOrder({ shippingQuote: { source: "acs", totalNet: 3.1 } }));
+    expect(body).not.toHaveProperty("shipping");
+    expect(body.shipCountry).toBe("GR");
+  });
+
+  it("a DHL order posts shipCountry and { carrier, productCode, netAmount, vatRate, quotedAt }", () => {
+    const body = buildIntakeBody(
+      intakeOrder({
+        shipCountry: "IT",
+        shipPostcode: "37015",
+        shippingMethod: "dhl",
+        shippingNet: money(31.4),
+        shippingGross: money(38.94),
+        shippingQuote: dhlQuote,
+      }),
+    );
+    expect(body.shipCountry).toBe("IT");
+    expect(body).toHaveProperty("shipping", {
+      carrier: "DHL",
+      productCode: "U",
+      netAmount: 31.4,
+      vatRate: 24,
+      quotedAt: "2026-10-13T10:00:00.000Z",
+    });
+  });
+
+  it("a Cypriot order is ACS: no block", () => {
+    const body = buildIntakeBody(intakeOrder({ shipCountry: "CY", shipPostcode: "1010" }));
+    expect(body).not.toHaveProperty("shipping");
+  });
+
+  it("a request abroad carries both blocks — HDCtool knows DHL carries it before it is priced", () => {
+    const body = buildIntakeBody(
+      intakeOrder({
+        shipCountry: "DE",
+        shippingMethod: "dhl",
+        requestStatus: "REQUESTED",
+        requestedAt: new Date("2026-10-13T08:00:00Z"),
+        requestLines: { v: 1, locale: "el", lines: [] },
+        shippingQuote: null,
+      }),
+    );
+    expect(body).toHaveProperty("request");
+    expect(body).toHaveProperty("shipping", {
+      carrier: "DHL",
+      productCode: null,
+      netAmount: 0,
+      vatRate: 24,
+      quotedAt: null,
+    });
+  });
+});

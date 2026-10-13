@@ -76,6 +76,45 @@ export const PAYMENT_METHODS = [
 export type ShippingMethodId = (typeof SHIPPING_METHODS)[number]["id"];
 export type PaymentMethodId = (typeof PAYMENT_METHODS)[number]["id"];
 
+/**
+ * DHL Express, to an EU country other than Greece and Cyprus
+ * (docs/dhl-express.md §4). Only offered with INTERNATIONAL_SHIPPING_ENABLED,
+ * and kept OUT of `SHIPPING_METHODS` so every list built from that one — the
+ * cart, the checkout, with the flag off — is exactly what it was.
+ *
+ * Priced by HDCtool per parcel and destination; never free (the free-shipping
+ * threshold is an ACS promise inside Greece) and no multiplier.
+ */
+export const DHL_SHIPPING_METHOD = {
+  id: "dhl",
+  label: "DHL Express",
+  meta: "Ευρωπαϊκή Ένωση",
+  carrier: "DHL",
+  expressMultiplier: 1,
+  freeOverThreshold: false,
+} as const;
+
+export const ALL_SHIPPING_METHODS = [...SHIPPING_METHODS, DHL_SHIPPING_METHOD] as const;
+export type AnyShippingMethodId = (typeof ALL_SHIPPING_METHODS)[number]["id"];
+export type AnyShippingMethod = (typeof ALL_SHIPPING_METHODS)[number];
+
+/** Any method an order may carry, DHL included — for labels and lookups. */
+export function findShippingMethod(id: string | null | undefined): AnyShippingMethod | undefined {
+  return ALL_SHIPPING_METHODS.find((m) => m.id === id);
+}
+
+/**
+ * The methods offered for a delivery country. Greece: the three it always had.
+ * Cyprus: ACS courier (no next-day Express) and collection. The rest of the EU:
+ * DHL Express and collection.
+ */
+export function shippingMethodsFor(country: string | null | undefined): readonly AnyShippingMethod[] {
+  const c = (country ?? "GR").toUpperCase();
+  if (c === "GR") return SHIPPING_METHODS;
+  if (c === "CY") return SHIPPING_METHODS.filter((m) => m.id !== "express");
+  return [DHL_SHIPPING_METHOD, ...SHIPPING_METHODS.filter((m) => m.id === "pickup")];
+}
+
 export type CartLineView = {
   id: string;
   productId: string;
@@ -129,9 +168,24 @@ export type CartTotals = {
   /**
    * ACS has no station for the postcode: we do not deliver there. The courier
    * methods carry no price (shipping reads 0, never «ΔΩΡΕΑΝ») and checkout
-   * refuses the order. See `quoteLivePostage`.
+   * refuses the order. See `quoteLivePostage`. Also true for a DHL refusal
+   * (`refusal` says which).
    */
   unserviceable: boolean;
+  /**
+   * Where the parcel goes and who carries it. "GR"/"ACS" unless
+   * INTERNATIONAL_SHIPPING_ENABLED and another country was chosen.
+   */
+  destination?: { country: string; carrier: "ACS" | "DHL" | null };
+  /** DHL's 422 code when it refused the destination (docs/dhl-express.md §1). */
+  refusal?: "unserviceable_postcode" | "unsupported_country" | "invalid_postcode" | null;
+  /**
+   * Abroad, nobody could price it (HDCtool/DHL down, timeout). No table
+   * fallback outside Greece: checkout is blocked with «δοκιμάστε ξανά».
+   */
+  quoteUnavailable?: boolean;
+  /** Abroad, no postcode yet: nothing failed, there is nothing to price. */
+  quotePending?: boolean;
   itemCount: number;
   unitCount: number;
   subtotalNet: number;
@@ -151,7 +205,7 @@ export type CartView = {
   id: string;
   lines: CartLineView[];
   totals: CartTotals;
-  shippingMethod: ShippingMethodId;
+  shippingMethod: AnyShippingMethodId;
   paymentMethod: PaymentMethodId;
   couponCode: string | null;
 };

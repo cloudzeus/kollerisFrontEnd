@@ -31,6 +31,8 @@ export type RecentOrder = {
   email: string;
   phone: string;
   city: string;
+  /** ISO-2 delivery country; optional so the dashboard's rows need not carry it. */
+  country?: string;
   shippingMethod: string;
   paymentMethod: string;
   wantsInvoice: boolean;

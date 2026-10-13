@@ -10,8 +10,8 @@ import {
   PAYMENT_METHODS,
   SHIPPING_METHODS,
   type CartTotals,
+  type AnyShippingMethodId,
   type PaymentMethodId,
-  type ShippingMethodId,
 } from "@/lib/cart/options";
 import { formatMoney } from "@/lib/format";
 import type { CartSplitKind } from "@/lib/requests/model";
@@ -31,9 +31,10 @@ export function CartSummaryPanel({
   paymentMethod,
   isPartner = false,
   requestKind = "none",
+  international = false,
 }: {
   totals: CartTotals;
-  shippingMethod: ShippingMethodId;
+  shippingMethod: AnyShippingMethodId;
   paymentMethod: PaymentMethodId;
   isPartner?: boolean;
   /**
@@ -42,6 +43,8 @@ export function CartSummaryPanel({
    * Decided on the server from the cart; repeated (authoritatively) at checkout.
    */
   requestKind?: CartSplitKind;
+  /** INTERNATIONAL_SHIPPING_ENABLED, read by the page. Changes the note only. */
+  international?: boolean;
 }) {
   const locale = useLocale();
   const t = useTranslations("cart.CartSummaryPanel");
@@ -107,7 +110,6 @@ export function CartSummaryPanel({
         <p className="t-footer-col mb-3 text-k-text-4">{upGreek(t("tropos_paralavis"))}</p>
         <div className="flex flex-col gap-px border border-k-line bg-k-line">
           {SHIPPING_METHODS.map((method) => {
-  const t = useTranslations("cart.CartSummaryPanel");
             const active = method.id === shippingMethod;
             const free = method.freeOverThreshold && totals.freeShippingReached;
             /*
@@ -154,7 +156,12 @@ export function CartSummaryPanel({
             );
           })}
         </div>
-        <p className="mt-2.5 text-[11.5px] font-semibold text-k-text-3">{t("ship_zone")}</p>
+        <p className="mt-2.5 text-[11.5px] font-semibold text-k-text-3">
+          {international ? t("ship_zone_eu") : t("ship_zone")}
+        </p>
+        {international && (
+          <p className="mt-1 text-[11.5px] text-k-text-4">{t("ship_zone_eu_dhl")}</p>
+        )}
       </div>
 
       {/* Payment */}

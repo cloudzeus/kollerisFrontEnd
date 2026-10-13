@@ -111,7 +111,7 @@ export default async function RequestPage({ params }: PageProps) {
       if (quoted?.ok) shippingNet = quoted.shippingNet;
       else shippingKnown = false;
     }
-    offerTotals = priceLines(offer.lines, shippingNet ?? 0);
+    offerTotals = priceLines(offer.lines, shippingNet ?? 0, order.shipCountry);
   }
   const requestedTotals = priceLines(requested, 0);
 

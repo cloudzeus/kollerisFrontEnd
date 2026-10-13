@@ -24,6 +24,7 @@ import { upGreek } from "@/lib/greek";
 import { holdHours } from "@/lib/orders/hold";
 import { prisma } from "@/lib/prisma";
 import { requestPath } from "@/lib/requests/model";
+import { carrierLabel, localityLine } from "@/lib/shipping/countries";
 
 export const dynamic = "force-dynamic";
 
@@ -97,7 +98,7 @@ export default async function ConfirmationPage({ params, searchParams }: PagePro
   const currentStep = STEPS.findIndex((s) => s.key === order.status);
   const stepIndex = currentStep === -1 ? 0 : currentStep;
   const quote = order.shippingQuote as
-    | { zoneLabel?: string; chargeableKg?: number; etaDays?: string }
+    | { zoneLabel?: string; chargeableKg?: number; etaDays?: string; carrier?: string }
     | null;
 
   const awaitingPayment = order.paymentStatus === "PENDING";
@@ -313,7 +314,7 @@ export default async function ConfirmationPage({ params, searchParams }: PagePro
                 {order.shipLine1}
                 {order.shipLine2 && <>, {order.shipLine2}</>}
                 <br />
-                {order.shipPostcode} {order.shipCity}
+                {localityLine(order.shipPostcode, order.shipCity, order.shipCountry, locale)}
                 <br />
                 {order.phone}
               </Block>
@@ -334,7 +335,8 @@ export default async function ConfirmationPage({ params, searchParams }: PagePro
               <Block title={t("apostoli")}>
                 {order.shippingMethod === "pickup"
                   ? t("paralavi_apo_peiraia")
-                  : `ACS · ${quote?.zoneLabel ?? "—"}`}
+                  : (carrierLabel(order.shipCountry, order.shippingMethod) ??
+                    `ACS · ${quote?.zoneLabel ?? "—"}`)}
                 {quote?.chargeableKg != null && (
                   <>
                     <br />

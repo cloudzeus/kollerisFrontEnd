@@ -57,7 +57,8 @@ export type UnserviceablePostcode = {
 export type LivePostageResult = LivePostageQuote | UnserviceablePostcode;
 
 export function isUnserviceable(
-  result: LivePostageResult | null | undefined,
+  // Any quote — the destination module's DHL answers pass through here too.
+  result: { source: string } | null | undefined,
 ): result is UnserviceablePostcode {
   return result?.source === "unserviceable";
 }
@@ -109,9 +110,17 @@ type H6Response = {
 export async function quoteLivePostage({
   items,
   postcode,
+  country = "GR",
 }: {
   items: ParcelItem[];
   postcode: string | null | undefined;
+  /**
+   * "GR" (the default, and the only value before INTERNATIONAL_SHIPPING_ENABLED)
+   * or "CY". For Greece the request is byte-for-byte what it always was; for
+   * Cyprus the postcode is checked as Cypriot and `country` goes to HDCtool
+   * (docs/dhl-express.md §1). Other countries are DHL — `courier-quote.ts`.
+   */
+  country?: "GR" | "CY";
 }): Promise<LivePostageResult> {
   const table = quotePostage({ items, postcode });
   const raw = (postcode ?? "").trim();
@@ -124,7 +133,7 @@ export async function quoteLivePostage({
 
   // A postcode that cannot be Greek is not worth a round-trip, and must not be
   // priced from the table either: 0xxxx, 9xxxx, four digits, letters.
-  const checked = validatePostcode(raw);
+  const checked = country === "GR" ? validatePostcode(raw) : validatePostcode(raw, country, ["GR", "CY"]);
   if (!checked.ok) {
     return {
       source: "unserviceable",
@@ -141,6 +150,7 @@ export async function quoteLivePostage({
     const response = await hdctoolRequest<H6Response>("/api/public/courier/quote", {
       postcode: clean,
       weightKg: weight.chargeableKg,
+      ...(country === "GR" ? {} : { country }),
     });
 
     if (!response.success || !response.quote) {

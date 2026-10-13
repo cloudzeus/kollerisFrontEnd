@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { grossAmount, netAmount } from "@/lib/format";
+import { vatRateForDestination } from "@/lib/shipping/vat";
 
 /**
  * Back-order requests («Κατόπιν παραγγελίας») — the pure half.
@@ -267,7 +268,12 @@ export type OfferTotals = {
  * the standard rate, VAT as the difference. Used for the offer page, the email
  * and — what matters — the amount the Viva order is created for.
  */
-export function priceLines(lines: readonly PricedLine[], shippingNet: number): OfferTotals {
+export function priceLines(
+  lines: readonly PricedLine[],
+  shippingNet: number,
+  /** The delivery country, for the postage VAT (`vatRateForDestination`). */
+  country?: string | null,
+): OfferTotals {
   const priced = lines.map((l) => {
     const lineNet = netAmount(l.unitNet * l.qty);
     const lineGross = grossAmount(l.unitNet * l.qty, { vatRate: l.vatRate });
@@ -276,7 +282,7 @@ export function priceLines(lines: readonly PricedLine[], shippingNet: number): O
   const subtotalNet = round(priced.reduce((s, l) => s + l.lineNet, 0));
   const subtotalGross = round(priced.reduce((s, l) => s + l.lineGross, 0));
   const ship = round(Math.max(0, shippingNet));
-  const shippingGross = grossAmount(ship, { vatRate: 24 });
+  const shippingGross = grossAmount(ship, { vatRate: vatRateForDestination(country) });
   const totalGross = round(subtotalGross + shippingGross);
   const totalNet = round(subtotalNet + ship);
   return {

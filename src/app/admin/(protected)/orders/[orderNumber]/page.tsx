@@ -21,11 +21,12 @@ import { prisma } from "@/lib/prisma";
 import { PageShell } from "@/components/admin/PageShell";
 import { formatMoney } from "@/lib/format";
 import { ADMIN_LOCALE } from "@/lib/admin/locale";
-import { SHIPPING_METHODS } from "@/lib/cart/options";
+import { findShippingMethod } from "@/lib/cart/options";
 import { chargeableWeight } from "@/lib/shipping/acs-tariff";
 import { PostageCorrection } from "@/components/admin/PostageCorrection";
 import { PaymentActions } from "@/components/admin/PaymentActions";
 import { athensDay } from "@/lib/payment/manual-payment";
+import { carrierLabel, countryName, localityLine } from "@/lib/shipping/countries";
 import {
   REQUEST_STATUS_LABEL_EL,
   REQUEST_STATUS_TONE,
@@ -134,7 +135,13 @@ type StoredQuote = {
   zone?: string;
   zoneLabel?: string;
   etaDays?: string;
-  source?: "acs" | "table";
+  source?: "acs" | "table" | "dhl";
+  /** DHL Express abroad (docs/dhl-express.md): HDCtool's quote. */
+  carrier?: string;
+  productCode?: string;
+  productName?: string;
+  origin?: string;
+  quotedAt?: string;
   station?: string;
   remote?: boolean;
   fallbackReason?: string;
@@ -216,7 +223,7 @@ export default async function OrderDetailPage({
   const productById = new Map(products.map((p) => [p.id, p]));
 
   const quote = (order.shippingQuote ?? null) as StoredQuote | null;
-  const method = SHIPPING_METHODS.find((m) => m.id === order.shippingMethod);
+  const method = findShippingMethod(order.shippingMethod);
   const recomputed = chargeableWeight(
     order.lines.map((l) => {
       const p = l.productId ? productById.get(l.productId) : undefined;
@@ -491,7 +498,11 @@ export default async function OrderDetailPage({
             {quote ? (
               <dl className="grid gap-x-6 gap-y-2 px-4 py-3 text-[13px] sm:grid-cols-2">
                 <Field label="Πηγή τιμής">
-                  {quote.source === "acs" ? "ACS (ζωντανή τιμή)" : "Πίνακας τιμών"}
+                  {quote.source === "dhl"
+                    ? `DHL Express · ${quote.productName ?? ""} ${quote.productCode ?? ""} (${quote.origin ?? "HDCtool"})`
+                    : quote.source === "acs"
+                      ? "ACS (ζωντανή τιμή)"
+                      : "Πίνακας τιμών"}
                   {quote.fallbackReason ? ` · ${quote.fallbackReason}` : ""}
                 </Field>
                 <Field label="Ζώνη">
@@ -593,11 +604,12 @@ export default async function OrderDetailPage({
             </div>
             <div className="text-[12px] text-k-text-3">
               {order.shipAdminRegion && order.shipAdminRegion !== order.shipRegion ? `${order.shipAdminRegion} · ` : ""}
-              {order.shipCountry === "GR" ? "Ελλάδα" : order.shipCountry}
+              {countryName(order.shipCountry, ADMIN_LOCALE)}
+              {order.shipCountry !== "GR" ? ` (${order.shipCountry})` : ""}
             </div>
             <a
               href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
-                `${order.shipLine1}, ${order.shipPostcode} ${order.shipCity}`,
+                `${order.shipLine1}, ${localityLine(order.shipPostcode, order.shipCity, order.shipCountry)}`,
               )}`}
               target="_blank"
               rel="noreferrer"
@@ -609,9 +621,13 @@ export default async function OrderDetailPage({
               {method ? `${method.label} · ${method.meta}` : order.shippingMethod}
             </div>
             <div className="pt-1">
-              <Chip tone={order.acsVoucherNo ? "green" : "grey"}>
-                {order.acsVoucherNo ? `ACS ${order.acsVoucherNo}` : "Χωρίς αποστολικό ACS"}
-              </Chip>
+              {carrierLabel(order.shipCountry, order.shippingMethod) ? (
+                <Chip tone="amber">DHL Express · αποστολή από το HDCtool</Chip>
+              ) : (
+                <Chip tone={order.acsVoucherNo ? "green" : "grey"}>
+                  {order.acsVoucherNo ? `ACS ${order.acsVoucherNo}` : "Χωρίς αποστολικό ACS"}
+                </Chip>
+              )}
             </div>
             {order.acsPickupDate && (
               <div className="numeral text-[11px] text-k-text-3">Παραλαβή courier {order.acsPickupDate}</div>

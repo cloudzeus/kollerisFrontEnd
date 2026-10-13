@@ -4,13 +4,16 @@ import { useTranslations } from "next-intl";
 import { useActionState, useRef, useState, useTransition } from "react";
 import { CompanyVatFields } from "@/components/account/CompanyVatFields";
 import { placeOrder, type CheckoutState } from "@/lib/checkout/actions";
-import { PAYMENT_METHODS, SHIPPING_METHODS } from "@/lib/cart/options";
+import { PAYMENT_METHODS, SHIPPING_METHODS, shippingMethodsFor } from "@/lib/cart/options";
 import { setCartOptions } from "@/lib/cart/actions";
 import { AddressAutocomplete } from "@/components/checkout/AddressAutocomplete";
 import { STOCK_HOLD_HOURS } from "@/lib/orders/hold";
 import { upGreek } from "@/lib/greek";
-import { checkDeliveryPostcode } from "@/lib/shipping/actions";
+import { checkDeliveryPostcode, quoteDelivery, type DeliveryQuoteAnswer } from "@/lib/shipping/actions";
 import { foreignCountryIn, validatePostcode } from "@/lib/shipping/destination";
+import { countryOptions, postcodeExample, validateCountryPostcode } from "@/lib/shipping/countries";
+import { formatMoney } from "@/lib/format";
+import type { Locale } from "@/i18n/routing";
 import type { CartSplitKind, RequestMode } from "@/lib/requests/model";
 
 /**
@@ -31,6 +34,9 @@ export function CheckoutForm({
   shippingMethod,
   paymentMethod,
   requestKind = "none",
+  international = false,
+  destination = null,
+  initialQuote = null,
 }: {
   locale: string;
   postcode: string;
@@ -67,6 +73,15 @@ export function CheckoutForm({
    * and decides again — this only shapes the form.
    */
   requestKind?: CartSplitKind;
+  /**
+   * INTERNATIONAL_SHIPPING_ENABLED, read by the page (docs/dhl-express.md §4).
+   * Off: no country field, Greece only — the form exactly as it was.
+   */
+  international?: boolean;
+  /** The destination abroad remembered from this visit (`destination-cookie`). */
+  destination?: { country: string; postcode: string; city: string } | null;
+  /** The page's own quote for `destination`, so the form opens priced. */
+  initialQuote?: DeliveryQuoteAnswer | null;
 }) {
   const t = useTranslations("checkout.CheckoutForm");
   const [state, action, pending] = useActionState<CheckoutState, FormData>(placeOrder, {});
@@ -104,6 +119,63 @@ export function CheckoutForm({
   const payments = PAYMENT_METHODS.filter((m) => !m.partnerOnly || isPartner);
 
   /*
+   * The delivery country (flag on only). Greece and Cyprus: ACS, as before.
+   * Elsewhere in the EU: DHL Express, priced by HDCtool through
+   * `quoteDelivery` while the customer types. The action asks again and
+   * charges its own answer; this only shows it.
+   */
+  const [country, setCountry] = useState<string>(
+    international && destination ? destination.country : "GR",
+  );
+  const abroad = international && country !== "GR";
+  const methods = international ? shippingMethodsFor(country) : SHIPPING_METHODS;
+  /* A choice that does not fit the country (ACS Express to Italy) falls to the first that does. */
+  const chosen = methods.some((m) => m.id === shipping) ? shipping : methods[0].id;
+  const [quote, setQuote] = useState<DeliveryQuoteAnswer | { status: "loading" } | null>(
+    abroad ? initialQuote : null,
+  );
+  const askedQuote = useRef<string | null>(
+    abroad && destination ? `${destination.country}|${destination.postcode}|${destination.city}` : null,
+  );
+  const quoteTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const askQuote = (data: Record<string, string>) => {
+    if (!international) return;
+    const c = data.shipCountry || "GR";
+    if (quoteTimer.current) clearTimeout(quoteTimer.current);
+    if (c === "GR") {
+      if (askedQuote.current !== null) {
+        askedQuote.current = null;
+        setQuote(null);
+        // Forget the destination so the summary prices Greece again.
+        startTransition(async () => {
+          await quoteDelivery({ country: "GR", postcode: "" });
+        });
+      }
+      return;
+    }
+    const checked = validateCountryPostcode(c, data.shipPostcode ?? "");
+    const city = (data.shipCity ?? "").trim();
+    if (!checked.ok) {
+      askedQuote.current = null;
+      setQuote(null);
+      return;
+    }
+    const key = `${c}|${checked.postcode}|${city}`;
+    if (key === askedQuote.current) return;
+    quoteTimer.current = setTimeout(() => {
+      askedQuote.current = key;
+      setQuote({ status: "loading" });
+      startTransition(async () => {
+        const answer = await quoteDelivery({ country: c, postcode: checked.postcode, city, locale });
+        // A slower answer for a destination since replaced is not this one's.
+        if (askedQuote.current !== key) return;
+        setQuote(answer);
+      });
+    }, 500);
+  };
+
+  /*
    * Greece only — the same checks the action makes (lib/shipping/destination),
    * run here so the customer hears it while typing rather than after submit.
    * The postcode's shape locally, then ACS for whether it has a station there
@@ -133,20 +205,38 @@ export function CheckoutForm({
 
   const addressValue = (name: keyof NonNullable<typeof prefill>): string => {
     if (values[name] !== undefined) return values[name];
-    if (name === "shipPostcode") return prefill?.shipPostcode || postcode;
+    if (name === "shipPostcode") return (abroad && destination?.postcode) || prefill?.shipPostcode || postcode;
+    if (name === "shipCity" && abroad && destination?.city) return destination.city;
     return prefill?.[name] ?? "";
   };
   const addressErrors: Record<string, string> = {};
-  if (shipping !== "pickup") {
+  let quoteBlocked = false;
+  if (chosen !== "pickup" && !abroad) {
     const zip = addressValue("shipPostcode").trim();
     const checked = validatePostcode(zip);
     const complete = zip.replace(/\s/g, "").length >= 5 || /[^\d\s]/.test(zip);
     if ((!checked.ok && complete) || (checked.ok && checked.postcode === refusedPostcode)) {
-      addressErrors.shipPostcode = t("tk_unserviceable");
+      addressErrors.shipPostcode = international ? t("tk_unserviceable_eu") : t("tk_unserviceable");
     }
     for (const name of ["shipLine1", "shipLine2", "shipCity", "shipRegion", "shipAdminRegion"] as const) {
-      if (foreignCountryIn(addressValue(name))) addressErrors[name] = t("address_foreign");
+      if (foreignCountryIn(addressValue(name))) {
+        addressErrors[name] = international ? t("address_foreign_eu") : t("address_foreign");
+      }
     }
+  }
+  if (chosen !== "pickup" && abroad) {
+    const zip = addressValue("shipPostcode").trim();
+    const example = postcodeExample(country);
+    const checked = validateCountryPostcode(country, zip);
+    if (!checked.ok && zip.replace(/[\s-]/g, "").length >= example.replace(/[\s-]/g, "").length) {
+      addressErrors.shipPostcode = t("postcode_format", { example });
+    } else if (quote?.status === "refused") {
+      addressErrors.shipPostcode = t(`refused_${quote.code}`);
+    } else if (quote?.status === "unavailable") {
+      addressErrors.quote = t("quote_unavailable");
+    }
+    // Nothing is placed abroad without a price HDCtool gave.
+    quoteBlocked = quote?.status !== "ok";
   }
   const blocked = Object.values(addressErrors)[0] ?? null;
   const fieldError = (name: string) => addressErrors[name] ?? state.fieldErrors?.[name];
@@ -157,10 +247,11 @@ export function CheckoutForm({
       className="flex flex-col gap-8"
       onChange={(e) => {
         const target = e.target as unknown as HTMLInputElement;
-        if (target.name === "shipPostcode") askAcs(target.value);
         const data = new FormData(e.currentTarget);
         const next: Record<string, string> = {};
         for (const [k, v] of data.entries()) if (typeof v === "string") next[k] = v;
+        if (target.name === "shipPostcode" && (next.shipCountry ?? "GR") === "GR") askAcs(target.value);
+        if (["shipCountry", "shipPostcode", "shipCity"].includes(target.name)) askQuote(next);
         setValues(next);
       }}
     >
@@ -232,6 +323,7 @@ export function CheckoutForm({
             autoComplete="tel"
             defaultValue={prefill?.phone}
             error={state.fieldErrors?.phone}
+            help={abroad ? t("phone_intl_help") : undefined}
             required
           />
         </div>
@@ -244,6 +336,40 @@ export function CheckoutForm({
           address. Two forms that ask for one thing in two arrangements make the
           second one feel like a different question.
         */}
+        {international && (
+          <label className="mb-4 block">
+            <span className="t-account-label mb-1.5 block text-k-text-4">
+              {upGreek(t("chora"))}
+              <span className="ml-1 text-k-red">*</span>
+            </span>
+            <select
+              name="shipCountry"
+              value={country}
+              autoComplete="country"
+              onChange={(e) => {
+                const next = e.target.value;
+                setCountry(next);
+                const offered = shippingMethodsFor(next);
+                if (!offered.some((m) => m.id === shipping)) {
+                  setShipping(offered[0].id);
+                  remember({ shippingMethod: offered[0].id });
+                }
+              }}
+              aria-invalid={state.fieldErrors?.shipCountry ? true : undefined}
+              className="t-input h-12 w-full border border-k-line-2 bg-white px-3.5 text-k-ink outline-none focus:border-k-ink"
+            >
+              {countryOptions(locale).map((option) => (
+                <option key={option.code} value={option.code}>
+                  {option.name}
+                </option>
+              ))}
+            </select>
+            {state.fieldErrors?.shipCountry && (
+              <span className="mt-1 block text-[11px] text-k-red">{state.fieldErrors.shipCountry}</span>
+            )}
+          </label>
+        )}
+
         <div className="grid gap-4 sm:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
           {/* Suggestions fill the postcode as well, which is the field that
               decides the ACS zone and the one customers most often get wrong. */}
@@ -264,17 +390,21 @@ export function CheckoutForm({
             label={t("t_k")}
             name="shipPostcode"
             autoComplete="postal-code"
-            defaultValue={prefill?.shipPostcode || postcode}
+            defaultValue={addressValue("shipPostcode")}
             error={fieldError("shipPostcode")}
             invalid={addressErrors.shipPostcode}
             required
-            help={t("kathorizei_ti_zoni_acs_kai")}
+            help={
+              abroad
+                ? t("postcode_help_abroad", { example: postcodeExample(country) })
+                : t("kathorizei_ti_zoni_acs_kai")
+            }
           />
           <Field
             label={t("poli")}
             name="shipCity"
             autoComplete="address-level2"
-            defaultValue={prefill?.shipCity}
+            defaultValue={addressValue("shipCity")}
             error={fieldError("shipCity")}
             invalid={addressErrors.shipCity}
             required
@@ -282,7 +412,9 @@ export function CheckoutForm({
           <Field label={t("nomos")} name="shipRegion" defaultValue={prefill?.shipRegion} autoComplete="address-level1" error={fieldError("shipRegion")} invalid={addressErrors.shipRegion} />
           <Field label={t("perifereia")} name="shipAdminRegion" defaultValue={prefill?.shipAdminRegion} error={fieldError("shipAdminRegion")} invalid={addressErrors.shipAdminRegion} />
         </div>
-        <p className="mt-2.5 text-[11.5px] font-semibold text-k-text-3">{t("ship_zone")}</p>
+        <p className="mt-2.5 text-[11.5px] font-semibold text-k-text-3">
+          {international ? t("ship_zone_eu") : t("ship_zone")}
+        </p>
 
         <label className="mt-5 flex cursor-pointer items-center gap-3">
           <input
@@ -308,18 +440,18 @@ export function CheckoutForm({
 
       <Step n="03" title={t("tropos_apostolis")}>
         <div className="flex flex-col gap-px border border-k-line bg-k-line">
-          {SHIPPING_METHODS.map((method) => (
+          {methods.map((method) => (
             <label
               key={method.id}
               className={`flex cursor-pointer items-center gap-3 px-4 py-3.5 ${
-                shipping === method.id ? "bg-k-surface-2" : "bg-white"
+                chosen === method.id ? "bg-k-surface-2" : "bg-white"
               }`}
             >
               <input
                 type="radio"
                 name="shippingMethod"
                 value={method.id}
-                checked={shipping === method.id}
+                checked={chosen === method.id}
                 onChange={() => {
                   setShipping(method.id);
                   remember({ shippingMethod: method.id });
@@ -330,13 +462,32 @@ export function CheckoutForm({
                 <span className="block text-[12.5px] font-semibold text-k-ink">
                   {method.label}
                 </span>
-                <span className="mt-0.5 block text-[11.5px] text-k-text-4">{method.meta}</span>
+                <span className="mt-0.5 block text-[11.5px] text-k-text-4">
+                  {abroad && method.id !== "pickup"
+                    ? quote?.status === "ok"
+                      ? method.id === "dhl"
+                        ? t("dhl_meta", { eta: quote.etaDays })
+                        : method.meta
+                      : quote?.status === "loading"
+                        ? t("quoting")
+                        : quote?.status === "unavailable"
+                          ? t("quote_unavailable")
+                          : method.id === "dhl"
+                            ? t("dhl_needs_postcode")
+                            : method.meta
+                    : method.meta}
+                </span>
               </span>
+              {abroad && method.id !== "pickup" && quote?.status === "ok" && (
+                <span className="font-mono text-[13px] font-semibold whitespace-nowrap text-k-ink">
+                  {formatMoney(quote.grossAmount, locale as Locale)}
+                </span>
+              )}
             </label>
           ))}
         </div>
         <p className="mt-2.5 text-[11.5px] text-k-text-4">
-          {t("to_kostos_ypologizetai_apo_to")}
+          {abroad ? t("cost_abroad") : t("to_kostos_ypologizetai_apo_to")}
         </p>
       </Step>
 
@@ -450,7 +601,7 @@ export function CheckoutForm({
 
         <button
           type="submit"
-          disabled={!terms || pending || blocked != null || modeMissing}
+          disabled={!terms || pending || blocked != null || modeMissing || quoteBlocked}
           className="t-btn mt-6 flex h-14 w-full items-center justify-center bg-k-red text-white transition-colors hover:bg-k-red-hover disabled:opacity-50"
         >
           {pending

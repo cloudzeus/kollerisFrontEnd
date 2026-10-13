@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { sendTemplateMail } from "@/lib/mail/send-template";
 import { siteOrigin } from "@/lib/seo/urls";
 import { chargeableWeight } from "@/lib/shipping/acs-tariff";
+import { carrierLabel, localityLine } from "@/lib/shipping/countries";
 
 /**
  * «Η παραγγελία σας απεστάλη» — το email που δεν στελνόταν ποτέ.
@@ -96,12 +97,12 @@ export async function sendShippedEmail(orderNumber: string, voucherNo: string) {
         shipping: {
           name: `${order.firstName} ${order.lastName}`.trim(),
           line1: order.shipLine1 + (order.shipLine2 ? `, ${order.shipLine2}` : ""),
-          line2: `${order.shipPostcode} ${order.shipCity}`,
+          line2: localityLine(order.shipPostcode, order.shipCity, order.shipCountry),
           phone: order.phone,
         },
       },
       shipment: {
-        courier: "ACS Courier",
+        courier: carrierLabel(order.shipCountry, order.shippingMethod) ?? "ACS Courier",
         tracking: voucherNo,
         tracking_url: trackingUrl(voucherNo),
         eta:

@@ -4,6 +4,7 @@ import { grossAmount } from "@/lib/format";
 import { FREE_SHIPPING_THRESHOLD_NET, SHIPPING_METHODS } from "@/lib/cart/options";
 import { isUnserviceable, quoteLivePostage } from "@/lib/shipping/acs-live";
 import { sendPostageCorrectionEmail } from "@/lib/mail/postage-correction-email";
+import { vatRateForDestination } from "@/lib/shipping/vat";
 
 /**
  * Re-pricing the postage of an order that was charged wrongly.
@@ -74,6 +75,10 @@ function refusal(order: LoadedOrder | null): string | null {
   }
   const method = SHIPPING_METHODS.find((m) => m.id === order.shippingMethod);
   if (!method || method.expressMultiplier <= 0) return "Η παραγγελία δεν έχει μεταφορικά courier.";
+  /* The correction re-prices from ACS inside Greece; abroad the price is HDCtool's DHL/ACS quote. */
+  if (order.shipCountry && order.shipCountry !== "GR") {
+    return "Αποστολή εκτός Ελλάδας — τα μεταφορικά ορίζονται από την τιμή της DHL/ACS στο HDCtool, όχι από εδώ.";
+  }
   return null;
 }
 
@@ -107,7 +112,7 @@ async function recompute(order: LoadedOrder) {
   const subtotalNet = Number(order.subtotalNet);
   const freeShipping = method.freeOverThreshold && subtotalNet >= FREE_SHIPPING_THRESHOLD_NET;
   const shippingNet = freeShipping ? 0 : round(quote.totalNet * method.expressMultiplier);
-  const shippingGross = grossAmount(shippingNet, { vatRate: 24 });
+  const shippingGross = grossAmount(shippingNet, { vatRate: vatRateForDestination(order.shipCountry) });
   const totalGross = round(Number(order.subtotalGross) + shippingGross + Number(order.paymentFeeGross));
   const totalNet = round(subtotalNet + shippingNet + Number(order.paymentFeeNet));
 

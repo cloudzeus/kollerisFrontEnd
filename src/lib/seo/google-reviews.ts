@@ -59,7 +59,8 @@ export function estimatedDeliveryDate(
   // well go out on the next working day.
   if (shippingMethod === "pickup") return isoDate(addDays(placedAt, 1));
 
-  const upperBound = Number((etaDays ?? "").split("-").pop()) || 3;
+  // "1-2" from ACS, "2–3" (en dash) from DHL.
+  const upperBound = Number((etaDays ?? "").split(/[-–]/).pop()) || 3;
   return isoDate(addDays(placedAt, upperBound + 2));
 }
 

@@ -79,6 +79,7 @@ const SHIPPING: Record<string, string> = {
   courier: "ACS",
   express: "ACS Express",
   pickup: "Παραλαβή από κατάστημα",
+  dhl: "DHL Express",
 };
 
 type SortKey = "date" | "total" | "customer";
@@ -537,6 +538,7 @@ export function OrdersTable({
                           <Detail label="Αποστολή">
                             {SHIPPING[o.shippingMethod] ?? o.shippingMethod}
                             {o.city ? ` · ${o.city}` : ""}
+                            {o.country && o.country !== "GR" ? ` · ${o.country}` : ""}
                           </Detail>
                           <Detail label="Πληρωμή">
                             {PAYMENT[o.paymentMethod] ?? o.paymentMethod}

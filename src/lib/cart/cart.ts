@@ -8,10 +8,21 @@ import { grossAmount, netAmount } from "@/lib/format";
 import { discountedNet, offerBadgeFor } from "@/lib/offers/badges";
 import { type ParcelItem } from "@/lib/shipping/acs-tariff";
 import { isUnserviceable, quoteLivePostage } from "@/lib/shipping/acs-live";
+import { carrierForCountry, isDhlCountry } from "@/lib/shipping/countries";
+import {
+  isDhlQuote,
+  isQuoteUnavailable,
+  isRefused,
+  quoteDestination,
+  type DestinationQuote,
+} from "@/lib/shipping/courier-quote";
+import { vatRateForDestination } from "@/lib/shipping/vat";
 import {
   FREE_SHIPPING_THRESHOLD_NET,
   PAYMENT_METHODS,
   SHIPPING_METHODS,
+  findShippingMethod,
+  type AnyShippingMethodId,
   type CartLineView,
   type CartTotals,
   type CartView,
@@ -21,6 +32,13 @@ import {
 } from "@/lib/cart/options";
 
 export * from "@/lib/cart/options";
+
+/**
+ * Where the parcel goes, when it is not Greece. Only ever set with
+ * INTERNATIONAL_SHIPPING_ENABLED; absent means Greece and the code below is
+ * exactly what it was before the country selector existed.
+ */
+export type CartDestination = { country?: string | null; city?: string | null };
 
 /**
  * Cart reads.
@@ -89,6 +107,7 @@ export const getCartCount = cache(async (): Promise<number> => {
 export const getCart = cache(async (
   locale: Locale,
   postcode?: string | null,
+  destination?: CartDestination,
 ): Promise<CartView | null> => {
   const token = await getCartToken();
   if (!token) return null;
@@ -203,15 +222,26 @@ export const getCart = cache(async (
     }),
   );
 
-  const shippingMethod = (SHIPPING_METHODS.find((m) => m.id === cart.shippingMethod)?.id ??
-    "courier") as ShippingMethodId;
+  /*
+   * The stored choice, fitted to the destination: abroad every delivery is
+   * DHL; at home a «dhl» left over from an earlier visit is the courier again.
+   * Without a destination this is the original line — "dhl" is not in
+   * SHIPPING_METHODS, so it falls back to the courier as any unknown id did.
+   */
+  const abroad = isDhlCountry(destination?.country);
+  const shippingMethod: AnyShippingMethodId = abroad
+    ? cart.shippingMethod === "pickup"
+      ? "pickup"
+      : "dhl"
+    : ((SHIPPING_METHODS.find((m) => m.id === cart.shippingMethod)?.id ??
+        "courier") as ShippingMethodId);
   const paymentMethod = (PAYMENT_METHODS.find((m) => m.id === cart.paymentMethod)?.id ??
     "card") as PaymentMethodId;
 
   return {
     id: cart.id,
     lines,
-    totals: await computeTotals(lines, shippingMethod, paymentMethod, postcode),
+    totals: await computeTotals(lines, shippingMethod, paymentMethod, postcode, destination),
     shippingMethod,
     paymentMethod,
     couponCode: cart.couponCode,
@@ -227,9 +257,10 @@ export const getCart = cache(async (
  */
 export async function computeTotals(
   lines: CartLineView[],
-  shippingMethodId: ShippingMethodId,
+  shippingMethodId: AnyShippingMethodId,
   paymentMethodId: PaymentMethodId,
   postcode?: string | null,
+  destination?: CartDestination,
 ): Promise<CartTotals> {
   const subtotalNet = lines.reduce((sum, l) => sum + l.lineNet, 0);
   const subtotalGross = lines.reduce((sum, l) => sum + l.lineGross, 0);
@@ -240,7 +271,20 @@ export async function computeTotals(
     return sum + Math.max(0, was - l.lineGross);
   }, 0);
 
-  const shipping = SHIPPING_METHODS.find((m) => m.id === shippingMethodId)!;
+  const country = (destination?.country ?? "GR").toUpperCase();
+  const home = country === "GR";
+  /*
+   * Abroad, every delivery is DHL whatever id the cart row remembered; at home
+   * a «dhl» is meaningless and prices as the courier.
+   */
+  const shipping =
+    findShippingMethod(
+      !home && isDhlCountry(country) && shippingMethodId !== "pickup"
+        ? "dhl"
+        : shippingMethodId === "dhl" && !isDhlCountry(country)
+          ? "courier"
+          : shippingMethodId,
+    ) ?? SHIPPING_METHODS[0];
   const freeShippingReached = subtotalNet >= FREE_SHIPPING_THRESHOLD_NET;
   const payment = PAYMENT_METHODS.find((m) => m.id === paymentMethodId)!;
 
@@ -260,12 +304,27 @@ export async function computeTotals(
   // Live from ACS, falling back to the local table when the courier cannot be
   // reached. Awaited inside `getCart`, which is already cached per request, so
   // one basket render costs at most one ACS round-trip.
-  const live =
-    shipping.expressMultiplier > 0 ? await quoteLivePostage({ items: parcel, postcode }) : null;
+  //
+  // Outside Greece (INTERNATIONAL_SHIPPING_ENABLED only) the destination
+  // module decides: ACS for Cyprus, DHL for the rest of the EU, and no table.
+  const live: DestinationQuote | null =
+    shipping.expressMultiplier > 0
+      ? home
+        ? await quoteLivePostage({ items: parcel, postcode })
+        : await quoteDestination({
+            country,
+            postcode,
+            city: destination?.city,
+            items: parcel,
+            declaredValue: subtotalGross,
+          })
+      : null;
   // A postcode ACS does not serve has no postage to charge, and must not be
   // priced from the table either — the order is refused at checkout.
-  const unserviceable = isUnserviceable(live);
-  const quote = live && !isUnserviceable(live) ? live : null;
+  const unserviceable = isUnserviceable(live) || isRefused(live);
+  const quoteUnavailable = isQuoteUnavailable(live) && !live.pending;
+  const quote =
+    live && !isUnserviceable(live) && !isRefused(live) && !isQuoteUnavailable(live) ? live : null;
 
   const quotedNet = quote ? round(quote.totalNet * shipping.expressMultiplier) : 0;
   const shippingNet =
@@ -276,9 +335,11 @@ export async function computeTotals(
   // future surcharge would flow through here.
   const paymentFeeNet = payment.feeNet;
 
-  // Shipping and fees are charged at the standard rate regardless of basket mix.
-  const shippingGross = grossAmount(shippingNet, { vatRate: 24 });
-  const paymentFeeGross = grossAmount(paymentFeeNet, { vatRate: 24 });
+  // Shipping and fees are charged at the standard rate regardless of basket
+  // mix — Greek 24% for every destination for now (`vatRateForDestination`).
+  const destinationVat = vatRateForDestination(country);
+  const shippingGross = grossAmount(shippingNet, { vatRate: destinationVat });
+  const paymentFeeGross = grossAmount(paymentFeeNet, { vatRate: destinationVat });
 
   const totalGross = round(subtotalGross + shippingGross + paymentFeeGross);
   const totalNet = round(subtotalNet + shippingNet + paymentFeeNet);
@@ -286,7 +347,7 @@ export async function computeTotals(
   return {
     postage: quote
       ? {
-          zoneLabel: quote.zoneLabel,
+          zoneLabel: isDhlQuote(quote) ? "DHL Express" : quote.zoneLabel,
           etaDays: quote.etaDays,
           chargeableKg: quote.chargeableKg,
           estimated: quote.estimated,
@@ -294,6 +355,14 @@ export async function computeTotals(
         }
       : null,
     unserviceable,
+    ...(home
+      ? {}
+      : {
+          destination: { country, carrier: carrierForCountry(country) },
+          refusal: isRefused(live) ? live.error : null,
+          quoteUnavailable,
+          quotePending: isQuoteUnavailable(live) && live.pending === true,
+        }),
     itemCount: lines.length,
     unitCount: lines.reduce((sum, l) => sum + l.quantity, 0),
     subtotalNet: round(subtotalNet),

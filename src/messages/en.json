@@ -523,7 +523,23 @@
       "request_mode_together_help": "Nothing is paid now. We send one offer for the whole basket within 24 hours and everything ships together.",
       "request_mode_required": "Choose how the order should proceed.",
       "request_all_note": "The items in your basket are made to order: you do not pay now. We will send you an offer with final price, shipping and lead time within 24 hours, and you pay only if you accept it.",
-      "apostoli_aitimatos": "Send request"
+      "apostoli_aitimatos": "Send request",
+      "ship_zone_eu": "We ship to Greece, Cyprus and the EU.",
+      "chora": "Country",
+      "address_foreign_eu": "This address is outside Greece. Choose the delivery country.",
+      "tk_unserviceable_eu": "This postcode is not in an area we deliver to. For delivery outside Greece, choose the country.",
+      "postcode_format": "This postcode does not match the country's format — e.g. {example}",
+      "postcode_help_abroad": "The delivery country's postcode, e.g. {example}.",
+      "phone_intl_help": "With the country code, e.g. +39 …",
+      "dhl_meta": "DHL Express · delivery in {eta} working days",
+      "dhl_needs_postcode": "Enter the postcode and city to see the DHL Express cost",
+      "quoting": "Calculating shipping…",
+      "quote_unavailable": "Shipping could not be calculated — please try again",
+      "refused_unserviceable_postcode": "DHL does not deliver to this postcode.",
+      "refused_unsupported_country": "We do not ship to this country.",
+      "refused_invalid_postcode": "This postcode is not valid for the country you chose.",
+      "refused_unserviceable": "This postcode is not in an area we deliver to.",
+      "cost_abroad": "The cost is calculated from the chargeable weight and the destination postcode — see the summary."
     },
     "page": {
       "kalathi": "CART",
@@ -542,7 +558,9 @@
       "i_paraggelia_sas_proionta": "Your order · {itemCount} products",
       "titlos_oloklirosi_paraggelias": "Checkout",
       "katopin_badge": "Made to order",
-      "request_totals_note": "Made-to-order items are priced in the offer you will receive within 24 hours; the amounts here are indicative."
+      "request_totals_note": "Made-to-order items are priced in the offer you will receive within 24 hours; the amounts here are indicative.",
+      "dhl_line": "DHL Express · {country} · delivery in {eta} working days",
+      "quote_unavailable": "Shipping could not be calculated — please try again"
     },
     "AddressAutocomplete": {
       "voitheia": "Type the street and pick from the list. The postcode fills in too."
@@ -636,7 +654,9 @@
       "request_all_text": "Nothing in your basket is in stock right now. You will send a request without paying; we will reply within 24 hours with the final price, shipping and lead time, and you pay only if you accept.",
       "request_mixed_title": "Some items are made to order",
       "request_mixed_text": "At checkout you will choose: ship what is in stock now and request the rest, or request everything together. We answer requests within 24 hours and you pay only if you accept the offer.",
-      "synecheia_aitima": "Continue to request"
+      "synecheia_aitima": "Continue to request",
+      "ship_zone_eu": "We ship to Greece, Cyprus and the EU.",
+      "ship_zone_eu_dhl": "Outside Greece and Cyprus by DHL Express — the cost is calculated at checkout from the country and postcode."
     },
     "MiniCart": {
       "kalathi": "Cart",

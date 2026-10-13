@@ -4,6 +4,7 @@ import type { Prisma } from "@/generated/prisma/client";
 import { hdctoolRequest } from "@/lib/hdctool/client";
 import { resolvePaymentMethod } from "@/lib/orders/viva-payment-method";
 import { readSnapshot, requestBlocksErp } from "@/lib/requests/model";
+import { shippingIntakeBlock } from "@/lib/shipping/intake";
 
 /**
  * Sending a paid order to SoftOne — the half that was missing.
@@ -176,8 +177,19 @@ function buildIntakeBody(order: OrderWithLines) {
      * accepted; `request.lines` are what the customer originally asked for.
      */
     ...(order.requestStatus ? { request: buildRequestBlock(order) } : {}),
+
+    /*
+     * DHL Express abroad (docs/dhl-express.md §2). Absent for ACS — every
+     * Greek and Cypriot order posts exactly the body it always did.
+     */
+    ...withShippingBlock(order),
   };
 
+}
+
+function withShippingBlock(order: OrderWithLines) {
+  const shipping = shippingIntakeBlock(order);
+  return shipping ? { shipping } : {};
 }
 
 function buildRequestBlock(order: OrderWithLines) {

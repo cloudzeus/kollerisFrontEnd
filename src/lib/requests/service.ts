@@ -72,6 +72,8 @@ export async function applyOfferWebhook(
       paymentStatus: true,
       shippingMethod: true,
       shipPostcode: true,
+      shipCountry: true,
+      shipCity: true,
       requestStatus: true,
       requestLines: true,
       offerVersion: true,
@@ -112,10 +114,13 @@ export async function applyOfferWebhook(
      * read the same figure instead of three ACS calls that could disagree.
      */
     let quotedShippingNet: number | null = null;
+    /* Abroad: the DHL quote behind that figure, for the intake's shipping block. */
+    let quotedDhl: unknown = null;
     if (body.shippingNet == null) {
       try {
         const quoted = await quoteOfferShipping(order, body.lines);
         if (quoted.ok) quotedShippingNet = quoted.shippingNet;
+        if (quoted.ok && quoted.dhl) quotedDhl = JSON.parse(JSON.stringify(quoted.dhl));
       } catch (error) {
         console.error(`[request] ${order.orderNumber}: shipping quote failed, retried on acceptance`, error);
       }
@@ -138,6 +143,7 @@ export async function applyOfferWebhook(
       requestStatus: "OFFERED",
       offerVersion: body.offerVersion,
       offerJson: stored,
+      ...(quotedDhl ? { shippingQuote: quotedDhl } : {}),
       offerExpiresAt: expiresAt,
       offerRemindedAt: null,
       requestDecisionAt: null,
@@ -227,6 +233,8 @@ const requestSelect = {
   phone: true,
   shippingMethod: true,
   shipPostcode: true,
+  shipCountry: true,
+  shipCity: true,
   totalGross: true,
   requestStatus: true,
   requestLines: true,
@@ -265,12 +273,15 @@ export async function acceptRequest(
   }
 
   let shippingNet = offerShippingNet(offer);
+  /* Abroad: the DHL quote the charge rests on, kept for the intake's shipping block. */
+  let dhlQuote: Awaited<ReturnType<typeof quoteOfferShipping>> | null = null;
   if (shippingNet == null) {
     const quoted = await quoteOfferShipping(order, offer.lines);
     if (!quoted.ok) return { ok: false, error: "unserviceable" };
     shippingNet = quoted.shippingNet;
+    dhlQuote = quoted;
   }
-  const totals = priceLines(offer.lines, shippingNet);
+  const totals = priceLines(offer.lines, shippingNet, order.shipCountry);
 
   // The catalogue fills what the offer does not carry: product id, picture, brand, weight.
   const mtrls = [...new Set(offer.lines.map((l) => l.mtrl))];
@@ -332,6 +343,9 @@ export async function acceptRequest(
         vatAmount: totals.vatAmount,
         totalGross: totals.totalGross,
         savingsGross: 0,
+        ...(dhlQuote?.ok && dhlQuote.dhl
+          ? { shippingQuote: JSON.parse(JSON.stringify(dhlQuote.dhl)) }
+          : {}),
       },
     });
     if (count === 0) return false;

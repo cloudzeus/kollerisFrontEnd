@@ -523,7 +523,23 @@
       "request_mode_together_help": "Nulla viene pagato ora. Inviamo un'offerta per tutto il carrello entro 24 ore e spediamo tutto insieme.",
       "request_mode_required": "Scegli come procedere con l'ordine.",
       "request_all_note": "I prodotti del carrello sono su ordinazione: non paghi ora. Ti invieremo un'offerta con prezzo finale, spedizione e tempi di consegna entro 24 ore, e paghi solo se la accetti.",
-      "apostoli_aitimatos": "Invia richiesta"
+      "apostoli_aitimatos": "Invia richiesta",
+      "ship_zone_eu": "Spediamo in Grecia, a Cipro e nei paesi dell'UE.",
+      "chora": "Paese",
+      "address_foreign_eu": "L'indirizzo è fuori dalla Grecia. Scegli il paese di consegna.",
+      "tk_unserviceable_eu": "Questo CAP non rientra in una zona che serviamo. Per la consegna fuori dalla Grecia, scegli il paese.",
+      "postcode_format": "Il CAP non corrisponde al formato del paese — es. {example}",
+      "postcode_help_abroad": "Il CAP del paese di consegna, es. {example}.",
+      "phone_intl_help": "Con il prefisso internazionale, es. +39 …",
+      "dhl_meta": "DHL Express · consegna in {eta} giorni lavorativi",
+      "dhl_needs_postcode": "Inserisci CAP e città per il costo DHL Express",
+      "quoting": "Calcolo della spedizione…",
+      "quote_unavailable": "Non è stato possibile calcolare la spedizione — riprova",
+      "refused_unserviceable_postcode": "DHL non consegna a questo CAP.",
+      "refused_unsupported_country": "Non spediamo in questo paese.",
+      "refused_invalid_postcode": "Questo CAP non è valido per il paese scelto.",
+      "refused_unserviceable": "Questo CAP non rientra in una zona che serviamo.",
+      "cost_abroad": "Il costo è calcolato dal peso tassabile e dal CAP di destinazione — vedi il riepilogo."
     },
     "page": {
       "kalathi": "CARRELLO",
@@ -542,7 +558,9 @@
       "i_paraggelia_sas_proionta": "Il tuo ordine · {itemCount} prodotti",
       "titlos_oloklirosi_paraggelias": "Completa l'ordine",
       "katopin_badge": "Su ordinazione",
-      "request_totals_note": "I prodotti su ordinazione sono prezzati nell'offerta che riceverai entro 24 ore; gli importi qui sono indicativi."
+      "request_totals_note": "I prodotti su ordinazione sono prezzati nell'offerta che riceverai entro 24 ore; gli importi qui sono indicativi.",
+      "dhl_line": "DHL Express · {country} · consegna in {eta} giorni lavorativi",
+      "quote_unavailable": "Non è stato possibile calcolare la spedizione — riprova"
     },
     "AddressAutocomplete": {
       "voitheia": "Digita la via e scegli dalla lista. Si compila anche il CAP."
@@ -636,7 +654,9 @@
       "request_all_text": "Nessun prodotto del carrello è disponibile ora. Invierai una richiesta senza pagare; risponderemo entro 24 ore con prezzo finale, spedizione e tempi di consegna, e paghi solo se accetti.",
       "request_mixed_title": "Alcuni prodotti su ordinazione",
       "request_mixed_text": "Al checkout sceglierai: spedire ora ciò che è disponibile e richiedere il resto, oppure richiedere tutto insieme. Rispondiamo entro 24 ore e paghi solo se accetti l'offerta.",
-      "synecheia_aitima": "Continua con la richiesta"
+      "synecheia_aitima": "Continua con la richiesta",
+      "ship_zone_eu": "Spediamo in Grecia, a Cipro e nei paesi dell'UE.",
+      "ship_zone_eu_dhl": "Fuori da Grecia e Cipro con DHL Express — il costo è calcolato al checkout in base a paese e CAP."
     },
     "MiniCart": {
       "kalathi": "Carrello",

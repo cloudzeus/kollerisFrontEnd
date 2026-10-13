@@ -4,7 +4,8 @@ import { sendMail, mailConfigured } from "@/lib/mail/client";
 import { renderTemplate } from "@/lib/mail/templates";
 import { internalOrderRecipients } from "@/lib/mail/order-internal-email";
 import { siteOrigin } from "@/lib/seo/urls";
-import { SHIPPING_METHODS } from "@/lib/cart/options";
+import { findShippingMethod } from "@/lib/cart/options";
+import { localityLine } from "@/lib/shipping/countries";
 import {
   REQUEST_ANSWER_HOURS,
   compareOffer,
@@ -209,7 +210,7 @@ export function requestEmailView(order: LoadedRequest, kind: RequestEmailKind) {
   const shippingNet = offerShippingNet(offer);
   const totals = priceLines(offer.lines, shippingNet ?? 0);
   const expires = order.offerExpiresAt ?? new Date(offer.expiresAt);
-  const shippingLabel = SHIPPING_METHODS.find((m) => m.id === order.shippingMethod)?.label ?? order.shippingMethod;
+  const shippingLabel = findShippingMethod(order.shippingMethod)?.label ?? order.shippingMethod;
   const reminder = kind === "reminder";
 
   return {
@@ -320,7 +321,7 @@ export async function sendInternalRequestEmail(orderNumber: string): Promise<Req
     const requested = readSnapshot(order.requestLines)?.lines ?? [];
     const priced = priceLines(requested, 0);
     const admin = `${siteOrigin()}/admin/orders/${encodeURIComponent(order.orderNumber)}`;
-    const shippingLabel = SHIPPING_METHODS.find((m) => m.id === order.shippingMethod)?.label ?? order.shippingMethod;
+    const shippingLabel = findShippingMethod(order.shippingMethod)?.label ?? order.shippingMethod;
 
     const view = {
       subject: `Νέο αίτημα κατόπιν παραγγελίας ${order.orderNumber} — ${money(priced.subtotalGross)}`,
@@ -343,7 +344,7 @@ export async function sendInternalRequestEmail(orderNumber: string): Promise<Req
         { label: "Πελατης", value: `${order.firstName} ${order.lastName}`.trim() },
         { label: "Email", value: order.email },
         { label: "Τηλεφωνο", value: order.phone },
-        { label: "Διευθυνση", value: `${order.shipLine1}${order.shipLine2 ? `, ${order.shipLine2}` : ""}, ${order.shipPostcode} ${order.shipCity}` },
+        { label: "Διευθυνση", value: `${order.shipLine1}${order.shipLine2 ? `, ${order.shipLine2}` : ""}, ${localityLine(order.shipPostcode, order.shipCity, order.shipCountry)}` },
         { label: "Αποστολη", value: shippingLabel },
         ...(order.wantsInvoice
           ? [{ label: "Τιμολογιο", value: `${order.companyName ?? "—"} · ΑΦΜ ${order.vatNumber ?? "—"}` }]

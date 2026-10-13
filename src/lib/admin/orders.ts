@@ -111,6 +111,7 @@ export async function getOrders({
         email: true,
         phone: true,
         shipCity: true,
+        shipCountry: true,
         shippingMethod: true,
         paymentMethod: true,
         wantsInvoice: true,
@@ -149,6 +150,8 @@ export async function getOrders({
       email: o.email,
       phone: o.phone,
       city: o.shipCity,
+      /* ISO-2; "GR" for every order before INTERNATIONAL_SHIPPING_ENABLED. */
+      country: o.shipCountry,
       shippingMethod: o.shippingMethod,
       paymentMethod: o.paymentMethod,
       wantsInvoice: o.wantsInvoice,

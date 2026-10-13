@@ -18,9 +18,13 @@ import {
   getTopBrands,
 } from "@/lib/catalog/queries";
 import { formatMoney } from "@/lib/format";
+import { countryName } from "@/lib/shipping/countries";
 import { upGreek } from "@/lib/greek";
 import { isVivaConfigured } from "@/lib/payment/viva";
 import { isOnRequest, splitCart } from "@/lib/requests/model";
+import { isInternationalShippingEnabled } from "@/lib/shipping/flag";
+import { readDestination } from "@/lib/shipping/destination-cookie";
+import type { DeliveryQuoteAnswer } from "@/lib/shipping/actions";
 
 export const dynamic = "force-dynamic";
 
@@ -56,9 +60,22 @@ export default async function CheckoutPage({
   const { locale } = await params;
   setRequestLocale(locale);
 
+  /*
+   * Delivery abroad (INTERNATIONAL_SHIPPING_ENABLED only): the destination the
+   * form last priced, so the summary is priced for the same place. Null with
+   * the flag off or for Greece — the page is then exactly what it was.
+   */
+  const international = isInternationalShippingEnabled();
+  const destination = international ? await readDestination() : null;
+
   const [cart, miniCart, menuTree, brands, stats, rootCategories, viewer] =
     await Promise.all([
-      getCart(locale),
+      destination
+        ? getCart(locale, destination.postcode, {
+            country: destination.country,
+            city: destination.city,
+          })
+        : getCart(locale),
       getMiniCart(locale),
       getMenuTree(locale),
       getTopBrands(locale),
@@ -107,6 +124,24 @@ export default async function CheckoutPage({
   if (!cart || cart.lines.length === 0) redirect("/kalathi");
 
   const totals = cart.totals;
+  /* The form opens priced for the remembered destination. */
+  const initialQuote: DeliveryQuoteAnswer | null = !destination
+    ? null
+    : totals.quoteUnavailable
+      ? { status: "unavailable" }
+      : totals.refusal
+        ? { status: "refused", code: totals.refusal }
+        : totals.unserviceable
+          ? { status: "refused", code: "unserviceable" }
+          : totals.postage
+            ? {
+                status: "ok",
+                carrier: totals.destination?.carrier === "DHL" ? "DHL" : "ACS",
+                netAmount: totals.shippingNet,
+                grossAmount: totals.shippingGross,
+                etaDays: totals.postage.etaDays,
+              }
+            : null;
   /* Back-order requests: shapes the form; the action decides again on submit. */
   const requestKind = splitCart(cart.lines).kind;
 
@@ -196,6 +231,9 @@ export default async function CheckoutPage({
             shippingMethod={cart.shippingMethod}
             paymentMethod={cart.paymentMethod}
             requestKind={requestKind}
+            international={international}
+            destination={destination}
+            initialQuote={initialQuote}
           />
         </div>
 
@@ -284,13 +322,27 @@ export default async function CheckoutPage({
               </p>
             )}
 
-            {totals.postage && (
+            {totals.postage && totals.postage.carrier === "DHL" ? (
+              <p className="mt-2.5 text-[11px] leading-[1.5] text-white/45">
+                {t("dhl_line", {
+                  eta: totals.postage.etaDays,
+                  country: countryName(totals.destination?.country, locale),
+                })}{" "}
+                · {totals.postage.chargeableKg} kg
+                {totals.postage.estimated && t("ektimisi")}
+              </p>
+            ) : totals.postage ? (
               <p className="mt-2.5 text-[11px] leading-[1.5] text-white/45">
                 {totals.postage.carrier} · {totals.postage.zoneLabel} ·{" "}
                 {totals.postage.chargeableKg} kg
                 {totals.postage.estimated && t("ektimisi")}
                 {" — "}
                 {t("oristikopoieitai_me_to_t_k")}
+              </p>
+            ) : null}
+            {totals.quoteUnavailable && (
+              <p className="mt-2.5 text-[11px] leading-[1.5] text-white/70">
+                {t("quote_unavailable")}
               </p>
             )}
 

@@ -6,7 +6,8 @@ import { sendMail, mailConfigured } from "@/lib/mail/client";
 import { renderTemplate } from "@/lib/mail/templates";
 import { siteOrigin } from "@/lib/seo/urls";
 import { holdHours } from "@/lib/orders/hold";
-import { SHIPPING_METHODS, PAYMENT_METHODS } from "@/lib/cart/options";
+import { ALL_SHIPPING_METHODS, PAYMENT_METHODS } from "@/lib/cart/options";
+import { localityLine } from "@/lib/shipping/countries";
 
 /**
  * Το email της παραγγελίας, από τα templates του Kolleris Email System.
@@ -173,8 +174,8 @@ export async function buildOrderContext(orderNumber: string) {
   const feeNet = Number(order.paymentFeeNet);
   const shippingLabel =
     feeNet > 0
-      ? `${label(SHIPPING_METHODS, order.shippingMethod)} + έξοδα πληρωμής`
-      : label(SHIPPING_METHODS, order.shippingMethod);
+      ? `${label(ALL_SHIPPING_METHODS, order.shippingMethod)} + έξοδα πληρωμής`
+      : label(ALL_SHIPPING_METHODS, order.shippingMethod);
 
   /*
    * Ο συντελεστής ΦΠΑ γράφεται μόνο όταν είναι ένας.
@@ -184,11 +185,14 @@ export async function buildOrderContext(orderNumber: string) {
   const rates = [...new Set(order.lines.map((l) => Number(l.vatRate)))];
   const vatLabel = rates.length === 1 ? `${rates[0]}%` : "";
 
-  const quote = order.shippingQuote as { etaDays?: unknown } | null;
+  const quote = order.shippingQuote as { etaDays?: unknown; carrier?: unknown } | null;
   const etaDays = Number(quote?.etaDays);
-  const eta = Number.isFinite(etaDays) && etaDays > 0
-    ? `Παράδοση σε ${etaDays} ${etaDays === 1 ? "εργάσιμη" : "εργάσιμες"}`
-    : "";
+  const eta =
+    quote?.carrier === "DHL" && typeof quote.etaDays === "string"
+      ? `DHL Express · παράδοση σε ${quote.etaDays} εργάσιμες`
+      : Number.isFinite(etaDays) && etaDays > 0
+        ? `Παράδοση σε ${etaDays} ${etaDays === 1 ? "εργάσιμη" : "εργάσιμες"}`
+        : "";
 
   const orderData = {
     number: order.orderNumber,
@@ -211,7 +215,7 @@ export async function buildOrderContext(orderNumber: string) {
     shipping: {
       name: `${order.firstName} ${order.lastName}`.trim(),
       line1: order.shipLine1 + (order.shipLine2 ? `, ${order.shipLine2}` : ""),
-      line2: `${order.shipPostcode} ${order.shipCity}`,
+      line2: localityLine(order.shipPostcode, order.shipCity, order.shipCountry),
       phone: order.phone,
     },
     billing: order.wantsInvoice
@@ -225,7 +229,7 @@ export async function buildOrderContext(orderNumber: string) {
       : {
           name: `${order.firstName} ${order.lastName}`.trim(),
           line1: order.shipLine1 + (order.shipLine2 ? `, ${order.shipLine2}` : ""),
-          line2: `${order.shipPostcode} ${order.shipCity}`,
+          line2: localityLine(order.shipPostcode, order.shipCity, order.shipCountry),
           vat: "",
           doy: "",
         },
