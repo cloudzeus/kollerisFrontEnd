@@ -68,6 +68,19 @@ HDCtool timer: requests still REQUESTED after 20h → one alert email to the sho
 ## 7. Emails (Greek, existing templates/style; EN/IT where the shop has locales)
 Request received · Offer ready (with link) · Offer reminder · Request rejected (with reason) · Offer expired. Secret-bearing links: Mailgun `tracking: false` (HDCtool helper has it; eshops: check their mailer and disable click tracking for these).
 
+## HDCtool interface notes
+
+Clarifications of §3–§4 as HDCtool implements them (both eshops follow them):
+
+- **Offer lines.** `original` lines come WITHOUT `replacesLineId` — the eshop matches them to the requested line by `mtrl`. `modified` is sent only when qty or price changed (a lead time alone is not a change). A product staff add («Προσθήκη προϊόντος») is `kind: "alternative"` WITHOUT `replacesLineId`: an additional line, shown «Προσθήκη», never «αντί για …». `alternative` WITH `replacesLineId` is a substitute.
+- **`shippingNet`** is always present; `null` = the eshop computes shipping (its normal ACS quote for the offered lines and the order's postcode).
+- **Reject** body is exactly `{ orderNumber, offerVersion, decision: "reject", reason }`, `reason` always present. A reject also increments `offerVersion`, so a reject with a higher version than the last offer is applied; an offer after a reject never comes from HDCtool.
+- **Delivery / retries.** HDCtool marks OFFERED/REJECTED only on HTTP 2xx with JSON `{ ok: true }`. On anything else it keeps the offer as undelivered and retries the SAME `offerVersion` — so a repeat of the same version must answer `{ ok: true }` without emailing the customer again (the eshop answers `{ ok: true, duplicate: true }`; an older version `{ ok: true, ignored: "stale_offer_version" }`).
+- **Signature**: `x-hdc-signature` + `x-hdc-timestamp`, the same as `order-status`. Path `<webhook base>/order-offer` — Kolleris: the base used for `order-status` / `order-shipped`; Milwaukee: the base HDCtool calls for `HDC-` orders.
+- **Intake** (`POST /api/public/orders`): `request: { status, requestedAt, parentOrderNumber?, lines: [{ lineId, mtrl, sku, name, qty, unitNet, vatRate, stockAtRequest }], offerVersion?, customerNote? }`. Money may be numbers or strings. A malformed block → HTTP 400 with nothing written (the eshop logs it and records it in `orders.erpError`). The response carries `request: { status }` as stored. Status never moves backwards (REQUESTED < OFFERED < terminal); among terminal statuses the eshop wins.
+- **After acceptance + payment** the ordinary re-post with `paymentStatus: "PAID"` releases the order to SoftOne; it keeps the `request` block with `status: "ACCEPTED"` and the `offerVersion` the customer accepted (the eshop refuses newer offers once ACCEPTED, so `offerVersion` stays the accepted one).
+- HDCtool accepts staff decisions only while the request is REQUESTED or OFFERED.
+
 ---
 
 ## Appendix — how the Kolleris eshop implements it

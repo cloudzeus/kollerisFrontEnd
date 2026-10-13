@@ -136,6 +136,21 @@ describe("compareOffer — requested vs offered", () => {
     expect(rows.map((r) => r.kind)).toEqual(["same", "removed", "removed"]);
   });
 
+  it("HDCtool's added product (alternative WITHOUT replacesLineId) is an extra line, not «αντί για»", () => {
+    const rows = compareOffer(requested, [
+      offerLine({}),
+      offerLine({ mtrl: 102, sku: "B", name: "Κόφτης", qty: 1, unitNet: 20 }),
+      offerLine({ mtrl: 103, sku: "C", name: "Κατσαβίδι", qty: 1, unitNet: 5 }),
+      offerLine({ kind: "alternative", mtrl: 555, sku: "X", name: "Θήκη", qty: 1, unitNet: 9 }),
+    ]);
+    expect(rows.map((r) => r.kind)).toEqual(["same", "same", "same", "added"]);
+  });
+
+  it("a lead time alone is not a change", () => {
+    const rows = compareOffer(requested, [offerLine({ leadTimeText: "5–7 εργάσιμες" })]);
+    expect(rows[0]).toMatchObject({ kind: "same", qtyChanged: false, priceChanged: false });
+  });
+
   it("an `original` without a reference is matched by MTRL", () => {
     const rows = compareOffer(requested, [offerLine({ mtrl: 102, sku: "B", name: "Κόφτης", qty: 1, unitNet: 20 })]);
     expect(rows[1]).toMatchObject({ kind: "same" });

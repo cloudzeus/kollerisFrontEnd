@@ -1538,7 +1538,7 @@
       "tag_same": "As requested",
       "tag_modified": "Changed",
       "tag_alternative": "Alternative",
-      "tag_added": "Added",
+      "tag_added": "Addition",
       "tag_removed": "Not available",
       "instead_of": "instead of {name}",
       "requested_qty": "You asked for {qty} pcs",

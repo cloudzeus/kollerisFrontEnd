@@ -88,6 +88,47 @@ describe("HDCtool offer webhook — applyOfferWebhook", () => {
     expect(calls).toEqual(["mail:rejected:KOL-20261013-0002"]);
   });
 
+  it("a reject after an offer carries a higher version (HDCtool increments it) and is applied", async () => {
+    const order = seedRequest();
+    await applyOfferWebhook(offer(), NOW);
+    calls.length = 0;
+    const body = offerWebhookSchema.parse({ orderNumber: order.orderNumber, offerVersion: 2, decision: "reject", reason: "Δεν διατίθεται πια" });
+    expect((await applyOfferWebhook(body, NOW)).body).toMatchObject({ ok: true, requestStatus: "REJECTED", offerVersion: 2 });
+    expect(order).toMatchObject({ requestStatus: "REJECTED", offerVersion: 2, offerExpiresAt: null });
+    expect(calls).toEqual(["mail:rejected:KOL-20261013-0002"]);
+  });
+
+  it("HDCtool's retry of an undelivered version answers { ok: true } and emails nobody", async () => {
+    seedRequest();
+    const first = await applyOfferWebhook(offer(), NOW);
+    const retry = await applyOfferWebhook(offer(), NOW);
+    expect(first.status).toBe(200);
+    expect(retry.status).toBe(200);
+    expect(retry.body.ok).toBe(true);
+    expect(calls.filter((c) => c.startsWith("mail:"))).toEqual(["mail:offer:KOL-20261013-0002"]);
+  });
+
+  it("an offer exactly as HDCtool sends it: originals by MTRL, an added product, shippingNet null", async () => {
+    const order = seedRequest();
+    const body = offerWebhookSchema.parse({
+      orderNumber: order.orderNumber,
+      offerVersion: 1,
+      decision: "offer",
+      lines: [
+        { kind: "original", mtrl: 101, sku: "KN-1", name: "Πένσα", qty: 2, unitNet: 10, vatRate: 24 },
+        { kind: "modified", replacesLineId: "L2", mtrl: 102, sku: "KN-2", name: "Κόφτης", qty: 1, unitNet: 22, vatRate: 24 },
+        { kind: "alternative", mtrl: 555, sku: "KN-X", name: "Θήκη", qty: 1, unitNet: 9, vatRate: 24 },
+      ],
+      removedLineIds: [],
+      leadTimeText: null,
+      shippingNet: null,
+      note: null,
+      expiresAt: "2026-10-16T10:00:00.000Z",
+    });
+    expect((await applyOfferWebhook(body, NOW)).status).toBe(200);
+    expect(order.offerJson).toMatchObject({ shippingNet: null, quotedShippingNet: 5.5 });
+  });
+
   it("quotes shipping once, on receipt, when HDCtool leaves it out", async () => {
     const order = seedRequest();
     await applyOfferWebhook(offer({ shippingNet: null }), NOW);

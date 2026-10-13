@@ -317,7 +317,9 @@ const priceDiffers = (a: number, b: number) => Math.abs(a - b) >= 0.005;
  * Lines side by side, in the order the customer asked for them.
  *
  * An offered line belongs to a requested one through `replacesLineId`; an
- * `original` without one is matched by MTRL. A requested line the offer does not
+ * `original` (HDCtool sends those without one) is matched by MTRL. `modified`
+ * is HDCtool's word for a changed quantity or price — the comparison below
+ * also checks both itself, so a lead time alone never reads as a change. A requested line the offer does not
  * mention is shown removed whether or not HDCtool listed it in `removedLineIds`
  * — it is not in the offer, so it will not be in the order.
  */
@@ -370,7 +372,7 @@ export function compareOffer(
       const qtyChanged = off.qty !== req.qty;
       const priceChanged = priceDiffers(off.unitNet, req.unitNet);
       rows.push({
-        kind: qtyChanged || priceChanged || off.kind === "modified" ? "modified" : "same",
+        kind: qtyChanged || priceChanged ? "modified" : "same",
         requested: req,
         offered: off,
         qtyChanged,
@@ -378,9 +380,12 @@ export function compareOffer(
       });
     }
   }
-  for (const off of unmatched) {
-    rows.push(off.kind === "alternative" ? { kind: "alternative", requested: null, offered: off } : { kind: "added", offered: off });
-  }
+  /*
+   * Lines that replace nothing. HDCtool sends a product staff ADDED
+   * («Προσθήκη προϊόντος») as `alternative` without `replacesLineId` — an extra
+   * line, not a substitute, so it is shown «Προσθήκη», never «αντί για …».
+   */
+  for (const off of unmatched) rows.push({ kind: "added", offered: off });
   return rows;
 }
 

@@ -101,7 +101,7 @@ function comparisonItem(row: ComparisonRow) {
   if (row.kind === "alternative") {
     return { ...base, tag: "Εναλλακτικο", was: row.requested ? `Αντί για: ${row.requested.name}` : "" };
   }
-  if (row.kind === "added") return { ...base, tag: "Προσθετο", was: "" };
+  if (row.kind === "added") return { ...base, tag: "Προσθηκη", was: "" };
   if (row.kind === "modified") {
     const r = row.requested;
     const was = [
