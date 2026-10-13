@@ -1,6 +1,7 @@
 import "server-only";
 import { prisma } from "@/lib/prisma";
 import { afterPaymentConfirmed, markOrderPaid, toCents, type FollowUps } from "@/lib/payment/confirm-payment";
+import { requestBlocksPayment } from "@/lib/requests/model";
 
 /**
  * «Καταχώριση πληρωμής» — the operator says the money is in the account.
@@ -149,6 +150,7 @@ export async function recordManualPayment(
       paymentMethod: true,
       totalGross: true,
       createdAt: true,
+      requestStatus: true,
     },
   });
   if (!order) return { ok: false, error: "Η παραγγελία δεν βρέθηκε." };
@@ -162,6 +164,14 @@ export async function recordManualPayment(
 
   if (order.status === "CANCELLED") {
     return { ok: false, error: "Η παραγγελία είναι ακυρωμένη — δεν καταχωρίζεται πληρωμή." };
+  }
+
+  /* A back-order request becomes payable only once the customer accepts an offer. */
+  if (requestBlocksPayment(order.requestStatus)) {
+    return {
+      ok: false,
+      error: "Αίτημα κατόπιν παραγγελίας χωρίς αποδεκτή πρόταση — δεν καταχωρίζεται πληρωμή.",
+    };
   }
 
   const checked = validateManualPayment(input, order, now);

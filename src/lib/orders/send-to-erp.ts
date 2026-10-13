@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import type { Prisma } from "@/generated/prisma/client";
 import { hdctoolRequest } from "@/lib/hdctool/client";
 import { resolvePaymentMethod } from "@/lib/orders/viva-payment-method";
+import { readSnapshot, requestBlocksErp } from "@/lib/requests/model";
 
 /**
  * Sending a paid order to SoftOne — the half that was missing.
@@ -167,9 +168,41 @@ function buildIntakeBody(order: OrderWithLines) {
       lineGross: money(line.lineGross),
       weightKg: line.weightKg == null ? null : line.weightKg.toFixed(3),
     })),
+
+    /*
+     * A back-order request (contract §3, docs/backorder-requests.md). Absent on
+     * every ordinary order, so HDCtool's intake sees exactly the body it always
+     * did. `lines` above are the order's CURRENT lines — the offer, once
+     * accepted; `request.lines` are what the customer originally asked for.
+     */
+    ...(order.requestStatus ? { request: buildRequestBlock(order) } : {}),
   };
 
 }
+
+function buildRequestBlock(order: OrderWithLines) {
+  const snapshot = readSnapshot(order.requestLines);
+  return {
+    status: order.requestStatus,
+    requestedAt: (order.requestedAt ?? order.createdAt).toISOString(),
+    ...(order.parentOrderNumber ? { parentOrderNumber: order.parentOrderNumber } : {}),
+    lines: (snapshot?.lines ?? []).map((line) => ({
+      lineId: line.lineId,
+      mtrl: line.mtrl,
+      sku: line.sku,
+      name: line.name,
+      qty: line.qty,
+      unitNet: line.unitNet,
+      vatRate: line.vatRate,
+      stockAtRequest: line.stockAtRequest,
+    })),
+    ...(order.offerVersion != null ? { offerVersion: order.offerVersion } : {}),
+    ...(order.notes?.trim() ? { customerNote: order.notes.trim() } : {}),
+  };
+}
+
+/** For the tests: the body exactly as it is posted. */
+export { buildIntakeBody };
 
 /** `12.30`, not `12.3` — see the note above about comparing stored figures. */
 function money(value: { toFixed: (n: number) => string } | null | undefined): string | undefined {
@@ -202,6 +235,19 @@ export async function sendOrderToErp(orderNumber: string): Promise<SendToErpResu
    */
   if (order.paymentStatus !== "PAID") {
     return { ok: false, stage: "order", error: "Η παραγγελία δεν είναι πληρωμένη." };
+  }
+
+  /*
+   * A back-order request is not a sale until it was accepted AND paid. Checked
+   * on its own, not left to the payment check above: a request has no business
+   * in SoftOne in any other state, whatever the payment column says.
+   */
+  if (requestBlocksErp(order)) {
+    return {
+      ok: false,
+      stage: "order",
+      error: "Αίτημα κατόπιν παραγγελίας που δεν έχει γίνει αποδεκτό και πληρωθεί.",
+    };
   }
 
   const body = buildIntakeBody(order);
@@ -312,6 +358,35 @@ export async function syncPaymentToErp(
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     await recordFailure(order.id, `Ενημέρωση πληρωμής στο HDCtool: ${message}`);
+    return { ok: false, error: message };
+  }
+}
+
+/**
+ * Tell HDCtool where a back-order request stands — on submission and on every
+ * change the shop makes (ACCEPTED, DECLINED, EXPIRED). Contract §3.
+ *
+ * Intake only, never the push: HDCtool stores the request for its requests
+ * screen, and nothing about a request is a document until it has been paid —
+ * at which point the ordinary paid path (`afterPaymentConfirmed`) takes over.
+ * The intake is idempotent by order number, so re-posting is the protocol.
+ */
+export async function syncRequestToHdctool(
+  orderNumber: string,
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  const order = await prisma.order.findUnique({
+    where: { orderNumber },
+    include: { lines: true },
+  });
+  if (!order) return { ok: false, error: "Η παραγγελία δεν βρέθηκε." };
+  if (!order.requestStatus) return { ok: false, error: "Δεν είναι αίτημα κατόπιν παραγγελίας." };
+
+  try {
+    await hdctoolRequest<{ success?: boolean }>("/api/public/orders", buildIntakeBody(order));
+    return { ok: true };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    await recordFailure(order.id, `Αίτημα → HDCtool (${order.requestStatus}): ${message}`);
     return { ok: false, error: message };
   }
 }

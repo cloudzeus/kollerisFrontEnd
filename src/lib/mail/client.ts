@@ -48,6 +48,15 @@ export type Mail = {
   /** Ορατή κοινοποίηση — ο παραλήπτης βλέπει ποιος άλλος το έλαβε. */
   cc?: string;
   bcc?: string;
+  /**
+   * `false` turns Mailgun's click and open tracking off for this message.
+   *
+   * For links that ARE the credential — the back-order request page opens on
+   * its token alone. With click tracking on, Mailgun rewrites every link
+   * through its own redirect host, so the secret would be logged and replayable
+   * on a third party's servers. Default (undefined) keeps the domain setting.
+   */
+  tracking?: boolean;
 };
 
 export async function sendMail(mail: Mail): Promise<SendResult> {
@@ -69,6 +78,11 @@ export async function sendMail(mail: Mail): Promise<SendResult> {
   if (mail.replyTo) form.set("h:Reply-To", mail.replyTo);
   if (mail.cc) form.set("cc", mail.cc);
   if (mail.bcc) form.set("bcc", mail.bcc);
+  if (mail.tracking === false) {
+    form.set("o:tracking", "no");
+    form.set("o:tracking-clicks", "no");
+    form.set("o:tracking-opens", "no");
+  }
 
   try {
     const response = await fetch(`${ENDPOINT}/v3/${DOMAIN}/messages`, {

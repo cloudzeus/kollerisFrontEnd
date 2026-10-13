@@ -6,6 +6,7 @@ import { CartActionsRow } from "@/components/cart/CartActionsRow";
 import { CartCrossSell } from "@/components/cart/CartCrossSell";
 import { CartLineRow } from "@/components/cart/CartLineRow";
 import { CartSummaryPanel } from "@/components/cart/CartSummaryPanel";
+import { splitCart } from "@/lib/requests/model";
 import { QuickOrderPaste } from "@/components/cart/QuickOrderPaste";
 import { SiteChrome } from "@/components/chrome/SiteChrome";
 import { SiteFooter } from "@/components/chrome/SiteFooter";
@@ -210,6 +211,7 @@ export default async function CartPage({
               totals={cart!.totals}
               shippingMethod={cart!.shippingMethod}
               paymentMethod={cart!.paymentMethod}
+              requestKind={splitCart(lines).kind}
             />
           </div>
         )}

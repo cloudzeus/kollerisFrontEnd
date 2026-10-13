@@ -11,6 +11,7 @@ import { STOCK_HOLD_HOURS } from "@/lib/orders/hold";
 import { upGreek } from "@/lib/greek";
 import { checkDeliveryPostcode } from "@/lib/shipping/actions";
 import { foreignCountryIn, validatePostcode } from "@/lib/shipping/destination";
+import type { CartSplitKind, RequestMode } from "@/lib/requests/model";
 
 /**
  * Checkout form.
@@ -29,6 +30,7 @@ export function CheckoutForm({
   prefill,
   shippingMethod,
   paymentMethod,
+  requestKind = "none",
 }: {
   locale: string;
   postcode: string;
@@ -58,6 +60,13 @@ export function CheckoutForm({
   /** What the basket page already recorded. Seeds the controls below. */
   shippingMethod: string;
   paymentMethod: string;
+  /**
+   * Back-order requests (docs/backorder-requests.md), from the cart as the page
+   * rendered it. «all»: nothing to pay, the submit sends a request. «mixed»:
+   * the customer must choose split or together. The action re-reads the stock
+   * and decides again — this only shapes the form.
+   */
+  requestKind?: CartSplitKind;
 }) {
   const t = useTranslations("checkout.CheckoutForm");
   const [state, action, pending] = useActionState<CheckoutState, FormData>(placeOrder, {});
@@ -72,6 +81,10 @@ export function CheckoutForm({
   const [shipping, setShipping] = useState<string>(shippingMethod);
   const [payment, setPayment] = useState<string>(paymentMethod);
   const [terms, setTerms] = useState(false);
+  const [requestMode, setRequestMode] = useState<RequestMode | null>(null);
+  /* Nothing is paid now: the whole cart, or everything by choice, is a request. */
+  const requestOnly = requestKind === "all" || (requestKind === "mixed" && requestMode === "together");
+  const modeMissing = requestKind === "mixed" && requestMode == null;
   const [, startTransition] = useTransition();
 
   /*
@@ -160,6 +173,43 @@ export function CheckoutForm({
         >
           {state.error}
         </p>
+      )}
+
+      {requestKind === "mixed" && (
+        <Step n="00" title={t("request_mode_title")}>
+          <p className="mb-3 text-[12.5px] leading-[1.55] text-k-text-2">{t("request_mode_intro")}</p>
+          <div className="flex flex-col gap-px border border-k-line bg-k-line">
+            {(["split", "together"] as const).map((mode) => (
+              <label
+                key={mode}
+                className={`flex cursor-pointer items-start gap-3 px-4 py-3.5 ${
+                  requestMode === mode ? "bg-k-surface-2" : "bg-white"
+                }`}
+              >
+                <input
+                  type="radio"
+                  name="requestMode"
+                  value={mode}
+                  required
+                  checked={requestMode === mode}
+                  onChange={() => setRequestMode(mode)}
+                  className="mt-0.5 h-4 w-4 accent-k-red"
+                />
+                <span className="min-w-0 flex-1">
+                  <span className="block text-[12.5px] font-semibold text-k-ink">
+                    {mode === "split" ? t("request_mode_split") : t("request_mode_together")}
+                  </span>
+                  <span className="mt-0.5 block text-[11.5px] leading-[1.5] text-k-text-4">
+                    {mode === "split" ? t("request_mode_split_help") : t("request_mode_together_help")}
+                  </span>
+                </span>
+              </label>
+            ))}
+          </div>
+          {state.fieldErrors?.requestMode && (
+            <p className="mt-1.5 text-[11.5px] text-k-red">{t("request_mode_required")}</p>
+          )}
+        </Step>
       )}
 
       <Step n="01" title={t("stoicheia_epikoinonias")}>
@@ -290,6 +340,11 @@ export function CheckoutForm({
         </p>
       </Step>
 
+      {requestOnly ? (
+        <p className="border-l-[3px] border-k-amber bg-k-surface-2 px-4 py-3 text-[12.5px] leading-[1.55] text-k-text-2">
+          {t("request_all_note")}
+        </p>
+      ) : (
       <Step n="04" title={t("tropos_pliromis")}>
         <div className="flex flex-wrap gap-2">
           {payments.map((method) => (
@@ -331,6 +386,7 @@ export function CheckoutForm({
           </p>
         )}
       </Step>
+      )}
 
       {/*
         An account, offered rather than imposed.
@@ -394,12 +450,14 @@ export function CheckoutForm({
 
         <button
           type="submit"
-          disabled={!terms || pending || blocked != null}
+          disabled={!terms || pending || blocked != null || modeMissing}
           className="t-btn mt-6 flex h-14 w-full items-center justify-center bg-k-red text-white transition-colors hover:bg-k-red-hover disabled:opacity-50"
         >
           {pending
             ? upGreek(t("ginetai_katachorisi"))
-            : payment === "card" || payment === "iris"
+            : requestOnly
+              ? `${upGreek(t("apostoli_aitimatos"))} →`
+              : payment === "card" || payment === "iris"
               ? `${upGreek(t("pliromi_me_asfaleia"))} →`
               : `${upGreek(t("oloklirosi_paraggelias"))} →`}
         </button>

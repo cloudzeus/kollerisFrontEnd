@@ -514,7 +514,16 @@
       "toylachiston_8_charaktires": "At least 8 characters",
       "symplirose_kodiko_gia_logariasmo": "Choose a password to create your account and follow your orders. Leave it empty to check out as a guest.",
       "nomos": "Regional unit",
-      "perifereia": "Region"
+      "perifereia": "Region",
+      "request_mode_title": "Made-to-order items",
+      "request_mode_intro": "Some items in your basket are not in stock right now. How would you like to proceed?",
+      "request_mode_split": "Ship what is in stock now, request the rest",
+      "request_mode_split_help": "Pay now for what is in stock, with its usual shipping. For the rest we send an offer within 24 hours; its shipping is set with the offer.",
+      "request_mode_together": "Everything together as a request",
+      "request_mode_together_help": "Nothing is paid now. We send one offer for the whole basket within 24 hours and everything ships together.",
+      "request_mode_required": "Choose how the order should proceed.",
+      "request_all_note": "The items in your basket are made to order: you do not pay now. We will send you an offer with final price, shipping and lead time within 24 hours, and you pay only if you accept it.",
+      "apostoli_aitimatos": "Send request"
     },
     "page": {
       "kalathi": "CART",
@@ -531,7 +540,9 @@
       "synolo": "Total",
       "me_fpa": "With VAT",
       "i_paraggelia_sas_proionta": "Your order · {itemCount} products",
-      "titlos_oloklirosi_paraggelias": "Checkout"
+      "titlos_oloklirosi_paraggelias": "Checkout",
+      "katopin_badge": "Made to order",
+      "request_totals_note": "Made-to-order items are priced in the offer you will receive within 24 hours; the amounts here are indicative."
     },
     "AddressAutocomplete": {
       "voitheia": "Type the street and pick from the list. The postcode fills in too."
@@ -590,7 +601,9 @@
       "synolo": "Total",
       "diathesima_ta_ypoloipa_katopin_paraggelias": "{availableQty} available — the rest on order",
       "me_fpa": "with VAT {vatRate}%",
-      "afairesi": "Remove {name}"
+      "afairesi": "Remove {name}",
+      "katopin_24h": "Made to order · confirmed within 24 hours",
+      "overstock_request": "{availableQty} in stock — this line becomes a request · confirmed within 24 hours"
     },
     "CartSummaryPanel": {
       "dorean_metaforika": "Free shipping",
@@ -618,7 +631,12 @@
       "metaforika": "Shipping",
       "epivarynsi_pliromis": "Payment surcharge",
       "fpa": "VAT",
-      "ektimisi": "(estimate)"
+      "ektimisi": "(estimate)",
+      "request_all_title": "Made to order",
+      "request_all_text": "Nothing in your basket is in stock right now. You will send a request without paying; we will reply within 24 hours with the final price, shipping and lead time, and you pay only if you accept.",
+      "request_mixed_title": "Some items are made to order",
+      "request_mixed_text": "At checkout you will choose: ship what is in stock now and request the rest, or request everything together. We answer requests within 24 hours and you pay only if you accept the offer.",
+      "synecheia_aitima": "Continue to request"
     },
     "MiniCart": {
       "kalathi": "Cart",
@@ -1362,7 +1380,9 @@
       "kodikos_pliromis_titlos": "Payment code",
       "kodikos_pliromis_odigia": "We have emailed you the payment link as well. If you prefer a transfer, quote this code as the reference.",
       "pliroste_online": "Pay online",
-      "kratame_ta_proionta_eos": "We hold the order and the stock for {hours} hours."
+      "kratame_ta_proionta_eos": "We hold the order and the stock for {hours} hours.",
+      "child_request": "The made-to-order items were sent as request {number}. You will receive an offer by email within 24 hours.",
+      "child_request_link": "View the request"
     }
   },
   "b2b": {
@@ -1492,5 +1512,70 @@
     "archiki": "Home",
     "teleftaia_enimerosi": "Last updated",
     "miliste_mas": "Talk to us"
+  },
+  "aitima": {
+    "page": {
+      "titlos": "Made-to-order request",
+      "eyebrow": "Made to order",
+      "arithmos": "Request",
+      "headline_REQUESTED": "We received your request",
+      "headline_OFFERED": "Our offer is ready",
+      "headline_ACCEPTED": "You accepted the offer",
+      "headline_PAID": "Payment completed",
+      "headline_DECLINED": "You declined the offer",
+      "headline_EXPIRED": "The offer has expired",
+      "headline_REJECTED": "We cannot fulfil this request",
+      "intro_REQUESTED": "We will reply within 24 hours with final price, availability and lead time. Nothing has been charged — you pay only if you accept the offer.",
+      "intro_OFFERED": "Check the items, prices and lead time. If they suit you, complete with a card or IRIS payment.",
+      "intro_ACCEPTED": "Your acceptance is recorded. Complete the payment so the order can proceed.",
+      "intro_PAID": "The request is now an order and is on its way. You will receive updates by email.",
+      "intro_DECLINED": "Nothing was charged. If you change your mind, contact us.",
+      "intro_EXPIRED": "The offer has expired — contact us and we will update you on availability and price.",
+      "intro_REJECTED": "Nothing was charged. For alternatives, contact us.",
+      "parent_note": "The in-stock items of your basket proceed with order {number}.",
+      "requested_title": "What you requested",
+      "offer_title": "The offer",
+      "tag_same": "As requested",
+      "tag_modified": "Changed",
+      "tag_alternative": "Alternative",
+      "tag_added": "Added",
+      "tag_removed": "Not available",
+      "instead_of": "instead of {name}",
+      "requested_qty": "You asked for {qty} pcs",
+      "requested_price": "indicative price {price}",
+      "tem": "pcs",
+      "lead_time": "Lead time",
+      "note_title": "Note from the shop",
+      "reason_title": "Reason",
+      "kathari_axia": "Net value",
+      "metaforika": "Shipping",
+      "fpa": "VAT",
+      "synolo": "Total",
+      "dorean": "Free",
+      "endeiktiki_axia": "Indicative value",
+      "shipping_with_offer": "With the offer",
+      "expires_at": "The offer is valid until {date}",
+      "remaining": "Time left",
+      "accept": "Accept & pay",
+      "decline": "Decline",
+      "decline_confirm": "Are you sure you want to decline the offer?",
+      "pending": "One moment…",
+      "pay_again": "Complete payment",
+      "view_order": "View the order",
+      "contact": "Contact us",
+      "pay_hint": "You will be taken to Viva Wallet's secure payment page (card or IRIS).",
+      "private_link": "This page's link is personal — do not share it.",
+      "error_not_found": "The request was not found.",
+      "error_not_offered": "There is no active offer for this request.",
+      "error_stale_offer": "The offer changed in the meantime — reload the page to see the latest.",
+      "error_expired": "The offer has expired — please contact us.",
+      "error_already_paid": "This request has already been paid.",
+      "error_conflict": "The offer changed in the meantime — reload the page.",
+      "error_unserviceable": "We cannot price shipping to your address — please contact us.",
+      "error_payment_unavailable": "Card payment is unavailable right now — your acceptance is recorded, please try again shortly.",
+      "error_payment_failed": "Connecting to the bank failed — your acceptance is recorded, please try again.",
+      "declined_done": "Your decision is recorded. Thank you.",
+      "validity": "Offer validity"
+    }
   }
 }

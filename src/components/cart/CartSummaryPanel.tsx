@@ -14,6 +14,7 @@ import {
   type ShippingMethodId,
 } from "@/lib/cart/options";
 import { formatMoney } from "@/lib/format";
+import type { CartSplitKind } from "@/lib/requests/model";
 import { upGreek } from "@/lib/greek";
 import { useState } from "react";
 
@@ -29,11 +30,18 @@ export function CartSummaryPanel({
   shippingMethod,
   paymentMethod,
   isPartner = false,
+  requestKind = "none",
 }: {
   totals: CartTotals;
   shippingMethod: ShippingMethodId;
   paymentMethod: PaymentMethodId;
   isPartner?: boolean;
+  /**
+   * Back-order requests (docs/backorder-requests.md): «all» — nothing in the
+   * basket is in stock, checkout sends a request; «mixed» — checkout asks.
+   * Decided on the server from the cart; repeated (authoritatively) at checkout.
+   */
+  requestKind?: CartSplitKind;
 }) {
   const locale = useLocale();
   const t = useTranslations("cart.CartSummaryPanel");
@@ -281,11 +289,22 @@ export function CartSummaryPanel({
           </p>
         )}
 
+        {requestKind !== "none" && (
+          <div className="mt-4 border-l-[3px] border-k-amber bg-white/8 px-3.5 py-3">
+            <p className="text-[12px] font-semibold text-white">
+              {requestKind === "all" ? t("request_all_title") : t("request_mixed_title")}
+            </p>
+            <p className="mt-1 text-[11.5px] leading-[1.55] text-white/70">
+              {requestKind === "all" ? t("request_all_text") : t("request_mixed_text")}
+            </p>
+          </div>
+        )}
+
         <Link
           href="/checkout"
           className="t-btn mt-4 flex h-14 w-full items-center justify-center bg-k-red text-white transition-colors hover:bg-white hover:text-k-ink"
         >
-          {upGreek(t("oloklirosi_paraggelias"))} →
+          {upGreek(requestKind === "all" ? t("synecheia_aitima") : t("oloklirosi_paraggelias"))} →
         </Link>
 
         <p className="t-account-label mt-3 flex items-center justify-center gap-2 text-white/50">

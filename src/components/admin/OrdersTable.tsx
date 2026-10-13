@@ -33,6 +33,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { REQUEST_STATUS_LABEL_EL, type RequestStatusName } from "@/lib/requests/model";
 
 /**
  * The orders list.
@@ -351,6 +352,14 @@ export function OrdersTable({
                   </td>
                   <td className="px-3 py-2.5">
                     <Badge className={s.className}>{s.label}</Badge>
+                    {o.requestStatus && (
+                      <span
+                        className="ml-1.5 inline-block border border-k-amber/40 bg-k-amber/10 px-1.5 py-px text-[10.5px] font-medium text-k-amber"
+                        title={REQUEST_STATUS_LABEL_EL[o.requestStatus as RequestStatusName] ?? o.requestStatus}
+                      >
+                        Αίτημα · {REQUEST_STATUS_LABEL_EL[o.requestStatus as RequestStatusName] ?? o.requestStatus}
+                      </span>
+                    )}
                   </td>
                   <td className="numeral px-3 py-2.5 text-right text-[12.5px] text-k-ink">
                     {formatMoney(o.totalGross, ADMIN_LOCALE)}

@@ -26,6 +26,14 @@ import { chargeableWeight } from "@/lib/shipping/acs-tariff";
 import { PostageCorrection } from "@/components/admin/PostageCorrection";
 import { PaymentActions } from "@/components/admin/PaymentActions";
 import { athensDay } from "@/lib/payment/manual-payment";
+import {
+  REQUEST_STATUS_LABEL_EL,
+  REQUEST_STATUS_TONE,
+  readSnapshot,
+  readStoredOffer,
+  requestPath,
+  type RequestStatusName,
+} from "@/lib/requests/model";
 
 export const dynamic = "force-dynamic";
 
@@ -181,6 +189,19 @@ export default async function OrderDetailPage({
 
   if (!order) notFound();
 
+  /*
+   * Back-order requests (docs/backorder-requests.md). Shown, never decided
+   * here: the offer and the rejection are HDCtool's, acceptance is the
+   * customer's. For a split cart's paid half, the request it spawned.
+   */
+  const childRequest = await prisma.order.findFirst({
+    where: { parentOrderNumber: order.orderNumber, requestStatus: { not: null } },
+    select: { orderNumber: true, requestStatus: true },
+  });
+  const requestStatus = order.requestStatus as RequestStatusName | null;
+  const storedOffer = readStoredOffer(order.offerJson);
+  const requestLocale = readSnapshot(order.requestLines)?.locale ?? "el";
+
   const money = (v: unknown) => formatMoney(Number(v), ADMIN_LOCALE);
 
   // The catalogue as it is NOW, next to the snapshot the order froze. When
@@ -233,6 +254,51 @@ export default async function OrderDetailPage({
         </Link>
       }
     >
+      {requestStatus && (
+        <div className="mb-4 flex flex-wrap items-center gap-x-4 gap-y-2 border border-k-amber/40 bg-k-amber/5 px-4 py-3 text-[12.5px]">
+          <Chip tone="amber">Αίτημα</Chip>
+          <Chip tone={REQUEST_STATUS_TONE[requestStatus]}>{REQUEST_STATUS_LABEL_EL[requestStatus]}</Chip>
+          <span className="text-k-text-3">
+            Κατόπιν παραγγελίας · {when(order.requestedAt ?? order.createdAt)}
+            {order.offerVersion != null && ` · πρόταση v${order.offerVersion}`}
+            {requestStatus === "OFFERED" && order.offerExpiresAt && ` · λήγει ${when(order.offerExpiresAt)}`}
+            {order.offerRemindedAt && ` · υπενθύμιση ${when(order.offerRemindedAt)}`}
+            {order.requestDecisionAt && ` · απόφαση ${when(order.requestDecisionAt)}`}
+            {storedOffer?.decision === "reject" && storedOffer.reason && ` · «${storedOffer.reason}»`}
+          </span>
+          {order.parentOrderNumber && (
+            <Link href={`/admin/orders/${encodeURIComponent(order.parentOrderNumber)}`} className="text-k-ink underline-offset-2 hover:underline">
+              Διαθέσιμα στην {order.parentOrderNumber}
+            </Link>
+          )}
+          {order.requestToken && (
+            <a
+              href={requestPath(requestLocale, order.requestToken)}
+              target="_blank"
+              rel="noreferrer noopener"
+              className="ml-auto text-k-ink underline-offset-2 hover:underline"
+            >
+              Σελίδα πελάτη ↗
+            </a>
+          )}
+          <span className="basis-full text-[11.5px] text-k-text-4">
+            Η πρόταση ή η απόρριψη γίνεται από το HDCtool. Δεν στέλνεται στο SoftOne πριν γίνει αποδεκτή και πληρωθεί.
+          </span>
+        </div>
+      )}
+      {childRequest?.requestStatus && (
+        <div className="mb-4 flex flex-wrap items-center gap-3 border border-k-line bg-white px-4 py-3 text-[12.5px]">
+          <Chip tone="amber">Αίτημα</Chip>
+          <span className="text-k-text-3">Τα προϊόντα κατόπιν παραγγελίας του ίδιου καλαθιού:</span>
+          <Link href={`/admin/orders/${encodeURIComponent(childRequest.orderNumber)}`} className="text-k-ink underline-offset-2 hover:underline">
+            {childRequest.orderNumber}
+          </Link>
+          <Chip tone={REQUEST_STATUS_TONE[childRequest.requestStatus as RequestStatusName]}>
+            {REQUEST_STATUS_LABEL_EL[childRequest.requestStatus as RequestStatusName]}
+          </Chip>
+        </div>
+      )}
+
       <div className="mb-4 grid gap-px border border-k-line bg-k-line sm:grid-cols-2 xl:grid-cols-4">
         <SummaryTile label="Κατάσταση" tone={STATUS_TONE[order.status] ?? "grey"}>
           <Chip tone={STATUS_TONE[order.status] ?? "grey"}>{STATUS_LABEL[order.status] ?? order.status}</Chip>

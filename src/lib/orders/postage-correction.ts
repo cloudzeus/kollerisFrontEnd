@@ -68,6 +68,10 @@ function refusal(order: LoadedOrder | null): string | null {
   if (order.status !== "PENDING_PAYMENT" && order.status !== "FAILED") {
     return "Διορθώνεται μόνο παραγγελία που περιμένει πληρωμή.";
   }
+  /* A request's price and postage come from the HDCtool offer, not from here. */
+  if (order.requestStatus) {
+    return "Αίτημα κατόπιν παραγγελίας — η τιμή και τα μεταφορικά ορίζονται με την πρόταση στο HDCtool.";
+  }
   const method = SHIPPING_METHODS.find((m) => m.id === order.shippingMethod);
   if (!method || method.expressMultiplier <= 0) return "Η παραγγελία δεν έχει μεταφορικά courier.";
   return null;

@@ -20,6 +20,7 @@ import {
 import { formatMoney } from "@/lib/format";
 import { upGreek } from "@/lib/greek";
 import { isVivaConfigured } from "@/lib/payment/viva";
+import { isOnRequest, splitCart } from "@/lib/requests/model";
 
 export const dynamic = "force-dynamic";
 
@@ -106,6 +107,8 @@ export default async function CheckoutPage({
   if (!cart || cart.lines.length === 0) redirect("/kalathi");
 
   const totals = cart.totals;
+  /* Back-order requests: shapes the form; the action decides again on submit. */
+  const requestKind = splitCart(cart.lines).kind;
 
   return (
     <>
@@ -192,6 +195,7 @@ export default async function CheckoutPage({
             signedIn={viewer.user != null}
             shippingMethod={cart.shippingMethod}
             paymentMethod={cart.paymentMethod}
+            requestKind={requestKind}
           />
         </div>
 
@@ -231,6 +235,11 @@ export default async function CheckoutPage({
                     <span className="mt-0.5 block truncate text-[11.5px] font-semibold text-k-ink">
                       {line.name}
                     </span>
+                    {isOnRequest(line) && (
+                      <span className="t-badge mt-1 inline-block bg-k-amber px-1.5 py-0.5 text-white">
+                        {upGreek(t("katopin_badge"))}
+                      </span>
+                    )}
                   </span>
                   <span className="shrink-0 font-mono text-[13px] font-semibold text-k-ink">
                     {formatMoney(line.lineGross, locale)}
@@ -268,6 +277,12 @@ export default async function CheckoutPage({
                 </div>
               ))}
             </dl>
+
+            {requestKind !== "none" && (
+              <p className="mt-2.5 text-[11px] leading-[1.5] text-white/60">
+                {t("request_totals_note")}
+              </p>
+            )}
 
             {totals.postage && (
               <p className="mt-2.5 text-[11px] leading-[1.5] text-white/45">

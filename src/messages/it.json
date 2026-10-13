@@ -514,7 +514,16 @@
       "toylachiston_8_charaktires": "Almeno 8 caratteri",
       "symplirose_kodiko_gia_logariasmo": "Scegli una password per creare il tuo account e seguire i tuoi ordini. Lascia vuoto per acquistare come ospite.",
       "nomos": "Unità regionale",
-      "perifereia": "Regione"
+      "perifereia": "Regione",
+      "request_mode_title": "Prodotti su ordinazione",
+      "request_mode_intro": "Alcuni prodotti del carrello non sono disponibili ora. Come vuoi procedere?",
+      "request_mode_split": "Spedisci ora ciò che è disponibile, richiedi il resto",
+      "request_mode_split_help": "Paghi ora i prodotti disponibili, con la spedizione abituale. Per il resto inviamo un'offerta entro 24 ore; la spedizione viene definita con l'offerta.",
+      "request_mode_together": "Tutto insieme come richiesta",
+      "request_mode_together_help": "Nulla viene pagato ora. Inviamo un'offerta per tutto il carrello entro 24 ore e spediamo tutto insieme.",
+      "request_mode_required": "Scegli come procedere con l'ordine.",
+      "request_all_note": "I prodotti del carrello sono su ordinazione: non paghi ora. Ti invieremo un'offerta con prezzo finale, spedizione e tempi di consegna entro 24 ore, e paghi solo se la accetti.",
+      "apostoli_aitimatos": "Invia richiesta"
     },
     "page": {
       "kalathi": "CARRELLO",
@@ -531,7 +540,9 @@
       "synolo": "Totale",
       "me_fpa": "Con IVA",
       "i_paraggelia_sas_proionta": "Il tuo ordine · {itemCount} prodotti",
-      "titlos_oloklirosi_paraggelias": "Completa l'ordine"
+      "titlos_oloklirosi_paraggelias": "Completa l'ordine",
+      "katopin_badge": "Su ordinazione",
+      "request_totals_note": "I prodotti su ordinazione sono prezzati nell'offerta che riceverai entro 24 ore; gli importi qui sono indicativi."
     },
     "AddressAutocomplete": {
       "voitheia": "Digita la via e scegli dalla lista. Si compila anche il CAP."
@@ -590,7 +601,9 @@
       "synolo": "Totale",
       "diathesima_ta_ypoloipa_katopin_paraggelias": "Disponibili {availableQty} — i restanti su ordinazione",
       "me_fpa": "IVA inclusa {vatRate}%",
-      "afairesi": "Rimozione {name}"
+      "afairesi": "Rimozione {name}",
+      "katopin_24h": "Su ordinazione · conferma entro 24 ore",
+      "overstock_request": "{availableQty} disponibili — la riga diventa una richiesta · conferma entro 24 ore"
     },
     "CartSummaryPanel": {
       "dorean_metaforika": "Spedizione gratuita",
@@ -618,7 +631,12 @@
       "metaforika": "Spedizione",
       "epivarynsi_pliromis": "Supplemento pagamento",
       "fpa": "IVA",
-      "ektimisi": "(stima)"
+      "ektimisi": "(stima)",
+      "request_all_title": "Su ordinazione",
+      "request_all_text": "Nessun prodotto del carrello è disponibile ora. Invierai una richiesta senza pagare; risponderemo entro 24 ore con prezzo finale, spedizione e tempi di consegna, e paghi solo se accetti.",
+      "request_mixed_title": "Alcuni prodotti su ordinazione",
+      "request_mixed_text": "Al checkout sceglierai: spedire ora ciò che è disponibile e richiedere il resto, oppure richiedere tutto insieme. Rispondiamo entro 24 ore e paghi solo se accetti l'offerta.",
+      "synecheia_aitima": "Continua con la richiesta"
     },
     "MiniCart": {
       "kalathi": "Carrello",
@@ -1362,7 +1380,9 @@
       "kodikos_pliromis_titlos": "Codice di pagamento",
       "kodikos_pliromis_odigia": "Ti abbiamo inviato il link di pagamento anche via email. Se preferisci il bonifico, indica questo codice come causale.",
       "pliroste_online": "Paga online",
-      "kratame_ta_proionta_eos": "Teniamo l'ordine e la merce per {hours} ore."
+      "kratame_ta_proionta_eos": "Teniamo l'ordine e la merce per {hours} ore.",
+      "child_request": "I prodotti su ordinazione sono stati inviati come richiesta {number}. Riceverai un'offerta via email entro 24 ore.",
+      "child_request_link": "Vedi la richiesta"
     }
   },
   "b2b": {
@@ -1492,5 +1512,70 @@
     "archiki": "Home",
     "teleftaia_enimerosi": "Ultimo aggiornamento",
     "miliste_mas": "Parliamone"
+  },
+  "aitima": {
+    "page": {
+      "titlos": "Richiesta su ordinazione",
+      "eyebrow": "Su ordinazione",
+      "arithmos": "Richiesta",
+      "headline_REQUESTED": "Abbiamo ricevuto la tua richiesta",
+      "headline_OFFERED": "La nostra offerta è pronta",
+      "headline_ACCEPTED": "Hai accettato l'offerta",
+      "headline_PAID": "Pagamento completato",
+      "headline_DECLINED": "Hai rifiutato l'offerta",
+      "headline_EXPIRED": "L'offerta è scaduta",
+      "headline_REJECTED": "Non possiamo soddisfare questa richiesta",
+      "intro_REQUESTED": "Risponderemo entro 24 ore con prezzo finale, disponibilità e tempi di consegna. Nessun addebito — paghi solo se accetti l'offerta.",
+      "intro_OFFERED": "Controlla prodotti, prezzi e tempi di consegna. Se ti vanno bene, completa con pagamento con carta o IRIS.",
+      "intro_ACCEPTED": "La tua accettazione è registrata. Completa il pagamento per procedere con l'ordine.",
+      "intro_PAID": "La richiesta è diventata un ordine e procede regolarmente. Riceverai aggiornamenti via email.",
+      "intro_DECLINED": "Nessun addebito. Se cambi idea, contattaci.",
+      "intro_EXPIRED": "L'offerta è scaduta — contattaci e ti aggiorneremo su disponibilità e prezzo.",
+      "intro_REJECTED": "Nessun addebito. Per alternative, contattaci.",
+      "parent_note": "I prodotti disponibili del carrello procedono con l'ordine {number}.",
+      "requested_title": "Cosa hai richiesto",
+      "offer_title": "L'offerta",
+      "tag_same": "Come richiesto",
+      "tag_modified": "Modificato",
+      "tag_alternative": "Alternativa",
+      "tag_added": "Aggiunto",
+      "tag_removed": "Non disponibile",
+      "instead_of": "al posto di {name}",
+      "requested_qty": "Hai chiesto {qty} pz",
+      "requested_price": "prezzo indicativo {price}",
+      "tem": "pz",
+      "lead_time": "Tempi di consegna",
+      "note_title": "Nota dal negozio",
+      "reason_title": "Motivo",
+      "kathari_axia": "Valore netto",
+      "metaforika": "Spedizione",
+      "fpa": "IVA",
+      "synolo": "Totale",
+      "dorean": "Gratis",
+      "endeiktiki_axia": "Valore indicativo",
+      "shipping_with_offer": "Con l'offerta",
+      "expires_at": "L'offerta è valida fino al {date}",
+      "remaining": "Tempo rimanente",
+      "accept": "Accetta e paga",
+      "decline": "Rifiuta",
+      "decline_confirm": "Sei sicuro di voler rifiutare l'offerta?",
+      "pending": "Un momento…",
+      "pay_again": "Completa il pagamento",
+      "view_order": "Vedi l'ordine",
+      "contact": "Contattaci",
+      "pay_hint": "Verrai indirizzato alla pagina di pagamento sicura di Viva Wallet (carta o IRIS).",
+      "private_link": "Il link di questa pagina è personale — non condividerlo.",
+      "error_not_found": "Richiesta non trovata.",
+      "error_not_offered": "Non c'è un'offerta attiva per questa richiesta.",
+      "error_stale_offer": "L'offerta è cambiata nel frattempo — ricarica la pagina per vedere l'ultima.",
+      "error_expired": "L'offerta è scaduta — contattaci.",
+      "error_already_paid": "Questa richiesta è già stata pagata.",
+      "error_conflict": "L'offerta è cambiata nel frattempo — ricarica la pagina.",
+      "error_unserviceable": "Non possiamo calcolare la spedizione al tuo indirizzo — contattaci.",
+      "error_payment_unavailable": "Il pagamento con carta non è disponibile ora — la tua accettazione è registrata, riprova a breve.",
+      "error_payment_failed": "Collegamento con la banca non riuscito — la tua accettazione è registrata, riprova.",
+      "declined_done": "La tua decisione è registrata. Grazie.",
+      "validity": "Validità dell'offerta"
+    }
   }
 }

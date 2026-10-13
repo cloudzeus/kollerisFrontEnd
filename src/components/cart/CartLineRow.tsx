@@ -9,6 +9,7 @@ import { removeCartLine, updateCartLine } from "@/lib/cart/actions";
 import type { CartLineView } from "@/lib/cart/options";
 import { formatPrice } from "@/lib/format";
 import { upGreek } from "@/lib/greek";
+import { isOnRequest } from "@/lib/requests/model";
 
 /**
  * One cart line.
@@ -126,19 +127,20 @@ export function CartLineRow({ line }: { line: CartLineView }) {
               title={
                 line.inStock
                   ? `${upGreek(t("amesa_diathesimo"))} · ${line.availableQty} ${upGreek(t("tem"))}`
-                  : upGreek(t("katopin_paraggelias"))
+                  : upGreek(t("katopin_24h"))
               }
             >
               {line.inStock
                 ? `${upGreek(t("amesa_diathesimo"))} · ${line.availableQty} ${upGreek(t("tem"))}`
-                : upGreek(t("katopin_paraggelias"))}
+                : upGreek(t("katopin_24h"))}
             </span>
           </span>
 
-          {/* Only shown when the basket actually exceeds stock. */}
-          {line.overStock && (
+          {/* Only shown when the basket actually exceeds stock: the whole line
+              becomes a back-order request at checkout (docs/backorder-requests.md). */}
+          {line.inStock && isOnRequest(line) && (
             <span className="t-badge self-start bg-k-amber px-2 py-1 text-white">
-              {upGreek(t("diathesima_ta_ypoloipa_katopin_paraggelias", { availableQty: line.availableQty }))}
+              {upGreek(t("overstock_request", { availableQty: line.availableQty }))}
             </span>
           )}
         </div>

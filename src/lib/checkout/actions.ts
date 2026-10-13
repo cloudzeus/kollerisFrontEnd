@@ -15,6 +15,10 @@ import { checkDestination, destinationMessage, shippingCopy } from "@/lib/shippi
 import { createPaymentOrder, isVivaConfigured } from "@/lib/payment/viva";
 import { routing, type Locale } from "@/i18n/routing";
 import { getCurrentUser } from "@/lib/account/session";
+import { parseRequestMode, planCheckout, requestPath } from "@/lib/requests/model";
+import { createRequestOrder, type OrderBase } from "@/lib/requests/create";
+import { announceNewRequest } from "@/lib/requests/service";
+import type { CartLineView } from "@/lib/cart/options";
 
 /**
  * Order placement.
@@ -48,7 +52,15 @@ const checkoutSchema = z.object({
   erpTrdr: z.coerce.number().int().positive().optional().or(z.literal("")),
 
   shippingMethod: z.string().max(32),
-  paymentMethod: z.string().max(32),
+  /* Absent when the whole cart is a back-order request: there is nothing to
+     pay yet, so the form does not ask. Falls back to the first method below. */
+  paymentMethod: z.string().max(32).optional(),
+  /**
+   * A cart with some lines in stock and some not: «split» pays and ships the
+   * former now and requests the rest; «together» requests everything.
+   * docs/backorder-requests.md §1. Ignored when the cart is not mixed.
+   */
+  requestMode: z.string().max(16).optional(),
   notes: z.string().trim().max(2000).optional().or(z.literal("")),
   terms: z.union([z.literal("on"), z.literal("")]).optional(),
   locale: z.string().max(5).optional(),
@@ -174,6 +186,22 @@ export async function placeOrder(
   const cart = await getCart(locale, input.shipPostcode);
   if (!cart || cart.lines.length === 0) return { error: "Το καλάθι σας είναι άδειο." };
 
+  /*
+   * Back-order requests (docs/backorder-requests.md). Which lines can be paid
+   * now and which become a request is decided HERE, from the stock `getCart`
+   * has just read — never from what the form believed when it was rendered.
+   * The customer's choice only matters for a mixed cart.
+   */
+  const plan = planCheckout(cart.lines, parseRequestMode(input.requestMode));
+  if (!plan.ok) {
+    return {
+      error: "Επιλέξτε πώς θα προχωρήσει η παραγγελία: τα διαθέσιμα τώρα και τα υπόλοιπα ως αίτημα, ή όλα μαζί ως αίτημα.",
+      fieldErrors: { requestMode: "Απαιτείται" },
+    };
+  }
+  const payLines: CartLineView[] = plan.pay;
+  const requestLines: CartLineView[] = plan.request;
+
   const shipping =
     SHIPPING_METHODS.find((m) => m.id === input.shippingMethod) ?? SHIPPING_METHODS[0];
   const payment =
@@ -188,25 +216,13 @@ export async function placeOrder(
     return { error: "Ο τρόπος πληρωμής δεν είναι διαθέσιμος για τον λογαριασμό σας." };
   }
 
-  /*
-   * Priced on what was SUBMITTED, not on what the cart row remembers.
-   *
-   * `getCart` reads the shipping and payment method from the Cart row, which is
-   * written by the basket page. The checkout form has its own controls and did
-   * not write back, so choosing "collect from the shop" here produced an order
-   * stamped `pickup` and charged the courier rate that was still sitting in the
-   * database. The customer was billed for delivery on an order they came to
-   * fetch.
-   *
-   * The form is the last word and the ids above are already validated against
-   * the offered list, so the totals are recomputed from them.
-   */
-  const totals = await computeTotals(cart.lines, shipping.id, payment.id, input.shipPostcode);
 
   const quote =
     shipping.expressMultiplier > 0
       ? await quoteLivePostage({
-          items: cart.lines.map((l) => ({
+          // The lines being shipped now; for a request-only cart, the
+          // requested ones — the address is checked either way.
+          items: (payLines.length ? payLines : requestLines).map((l) => ({
             quantity: l.quantity,
             weight: l.weight,
             width: l.width,
@@ -228,9 +244,6 @@ export async function placeOrder(
     return { error: message, fieldErrors: { shipPostcode: message } };
   }
 
-  const orderNumber = await nextOrderNumber();
-  const guestToken = randomBytes(24).toString("base64url");
-
   /*
    * One query for the whole basket. `products.mtrl` is the ERP id; a line whose
    * product has since been removed simply keeps null, which is honest — better
@@ -241,6 +254,67 @@ export async function placeOrder(
     select: { id: true, mtrl: true },
   });
   const mtrlByProductId = new Map(mtrlRows.map((row) => [row.id, row.mtrl]));
+
+  /* What a request shares with the order being placed: who, where, invoice. */
+  const base: OrderBase = {
+    email: input.email,
+    phone: input.phone,
+    firstName: input.firstName,
+    lastName: input.lastName,
+    shipLine1: input.shipLine1,
+    shipLine2: input.shipLine2 || null,
+    shipCity: input.shipCity,
+    shipPostcode: input.shipPostcode,
+    shipRegion: input.shipRegion || null,
+    shipAdminRegion: input.shipAdminRegion || null,
+    wantsInvoice,
+    companyName: wantsInvoice ? input.companyName || null : null,
+    vatNumber: wantsInvoice ? input.vatNumber || null : null,
+    taxOffice: wantsInvoice ? input.taxOffice || null : null,
+    companyTrade: wantsInvoice ? input.companyTrade || null : null,
+    erpTrdr: wantsInvoice && typeof input.erpTrdr === "number" ? input.erpTrdr : null,
+    shippingMethod: shipping.id,
+    notes: input.notes || null,
+  };
+
+  /*
+   * Nothing to pay now: the whole cart is a request. No Viva order, no stock
+   * hold — the customer gets a link and an answer within 24 hours.
+   */
+  if (payLines.length === 0) {
+    const request = await createRequestOrder({
+      orderNumber: await nextOrderNumber(),
+      guestToken: randomBytes(24).toString("base64url"),
+      customerId: customer?.id ?? null,
+      locale,
+      base,
+      lines: requestLines,
+      mtrlByProductId,
+      parentOrderNumber: null,
+    });
+    await prisma.cartLine.deleteMany({ where: { cart: { token: cartToken } } });
+    await maybeCreateAccount(input, request.orderNumber);
+    await announceNewRequest(request.orderNumber);
+    redirect(requestPath(locale, request.requestToken));
+  }
+
+  /*
+   * Priced on what was SUBMITTED, not on what the cart row remembers.
+   *
+   * `getCart` reads the shipping and payment method from the Cart row, which is
+   * written by the basket page. The checkout form has its own controls and did
+   * not write back, so choosing "collect from the shop" here produced an order
+   * stamped `pickup` and charged the courier rate that was still sitting in the
+   * database. The customer was billed for delivery on an order they came to
+   * fetch.
+   *
+   * The form is the last word and the ids above are already validated against
+   * the offered list, so the totals are recomputed from them.
+   */
+  const totals = await computeTotals(payLines, shipping.id, payment.id, input.shipPostcode);
+
+  const orderNumber = await nextOrderNumber();
+  const guestToken = randomBytes(24).toString("base64url");
 
   const order = await prisma.order.create({
     data: {
@@ -287,7 +361,7 @@ export async function placeOrder(
       shippingQuote: quote ? JSON.parse(JSON.stringify(quote)) : undefined,
 
       lines: {
-        create: cart.lines.map((line) => ({
+        create: payLines.map((line) => ({
           productId: line.productId,
           /*
            * The ERP's own product id, resolved here and frozen with the line.
@@ -334,56 +408,30 @@ export async function placeOrder(
   await prisma.cartLine.deleteMany({ where: { cart: { token: cartToken } } });
 
   /*
-   * An account, when the customer asked for one by typing a password.
-   *
-   * Created outright rather than by emailing a link: the person is here, they
-   * chose the password themselves, and everything a registration needs — name,
-   * phone, email — they have just typed. Making them confirm by email what
-   * they did thirty seconds ago on the same screen is ceremony.
-   *
-   * The order is attached, and so is every earlier guest order sharing the
-   * address, so their history is complete from the first visit rather than
-   * starting at this purchase.
-   *
-   * Deliberately NOT fatal and deliberately last. The order exists and is paid
-   * for; an account is a convenience layered on top, and a duplicate email or a
-   * hashing hiccup must never cost somebody the thing they actually came for.
+   * Split cart: the lines that were not in stock become a request of their
+   * own, pointing at this order. Written after the paid order exists (so it
+   * has a number to point at) and before the customer leaves for Viva.
    */
-  if (input.password) {
+  if (requestLines.length > 0) {
     try {
-      const email = input.email.trim().toLowerCase();
-      const taken = await prisma.customer.findUnique({ where: { email }, select: { id: true } });
-      if (!taken) {
-        const created = await prisma.customer.create({
-          data: {
-            email,
-            passwordHash: await hashPassword(input.password),
-            firstName: input.firstName,
-            lastName: input.lastName,
-            phone: input.phone,
-            /*
-             * Retail, always — even when this order carried a ΑΦΜ.
-             *
-             * A company account grants partner pricing and credit and exists
-             * only once somebody has approved it. Nobody gets one by ticking
-             * "invoice" at checkout; that route is /b2b, and it goes through
-             * a person.
-             */
-            accountType: "individual",
-            status: "active",
-          },
-          select: { id: true },
-        });
-
-        await prisma.order.updateMany({
-          where: { email: { equals: email, mode: "insensitive" }, customerId: null },
-          data: { customerId: created.id },
-        });
-      }
+      const request = await createRequestOrder({
+        orderNumber: await nextOrderNumber(),
+        guestToken: randomBytes(24).toString("base64url"),
+        customerId: customer?.id ?? null,
+        locale,
+        base,
+        lines: requestLines,
+        mtrlByProductId,
+        parentOrderNumber: order.orderNumber,
+      });
+      await announceNewRequest(request.orderNumber);
     } catch (error) {
-      console.error(`[checkout] ${order.orderNumber}: account not created`, error);
+      // The paid half stands on its own; the customer is told on the page.
+      console.error(`[checkout] ${order.orderNumber}: back-order request not created`, error);
     }
   }
+
+  await maybeCreateAccount(input, order.orderNumber);
 
   /*
    * Bank transfer: accepted now, reconciled later, and it needs a reference.
@@ -532,4 +580,65 @@ export async function placeOrder(
   // Outside the try: `redirect` throws by design, and catching it here would
   // turn a successful checkout into an error message.
   redirect(checkoutUrl);
+}
+
+/*
+ * Shared by the ordinary order and the request-only checkout: both have a
+ * customer who may have typed a password.
+ */
+async function maybeCreateAccount(
+  input: { password?: string; email: string; firstName: string; lastName: string; phone: string },
+  orderNumber: string,
+): Promise<void> {
+  /*
+   * An account, when the customer asked for one by typing a password.
+   *
+   * Created outright rather than by emailing a link: the person is here, they
+   * chose the password themselves, and everything a registration needs — name,
+   * phone, email — they have just typed. Making them confirm by email what
+   * they did thirty seconds ago on the same screen is ceremony.
+   *
+   * The order is attached, and so is every earlier guest order sharing the
+   * address, so their history is complete from the first visit rather than
+   * starting at this purchase.
+   *
+   * Deliberately NOT fatal and deliberately last. The order exists and is paid
+   * for; an account is a convenience layered on top, and a duplicate email or a
+   * hashing hiccup must never cost somebody the thing they actually came for.
+   */
+  if (input.password) {
+    try {
+      const email = input.email.trim().toLowerCase();
+      const taken = await prisma.customer.findUnique({ where: { email }, select: { id: true } });
+      if (!taken) {
+        const created = await prisma.customer.create({
+          data: {
+            email,
+            passwordHash: await hashPassword(input.password),
+            firstName: input.firstName,
+            lastName: input.lastName,
+            phone: input.phone,
+            /*
+             * Retail, always — even when this order carried a ΑΦΜ.
+             *
+             * A company account grants partner pricing and credit and exists
+             * only once somebody has approved it. Nobody gets one by ticking
+             * "invoice" at checkout; that route is /b2b, and it goes through
+             * a person.
+             */
+            accountType: "individual",
+            status: "active",
+          },
+          select: { id: true },
+        });
+
+        await prisma.order.updateMany({
+          where: { email: { equals: email, mode: "insensitive" }, customerId: null },
+          data: { customerId: created.id },
+        });
+      }
+    } catch (error) {
+      console.error(`[checkout] ${orderNumber}: account not created`, error);
+    }
+  }
 }

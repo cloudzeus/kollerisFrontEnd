@@ -15,7 +15,7 @@ import type { RecentOrder } from "@/lib/admin/dashboard";
  * chances to feel slow.
  */
 
-export type OrderFilter = "all" | "erp-pending" | "unpaid" | "to-ship" | "shipped";
+export type OrderFilter = "all" | "erp-pending" | "unpaid" | "to-ship" | "shipped" | "requests";
 
 export const FILTERS: ReadonlyArray<{ id: OrderFilter; label: string }> = [
   { id: "all", label: "Όλες" },
@@ -23,6 +23,7 @@ export const FILTERS: ReadonlyArray<{ id: OrderFilter; label: string }> = [
   { id: "unpaid", label: "Απλήρωτες" },
   { id: "to-ship", label: "Προς αποστολή" },
   { id: "shipped", label: "Απεσταλμένες" },
+  { id: "requests", label: "Αιτήματα" },
 ] as const;
 
 const PAGE_SIZE = 25;
@@ -37,7 +38,14 @@ function whereFor(filter: OrderFilter, query: string) {
       Object.assign(base, { paymentStatus: "PAID", erpPushedAt: null });
       break;
     case "unpaid":
-      Object.assign(base, { paymentStatus: { in: ["PENDING", "FAILED"] } });
+      // A back-order request is not owed money until the customer accepts an offer.
+      Object.assign(base, {
+        paymentStatus: { in: ["PENDING", "FAILED"] },
+        AND: [{ OR: [{ requestStatus: null }, { requestStatus: "ACCEPTED" }] }],
+      });
+      break;
+    case "requests":
+      Object.assign(base, { requestStatus: { not: null } });
       break;
     case "to-ship":
       Object.assign(base, { status: "CONFIRMED", shippedAt: null });
@@ -85,7 +93,7 @@ export async function getOrders({
   const where = whereFor(filter, query);
   const skip = (Math.max(1, page) - 1) * PAGE_SIZE;
 
-  const [rows, total, erpPending, unpaid, toShip, shipped, all] = await Promise.all([
+  const [rows, total, erpPending, unpaid, toShip, shipped, all, requests] = await Promise.all([
     prisma.order.findMany({
       where,
       orderBy: { createdAt: "desc" },
@@ -113,6 +121,7 @@ export async function getOrders({
         erpError: true,
         acsVoucherNo: true,
         acsPickupDate: true,
+        requestStatus: true,
         lines: {
           select: { sku: true, name: true, quantity: true, lineGross: true },
           orderBy: { id: "asc" },
@@ -126,6 +135,7 @@ export async function getOrders({
     prisma.order.count({ where: whereFor("to-ship", "") }),
     prisma.order.count({ where: whereFor("shipped", "") }),
     prisma.order.count(),
+    prisma.order.count({ where: whereFor("requests", "") }),
   ]);
 
   return {
@@ -152,6 +162,7 @@ export async function getOrders({
          τίποτα να τυπωθεί. */
       acsVoucherNo: o.acsVoucherNo,
       acsPickupDate: o.acsPickupDate,
+      requestStatus: o.requestStatus,
       lines: o.lines.map((l) => ({
         sku: l.sku,
         name: l.name,
@@ -168,6 +179,7 @@ export async function getOrders({
       unpaid,
       "to-ship": toShip,
       shipped,
+      requests,
     },
   };
 }

@@ -47,4 +47,9 @@ export async function register(): Promise<void> {
 
   const { startPaymentSweepSchedule } = await import("@/lib/payment/payment-sweep-schedule");
   startPaymentSweepSchedule();
+
+  /* Back-order requests: the one reminder and the expiry of unanswered offers
+     (docs/backorder-requests.md §6). Same pattern as the payment sweep. */
+  const { startRequestSweepSchedule } = await import("@/lib/requests/request-sweep-schedule");
+  startRequestSweepSchedule();
 }

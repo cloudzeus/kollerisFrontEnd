@@ -48,7 +48,12 @@ export type RecentOrder = {
   /** Loaded up front so expanding a row costs no round-trip. Eight orders of a
    *  handful of lines each is far cheaper than a request per expand. */
   lines: Array<{ sku: string; name: string; quantity: number; lineGross: number }>;
+  /** Back-order request state, when the order is one (docs/backorder-requests.md). */
+  requestStatus?: string | null;
 };
+
+/** Orders that are sales: everything except back-order requests not (yet) accepted. */
+const SALES = { OR: [{ requestStatus: null }, { requestStatus: "ACCEPTED" as const }] };
 
 export type DashboardData = {
   attention: AttentionItem[];
@@ -87,9 +92,10 @@ export async function getDashboard(): Promise<DashboardData> {
     prisma.company.count({ where: { status: "pending" } }),
     prisma.contactMessage.count({ where: { status: "new" } }),
     prisma.syncState.count({ where: { lastStatus: { in: ["FAILED", "PARTIAL"] } } }),
-    prisma.order.count({ where: { createdAt: { gte: from7 } } }),
-    prisma.order.count({ where: { createdAt: { gte: from30 } } }),
-    prisma.order.count(),
+    /* A back-order request is not a sale until accepted (docs/backorder-requests.md). */
+    prisma.order.count({ where: { createdAt: { gte: from7 }, ...SALES } }),
+    prisma.order.count({ where: { createdAt: { gte: from30 }, ...SALES } }),
+    prisma.order.count({ where: SALES }),
     prisma.order.aggregate({
       where: { createdAt: { gte: from7 }, paymentStatus: "PAID" },
       _sum: { totalGross: true },

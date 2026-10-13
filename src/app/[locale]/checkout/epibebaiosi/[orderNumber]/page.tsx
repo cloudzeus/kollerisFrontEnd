@@ -1,7 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import type { Metadata } from "next";
 import Image from "next/image";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { setRequestLocale } from "next-intl/server";
 import { SiteChrome } from "@/components/chrome/SiteChrome";
 import { SiteFooter } from "@/components/chrome/SiteFooter";
@@ -23,6 +23,7 @@ import { estimatedDeliveryDate } from "@/lib/seo/google-reviews";
 import { upGreek } from "@/lib/greek";
 import { holdHours } from "@/lib/orders/hold";
 import { prisma } from "@/lib/prisma";
+import { requestPath } from "@/lib/requests/model";
 
 export const dynamic = "force-dynamic";
 
@@ -77,6 +78,21 @@ export default async function ConfirmationPage({ params, searchParams }: PagePro
    * name, address and phone. Accounts (Phase 6) will add a second way in.
    */
   if (!order || !guestToken || guestToken !== order.guestToken) notFound();
+
+  /*
+   * A back-order request that is not yet an accepted, payable order has its
+   * own page (offer, accept, decline). Viva's return lands here after an
+   * ACCEPTED request is paid, and that one is an ordinary order from then on.
+   */
+  if (order.requestStatus && order.requestStatus !== "ACCEPTED" && order.requestToken) {
+    redirect(requestPath(locale, order.requestToken));
+  }
+
+  /* The other half of a split cart: the lines that went as a request. */
+  const childRequest = await prisma.order.findFirst({
+    where: { parentOrderNumber: order.orderNumber, requestStatus: { not: null } },
+    select: { orderNumber: true, requestToken: true },
+  });
 
   const currentStep = STEPS.findIndex((s) => s.key === order.status);
   const stepIndex = currentStep === -1 ? 0 : currentStep;
@@ -195,6 +211,22 @@ export default async function ConfirmationPage({ params, searchParams }: PagePro
               t("molis_oloklirothei_i_pliromi_i")}
           </p>
         </div>
+
+        {childRequest?.requestToken && (
+          <div className="border-b border-k-line bg-k-surface-2">
+            <div className="shell-x py-5">
+              <p className="flex flex-col gap-2 border-l-[3px] border-k-amber bg-white px-5 py-4 text-[12.5px] leading-[1.6] text-k-text-2 sm:flex-row sm:items-center sm:justify-between">
+                <span>{t("child_request", { number: childRequest.orderNumber })}</span>
+                <a
+                  href={requestPath(locale, childRequest.requestToken)}
+                  className="t-btn-sm shrink-0 bg-k-ink px-4 py-2 text-white transition-colors hover:bg-k-red"
+                >
+                  {upGreek(t("child_request_link"))} →
+                </a>
+              </p>
+            </div>
+          </div>
+        )}
 
         {depositCode && (
           <div className="border-b border-k-line bg-k-surface-2">

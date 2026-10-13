@@ -647,6 +647,27 @@ enum OrderStatus {
   FAILED
 }
 
+/// A back-order request («Κατόπιν παραγγελίας») — docs/backorder-requests.md.
+///
+/// The same six names in both eshops and in HDCtool. Null on every ordinary
+/// order: a request is an order that has not become a sale yet, and only
+/// ACCEPTED followed by a confirmed payment turns it into one.
+enum RequestStatus {
+  /// Submitted by the customer; staff have 24 hours to answer from HDCtool.
+  REQUESTED
+  /// HDCtool sent an offer; the customer can accept and pay, or decline.
+  OFFERED
+  /// The customer accepted the offer; a Viva payment order exists. Becomes a
+  /// normal order once the payment is confirmed (paymentStatus PAID).
+  ACCEPTED
+  /// The customer declined the offer.
+  DECLINED
+  /// The offer ran out before the customer answered.
+  EXPIRED
+  /// The shop could not supply it.
+  REJECTED
+}
+
 enum PaymentStatus {
   PENDING
   PAID
@@ -810,6 +831,32 @@ model Order {
   erpPushedAt DateTime?
   erpError    String?   @db.Text
 
+  // ── Back-order request («Κατόπιν παραγγελίας») ──
+  //
+  // All null on an ordinary order. See docs/backorder-requests.md: the shop
+  // owns the customer, the emails and the payment; HDCtool owns the offer.
+  // A request never reaches SoftOne while it is unpaid (`sendOrderToErp`).
+
+  requestStatus     RequestStatus?
+  /// The secret in the customer's link `/{locale}/aitima/{token}` — 43
+  /// characters of crypto randomness. Stored as is (the reminder and offer
+  /// emails have to repeat it) behind a unique index.
+  requestToken      String?        @unique @db.VarChar(64)
+  requestedAt       DateTime?
+  /// For a split cart: the paid order the in-stock lines went into.
+  parentOrderNumber String?        @db.VarChar(32)
+  /// What the customer asked for, frozen at submission. The order's lines are
+  /// replaced by the offer on acceptance; this keeps the original.
+  requestLines      Json?
+  /// The latest offer HDCtool sent. Older versions are ignored.
+  offerVersion      Int?
+  offerJson         Json?
+  offerExpiresAt    DateTime?
+  /// The one reminder an unanswered offer gets, after 24 hours.
+  offerRemindedAt   DateTime?
+  /// When the customer accepted or declined, or the shop rejected.
+  requestDecisionAt DateTime?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -826,6 +873,8 @@ model Order {
   /// το έβλεπε ως απόκλιση και το επόμενο migration που θα παραγόταν θα το
   /// έριχνε σιωπηλά, μαζί με ό,τι άσχετο έτυχε να φτιάχνει εκείνη τη στιγμή.
   @@index([reservedUntil])
+  /// The request sweep: offers to remind about and offers that ran out.
+  @@index([requestStatus, offerExpiresAt])
   @@map("orders")
 }
 

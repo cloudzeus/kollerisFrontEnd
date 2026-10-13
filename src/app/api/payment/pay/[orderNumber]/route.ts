@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { createPaymentOrder, isVivaConfigured } from "@/lib/payment/viva";
 import { siteOrigin } from "@/lib/seo/urls";
+import { requestBlocksPayment } from "@/lib/requests/model";
 
 /**
  * A payment link that does not expire.
@@ -32,6 +33,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       firstName: true,
       lastName: true,
       phone: true,
+      requestStatus: true,
     },
   });
 
@@ -40,8 +42,12 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   }
 
   const confirmation = `${origin}/checkout/epibebaiosi/${order.orderNumber}?t=${order.guestToken}`;
+  /* A back-order request is paid only after the customer accepted an offer —
+     from its own page, which recomputes the amount from the stored offer. */
   const payable =
-    order.paymentStatus !== "PAID" && (order.status === "PENDING_PAYMENT" || order.status === "FAILED");
+    order.paymentStatus !== "PAID" &&
+    (order.status === "PENDING_PAYMENT" || order.status === "FAILED") &&
+    !requestBlocksPayment(order.requestStatus);
   if (!payable || !isVivaConfigured()) return NextResponse.redirect(confirmation, 303);
 
   try {
