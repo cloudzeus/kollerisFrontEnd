@@ -126,6 +126,12 @@ export type CartTotals = {
     estimated: boolean;
     carrier: string | null;
   } | null;
+  /**
+   * ACS has no station for the postcode: we do not deliver there. The courier
+   * methods carry no price (shipping reads 0, never «ΔΩΡΕΑΝ») and checkout
+   * refuses the order. See `quoteLivePostage`.
+   */
+  unserviceable: boolean;
   itemCount: number;
   unitCount: number;
   subtotalNet: number;

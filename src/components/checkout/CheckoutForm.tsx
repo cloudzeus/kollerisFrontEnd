@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { useActionState, useState, useTransition } from "react";
+import { useActionState, useRef, useState, useTransition } from "react";
 import { CompanyVatFields } from "@/components/account/CompanyVatFields";
 import { placeOrder, type CheckoutState } from "@/lib/checkout/actions";
 import { PAYMENT_METHODS, SHIPPING_METHODS } from "@/lib/cart/options";
@@ -9,6 +9,8 @@ import { setCartOptions } from "@/lib/cart/actions";
 import { AddressAutocomplete } from "@/components/checkout/AddressAutocomplete";
 import { STOCK_HOLD_HOURS } from "@/lib/orders/hold";
 import { upGreek } from "@/lib/greek";
+import { checkDeliveryPostcode } from "@/lib/shipping/actions";
+import { foreignCountryIn, validatePostcode } from "@/lib/shipping/destination";
 
 /**
  * Checkout form.
@@ -88,8 +90,67 @@ export function CheckoutForm({
 
   const payments = PAYMENT_METHODS.filter((m) => !m.partnerOnly || isPartner);
 
+  /*
+   * Greece only — the same checks the action makes (lib/shipping/destination),
+   * run here so the customer hears it while typing rather than after submit.
+   * The postcode's shape locally, then ACS for whether it has a station there
+   * (a foreign 37015 looks Greek); the street, city and regions for a foreign
+   * country's name. The server stays the authority.
+   */
+  const [values, setValues] = useState<Record<string, string>>({});
+  const [refusedPostcode, setRefusedPostcode] = useState<string | null>(null);
+  const askedPostcode = useRef<string | null>(null);
+  const postcodeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const askAcs = (raw: string) => {
+    const checked = validatePostcode(raw);
+    if (postcodeTimer.current) clearTimeout(postcodeTimer.current);
+    if (!checked.ok || checked.postcode === askedPostcode.current) return;
+    postcodeTimer.current = setTimeout(() => {
+      const asked = checked.postcode;
+      askedPostcode.current = asked;
+      startTransition(async () => {
+        const { serviceable } = await checkDeliveryPostcode({ postcode: asked });
+        // A slower answer for a postcode since replaced is not this one's.
+        if (askedPostcode.current !== asked) return;
+        setRefusedPostcode(serviceable ? null : asked);
+      });
+    }, 400);
+  };
+
+  const addressValue = (name: keyof NonNullable<typeof prefill>): string => {
+    if (values[name] !== undefined) return values[name];
+    if (name === "shipPostcode") return prefill?.shipPostcode || postcode;
+    return prefill?.[name] ?? "";
+  };
+  const addressErrors: Record<string, string> = {};
+  if (shipping !== "pickup") {
+    const zip = addressValue("shipPostcode").trim();
+    const checked = validatePostcode(zip);
+    const complete = zip.replace(/\s/g, "").length >= 5 || /[^\d\s]/.test(zip);
+    if ((!checked.ok && complete) || (checked.ok && checked.postcode === refusedPostcode)) {
+      addressErrors.shipPostcode = t("tk_unserviceable");
+    }
+    for (const name of ["shipLine1", "shipLine2", "shipCity", "shipRegion", "shipAdminRegion"] as const) {
+      if (foreignCountryIn(addressValue(name))) addressErrors[name] = t("address_foreign");
+    }
+  }
+  const blocked = Object.values(addressErrors)[0] ?? null;
+  const fieldError = (name: string) => addressErrors[name] ?? state.fieldErrors?.[name];
+
   return (
-    <form action={action} className="flex flex-col gap-8">
+    <form
+      action={action}
+      className="flex flex-col gap-8"
+      onChange={(e) => {
+        const target = e.target as unknown as HTMLInputElement;
+        if (target.name === "shipPostcode") askAcs(target.value);
+        const data = new FormData(e.currentTarget);
+        const next: Record<string, string> = {};
+        for (const [k, v] of data.entries()) if (typeof v === "string") next[k] = v;
+        setValues(next);
+      }}
+    >
       <input type="hidden" name="locale" value={locale} />
 
       {state.error && (
@@ -140,10 +201,10 @@ export function CheckoutForm({
             label={t("odos_kai_arithmos")}
             name="shipLine1"
             defaultValue={prefill?.shipLine1}
-            error={state.fieldErrors?.shipLine1}
+            error={fieldError("shipLine1")}
             required
           />
-          <Field label={t("orofos_koydoyni")} name="shipLine2" defaultValue={prefill?.shipLine2} autoComplete="address-line2" />
+          <Field label={t("orofos_koydoyni")} name="shipLine2" defaultValue={prefill?.shipLine2} autoComplete="address-line2" error={fieldError("shipLine2")} invalid={addressErrors.shipLine2} />
         </div>
 
         {/* Νομός and περιφέρεια are two administrative levels, so one field
@@ -154,7 +215,8 @@ export function CheckoutForm({
             name="shipPostcode"
             autoComplete="postal-code"
             defaultValue={prefill?.shipPostcode || postcode}
-            error={state.fieldErrors?.shipPostcode}
+            error={fieldError("shipPostcode")}
+            invalid={addressErrors.shipPostcode}
             required
             help={t("kathorizei_ti_zoni_acs_kai")}
           />
@@ -163,12 +225,14 @@ export function CheckoutForm({
             name="shipCity"
             autoComplete="address-level2"
             defaultValue={prefill?.shipCity}
-            error={state.fieldErrors?.shipCity}
+            error={fieldError("shipCity")}
+            invalid={addressErrors.shipCity}
             required
           />
-          <Field label={t("nomos")} name="shipRegion" defaultValue={prefill?.shipRegion} autoComplete="address-level1" />
-          <Field label={t("perifereia")} name="shipAdminRegion" defaultValue={prefill?.shipAdminRegion} />
+          <Field label={t("nomos")} name="shipRegion" defaultValue={prefill?.shipRegion} autoComplete="address-level1" error={fieldError("shipRegion")} invalid={addressErrors.shipRegion} />
+          <Field label={t("perifereia")} name="shipAdminRegion" defaultValue={prefill?.shipAdminRegion} error={fieldError("shipAdminRegion")} invalid={addressErrors.shipAdminRegion} />
         </div>
+        <p className="mt-2.5 text-[11.5px] font-semibold text-k-text-3">{t("ship_zone")}</p>
 
         <label className="mt-5 flex cursor-pointer items-center gap-3">
           <input
@@ -330,7 +394,7 @@ export function CheckoutForm({
 
         <button
           type="submit"
-          disabled={!terms || pending}
+          disabled={!terms || pending || blocked != null}
           className="t-btn mt-6 flex h-14 w-full items-center justify-center bg-k-red text-white transition-colors hover:bg-k-red-hover disabled:opacity-50"
         >
           {pending
@@ -339,6 +403,11 @@ export function CheckoutForm({
               ? `${upGreek(t("pliromi_me_asfaleia"))} →`
               : `${upGreek(t("oloklirosi_paraggelias"))} →`}
         </button>
+        {blocked && (
+          <p role="alert" className="mt-2 text-[11.5px] text-k-red">
+            {blocked}
+          </p>
+        )}
       </Step>
     </form>
   );
@@ -375,6 +444,7 @@ function Field({
   defaultValue,
   error,
   help,
+  invalid,
 }: {
   label: string;
   name: string;
@@ -384,6 +454,8 @@ function Field({
   defaultValue?: string;
   error?: string;
   help?: string;
+  /** A client-side verdict the browser enforces too, as the input's custom validity. */
+  invalid?: string;
 }) {
   return (
     <label className="block">
@@ -397,6 +469,7 @@ function Field({
         required={required}
         autoComplete={autoComplete}
         defaultValue={defaultValue}
+        ref={(el) => el?.setCustomValidity(invalid ?? "")}
         aria-invalid={error ? true : undefined}
         className={`t-input h-12 w-full border px-3.5 text-k-ink outline-none focus:border-k-ink ${
           error ? "border-k-red" : "border-k-line-2"

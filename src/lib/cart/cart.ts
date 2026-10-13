@@ -7,7 +7,7 @@ import type { Locale } from "@/i18n/routing";
 import { grossAmount, netAmount } from "@/lib/format";
 import { discountedNet, offerBadgeFor } from "@/lib/offers/badges";
 import { type ParcelItem } from "@/lib/shipping/acs-tariff";
-import { quoteLivePostage } from "@/lib/shipping/acs-live";
+import { isUnserviceable, quoteLivePostage } from "@/lib/shipping/acs-live";
 import {
   FREE_SHIPPING_THRESHOLD_NET,
   PAYMENT_METHODS,
@@ -260,8 +260,12 @@ export async function computeTotals(
   // Live from ACS, falling back to the local table when the courier cannot be
   // reached. Awaited inside `getCart`, which is already cached per request, so
   // one basket render costs at most one ACS round-trip.
-  const quote =
+  const live =
     shipping.expressMultiplier > 0 ? await quoteLivePostage({ items: parcel, postcode }) : null;
+  // A postcode ACS does not serve has no postage to charge, and must not be
+  // priced from the table either — the order is refused at checkout.
+  const unserviceable = isUnserviceable(live);
+  const quote = live && !isUnserviceable(live) ? live : null;
 
   const quotedNet = quote ? round(quote.totalNet * shipping.expressMultiplier) : 0;
   const shippingNet =
@@ -289,6 +293,7 @@ export async function computeTotals(
           carrier: shipping.carrier,
         }
       : null,
+    unserviceable,
     itemCount: lines.length,
     unitCount: lines.reduce((sum, l) => sum + l.quantity, 0),
     subtotalNet: round(subtotalNet),

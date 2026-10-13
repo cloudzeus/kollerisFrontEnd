@@ -1,5 +1,6 @@
 import "server-only";
-import { hdctoolRequest } from "@/lib/hdctool/client";
+import { HdctoolError, hdctoolRequest } from "@/lib/hdctool/client";
+import { validatePostcode } from "@/lib/shipping/destination";
 import {
   ZONES,
   chargeableWeight,
@@ -24,6 +25,14 @@ import {
  * `source` says which one answered. It is carried into the order's
  * `shippingQuote` so a disputed charge can be explained rather than guessed at
  * months later.
+ *
+ * ── Two kinds of "no" ──────────────────────────────────────────────────────
+ * The table is for when ACS CANNOT answer — HDCtool down, a 5xx, a timeout.
+ * It is not for when ACS answers "there is no such place": that is a parcel we
+ * cannot deliver, and pricing it from the table is how an order to Verona
+ * (37015) was accepted at the Greek-island rate. HDCtool reports that case as
+ * 422 «No ACS station for postcode …»; it comes back here as
+ * `unserviceable_postcode`, with no price at all, and checkout refuses it.
  */
 
 export type LivePostageQuote = PostageQuote & {
@@ -35,6 +44,51 @@ export type LivePostageQuote = PostageQuote & {
   /** Why the fallback was used, when it was. */
   fallbackReason?: string;
 };
+
+/** ACS has no station for this postcode: we do not deliver there. No price. */
+export type UnserviceablePostcode = {
+  source: "unserviceable";
+  error: "unserviceable_postcode";
+  postcode: string;
+  /** What ACS (or our own postcode check) said, for the log. */
+  reason: string;
+};
+
+export type LivePostageResult = LivePostageQuote | UnserviceablePostcode;
+
+export function isUnserviceable(
+  result: LivePostageResult | null | undefined,
+): result is UnserviceablePostcode {
+  return result?.source === "unserviceable";
+}
+
+/*
+ * HDCtool's answers that are about the PLACE, not about ACS being unwell:
+ * 422 «No ACS station for postcode …», 404 «Unknown postcode» (the area-only
+ * lookup), 400 «postcode must be five digits». Other 422s — «ACS returned no
+ * price row», or an ACS message about weight — still fall back: the courier
+ * failed to price a parcel, which is not the same as the address being wrong.
+ */
+const PLACE_STATUSES = new Set([400, 404, 422]);
+const PLACE_WORDS = /station|postcode|post code|zip|area|destination|περιοχ|ταχυδρομικ|τ\.\s?κ\.?|προορισμ/i;
+
+function isAboutThePlace(message: string | undefined): boolean {
+  return PLACE_WORDS.test(message ?? "");
+}
+
+/** The JSON body HDCtool put in the error message, when it did. */
+function hdctoolErrorText(error: HdctoolError): string {
+  const brace = error.message.indexOf("{");
+  if (brace >= 0) {
+    try {
+      const body = JSON.parse(error.message.slice(brace)) as { error?: unknown };
+      if (typeof body.error === "string") return body.error;
+    } catch {
+      // Truncated at 200 characters, or not JSON — the raw text will do.
+    }
+  }
+  return error.message;
+}
 
 type H6Response = {
   success: boolean;
@@ -58,14 +112,28 @@ export async function quoteLivePostage({
 }: {
   items: ParcelItem[];
   postcode: string | null | undefined;
-}): Promise<LivePostageQuote> {
+}): Promise<LivePostageResult> {
   const table = quotePostage({ items, postcode });
-  const clean = (postcode ?? "").replace(/\s/g, "");
+  const raw = (postcode ?? "").trim();
 
-  // Not worth a round-trip: ACS needs five digits and would only 400.
-  if (!/^\d{5}$/.test(clean)) {
+  // No postcode yet — the cart before anyone has typed one. An estimate is
+  // what the customer asked for there.
+  if (!raw) {
     return { ...table, source: "table", fallbackReason: "no postcode yet" };
   }
+
+  // A postcode that cannot be Greek is not worth a round-trip, and must not be
+  // priced from the table either: 0xxxx, 9xxxx, four digits, letters.
+  const checked = validatePostcode(raw);
+  if (!checked.ok) {
+    return {
+      source: "unserviceable",
+      error: "unserviceable_postcode",
+      postcode: raw,
+      reason: `postcode ${checked.reason}`,
+    };
+  }
+  const clean = checked.postcode;
 
   const weight = chargeableWeight(items);
 
@@ -76,6 +144,14 @@ export async function quoteLivePostage({
     });
 
     if (!response.success || !response.quote) {
+      if (isAboutThePlace(response.error)) {
+        return {
+          source: "unserviceable",
+          error: "unserviceable_postcode",
+          postcode: clean,
+          reason: response.error ?? "ACS declined the postcode",
+        };
+      }
       return { ...table, source: "table", fallbackReason: response.error ?? "ACS declined" };
     }
 
@@ -98,6 +174,15 @@ export async function quoteLivePostage({
       remote: q.remote,
     };
   } catch (error) {
+    // ACS answered, and the answer is "no such place": no price, no fallback.
+    if (error instanceof HdctoolError && PLACE_STATUSES.has(error.status)) {
+      const reason = hdctoolErrorText(error);
+      if (isAboutThePlace(reason)) {
+        console.warn(`[acs-live] unserviceable postcode ${clean}: ${reason}`);
+        return { source: "unserviceable", error: "unserviceable_postcode", postcode: clean, reason };
+      }
+    }
+
     // A courier outage must not stop anyone checking out. The table answers,
     // and says so.
     console.error("[acs-live] falling back to the tariff table", error);

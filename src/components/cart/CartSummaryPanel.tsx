@@ -146,6 +146,7 @@ export function CartSummaryPanel({
             );
           })}
         </div>
+        <p className="mt-2.5 text-[11.5px] font-semibold text-k-text-3">{t("ship_zone")}</p>
       </div>
 
       {/* Payment */}
