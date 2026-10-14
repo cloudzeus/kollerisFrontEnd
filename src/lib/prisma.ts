@@ -40,17 +40,50 @@ import { PrismaClient } from "@/generated/prisma/client";
  */
 const poolMax = Number(process.env.DATABASE_POOL_MAX ?? 20);
 
+/**
+ * PgBouncer (θύρα 6432) δεν δέχεται το `statement_timeout` ως παράμετρο
+ * εκκίνησης της σύνδεσης: απαντά «unsupported startup parameter» και η σύνδεση
+ * αποτυγχάνει — όλο το κατάστημα πέφτει. Πίσω από PgBouncer το όριο ορίζεται
+ * στη βάση (`ALTER DATABASE … SET statement_timeout`) και όχι από εδώ.
+ *
+ * Αναγνώριση: `DATABASE_POOLER=pgbouncer`, ή `pgbouncer=true` στο URL, ή θύρα 6432.
+ */
+export function behindPgBouncer(url = process.env.DATABASE_URL, pooler = process.env.DATABASE_POOLER): boolean {
+  if (pooler?.trim().toLowerCase() === "pgbouncer") return true;
+  if (!url) return false;
+  try {
+    const u = new URL(url);
+    return u.searchParams.get("pgbouncer") === "true" || u.port === "6432";
+  } catch {
+    return false;
+  }
+}
+
+/** Το URL χωρίς παραμέτρους που καταλαβαίνει μόνο ο Prisma (ο `pg` τις στέλνει ως ρυθμίσεις). */
+function connectionUrl(url = process.env.DATABASE_URL): string | undefined {
+  if (!url) return url;
+  try {
+    const u = new URL(url);
+    u.searchParams.delete("pgbouncer");
+    return u.toString();
+  } catch {
+    return url;
+  }
+}
+
+const statementTimeout = Number(process.env.DATABASE_STATEMENT_TIMEOUT_MS ?? 15_000);
+
 const createPrismaClient = () =>
   new PrismaClient({
     adapter: new PrismaPg({
-      connectionString: process.env.DATABASE_URL,
+      connectionString: connectionUrl(),
       max: Number.isFinite(poolMax) && poolMax > 0 ? poolMax : 20,
       /* Δεν βρέθηκε σύνδεση σε 10s: αποτυχία, όχι αναμονή. */
       connectionTimeoutMillis: 10_000,
       /* Αδρανείς συνδέσεις επιστρέφουν στη βάση αντί να λιμνάζουν. */
       idleTimeoutMillis: 30_000,
-      /* Ένα ερώτημα άνω των 15s είναι σφάλμα, όχι υπομονή. */
-      statement_timeout: 15_000,
+      /* Ένα ερώτημα άνω των 15s είναι σφάλμα, όχι υπομονή — εκτός PgBouncer (βλ. πάνω). */
+      ...(behindPgBouncer() || !(statementTimeout > 0) ? {} : { statement_timeout: statementTimeout }),
     }),
     log: process.env.NODE_ENV === "development" ? ["warn", "error"] : ["error"],
   });
