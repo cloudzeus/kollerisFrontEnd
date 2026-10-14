@@ -49,6 +49,15 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci --include=dev --no-audit --no-fund
 
+# Ο native compiler του Next για Linux είναι «προαιρετικό» πακέτο ανά πλατφόρμα,
+# και το npm σε καθαρή εγκατάσταση μερικές φορές το παραλείπει (γνωστό σφάλμα του
+# npm με τα optionalDependencies). Τότε το `next build` πέφτει με «Turbopack is
+# not supported on this platform … Only WebAssembly bindings were loaded» — έτσι
+# απέτυχε το deploy της 14/10/2026, με αμετάβλητο lockfile. Αν λείπει, το βάζουμε
+# ρητά, στην ίδια ακριβώς έκδοση με το `next`.
+RUN node -e "require.resolve('@next/swc-linux-x64-gnu')" 2>/dev/null \
+ || npm install --no-save --no-audit --no-fund "@next/swc-linux-x64-gnu@$(node -p "require('next/package.json').version")"
+
 # ── Build ───────────────────────────────────────────────────────────────────
 FROM base AS builder
 WORKDIR /app
