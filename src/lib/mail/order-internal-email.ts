@@ -1,7 +1,7 @@
 import "server-only";
 import { sendMail, mailConfigured } from "@/lib/mail/client";
 import { renderTemplate } from "@/lib/mail/templates";
-import { buildOrderContext } from "@/lib/mail/order-email";
+import { buildOrderContext, splitSection, splitText } from "@/lib/mail/order-email";
 import { siteOrigin } from "@/lib/seo/urls";
 
 /**
@@ -52,6 +52,8 @@ export async function sendInternalOrderEmail(
   if (!context) return { ok: false, error: "Η παραγγελία δεν βρέθηκε." };
 
   const { order, orderData, recipient, paid } = context;
+  /* A split cart: the other half by number, linked to the admin — never the customer's secret page. */
+  const split = await splitSection(order, "internal");
 
   const html = await renderTemplate("order-internal", {
     preheader: `${order.lines.length} είδη · ${money(order.totalGross)} · ${
@@ -65,6 +67,7 @@ export async function sendInternalOrderEmail(
     },
     order: {
       ...orderData,
+      split,
       admin_url: `${siteOrigin()}/admin/orders/${encodeURIComponent(order.orderNumber)}`,
     },
   });
@@ -95,6 +98,7 @@ export async function sendInternalOrderEmail(
     "",
     `Μεταφορικά: ${orderData.shipping_cost}`,
     `ΣΥΝΟΛΟ: ${orderData.total}`,
+    ...splitText(split),
     "",
     `Διαχείριση: ${siteOrigin()}/admin/orders/${encodeURIComponent(order.orderNumber)}`,
   ].join("\n");
@@ -103,7 +107,7 @@ export async function sendInternalOrderEmail(
     to: internalOrderRecipients(),
     subject: `Νέα παραγγελία ${order.orderNumber} — ${money(order.totalGross)}${
       paid ? "" : " (ΕΚΚΡΕΜΕΙ ΠΛΗΡΩΜΗ)"
-    }`,
+    }${split ? (order.parentOrderNumber ? ` · 2η αποστολή της ${split.number}` : ` · + αίτημα ${split.number}`) : ""}`,
     html,
     text,
     /* Απάντηση στον πελάτη: η πρώτη κίνηση για παραγγελία που θέλει

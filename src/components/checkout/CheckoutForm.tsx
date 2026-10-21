@@ -15,6 +15,7 @@ import { countryOptions, postcodeExample, validateCountryPostcode } from "@/lib/
 import { formatMoney } from "@/lib/format";
 import type { Locale } from "@/i18n/routing";
 import type { CartSplitKind, RequestMode } from "@/lib/requests/model";
+import { useSplitCheckout } from "@/components/checkout/SplitCheckout";
 
 /**
  * Checkout form.
@@ -96,11 +97,22 @@ export function CheckoutForm({
   const [shipping, setShipping] = useState<string>(shippingMethod);
   const [payment, setPayment] = useState<string>(paymentMethod);
   const [terms, setTerms] = useState(false);
-  const [requestMode, setRequestMode] = useState<RequestMode | null>(null);
+  /*
+   * Shared with the summary beside the form (`SplitCheckoutProvider`), which
+   * follows the choice; a local fallback keeps the form whole without it.
+   */
+  const split = useSplitCheckout();
+  const [localMode, setLocalMode] = useState<RequestMode | null>(null);
+  const requestMode = split ? split.mode : localMode;
+  const setRequestMode = split ? split.setMode : setLocalMode;
+  const breakdown = split?.breakdown ?? null;
   /* Nothing is paid now: the whole cart, or everything by choice, is a request. */
   const requestOnly = requestKind === "all" || (requestKind === "mixed" && requestMode === "together");
   const modeMissing = requestKind === "mixed" && requestMode == null;
   const [, startTransition] = useTransition();
+
+  /* The Greek Τ.Κ. last sent to ACS — also what a split cart is priced for. */
+  const askedPostcode = useRef<string | null>(null);
 
   /*
    * Written back to the cart on every change.
@@ -114,6 +126,14 @@ export function CheckoutForm({
     startTransition(async () => {
       await setCartOptions(patch);
     });
+    // The split card and the pay button follow: priced again for the Τ.Κ. typed.
+    if (askedPostcode.current && !abroad) {
+      split?.requote({
+        postcode: askedPostcode.current,
+        shippingMethod: patch.shippingMethod ?? shipping,
+        paymentMethod: patch.paymentMethod ?? payment,
+      });
+    }
   };
 
   const payments = PAYMENT_METHODS.filter((m) => !m.partnerOnly || isPartner);
@@ -184,7 +204,6 @@ export function CheckoutForm({
    */
   const [values, setValues] = useState<Record<string, string>>({});
   const [refusedPostcode, setRefusedPostcode] = useState<string | null>(null);
-  const askedPostcode = useRef<string | null>(null);
   const postcodeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const askAcs = (raw: string) => {
@@ -199,6 +218,8 @@ export function CheckoutForm({
         // A slower answer for a postcode since replaced is not this one's.
         if (askedPostcode.current !== asked) return;
         setRefusedPostcode(serviceable ? null : asked);
+        // A split cart: what is paid now, priced for this Τ.Κ.
+        if (serviceable) split?.requote({ postcode: asked, shippingMethod: chosen, paymentMethod: payment });
       });
     }, 400);
   };
@@ -239,6 +260,14 @@ export function CheckoutForm({
     quoteBlocked = quote?.status !== "ok";
   }
   const blocked = Object.values(addressErrors)[0] ?? null;
+
+  /* The split card and the pay button: the server's figures, never re-added here. */
+  const money = (n: number) => formatMoney(n, locale as Locale);
+  const items = (count: number) => (count === 1 ? t("items_one") : t("items_other", { count }));
+  const splitNow = breakdown?.split?.now ?? null;
+  const splitRequest = breakdown?.split?.request ?? null;
+  const together = breakdown?.together ?? null;
+  const splitPayNow = requestKind === "mixed" && requestMode === "split" && splitNow ? splitNow.totalGross : null;
   const fieldError = (name: string) => addressErrors[name] ?? state.fieldErrors?.[name];
 
   return (
@@ -290,9 +319,47 @@ export function CheckoutForm({
                   <span className="block text-[12.5px] font-semibold text-k-ink">
                     {mode === "split" ? t("request_mode_split") : t("request_mode_together")}
                   </span>
-                  <span className="mt-0.5 block text-[11.5px] leading-[1.5] text-k-text-4">
-                    {mode === "split" ? t("request_mode_split_help") : t("request_mode_together_help")}
-                  </span>
+                  {mode === "split" && splitNow && splitRequest ? (
+                    <>
+                      {/* Server-priced: the in-stock lines alone, with their own postage. */}
+                      <span className="mt-1.5 block text-[12px] leading-[1.5] text-k-ink">
+                        {/* The method the figures were priced for, not the radio a beat ahead of them. */}
+                        {breakdown?.shippingMethod === "pickup"
+                          ? t("split_now_pickup", { total: money(splitNow.totalGross), items: items(splitNow.itemCount) })
+                          : splitNow.shippingGross === 0 && !splitNow.unserviceable
+                            ? t("split_now_free", { total: money(splitNow.totalGross), items: items(splitNow.itemCount) })
+                            : t("split_now", {
+                                total: money(splitNow.totalGross),
+                                items: items(splitNow.itemCount),
+                                shipping: splitNow.unserviceable ? "—" : money(splitNow.shippingGross),
+                              })}
+                      </span>
+                      {splitNow.thresholdLost && (
+                        <span className="mt-0.5 block text-[11.5px] leading-[1.5] text-k-text-3">
+                          {t("split_threshold_lost")}
+                        </span>
+                      )}
+                      {breakdown?.shippingMethod !== "pickup" && !breakdown?.postcode && (
+                        <span className="mt-0.5 block text-[11px] leading-[1.5] text-k-text-4">
+                          {t("split_postage_note")}
+                        </span>
+                      )}
+                      <span className="mt-1.5 block text-[11.5px] leading-[1.5] text-k-text-3">
+                        {t("split_request", {
+                          items: items(splitRequest.itemCount),
+                          value: money(splitRequest.subtotalGross),
+                        })}
+                      </span>
+                    </>
+                  ) : mode === "together" && together ? (
+                    <span className="mt-1.5 block text-[12px] leading-[1.5] text-k-ink">
+                      {t("together_line", { items: items(together.itemCount), value: money(together.subtotalGross) })}
+                    </span>
+                  ) : (
+                    <span className="mt-0.5 block text-[11.5px] leading-[1.5] text-k-text-4">
+                      {mode === "split" ? t("request_mode_split_help") : t("request_mode_together_help")}
+                    </span>
+                  )}
                 </span>
               </label>
             ))}
@@ -608,6 +675,10 @@ export function CheckoutForm({
             ? upGreek(t("ginetai_katachorisi"))
             : requestOnly
               ? `${upGreek(t("apostoli_aitimatos"))} →`
+              : splitPayNow != null
+                ? payment === "card" || payment === "iris"
+                  ? `${upGreek(t("pay_now_button", { amount: money(splitPayNow) }))} →`
+                  : `${upGreek(t("order_now_button", { amount: money(splitPayNow) }))} →`
               : payment === "card" || payment === "iris"
               ? `${upGreek(t("pliromi_me_asfaleia"))} →`
               : `${upGreek(t("oloklirosi_paraggelias"))} →`}

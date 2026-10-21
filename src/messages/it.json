@@ -542,7 +542,18 @@
       "refused_invalid_postcode": "Questo CAP non è valido per il paese scelto.",
       "refused_unserviceable": "Questo CAP non rientra in una zona che serviamo.",
       "cost_abroad": "Il costo è calcolato dal peso tassabile e dal CAP di destinazione — vedi il riepilogo.",
-      "refused_invalid_address": "Controlla il CAP e la città dell'indirizzo."
+      "refused_invalid_address": "Controlla il CAP e la città dell'indirizzo.",
+      "items_one": "1 articolo",
+      "items_other": "{count} articoli",
+      "split_now": "Paghi ora {total} — {items} + spedizione {shipping} (spedizione ora).",
+      "split_now_free": "Paghi ora {total} — {items}, con spedizione gratuita (spedizione ora).",
+      "split_now_pickup": "Paghi ora {total} — {items}, ritiro in negozio senza spedizione.",
+      "split_threshold_lost": "Da soli, i prodotti disponibili non raggiungono la soglia della spedizione gratuita.",
+      "split_postage_note": "Spedizione per la Grecia continentale — definitiva con il CAP di consegna.",
+      "split_request": "Su ordinazione: {items}, valore indicativo {value} — nessun pagamento ora; riceverai un'offerta entro 24 ore con prezzo finale e spedizione della seconda consegna.",
+      "together_line": "Nessun pagamento ora — tutto il carrello ({items}, valore indicativo {value}) come richiesta, una sola consegna, spedizione nell'offerta.",
+      "pay_now_button": "Paga {amount}",
+      "order_now_button": "Conferma ordine · {amount}"
     },
     "page": {
       "kalathi": "CARRELLO",
@@ -567,6 +578,29 @@
     },
     "AddressAutocomplete": {
       "voitheia": "Digita la via e scegli dalla lista. Si compila anche il CAP."
+    },
+    "SplitCheckout": {
+      "items_one": "1 articolo",
+      "items_other": "{count} articoli",
+      "group_now": "Spediti ora",
+      "group_request": "Su ordinazione",
+      "group_together": "Tutto come richiesta · una consegna",
+      "choose_mode": "Scegli come procedere per vedere cosa paghi ora e cosa resta come richiesta.",
+      "now_title": "Spedizione ora",
+      "kathari_axia": "Valore netto",
+      "metaforika_now": "Spedizione (invio ora)",
+      "dorean": "Gratis",
+      "payment_fee": "Costi di pagamento",
+      "fpa": "IVA",
+      "postage_for": "per CAP {postcode}",
+      "postage_indicative": "Grecia continentale, definitiva con il CAP",
+      "threshold_lost": "Da soli, i prodotti disponibili non raggiungono la soglia della spedizione gratuita.",
+      "payable_now": "Da pagare ora",
+      "me_fpa": "IVA inclusa",
+      "nothing_now": "Nessun pagamento ora",
+      "on_request": "Su richiesta (indicativo)",
+      "request_shipping_offer": "nessun pagamento ora; prezzo finale e spedizione della seconda consegna arrivano con l'offerta entro 24 ore.",
+      "together_shipping_offer": "una sola consegna per tutto; prezzo finale e spedizione arrivano con l'offerta entro 24 ore."
     }
   },
   "catalogue": {
@@ -1405,7 +1439,17 @@
       "pliroste_online": "Paga online",
       "kratame_ta_proionta_eos": "Teniamo l'ordine e la merce per {hours} ore.",
       "child_request": "I prodotti su ordinazione sono stati inviati come richiesta {number}. Riceverai un'offerta via email entro 24 ore.",
-      "child_request_link": "Vedi la richiesta"
+      "child_request_link": "Vedi la richiesta",
+      "items_one": "1 articolo",
+      "items_other": "{count} articoli",
+      "split_title": "Il tuo carrello procede in due parti",
+      "split_now_label": "Spedito ora",
+      "split_now_line": "Ordine {number} · {items} · {total} IVA inclusa (spedizione {shipping}).",
+      "split_now_paid": "Pagato",
+      "split_now_pending": "In attesa di pagamento",
+      "split_request_label": "Su ordinazione",
+      "split_request_line": "Richiesta {number} · {items} · valore indicativo {value} — nessun addebito ora.",
+      "split_request_note": "Riceverai un'offerta entro {hours} ore con prezzo finale e spedizione della seconda consegna; paghi solo se la accetti."
     }
   },
   "b2b": {
@@ -1500,7 +1544,10 @@
       "epivevaiosi_koumpi": "Invia link",
       "epivevaiosi_apostoli": "Invio…",
       "epivevaiosi_stalthike": "Abbiamo inviato un link di conferma a {email}. Aprilo entro 72 ore.",
-      "epivevaiosi_den_irthe": "Non lo vedi dopo qualche minuto? Controlla Spam o Promozioni. Puoi richiedere un nuovo link tra 10 minuti."
+      "epivevaiosi_den_irthe": "Non lo vedi dopo qualche minuto? Controlla Spam o Promozioni. Puoi richiedere un nuovo link tra 10 minuti.",
+      "split_with_request": "Il resto del carrello: richiesta {number}",
+      "split_with_paid": "Su ordinazione · prodotti disponibili nell'ordine {number}",
+      "status_request": "Su ordinazione"
     }
   },
   "dieuthynseis": {
@@ -1598,7 +1645,11 @@
       "error_payment_unavailable": "Il pagamento con carta non è disponibile ora — la tua accettazione è registrata, riprova a breve.",
       "error_payment_failed": "Collegamento con la banca non riuscito — la tua accettazione è registrata, riprova.",
       "declined_done": "La tua decisione è registrata. Grazie.",
-      "validity": "Validità dell'offerta"
+      "validity": "Validità dell'offerta",
+      "parent_note_amount": "I prodotti disponibili del carrello sono l'ordine {number}: {total} IVA inclusa, spedizione {shipping}.",
+      "parent_note_paid": "I prodotti disponibili del carrello sono stati pagati con l'ordine {number}: {total} IVA inclusa, spedizione {shipping}.",
+      "parent_link": "L'ordine",
+      "second_shipment": "Seconda consegna: questi prodotti vengono spediti separatamente dall'ordine {number}, con la propria spedizione — quella indicata nell'offerta."
     }
   }
 }

@@ -164,6 +164,14 @@ export default async function OrdersPage({
                       {order.itemCount > order.preview.length &&
                         ` ${t("kai_alla", { n: order.itemCount - order.preview.length })}`}
                     </p>
+                    {/* A split cart: the other half, by number. */}
+                    {order.splitWith && (
+                      <p className="mt-1 text-[11.5px] text-k-text-3">
+                        {order.splitWith.kind === "request"
+                          ? t("split_with_request", { number: order.splitWith.orderNumber })
+                          : t("split_with_paid", { number: order.splitWith.orderNumber })}
+                      </p>
+                    )}
                     {/* The courier reference, where the question is asked. */}
                     {order.voucherNo && (
                       <p className="mt-1 flex items-center gap-1.5 text-[11.5px] text-k-text-3">
@@ -185,7 +193,10 @@ export default async function OrdersPage({
                       }`}
                     >
                       {upGreek(
-                        statusLabel[order.status] ?? statusLabel.CONFIRMED,
+                        /* An open back-order request awaits an offer, not a payment. */
+                        order.requestStatus && order.requestStatus !== "ACCEPTED"
+                          ? t("status_request")
+                          : (statusLabel[order.status] ?? statusLabel.CONFIRMED),
                       )}
                     </span>
                     <span className="ml-auto shrink-0 font-mono text-[13.5px] font-semibold tabular-nums text-k-ink sm:ml-0">

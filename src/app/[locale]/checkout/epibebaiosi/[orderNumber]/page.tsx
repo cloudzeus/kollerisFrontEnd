@@ -23,7 +23,7 @@ import { estimatedDeliveryDate } from "@/lib/seo/google-reviews";
 import { upGreek } from "@/lib/greek";
 import { holdHours } from "@/lib/orders/hold";
 import { prisma } from "@/lib/prisma";
-import { requestPath } from "@/lib/requests/model";
+import { REQUEST_ANSWER_HOURS, priceLines, readSnapshot, requestPath } from "@/lib/requests/model";
 import { carrierLabel, localityLine } from "@/lib/shipping/countries";
 
 export const dynamic = "force-dynamic";
@@ -92,8 +92,12 @@ export default async function ConfirmationPage({ params, searchParams }: PagePro
   /* The other half of a split cart: the lines that went as a request. */
   const childRequest = await prisma.order.findFirst({
     where: { parentOrderNumber: order.orderNumber, requestStatus: { not: null } },
-    select: { orderNumber: true, requestToken: true },
+    select: { orderNumber: true, requestToken: true, requestLines: true },
   });
+  /* Its indicative value: the requested lines as the cart priced them. */
+  const childLines = childRequest ? (readSnapshot(childRequest.requestLines)?.lines ?? []) : [];
+  const childValue = priceLines(childLines, 0).subtotalGross;
+  const items = (count: number) => (count === 1 ? t("items_one") : t("items_other", { count }));
 
   const currentStep = STEPS.findIndex((s) => s.key === order.status);
   const stepIndex = currentStep === -1 ? 0 : currentStep;
@@ -213,18 +217,53 @@ export default async function ConfirmationPage({ params, searchParams }: PagePro
           </p>
         </div>
 
+        {/*
+          A split cart: both halves, with their numbers — what was paid (or is
+          to be paid) now and ships now, and what went as a request, with no
+          charge yet and its own shipment and postage in the offer.
+        */}
         {childRequest?.requestToken && (
           <div className="border-b border-k-line bg-k-surface-2">
             <div className="shell-x py-5">
-              <p className="flex flex-col gap-2 border-l-[3px] border-k-amber bg-white px-5 py-4 text-[12.5px] leading-[1.6] text-k-text-2 sm:flex-row sm:items-center sm:justify-between">
-                <span>{t("child_request", { number: childRequest.orderNumber })}</span>
-                <a
-                  href={requestPath(locale, childRequest.requestToken)}
-                  className="t-btn-sm shrink-0 bg-k-ink px-4 py-2 text-white transition-colors hover:bg-k-red"
-                >
-                  {upGreek(t("child_request_link"))} →
-                </a>
-              </p>
+              <p className="t-account-label mb-2.5 text-k-text-4">{upGreek(t("split_title"))}</p>
+              <div className="grid gap-px border border-k-line bg-k-line sm:grid-cols-2">
+                <div className="border-l-[3px] border-k-ink bg-white px-5 py-4">
+                  <p className="t-account-label text-k-ink">{upGreek(t("split_now_label"))}</p>
+                  <p className="mt-1.5 text-[12.5px] leading-[1.6] text-k-text-2">
+                    {t("split_now_line", {
+                      number: order.orderNumber,
+                      items: items(order.lines.length),
+                      total: formatMoney(Number(order.totalGross), locale),
+                      shipping:
+                        Number(order.shippingGross) === 0
+                          ? t("dorean")
+                          : formatMoney(Number(order.shippingGross), locale),
+                    })}
+                  </p>
+                  <p className="mt-1 text-[11.5px] font-semibold text-k-ink">
+                    {order.paymentStatus === "PAID" ? t("split_now_paid") : t("split_now_pending")}
+                  </p>
+                </div>
+                <div className="border-l-[3px] border-k-amber bg-white px-5 py-4">
+                  <p className="t-account-label text-k-amber">{upGreek(t("split_request_label"))}</p>
+                  <p className="mt-1.5 text-[12.5px] leading-[1.6] text-k-text-2">
+                    {t("split_request_line", {
+                      number: childRequest.orderNumber,
+                      items: items(childLines.length),
+                      value: formatMoney(childValue, locale),
+                    })}
+                  </p>
+                  <p className="mt-1 text-[11.5px] leading-[1.55] text-k-text-3">
+                    {t("split_request_note", { hours: REQUEST_ANSWER_HOURS })}
+                  </p>
+                  <a
+                    href={requestPath(locale, childRequest.requestToken)}
+                    className="t-btn-sm mt-3 inline-block bg-k-ink px-4 py-2 text-white transition-colors hover:bg-k-red"
+                  >
+                    {upGreek(t("child_request_link"))} →
+                  </a>
+                </div>
+              </div>
             </div>
           </div>
         )}

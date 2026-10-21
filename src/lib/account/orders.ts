@@ -44,6 +44,15 @@ export type AccountOrder = {
    * orders to find out has been made to do the software's work.
    */
   voucherNo: string | null;
+  /**
+   * A split cart (docs/backorder-requests.md §1): the other half of this one.
+   * «request» — this order is the in-stock half, the number is its back-order
+   * request; «paid» — this is the request, the number is the order that went
+   * ahead with the in-stock items. Null for an ordinary order.
+   */
+  splitWith: { kind: "request" | "paid"; orderNumber: string } | null;
+  /** Set on a back-order request; null on an ordinary order. */
+  requestStatus: string | null;
 };
 
 export async function listCustomerOrders(
@@ -70,9 +79,18 @@ export async function listCustomerOrders(
       totalGross: true,
       createdAt: true,
       acsVoucherNo: true,
+      requestStatus: true,
+      parentOrderNumber: true,
       lines: { select: { name: true, quantity: true, imageUrl: true } },
     },
   });
+
+  /* The request of each split order, from the rows already read. */
+  const childOf = new Map(
+    orders
+      .filter((o) => o.parentOrderNumber && o.requestStatus)
+      .map((o) => [o.parentOrderNumber as string, o.orderNumber]),
+  );
 
   return orders.map((order) => ({
     id: order.id,
@@ -88,6 +106,12 @@ export async function listCustomerOrders(
     preview: order.lines.slice(0, 3).map((line) => line.name),
     image: order.lines.find((l) => l.imageUrl)?.imageUrl ?? null,
     voucherNo: order.acsVoucherNo,
+    requestStatus: order.requestStatus,
+    splitWith: order.parentOrderNumber
+      ? { kind: "paid" as const, orderNumber: order.parentOrderNumber }
+      : childOf.has(order.orderNumber)
+        ? { kind: "request" as const, orderNumber: childOf.get(order.orderNumber)! }
+        : null,
   }));
 }
 

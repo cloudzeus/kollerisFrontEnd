@@ -188,6 +188,21 @@
   </td></tr>
 </table>
   </td></tr>
+  {{#if order.split}}
+  <tr><td class="k-pad" style="padding:24px 32px 0 32px;">
+    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+  <tr><td style="border:1px solid #D8D8D8;border-left:4px solid #9A6700;padding:16px 20px;">
+    <p class="mono" style="margin:0 0 12px 0;font-family:'JetBrains Mono',Consolas,'Courier New',monospace;font-size:10px;line-height:16px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:#9A6700;margin-bottom:8px;">{{order.split.title}}</p>
+    {{#each order.split.paragraphs}}<p style="margin:0 0 10px 0;font-family:'Inter',Arial,Helvetica,sans-serif;font-size:13px;line-height:20px;color:#1F1F1F;">{{this}}</p>{{/each}}
+    {{#if order.split.items}}<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin:4px 0 0 0;">
+      {{#each order.split.items}}<tr><td style="padding:8px 12px 8px 0;font-family:'Inter',Arial,Helvetica,sans-serif;font-size:13px;line-height:18px;color:#1F1F1F;border-top:1px solid #EFEFEF;vertical-align:top;">{{qty}} × {{name}}<br><span class="mono" style="font-family:'JetBrains Mono',Consolas,'Courier New',monospace;font-size:11px;line-height:16px;color:#7D7E7F;">{{sku}}</span></td><td align="right" class="mono" style="padding:8px 0;font-family:'JetBrains Mono',Consolas,'Courier New',monospace;font-size:13px;line-height:18px;color:#5F6061;text-align:right;white-space:nowrap;vertical-align:top;border-top:1px solid #EFEFEF;">{{amount}}</td></tr>{{/each}}
+      <tr><td class="mono" style="padding:10px 12px 0 0;font-family:'JetBrains Mono',Consolas,'Courier New',monospace;font-size:10px;line-height:16px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#1F1F1F;border-top:1px solid #1F1F1F;">{{order.split.value_label}}</td><td align="right" class="mono" style="padding:10px 0 0 0;font-family:'JetBrains Mono',Consolas,'Courier New',monospace;font-size:14px;line-height:18px;font-weight:700;color:#1F1F1F;text-align:right;white-space:nowrap;border-top:1px solid #1F1F1F;">{{order.split.value}}</td></tr>
+    </table>{{/if}}
+    {{#if order.split.url}}<p style="margin:14px 0 0 0;"><a href="{{order.split.url}}" target="_blank" style="font-family:'Inter',Arial,Helvetica,sans-serif;font-size:12px;line-height:14px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#C42A26;text-decoration:none;">{{order.split.link_label}}&nbsp;&nbsp;→</a></p>{{/if}}
+  </td></tr>
+</table>
+  </td></tr>
+  {{/if}}
   <tr><td class="k-pad" style="padding:32px 32px 40px 32px;">
     <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
   <tr><td style="border:1px solid #D8D8D8;border-left:4px solid #D8D8D8;padding:16px 20px;">

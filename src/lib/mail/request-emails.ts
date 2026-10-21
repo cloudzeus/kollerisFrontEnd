@@ -68,6 +68,50 @@ async function loadRequest(orderNumber: string) {
 
 type LoadedRequest = NonNullable<Awaited<ReturnType<typeof loadRequest>>>;
 
+/**
+ * The paid half of a split cart, as the request emails mention it: number,
+ * amount, postage, and whether the money is in yet (the «received» email goes
+ * out at checkout, before the customer reaches Viva).
+ */
+export type ParentFacts = {
+  orderNumber: string;
+  totalGross: unknown;
+  shippingGross: unknown;
+  shippingMethod: string;
+  paymentMethod: string;
+  paymentStatus: string;
+};
+
+async function loadParent(order: { parentOrderNumber: string | null }): Promise<ParentFacts | null> {
+  if (!order.parentOrderNumber) return null;
+  return prisma.order.findUnique({
+    where: { orderNumber: order.parentOrderNumber },
+    select: {
+      orderNumber: true,
+      totalGross: true,
+      shippingGross: true,
+      shippingMethod: true,
+      paymentMethod: true,
+      paymentStatus: true,
+    },
+  });
+}
+
+/** «… KOL-…: 62,00 € μαζί με μεταφορικά 4,96 €» — the paid half, in one sentence. */
+function parentSentence(parent: ParentFacts): string {
+  const shipping =
+    parent.shippingMethod === "pickup"
+      ? "παραλαβή από το κατάστημα"
+      : Number(parent.shippingGross) === 0
+        ? "με δωρεάν μεταφορικά"
+        : `μαζί με μεταφορικά ${money(parent.shippingGross)}`;
+  return parent.paymentStatus === "PAID"
+    ? `Τα διαθέσιμα είδη του καλαθιού σας πληρώθηκαν στην παραγγελία ${parent.orderNumber}: ${money(parent.totalGross)} ${shipping}.`
+    : `Τα διαθέσιμα είδη του καλαθιού σας είναι η παραγγελία ${parent.orderNumber}: ${money(parent.totalGross)} ${shipping}, ${
+        parent.paymentMethod === "bank" ? "που πληρώνετε με τραπεζική κατάθεση" : "που πληρώνετε τώρα"
+      }.`;
+}
+
 const BADGE: Record<RequestEmailKind, { text: string; color: string; bg: string }> = {
   received: { text: "Σε επεξεργασια", color: "#9A6700", bg: "#FFF4D6" },
   offer: { text: "Προταση", color: "#1F7A45", bg: "#E3F4EA" },
@@ -117,7 +161,12 @@ function comparisonItem(row: ComparisonRow) {
 }
 
 /** Everything every request email needs, from the order row. Exported for the tests. */
-export function requestEmailView(order: LoadedRequest, kind: RequestEmailKind) {
+export function requestEmailView(
+  order: LoadedRequest,
+  kind: RequestEmailKind,
+  /** The paid half of a split cart, when there is one (`parentOrderNumber`). */
+  parent: ParentFacts | null = null,
+) {
   const snapshot = readSnapshot(order.requestLines);
   const locale = snapshot?.locale ?? "el";
   const link = order.requestToken ? `${siteOrigin()}${requestPath(locale, order.requestToken)}` : siteOrigin();
@@ -155,10 +204,21 @@ export function requestEmailView(order: LoadedRequest, kind: RequestEmailKind) {
       paragraphs: [
         `${name}, λάβαμε το αίτημά σας για προϊόντα που δεν υπάρχουν αυτή τη στιγμή στην αποθήκη μας. Θα σας απαντήσουμε εντός ${REQUEST_ANSWER_HOURS} ωρών με τελική τιμή, διαθεσιμότητα και χρόνο παράδοσης.`,
         "Δεν έγινε καμία χρέωση. Πληρώνετε μόνο αν αποδεχτείτε την πρότασή μας, από τον σύνδεσμο που θα σας στείλουμε.",
-        ...(order.parentOrderNumber
-          ? [`Τα διαθέσιμα προϊόντα του καλαθιού σας προχωρούν κανονικά με την παραγγελία ${order.parentOrderNumber}.`]
-          : []),
+        ...(parent
+          ? [
+              parentSentence(parent),
+              "Τα προϊόντα αυτού του αιτήματος θα σταλούν χωριστά, σε δεύτερη αποστολή· τα μεταφορικά τους θα τα δείτε στην πρόταση.",
+            ]
+          : order.parentOrderNumber
+            ? [`Τα διαθέσιμα προϊόντα του καλαθιού σας προχωρούν κανονικά με την παραγγελία ${order.parentOrderNumber}.`]
+            : []),
       ],
+      facts: parent
+        ? [
+            { label: "Πληρωτεο τωρα", value: `${parent.orderNumber} · ${money(parent.totalGross)}` },
+            { label: "Αυτο το αιτημα", value: "Χωρίς χρέωση τώρα · 2η αποστολή" },
+          ]
+        : [],
       items_title: "Τι ζητήσατε",
       items: requested.map((r) => ({
         tag: "",
@@ -169,7 +229,7 @@ export function requestEmailView(order: LoadedRequest, kind: RequestEmailKind) {
         struck: false,
         was: "",
       })),
-      totals: [{ label: "Μεταφορικα", value: "Με την πρόταση" }],
+      totals: [{ label: parent ? "Μεταφορικα 2ης αποστολης" : "Μεταφορικα", value: "Με την πρόταση" }],
       total: { label: "Ενδεικτικη αξια", value: money(priced.subtotalGross) },
       cta: { url: link, label: "Δείτε το αίτημα", hint: "Ο σύνδεσμος είναι προσωπικός — μην τον προωθήσετε." },
     };
@@ -224,6 +284,11 @@ export function requestEmailView(order: LoadedRequest, kind: RequestEmailKind) {
       reminder
         ? `${name}, η πρότασή μας για το αίτημα ${order.orderNumber} ισχύει έως ${stamp(expires)}. Μετά από αυτό τα προϊόντα δεν θα είναι πια δεσμευμένα για εσάς.`
         : `${name}, ετοιμάσαμε την πρότασή μας για το αίτημά σας ${order.orderNumber}. Ελέγξτε τα προϊόντα, τις τιμές και τον χρόνο παράδοσης και, αν σας καλύπτουν, ολοκληρώστε με πληρωμή.`,
+      ...(order.parentOrderNumber
+        ? [
+            `Αυτή είναι η δεύτερη αποστολή του καλαθιού σας: τα διαθέσιμα είδη προχώρησαν χωριστά με την παραγγελία ${order.parentOrderNumber}. Τα μεταφορικά παρακάτω αφορούν μόνο αυτή την αποστολή και χρεώνονται χωριστά.`,
+          ]
+        : []),
     ],
     note: offer.note ?? "",
     note_label: offer.note ? "Σημειωση απο το καταστημα" : "",
@@ -237,7 +302,7 @@ export function requestEmailView(order: LoadedRequest, kind: RequestEmailKind) {
     totals: [
       { label: "Καθαρη αξια", value: money(totals.subtotalNet) },
       {
-        label: "Μεταφορικα",
+        label: order.parentOrderNumber ? "Μεταφορικα 2ης αποστολης" : "Μεταφορικα",
         value: shippingNet == null ? "Στη σελίδα" : totals.shippingGross === 0 ? "Δωρεάν" : money(totals.shippingGross),
       },
       { label: "ΦΠΑ", value: money(totals.vatAmount) },
@@ -281,7 +346,7 @@ export async function sendRequestEmail(
   try {
     const order = await loadRequest(orderNumber);
     if (!order || !order.requestStatus) return { ok: false, error: "Το αίτημα δεν βρέθηκε." };
-    const view = requestEmailView(order, kind);
+    const view = requestEmailView(order, kind, await loadParent(order));
     if (!view) return { ok: false, error: "Δεν υπάρχει πρόταση για αποστολή." };
 
     const html = await renderTemplate("order-request", {
@@ -320,11 +385,14 @@ export async function sendInternalRequestEmail(orderNumber: string): Promise<Req
     if (!order || !order.requestStatus) return { ok: false, error: "Το αίτημα δεν βρέθηκε." };
     const requested = readSnapshot(order.requestLines)?.lines ?? [];
     const priced = priceLines(requested, 0);
+    const parent = await loadParent(order);
     const admin = `${siteOrigin()}/admin/orders/${encodeURIComponent(order.orderNumber)}`;
     const shippingLabel = findShippingMethod(order.shippingMethod)?.label ?? order.shippingMethod;
 
     const view = {
-      subject: `Νέο αίτημα κατόπιν παραγγελίας ${order.orderNumber} — ${money(priced.subtotalGross)}`,
+      subject: `Νέο αίτημα κατόπιν παραγγελίας ${order.orderNumber} — ${money(priced.subtotalGross)}${
+        order.parentOrderNumber ? ` · τα διαθέσιμα στην ${order.parentOrderNumber}` : ""
+      }`,
       eyebrow: "Εσωτερικο / Κατοπιν παραγγελιας",
       title: "Νέο αίτημα",
       number: order.orderNumber,
@@ -334,9 +402,13 @@ export async function sendInternalRequestEmail(orderNumber: string): Promise<Req
       badge_bg: "#FFF4D6",
       paragraphs: [
         `Ο πελάτης ζητά προϊόντα που δεν υπάρχουν (ή δεν επαρκούν) στην αποθήκη. Η πρόταση ή η απόρριψη γίνεται από το HDCtool, στην οθόνη αιτημάτων — ο πελάτης έχει υποσχεθεί απάντηση εντός ${REQUEST_ANSWER_HOURS} ωρών.`,
-        ...(order.parentOrderNumber
-          ? [`Τα διαθέσιμα προϊόντα του ίδιου καλαθιού έγιναν η παραγγελία ${order.parentOrderNumber}.`]
-          : []),
+        ...(parent
+          ? [
+              `Μοιρασμένο καλάθι: τα διαθέσιμα προϊόντα του ίδιου καλαθιού έγιναν η παραγγελία ${parent.orderNumber} (${money(parent.totalGross)}, μεταφορικά ${money(parent.shippingGross)}, ${parent.paymentStatus === "PAID" ? "πληρωμένη" : "εκκρεμεί πληρωμή"}). Αυτό το αίτημα στέλνεται χωριστά· τα μεταφορικά του ορίζονται με την πρόταση.`,
+            ]
+          : order.parentOrderNumber
+            ? [`Τα διαθέσιμα προϊόντα του ίδιου καλαθιού έγιναν η παραγγελία ${order.parentOrderNumber}.`]
+            : []),
       ],
       note: order.notes?.trim() ?? "",
       note_label: order.notes?.trim() ? "Σχολια πελατη" : "",

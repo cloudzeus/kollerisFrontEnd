@@ -4,6 +4,8 @@ import Image from "next/image";
 import { redirect } from "next/navigation";
 import { setRequestLocale } from "next-intl/server";
 import { CheckoutForm } from "@/components/checkout/CheckoutForm";
+import { SplitCheckoutProvider, SplitSummary } from "@/components/checkout/SplitCheckout";
+import { checkoutBreakdown } from "@/lib/requests/checkout-breakdown";
 import { getViewer } from "@/lib/account/session";
 import { SiteChrome } from "@/components/chrome/SiteChrome";
 import { SiteFooter } from "@/components/chrome/SiteFooter";
@@ -21,7 +23,7 @@ import { formatMoney } from "@/lib/format";
 import { countryName } from "@/lib/shipping/countries";
 import { upGreek } from "@/lib/greek";
 import { isVivaConfigured } from "@/lib/payment/viva";
-import { isOnRequest, splitCart } from "@/lib/requests/model";
+import { splitCart } from "@/lib/requests/model";
 import { isInternationalShippingEnabled } from "@/lib/shipping/flag";
 import { readDestination } from "@/lib/shipping/destination-cookie";
 import type { DeliveryQuoteAnswer } from "@/lib/shipping/actions";
@@ -144,6 +146,20 @@ export default async function CheckoutPage({
             : null;
   /* Back-order requests: shapes the form; the action decides again on submit. */
   const requestKind = splitCart(cart.lines).kind;
+  /*
+   * A cart with back-order lines: what each choice costs, priced here by the
+   * same `computeTotals` `placeOrder` charges with — the in-stock lines alone
+   * for «split», with their own postage and threshold. Null for an ordinary
+   * cart, whose page is exactly what it was.
+   */
+  const breakdown = await checkoutBreakdown({
+    lines: cart.lines,
+    cartTotals: totals,
+    shippingMethod: cart.shippingMethod,
+    paymentMethod: cart.paymentMethod,
+    postcode: destination?.postcode ?? null,
+    destination: destination ? { country: destination.country, city: destination.city } : undefined,
+  });
 
   return (
     <>
@@ -191,6 +207,7 @@ export default async function CheckoutPage({
         </div>
       </div>
 
+      <SplitCheckoutProvider breakdown={breakdown} locale={locale}>
       <main
         id="main"
         className="shell-w bg-white lg:grid lg:grid-cols-[1fr_460px] lg:items-start"
@@ -239,6 +256,22 @@ export default async function CheckoutPage({
 
         {/* Summary */}
         <aside className="lg:sticky lg:top-0">
+          {breakdown ? (
+            /* Back-order lines: grouped, «Πληρωτέο τώρα» apart from «Σε αίτημα». */
+            <SplitSummary
+              locale={locale}
+              lines={cart.lines.map((line) => ({
+                id: line.id,
+                name: line.name,
+                brandName: line.brandName,
+                image: line.image,
+                quantity: line.quantity,
+                lineGross: line.lineGross,
+              }))}
+              postage={totals.postage?.carrier ?? null}
+            />
+          ) : (
+          <>
           <div className="border-b border-k-line px-4 py-6 lg:px-8">
             <p className="t-footer-col mb-4 text-k-text-4">
               {upGreek(
@@ -273,11 +306,6 @@ export default async function CheckoutPage({
                     <span className="mt-0.5 block truncate text-[11.5px] font-semibold text-k-ink">
                       {line.name}
                     </span>
-                    {isOnRequest(line) && (
-                      <span className="t-badge mt-1 inline-block bg-k-amber px-1.5 py-0.5 text-white">
-                        {upGreek(t("katopin_badge"))}
-                      </span>
-                    )}
                   </span>
                   <span className="shrink-0 font-mono text-[13px] font-semibold text-k-ink">
                     {formatMoney(line.lineGross, locale)}
@@ -315,12 +343,6 @@ export default async function CheckoutPage({
                 </div>
               ))}
             </dl>
-
-            {requestKind !== "none" && (
-              <p className="mt-2.5 text-[11px] leading-[1.5] text-white/60">
-                {t("request_totals_note")}
-              </p>
-            )}
 
             {totals.postage && totals.postage.carrier === "DHL" ? (
               <p className="mt-2.5 text-[11px] leading-[1.5] text-white/45">
@@ -360,8 +382,11 @@ export default async function CheckoutPage({
               </p>
             </div>
           </div>
+          </>
+          )}
         </aside>
       </main>
+      </SplitCheckoutProvider>
 
       <SiteFooter categories={rootCategories} />
     </>

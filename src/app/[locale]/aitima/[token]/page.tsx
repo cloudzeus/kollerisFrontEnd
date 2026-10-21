@@ -115,6 +115,21 @@ export default async function RequestPage({ params }: PageProps) {
   }
   const requestedTotals = priceLines(requested, 0);
 
+  /*
+   * A split cart: the in-stock half is its own order, paid and shipped on its
+   * own. Its number, amount and page, so this request reads as the second
+   * shipment it is — with its own postage, shown here and nowhere else.
+   */
+  const parent = order.parentOrderNumber
+    ? await prisma.order.findUnique({
+        where: { orderNumber: order.parentOrderNumber },
+        select: { orderNumber: true, guestToken: true, totalGross: true, shippingGross: true, paymentStatus: true },
+      })
+    : null;
+  const parentHref = parent
+    ? `${locale === "el" ? "" : `/${locale}`}/checkout/epibebaiosi/${encodeURIComponent(parent.orderNumber)}?t=${encodeURIComponent(parent.guestToken)}`
+    : null;
+
   const confirmationHref =
     view === "PAID" || view === "ACCEPTED"
       ? `${locale === "el" ? "" : `/${locale}`}/checkout/epibebaiosi/${encodeURIComponent(order.orderNumber)}?t=${encodeURIComponent(order.guestToken)}`
@@ -150,7 +165,24 @@ export default async function RequestPage({ params }: PageProps) {
           <p className="mt-4 max-w-[600px] text-[13.5px] leading-[1.65] text-white/60">{t(`intro_${view}`)}</p>
           {order.parentOrderNumber && (
             <p className="mt-2 max-w-[600px] text-[12.5px] leading-[1.6] text-white/50">
-              {t("parent_note", { number: order.parentOrderNumber })}
+              {parent
+                ? parent.paymentStatus === "PAID"
+                  ? t("parent_note_paid", {
+                      number: parent.orderNumber,
+                      total: money(Number(parent.totalGross)),
+                      shipping: Number(parent.shippingGross) === 0 ? t("dorean") : money(Number(parent.shippingGross)),
+                    })
+                  : t("parent_note_amount", {
+                      number: parent.orderNumber,
+                      total: money(Number(parent.totalGross)),
+                      shipping: Number(parent.shippingGross) === 0 ? t("dorean") : money(Number(parent.shippingGross)),
+                    })
+                : t("parent_note", { number: order.parentOrderNumber })}{" "}
+              {parentHref && (
+                <a href={parentHref} className="text-white/80 underline-offset-2 hover:underline">
+                  {t("parent_link")} →
+                </a>
+              )}
             </p>
           )}
         </div>
@@ -313,6 +345,11 @@ export default async function RequestPage({ params }: PageProps) {
           </div>
 
           <aside className="px-4 py-8 lg:px-8">
+            {order.parentOrderNumber && view !== "PAID" && (
+              <p className="mb-3 border-l-[3px] border-k-amber bg-k-surface-2 px-4 py-3 text-[12px] leading-[1.55] text-k-text-2">
+                {t("second_shipment", { number: order.parentOrderNumber })}
+              </p>
+            )}
             <div className="bg-k-ink px-5 py-6">
               {offerTotals ? (
                 <>

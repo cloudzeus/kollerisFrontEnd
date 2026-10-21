@@ -542,7 +542,18 @@
       "refused_invalid_postcode": "This postcode is not valid for the country you chose.",
       "refused_unserviceable": "This postcode is not in an area we deliver to.",
       "cost_abroad": "The cost is calculated from the chargeable weight and the destination postcode — see the summary.",
-      "refused_invalid_address": "Please check the postcode and the city of the address."
+      "refused_invalid_address": "Please check the postcode and the city of the address.",
+      "items_one": "1 item",
+      "items_other": "{count} items",
+      "split_now": "You pay {total} now — {items} + shipping {shipping} (ships now).",
+      "split_now_free": "You pay {total} now — {items}, with free shipping (ships now).",
+      "split_now_pickup": "You pay {total} now — {items}, collected from the shop with no shipping.",
+      "split_threshold_lost": "On their own, the in-stock items do not reach the free-shipping threshold.",
+      "split_postage_note": "Shipping for mainland Greece — finalised with the delivery postcode.",
+      "split_request": "Made to order: {items}, indicative value {value} — nothing to pay now; you will receive an offer within 24 hours with the final price and the shipping of the second delivery.",
+      "together_line": "Nothing to pay now — the whole basket ({items}, indicative value {value}) as a request, one delivery, shipping in the offer.",
+      "pay_now_button": "Pay {amount}",
+      "order_now_button": "Place order · {amount}"
     },
     "page": {
       "kalathi": "CART",
@@ -567,6 +578,29 @@
     },
     "AddressAutocomplete": {
       "voitheia": "Type the street and pick from the list. The postcode fills in too."
+    },
+    "SplitCheckout": {
+      "items_one": "1 item",
+      "items_other": "{count} items",
+      "group_now": "Shipping now",
+      "group_request": "Made to order",
+      "group_together": "Everything as a request · one delivery",
+      "choose_mode": "Choose how the order should proceed to see what you pay now and what stays as a request.",
+      "now_title": "Shipping now",
+      "kathari_axia": "Net value",
+      "metaforika_now": "Shipping (sent now)",
+      "dorean": "Free",
+      "payment_fee": "Payment fee",
+      "fpa": "VAT",
+      "postage_for": "for postcode {postcode}",
+      "postage_indicative": "mainland Greece, finalised with the postcode",
+      "threshold_lost": "On their own, the in-stock items do not reach the free-shipping threshold.",
+      "payable_now": "Payable now",
+      "me_fpa": "incl. VAT",
+      "nothing_now": "Nothing to pay now",
+      "on_request": "On request (indicative)",
+      "request_shipping_offer": "nothing to pay now; the final price and the shipping of the second delivery come with the offer within 24 hours.",
+      "together_shipping_offer": "one delivery for everything; the final price and shipping come with the offer within 24 hours."
     }
   },
   "catalogue": {
@@ -1405,7 +1439,17 @@
       "pliroste_online": "Pay online",
       "kratame_ta_proionta_eos": "We hold the order and the stock for {hours} hours.",
       "child_request": "The made-to-order items were sent as request {number}. You will receive an offer by email within 24 hours.",
-      "child_request_link": "View the request"
+      "child_request_link": "View the request",
+      "items_one": "1 item",
+      "items_other": "{count} items",
+      "split_title": "Your basket goes ahead in two parts",
+      "split_now_label": "Shipping now",
+      "split_now_line": "Order {number} · {items} · {total} incl. VAT (shipping {shipping}).",
+      "split_now_paid": "Paid",
+      "split_now_pending": "Awaiting payment",
+      "split_request_label": "Made to order",
+      "split_request_line": "Request {number} · {items} · indicative value {value} — no charge now.",
+      "split_request_note": "You will receive an offer within {hours} hours with the final price and the shipping of the second delivery; you pay only if you accept it."
     }
   },
   "b2b": {
@@ -1500,7 +1544,10 @@
       "epivevaiosi_koumpi": "Send link",
       "epivevaiosi_apostoli": "Sending…",
       "epivevaiosi_stalthike": "We sent a confirmation link to {email}. Open it within 72 hours.",
-      "epivevaiosi_den_irthe": "Not there after a few minutes? Check your Spam or Promotions folder. You can ask for a new link in 10 minutes."
+      "epivevaiosi_den_irthe": "Not there after a few minutes? Check your Spam or Promotions folder. You can ask for a new link in 10 minutes.",
+      "split_with_request": "The rest of the basket: request {number}",
+      "split_with_paid": "Made to order · in-stock items in order {number}",
+      "status_request": "Made to order"
     }
   },
   "dieuthynseis": {
@@ -1598,7 +1645,11 @@
       "error_payment_unavailable": "Card payment is unavailable right now — your acceptance is recorded, please try again shortly.",
       "error_payment_failed": "Connecting to the bank failed — your acceptance is recorded, please try again.",
       "declined_done": "Your decision is recorded. Thank you.",
-      "validity": "Offer validity"
+      "validity": "Offer validity",
+      "parent_note_amount": "The in-stock items of your basket are order {number}: {total} incl. VAT, shipping {shipping}.",
+      "parent_note_paid": "The in-stock items of your basket were paid with order {number}: {total} incl. VAT, shipping {shipping}.",
+      "parent_link": "The order",
+      "second_shipment": "Second delivery: these items ship separately from order {number}, with their own shipping — as shown in the offer."
     }
   }
 }

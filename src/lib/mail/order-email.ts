@@ -8,6 +8,7 @@ import { siteOrigin } from "@/lib/seo/urls";
 import { holdHours } from "@/lib/orders/hold";
 import { ALL_SHIPPING_METHODS, PAYMENT_METHODS } from "@/lib/cart/options";
 import { localityLine } from "@/lib/shipping/countries";
+import { REQUEST_ANSWER_HOURS, priceLines, readSnapshot, requestPath } from "@/lib/requests/model";
 
 /**
  * Το email της παραγγελίας, από τα templates του Kolleris Email System.
@@ -84,6 +85,118 @@ const label = (list: readonly { id: string; label: string }[], id: string) =>
   list.find((m) => m.id === id)?.label ?? id;
 
 export type OrderEmailOutcome = { ok: true; id: string } | { ok: false; error: string };
+
+/**
+ * A split cart, in the order emails (docs/backorder-requests.md §1).
+ *
+ * The in-stock half is paid and shipped as this order; the rest is a
+ * back-order request with `parentOrderNumber` = this order. The receipt says
+ * so in its own section — which items, their indicative value, the request
+ * number and its page, and that they ship separately with their own postage,
+ * confirmed in the offer — so the customer never wonders why the amount
+ * charged is smaller than the basket was. An ACCEPTED request, once paid, is
+ * an order too: its receipt says it is the second shipment.
+ *
+ * `customer` links to the request's private page (the token is the
+ * credential: the email then goes with Mailgun tracking off); `internal`
+ * links to the admin and carries no secret.
+ */
+export type SplitSection = {
+  title: string;
+  paragraphs: string[];
+  items: Array<{ name: string; sku: string; qty: string; amount: string }>;
+  value_label: string;
+  value: string;
+  url: string;
+  link_label: string;
+  /** The other half's number, for subjects and plain text. */
+  number: string;
+  /** The url carries a secret (request token or guest token). */
+  secret: boolean;
+};
+
+export async function splitSection(
+  order: { orderNumber: string; parentOrderNumber: string | null },
+  audience: "customer" | "internal",
+): Promise<SplitSection | null> {
+  const admin = (n: string) => `${siteOrigin()}/admin/orders/${encodeURIComponent(n)}`;
+
+  const child = await prisma.order.findFirst({
+    where: { parentOrderNumber: order.orderNumber, requestStatus: { not: null } },
+    select: { orderNumber: true, requestToken: true, requestLines: true },
+  });
+  if (child) {
+    const snapshot = readSnapshot(child.requestLines);
+    const lines = snapshot?.lines ?? [];
+    const priced = priceLines(lines, 0);
+    const value = money(priced.subtotalGross);
+    const customerUrl = child.requestToken
+      ? `${siteOrigin()}${requestPath(snapshot?.locale ?? "el", child.requestToken)}`
+      : "";
+    return {
+      title: audience === "customer" ? "Τα υπολοιπα ειδη του καλαθιου σας" : "Μοιρασμενο καλαθι",
+      paragraphs:
+        audience === "customer"
+          ? [
+              `Τα προϊόντα που δεν υπήρχαν σε απόθεμα στάλθηκαν ως αίτημα ${child.orderNumber}, χωρίς χρέωση. Θα λάβετε πρόταση εντός ${REQUEST_ANSWER_HOURS} ωρών με τελική τιμή και χρόνο παράδοσης, και πληρώνετε μόνο αν την αποδεχτείτε.`,
+              "Θα σταλούν χωριστά, σε δεύτερη αποστολή, με δικά τους μεταφορικά που θα επιβεβαιωθούν στην πρόταση. Το ποσό αυτής της παραγγελίας δεν τα περιλαμβάνει.",
+            ]
+          : [
+              `Τα κατόπιν παραγγελίας του ίδιου καλαθιού έγιναν το αίτημα ${child.orderNumber} (ενδεικτική αξία ${value}). Χωριστή αποστολή· τιμή και μεταφορικά με την πρόταση από το HDCtool.`,
+            ],
+      items: lines.map((line, i) => ({
+        name: line.name,
+        sku: line.sku,
+        qty: String(line.qty),
+        amount: money(priced.lines[i]?.lineGross ?? 0),
+      })),
+      value_label: "Ενδεικτικη αξια",
+      value,
+      url: audience === "customer" ? customerUrl : admin(child.orderNumber),
+      link_label: audience === "customer" ? `Δειτε το αιτημα ${child.orderNumber}` : "Το αιτημα στη διαχειριση",
+      number: child.orderNumber,
+      secret: audience === "customer" && customerUrl !== "",
+    };
+  }
+
+  if (order.parentOrderNumber) {
+    const parent = await prisma.order.findUnique({
+      where: { orderNumber: order.parentOrderNumber },
+      select: { orderNumber: true, guestToken: true, totalGross: true },
+    });
+    if (!parent) return null;
+    const customerUrl = `${siteOrigin()}/checkout/epibebaiosi/${encodeURIComponent(parent.orderNumber)}?t=${encodeURIComponent(parent.guestToken)}`;
+    return {
+      title: "Δευτερη αποστολη",
+      paragraphs: [
+        audience === "customer"
+          ? `Αυτή η παραγγελία είναι η δεύτερη αποστολή του καλαθιού σας, με τα δικά της μεταφορικά. Τα διαθέσιμα προϊόντα προχώρησαν χωριστά με την παραγγελία ${parent.orderNumber} (${money(parent.totalGross)}).`
+          : `Αίτημα κατόπιν παραγγελίας που έγινε δεκτό και πληρώθηκε. Τα διαθέσιμα του ίδιου καλαθιού ήταν η παραγγελία ${parent.orderNumber} (${money(parent.totalGross)}) — χωριστή αποστολή.`,
+      ],
+      items: [],
+      value_label: "",
+      value: "",
+      url: audience === "customer" ? customerUrl : admin(parent.orderNumber),
+      link_label: `Η παραγγελια ${parent.orderNumber}`,
+      number: parent.orderNumber,
+      secret: audience === "customer",
+    };
+  }
+  return null;
+}
+
+/** The split section as plain text lines. */
+export function splitText(split: SplitSection | null): string[] {
+  if (!split) return [];
+  return [
+    "",
+    split.title.toUpperCase(),
+    ...split.paragraphs,
+    ...split.items.map((i) => `${i.qty} × ${i.name} (${i.sku}) — ${i.amount}`),
+    ...(split.value ? [`${split.value_label}: ${split.value}`] : []),
+    ...(split.url ? [`${split.link_label}: ${split.url}`] : []),
+  ];
+}
 
 /**
  * Φτιάχνει το μήνυμα χωρίς να το στείλει.
@@ -234,6 +347,7 @@ export async function buildOrderContext(orderNumber: string) {
           doy: "",
         },
     notes: order.notes ?? "",
+    split: await splitSection(order, "customer"),
   };
 
   const recipient = {
@@ -247,7 +361,7 @@ export async function buildOrderContext(orderNumber: string) {
 
 export async function buildOrderEmail(
   orderNumber: string,
-): Promise<{ to: string; subject: string; html: string; text: string } | null> {
+): Promise<{ to: string; subject: string; html: string; text: string; tracking?: false } | null> {
   const context = await buildOrderContext(orderNumber);
   if (!context) return null;
   const { order, orderData, recipient, paid, awaitingTransfer, link } = context;
@@ -340,11 +454,13 @@ export async function buildOrderEmail(
     ...order.lines.map((l) => `${l.quantity} × ${l.name} — ${money(l.lineGross)}`),
     "",
     `Σύνολο: ${money(order.totalGross)}`,
+    ...splitText(orderData.split),
     "",
     `Παρακολούθηση: ${link}`,
   ].join("\n");
 
-  return { to: order.email, subject, html, text };
+  /* A request's private page is in it: Mailgun must not rewrite (and log) that link. */
+  return { to: order.email, subject, html, text, ...(orderData.split?.secret ? { tracking: false as const } : {}) };
 }
 
 /**
