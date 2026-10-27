@@ -4,7 +4,7 @@ import { clearDhlQuoteCache } from "@/lib/shipping/courier-quote";
 /**
  * VAT mode in the totals (EU sales): `standard` is today's arithmetic bit for
  * bit; `intra_eu_exempt` strips VAT from lines, shipping and the payment fee.
- * Free shipping (net ≥ €150) is a Greek promise and never applies abroad.
+ * Free shipping (net ≥ €150) is a Greek promise and never applies abroad (Cyprus included).
  */
 
 const request = vi.hoisted(() => vi.fn());
@@ -164,9 +164,12 @@ describe("free shipping is Greek only", () => {
     expect(ex.freeShippingReached).toBe(false);
   });
 
-  it("even a courier id left over in the cart is not free abroad, or in Cyprus", async () => {
+  it("Cyprus is abroad too: it pays the ACS postage over €150 net, in both modes", async () => {
     request.mockResolvedValue(acs(5));
-    const cy = await computeTotals(big, "courier", "card", "1010", { country: "CY" });
-    expect(cy.shippingNet).toBe(5);
+    for (const vatMode of ["standard", "intra_eu_exempt"] as const) {
+      const cy = await computeTotals(big, "courier", "card", "1010", { country: "CY" }, { vatMode });
+      expect(cy.shippingNet).toBe(5);
+      expect(cy.freeShippingReached).toBe(false);
+    }
   });
 });

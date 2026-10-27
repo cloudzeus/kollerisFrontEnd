@@ -319,7 +319,8 @@ export async function computeTotals(
           : shippingMethodId,
     ) ?? SHIPPING_METHODS[0];
   // The free-shipping promise is Greek: ACS and collection inside Greece.
-  // Abroad (DHL) the postage is always charged, whatever the basket is worth.
+  // Abroad (DHL, and Cyprus) the postage is always charged, whatever the basket
+  // is worth.
   const freeShippingReached = home && subtotalNet >= FREE_SHIPPING_THRESHOLD_NET;
   const override = options.shipping ?? null;
   const payment = PAYMENT_METHODS.find((m) => m.id === paymentMethodId)!;
@@ -343,20 +344,21 @@ export async function computeTotals(
   //
   // Outside Greece (INTERNATIONAL_SHIPPING_ENABLED only) the destination
   // module decides: ACS for Cyprus, DHL for the rest of the EU, and no table.
-  const live: DestinationQuote | null =
-    override
-      ? null
-      : shipping.expressMultiplier > 0
-      ? home
-        ? await quoteLivePostage({ items: parcel, postcode })
-        : await quoteDestination({
-            country,
-            postcode,
-            city: destination?.city,
-            items: parcel,
-            declaredValue: subtotalGross,
-          })
-      : null;
+  //
+  // Nothing is quoted when the caller supplied the shipping charge, or when the
+  // method carries no postage (collection).
+  async function quotePostage(): Promise<DestinationQuote | null> {
+    if (override || shipping.expressMultiplier <= 0) return null;
+    if (home) return quoteLivePostage({ items: parcel, postcode });
+    return quoteDestination({
+      country,
+      postcode,
+      city: destination?.city,
+      items: parcel,
+      declaredValue: subtotalGross,
+    });
+  }
+  const live = await quotePostage();
   // A postcode ACS does not serve has no postage to charge, and must not be
   // priced from the table either — the order is refused at checkout.
   const unserviceable = isUnserviceable(live) || isRefused(live);

@@ -24,7 +24,8 @@ import { priceLines, type PricedLine } from "@/lib/requests/model";
  *
  * A request abroad (docs/dhl-express.md) is priced by the same quote the
  * checkout uses: DHL Express through HDCtool for the EU, ACS for Cyprus; no
- * table, never free. Greece is the call below, unchanged.
+ * table, never free. Greece is the call below, unchanged — and the only place
+ * the free-delivery threshold applies.
  */
 export async function quoteOfferShipping(
   order: {
@@ -85,7 +86,8 @@ export async function quoteOfferShipping(
   }
 
   const subtotalNet = subtotal.subtotalNet;
-  if (method.freeOverThreshold && subtotalNet >= FREE_SHIPPING_THRESHOLD_NET) {
+  // Free delivery is a Greek promise: Cyprus (ACS) pays like any other country abroad.
+  if (country === "GR" && method.freeOverThreshold && subtotalNet >= FREE_SHIPPING_THRESHOLD_NET) {
     return { ok: true, shippingNet: 0 };
   }
   const quoted = Math.round(live.totalNet * method.expressMultiplier * 100) / 100;

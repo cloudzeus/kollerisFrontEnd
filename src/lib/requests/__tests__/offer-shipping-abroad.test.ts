@@ -80,4 +80,27 @@ describe("quoteOfferShipping abroad", () => {
     expect(quoted).toEqual({ ok: true, shippingNet: 3 });
     expect(request).toHaveBeenCalledWith(ENDPOINT, { postcode: "18545", weightKg: 1.2 });
   });
+
+  const acs = {
+    success: true,
+    quote: { stationId: "Π", area: "", remote: false, basicNet: 3, extrasNet: 0, totalNet: 3, vatAmount: 0.72, totalGross: 3.72, weightKg: 2.4 },
+  };
+  const big = [{ mtrl: 101, qty: 2, unitNet: 100, vatRate: 24 }]; // 200 € net
+
+  it("Greece over 150 € net on the courier is free, as before", async () => {
+    request.mockResolvedValue(acs);
+    expect(await quoteOfferShipping({ shippingMethod: "courier", shipPostcode: "18545" }, big)).toEqual({
+      ok: true,
+      shippingNet: 0,
+    });
+  });
+
+  it("Cyprus over 150 € net pays the ACS postage — free shipping is Greek only", async () => {
+    request.mockResolvedValue(acs);
+    const quoted = await quoteOfferShipping(
+      { shippingMethod: "courier", shipPostcode: "1010", shipCountry: "CY", shipCity: "Nicosia" },
+      big,
+    );
+    expect(quoted).toEqual({ ok: true, shippingNet: 3 });
+  });
 });
