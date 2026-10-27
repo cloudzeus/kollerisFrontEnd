@@ -36,6 +36,17 @@ export async function POST(request: Request) {
   // Lands on whichever response goes out: Next merges the cookie jar into it.
   jar.set(cleared.name, cleared.value, cleared.options);
 
+  try {
+    return await finish(request, token, cookie);
+  } catch (error) {
+    // Spec §3.4: the cookie is cleared «always» — an error thrown out of the
+    // handler would skip the cookie merge and show a raw 500.
+    console.error("admin_sso_error " + (error instanceof Error ? error.message : String(error)));
+    return seeOther(FAILURE_PATH);
+  }
+}
+
+async function finish(request: Request, token: string | null, cookie: string | null): Promise<Response> {
   const result = await completeSso(
     { token, cookie, ip: clientIp(request.headers) },
     {

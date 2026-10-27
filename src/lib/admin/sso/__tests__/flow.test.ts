@@ -176,7 +176,9 @@ describe("completeSso", () => {
     const r = await completeSso({ token: "tok", cookie: cookieFor("st"), ip: "1.2.3.4" }, env.deps);
     expect(r).toEqual({ ok: true, ticket: "ticket-1", returnTo: "/admin/orders" });
     expect(env.deps.verify).toHaveBeenCalledWith("tok", "st");
-    expect(env.deps.consumeJti).toHaveBeenCalledWith("jti-1", new Date(claims.exp * 1000));
+    // Kept past the 30s clock tolerance verify allows, plus a 30s margin, so a
+    // purge cannot drop the row while the token is still acceptable.
+    expect(env.deps.consumeJti).toHaveBeenCalledWith("jti-1", new Date((claims.exp + 60) * 1000));
     expect(env.deps.issueTicket).toHaveBeenCalledWith("u1");
     expect(env.attempts).toEqual([]);
   });

@@ -125,7 +125,12 @@ export async function completeSso(
   if (!verified.ok) return fail(verified.reason);
   const { claims } = verified;
 
-  if (!(await deps.consumeJti(claims.jti, new Date(claims.exp * 1000)))) return fail("replay");
+  // verify accepts a token until exp + 30s (clock tolerance), and purgeExpired
+  // drops rows past expiresAt: keep the row 30s beyond that so a late token
+  // cannot be replayed once its row is purged.
+  const JTI_RETENTION_AFTER_EXP_S = 60;
+  const jtiExpiresAt = new Date((claims.exp + JTI_RETENTION_AFTER_EXP_S) * 1000);
+  if (!(await deps.consumeJti(claims.jti, jtiExpiresAt))) return fail("replay");
 
   const linked = await deps.linkAdminUser(claims);
   if (!linked.ok) return fail(linked.reason);

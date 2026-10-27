@@ -139,6 +139,29 @@ describe("POST /api/admin/sso/callback", () => {
     warn.mockRestore();
   });
 
+  it("an unexpected error → generic failure with the cookie cleared, token not logged", async () => {
+    h.jar.set("sso_state", encodeStateCookie({ state: "st", returnTo: "/admin" }));
+    h.verify.mockRejectedValue(new Error("db down"));
+    const err = vi.spyOn(console, "error").mockImplementation(() => {});
+    const res = await callback(form({ token: "secret-token-value" }));
+    expect(res.status).toBe(303);
+    expect(res.headers.get("location")).toBe("/admin/login?error=sso");
+    expect(h.sets).toEqual([{ name: "sso_state", value: "", options: CLEARED }]);
+    expect(err).toHaveBeenCalledWith("admin_sso_error db down");
+    expect(JSON.stringify(err.mock.calls)).not.toContain("secret-token-value");
+    err.mockRestore();
+  });
+
+  it("a non-auth error from signIn → generic failure", async () => {
+    h.jar.set("sso_state", encodeStateCookie({ state: "st", returnTo: "/admin" }));
+    h.signIn.mockRejectedValue(new Error("boom"));
+    const err = vi.spyOn(console, "error").mockImplementation(() => {});
+    const res = await callback(form({ token: "tok" }));
+    expect(res.headers.get("location")).toBe("/admin/login?error=sso");
+    expect(h.sets).toHaveLength(1);
+    err.mockRestore();
+  });
+
   it("404 when SSO is not fully configured", async () => {
     vi.stubEnv("ADMIN_SSO_ISSUER", "");
     expect((await callback(form({ token: "tok" }))).status).toBe(404);
