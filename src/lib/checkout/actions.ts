@@ -28,6 +28,8 @@ import { checkEuVat, quoteDhl as quoteEuDhl, type DhlQuote as EuDhlQuote, type E
 import { normaliseEuVat } from "@/lib/eu-sales/vat-format";
 import { resolveVatMode, type CustomerType, type VatMode } from "@/lib/eu-sales/vat-mode";
 import { euSalesCopy } from "@/lib/eu-sales/copy";
+import { writeEuBuyer } from "@/lib/eu-sales/buyer-cookie";
+import { revalidatePath } from "next/cache";
 import { chargeableWeight } from "@/lib/shipping/acs-tariff";
 import { vatRateForDestination } from "@/lib/shipping/vat";
 
@@ -67,6 +69,12 @@ const checkoutSchema = z.object({
   wantsInvoice: z.union([z.literal("on"), z.literal("")]).optional(),
   /** EU sales, DHL destinations only: consumer or company. Ignored in Greece. */
   customerType: z.enum(["individual", "company"]).optional().or(z.literal("")),
+  /**
+   * The VAT mode the summary showed when «Ολοκλήρωση» was pressed. A HINT,
+   * never an input to the price: it only lets the server refuse to charge
+   * more than was on screen without the customer seeing it first (R11-I2).
+   */
+  vatModeHint: z.enum(["standard", "intra_eu_exempt"]).optional().or(z.literal("")),
   companyName: z.string().trim().max(255).optional().or(z.literal("")),
   vatNumber: z.string().trim().max(32).optional().or(z.literal("")),
   taxOffice: z.string().trim().max(120).optional().or(z.literal("")),
@@ -374,6 +382,24 @@ export async function placeOrder(
       })
     : "standard";
 
+  /*
+   * The customer was shown the net and VIES no longer says so (an outage, an
+   * invalid number, or this morning's answer is now yesterday's). Charging
+   * VAT now would charge more than the screen said. No order: the fresh
+   * answer replaces the remembered one, the page re-renders with VAT, and the
+   * customer decides knowingly. The server stays the authority either way.
+   */
+  if (euBuyer && input.vatModeHint === "intra_eu_exempt" && vatMode !== "intra_eu_exempt") {
+    if (euVat && vies) {
+      await writeEuBuyer({
+        customerType: "company",
+        vies: { country, vat: euVat, status: vies.status, checkedAt: vies.checkedAt },
+      });
+    }
+    revalidatePath("/", "layout");
+    return { error: eu.unavailable };
+  }
+
   let euQuote: Extract<EuDhlQuote, { ok: true }> | null = null;
   if (euBuyer) {
     const answer = await quoteEuDhl({
@@ -392,6 +418,11 @@ export async function placeOrder(
   }
   /* The postage VAT rate: Greek 24% for every destination for now (no OSS). */
   const shippingVatRate = vatRateForDestination(country);
+  /*
+   * What the order row says about VAT must agree with its totals: an exempt
+   * order is frozen at 0% everywhere — lines, DHL rate, stored quote (R11-I1).
+   */
+  const exempt = vatMode === "intra_eu_exempt";
 
   /*
    * Abroad the price is asked for again HERE, from HDCtool — whatever the form
@@ -462,7 +493,7 @@ export async function placeOrder(
     ? {
         dhlProductCode: euQuote.productCode,
         dhlNetAmount: euQuote.netAmount,
-        dhlVatRate: shippingVatRate,
+        dhlVatRate: exempt ? 0 : shippingVatRate,
         dhlQuotedAt: new Date(euQuote.quotedAt),
       }
     : {};
@@ -609,7 +640,7 @@ export async function placeOrder(
       totalGross: totals.totalGross,
       savingsGross: totals.savingsGross,
       shippingQuote: euQuote
-        ? JSON.parse(JSON.stringify({ carrier: "DHL", ...euQuote }))
+        ? JSON.parse(JSON.stringify({ carrier: "DHL", ...euQuote, vatRate: exempt ? 0 : shippingVatRate }))
         : quote
           ? JSON.parse(JSON.stringify(quote))
           : undefined,
@@ -643,10 +674,10 @@ export async function placeOrder(
           unitNet: line.unitNet,
           discountPercent: line.discountPercent,
           offerTitle: line.offerTitle,
-          unitGross: line.lineGross / line.quantity,
-          vatRate: line.vatRate,
+          unitGross: (exempt ? line.lineNet : line.lineGross) / line.quantity,
+          vatRate: exempt ? 0 : line.vatRate,
           lineNet: line.lineNet,
-          lineGross: line.lineGross,
+          lineGross: exempt ? line.lineNet : line.lineGross,
           weightKg: line.weight,
         })),
       },

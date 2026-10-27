@@ -288,7 +288,7 @@ export default async function CheckoutPage({
             destination={destination}
             initialQuote={initialQuote}
             {...(euSales
-              ? { euSales, countries, euCustomerType: euBuyer?.customerType ?? null }
+              ? { euSales, countries, euCustomerType: euBuyer?.customerType ?? null, displayedVatMode: vatMode }
               : {})}
           />
         </div>

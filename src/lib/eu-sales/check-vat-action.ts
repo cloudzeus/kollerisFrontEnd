@@ -1,6 +1,8 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { headers } from "next/headers";
+import { clientIp } from "@/lib/security/client-ip";
 import { z } from "zod";
 import { getCartToken } from "@/lib/cart/cart";
 import { readEuBuyer, writeEuBuyer } from "@/lib/eu-sales/buyer-cookie";
@@ -8,7 +10,7 @@ import { euSalesCopy } from "@/lib/eu-sales/copy";
 import { isDhlDestination, isEuSalesEnabled } from "@/lib/eu-sales/countries";
 import { checkEuVat, type EuVatStatus } from "@/lib/eu-sales/hdctool-eu";
 import { normaliseEuVat } from "@/lib/eu-sales/vat-format";
-import { takeVatCheck } from "@/lib/eu-sales/vat-check-limit";
+import { VAT_CHECKS_PER_IP, VAT_CHECKS_PER_WINDOW, takeVatCheck } from "@/lib/eu-sales/vat-check-limit";
 
 /**
  * The checkout's VAT check (intra-EU sales design §3.2), asked on blur or by
@@ -17,7 +19,8 @@ import { takeVatCheck } from "@/lib/eu-sales/vat-check-limit";
  * The format is checked first (no VIES call for a wrong one). The answer is
  * remembered in `buyer-cookie` so the summary beside the form re-renders net
  * after a valid check — and only for display: `placeOrder` asks VIES again.
- * 10 checks per 10 minutes per basket (`vat-check-limit`).
+ * 10 checks per 10 minutes per basket, and 30 per client address, so a
+ * rotated cart cookie buys nothing (`vat-check-limit`, R11-I3).
  */
 
 export type VatCheckAnswer = {
@@ -55,7 +58,11 @@ export async function checkVatAction(input: unknown): Promise<VatCheckAnswer> {
 
   const cartToken = await getCartToken();
   if (!cartToken) return unavailable();
-  if (!takeVatCheck(cartToken)) return unavailable(copy.tooMany);
+  // The address as Cloudflare/Traefik saw it, never what the client claims (client-ip.ts).
+  const ip = clientIp(await headers());
+  const budgets: Array<[string, number]> = [[`cart:${cartToken}`, VAT_CHECKS_PER_WINDOW]];
+  if (ip) budgets.push([`ip:${ip}`, VAT_CHECKS_PER_IP]);
+  if (!takeVatCheck(budgets)) return unavailable(copy.tooMany);
 
   const result = await checkEuVat(normalised.vat, country);
   if (result.status === "invalid_format") {

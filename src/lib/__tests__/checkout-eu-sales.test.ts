@@ -20,6 +20,8 @@ const mocks = vi.hoisted(() => ({
   checkEuVat: vi.fn(),
   quoteDhl: vi.fn(),
   createPaymentOrder: vi.fn(),
+  writeEuBuyer: vi.fn(),
+  revalidatePath: vi.fn(),
 }));
 
 vi.mock("next/navigation", () => ({
@@ -28,6 +30,8 @@ vi.mock("next/navigation", () => ({
   },
 }));
 vi.mock("next/headers", () => ({ cookies: vi.fn() }));
+vi.mock("next/cache", () => ({ revalidatePath: mocks.revalidatePath }));
+vi.mock("@/lib/eu-sales/buyer-cookie", () => ({ writeEuBuyer: mocks.writeEuBuyer }));
 vi.mock("@node-rs/argon2", () => ({ hash: vi.fn() }));
 vi.mock("@/lib/mail/order-email", () => ({ sendOrderEmail: vi.fn(async () => ({ ok: true })) }));
 vi.mock("@/lib/mail/order-internal-email", () => ({
@@ -310,7 +314,7 @@ describe("EU_SALES_ENABLED on", () => {
       shippingMethod: "dhl",
       dhlProductCode: "U",
       dhlNetAmount: 31.4,
-      dhlVatRate: 24,
+      dhlVatRate: 0,
     });
     expect(data.viesCheckedAt).toBeInstanceOf(Date);
     expect(data.dhlQuotedAt).toEqual(new Date(dhlQuote.quotedAt));
@@ -491,5 +495,75 @@ describe("EU_SALES_ENABLED on", () => {
     await expect(placeOrder({}, form(company))).rejects.toThrow("REDIRECT");
     expect(mocks.checkEuVat).toHaveBeenCalledWith("DE123456789", "DE");
     expect(createdData()).toMatchObject({ vatMode: "intra_eu_exempt", totalGross: 131.4 });
+  });
+
+  it("an exempt order is frozen exempt throughout: lines at 0%, gross = net, DHL rate 0 (R11-I1)", async () => {
+    await expect(placeOrder({}, form(company))).rejects.toThrow("REDIRECT");
+    const data = createdData();
+    const lines = (data.lines as { create: Array<Record<string, unknown>> }).create;
+    expect(lines[0]).toMatchObject({ vatRate: 0, unitGross: 100, lineNet: 100, lineGross: 100 });
+    expect(data.dhlVatRate).toBe(0);
+    expect(data.shippingQuote).toMatchObject({ vatRate: 0, netAmount: 31.4 });
+  });
+
+  it("a standard EU order keeps today's line VAT and the DHL rate 24", async () => {
+    await expect(placeOrder({}, form({ ...company, customerType: "individual" }))).rejects.toThrow("REDIRECT");
+    const data = createdData();
+    const lines = (data.lines as { create: Array<Record<string, unknown>> }).create;
+    expect(lines[0]).toMatchObject({ vatRate: 24, unitGross: 124, lineGross: 124 });
+    expect(data.dhlVatRate).toBe(24);
+  });
+
+  describe("the displayed VAT mode is a hint (R11-I2)", () => {
+    const UNAVAILABLE = "Δεν ήταν δυνατός ο έλεγχος του ΑΦΜ τώρα — δοκιμάστε ξανά σε λίγο ή συνεχίστε με ΦΠΑ";
+
+    it("shown net, VIES now unavailable → no order, the message, and the page re-renders with VAT", async () => {
+      mocks.checkEuVat.mockResolvedValue(
+        validVies({ status: "unavailable", name: null, address: null, consultationNumber: null, checkedAt: null }),
+      );
+      const result = await placeOrder({}, form({ ...company, vatModeHint: "intra_eu_exempt" }));
+      expect(result.error).toBe(UNAVAILABLE);
+      expect(mocks.orderCreate).not.toHaveBeenCalled();
+      expect(mocks.createPaymentOrder).not.toHaveBeenCalled();
+      // The fresh answer replaces the stale one, so the summary charges VAT.
+      expect(mocks.writeEuBuyer).toHaveBeenCalledWith({
+        customerType: "company",
+        vies: { country: "DE", vat: "DE123456789", status: "unavailable", checkedAt: null },
+      });
+      expect(mocks.revalidatePath).toHaveBeenCalled();
+    });
+
+    it("shown net, VIES now invalid → no order", async () => {
+      mocks.checkEuVat.mockResolvedValue(validVies({ status: "invalid" }));
+      const result = await placeOrder({}, form({ ...company, vatModeHint: "intra_eu_exempt" }));
+      expect(result.error).toBe(UNAVAILABLE);
+      expect(mocks.orderCreate).not.toHaveBeenCalled();
+    });
+
+    it("shown net, the only valid answer is yesterday's → no order", async () => {
+      mocks.checkEuVat.mockResolvedValue(validVies({ checkedAt: new Date(Date.now() - 36 * 3600_000).toISOString() }));
+      const result = await placeOrder({}, form({ ...company, vatModeHint: "intra_eu_exempt" }));
+      expect(result.error).toBe(UNAVAILABLE);
+      expect(mocks.orderCreate).not.toHaveBeenCalled();
+    });
+
+    it("shown net and valid today → the exempt order goes through", async () => {
+      await expect(placeOrder({}, form({ ...company, vatModeHint: "intra_eu_exempt" }))).rejects.toThrow("REDIRECT");
+      expect(createdData()).toMatchObject({ vatMode: "intra_eu_exempt", totalGross: 131.4 });
+      expect(mocks.writeEuBuyer).not.toHaveBeenCalled();
+    });
+
+    it("shown with VAT, server now exempt → goes through net (never more than shown)", async () => {
+      await expect(placeOrder({}, form({ ...company, vatModeHint: "standard" }))).rejects.toThrow("REDIRECT");
+      expect(createdData()).toMatchObject({ vatMode: "intra_eu_exempt", totalGross: 131.4 });
+    });
+
+    it("the resubmit after the message (hint now standard) is charged with VAT", async () => {
+      mocks.checkEuVat.mockResolvedValue(
+        validVies({ status: "unavailable", name: null, address: null, consultationNumber: null, checkedAt: null }),
+      );
+      await expect(placeOrder({}, form({ ...company, vatModeHint: "standard" }))).rejects.toThrow("REDIRECT");
+      expect(createdData()).toMatchObject({ vatMode: "standard", totalGross: 162.94 });
+    });
   });
 });

@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { useState, useTransition } from "react";
+import { useRef, useState, useTransition } from "react";
 import { checkVatAction, setCustomerTypeAction, type VatCheckAnswer } from "@/lib/eu-sales/check-vat-action";
 import { vatPrefix } from "@/lib/eu-sales/countries";
 import { normaliseEuVat } from "@/lib/eu-sales/vat-format";
@@ -43,6 +43,12 @@ export function EuBuyerFields({
   /* The number the answer is for: typing something else clears it. */
   const [checkedFor, setCheckedFor] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
+  /*
+   * The number being asked about right now. Pressing «Έλεγχος» blurs the
+   * field first, so one press fires the blur check AND the click check —
+   * before `pending` has re-rendered. This is what makes it one VIES call.
+   */
+  const inFlight = useRef<string | null>(null);
 
   const format = normaliseEuVat(vat, country);
   const typedDigits = vat.toUpperCase().replace(/[^A-Z0-9]/g, "").length > prefix.length;
@@ -80,11 +86,17 @@ export function EuBuyerFields({
   const check = () => {
     if (!format.ok || pending) return;
     const asked = format.vat;
+    if (inFlight.current === asked) return;
     if (checkedFor === asked && answer && answer.status !== "unavailable") return;
+    inFlight.current = asked;
     startTransition(async () => {
-      const result = await checkVatAction({ country, vat: asked, locale });
-      setAnswer(result);
-      setCheckedFor(asked);
+      try {
+        const result = await checkVatAction({ country, vat: asked, locale });
+        setAnswer(result);
+        setCheckedFor(asked);
+      } finally {
+        inFlight.current = null;
+      }
     });
   };
 

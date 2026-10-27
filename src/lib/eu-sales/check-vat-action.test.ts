@@ -13,11 +13,13 @@ const mocks = vi.hoisted(() => ({
   cookieDelete: vi.fn(),
   revalidatePath: vi.fn(),
   cartToken: vi.fn(),
+  ip: { value: "203.0.113.7" as string | null },
 }));
 
 vi.mock("next/cache", () => ({ revalidatePath: mocks.revalidatePath }));
 vi.mock("next/headers", () => ({
   cookies: async () => ({ set: mocks.cookieSet, get: mocks.cookieGet, delete: mocks.cookieDelete }),
+  headers: async () => new Headers(mocks.ip.value ? { "x-real-ip": mocks.ip.value } : {}),
 }));
 vi.mock("@/lib/cart/cart", () => ({ getCartToken: mocks.cartToken }));
 vi.mock("@/lib/eu-sales/hdctool-eu", async (importOriginal) => ({
@@ -47,6 +49,7 @@ function storedBuyer() {
 beforeEach(() => {
   vi.clearAllMocks();
   resetVatCheckLimit();
+  mocks.ip.value = "203.0.113.7";
   process.env.EU_SALES_ENABLED = "true";
   mocks.cartToken.mockResolvedValue("cart-1");
   mocks.checkEuVat.mockResolvedValue(valid);
@@ -113,6 +116,23 @@ describe("checkVatAction", () => {
     mocks.cartToken.mockResolvedValue("cart-2");
     await checkVatAction({ country: "DE", vat: "DE123456789" });
     expect(mocks.checkEuVat).toHaveBeenCalledTimes(11);
+  });
+
+  it("a fresh cart cookie per call does not buy unlimited checks: the IP is limited too (R11-I3)", async () => {
+    for (let i = 0; i < 30; i++) {
+      mocks.cartToken.mockResolvedValue(`rotated-${i}`);
+      await checkVatAction({ country: "DE", vat: "DE123456789" });
+    }
+    expect(mocks.checkEuVat).toHaveBeenCalledTimes(30);
+    mocks.cartToken.mockResolvedValue("rotated-31");
+    const answer = await checkVatAction({ country: "DE", vat: "DE123456789" });
+    expect(answer.status).toBe("unavailable");
+    expect(mocks.checkEuVat).toHaveBeenCalledTimes(30);
+    // Another address has its own budget.
+    mocks.ip.value = "198.51.100.9";
+    mocks.cartToken.mockResolvedValue("rotated-32");
+    await checkVatAction({ country: "DE", vat: "DE123456789" });
+    expect(mocks.checkEuVat).toHaveBeenCalledTimes(31);
   });
 
   it("no basket, no check", async () => {

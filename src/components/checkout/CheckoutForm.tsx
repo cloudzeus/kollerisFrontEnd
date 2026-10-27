@@ -45,6 +45,7 @@ export function CheckoutForm({
   euSales = false,
   countries,
   euCustomerType = null,
+  displayedVatMode = "standard",
 }: {
   locale: string;
   postcode: string;
@@ -101,6 +102,8 @@ export function CheckoutForm({
   countries?: readonly string[];
   /** The consumer/company choice remembered from this visit. */
   euCustomerType?: CustomerType | null;
+  /** The VAT mode the summary beside the form shows — posted back as a hint (R11-I2). */
+  displayedVatMode?: "standard" | "intra_eu_exempt";
 }) {
   const t = useTranslations("checkout.CheckoutForm");
   const [state, action, pending] = useActionState<CheckoutState, FormData>(placeOrder, {});
@@ -309,6 +312,9 @@ export function CheckoutForm({
       }}
     >
       <input type="hidden" name="locale" value={locale} />
+      {/* What the summary showed. The server never prices from it; it only
+          refuses to charge VAT the customer was not shown (R11-I2). */}
+      {euBuyer && <input type="hidden" name="vatModeHint" value={displayedVatMode} />}
 
       {state.error && (
         <p

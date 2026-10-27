@@ -24,18 +24,18 @@ const { allowedCountries } = await import("@/lib/eu-sales/countries");
 
 function render(props: Record<string, unknown>): string {
   return renderToStaticMarkup(
-    createElement(NextIntlClientProvider, {
-      locale: "el",
-      messages: el,
-      timeZone: "Europe/Athens",
-      children: createElement(CheckoutForm, {
+    createElement(
+      NextIntlClientProvider,
+      // `children` is the third argument; the props type insists on it here too.
+      { locale: "el", messages: el, timeZone: "Europe/Athens" } as unknown as Parameters<typeof NextIntlClientProvider>[0],
+      createElement(CheckoutForm, {
         locale: "el",
         postcode: "",
         shippingMethod: "courier",
         paymentMethod: "card",
         ...props,
       } as Parameters<typeof CheckoutForm>[0]),
-    }),
+    ),
   );
 }
 
@@ -47,6 +47,7 @@ describe("CheckoutForm and EU sales", () => {
     expect(html).not.toContain("data-eu-sales");
     expect(html).not.toContain('name="customerType"');
     expect(html).not.toContain('name="shipCountry"');
+    expect(html).not.toContain('name="vatModeHint"');
     expect(html).toContain('value="pickup"');
   });
 
@@ -92,5 +93,7 @@ describe("CheckoutForm and EU sales", () => {
     // The company block: VAT number with the prefix already filled.
     expect(html).toMatch(/name="vatNumber"[^>]*value="DE"/);
     expect(html).toContain("ΕΛΕΓΧΟΣ");
+    // The displayed VAT mode goes back as a hint (R11-I2).
+    expect(html).toMatch(/name="vatModeHint" value="standard"/);
   });
 });
