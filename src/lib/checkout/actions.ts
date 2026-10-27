@@ -251,7 +251,7 @@ export async function placeOrder(
    * Whenever there is a selector the Greek checks speak as they do with one
    * («επιλέξτε τη χώρα»).
    */
-  const intl = internationalCopy(locale);
+  const intl = internationalCopy(locale, { cyprus: countries.includes("CY") });
   if (!countries.includes(country)) {
     return { error: intl.country, fieldErrors: { shipCountry: intl.country } };
   }

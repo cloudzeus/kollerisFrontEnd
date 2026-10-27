@@ -59,6 +59,27 @@ export const INTERNATIONAL_COPY: Record<"el" | "en", InternationalCopy> = {
   },
 };
 
-export function internationalCopy(locale: string | null | undefined): InternationalCopy {
-  return locale === "el" || !locale ? INTERNATIONAL_COPY.el : INTERNATIONAL_COPY.en;
+/** The same sentences for EU sales without Cyprus (EU_SALES_ENABLED only): no country is promised that the selector lacks. */
+const WITHOUT_CYPRUS: Record<"el" | "en", Pick<InternationalCopy, "zone" | "foreign" | "country">> = {
+  el: {
+    zone: "Αποστολές σε Ελλάδα και χώρες της ΕΕ",
+    foreign:
+      "Η διεύθυνση είναι εκτός Ελλάδας. Επιλέξτε τη χώρα παράδοσης — αποστέλλουμε σε Ελλάδα και χώρες της ΕΕ.",
+    country: "Δεν αποστέλλουμε σε αυτή τη χώρα. Αποστέλλουμε σε Ελλάδα και χώρες της ΕΕ.",
+  },
+  en: {
+    zone: "We ship to Greece and the EU.",
+    foreign:
+      "This address is outside Greece. Choose the delivery country — we ship to Greece and the EU.",
+    country: "We do not ship to this country. We ship to Greece and the EU.",
+  },
+};
+
+export function internationalCopy(
+  locale: string | null | undefined,
+  options: { cyprus?: boolean } = {},
+): InternationalCopy {
+  const key = locale === "el" || !locale ? "el" : "en";
+  const base = INTERNATIONAL_COPY[key];
+  return options.cyprus === false ? { ...base, ...WITHOUT_CYPRUS[key] } : base;
 }
