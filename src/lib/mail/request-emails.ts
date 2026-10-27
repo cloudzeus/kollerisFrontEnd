@@ -7,6 +7,14 @@ import { siteOrigin } from "@/lib/seo/urls";
 import { findShippingMethod } from "@/lib/cart/options";
 import { localityLine } from "@/lib/shipping/countries";
 import {
+  emailLocale,
+  formatMoney,
+  formatStamp,
+  pick,
+  shippingLabelEn,
+  type EmailLocale,
+} from "@/lib/mail/email-locale";
+import {
   REQUEST_ANSWER_HOURS,
   compareOffer,
   offerShippingNet,
@@ -98,37 +106,49 @@ async function loadParent(order: { parentOrderNumber: string | null }): Promise<
 }
 
 /** «… KOL-…: 62,00 € μαζί με μεταφορικά 4,96 €» — the paid half, in one sentence. */
-function parentSentence(parent: ParentFacts): string {
+function parentSentence(parent: ParentFacts, locale: EmailLocale = "el"): string {
+  const t = pick(locale);
+  const money = (value: unknown) => formatMoney(locale, value);
   const shipping =
     parent.shippingMethod === "pickup"
-      ? "παραλαβή από το κατάστημα"
+      ? t("παραλαβή από το κατάστημα", "collection from the shop")
       : Number(parent.shippingGross) === 0
-        ? "με δωρεάν μεταφορικά"
-        : `μαζί με μεταφορικά ${money(parent.shippingGross)}`;
+        ? t("με δωρεάν μεταφορικά", "with free shipping")
+        : t(`μαζί με μεταφορικά ${money(parent.shippingGross)}`, `plus ${money(parent.shippingGross)} shipping`);
   return parent.paymentStatus === "PAID"
-    ? `Τα διαθέσιμα είδη του καλαθιού σας πληρώθηκαν στην παραγγελία ${parent.orderNumber}: ${money(parent.totalGross)} ${shipping}.`
-    : `Τα διαθέσιμα είδη του καλαθιού σας είναι η παραγγελία ${parent.orderNumber}: ${money(parent.totalGross)} ${shipping}, ${
-        parent.paymentMethod === "bank" ? "που πληρώνετε με τραπεζική κατάθεση" : "που πληρώνετε τώρα"
-      }.`;
+    ? t(
+        `Τα διαθέσιμα είδη του καλαθιού σας πληρώθηκαν στην παραγγελία ${parent.orderNumber}: ${money(parent.totalGross)} ${shipping}.`,
+        `The available items of your basket were paid in order ${parent.orderNumber}: ${money(parent.totalGross)}, ${shipping}.`,
+      )
+    : t(
+        `Τα διαθέσιμα είδη του καλαθιού σας είναι η παραγγελία ${parent.orderNumber}: ${money(parent.totalGross)} ${shipping}, ${
+          parent.paymentMethod === "bank" ? "που πληρώνετε με τραπεζική κατάθεση" : "που πληρώνετε τώρα"
+        }.`,
+        `The available items of your basket are order ${parent.orderNumber}: ${money(parent.totalGross)}, ${shipping}, ${
+          parent.paymentMethod === "bank" ? "which you pay by bank transfer" : "which you pay now"
+        }.`,
+      );
 }
 
-const BADGE: Record<RequestEmailKind, { text: string; color: string; bg: string }> = {
-  received: { text: "Σε επεξεργασια", color: "#9A6700", bg: "#FFF4D6" },
-  offer: { text: "Προταση", color: "#1F7A45", bg: "#E3F4EA" },
-  reminder: { text: "Προταση", color: "#1F7A45", bg: "#E3F4EA" },
-  rejected: { text: "Δεν εξυπηρετειται", color: "#C42A26", bg: "#FDECEB" },
-  expired: { text: "Εληξε", color: "#5F6061", bg: "#EFEFEF" },
+const BADGE: Record<RequestEmailKind, { text: string; en: string; color: string; bg: string }> = {
+  received: { text: "Σε επεξεργασια", en: "Processing", color: "#9A6700", bg: "#FFF4D6" },
+  offer: { text: "Προταση", en: "Offer", color: "#1F7A45", bg: "#E3F4EA" },
+  reminder: { text: "Προταση", en: "Offer", color: "#1F7A45", bg: "#E3F4EA" },
+  rejected: { text: "Δεν εξυπηρετειται", en: "Cannot be served", color: "#C42A26", bg: "#FDECEB" },
+  expired: { text: "Εληξε", en: "Expired", color: "#5F6061", bg: "#EFEFEF" },
 };
 
-function comparisonItem(row: ComparisonRow) {
+function comparisonItem(row: ComparisonRow, locale: EmailLocale = "el") {
+  const t = pick(locale);
+  const money = (value: unknown) => formatMoney(locale, value);
   const unitGross = (unitNet: number, vatRate: number) => unitNet * (1 + vatRate / 100);
   if (row.kind === "removed") {
     const r = row.requested;
     return {
-      tag: "Δεν διατίθεται",
+      tag: t("Δεν διατίθεται", "Not available"),
       name: r.name,
       sku: r.sku,
-      detail: `${r.qty} τεμ.`,
+      detail: t(`${r.qty} τεμ.`, `${r.qty} pcs`),
       amount: money(unitGross(r.unitNet, r.vatRate) * r.qty),
       struck: true,
       was: "",
@@ -139,23 +159,23 @@ function comparisonItem(row: ComparisonRow) {
   const base = {
     name: o.name,
     sku: o.sku,
-    detail: `${o.qty} τεμ. × ${money(line.unitGross)}${o.leadTimeText ? ` · ${o.leadTimeText}` : ""}`,
+    detail: `${t(`${o.qty} τεμ.`, `${o.qty} pcs`)} × ${money(line.unitGross)}${o.leadTimeText ? ` · ${o.leadTimeText}` : ""}`,
     amount: money(line.lineGross),
     struck: false,
   };
   if (row.kind === "alternative") {
-    return { ...base, tag: "Εναλλακτικο", was: row.requested ? `Αντί για: ${row.requested.name}` : "" };
+    return { ...base, tag: t("Εναλλακτικο", "Alternative"), was: row.requested ? `${t("Αντί για", "Instead of")}: ${row.requested.name}` : "" };
   }
-  if (row.kind === "added") return { ...base, tag: "Προσθηκη", was: "" };
+  if (row.kind === "added") return { ...base, tag: t("Προσθηκη", "Added"), was: "" };
   if (row.kind === "modified") {
     const r = row.requested;
     const was = [
-      row.qtyChanged ? `ζητήσατε ${r.qty} τεμ.` : "",
-      row.priceChanged ? `ενδεικτική τιμή ${money(unitGross(r.unitNet, r.vatRate))}` : "",
+      row.qtyChanged ? t(`ζητήσατε ${r.qty} τεμ.`, `you asked for ${r.qty} pcs`) : "",
+      row.priceChanged ? t(`ενδεικτική τιμή ${money(unitGross(r.unitNet, r.vatRate))}`, `indicative price ${money(unitGross(r.unitNet, r.vatRate))}`) : "",
     ]
       .filter(Boolean)
       .join(" · ");
-    return { ...base, tag: "Αλλαγη", was: was ? `Αρχικά: ${was}` : "" };
+    return { ...base, tag: t("Αλλαγη", "Changed"), was: was ? `${t("Αρχικά", "Originally")}: ${was}` : "" };
   }
   return { ...base, tag: "", was: "" };
 }
@@ -166,9 +186,15 @@ export function requestEmailView(
   kind: RequestEmailKind,
   /** The paid half of a split cart, when there is one (`parentOrderNumber`). */
   parent: ParentFacts | null = null,
+  options: { locale?: EmailLocale } = {},
 ) {
   const snapshot = readSnapshot(order.requestLines);
-  const locale = snapshot?.locale ?? "el";
+  /* R-EMAIL-EN: English abroad except Cyprus. The link keeps the language the customer asked from, unless the email is English. */
+  const mailLocale = emailLocale(order, options.locale);
+  const t = pick(mailLocale);
+  const money = (value: unknown) => formatMoney(mailLocale, value);
+  const stamp = (date: Date) => formatStamp(mailLocale, date);
+  const locale = mailLocale === "en" ? "en" : (snapshot?.locale ?? "el");
   const link = order.requestToken ? `${siteOrigin()}${requestPath(locale, order.requestToken)}` : siteOrigin();
   const offer = readStoredOffer(order.offerJson);
   const requested = snapshot?.lines ?? [];
@@ -179,7 +205,7 @@ export function requestEmailView(
     title: "",
     number: order.orderNumber,
     date: stamp(order.requestedAt ?? order.createdAt),
-    badge: BADGE[kind].text,
+    badge: mailLocale === "en" ? BADGE[kind].en : BADGE[kind].text,
     badge_color: BADGE[kind].color,
     badge_bg: BADGE[kind].bg,
     paragraphs: [] as string[],
@@ -190,7 +216,7 @@ export function requestEmailView(
     items: [] as Array<ReturnType<typeof comparisonItem>>,
     totals: [] as Array<{ label: string; value: string }>,
     total: null as { label: string; value: string } | null,
-    cta: { url: link, label: "Δείτε το αίτημα", hint: "" },
+    cta: { url: link, label: t("Δείτε το αίτημα", "View the request"), hint: "" },
   };
   const name = order.firstName;
 
@@ -198,40 +224,69 @@ export function requestEmailView(
     const priced = priceLines(requested, 0);
     return {
       ...base,
-      subject: `Λάβαμε το αίτημά σας ${order.orderNumber} — θα επιβεβαιωθεί εντός ${REQUEST_ANSWER_HOURS} ωρών`,
-      eyebrow: "Κατοπιν παραγγελιας / Αιτημα",
-      title: "Λάβαμε το αίτημά σας",
+      subject: t(
+        `Λάβαμε το αίτημά σας ${order.orderNumber} — θα επιβεβαιωθεί εντός ${REQUEST_ANSWER_HOURS} ωρών`,
+        `We received your request ${order.orderNumber} — we will confirm within ${REQUEST_ANSWER_HOURS} hours`,
+      ),
+      eyebrow: t("Κατοπιν παραγγελιας / Αιτημα", "On order / Request"),
+      title: t("Λάβαμε το αίτημά σας", "We received your request"),
       paragraphs: [
-        `${name}, λάβαμε το αίτημά σας για προϊόντα που δεν υπάρχουν αυτή τη στιγμή στην αποθήκη μας. Θα σας απαντήσουμε εντός ${REQUEST_ANSWER_HOURS} ωρών με τελική τιμή, διαθεσιμότητα και χρόνο παράδοσης.`,
-        "Δεν έγινε καμία χρέωση. Πληρώνετε μόνο αν αποδεχτείτε την πρότασή μας, από τον σύνδεσμο που θα σας στείλουμε.",
+        t(
+          `${name}, λάβαμε το αίτημά σας για προϊόντα που δεν υπάρχουν αυτή τη στιγμή στην αποθήκη μας. Θα σας απαντήσουμε εντός ${REQUEST_ANSWER_HOURS} ωρών με τελική τιμή, διαθεσιμότητα και χρόνο παράδοσης.`,
+          `${name}, we received your request for products that are not in our warehouse right now. We will reply within ${REQUEST_ANSWER_HOURS} hours with a final price, availability and delivery time.`,
+        ),
+        t(
+          "Δεν έγινε καμία χρέωση. Πληρώνετε μόνο αν αποδεχτείτε την πρότασή μας, από τον σύνδεσμο που θα σας στείλουμε.",
+          "You have not been charged. You only pay if you accept our offer, from the link we will send you.",
+        ),
         ...(parent
           ? [
-              parentSentence(parent),
-              "Τα προϊόντα αυτού του αιτήματος θα σταλούν χωριστά, σε δεύτερη αποστολή· τα μεταφορικά τους θα τα δείτε στην πρόταση.",
+              parentSentence(parent, mailLocale),
+              t(
+                "Τα προϊόντα αυτού του αιτήματος θα σταλούν χωριστά, σε δεύτερη αποστολή· τα μεταφορικά τους θα τα δείτε στην πρόταση.",
+                "The products of this request will ship separately, as a second shipment; you will see their shipping cost in the offer.",
+              ),
             ]
           : order.parentOrderNumber
-            ? [`Τα διαθέσιμα προϊόντα του καλαθιού σας προχωρούν κανονικά με την παραγγελία ${order.parentOrderNumber}.`]
+            ? [
+                t(
+                  `Τα διαθέσιμα προϊόντα του καλαθιού σας προχωρούν κανονικά με την παραγγελία ${order.parentOrderNumber}.`,
+                  `The available products of your basket go ahead as normal with order ${order.parentOrderNumber}.`,
+                ),
+              ]
             : []),
       ],
       facts: parent
         ? [
-            { label: "Πληρωτεο τωρα", value: `${parent.orderNumber} · ${money(parent.totalGross)}` },
-            { label: "Αυτο το αιτημα", value: "Χωρίς χρέωση τώρα · 2η αποστολή" },
+            { label: t("Πληρωτεο τωρα", "To pay now"), value: `${parent.orderNumber} · ${money(parent.totalGross)}` },
+            {
+              label: t("Αυτο το αιτημα", "This request"),
+              value: t("Χωρίς χρέωση τώρα · 2η αποστολή", "No charge now · 2nd shipment"),
+            },
           ]
         : [],
-      items_title: "Τι ζητήσατε",
+      items_title: t("Τι ζητήσατε", "What you asked for"),
       items: requested.map((r) => ({
         tag: "",
         name: r.name,
         sku: r.sku,
-        detail: `${r.qty} τεμ.`,
+        detail: t(`${r.qty} τεμ.`, `${r.qty} pcs`),
         amount: money(r.unitNet * (1 + r.vatRate / 100) * r.qty),
         struck: false,
         was: "",
       })),
-      totals: [{ label: parent ? "Μεταφορικα 2ης αποστολης" : "Μεταφορικα", value: "Με την πρόταση" }],
-      total: { label: "Ενδεικτικη αξια", value: money(priced.subtotalGross) },
-      cta: { url: link, label: "Δείτε το αίτημα", hint: "Ο σύνδεσμος είναι προσωπικός — μην τον προωθήσετε." },
+      totals: [
+        {
+          label: parent ? t("Μεταφορικα 2ης αποστολης", "Shipping of the 2nd shipment") : t("Μεταφορικα", "Shipping"),
+          value: t("Με την πρόταση", "With the offer"),
+        },
+      ],
+      total: { label: t("Ενδεικτικη αξια", "Indicative value"), value: money(priced.subtotalGross) },
+      cta: {
+        url: link,
+        label: t("Δείτε το αίτημα", "View the request"),
+        hint: t("Ο σύνδεσμος είναι προσωπικός — μην τον προωθήσετε.", "The link is personal — please do not forward it."),
+      },
     };
   }
 
@@ -239,27 +294,45 @@ export function requestEmailView(
     const reason = offer?.decision === "reject" ? offer.reason : null;
     return {
       ...base,
-      subject: `Το αίτημα ${order.orderNumber} δεν μπορεί να εξυπηρετηθεί`,
-      eyebrow: "Κατοπιν παραγγελιας / Απαντηση",
-      title: "Λυπούμαστε",
+      subject: t(
+        `Το αίτημα ${order.orderNumber} δεν μπορεί να εξυπηρετηθεί`,
+        `Request ${order.orderNumber} cannot be served`,
+      ),
+      eyebrow: t("Κατοπιν παραγγελιας / Απαντηση", "On order / Answer"),
+      title: t("Λυπούμαστε", "We are sorry"),
       paragraphs: [
-        `${name}, δυστυχώς δεν μπορούμε να εξυπηρετήσουμε το αίτημά σας ${order.orderNumber}. Δεν έγινε καμία χρέωση.`,
-        "Αν θέλετε να συζητήσουμε κάποια εναλλακτική, απαντήστε σε αυτό το email ή καλέστε μας.",
+        t(
+          `${name}, δυστυχώς δεν μπορούμε να εξυπηρετήσουμε το αίτημά σας ${order.orderNumber}. Δεν έγινε καμία χρέωση.`,
+          `${name}, unfortunately we cannot serve your request ${order.orderNumber}. You have not been charged.`,
+        ),
+        t(
+          "Αν θέλετε να συζητήσουμε κάποια εναλλακτική, απαντήστε σε αυτό το email ή καλέστε μας.",
+          "If you would like to discuss an alternative, reply to this email or call us.",
+        ),
       ],
       note: reason ?? "",
-      note_label: reason ? "Αιτιολογια" : "",
+      note_label: reason ? t("Αιτιολογια", "Reason") : "",
     };
   }
 
   if (kind === "expired") {
     return {
       ...base,
-      subject: `Η πρόταση για το αίτημα ${order.orderNumber} έληξε`,
-      eyebrow: "Κατοπιν παραγγελιας / Ληξη",
-      title: "Η πρόταση έληξε",
+      subject: t(
+        `Η πρόταση για το αίτημα ${order.orderNumber} έληξε`,
+        `The offer for request ${order.orderNumber} has expired`,
+      ),
+      eyebrow: t("Κατοπιν παραγγελιας / Ληξη", "On order / Expiry"),
+      title: t("Η πρόταση έληξε", "The offer has expired"),
       paragraphs: [
-        `${name}, η πρότασή μας για το αίτημα ${order.orderNumber} έληξε χωρίς να ολοκληρωθεί. Δεν έγινε καμία χρέωση.`,
-        "Αν ενδιαφέρεστε ακόμη, επικοινωνήστε μαζί μας και θα σας ενημερώσουμε για τη νέα διαθεσιμότητα και τιμή.",
+        t(
+          `${name}, η πρότασή μας για το αίτημα ${order.orderNumber} έληξε χωρίς να ολοκληρωθεί. Δεν έγινε καμία χρέωση.`,
+          `${name}, our offer for request ${order.orderNumber} expired without being completed. You have not been charged.`,
+        ),
+        t(
+          "Αν ενδιαφέρεστε ακόμη, επικοινωνήστε μαζί μας και θα σας ενημερώσουμε για τη νέα διαθεσιμότητα και τιμή.",
+          "If you are still interested, contact us and we will tell you the new availability and price.",
+        ),
       ],
     };
   }
@@ -270,65 +343,96 @@ export function requestEmailView(
   const shippingNet = offerShippingNet(offer);
   const totals = priceLines(offer.lines, shippingNet ?? 0);
   const expires = order.offerExpiresAt ?? new Date(offer.expiresAt);
-  const shippingLabel = findShippingMethod(order.shippingMethod)?.label ?? order.shippingMethod;
+  const shippingLabel =
+    mailLocale === "en"
+      ? shippingLabelEn(order.shippingMethod)
+      : (findShippingMethod(order.shippingMethod)?.label ?? order.shippingMethod);
   const reminder = kind === "reminder";
 
   return {
     ...base,
     subject: reminder
-      ? `Υπενθύμιση: η πρότασή μας για το αίτημα ${order.orderNumber} σας περιμένει`
-      : `Η πρότασή μας για το αίτημα ${order.orderNumber} είναι έτοιμη`,
-    eyebrow: reminder ? "Κατοπιν παραγγελιας / Υπενθυμιση" : "Κατοπιν παραγγελιας / Προταση",
-    title: reminder ? "Η πρότασή μας σας περιμένει" : "Η πρότασή μας είναι έτοιμη",
+      ? t(
+          `Υπενθύμιση: η πρότασή μας για το αίτημα ${order.orderNumber} σας περιμένει`,
+          `Reminder: our offer for request ${order.orderNumber} is waiting for you`,
+        )
+      : t(
+          `Η πρότασή μας για το αίτημα ${order.orderNumber} είναι έτοιμη`,
+          `Our offer for request ${order.orderNumber} is ready`,
+        ),
+    eyebrow: reminder
+      ? t("Κατοπιν παραγγελιας / Υπενθυμιση", "On order / Reminder")
+      : t("Κατοπιν παραγγελιας / Προταση", "On order / Offer"),
+    title: reminder
+      ? t("Η πρότασή μας σας περιμένει", "Our offer is waiting for you")
+      : t("Η πρότασή μας είναι έτοιμη", "Our offer is ready"),
     paragraphs: [
       reminder
-        ? `${name}, η πρότασή μας για το αίτημα ${order.orderNumber} ισχύει έως ${stamp(expires)}. Μετά από αυτό τα προϊόντα δεν θα είναι πια δεσμευμένα για εσάς.`
-        : `${name}, ετοιμάσαμε την πρότασή μας για το αίτημά σας ${order.orderNumber}. Ελέγξτε τα προϊόντα, τις τιμές και τον χρόνο παράδοσης και, αν σας καλύπτουν, ολοκληρώστε με πληρωμή.`,
+        ? t(
+            `${name}, η πρότασή μας για το αίτημα ${order.orderNumber} ισχύει έως ${stamp(expires)}. Μετά από αυτό τα προϊόντα δεν θα είναι πια δεσμευμένα για εσάς.`,
+            `${name}, our offer for request ${order.orderNumber} is valid until ${stamp(expires)}. After that the products will no longer be reserved for you.`,
+          )
+        : t(
+            `${name}, ετοιμάσαμε την πρότασή μας για το αίτημά σας ${order.orderNumber}. Ελέγξτε τα προϊόντα, τις τιμές και τον χρόνο παράδοσης και, αν σας καλύπτουν, ολοκληρώστε με πληρωμή.`,
+            `${name}, we have prepared our offer for your request ${order.orderNumber}. Please check the products, prices and delivery time and, if they suit you, complete it with payment.`,
+          ),
       ...(order.parentOrderNumber
         ? [
-            `Αυτή είναι η δεύτερη αποστολή του καλαθιού σας: τα διαθέσιμα είδη προχώρησαν χωριστά με την παραγγελία ${order.parentOrderNumber}. Τα μεταφορικά παρακάτω αφορούν μόνο αυτή την αποστολή και χρεώνονται χωριστά.`,
+            t(
+              `Αυτή είναι η δεύτερη αποστολή του καλαθιού σας: τα διαθέσιμα είδη προχώρησαν χωριστά με την παραγγελία ${order.parentOrderNumber}. Τα μεταφορικά παρακάτω αφορούν μόνο αυτή την αποστολή και χρεώνονται χωριστά.`,
+              `This is the second shipment of your basket: the available items went ahead separately with order ${order.parentOrderNumber}. The shipping cost below is for this shipment only and is charged separately.`,
+            ),
           ]
         : []),
     ],
     note: offer.note ?? "",
-    note_label: offer.note ? "Σημειωση απο το καταστημα" : "",
+    note_label: offer.note ? t("Σημειωση απο το καταστημα", "Note from the shop") : "",
     facts: [
-      ...(offer.leadTimeText ? [{ label: "Χρονος παραδοσης", value: offer.leadTimeText }] : []),
-      { label: "Αποστολη", value: shippingLabel },
-      { label: "Ισχυει εως", value: stamp(expires) },
+      ...(offer.leadTimeText ? [{ label: t("Χρονος παραδοσης", "Delivery time"), value: offer.leadTimeText }] : []),
+      { label: t("Αποστολη", "Shipping"), value: shippingLabel },
+      { label: t("Ισχυει εως", "Valid until"), value: stamp(expires) },
     ],
-    items_title: "Η προταση",
-    items: rows.map(comparisonItem),
+    items_title: t("Η προταση", "The offer"),
+    items: rows.map((row) => comparisonItem(row, mailLocale)),
     totals: [
-      { label: "Καθαρη αξια", value: money(totals.subtotalNet) },
+      { label: t("Καθαρη αξια", "Net value"), value: money(totals.subtotalNet) },
       {
-        label: order.parentOrderNumber ? "Μεταφορικα 2ης αποστολης" : "Μεταφορικα",
-        value: shippingNet == null ? "Στη σελίδα" : totals.shippingGross === 0 ? "Δωρεάν" : money(totals.shippingGross),
+        label: order.parentOrderNumber ? t("Μεταφορικα 2ης αποστολης", "Shipping of the 2nd shipment") : t("Μεταφορικα", "Shipping"),
+        value:
+          shippingNet == null
+            ? t("Στη σελίδα", "On the page")
+            : totals.shippingGross === 0
+              ? t("Δωρεάν", "Free")
+              : money(totals.shippingGross),
       },
-      { label: "ΦΠΑ", value: money(totals.vatAmount) },
+      { label: t("ΦΠΑ", "VAT"), value: money(totals.vatAmount) },
     ],
-    total: { label: "Συνολο", value: money(totals.totalGross) },
+    total: { label: t("Συνολο", "Total"), value: money(totals.totalGross) },
     cta: {
       url: link,
-      label: "Αποδοχή & πληρωμή",
-      hint: `Η πρόταση ισχύει έως ${stamp(expires)}. Από την ίδια σελίδα μπορείτε και να την απορρίψετε.`,
+      label: t("Αποδοχή & πληρωμή", "Accept & pay"),
+      hint: t(
+        `Η πρόταση ισχύει έως ${stamp(expires)}. Από την ίδια σελίδα μπορείτε και να την απορρίψετε.`,
+        `The offer is valid until ${stamp(expires)}. From the same page you can also decline it.`,
+      ),
     },
   };
 }
 
-function plainText(view: NonNullable<ReturnType<typeof requestEmailView>>): string {
+function plainText(view: NonNullable<ReturnType<typeof requestEmailView>>, locale: EmailLocale = "el"): string {
+  const t = pick(locale);
   return [
     view.title,
     "",
     ...view.paragraphs,
-    ...(view.note ? ["", `${view.note_label || "Σημείωση"}: ${view.note}`] : []),
+    ...(view.note ? ["", `${view.note_label || t("Σημείωση", "Note")}: ${view.note}`] : []),
     ...(view.facts.length ? ["", ...view.facts.map((f) => `${f.label}: ${f.value}`)] : []),
     ...(view.items.length
       ? [
           "",
           ...view.items.map(
             (i) =>
-              `${i.struck ? "[δεν διατίθεται] " : i.tag ? `[${i.tag}] ` : ""}${i.name} (${i.sku}) — ${i.detail} — ${i.amount}${i.was ? ` (${i.was})` : ""}`,
+              `${i.struck ? t("[δεν διατίθεται] ", "[not available] ") : i.tag ? `[${i.tag}] ` : ""}${i.name} (${i.sku}) — ${i.detail} — ${i.amount}${i.was ? ` (${i.was})` : ""}`,
           ),
         ]
       : []),
@@ -341,24 +445,30 @@ function plainText(view: NonNullable<ReturnType<typeof requestEmailView>>): stri
 export async function sendRequestEmail(
   kind: RequestEmailKind,
   orderNumber: string,
+  options: { locale?: EmailLocale } = {},
 ): Promise<RequestMailOutcome> {
   if (!mailConfigured()) return { ok: false, error: "Το Mailgun δεν είναι ρυθμισμένο." };
   try {
     const order = await loadRequest(orderNumber);
     if (!order || !order.requestStatus) return { ok: false, error: "Το αίτημα δεν βρέθηκε." };
-    const view = requestEmailView(order, kind, await loadParent(order));
+    const locale = emailLocale(order, options.locale);
+    const view = requestEmailView(order, kind, await loadParent(order), { locale });
     if (!view) return { ok: false, error: "Δεν υπάρχει πρόταση για αποστολή." };
 
-    const html = await renderTemplate("order-request", {
-      preheader: view.paragraphs[0] ?? view.title,
-      recipient: { first_name: order.firstName, last_name: order.lastName, email: order.email },
-      req: view,
-    });
+    const html = await renderTemplate(
+      "order-request",
+      {
+        preheader: view.paragraphs[0] ?? view.title,
+        recipient: { first_name: order.firstName, last_name: order.lastName, email: order.email },
+        req: view,
+      },
+      { locale },
+    );
     const result = await sendMail({
       to: order.email,
       subject: view.subject,
       html,
-      text: plainText(view),
+      text: plainText(view, locale),
       replyTo: process.env.MAIL_REPLY_TO,
       tracking: false,
     });

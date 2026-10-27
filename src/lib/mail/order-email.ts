@@ -9,6 +9,15 @@ import { holdHours } from "@/lib/orders/hold";
 import { ALL_SHIPPING_METHODS, PAYMENT_METHODS } from "@/lib/cart/options";
 import { localityLine } from "@/lib/shipping/countries";
 import { euSalesCopy } from "@/lib/eu-sales/copy";
+import {
+  emailLocale,
+  formatMoney,
+  formatStamp,
+  paymentLabelEn,
+  pick,
+  shippingLabelEn,
+  type EmailLocale,
+} from "@/lib/mail/email-locale";
 import { REQUEST_ANSWER_HOURS, priceLines, readSnapshot, requestPath } from "@/lib/requests/model";
 
 /**
@@ -59,31 +68,9 @@ function bankConfigured(): boolean {
   return BANK.iban.trim().length > 0;
 }
 
-const money = (value: unknown) => `${Number(value).toFixed(2).replace(".", ",")} €`;
 
 /** «04.09.2026, 10:12» — η μορφή που δείχνουν τα templates στο order-head. */
-function stamp(date: Date): string {
-  const p = new Intl.DateTimeFormat("el-GR", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-    timeZone: "Europe/Athens",
-    /*
-     * 24ωρο, ρητά.
-     * Χωρίς αυτό το el-GR δίνει «03:01 μ.μ.» — και επειδή εδώ κρατάμε μόνο τα
-     * μέρη `hour`/`minute` και πετάμε το `dayPeriod`, οι 15:01 γίνονταν 03:01.
-     * Δώδεκα ώρες λάθος πάνω σε απόδειξη και σε ειδοποίηση ασφαλείας.
-     */
-    hourCycle: "h23",
-  }).formatToParts(date);
-  const g = (t: string) => p.find((x) => x.type === t)?.value ?? "";
-  return `${g("day")}.${g("month")}.${g("year")}, ${g("hour")}:${g("minute")}`;
-}
 
-const label = (list: readonly { id: string; label: string }[], id: string) =>
-  list.find((m) => m.id === id)?.label ?? id;
 
 export type OrderEmailOutcome = { ok: true; id: string } | { ok: false; error: string };
 
@@ -119,8 +106,13 @@ export type SplitSection = {
 export async function splitSection(
   order: { orderNumber: string; parentOrderNumber: string | null },
   audience: "customer" | "internal",
+  /* Only the customer's copy is ever English; the shop's stays Greek. */
+  locale: EmailLocale = "el",
 ): Promise<SplitSection | null> {
   const admin = (n: string) => `${siteOrigin()}/admin/orders/${encodeURIComponent(n)}`;
+  const t = pick(audience === "customer" ? locale : "el");
+  const money = (value: unknown) => formatMoney(audience === "customer" ? locale : "el", value);
+  const origin = audience === "customer" && locale === "en" ? `${siteOrigin()}/en` : siteOrigin();
 
   const child = await prisma.order.findFirst({
     where: { parentOrderNumber: order.orderNumber, requestStatus: { not: null } },
@@ -132,15 +124,21 @@ export async function splitSection(
     const priced = priceLines(lines, 0);
     const value = money(priced.subtotalGross);
     const customerUrl = child.requestToken
-      ? `${siteOrigin()}${requestPath(snapshot?.locale ?? "el", child.requestToken)}`
+      ? `${siteOrigin()}${requestPath(audience === "customer" && locale === "en" ? "en" : (snapshot?.locale ?? "el"), child.requestToken)}`
       : "";
     return {
-      title: audience === "customer" ? "Τα υπολοιπα ειδη του καλαθιου σας" : "Μοιρασμενο καλαθι",
+      title: audience === "customer" ? t("Τα υπολοιπα ειδη του καλαθιου σας", "The rest of your basket") : "Μοιρασμενο καλαθι",
       paragraphs:
         audience === "customer"
           ? [
-              `Τα προϊόντα που δεν υπήρχαν σε απόθεμα στάλθηκαν ως αίτημα ${child.orderNumber}, χωρίς χρέωση. Θα λάβετε πρόταση εντός ${REQUEST_ANSWER_HOURS} ωρών με τελική τιμή και χρόνο παράδοσης, και πληρώνετε μόνο αν την αποδεχτείτε.`,
-              "Θα σταλούν χωριστά, σε δεύτερη αποστολή, με δικά τους μεταφορικά που θα επιβεβαιωθούν στην πρόταση. Το ποσό αυτής της παραγγελίας δεν τα περιλαμβάνει.",
+              t(
+                `Τα προϊόντα που δεν υπήρχαν σε απόθεμα στάλθηκαν ως αίτημα ${child.orderNumber}, χωρίς χρέωση. Θα λάβετε πρόταση εντός ${REQUEST_ANSWER_HOURS} ωρών με τελική τιμή και χρόνο παράδοσης, και πληρώνετε μόνο αν την αποδεχτείτε.`,
+                `The products that were out of stock were sent as request ${child.orderNumber}, free of charge. You will receive an offer within ${REQUEST_ANSWER_HOURS} hours with a final price and delivery time, and you only pay if you accept it.`,
+              ),
+              t(
+                "Θα σταλούν χωριστά, σε δεύτερη αποστολή, με δικά τους μεταφορικά που θα επιβεβαιωθούν στην πρόταση. Το ποσό αυτής της παραγγελίας δεν τα περιλαμβάνει.",
+                "They will ship separately, as a second shipment, with their own shipping cost confirmed in the offer. The amount of this order does not include them.",
+              ),
             ]
           : [
               `Τα κατόπιν παραγγελίας του ίδιου καλαθιού έγιναν το αίτημα ${child.orderNumber} (ενδεικτική αξία ${value}). Χωριστή αποστολή· τιμή και μεταφορικά με την πρόταση από το HDCtool.`,
@@ -151,10 +149,10 @@ export async function splitSection(
         qty: String(line.qty),
         amount: money(priced.lines[i]?.lineGross ?? 0),
       })),
-      value_label: "Ενδεικτικη αξια",
+      value_label: t("Ενδεικτικη αξια", "Indicative value"),
       value,
       url: audience === "customer" ? customerUrl : admin(child.orderNumber),
-      link_label: audience === "customer" ? `Δειτε το αιτημα ${child.orderNumber}` : "Το αιτημα στη διαχειριση",
+      link_label: audience === "customer" ? t(`Δειτε το αιτημα ${child.orderNumber}`, `View request ${child.orderNumber}`) : "Το αιτημα στη διαχειριση",
       number: child.orderNumber,
       secret: audience === "customer" && customerUrl !== "",
     };
@@ -166,19 +164,22 @@ export async function splitSection(
       select: { orderNumber: true, guestToken: true, totalGross: true },
     });
     if (!parent) return null;
-    const customerUrl = `${siteOrigin()}/checkout/epibebaiosi/${encodeURIComponent(parent.orderNumber)}?t=${encodeURIComponent(parent.guestToken)}`;
+    const customerUrl = `${origin}/checkout/epibebaiosi/${encodeURIComponent(parent.orderNumber)}?t=${encodeURIComponent(parent.guestToken)}`;
     return {
-      title: "Δευτερη αποστολη",
+      title: t("Δευτερη αποστολη", "Second shipment"),
       paragraphs: [
         audience === "customer"
-          ? `Αυτή η παραγγελία είναι η δεύτερη αποστολή του καλαθιού σας, με τα δικά της μεταφορικά. Τα διαθέσιμα προϊόντα προχώρησαν χωριστά με την παραγγελία ${parent.orderNumber} (${money(parent.totalGross)}).`
+          ? t(
+              `Αυτή η παραγγελία είναι η δεύτερη αποστολή του καλαθιού σας, με τα δικά της μεταφορικά. Τα διαθέσιμα προϊόντα προχώρησαν χωριστά με την παραγγελία ${parent.orderNumber} (${money(parent.totalGross)}).`,
+              `This order is the second shipment of your basket, with its own shipping cost. The products that were available went ahead separately with order ${parent.orderNumber} (${money(parent.totalGross)}).`,
+            )
           : `Αίτημα κατόπιν παραγγελίας που έγινε δεκτό και πληρώθηκε. Τα διαθέσιμα του ίδιου καλαθιού ήταν η παραγγελία ${parent.orderNumber} (${money(parent.totalGross)}) — χωριστή αποστολή.`,
       ],
       items: [],
       value_label: "",
       value: "",
       url: audience === "customer" ? customerUrl : admin(parent.orderNumber),
-      link_label: `Η παραγγελια ${parent.orderNumber}`,
+      link_label: t(`Η παραγγελια ${parent.orderNumber}`, `Order ${parent.orderNumber}`),
       number: parent.orderNumber,
       secret: audience === "customer",
     };
@@ -223,8 +224,9 @@ export function euBuyerLabel(order: {
 export function lineAmount(
   order: { vatMode?: string | null },
   line: { lineNet: unknown; lineGross: unknown },
+  locale: EmailLocale = "el",
 ): string {
-  return money(order.vatMode === "intra_eu_exempt" ? line.lineNet : line.lineGross);
+  return formatMoney(locale, order.vatMode === "intra_eu_exempt" ? line.lineNet : line.lineGross);
 }
 
 /**
@@ -245,17 +247,34 @@ export function lineAmount(
  * για το ίδιο ποσό, και το κατάστημα να εκτελεί με νούμερα που ο πελάτης δεν
  * είδε ποτέ.
  */
-export async function buildOrderContext(orderNumber: string) {
+export async function buildOrderContext(orderNumber: string, options: { locale?: EmailLocale } = {}) {
   const order = await prisma.order.findUnique({
     where: { orderNumber },
     include: { lines: true },
   });
   if (!order) return null;
 
+  /*
+   * The customer's language (R-EMAIL-EN): English for an order shipped abroad
+   * except Cyprus, Greek otherwise, an explicit choice winning. The shop's
+   * notification reads the same context and ignores every string below that
+   * depends on it — it is Greek, built from `orderData` only for its numbers.
+   */
+  const locale = emailLocale(order, options.locale);
+  const t = pick(locale);
+  const money = (value: unknown) => formatMoney(locale, value);
+  const stamp = (date: Date) => formatStamp(locale, date);
+  const label = (list: readonly { id: string; label: string }[], id: string) =>
+    locale === "en"
+      ? list === PAYMENT_METHODS
+        ? paymentLabelEn(id)
+        : shippingLabelEn(id)
+      : (list.find((m) => m.id === id)?.label ?? id);
+
   const paid = order.paymentStatus === "PAID";
   const awaitingTransfer = !paid && order.paymentMethod === "bank";
 
-  const link = `${siteOrigin()}/checkout/epibebaiosi/${encodeURIComponent(order.orderNumber)}?t=${encodeURIComponent(order.guestToken)}`;
+  const link = `${siteOrigin()}${locale === "en" ? "/en" : ""}/checkout/epibebaiosi/${encodeURIComponent(order.orderNumber)}?t=${encodeURIComponent(order.guestToken)}`;
 
   /*
    * Οι γραμμές είναι ΚΑΘΑΡΕΣ, όπως και τα σύνολα.
@@ -316,7 +335,7 @@ export async function buildOrderContext(orderNumber: string) {
   const feeNet = Number(order.paymentFeeNet);
   const shippingLabel =
     feeNet > 0
-      ? `${label(ALL_SHIPPING_METHODS, order.shippingMethod)} + έξοδα πληρωμής`
+      ? `${label(ALL_SHIPPING_METHODS, order.shippingMethod)} + ${t("έξοδα πληρωμής", "payment fee")}`
       : label(ALL_SHIPPING_METHODS, order.shippingMethod);
 
   /*
@@ -337,9 +356,12 @@ export async function buildOrderContext(orderNumber: string) {
   const etaDays = Number(quote?.etaDays);
   const eta =
     quote?.carrier === "DHL" && typeof quote.etaDays === "string"
-      ? `DHL Express · παράδοση σε ${quote.etaDays} εργάσιμες`
+      ? t(`DHL Express · παράδοση σε ${quote.etaDays} εργάσιμες`, `DHL Express · delivery in ${quote.etaDays} working days`)
       : Number.isFinite(etaDays) && etaDays > 0
-        ? `Παράδοση σε ${etaDays} ${etaDays === 1 ? "εργάσιμη" : "εργάσιμες"}`
+        ? t(
+            `Παράδοση σε ${etaDays} ${etaDays === 1 ? "εργάσιμη" : "εργάσιμες"}`,
+            `Delivery in ${etaDays} working ${etaDays === 1 ? "day" : "days"}`,
+          )
         : "";
 
   const orderData = {
@@ -357,16 +379,16 @@ export async function buildOrderContext(orderNumber: string) {
     vat: money(order.vatAmount),
     vat_label: vatLabel,
     exempt,
-    exempt_note: exempt ? euSalesCopy("el").exemptNote : "",
+    exempt_note: exempt ? euSalesCopy(locale).exemptNote : "",
     eu_buyer: euBuyerLabel(order),
     total: money(order.totalGross),
     eta,
     payment_method: label(PAYMENT_METHODS, order.paymentMethod),
-    document_type: order.wantsInvoice ? "Τιμολόγιο" : "Απόδειξη",
+    document_type: order.wantsInvoice ? t("Τιμολόγιο", "Invoice") : t("Απόδειξη", "Receipt"),
     shipping: {
       name: `${order.firstName} ${order.lastName}`.trim(),
       line1: order.shipLine1 + (order.shipLine2 ? `, ${order.shipLine2}` : ""),
-      line2: localityLine(order.shipPostcode, order.shipCity, order.shipCountry),
+      line2: localityLine(order.shipPostcode, order.shipCity, order.shipCountry, locale),
       phone: order.phone,
     },
     billing: order.wantsInvoice
@@ -382,13 +404,13 @@ export async function buildOrderContext(orderNumber: string) {
       : {
           name: `${order.firstName} ${order.lastName}`.trim(),
           line1: order.shipLine1 + (order.shipLine2 ? `, ${order.shipLine2}` : ""),
-          line2: localityLine(order.shipPostcode, order.shipCity, order.shipCountry),
+          line2: localityLine(order.shipPostcode, order.shipCity, order.shipCountry, locale),
           vat: "",
           doy: "",
           vies: "",
         },
     notes: order.notes ?? "",
-    split: await splitSection(order, "customer"),
+    split: await splitSection(order, "customer", locale),
   };
 
   const recipient = {
@@ -397,15 +419,19 @@ export async function buildOrderContext(orderNumber: string) {
     email: order.email,
   };
 
-  return { order, orderData, recipient, paid, awaitingTransfer, link };
+  return { order, orderData, recipient, paid, awaitingTransfer, link, locale };
 }
 
 export async function buildOrderEmail(
   orderNumber: string,
+  options: { locale?: EmailLocale } = {},
 ): Promise<{ to: string; subject: string; html: string; text: string; tracking?: false } | null> {
-  const context = await buildOrderContext(orderNumber);
+  const context = await buildOrderContext(orderNumber, options);
   if (!context) return null;
-  const { order, orderData, recipient, paid, awaitingTransfer, link } = context;
+  const { order, orderData, recipient, paid, awaitingTransfer, link, locale } = context;
+  const t = pick(locale);
+  const money = (value: unknown) => formatMoney(locale, value);
+  const stamp = (date: Date) => formatStamp(locale, date);
 
   /*
    * ΠΟΙΑ αιτιολογία γράφει ο πελάτης στην κατάθεση.
@@ -440,21 +466,26 @@ export async function buildOrderEmail(
     : null;
 
   const preheader = useBank
-    ? `Ποσό ${money(order.totalGross)} · αιτιολογία ${reference}`
+    ? t(`Ποσό ${money(order.totalGross)} · αιτιολογία ${reference}`, `Amount ${money(order.totalGross)} · reference ${reference}`)
     : paid
-      ? `${order.lines.length} είδη · ${money(order.totalGross)} · πληρωμένη`
-      : `${order.lines.length} είδη · ${money(order.totalGross)}`;
+      ? t(
+          `${order.lines.length} είδη · ${money(order.totalGross)} · πληρωμένη`,
+          `${order.lines.length} items · ${money(order.totalGross)} · paid`,
+        )
+      : t(`${order.lines.length} είδη · ${money(order.totalGross)}`, `${order.lines.length} items · ${money(order.totalGross)}`);
 
-  const html = await renderTemplate(templateId, {
+  const html = await renderTemplate(
+    templateId,
+    {
     preheader,
     recipient,
     order: orderData,
     ...(useBank
       ? {
-          banks: [{ name: BANK.bank || BANK.holder || "Δικαιούχος", iban: BANK.iban }],
+          banks: [{ name: BANK.bank || BANK.holder || t("Δικαιούχος", "Beneficiary"), iban: BANK.iban }],
           payment: {
             reference,
-            hold_for: heldHours ? `${heldHours} ώρες` : "3 εργάσιμες ημέρες",
+            hold_for: heldHours ? t(`${heldHours} ώρες`, `${heldHours} hours`) : t("3 εργάσιμες ημέρες", "3 working days"),
             deadline: order.reservedUntil ? stamp(order.reservedUntil) : "",
             /* Η πιο χρήσιμη ενέργεια όταν υπάρχει: η ίδια παραγγελία,
                πληρωμένη αμέσως, χωρίς να χρειαστεί κατάθεση. */
@@ -465,46 +496,53 @@ export async function buildOrderEmail(
           },
         }
       : {}),
-  });
+    },
+    { locale },
+  );
 
   const subject = useBank
-    ? `Στοιχεία κατάθεσης για την παραγγελία ${order.orderNumber}`
+    ? t(`Στοιχεία κατάθεσης για την παραγγελία ${order.orderNumber}`, `Bank transfer details for order ${order.orderNumber}`)
     : paid
-      ? `Η παραγγελία ${order.orderNumber} επιβεβαιώθηκε`
-      : `Παραγγελία ${order.orderNumber} — ελήφθη`;
+      ? t(`Η παραγγελία ${order.orderNumber} επιβεβαιώθηκε`, `Your order ${order.orderNumber} is confirmed`)
+      : t(`Παραγγελία ${order.orderNumber} — ελήφθη`, `Order ${order.orderNumber} — received`);
 
   const text = [
     subject,
     "",
-    `Κωδικός παραγγελίας: ${order.orderNumber}`,
+    `${t("Κωδικός παραγγελίας", "Order number")}: ${order.orderNumber}`,
     ...(useBank
       ? [
           "",
-          "ΣΤΟΙΧΕΙΑ ΚΑΤΑΘΕΣΗΣ",
-          BANK.bank ? `Τράπεζα: ${BANK.bank}` : "",
-          BANK.holder ? `Δικαιούχος: ${BANK.holder}` : "",
+          t("ΣΤΟΙΧΕΙΑ ΚΑΤΑΘΕΣΗΣ", "BANK TRANSFER DETAILS"),
+          BANK.bank ? `${t("Τράπεζα", "Bank")}: ${BANK.bank}` : "",
+          BANK.holder ? `${t("Δικαιούχος", "Beneficiary")}: ${BANK.holder}` : "",
           `IBAN: ${BANK.iban}`,
-          `Ποσό: ${money(order.totalGross)}`,
+          `${t("Ποσό", "Amount")}: ${money(order.totalGross)}`,
           // Η ίδια αιτιολογία με το HTML. Δύο κανάλια που διαφωνούν για το τι
           // γράφεται στην κατάθεση είναι ο τρόπος να φτάσουν χρήματα αταύτιστα.
-          `Αιτιολογία: ${reference}`,
-          heldHours ? `Κρατάμε την παραγγελία και το απόθεμα για ${heldHours} ώρες.` : "",
+          `${t("Αιτιολογία", "Reference")}: ${reference}`,
+          heldHours
+            ? t(
+                `Κρατάμε την παραγγελία και το απόθεμα για ${heldHours} ώρες.`,
+                `We hold the order and the stock for ${heldHours} hours.`,
+              )
+            : "",
         ].filter(Boolean)
       : []),
     "",
-    ...order.lines.map((l) => `${l.quantity} × ${l.name} — ${lineAmount(order, l)}`),
+    ...order.lines.map((l) => `${l.quantity} × ${l.name} — ${lineAmount(order, l, locale)}`),
     "",
-    `Σύνολο: ${money(order.totalGross)}`,
+    `${t("Σύνολο", "Total")}: ${money(order.totalGross)}`,
     ...(orderData.exempt
       ? [
           orderData.exempt_note,
-          ...(order.vatNumber ? [`ΑΦΜ: ${order.vatNumber}`] : []),
+          ...(order.vatNumber ? [`${t("ΑΦΜ", "VAT no.")}: ${order.vatNumber}`] : []),
           ...(order.viesConsultationNumber ? [`VIES: ${order.viesConsultationNumber}`] : []),
         ]
       : []),
     ...splitText(orderData.split),
     "",
-    `Παρακολούθηση: ${link}`,
+    `${t("Παρακολούθηση", "Track your order")}: ${link}`,
   ].join("\n");
 
   /* A request's private page is in it: Mailgun must not rewrite (and log) that link. */

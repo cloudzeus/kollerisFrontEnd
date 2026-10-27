@@ -1,10 +1,11 @@
 import "server-only";
-import { readFile, readdir } from "node:fs/promises";
+import { access, readFile, readdir } from "node:fs/promises";
 import path from "node:path";
 import Handlebars from "handlebars";
 import { SHOP } from "@/lib/seo/structured-data";
 import { siteOrigin } from "@/lib/seo/urls";
 import { mailUrls } from "@/lib/mail/urls";
+import type { EmailLocale } from "@/lib/mail/email-locale";
 
 /**
  * Τα 24 email templates του Kolleris Email System, αποδοσμένα από το κατάστημα.
@@ -99,7 +100,9 @@ export type TemplateId = string;
  * Μπαίνει κάτω από ό,τι δίνει ο καλών, ώστε μια καμπάνια να μπορεί να
  * παρακάμψει το `view_online` της χωρίς να ξαναγράψει τον υπόλοιπο πίνακα.
  */
-export function baseContext(overrides: { viewOnline?: string; preferences?: string } = {}) {
+export function baseContext(
+  overrides: { viewOnline?: string; preferences?: string; locale?: EmailLocale } = {},
+) {
   return {
     /*
      * ΑΦΜ και ΓΕΜΗ από environment, με κενό προεπιλογή.
@@ -120,13 +123,13 @@ export function baseContext(overrides: { viewOnline?: string; preferences?: stri
 
 export async function listTemplateIds(): Promise<TemplateId[]> {
   const files = await readdir(TEMPLATE_DIR);
-  return files.filter((f) => f.endsWith(".html")).map((f) => f.replace(/\.html$/, "")).sort();
+  return files.filter((f) => f.endsWith(".html") && !f.endsWith(".en.html")).map((f) => f.replace(/\.html$/, "")).sort();
 }
 
 export async function renderTemplate(
   id: TemplateId,
   data: Record<string, unknown>,
-  options: { assetOrigin?: string } = {},
+  options: { assetOrigin?: string; locale?: EmailLocale } = {},
 ): Promise<string> {
   /*
    * Το `id` φτάνει από τη διαχείριση και καταλήγει σε διαδρομή αρχείου. Χωρίς
@@ -138,14 +141,34 @@ export async function renderTemplate(
     throw new Error(`Άκυρο id template: ${id}`);
   }
 
-  let template = compiled.get(id);
-  if (!template) {
-    const source = await readFile(path.join(TEMPLATE_DIR, `${id}.html`), "utf8");
-    template = Handlebars.compile(source, { noEscape: false });
-    compiled.set(id, template);
+  /*
+   * English: `<id>.en.html` next to the Greek one (R-EMAIL-EN — orders shipped
+   * abroad except Cyprus). A template without an English twin is a gap in the
+   * set, not a reason to stop an order email: it falls back to Greek, loudly,
+   * and the test over the customer templates keeps the gap from shipping.
+   */
+  let locale: EmailLocale = options.locale === "en" ? "en" : "el";
+  let file = `${id}.html`;
+  if (locale === "en") {
+    file = `${id}.en.html`;
+    try {
+      await access(path.join(TEMPLATE_DIR, file));
+    } catch {
+      console.error(`[mail] ${file} is missing — the email goes out in Greek`);
+      locale = "el";
+      file = `${id}.html`;
+    }
   }
 
-  const html = template({ ...baseContext(), ...data });
+  const cacheKey = `${id}:${locale}`;
+  let template = compiled.get(cacheKey);
+  if (!template) {
+    const source = await readFile(path.join(TEMPLATE_DIR, file), "utf8");
+    template = Handlebars.compile(source, { noEscape: false });
+    compiled.set(cacheKey, template);
+  }
+
+  const html = template({ ...baseContext({ locale }), ...data });
 
   /*
    * Μόνο όταν ζητηθεί ρητά. Οι πραγματικές αποστολές ΔΕΝ περνούν origin — μια

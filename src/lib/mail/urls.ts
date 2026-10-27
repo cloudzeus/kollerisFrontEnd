@@ -17,8 +17,11 @@ import { siteOrigin } from "@/lib/seo/urls";
  */
 export type MailUrls = ReturnType<typeof mailUrls>;
 
-export function mailUrls(overrides: { viewOnline?: string; preferences?: string } = {}) {
-  const o = siteOrigin();
+export function mailUrls(
+  overrides: { viewOnline?: string; preferences?: string; locale?: "el" | "en" } = {},
+) {
+  /* English emails link to the English site (`/en/…`, Greek is the bare root). */
+  const o = overrides.locale === "en" ? `${siteOrigin()}/en` : siteOrigin();
   return {
     home: o,
     shop: o,

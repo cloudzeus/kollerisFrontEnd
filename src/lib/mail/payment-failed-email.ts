@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { sendTemplateMail } from "@/lib/mail/send-template";
 import { paymentPageUrl } from "@/lib/payment/viva";
 import { PAYMENT_METHODS } from "@/lib/cart/options";
+import { emailLocale, formatMoney, formatStamp, paymentLabelEn, pick, type EmailLocale } from "@/lib/mail/email-locale";
 
 /**
  * «Η πληρωμή δεν ολοκληρώθηκε».
@@ -33,36 +34,35 @@ const BANK = {
   bank: process.env.BANK_TRANSFER_BANK ?? "",
 };
 
-const money = (value: unknown) => `${Number(value).toFixed(2).replace(".", ",")} €`;
 
-function stamp(date: Date): string {
-  const parts = new Intl.DateTimeFormat("el-GR", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-    timeZone: "Europe/Athens",
-    hourCycle: "h23",
-  }).formatToParts(date);
-  const get = (t: string) => parts.find((p) => p.type === t)?.value ?? "";
-  return `${get("day")}.${get("month")}.${get("year")}, ${get("hour")}:${get("minute")}`;
-}
 
 export async function sendPaymentFailedEmail(
   orderNumber: string,
   detail: { statusId?: string | null },
+  options: { locale?: EmailLocale } = {},
 ) {
   const order = await prisma.order.findUnique({ where: { orderNumber } });
   if (!order) return { ok: false as const, error: "Η παραγγελία δεν βρέθηκε." };
+
+  const locale = emailLocale(order, options.locale);
+  const t = pick(locale);
+  const money = (value: unknown) => formatMoney(locale, value);
+  const stamp = (date: Date) => formatStamp(locale, date);
 
   const retryUrl = order.vivaOrderCode ? paymentPageUrl(order.vivaOrderCode) : "";
 
   return sendTemplateMail({
     to: order.email,
     templateId: "payment-failed",
-    subject: `Η πληρωμή δεν ολοκληρώθηκε — παραγγελία ${order.orderNumber}`,
-    preheader: "Δεν έγινε καμία χρέωση. Δοκιμάστε ξανά ή επιλέξτε κατάθεση.",
+    locale,
+    subject: t(
+      `Η πληρωμή δεν ολοκληρώθηκε — παραγγελία ${order.orderNumber}`,
+      `Payment not completed — order ${order.orderNumber}`,
+    ),
+    preheader: t(
+      "Δεν έγινε καμία χρέωση. Δοκιμάστε ξανά ή επιλέξτε κατάθεση.",
+      "You have not been charged. Try again or choose a bank transfer.",
+    ),
     context: order.orderNumber,
     data: {
       recipient: {
@@ -83,35 +83,43 @@ export async function sendPaymentFailedEmail(
          * χρήματα είναι το χειρότερο είδος συμπλήρωσης κενού.
          */
         method:
-          PAYMENT_METHODS.find((m) => m.id === order.paymentMethod)?.label ?? order.paymentMethod,
+          locale === "en"
+            ? paymentLabelEn(order.paymentMethod)
+            : (PAYMENT_METHODS.find((m) => m.id === order.paymentMethod)?.label ?? order.paymentMethod),
         card: "",
-        reason: "Η συναλλαγή δεν εγκρίθηκε από την τράπεζα",
+        reason: t("Η συναλλαγή δεν εγκρίθηκε από την τράπεζα", "The transaction was not approved by the bank"),
         error_code: detail.statusId ? `Viva ${detail.statusId}` : "—",
         retry_url: retryUrl,
       },
       /* Ο λογαριασμός κατάθεσης ως εναλλακτική — με αιτιολογία τον αριθμό
          παραγγελίας, γιατί εδώ η ταυτοποίηση γίνεται με το χέρι. */
       banks: BANK.iban.trim()
-        ? [{ name: BANK.bank || BANK.holder || "Δικαιούχος", iban: BANK.iban }]
+        ? [{ name: BANK.bank || BANK.holder || t("Δικαιούχος", "Beneficiary"), iban: BANK.iban }]
         : [],
     },
     text: [
-      `Η πληρωμή για την παραγγελία ${order.orderNumber} δεν ολοκληρώθηκε`,
+      t(
+        `Η πληρωμή για την παραγγελία ${order.orderNumber} δεν ολοκληρώθηκε`,
+        `The payment for order ${order.orderNumber} was not completed`,
+      ),
       "",
-      "Δεν έγινε καμία χρέωση.",
-      `Ποσό: ${money(order.totalGross)}`,
-      ...(retryUrl ? ["", `Δοκιμάστε ξανά: ${retryUrl}`] : []),
+      t("Δεν έγινε καμία χρέωση.", "You have not been charged."),
+      `${t("Ποσό", "Amount")}: ${money(order.totalGross)}`,
+      ...(retryUrl ? ["", `${t("Δοκιμάστε ξανά", "Try again")}: ${retryUrl}`] : []),
       ...(BANK.iban.trim()
         ? [
             "",
-            "Εναλλακτικά, κατάθεση σε τράπεζα:",
-            BANK.bank ? `Τράπεζα: ${BANK.bank}` : "",
+            t("Εναλλακτικά, κατάθεση σε τράπεζα:", "Alternatively, a bank transfer:"),
+            BANK.bank ? `${t("Τράπεζα", "Bank")}: ${BANK.bank}` : "",
             `IBAN: ${BANK.iban}`,
-            `Αιτιολογία: ${order.orderNumber}`,
+            `${t("Αιτιολογία", "Reference")}: ${order.orderNumber}`,
           ].filter(Boolean)
         : []),
       "",
-      "Χρειάζεστε βοήθεια; +30 210 411 1355 (Δευ–Παρ 08:00–17:00).",
+      t(
+        "Χρειάζεστε βοήθεια; +30 210 411 1355 (Δευ–Παρ 08:00–17:00).",
+        "Need help? +30 210 411 1355 (Mon–Fri 08:00–17:00).",
+      ),
     ].join("\n"),
   });
 }

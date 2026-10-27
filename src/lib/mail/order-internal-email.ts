@@ -48,7 +48,11 @@ export async function sendInternalOrderEmail(
 ): Promise<InternalOrderMailOutcome> {
   if (!mailConfigured()) return { ok: false, error: "Το Mailgun δεν είναι ρυθμισμένο." };
 
-  const context = await buildOrderContext(orderNumber);
+  /*
+   * Always Greek: the shop reads this, whatever country the customer is in
+   * (R-EMAIL-EN covers customer emails only).
+   */
+  const context = await buildOrderContext(orderNumber, { locale: "el" });
   if (!context) return { ok: false, error: "Η παραγγελία δεν βρέθηκε." };
 
   const { order, orderData, recipient, paid } = context;

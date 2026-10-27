@@ -6,6 +6,7 @@ import { siteOrigin } from "@/lib/seo/urls";
 import { chargeableWeight } from "@/lib/shipping/acs-tariff";
 import { localityLine } from "@/lib/shipping/countries";
 import { trackingFor } from "@/lib/shipping/tracking";
+import { emailLocale, formatMoney, formatStamp, pick, type EmailLocale } from "@/lib/mail/email-locale";
 
 /**
  * «Η παραγγελία σας απεστάλη» — το email που δεν στελνόταν ποτέ.
@@ -21,30 +22,25 @@ import { trackingFor } from "@/lib/shipping/tracking";
  * παρακολούθησης δίπλα. Είναι το μόνο που θέλει κάποιος που περιμένει δέμα.
  */
 
-const money = (value: unknown) => `${Number(value).toFixed(2).replace(".", ",")} €`;
 
-function stamp(date: Date): string {
-  const parts = new Intl.DateTimeFormat("el-GR", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-    timeZone: "Europe/Athens",
-    hourCycle: "h23",
-  }).formatToParts(date);
-  const get = (t: string) => parts.find((p) => p.type === t)?.value ?? "";
-  return `${get("day")}.${get("month")}.${get("year")}, ${get("hour")}:${get("minute")}`;
-}
 
-export async function sendShippedEmail(orderNumber: string, voucherNo: string) {
+export async function sendShippedEmail(
+  orderNumber: string,
+  voucherNo: string,
+  options: { locale?: EmailLocale } = {},
+) {
   const order = await prisma.order.findUnique({
     where: { orderNumber },
     include: { lines: true },
   });
   if (!order) return { ok: false as const, error: "Η παραγγελία δεν βρέθηκε." };
 
-  const link = `${siteOrigin()}/checkout/epibebaiosi/${encodeURIComponent(order.orderNumber)}?t=${encodeURIComponent(order.guestToken)}`;
+  const locale = emailLocale(order, options.locale);
+  const t = pick(locale);
+  const money = (value: unknown) => formatMoney(locale, value);
+  const stamp = (date: Date) => formatStamp(locale, date);
+
+  const link = `${siteOrigin()}${locale === "en" ? "/en" : ""}/checkout/epibebaiosi/${encodeURIComponent(order.orderNumber)}?t=${encodeURIComponent(order.guestToken)}`;
 
   /*
    * Το ίδιο βάρος που δηλώθηκε στην ACS και που κοστολογήθηκε στο ταμείο.
@@ -69,12 +65,13 @@ export async function sendShippedEmail(orderNumber: string, voucherNo: string) {
   return sendTemplateMail({
     to: order.email,
     templateId: "order-shipped",
-    subject: `Η παραγγελία ${order.orderNumber} απεστάλη`,
+    locale,
+    subject: t(`Η παραγγελία ${order.orderNumber} απεστάλη`, `Your order ${order.orderNumber} has shipped`),
     preheader: `${tracking.carrier === "DHL" ? "DHL Express" : "ACS"} · ${voucherNo}${
       dhlEta
-        ? ` · παράδοση σε ${dhlEta} εργάσιμες`
+        ? t(` · παράδοση σε ${dhlEta} εργάσιμες`, ` · delivery in ${dhlEta} working days`)
         : Number.isFinite(etaDays) && etaDays > 0
-          ? ` · παράδοση σε ${etaDays} εργάσιμες`
+          ? t(` · παράδοση σε ${etaDays} εργάσιμες`, ` · delivery in ${etaDays} working days`)
           : ""
     }`,
     context: order.orderNumber,
@@ -100,7 +97,7 @@ export async function sendShippedEmail(orderNumber: string, voucherNo: string) {
         shipping: {
           name: `${order.firstName} ${order.lastName}`.trim(),
           line1: order.shipLine1 + (order.shipLine2 ? `, ${order.shipLine2}` : ""),
-          line2: localityLine(order.shipPostcode, order.shipCity, order.shipCountry),
+          line2: localityLine(order.shipPostcode, order.shipCity, order.shipCountry, locale),
           phone: order.phone,
         },
       },
@@ -109,31 +106,34 @@ export async function sendShippedEmail(orderNumber: string, voucherNo: string) {
         tracking: voucherNo,
         tracking_url: tracking.url,
         eta: dhlEta
-          ? `${dhlEta} εργάσιμες`
+          ? t(`${dhlEta} εργάσιμες`, `${dhlEta} working days`)
           : Number.isFinite(etaDays) && etaDays > 0
-            ? `${etaDays} ${etaDays === 1 ? "εργάσιμη" : "εργάσιμες"}`
-            : "1–3 εργάσιμες",
+            ? t(
+                `${etaDays} ${etaDays === 1 ? "εργάσιμη" : "εργάσιμες"}`,
+                `${etaDays} working ${etaDays === 1 ? "day" : "days"}`,
+              )
+            : t("1–3 εργάσιμες", "1–3 working days"),
         /* Ένα voucher ανά παραγγελία — το ίδιο το `createVoucherForOrder` το
            επιβάλλει, γιατί δεύτερο voucher σημαίνει δεύτερο δέμα. */
         packages: "1",
-        weight: `${weight.chargeableKg.toFixed(2).replace(".", ",")} kg`,
+        weight: `${locale === "en" ? weight.chargeableKg.toFixed(2) : weight.chargeableKg.toFixed(2).replace(".", ",")} kg`,
         /* Το παραστατικό δεν επισυνάπτεται ακόμη — εκδίδεται στο ERP και δεν
            φτάνει εδώ. Λέγεται πού βρίσκεται αντί να υποσχεθεί συνημμένο που
            δεν υπάρχει. */
-        document: order.wantsInvoice ? "Τιμολόγιο" : "Απόδειξη",
+        document: order.wantsInvoice ? t("Τιμολόγιο", "Invoice") : t("Απόδειξη", "Receipt"),
         /* Τμηματικές παραδόσεις δεν υπάρχουν: ένα δέμα, όλα τα είδη μέσα. */
         backorder: "",
       },
     },
     text: [
-      `Η παραγγελία ${order.orderNumber} απεστάλη`,
+      t(`Η παραγγελία ${order.orderNumber} απεστάλη`, `Your order ${order.orderNumber} has shipped`),
       "",
-      `Courier: ${tracking.courier} · Αριθμός αποστολής: ${voucherNo}`,
-      `Παρακολούθηση: ${tracking.url}`,
+      `Courier: ${tracking.courier} · ${t("Αριθμός αποστολής", "Tracking number")}: ${voucherNo}`,
+      `${t("Παρακολούθηση", "Track the parcel")}: ${tracking.url}`,
       "",
       ...order.lines.map((l) => `${l.quantity} × ${l.name}`),
       "",
-      `Η παραγγελία σας: ${link}`,
+      `${t("Η παραγγελία σας", "Your order")}: ${link}`,
     ].join("\n"),
   });
 }

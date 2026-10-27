@@ -3,6 +3,7 @@ import "server-only";
 import { prisma } from "@/lib/prisma";
 import { sendTemplateMail } from "@/lib/mail/send-template";
 import { mailUrls } from "@/lib/mail/urls";
+import { emailLocale, formatMoney, formatStamp, pick, type EmailLocale } from "@/lib/mail/email-locale";
 import { siteOrigin } from "@/lib/seo/urls";
 
 /**
@@ -19,37 +20,32 @@ import { siteOrigin } from "@/lib/seo/urls";
  * σελίδα της παραγγελίας, όπου υπάρχουν όλα όσα κρατάμε.
  */
 
-const money = (value: unknown) => `${Number(value).toFixed(2).replace(".", ",")} €`;
 
-function stamp(date: Date): string {
-  const parts = new Intl.DateTimeFormat("el-GR", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-    timeZone: "Europe/Athens",
-    hourCycle: "h23",
-  }).formatToParts(date);
-  const get = (t: string) => parts.find((p) => p.type === t)?.value ?? "";
-  return `${get("day")}.${get("month")}.${get("year")}, ${get("hour")}:${get("minute")}`;
-}
 
-export async function sendDeliveredEmail(orderNumber: string) {
+export async function sendDeliveredEmail(orderNumber: string, options: { locale?: EmailLocale } = {}) {
   const order = await prisma.order.findUnique({
     where: { orderNumber },
     include: { lines: true },
   });
   if (!order) return { ok: false as const, error: "Η παραγγελία δεν βρέθηκε." };
 
-  const link = `${siteOrigin()}/checkout/epibebaiosi/${encodeURIComponent(order.orderNumber)}?t=${encodeURIComponent(order.guestToken)}`;
-  const urls = mailUrls();
+  const locale = emailLocale(order, options.locale);
+  const t = pick(locale);
+  const money = (value: unknown) => formatMoney(locale, value);
+  const stamp = (date: Date) => formatStamp(locale, date);
+
+  const link = `${siteOrigin()}${locale === "en" ? "/en" : ""}/checkout/epibebaiosi/${encodeURIComponent(order.orderNumber)}?t=${encodeURIComponent(order.guestToken)}`;
+  const urls = mailUrls({ locale });
 
   return sendTemplateMail({
     to: order.email,
     templateId: "order-delivered",
-    subject: `Η παραγγελία ${order.orderNumber} παραδόθηκε`,
-    preheader: "Ελέγξτε τα είδη σας. Πρόβλημα; Απαντήστε σε αυτό το email.",
+    locale,
+    subject: t(`Η παραγγελία ${order.orderNumber} παραδόθηκε`, `Your order ${order.orderNumber} was delivered`),
+    preheader: t(
+      "Ελέγξτε τα είδη σας. Πρόβλημα; Απαντήστε σε αυτό το email.",
+      "Please check your items. A problem? Reply to this email.",
+    ),
     context: order.orderNumber,
     data: {
       recipient: {
@@ -87,15 +83,16 @@ export async function sendDeliveredEmail(orderNumber: string) {
       },
     },
     text: [
-      `Η παραγγελία ${order.orderNumber} παραδόθηκε`,
+      t(`Η παραγγελία ${order.orderNumber} παραδόθηκε`, `Your order ${order.orderNumber} was delivered`),
       "",
-      `Παράδοση: ${order.deliveredAt ? stamp(order.deliveredAt) : stamp(new Date())}`,
-      `Διεύθυνση: ${order.shipLine1}, ${order.shipPostcode} ${order.shipCity}`,
+      `${t("Παράδοση", "Delivered")}: ${order.deliveredAt ? stamp(order.deliveredAt) : stamp(new Date())}`,
+      `${t("Διεύθυνση", "Address")}: ${order.shipLine1}, ${order.shipPostcode} ${order.shipCity}`,
       "",
-      "Ελέγξτε τα είδη σας. Αν κάτι δεν είναι σωστό, απαντήστε σε αυτό το email",
-      "ή καλέστε στο +30 210 411 1355.",
+      ...(locale === "en"
+        ? ["Please check your items. If anything is not right, reply to this email", "or call +30 210 411 1355."]
+        : ["Ελέγξτε τα είδη σας. Αν κάτι δεν είναι σωστό, απαντήστε σε αυτό το email", "ή καλέστε στο +30 210 411 1355."]),
       "",
-      `Η παραγγελία σας: ${link}`,
+      `${t("Η παραγγελία σας", "Your order")}: ${link}`,
     ].join("\n"),
   });
 }

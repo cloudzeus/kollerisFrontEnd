@@ -2,6 +2,8 @@ import "server-only";
 import { sendMail, mailConfigured } from "@/lib/mail/client";
 import { renderTemplate } from "@/lib/mail/templates";
 import { buildOrderContext } from "@/lib/mail/order-email";
+import { pick, statusNameEn, type EmailLocale } from "@/lib/mail/email-locale";
+import { isDhlShipment, trackingFor } from "@/lib/shipping/tracking";
 
 
 /**
@@ -40,31 +42,53 @@ export type OrderStatusMailOutcome = { ok: true; id: string } | { ok: false; err
 export async function sendOrderStatusEmail(
   orderNumber: string,
   statusName: string,
+  options: { locale?: EmailLocale } = {},
 ): Promise<OrderStatusMailOutcome> {
   if (!mailConfigured()) return { ok: false, error: "Το Mailgun δεν είναι ρυθμισμένο." };
 
-  const name = statusName.trim();
-  if (!name) return { ok: false, error: "Λείπει η ονομασία της κατάστασης." };
+  const received = statusName.trim();
+  if (!received) return { ok: false, error: "Λείπει η ονομασία της κατάστασης." };
 
-  const context = await buildOrderContext(orderNumber);
+  const context = await buildOrderContext(orderNumber, options);
   if (!context) return { ok: false, error: "Η παραγγελία δεν βρέθηκε." };
 
-  const { order, orderData, recipient } = context;
+  const { order, orderData, recipient, locale } = context;
+  const t = pick(locale);
+  /* HDCtool names its states in Greek; the known ones are translated for an English email. */
+  const name = locale === "en" ? statusNameEn(received) : received;
 
-  const html = await renderTemplate("order-status", {
-    preheader: `${order.orderNumber} · ${name}`,
-    recipient,
-    order: orderData,
-    status: { name },
-  });
+  const html = await renderTemplate(
+    "order-status",
+    {
+      preheader: `${order.orderNumber} · ${name}`,
+      recipient,
+      order: orderData,
+      status: { name },
+    },
+    { locale },
+  );
+
+  /*
+   * The courier number, labelled by whoever carries the parcel: it sits in the
+   * same column for ACS and for DHL (the AWB), so a fixed «ACS» label was wrong
+   * on every DHL order. DHL also gets its tracking link.
+   */
+  const dhl = order.acsVoucherNo ? isDhlShipment(order) : false;
+  const tracking = order.acsVoucherNo ? trackingFor(order, order.acsVoucherNo) : null;
 
   const text = [
-    `Η παραγγελία ${order.orderNumber} είναι τώρα: ${name}`,
+    t(`Η παραγγελία ${order.orderNumber} είναι τώρα: ${name}`, `Your order ${order.orderNumber} is now: ${name}`),
     "",
-    `Σύνολο: ${orderData.total}`,
-    `Παρακολούθηση: ${orderData.url}`,
+    `${t("Σύνολο", "Total")}: ${orderData.total}`,
+    `${t("Παρακολούθηση", "Track your order")}: ${orderData.url}`,
     ...(order.acsVoucherNo
-      ? ["", `Αριθμός αποστολής ACS: ${order.acsVoucherNo}`]
+      ? [
+          "",
+          dhl
+            ? `${t("Αριθμός αποστολής DHL Express", "DHL Express tracking number")}: ${order.acsVoucherNo}`
+            : `${t("Αριθμός αποστολής ACS", "ACS tracking number")}: ${order.acsVoucherNo}`,
+          ...(dhl && tracking ? [`${t("Παρακολούθηση δέματος", "Track the parcel")}: ${tracking.url}`] : []),
+        ]
       : []),
   ].join("\n");
 
@@ -74,7 +98,7 @@ export async function sendOrderStatusEmail(
        η απάντησή του φτάνει εκεί που τη διαβάζει κάποιος. Κρυφή κοινοποίηση θα
        έστελνε τις απαντήσεις στο κενό. */
     cc: statusNoticeCopy(),
-    subject: `Παραγγελία ${order.orderNumber} — ${name}`,
+    subject: t(`Παραγγελία ${order.orderNumber} — ${name}`, `Order ${order.orderNumber} — ${name}`),
     html,
     text,
     replyTo: process.env.MAIL_REPLY_TO,

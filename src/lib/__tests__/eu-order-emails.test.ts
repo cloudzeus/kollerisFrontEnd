@@ -15,13 +15,17 @@ import { sendInternalOrderEmail } from "@/lib/mail/order-internal-email";
 
 /*
  * EU sales in the order emails (Task 17 / C4): an exempt order says why there
- * is no VAT instead of a ΦΠΑ row, shows the buyer's ΑΦΜ with its prefix and the
- * VIES number, and never reads «Περιλαμβάνεται ΦΠΑ». The shop's copy says who
- * the EU buyer is. A Greek order's emails are unchanged.
+ * is no VAT instead of a VAT row, shows the buyer's VAT number with its prefix
+ * and the VIES number, and never reads «Περιλαμβάνεται ΦΠΑ». The customer's
+ * copy of a DE order is English (R-EMAIL-EN); the shop's copy stays Greek and
+ * says who the EU buyer is. A Greek order's emails are unchanged.
  */
 
 const NUMBER = "KOL-20261027-0001";
+/** The shop's copy (Greek). */
 const NOTE = "Ενδοκοινοτική παράδοση — απαλλαγή ΦΠΑ (αντίστροφη επιβάρυνση, άρθρο 138 Οδηγίας 2006/112/ΕΚ)";
+/** The customer's copy of a DE order (English). */
+const NOTE_EN = "Intra-community supply — VAT exempt (reverse charge, Article 138 of Directive 2006/112/EC)";
 
 beforeEach(() => {
   resetFakes();
@@ -99,21 +103,22 @@ describe("customer email — exempt order", () => {
     seed();
     const mail = await buildOrderEmail(NUMBER);
     expect(mail).not.toBeNull();
-    expect(mail!.html).toContain(NOTE);
-    expect(mail!.html).not.toMatch(/ΦΠΑ\s*24%/);
+    expect(mail!.html).toContain(NOTE_EN);
+    expect(mail!.html).not.toContain(NOTE);
+    expect(mail!.html).not.toMatch(/VAT\s*24%/);
     expect(mail!.html).not.toContain("Περιλαμβάνεται ΦΠΑ");
     expect(mail!.html).toContain("DE123456789");
     expect(mail!.html).toContain("WAPIAAAA1234");
     // No «· » dangling after an ΑΦΜ with no ΔΟΥ.
     expect(mail!.html).not.toMatch(/DE123456789\s*·\s*</);
-    expect(mail!.html).toContain("131,40 €");
-    expect(mail!.text).toContain(NOTE);
-    expect(mail!.text).toContain("DE123456789");
-    expect(mail!.text).toContain("WAPIAAAA1234");
+    expect(mail!.html).toContain("€131.40");
+    expect(mail!.text).toContain(NOTE_EN);
+    expect(mail!.text).toContain("VAT no.: DE123456789");
+    expect(mail!.text).toContain("VIES: WAPIAAAA1234");
     expect(mail!.text).not.toContain("Περιλαμβάνεται ΦΠΑ");
     // The line is what was charged: VAT-free, not the stored 24% gross.
-    expect(mail!.text).toContain("Πένσα — 100,00 €");
-    expect(mail!.text).not.toContain("124,00 €");
+    expect(mail!.text).toContain("Πένσα — €100.00");
+    expect(mail!.text).not.toContain("124");
   });
 
   it("the bank-transfer email (payment-pending-bank) says it too", async () => {
@@ -122,9 +127,9 @@ describe("customer email — exempt order", () => {
     seed({ paymentStatus: "PENDING", status: "PENDING_PAYMENT", paymentMethod: "bank" });
     const { buildOrderEmail: build } = await import("@/lib/mail/order-email");
     const mail = await build(NUMBER);
-    expect(mail!.subject).toContain("Στοιχεία κατάθεσης");
-    expect(mail!.html).toContain(NOTE);
-    expect(mail!.html).not.toMatch(/ΦΠΑ\s*24%/);
+    expect(mail!.subject).toContain("Bank transfer details");
+    expect(mail!.html).toContain(NOTE_EN);
+    expect(mail!.html).not.toMatch(/VAT\s*24%/);
   });
 
   it("an EU consumer charged VAT keeps the ΦΠΑ row and gets no note", async () => {
@@ -143,9 +148,9 @@ describe("customer email — exempt order", () => {
       shippingGross: 31.4,
     });
     const mail = await buildOrderEmail(NUMBER);
-    expect(mail!.html).not.toContain(NOTE);
-    expect(mail!.html).toContain("24,00 €");
-    expect(mail!.html).toContain("ΦΠΑ");
+    expect(mail!.html).not.toContain(NOTE_EN);
+    expect(mail!.html).toContain("€24.00");
+    expect(mail!.html).toContain("VAT");
   });
 });
 

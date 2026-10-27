@@ -3,6 +3,7 @@ import "server-only";
 import { prisma } from "@/lib/prisma";
 import { sendTemplateMail } from "@/lib/mail/send-template";
 import { siteOrigin } from "@/lib/seo/urls";
+import { emailLocale, pick, type EmailLocale } from "@/lib/mail/email-locale";
 
 /**
  * «Πώς δούλεψαν;» — επτά ημέρες μετά την παράδοση, μία φορά.
@@ -29,7 +30,7 @@ import { siteOrigin } from "@/lib/seo/urls";
  * ότι βαθμολόγησε. Το `review.scale` μένει κενό και το μπλοκ δεν αποδίδεται.
  */
 
-export async function sendReviewRequestEmail(orderNumber: string) {
+export async function sendReviewRequestEmail(orderNumber: string, options: { locale?: EmailLocale } = {}) {
   const order = await prisma.order.findUnique({
     where: { orderNumber },
     include: { lines: true },
@@ -39,7 +40,9 @@ export async function sendReviewRequestEmail(orderNumber: string) {
     return { ok: false as const, error: "Παραγγελία χωρίς λογαριασμό — δεν μπορεί να αξιολογήσει." };
   }
 
-  const reviewsUrl = `${siteOrigin()}/logariasmos/axiologiseis`;
+  const locale = emailLocale(order, options.locale);
+  const t = pick(locale);
+  const reviewsUrl = `${siteOrigin()}${locale === "en" ? "/en" : ""}/logariasmos/axiologiseis`;
 
   /*
    * Ένα είδος ανά προϊόν. Δύο μεγέθη του ίδιου κωδικού είναι δύο γραμμές
@@ -68,8 +71,15 @@ export async function sendReviewRequestEmail(orderNumber: string) {
   return sendTemplateMail({
     to: order.email,
     templateId: "review-request",
-    subject: `Πώς δούλεψαν; Αξιολογήστε την παραγγελία ${order.orderNumber}`,
-    preheader: "60 δευτερόλεπτα. Βοηθάτε άλλους επαγγελματίες να επιλέξουν σωστά.",
+    locale,
+    subject: t(
+      `Πώς δούλεψαν; Αξιολογήστε την παραγγελία ${order.orderNumber}`,
+      `How did they work out? Review your order ${order.orderNumber}`,
+    ),
+    preheader: t(
+      "60 δευτερόλεπτα. Βοηθάτε άλλους επαγγελματίες να επιλέξουν σωστά.",
+      "60 seconds. You help other professionals choose well.",
+    ),
     context: order.orderNumber,
     data: {
       recipient: {
@@ -81,13 +91,19 @@ export async function sendReviewRequestEmail(orderNumber: string) {
       review: { scale: [] },
     },
     text: [
-      `Πώς δούλεψαν; Αξιολογήστε την παραγγελία ${order.orderNumber}`,
+      t(
+        `Πώς δούλεψαν; Αξιολογήστε την παραγγελία ${order.orderNumber}`,
+        `How did they work out? Review your order ${order.orderNumber}`,
+      ),
       "",
       ...items.map((i) => `· ${i.name}`),
       "",
-      `Αξιολογήστε: ${reviewsUrl}`,
+      `${t("Αξιολογήστε", "Review")}: ${reviewsUrl}`,
       "",
-      "Κάτι δεν πήγε καλά; Μη γράψετε αξιολόγηση — απαντήστε σε αυτό το email.",
+      t(
+        "Κάτι δεν πήγε καλά; Μη γράψετε αξιολόγηση — απαντήστε σε αυτό το email.",
+        "Something went wrong? Do not write a review — reply to this email.",
+      ),
     ].join("\n"),
   });
 }

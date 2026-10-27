@@ -1,6 +1,7 @@
 import "server-only";
 import { sendMail, mailConfigured } from "@/lib/mail/client";
 import { renderTemplate } from "@/lib/mail/templates";
+import type { EmailLocale } from "@/lib/mail/email-locale";
 
 /**
  * Ένα email του design system, από γεγονός σε παραλήπτη.
@@ -36,6 +37,8 @@ export type TemplateSend = {
   text: string;
   /** Για logs, ώστε μια αποτυχία να λέει ΠΟΙΟΥ email και ΠΟΙΟΥ γεγονότος. */
   context: string;
+  /** `en` renders `<templateId>.en.html` (R-EMAIL-EN); absent is Greek. */
+  locale?: EmailLocale;
 };
 
 export type TemplateSendResult = { ok: true; id: string } | { ok: false; error: string };
@@ -46,10 +49,14 @@ export async function sendTemplateMail(send: TemplateSend): Promise<TemplateSend
   }
 
   try {
-    const html = await renderTemplate(send.templateId, {
-      preheader: send.preheader,
-      ...send.data,
-    });
+    const html = await renderTemplate(
+      send.templateId,
+      {
+        preheader: send.preheader,
+        ...send.data,
+      },
+      { locale: send.locale },
+    );
 
     const result = await sendMail({
       to: send.to,
