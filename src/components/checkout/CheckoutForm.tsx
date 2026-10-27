@@ -627,7 +627,7 @@ export function CheckoutForm({
               </span>
               {abroad && method.id !== "pickup" && quote?.status === "ok" && (
                 <span className="font-mono text-[13px] font-semibold whitespace-nowrap text-k-ink">
-                  {formatMoney(quote.grossAmount, locale as Locale)}
+                  {formatMoney(displayedVatMode === "intra_eu_exempt" ? quote.netAmount : quote.grossAmount, locale as Locale)}
                 </span>
               )}
             </label>

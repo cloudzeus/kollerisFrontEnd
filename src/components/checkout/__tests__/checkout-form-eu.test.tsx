@@ -96,4 +96,19 @@ describe("CheckoutForm and EU sales", () => {
     // The displayed VAT mode goes back as a hint (R11-I2).
     expect(html).toMatch(/name="vatModeHint" value="standard"/);
   });
+  it("exempt buyer: the DHL card shows the net price, like the summary (B1)", () => {
+    const base = {
+      international: true,
+      euSales: true,
+      countries: allowedCountries({ EU_SALES_ENABLED: "true" }),
+      destination: { country: "DE", postcode: "10117", city: "Berlin" },
+      initialQuote: { status: "ok", carrier: "DHL", netAmount: 31.84, grossAmount: 39.48, etaDays: "2–3", deliveryBy: "2026-10-30" },
+      euCustomerType: "company",
+    };
+    const exempt = render({ ...base, displayedVatMode: "intra_eu_exempt" });
+    expect(exempt).toContain("31,84");
+    expect(exempt).not.toContain("39,48");
+    const standard = render({ ...base, displayedVatMode: "standard" });
+    expect(standard).toContain("39,48");
+  });
 });
