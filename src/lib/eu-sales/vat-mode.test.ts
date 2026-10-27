@@ -109,3 +109,12 @@ describe("normaliseEuVat (Review Focus 1)", () => {
     expect(normaliseEuVat("", "DE")).toEqual({ ok: false, reason: "invalid_format" });
   });
 });
+
+describe("summaryLineAmount (the checkout list follows the summary)", () => {
+  it("shows the net line for an exempt buyer, the gross line otherwise", async () => {
+    const { summaryLineAmount } = await import("./vat-mode");
+    const line = { lineNet: 100, lineGross: 124 };
+    expect(summaryLineAmount(line, "intra_eu_exempt")).toBe(100);
+    expect(summaryLineAmount(line, "standard")).toBe(124);
+  });
+});

@@ -27,7 +27,7 @@ import { splitCart } from "@/lib/requests/model";
 import { readDestination } from "@/lib/shipping/destination-cookie";
 import { allowedCountries, isDhlDestination, isEuSalesEnabled } from "@/lib/eu-sales/countries";
 import { readEuBuyer } from "@/lib/eu-sales/buyer-cookie";
-import { resolveVatMode } from "@/lib/eu-sales/vat-mode";
+import { resolveVatMode, summaryLineAmount } from "@/lib/eu-sales/vat-mode";
 import type { DeliveryQuoteAnswer } from "@/lib/shipping/actions";
 
 export const dynamic = "force-dynamic";
@@ -305,7 +305,7 @@ export default async function CheckoutPage({
                 brandName: line.brandName,
                 image: line.image,
                 quantity: line.quantity,
-                lineGross: line.lineGross,
+                lineGross: summaryLineAmount(line, vatMode),
               }))}
               postage={totals.postage?.carrier ?? null}
             />
@@ -347,7 +347,7 @@ export default async function CheckoutPage({
                     </span>
                   </span>
                   <span className="shrink-0 font-mono text-[13px] font-semibold text-k-ink">
-                    {formatMoney(line.lineGross, locale)}
+                    {formatMoney(summaryLineAmount(line, vatMode), locale)}
                   </span>
                 </div>
               ))}

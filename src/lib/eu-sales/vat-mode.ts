@@ -21,6 +21,14 @@ import { isDhlDestination } from "@/lib/eu-sales/countries";
 
 export type { VatMode };
 
+/** The amount a checkout line shows: the net for an exempt buyer, as the summary's total does. */
+export function summaryLineAmount(
+  line: { lineNet: number; lineGross: number },
+  vatMode: VatMode,
+): number {
+  return vatMode === "intra_eu_exempt" ? line.lineNet : line.lineGross;
+}
+
 export type CustomerType = "individual" | "company";
 
 export type VatModeInput = {
