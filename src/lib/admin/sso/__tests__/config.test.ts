@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { adminSsoConfig, passwordLoginAllowed, ssoReady } from "../config";
 
 describe("adminSsoConfig", () => {
@@ -8,6 +8,20 @@ describe("adminSsoConfig", () => {
 
   it.each([undefined, "", "garbage", "ONLY2"])("falls back to off for %s", (m) => {
     expect(adminSsoConfig({ ADMIN_SSO: m }).mode).toBe("off");
+  });
+
+  it.each([
+    ["Only", "only"],
+    ["ONLY", "only"],
+    [" Both ", "both"],
+    ["OFF", "off"],
+  ])("reads %j case-insensitively as %s", (raw, mode) => {
+    expect(adminSsoConfig({ ADMIN_SSO: raw }).mode).toBe(mode);
+  });
+
+  it("strips trailing slashes from the issuer", () => {
+    expect(adminSsoConfig({ ADMIN_SSO_ISSUER: "https://x/" }).issuer).toBe("https://x");
+    expect(adminSsoConfig({ ADMIN_SSO_ISSUER: " https://hdctool.wwa.gr// " }).issuer).toBe("https://hdctool.wwa.gr");
   });
 
   it("lower-cases and trims emergency emails", () => {
@@ -58,5 +72,26 @@ describe("ssoReady", () => {
   });
   it.each(["ADMIN_SSO_CLIENT_ID", "ADMIN_SSO_ISSUER", "HDCTOOL_SSO_URL"])("false when %s empty", (k) => {
     expect(ssoReady(adminSsoConfig({ ...full, [k]: "" }))).toBe(false);
+  });
+});
+
+describe("unknown ADMIN_SSO value", () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+    vi.resetModules();
+  });
+
+  it("warns once, without the value, and only for a non-empty unknown value", async () => {
+    vi.resetModules();
+    const { adminSsoConfig: load } = await import("../config");
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    load({});
+    load({ ADMIN_SSO: "only" });
+    load({ ADMIN_SSO: "OFF" });
+    expect(warn).not.toHaveBeenCalled();
+    load({ ADMIN_SSO: "onyl" });
+    load({ ADMIN_SSO: "onyl" });
+    expect(warn).toHaveBeenCalledTimes(1);
+    expect(warn).toHaveBeenCalledWith("admin_sso_bad_mode");
   });
 });

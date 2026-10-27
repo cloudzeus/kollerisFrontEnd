@@ -102,6 +102,8 @@ const ACTION_LABEL: Record<string, string> = {
   "user.password_reset": "Νέος κωδικός",
   "user.unlock": "Ξεκλείδωμα",
   "role.update": "Δικαιώματα ρόλου",
+  sso_login: "Σύνδεση μέσω HDCtool",
+  emergency_login: "Είσοδος έκτακτης ανάγκης",
 };
 
 function roleLabel(role: unknown) {
@@ -139,7 +141,9 @@ function summarise(action: string, diff: Record<string, unknown>): string {
 
 export async function recentUserAudit(limit = 25): Promise<AdminAuditRow[]> {
   const rows = await prisma.adminAuditLog.findMany({
-    where: { entity: { in: ["AdminUser", "AdminRole"] } },
+    // Every SSO login writes a row; left in, they would push real user and
+    // role changes out of this panel within days. The rows stay in the DB.
+    where: { entity: { in: ["AdminUser", "AdminRole"] }, action: { not: "sso_login" } },
     orderBy: { createdAt: "desc" },
     take: limit,
     select: { id: true, createdAt: true, action: true, diff: true, user: { select: { email: true } } },

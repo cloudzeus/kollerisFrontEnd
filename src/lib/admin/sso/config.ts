@@ -11,13 +11,21 @@ export interface AdminSsoConfig {
 
 type Env = Record<string, string | undefined>;
 
+let warnedBadMode = false;
+
 export function adminSsoConfig(env: Env = process.env): AdminSsoConfig {
-  const raw = (env.ADMIN_SSO ?? "").trim();
+  const raw = (env.ADMIN_SSO ?? "").trim().toLowerCase();
   const mode: AdminSsoMode = raw === "both" || raw === "only" ? raw : "off";
+  // A typo must not silently mean "off" while the operator believes "only".
+  if (raw !== "" && raw !== mode && !warnedBadMode) {
+    warnedBadMode = true;
+    console.warn("admin_sso_bad_mode");
+  }
   return {
     mode,
     clientId: (env.ADMIN_SSO_CLIENT_ID ?? "").trim(),
-    issuer: (env.ADMIN_SSO_ISSUER ?? "").trim(),
+    // HDCtool strips the trailing slash too; iss is compared byte for byte.
+    issuer: (env.ADMIN_SSO_ISSUER ?? "").trim().replace(/\/+$/, ""),
     hdctoolUrl: (env.HDCTOOL_SSO_URL ?? "").trim().replace(/\/+$/, ""),
     emergencyEmails: (env.ADMIN_EMERGENCY_EMAILS ?? "")
       .split(",")

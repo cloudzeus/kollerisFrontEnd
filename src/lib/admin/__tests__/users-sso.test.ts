@@ -7,6 +7,7 @@ const h = vi.hoisted(() => ({
   count: vi.fn(async () => 1),
   groupBy: vi.fn(async () => []),
   auditCreate: vi.fn(async () => ({})),
+  auditFindMany: vi.fn(async (): Promise<unknown[]> => []),
   deleteMany: vi.fn(async () => ({ count: 0 })),
 }));
 
@@ -16,11 +17,11 @@ vi.mock("@/lib/prisma", () => ({
   prisma: {
     adminUser: { findUnique: h.findUnique, findMany: h.findMany, update: h.update, count: h.count },
     loginAttempt: { groupBy: h.groupBy, deleteMany: h.deleteMany },
-    adminAuditLog: { create: h.auditCreate },
+    adminAuditLog: { create: h.auditCreate, findMany: h.auditFindMany },
   },
 }));
 
-import { listAdminUsers, resetAdminPassword, updateAdminUser } from "@/lib/admin/users";
+import { listAdminUsers, recentUserAudit, resetAdminPassword, updateAdminUser } from "@/lib/admin/users";
 
 const actor = { id: "actor", email: "a@x.gr" };
 const managed = {
@@ -70,5 +71,23 @@ describe("users managed by HDCtool", () => {
     const rows = await listAdminUsers("actor");
     expect(rows.map((r) => r.managedByHdctool)).toEqual([true, false]);
     expect(rows[0]).not.toHaveProperty("hdctoolUserId");
+  });
+});
+
+describe("recentUserAudit and SSO audit rows", () => {
+  it("leaves sso_login rows out of the users-screen panel", async () => {
+    await recentUserAudit(25);
+    const where = (h.auditFindMany.mock.calls[0] as unknown as [{ where: Record<string, unknown> }])[0].where;
+    expect(where).toEqual({ entity: { in: ["AdminUser", "AdminRole"] }, action: { not: "sso_login" } });
+  });
+
+  it("labels sso_login and emergency_login in Greek", async () => {
+    const at = new Date("2026-10-27T10:00:00Z");
+    h.auditFindMany.mockResolvedValueOnce([
+      { id: "1", createdAt: at, action: "sso_login", diff: {}, user: { email: "m@x.gr" } },
+      { id: "2", createdAt: at, action: "emergency_login", diff: null, user: { email: "b@x.gr" } },
+    ]);
+    const rows = await recentUserAudit(25);
+    expect(rows.map((r) => r.action)).toEqual(["Σύνδεση μέσω HDCtool", "Είσοδος έκτακτης ανάγκης"]);
   });
 });

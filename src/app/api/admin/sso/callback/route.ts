@@ -20,7 +20,8 @@ const FAILURE_PATH = "/admin/login?error=sso";
  * Locations are relative, so they stay on the host the browser used.
  */
 export async function POST(request: Request) {
-  if (!ssoReady(adminSsoConfig())) return new Response(null, { status: 404 });
+  const cfg = adminSsoConfig();
+  if (!ssoReady(cfg)) return new Response(null, { status: 404 });
 
   let token: string | null = null;
   try {
@@ -37,7 +38,7 @@ export async function POST(request: Request) {
   jar.set(cleared.name, cleared.value, cleared.options);
 
   try {
-    return await finish(request, token, cookie);
+    return await finish(request, token, cookie, cfg.emergencyEmails);
   } catch (error) {
     // Spec §3.4: the cookie is cleared «always» — an error thrown out of the
     // handler would skip the cookie merge and show a raw 500.
@@ -46,7 +47,12 @@ export async function POST(request: Request) {
   }
 }
 
-async function finish(request: Request, token: string | null, cookie: string | null): Promise<Response> {
+async function finish(
+  request: Request,
+  token: string | null,
+  cookie: string | null,
+  emergencyEmails: string[],
+): Promise<Response> {
   const result = await completeSso(
     { token, cookie, ip: clientIp(request.headers) },
     {
@@ -54,6 +60,7 @@ async function finish(request: Request, token: string | null, cookie: string | n
       consumeJti,
       linkAdminUser,
       issueTicket,
+      emergencyEmails,
       loginAttempt: prisma.loginAttempt,
       maxAttempts: MAX_ATTEMPTS,
       lockoutMinutes: LOCKOUT_MINUTES,

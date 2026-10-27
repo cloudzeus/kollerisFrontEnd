@@ -133,6 +133,7 @@ function makeDeps(overrides: Partial<CompleteSsoDeps> = {}) {
         return data;
       }),
     },
+    emergencyEmails: ["boss@example.test"],
     maxAttempts: 5,
     lockoutMinutes: 15,
     now: () => now,
@@ -149,10 +150,10 @@ describe("completeSso", () => {
     env = makeDeps();
   });
 
-  it("missing cookie → no_state, recorded as a failure", async () => {
+  it("missing cookie → no_state, not counted towards the rate limit", async () => {
     const r = await completeSso({ token: "t", cookie: null, ip: "1.2.3.4" }, env.deps);
     expect(r).toEqual({ ok: false, reason: "no_state" });
-    expect(env.attempts).toEqual([expect.objectContaining({ identifier: "sso:1.2.3.4", successful: false })]);
+    expect(env.attempts).toEqual([]);
     expect(env.deps.verify).not.toHaveBeenCalled();
   });
 
@@ -161,15 +162,28 @@ describe("completeSso", () => {
       ok: false,
       reason: "no_state",
     });
-    expect(env.attempts[0].identifier).toBe("sso:unknown");
+    expect(env.attempts).toEqual([]);
   });
 
-  it("missing token → bad_signature without verifying", async () => {
-    expect(await completeSso({ token: "", cookie: cookieFor(), ip: "1.2.3.4" }, env.deps)).toEqual({
+  it("missing token → bad_signature without verifying, counted", async () => {
+    expect(await completeSso({ token: "", cookie: cookieFor(), ip: null }, env.deps)).toEqual({
       ok: false,
       reason: "bad_signature",
     });
     expect(env.deps.verify).not.toHaveBeenCalled();
+    expect(env.attempts).toEqual([expect.objectContaining({ identifier: "sso:unknown", successful: false })]);
+  });
+
+  it.each(["bad_signature", "bad_claims", "bad_role"] as const)("verify %s → one failure row", async (reason) => {
+    const { deps, attempts } = makeDeps({ verify: vi.fn(async () => ({ ok: false as const, reason })) });
+    expect(await completeSso({ token: "tok", cookie: cookieFor(), ip: "1.2.3.4" }, deps)).toEqual({ ok: false, reason });
+    expect(attempts).toEqual([expect.objectContaining({ identifier: "sso:1.2.3.4", successful: false })]);
+  });
+
+  it.each(["expired", "state_mismatch", "jwks_unavailable"] as const)("verify %s → no failure row", async (reason) => {
+    const { deps, attempts } = makeDeps({ verify: vi.fn(async () => ({ ok: false as const, reason })) });
+    expect(await completeSso({ token: "tok", cookie: cookieFor(), ip: "1.2.3.4" }, deps)).toEqual({ ok: false, reason });
+    expect(attempts).toEqual([]);
   });
 
   it("a valid token → ok with a ticket and returnTo; success is not recorded", async () => {
@@ -188,7 +202,7 @@ describe("completeSso", () => {
     const r = await completeSso({ token: "tok", cookie: cookieFor(), ip: "1.2.3.4" }, env.deps);
     expect(r).toEqual({ ok: false, reason: "replay" });
     expect(env.deps.linkAdminUser).toHaveBeenCalledTimes(1);
-    expect(env.attempts).toHaveLength(1);
+    expect(env.attempts).toEqual([]);
   });
 
   it("passes through the verify reason", async () => {
@@ -198,7 +212,7 @@ describe("completeSso", () => {
       reason: "expired",
     });
     expect(deps.consumeJti).not.toHaveBeenCalled();
-    expect(attempts).toHaveLength(1);
+    expect(attempts).toEqual([]);
   });
 
   it("passes through the link reason", async () => {
@@ -210,19 +224,46 @@ describe("completeSso", () => {
       reason: "disabled_locally",
     });
     expect(deps.issueTicket).not.toHaveBeenCalled();
-    expect(attempts).toHaveLength(1);
+    expect(attempts).toEqual([]);
   });
 
-  it("5 failures from one IP in 15 min → rate_limited before verifying, and recorded", async () => {
-    for (let i = 0; i < 5; i++) await completeSso({ token: "t", cookie: null, ip: "9.9.9.9" }, env.deps);
+  it("an emergency address → emergency_account, never linked, not counted", async () => {
+    const { deps, attempts } = makeDeps({
+      verify: vi.fn(async () => ({ ok: true as const, claims: { ...claims, email: "boss@example.test" } })),
+    });
+    expect(await completeSso({ token: "tok", cookie: cookieFor(), ip: "1.2.3.4" }, deps)).toEqual({
+      ok: false,
+      reason: "emergency_account",
+    });
+    expect(deps.consumeJti).toHaveBeenCalledTimes(1);
+    expect(deps.linkAdminUser).not.toHaveBeenCalled();
+    expect(deps.issueTicket).not.toHaveBeenCalled();
+    expect(attempts).toEqual([]);
+  });
+
+  it("a non-emergency address proceeds to linking", async () => {
+    const r = await completeSso({ token: "tok", cookie: cookieFor(), ip: "1.2.3.4" }, env.deps);
+    expect(r.ok).toBe(true);
+    expect(env.deps.linkAdminUser).toHaveBeenCalledWith(claims);
+  });
+
+  it("5 counted failures from one IP in 15 min → rate_limited before verifying, without a new row", async () => {
+    for (let i = 0; i < 5; i++) await completeSso({ token: "", cookie: cookieFor(), ip: "9.9.9.9" }, env.deps);
     expect(env.attempts).toHaveLength(5);
     const r = await completeSso({ token: "tok", cookie: cookieFor(), ip: "9.9.9.9" }, env.deps);
     expect(r).toEqual({ ok: false, reason: "rate_limited" });
     expect(env.deps.verify).not.toHaveBeenCalled();
-    expect(env.attempts).toHaveLength(6);
+    // The lockout does not extend itself: retries while locked write nothing.
+    expect(env.attempts).toHaveLength(5);
     expect(env.attempts.every((a) => a.identifier === "sso:9.9.9.9" && !a.successful)).toBe(true);
     // Another IP is unaffected.
     expect((await completeSso({ token: "tok", cookie: cookieFor(), ip: "8.8.8.8" }, env.deps)).ok).toBe(true);
+  });
+
+  it("uncounted failures never trip the limit", async () => {
+    for (let i = 0; i < 10; i++) await completeSso({ token: "t", cookie: null, ip: "9.9.9.9" }, env.deps);
+    expect(env.attempts).toEqual([]);
+    expect((await completeSso({ token: "tok", cookie: cookieFor(), ip: "9.9.9.9" }, env.deps)).ok).toBe(true);
   });
 
   it("only counts failures inside the window", async () => {

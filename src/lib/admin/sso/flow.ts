@@ -15,7 +15,21 @@ const COOKIE_MAX_AGE_S = 300;
 const DEFAULT_RETURN = "/admin";
 const MAX_COOKIE_LENGTH = 2048;
 
-export type SsoFailure = SsoRejection | "no_state" | "replay" | "rate_limited" | Extract<LinkResult, { ok: false }>["reason"];
+export type SsoFailure =
+  | SsoRejection
+  | "no_state"
+  | "replay"
+  | "rate_limited"
+  | "emergency_account"
+  | Extract<LinkResult, { ok: false }>["reason"];
+
+/**
+ * Only failures an attacker can produce on purpose count towards the per-IP
+ * limit. Staff behind one office NAT routinely hit the others (a slow HDCtool
+ * login, Back to the auto-POST page, a JWKS hiccup) and must not lock each
+ * other out.
+ */
+const COUNTED_FAILURES: ReadonlySet<SsoFailure> = new Set<SsoFailure>(["bad_signature", "bad_claims", "bad_role"]);
 
 export type StateCookie = { state: string; returnTo: string };
 
@@ -87,6 +101,8 @@ export interface CompleteSsoDeps {
   consumeJti: (jti: string, expiresAt: Date) => Promise<boolean>;
   linkAdminUser: (claims: SsoClaims) => Promise<LinkResult>;
   issueTicket: (userId: string) => Promise<string>;
+  /** Lower-cased break-glass addresses: never an SSO identity (spec §4.3). */
+  emergencyEmails: string[];
   loginAttempt: LoginAttemptStore;
   maxAttempts: number;
   lockoutMinutes: number;
@@ -97,7 +113,8 @@ export type CompleteSsoResult = { ok: true; ticket: string; returnTo: string } |
 
 /**
  * Spec §3.4, with the per-IP rate limit of the password login in front.
- * The first failure stops the flow; every failure counts towards the limit.
+ * The first failure stops the flow. Only COUNTED_FAILURES are recorded, and
+ * nothing is recorded while locked, so the lockout cannot keep extending itself.
  */
 export async function completeSso(
   input: { token: string | null; cookie: string | null; ip: string | null },
@@ -107,7 +124,9 @@ export async function completeSso(
   const identifier = `sso:${input.ip ?? "unknown"}`;
 
   const fail = async (reason: SsoFailure): Promise<CompleteSsoResult> => {
-    await deps.loginAttempt.create({ data: { identifier, successful: false, ipAddress: input.ip } });
+    if (COUNTED_FAILURES.has(reason)) {
+      await deps.loginAttempt.create({ data: { identifier, successful: false, ipAddress: input.ip } });
+    }
     return { ok: false, reason };
   };
 
@@ -115,7 +134,7 @@ export async function completeSso(
   const failures = await deps.loginAttempt.count({
     where: { identifier, successful: false, attemptedAt: { gte: since } },
   });
-  if (failures >= deps.maxAttempts) return fail("rate_limited");
+  if (failures >= deps.maxAttempts) return { ok: false, reason: "rate_limited" };
 
   const cookie = decodeStateCookie(input.cookie);
   if (!cookie) return fail("no_state");
@@ -131,6 +150,11 @@ export async function completeSso(
   const JTI_RETENTION_AFTER_EXP_S = 60;
   const jtiExpiresAt = new Date((claims.exp + JTI_RETENTION_AFTER_EXP_S) * 1000);
   if (!(await deps.consumeJti(claims.jti, jtiExpiresAt))) return fail("replay");
+
+  // Break-glass accounts stay password-only: linking would let HDCtool re-role
+  // them and would block their password reset. Checked on the token's email,
+  // so a rule-1 email change onto an emergency address is refused too.
+  if (deps.emergencyEmails.includes(claims.email.toLowerCase())) return fail("emergency_account");
 
   const linked = await deps.linkAdminUser(claims);
   if (!linked.ok) return fail(linked.reason);
