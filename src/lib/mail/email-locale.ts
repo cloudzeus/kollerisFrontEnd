@@ -48,7 +48,7 @@ export function formatMoney(locale: EmailLocale, value: unknown): string {
 
 /** «04.09.2026, 10:12» (Athens, 24 h) — the same shape in both languages. */
 export function formatStamp(locale: EmailLocale, date: Date, withTime = true): string {
-  const parts = new Intl.DateTimeFormat(locale === "en" ? "en-GB" : "el-GR", {
+  const format = new Intl.DateTimeFormat(locale === "en" ? "en-GB" : "el-GR", {
     day: "2-digit",
     month: "2-digit",
     year: "numeric",
@@ -56,10 +56,13 @@ export function formatStamp(locale: EmailLocale, date: Date, withTime = true): s
     timeZone: "Europe/Athens",
     /* 24 h, explicitly: el-GR otherwise gives «03:01 μ.μ.», and dropping the day period turned 15:01 into 03:01. */
     hourCycle: "h23",
-  }).formatToParts(date);
+  });
+  /* Date only (postage correction) keeps the Intl form it always had: «04/09/2026». */
+  if (!withTime) return format.format(date);
+  const parts = format.formatToParts(date);
   const get = (type: string) => parts.find((p) => p.type === type)?.value ?? "";
   const day = `${get("day")}.${get("month")}.${get("year")}`;
-  return withTime ? `${day}, ${get("hour")}:${get("minute")}` : day;
+  return `${day}, ${get("hour")}:${get("minute")}`;
 }
 
 const SHIPPING_EN: Record<string, string> = {

@@ -21,7 +21,7 @@ import { sendPaymentFailedEmail } from "@/lib/mail/payment-failed-email";
 import { sendPostageCorrectionEmail } from "@/lib/mail/postage-correction-email";
 import { sendReviewRequestEmail } from "@/lib/mail/review-request-email";
 import { sendRequestEmail } from "@/lib/mail/request-emails";
-import { emailLocale, isForeignDestination } from "@/lib/mail/email-locale";
+import { emailLocale, formatStamp, isForeignDestination } from "@/lib/mail/email-locale";
 import { renderTemplate } from "@/lib/mail/templates";
 
 /*
@@ -132,6 +132,19 @@ describe("emailLocale", () => {
   it("an explicit locale wins, both ways", () => {
     expect(emailLocale({ shipCountry: "DE" }, "el")).toBe("el");
     expect(emailLocale({ shipCountry: "GR" }, "en")).toBe("en");
+  });
+});
+
+describe("formatStamp", () => {
+  const when = new Date("2026-09-04T12:01:00Z"); // 15:01 in Athens
+  it("Greek date-only keeps the old Intl form (postage correction)", () => {
+    expect(formatStamp("el", when, false)).toBe(
+      new Intl.DateTimeFormat("el-GR", { day: "2-digit", month: "2-digit", year: "numeric", timeZone: "Europe/Athens" }).format(when),
+    );
+    expect(formatStamp("el", when, false)).toBe("04/09/2026");
+  });
+  it("with time: dotted day and 24 h", () => {
+    expect(formatStamp("el", when)).toBe("04.09.2026, 15:01");
   });
 });
 
