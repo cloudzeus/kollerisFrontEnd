@@ -52,7 +52,12 @@ model AdminUser {
   email        String    @unique
   name         String?
   /// argon2id hash. Never a plaintext or reversible value.
-  passwordHash String
+  ///
+  /// Null for accounts that sign in only through HDCtool SSO. A null hash can
+  /// never authenticate with a password.
+  passwordHash String?
+  /// HDCtool user id (`sub` of the SSO token). Set on first SSO sign-in.
+  hdctoolUserId String? @unique
   role         AdminRole @default(EDITOR)
   isActive     Boolean   @default(true)
   lastLoginAt  DateTime?
@@ -67,6 +72,18 @@ model AdminUser {
 
   @@index([isActive])
   @@map("admin_users")
+}
+
+/// Single-use markers for HDCtool SSO tokens (`jti`) and the short-lived
+/// tickets issued after a verified token (`t:` prefix, with `userId` set).
+/// Rows past `expiresAt` are garbage and may be deleted at any time.
+model AdminSsoJti {
+  jti       String   @id @db.VarChar(191)
+  userId    String?  @db.VarChar(191)
+  expiresAt DateTime
+
+  @@index([expiresAt])
+  @@map("admin_sso_jti")
 }
 
 /// What a role may do, when it differs from the defaults in `src/lib/rbac.ts`.

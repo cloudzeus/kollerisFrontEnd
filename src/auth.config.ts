@@ -9,7 +9,7 @@ import type { NextAuthConfig } from "next-auth";
  * database — lives in auth.ts and is only used in the Node runtime.
  */
 export const authConfig = {
-  session: { strategy: "jwt", maxAge: 60 * 60 * 8 }, // 8h staff session
+  session: { strategy: "jwt", maxAge: 60 * 60 * 12 }, // 12h staff session (spec §3.4)
   pages: {
     signIn: "/admin/login",
     error: "/admin/login",

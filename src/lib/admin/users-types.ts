@@ -13,6 +13,8 @@ export type AdminUserRow = {
   recentFailures: number;
   locked: boolean;
   isSelf: boolean;
+  /** Signs in through HDCtool: the role comes from there and there is no password. */
+  managedByHdctool: boolean;
 };
 
 export type AdminAuditRow = {
