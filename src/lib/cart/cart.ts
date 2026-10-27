@@ -404,6 +404,9 @@ export async function computeTotals(
           chargeableKg: quote.chargeableKg,
           estimated: quote.estimated,
           carrier: shipping.carrier,
+          ...(isDhlQuote(quote) && quote.estimatedDeliveryDate
+            ? { deliveryBy: quote.estimatedDeliveryDate.slice(0, 10) }
+            : {}),
         }
       : null,
     unserviceable,

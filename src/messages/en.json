@@ -553,7 +553,21 @@
       "split_request": "Made to order: {items}, indicative value {value} — nothing to pay now; you will receive an offer within 24 hours with the final price and the shipping of the second delivery.",
       "together_line": "Nothing to pay now — the whole basket ({items}, indicative value {value}) as a request, one delivery, shipping in the offer.",
       "pay_now_button": "Pay {amount}",
-      "order_now_button": "Place order · {amount}"
+      "order_now_button": "Place order · {amount}",
+      "customer_type": "Buying as",
+      "customer_individual": "Private individual",
+      "customer_company": "Company",
+      "customer_type_required": "Choose private individual or company",
+      "customer_individual_help": "The order is charged 24% VAT.",
+      "company_name": "Company name",
+      "vat_number_eu": "VAT number with country prefix",
+      "vat_check": "Check",
+      "vat_invalid_format": "This VAT number does not have a valid format for the country you chose",
+      "vat_exempt_note": "Intra-community supply — VAT exempt (reverse charge, Article 138 of Directive 2006/112/EC)",
+      "vat_retry": "Try again",
+      "vat_help": "With the {prefix} prefix. Checked in VIES; with a valid VAT number the order is VAT-free.",
+      "dhl_meta_by": "DHL Express · delivery by {date}",
+      "ship_zone_eu_sales": "We ship to Greece and the EU."
     },
     "page": {
       "kalathi": "CART",
@@ -574,7 +588,9 @@
       "katopin_badge": "Made to order",
       "request_totals_note": "Made-to-order items are priced in the offer you will receive within 24 hours; the amounts here are indicative.",
       "dhl_line": "DHL Express · {country} · delivery in {eta} working days",
-      "quote_unavailable": "Shipping could not be calculated — please try again"
+      "quote_unavailable": "Shipping could not be calculated — please try again",
+      "eu_exempt_note": "Intra-community supply — VAT exempt (reverse charge, Article 138 of Directive 2006/112/EC)",
+      "choris_fpa": "Excl. VAT"
     },
     "AddressAutocomplete": {
       "voitheia": "Type the street and pick from the list. The postcode fills in too."

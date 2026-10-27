@@ -1225,3 +1225,27 @@
   0%, 100% { opacity: 1; transform: scale(1); }
   50% { opacity: 0.45; transform: scale(0.82); }
 }
+
+/* ─────────────────────────────────────────────────────────────────────────
+   EU sales at checkout (EU_SALES_ENABLED) — fluid, rem-based type.
+
+   The new consumer/company and VAT-check UI uses these tokens rather than
+   fixed px: desktop (1280px) is the design's size, phones (360px) one pixel
+   larger for small UI text, linear in between. And on phones every field of
+   the EU-sales form is at least 1rem, so iOS never zooms on focus. Scoped to
+   `[data-eu-sales]`, which the form carries only with the flag on — with it
+   off the checkout renders exactly as before.
+   ───────────────────────────────────────────────────────────────────────── */
+:root {
+  --fs-11: clamp(0.6875rem, 0.7745rem - 0.1087vw, 0.75rem);
+  --fs-11-5: clamp(0.7188rem, 0.8057rem - 0.1087vw, 0.7813rem);
+  --fs-13: clamp(0.8125rem, 0.8995rem - 0.1087vw, 0.875rem);
+}
+
+@media (max-width: 767px) {
+  [data-eu-sales] input:not([type="checkbox"]):not([type="radio"]),
+  [data-eu-sales] select,
+  [data-eu-sales] textarea {
+    font-size: max(1rem, 1em);
+  }
+}

@@ -1,6 +1,6 @@
 import "server-only";
 import { cookies } from "next/headers";
-import { isInternationalShippingEnabled } from "@/lib/shipping/flag";
+import { allowedCountries, hasCountrySelector } from "@/lib/eu-sales/countries";
 import { normalizeCountry, validateCountryPostcode } from "@/lib/shipping/countries";
 
 /**
@@ -38,9 +38,12 @@ export function parseDestination(value: string | null | undefined): StoredDestin
 }
 
 export async function readDestination(): Promise<StoredDestination | null> {
-  if (!isInternationalShippingEnabled()) return null;
+  // A selector exists with INTERNATIONAL_SHIPPING_ENABLED or EU_SALES_ENABLED.
+  if (!hasCountrySelector()) return null;
   const store = await cookies();
-  return parseDestination(store.get(DESTINATION_COOKIE)?.value);
+  const destination = parseDestination(store.get(DESTINATION_COOKIE)?.value);
+  // A country remembered under the other switch (Cyprus) is not on offer now.
+  return destination && allowedCountries().includes(destination.country) ? destination : null;
 }
 
 /** Null forgets it — the customer chose Greece again. */

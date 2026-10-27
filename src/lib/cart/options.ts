@@ -164,6 +164,8 @@ export type CartTotals = {
     chargeableKg: number;
     estimated: boolean;
     carrier: string | null;
+    /** DHL's delivery day (yyyy-mm-dd), when it gave one. Absent for ACS. */
+    deliveryBy?: string;
   } | null;
   /**
    * ACS has no station for the postcode: we do not deliver there. The courier

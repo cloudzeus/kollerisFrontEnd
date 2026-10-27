@@ -6,7 +6,7 @@ import { routing, type Locale } from "@/i18n/routing";
 import { getCart } from "@/lib/cart/cart";
 import { isUnserviceable, quoteLivePostage } from "@/lib/shipping/acs-live";
 import { validatePostcode } from "@/lib/shipping/destination";
-import { normalizeCountry, validateCountryPostcode } from "@/lib/shipping/countries";
+import { validateCountryPostcode } from "@/lib/shipping/countries";
 import {
   isDhlQuote,
   isQuoteUnavailable,
@@ -15,7 +15,7 @@ import {
   type DhlRefusalCode,
 } from "@/lib/shipping/courier-quote";
 import { writeDestination } from "@/lib/shipping/destination-cookie";
-import { isInternationalShippingEnabled } from "@/lib/shipping/flag";
+import { allowedCountries, hasCountrySelector } from "@/lib/eu-sales/countries";
 import { vatRateForDestination } from "@/lib/shipping/vat";
 
 /**
@@ -61,6 +61,8 @@ export type DeliveryQuoteAnswer =
       grossAmount: number;
       /** «2–3» working days. */
       etaDays: string;
+      /** DHL's own delivery date (yyyy-mm-dd) when it gave one — «παράδοση έως …». */
+      deliveryBy?: string | null;
     }
   | { status: "refused"; code: DhlRefusalCode | "unserviceable" }
   | { status: "unavailable" }
@@ -69,7 +71,8 @@ export type DeliveryQuoteAnswer =
   | { status: "disabled" };
 
 export async function quoteDelivery(input: unknown): Promise<DeliveryQuoteAnswer> {
-  if (!isInternationalShippingEnabled()) return { status: "disabled" };
+  // A selector exists with INTERNATIONAL_SHIPPING_ENABLED or EU_SALES_ENABLED.
+  if (!hasCountrySelector()) return { status: "disabled" };
 
   const parsed = z
     .object({
@@ -81,8 +84,8 @@ export async function quoteDelivery(input: unknown): Promise<DeliveryQuoteAnswer
     .safeParse(input);
   if (!parsed.success) return { status: "refused", code: "invalid_postcode" };
 
-  const country = normalizeCountry(parsed.data.country, true);
-  if (!country) return { status: "refused", code: "unsupported_country" };
+  const country = parsed.data.country.toUpperCase() || "GR";
+  if (!allowedCountries().includes(country)) return { status: "refused", code: "unsupported_country" };
   if (country === "GR") {
     // Home: the ACS check above answers, and the page goes back to Greek pricing.
     await writeDestination(null);
@@ -130,5 +133,8 @@ export async function quoteDelivery(input: unknown): Promise<DeliveryQuoteAnswer
     netAmount,
     grossAmount: Math.round(netAmount * (1 + vatRate / 100) * 100) / 100,
     etaDays: quote.etaDays,
+    ...(isDhlQuote(quote) && quote.estimatedDeliveryDate
+      ? { deliveryBy: quote.estimatedDeliveryDate.slice(0, 10) }
+      : {}),
   };
 }

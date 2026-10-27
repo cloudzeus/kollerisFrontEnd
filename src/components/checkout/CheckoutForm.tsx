@@ -4,7 +4,7 @@ import { useTranslations } from "next-intl";
 import { useActionState, useRef, useState, useTransition } from "react";
 import { CompanyVatFields } from "@/components/account/CompanyVatFields";
 import { placeOrder, type CheckoutState } from "@/lib/checkout/actions";
-import { PAYMENT_METHODS, SHIPPING_METHODS, shippingMethodsFor } from "@/lib/cart/options";
+import { DHL_SHIPPING_METHOD, PAYMENT_METHODS, SHIPPING_METHODS, shippingMethodsFor } from "@/lib/cart/options";
 import { setCartOptions } from "@/lib/cart/actions";
 import { AddressAutocomplete } from "@/components/checkout/AddressAutocomplete";
 import { STOCK_HOLD_HOURS } from "@/lib/orders/hold";
@@ -16,6 +16,10 @@ import { formatMoney } from "@/lib/format";
 import type { Locale } from "@/i18n/routing";
 import type { CartSplitKind, RequestMode } from "@/lib/requests/model";
 import { useSplitCheckout } from "@/components/checkout/SplitCheckout";
+import { EuBuyerFields } from "@/components/checkout/EuBuyerFields";
+import { countryOptionsFor, isDhlDestination } from "@/lib/eu-sales/countries";
+import { setCustomerTypeAction } from "@/lib/eu-sales/check-vat-action";
+import type { CustomerType } from "@/lib/eu-sales/vat-mode";
 
 /**
  * Checkout form.
@@ -38,6 +42,9 @@ export function CheckoutForm({
   international = false,
   destination = null,
   initialQuote = null,
+  euSales = false,
+  countries,
+  euCustomerType = null,
 }: {
   locale: string;
   postcode: string;
@@ -83,6 +90,17 @@ export function CheckoutForm({
   destination?: { country: string; postcode: string; city: string } | null;
   /** The page's own quote for `destination`, so the form opens priced. */
   initialQuote?: DeliveryQuoteAnswer | null;
+  /**
+   * EU_SALES_ENABLED, read by the page (intra-EU sales design §3). Off: the
+   * form exactly as it was. On: a DHL destination gets «Ιδιώτης / Εταιρεία»
+   * with the VIES check instead of «Θέλω τιμολόγιο», DHL only, and a plain
+   * address with no suggestions.
+   */
+  euSales?: boolean;
+  /** The countries on offer (`allowedCountries`), read with `euSales` only. */
+  countries?: readonly string[];
+  /** The consumer/company choice remembered from this visit. */
+  euCustomerType?: CustomerType | null;
 }) {
   const t = useTranslations("checkout.CheckoutForm");
   const [state, action, pending] = useActionState<CheckoutState, FormData>(placeOrder, {});
@@ -148,7 +166,12 @@ export function CheckoutForm({
     international && destination ? destination.country : "GR",
   );
   const abroad = international && country !== "GR";
-  const methods = international ? shippingMethodsFor(country) : SHIPPING_METHODS;
+  /* EU sales to a DHL destination: consumer/company, VIES, DHL only. */
+  const euBuyer = euSales && isDhlDestination(country);
+  const [customerType, setCustomerType] = useState<CustomerType | null>(euCustomerType);
+  const methodsFor = (c: string) =>
+    euSales && isDhlDestination(c) ? [DHL_SHIPPING_METHOD] : shippingMethodsFor(c);
+  const methods = euBuyer ? [DHL_SHIPPING_METHOD] : international ? shippingMethodsFor(country) : SHIPPING_METHODS;
   /* A choice that does not fit the country (ACS Express to Italy) falls to the first that does. */
   const chosen = methods.some((m) => m.id === shipping) ? shipping : methods[0].id;
   const [quote, setQuote] = useState<DeliveryQuoteAnswer | { status: "loading" } | null>(
@@ -274,6 +297,7 @@ export function CheckoutForm({
     <form
       action={action}
       className="flex flex-col gap-8"
+      data-eu-sales={euSales ? "" : undefined}
       onChange={(e) => {
         const target = e.target as unknown as HTMLInputElement;
         const data = new FormData(e.currentTarget);
@@ -416,16 +440,23 @@ export function CheckoutForm({
               onChange={(e) => {
                 const next = e.target.value;
                 setCountry(next);
-                const offered = shippingMethodsFor(next);
+                const offered = methodsFor(next);
                 if (!offered.some((m) => m.id === shipping)) {
                   setShipping(offered[0].id);
                   remember({ shippingMethod: offered[0].id });
+                }
+                /* A VIES answer is for one country: forget it, and the summary
+                   charges VAT again until the new number is checked. */
+                if (euSales && customerType) {
+                  startTransition(async () => {
+                    await setCustomerTypeAction({ customerType });
+                  });
                 }
               }}
               aria-invalid={state.fieldErrors?.shipCountry ? true : undefined}
               className="t-input h-12 w-full border border-k-line-2 bg-white px-3.5 text-k-ink outline-none focus:border-k-ink"
             >
-              {countryOptions(locale).map((option) => (
+              {(euSales && countries ? countryOptionsFor(countries, locale) : countryOptions(locale)).map((option) => (
                 <option key={option.code} value={option.code}>
                   {option.name}
                 </option>
@@ -440,19 +471,37 @@ export function CheckoutForm({
         <div className="grid gap-4 sm:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
           {/* Suggestions fill the postcode as well, which is the field that
               decides the ACS zone and the one customers most often get wrong. */}
-          <AddressAutocomplete
-            label={t("odos_kai_arithmos")}
-            name="shipLine1"
-            defaultValue={prefill?.shipLine1}
-            error={fieldError("shipLine1")}
-            required
-          />
+          {euBuyer ? (
+            /* Abroad with EU sales: no address suggestions (MapTiler is Greek). */
+            <Field
+              label={t("odos_kai_arithmos")}
+              name="shipLine1"
+              autoComplete="address-line1"
+              defaultValue={prefill?.shipLine1}
+              error={fieldError("shipLine1")}
+              required
+            />
+          ) : (
+            <AddressAutocomplete
+              label={t("odos_kai_arithmos")}
+              name="shipLine1"
+              defaultValue={prefill?.shipLine1}
+              error={fieldError("shipLine1")}
+              required
+            />
+          )}
           <Field label={t("orofos_koydoyni")} name="shipLine2" defaultValue={prefill?.shipLine2} autoComplete="address-line2" error={fieldError("shipLine2")} invalid={addressErrors.shipLine2} />
         </div>
 
         {/* Νομός and περιφέρεια are two administrative levels, so one field
             could only ever hold one of them. Both are filled by a suggestion. */}
-        <div className="mt-4 grid gap-4 sm:grid-cols-[110px_minmax(0,1fr)] lg:grid-cols-[110px_repeat(3,minmax(0,1fr))]">
+        <div
+          className={
+            euBuyer
+              ? "mt-4 grid gap-4 sm:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]"
+              : "mt-4 grid gap-4 sm:grid-cols-[110px_minmax(0,1fr)] lg:grid-cols-[110px_repeat(3,minmax(0,1fr))]"
+          }
+        >
           <Field
             label={t("t_k")}
             name="shipPostcode"
@@ -476,13 +525,33 @@ export function CheckoutForm({
             invalid={addressErrors.shipCity}
             required
           />
-          <Field label={t("nomos")} name="shipRegion" defaultValue={prefill?.shipRegion} autoComplete="address-level1" error={fieldError("shipRegion")} invalid={addressErrors.shipRegion} />
-          <Field label={t("perifereia")} name="shipAdminRegion" defaultValue={prefill?.shipAdminRegion} error={fieldError("shipAdminRegion")} invalid={addressErrors.shipAdminRegion} />
+          {/* Νομός and περιφέρεια are Greek administrative levels: not asked abroad with EU sales. */}
+          {!euBuyer && (
+            <>
+              <Field label={t("nomos")} name="shipRegion" defaultValue={prefill?.shipRegion} autoComplete="address-level1" error={fieldError("shipRegion")} invalid={addressErrors.shipRegion} />
+              <Field label={t("perifereia")} name="shipAdminRegion" defaultValue={prefill?.shipAdminRegion} error={fieldError("shipAdminRegion")} invalid={addressErrors.shipAdminRegion} />
+            </>
+          )}
         </div>
         <p className="mt-2.5 text-[11.5px] font-semibold text-k-text-3">
-          {international ? t("ship_zone_eu") : t("ship_zone")}
+          {international
+            ? euSales && countries && !countries.includes("CY")
+              ? t("ship_zone_eu_sales")
+              : t("ship_zone_eu")
+            : t("ship_zone")}
         </p>
 
+        {euBuyer ? (
+          <EuBuyerFields
+            key={country}
+            country={country}
+            locale={locale}
+            type={customerType}
+            onTypeChange={setCustomerType}
+            fieldErrors={state.fieldErrors}
+          />
+        ) : (
+        <>
         <label className="mt-5 flex cursor-pointer items-center gap-3">
           <input
             type="checkbox"
@@ -502,6 +571,8 @@ export function CheckoutForm({
                 customers, then SoftOne, then the AADE registry. */}
             <CompanyVatFields required fieldErrors={state.fieldErrors} />
           </div>
+        )}
+        </>
         )}
       </Step>
 
@@ -533,7 +604,9 @@ export function CheckoutForm({
                   {abroad && method.id !== "pickup"
                     ? quote?.status === "ok"
                       ? method.id === "dhl"
-                        ? t("dhl_meta", { eta: quote.etaDays })
+                        ? euSales && quote.deliveryBy
+                          ? t("dhl_meta_by", { date: deliveryDate(quote.deliveryBy, locale) })
+                          : t("dhl_meta", { eta: quote.etaDays })
                         : method.meta
                       : quote?.status === "loading"
                         ? t("quoting")
@@ -691,6 +764,18 @@ export function CheckoutForm({
       </Step>
     </form>
   );
+}
+
+/** «30 Οκτ» — DHL's delivery day, in the customer's language. */
+function deliveryDate(isoDay: string, locale: string): string {
+  const date = new Date(`${isoDay}T12:00:00Z`);
+  if (Number.isNaN(date.getTime())) return isoDay;
+  return new Intl.DateTimeFormat(locale === "en" ? "en-GB" : locale === "it" ? "it-IT" : "el-GR", {
+    weekday: "short",
+    day: "numeric",
+    month: "short",
+    timeZone: "Europe/Athens",
+  }).format(date);
 }
 
 function Step({

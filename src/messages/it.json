@@ -553,7 +553,21 @@
       "split_request": "Su ordinazione: {items}, valore indicativo {value} — nessun pagamento ora; riceverai un'offerta entro 24 ore con prezzo finale e spedizione della seconda consegna.",
       "together_line": "Nessun pagamento ora — tutto il carrello ({items}, valore indicativo {value}) come richiesta, una sola consegna, spedizione nell'offerta.",
       "pay_now_button": "Paga {amount}",
-      "order_now_button": "Conferma ordine · {amount}"
+      "order_now_button": "Conferma ordine · {amount}",
+      "customer_type": "Acquisti come",
+      "customer_individual": "Privato",
+      "customer_company": "Azienda",
+      "customer_type_required": "Scegli privato o azienda",
+      "customer_individual_help": "L'ordine è addebitato con IVA al 24%.",
+      "company_name": "Ragione sociale",
+      "vat_number_eu": "Partita IVA con prefisso del paese",
+      "vat_check": "Verifica",
+      "vat_invalid_format": "La partita IVA non ha un formato valido per il paese scelto",
+      "vat_exempt_note": "Cessione intracomunitaria — esente IVA (inversione contabile, art. 138 della Direttiva 2006/112/CE)",
+      "vat_retry": "Riprova",
+      "vat_help": "Con il prefisso {prefix}. Verificata in VIES; con una partita IVA valida l'ordine è senza IVA.",
+      "dhl_meta_by": "DHL Express · consegna entro {date}",
+      "ship_zone_eu_sales": "Spediamo in Grecia e nei paesi dell'UE."
     },
     "page": {
       "kalathi": "CARRELLO",
@@ -574,7 +588,9 @@
       "katopin_badge": "Su ordinazione",
       "request_totals_note": "I prodotti su ordinazione sono prezzati nell'offerta che riceverai entro 24 ore; gli importi qui sono indicativi.",
       "dhl_line": "DHL Express · {country} · consegna in {eta} giorni lavorativi",
-      "quote_unavailable": "Non è stato possibile calcolare la spedizione — riprova"
+      "quote_unavailable": "Non è stato possibile calcolare la spedizione — riprova",
+      "eu_exempt_note": "Cessione intracomunitaria — esente IVA (inversione contabile, art. 138 della Direttiva 2006/112/CE)",
+      "choris_fpa": "IVA esclusa"
     },
     "AddressAutocomplete": {
       "voitheia": "Digita la via e scegli dalla lista. Si compila anche il CAP."

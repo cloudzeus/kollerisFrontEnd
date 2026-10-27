@@ -12,7 +12,7 @@ import { SiteFooter } from "@/components/chrome/SiteFooter";
 import { Link } from "@/i18n/navigation";
 import { prisma } from "@/lib/prisma";
 import type { Locale } from "@/i18n/routing";
-import { getCart, getMiniCart } from "@/lib/cart/cart";
+import { computeTotals, getCart, getMiniCart, type VatMode } from "@/lib/cart/cart";
 import {
   getCatalogueStats,
   getMenuTree,
@@ -24,8 +24,10 @@ import { countryName } from "@/lib/shipping/countries";
 import { upGreek } from "@/lib/greek";
 import { isVivaConfigured } from "@/lib/payment/viva";
 import { splitCart } from "@/lib/requests/model";
-import { isInternationalShippingEnabled } from "@/lib/shipping/flag";
 import { readDestination } from "@/lib/shipping/destination-cookie";
+import { allowedCountries, isDhlDestination, isEuSalesEnabled } from "@/lib/eu-sales/countries";
+import { readEuBuyer } from "@/lib/eu-sales/buyer-cookie";
+import { resolveVatMode } from "@/lib/eu-sales/vat-mode";
 import type { DeliveryQuoteAnswer } from "@/lib/shipping/actions";
 
 export const dynamic = "force-dynamic";
@@ -63,12 +65,17 @@ export default async function CheckoutPage({
   setRequestLocale(locale);
 
   /*
-   * Delivery abroad (INTERNATIONAL_SHIPPING_ENABLED only): the destination the
-   * form last priced, so the summary is priced for the same place. Null with
-   * the flag off or for Greece — the page is then exactly what it was.
+   * Delivery abroad (INTERNATIONAL_SHIPPING_ENABLED or EU_SALES_ENABLED): the
+   * destination the form last priced, so the summary is priced for the same
+   * place. Null with both flags off or for Greece — the page is then exactly
+   * what it was.
    */
-  const international = isInternationalShippingEnabled();
+  const euSales = isEuSalesEnabled();
+  const countries = allowedCountries();
+  const international = countries.length > 1;
   const destination = international ? await readDestination() : null;
+  /* EU sales: consumer or company, and the last VIES answer — display only. */
+  const euBuyer = euSales ? await readEuBuyer() : null;
 
   const [cart, miniCart, menuTree, brands, stats, rootCategories, viewer] =
     await Promise.all([
@@ -125,7 +132,33 @@ export default async function CheckoutPage({
   // empty form that fails on submit.
   if (!cart || cart.lines.length === 0) redirect("/kalathi");
 
-  const totals = cart.totals;
+  /*
+   * EU sales to a DHL destination: DHL only, and net when this visit's VIES
+   * answer is valid, today, for this country, for a company (`resolveVatMode`).
+   * Display only — `placeOrder` asks VIES and DHL again and decides itself.
+   */
+  const euDestination = euSales && destination && isDhlDestination(destination.country) ? destination : null;
+  const vatMode: VatMode =
+    euDestination && euBuyer
+      ? resolveVatMode({
+          country: euDestination.country,
+          customerType: euBuyer.customerType,
+          vies: euBuyer.vies
+            ? { status: euBuyer.vies.status, checkedAt: euBuyer.vies.checkedAt, country: euBuyer.vies.country }
+            : null,
+        })
+      : "standard";
+  const totals = euDestination
+    ? await computeTotals(
+        cart.lines,
+        "dhl",
+        cart.paymentMethod,
+        euDestination.postcode,
+        { country: euDestination.country, city: euDestination.city },
+        { vatMode },
+      )
+    : cart.totals;
+  const exempt = vatMode === "intra_eu_exempt";
   /* The form opens priced for the remembered destination. */
   const initialQuote: DeliveryQuoteAnswer | null = !destination
     ? null
@@ -142,6 +175,7 @@ export default async function CheckoutPage({
                 netAmount: totals.shippingNet,
                 grossAmount: totals.shippingGross,
                 etaDays: totals.postage.etaDays,
+                ...(totals.postage.deliveryBy ? { deliveryBy: totals.postage.deliveryBy } : {}),
               }
             : null;
   /* Back-order requests: shapes the form; the action decides again on submit. */
@@ -251,6 +285,9 @@ export default async function CheckoutPage({
             international={international}
             destination={destination}
             initialQuote={initialQuote}
+            {...(euSales
+              ? { euSales, countries, euCustomerType: euBuyer?.customerType ?? null }
+              : {})}
           />
         </div>
 
@@ -367,6 +404,11 @@ export default async function CheckoutPage({
                 {t("quote_unavailable")}
               </p>
             )}
+            {exempt && (
+              <p className="mt-2.5 leading-normal text-white/80" style={{ fontSize: "var(--fs-11-5)" }}>
+                {t("eu_exempt_note")}
+              </p>
+            )}
 
             <div className="mt-4 flex items-end justify-between gap-4 border-t border-white/16 pt-4">
               <div>
@@ -374,7 +416,7 @@ export default async function CheckoutPage({
                   {upGreek(t("synolo"))}
                 </p>
                 <p className="t-account-label mt-1.5 text-white/40">
-                  {upGreek(t("me_fpa"))}
+                  {upGreek(exempt ? t("choris_fpa") : t("me_fpa"))}
                 </p>
               </div>
               <p className="font-mono text-[30px] leading-none font-semibold tracking-[-0.03em] text-white lg:text-[36px]">
