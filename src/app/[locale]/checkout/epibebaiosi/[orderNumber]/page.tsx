@@ -108,6 +108,12 @@ export default async function ConfirmationPage({ params, searchParams }: PagePro
   const awaitingPayment = order.paymentStatus === "PENDING";
 
   /*
+   * An intra-community exempt order (EU sales): the lines are what was
+   * charged, without VAT, and a note replaces the VAT row.
+   */
+  const exempt = order.vatMode === "intra_eu_exempt";
+
+  /*
    * The payment code for a bank transfer.
    *
    * Quoting it on the transfer is what lets the deposit be matched to this
@@ -460,7 +466,7 @@ export default async function ConfirmationPage({ params, searchParams }: PagePro
                     </span>
                   </span>
                   <span className="shrink-0 font-mono text-[14px] font-semibold text-k-ink">
-                    {formatMoney(Number(line.lineGross), locale)}
+                    {formatMoney(Number(exempt ? line.lineNet : line.lineGross), locale)}
                   </span>
                 </div>
               ))}
@@ -480,7 +486,8 @@ export default async function ConfirmationPage({ params, searchParams }: PagePro
                         ? upGreek(t("dorean"))
                         : formatMoney(Number(order.shippingGross), locale),
                   },
-                  { k: t("fpa"), v: formatMoney(Number(order.vatAmount), locale) },
+                  /* Exempt: the note below replaces the VAT row. */
+                  ...(exempt ? [] : [{ k: t("fpa"), v: formatMoney(Number(order.vatAmount), locale) }]),
                 ].map((row) => (
                   <div key={row.k} className="flex items-baseline justify-between gap-4">
                     <dt className="text-[12.5px] text-white/55">{row.k}</dt>
@@ -489,11 +496,10 @@ export default async function ConfirmationPage({ params, searchParams }: PagePro
                 ))}
               </dl>
               {/*
-                Intra-community supply: say why there is no VAT. The row above
-                stays (0,00 €) so the sum still reads; the note is the legal
-                reason, in the page's language.
+                Intra-community supply: no VAT row — the legal reason takes its
+                place, in the page's language.
               */}
-              {order.vatMode === "intra_eu_exempt" && (
+              {exempt && (
                 <p className="mt-3 text-[12px] leading-[1.55] text-white/70">{t("eu_exempt_note")}</p>
               )}
               <div className="mt-4 flex items-end justify-between gap-4 border-t border-white/16 pt-4">

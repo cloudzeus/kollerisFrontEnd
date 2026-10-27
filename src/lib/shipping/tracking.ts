@@ -16,8 +16,7 @@ import { z } from "zod";
  */
 
 export const ACS_TRACKING_BASE = "https://www.acscourier.net/el/track-and-trace/?paramtracknr=";
-export const DHL_TRACKING_BASE =
-  "https://www.dhl.com/gr-el/home/tracking/tracking-express.html?submit=1&tracking-id=";
+export const DHL_TRACKING_BASE = "https://www.dhl.com/gr-el/home/tracking.html?tracking-id=";
 
 export const acsTrackingUrl = (voucherNo: string) => `${ACS_TRACKING_BASE}${encodeURIComponent(voucherNo)}`;
 export const dhlTrackingUrl = (awb: string) => `${DHL_TRACKING_BASE}${encodeURIComponent(awb)}`;

@@ -44,6 +44,8 @@ export type AccountOrder = {
    * orders to find out has been made to do the software's work.
    */
   voucherNo: string | null;
+  /** Who carries it: the label shown beside the number (DHL Express abroad, ACS otherwise). */
+  voucherCarrier: "DHL Express" | "ACS";
   /**
    * A split cart (docs/backorder-requests.md §1): the other half of this one.
    * «request» — this order is the in-stock half, the number is its back-order
@@ -106,6 +108,7 @@ export async function listCustomerOrders(
     preview: order.lines.slice(0, 3).map((line) => line.name),
     image: order.lines.find((l) => l.imageUrl)?.imageUrl ?? null,
     voucherNo: order.acsVoucherNo,
+    voucherCarrier: order.shippingMethod === "dhl" ? ("DHL Express" as const) : ("ACS" as const),
     requestStatus: order.requestStatus,
     splitWith: order.parentOrderNumber
       ? { kind: "paid" as const, orderNumber: order.parentOrderNumber }

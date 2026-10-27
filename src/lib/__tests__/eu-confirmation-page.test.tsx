@@ -90,7 +90,7 @@ function seed(over: Record<string, unknown> = {}) {
     createdAt: new Date("2026-10-27T08:00:00Z"),
     requestStatus: null,
     requestToken: null,
-    lines: [],
+    lines: [{ id: "l1", sku: "KN-0", name: "Pliers", brand: "KNIPEX", imageUrl: null, quantity: 1, lineNet: 100, lineGross: 124 }],
     ...over,
   };
 }
@@ -115,6 +115,16 @@ describe("confirmation page — exempt order", () => {
     expect(html).not.toContain("Περιλαμβάνεται ΦΠΑ");
   });
 
+  it("net line amounts, and the note in place of the VAT row", async () => {
+    const html = await render("el");
+    // The line is what was charged: 100,00 € (the stored gross is ignored for an exempt order).
+    expect(html).toContain("100,00");
+    expect(html).not.toContain("124,00");
+    // No «ΦΠΑ» row (label with its amount) — only the note mentions the VAT.
+    expect(html).not.toMatch(/<dt[^>]*>ΦΠΑ<\/dt>/);
+    expect(html.match(/ΦΠΑ/g)?.length).toBe(1);
+  });
+
   it("en and it carry their own wording", async () => {
     expect(await render("en")).toContain("Intra-community supply — VAT exempt (reverse charge, Article 138 of Directive 2006/112/EC)");
     const it = await render("it");
@@ -129,6 +139,9 @@ describe("confirmation page — VAT charged", () => {
     const html = await render("el");
     expect(html).not.toContain("Ενδοκοινοτική");
     expect(html).not.toContain("VIES");
+    // The ordinary page: gross line and a VAT row.
+    expect(html).toContain("124,00");
+    expect(html).toMatch(/<dt[^>]*>ΦΠΑ<\/dt>/);
   });
 
   it("a Greek order is the page it always was", async () => {

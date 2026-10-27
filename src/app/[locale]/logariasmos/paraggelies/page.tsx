@@ -177,7 +177,7 @@ export default async function OrdersPage({
                       <p className="mt-1 flex items-center gap-1.5 text-[11.5px] text-k-text-3">
                         <Truck className="size-3" aria-hidden />
                         <span className="font-mono tabular-nums">
-                          ACS {order.voucherNo}
+                          {order.voucherCarrier} {order.voucherNo}
                         </span>
                       </p>
                     )}
