@@ -5,6 +5,8 @@ import { z } from "zod";
 import { authConfig } from "@/auth.config";
 import { prisma } from "@/lib/prisma";
 import { refreshRoleCapabilities } from "@/lib/admin/roles";
+import { adminSsoConfig, passwordLoginAllowed } from "@/lib/admin/sso/config";
+import { redeemTicket } from "@/lib/admin/sso/once";
 
 /** 5 failed attempts inside the window → locked out for the window. Spec §19. */
 export const MAX_ATTEMPTS = 5;
@@ -42,6 +44,11 @@ const nextAuth = NextAuth({
         // cannot be used as a timing oracle either.
         if (await isLockedOut(identifier)) return null;
 
+        // With ADMIN_SSO=only just the emergency list may use a password. The
+        // hash is still checked below so the answer takes the same time.
+        const sso = adminSsoConfig();
+        const allowed = passwordLoginAllowed(identifier, sso);
+
         const user = await prisma.adminUser.findUnique({
           where: { email: identifier },
           select: { id: true, email: true, name: true, role: true, isActive: true, passwordHash: true },
@@ -59,7 +66,7 @@ const nextAuth = NextAuth({
 
         // A null hash (SSO-only account) can never authenticate with a password,
         // even if the dummy hash happened to verify.
-        const authorised = valid && !!user && !!user.passwordHash && user.isActive;
+        const authorised = valid && !!user && !!user.passwordHash && user.isActive && allowed;
 
         await prisma.loginAttempt.create({
           data: { identifier, successful: authorised },
@@ -72,12 +79,39 @@ const nextAuth = NextAuth({
           data: { lastLoginAt: new Date() },
         });
 
+        // Spec §4.3: while SSO is on, a password sign-in by a break-glass
+        // account is an event worth a trace.
+        if (sso.mode !== "off" && sso.emergencyEmails.includes(identifier)) {
+          await prisma.adminAuditLog.create({
+            data: { userId: user.id, action: "emergency_login", entity: "AdminUser", entityId: user.id },
+          });
+          console.info("admin_emergency_login user=" + user.id);
+        }
+
         return {
           id: user.id,
           email: user.email,
           name: user.name,
           role: user.role,
         };
+      },
+    }),
+    // Spec §8: the SSO callback has already verified the HDCtool token and
+    // hands over only a one-time internal ticket (30s, single use).
+    Credentials({
+      id: "hdctool-sso",
+      credentials: { ticket: {} },
+      async authorize(raw) {
+        const ticket = typeof raw?.ticket === "string" ? raw.ticket : "";
+        if (!ticket) return null;
+        const userId = await redeemTicket(ticket);
+        if (!userId) return null;
+        const user = await prisma.adminUser.findUnique({
+          where: { id: userId },
+          select: { id: true, email: true, name: true, role: true, isActive: true },
+        });
+        if (!user || !user.isActive) return null;
+        return { id: user.id, email: user.email, name: user.name, role: user.role };
       },
     }),
   ],
@@ -90,7 +124,7 @@ export type AdminSessionState = "valid" | "none" | "revoked";
 /**
  * The JWT alone is not enough to trust.
  *
- * It carries the role the user had at sign-in and stays valid for eight hours,
+ * It carries the role the user had at sign-in and stays valid for twelve hours,
  * so without this a deactivated operator keeps working until the token expires
  * and a demoted one keeps their old sections. One primary-key read per admin
  * request makes both take effect on the next click.
