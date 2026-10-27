@@ -41,6 +41,29 @@ export * from "@/lib/cart/options";
 export type CartDestination = { country?: string | null; city?: string | null };
 
 /**
+ * How VAT is charged on the whole basket.
+ *
+ * `standard` is today's arithmetic. `intra_eu_exempt` is an intra-community
+ * supply to a VIES-valid business (reverse charge, art. 138 of Directive
+ * 2006/112/EC): no VAT on the lines, the shipping or the payment fee. The
+ * caller decides it from a fresh same-day VIES result, never from the client.
+ */
+export type VatMode = "standard" | "intra_eu_exempt";
+
+export type ComputeTotalsOptions = {
+  /** Default `standard`. */
+  vatMode?: VatMode;
+  /**
+   * A shipping charge the caller already has (the server's DHL re-quote at
+   * order time). Replaces the quote made here, and its `vatRate` replaces the
+   * destination rate. `null`/absent: price the postage as always.
+   */
+  shipping?: { net: number; vatRate: number } | null;
+  /** Delivery country. Default: the destination's, else "GR". */
+  country?: string | null;
+};
+
+/**
  * Cart reads.
  *
  * Every amount here is computed from the CURRENT product row, never from
@@ -265,17 +288,23 @@ export async function computeTotals(
   paymentMethodId: PaymentMethodId,
   postcode?: string | null,
   destination?: CartDestination,
+  options: ComputeTotalsOptions = {},
 ): Promise<CartTotals> {
+  const exempt = options.vatMode === "intra_eu_exempt";
   const subtotalNet = lines.reduce((sum, l) => sum + l.lineNet, 0);
-  const subtotalGross = lines.reduce((sum, l) => sum + l.lineGross, 0);
+  const subtotalGross = exempt
+    ? subtotalNet
+    : lines.reduce((sum, l) => sum + l.lineGross, 0);
 
   const savingsGross = lines.reduce((sum, l) => {
     if (l.unitListNet == null) return sum;
-    const was = grossAmount(l.unitListNet * l.quantity, { vatRate: l.vatRate });
-    return sum + Math.max(0, was - l.lineGross);
+    const was = exempt
+      ? netAmount(l.unitListNet * l.quantity)
+      : grossAmount(l.unitListNet * l.quantity, { vatRate: l.vatRate });
+    return sum + Math.max(0, was - (exempt ? l.lineNet : l.lineGross));
   }, 0);
 
-  const country = (destination?.country ?? "GR").toUpperCase();
+  const country = (options.country ?? destination?.country ?? "GR").toUpperCase();
   const home = country === "GR";
   /*
    * Abroad, every delivery is DHL whatever id the cart row remembered; at home
@@ -289,7 +318,10 @@ export async function computeTotals(
           ? "courier"
           : shippingMethodId,
     ) ?? SHIPPING_METHODS[0];
-  const freeShippingReached = subtotalNet >= FREE_SHIPPING_THRESHOLD_NET;
+  // The free-shipping promise is Greek: ACS and collection inside Greece.
+  // Abroad (DHL) the postage is always charged, whatever the basket is worth.
+  const freeShippingReached = home && subtotalNet >= FREE_SHIPPING_THRESHOLD_NET;
+  const override = options.shipping ?? null;
   const payment = PAYMENT_METHODS.find((m) => m.id === paymentMethodId)!;
 
   /*
@@ -312,7 +344,9 @@ export async function computeTotals(
   // Outside Greece (INTERNATIONAL_SHIPPING_ENABLED only) the destination
   // module decides: ACS for Cyprus, DHL for the rest of the EU, and no table.
   const live: DestinationQuote | null =
-    shipping.expressMultiplier > 0
+    override
+      ? null
+      : shipping.expressMultiplier > 0
       ? home
         ? await quoteLivePostage({ items: parcel, postcode })
         : await quoteDestination({
@@ -330,9 +364,16 @@ export async function computeTotals(
   const quote =
     live && !isUnserviceable(live) && !isRefused(live) && !isQuoteUnavailable(live) ? live : null;
 
-  const quotedNet = quote ? round(quote.totalNet * shipping.expressMultiplier) : 0;
-  const shippingNet =
-    shipping.freeOverThreshold && freeShippingReached ? 0 : quotedNet;
+  const quotedNet = override
+    ? round(override.net)
+    : quote
+      ? round(quote.totalNet * shipping.expressMultiplier)
+      : 0;
+  const shippingNet = override
+    ? quotedNet
+    : shipping.freeOverThreshold && freeShippingReached
+      ? 0
+      : quotedNet;
 
   // No payment method carries a fee today — cash on delivery, the only one that
   // ever did, is not accepted. Kept as a field because the column exists and a
@@ -342,8 +383,13 @@ export async function computeTotals(
   // Shipping and fees are charged at the standard rate regardless of basket
   // mix — Greek 24% for every destination for now (`vatRateForDestination`).
   const destinationVat = vatRateForDestination(country);
-  const shippingGross = grossAmount(shippingNet, { vatRate: destinationVat });
-  const paymentFeeGross = grossAmount(paymentFeeNet, { vatRate: destinationVat });
+  const shippingVat = override ? override.vatRate : destinationVat;
+  const shippingGross = exempt
+    ? round(shippingNet)
+    : grossAmount(shippingNet, { vatRate: shippingVat });
+  const paymentFeeGross = exempt
+    ? round(paymentFeeNet)
+    : grossAmount(paymentFeeNet, { vatRate: destinationVat });
 
   const totalGross = round(subtotalGross + shippingGross + paymentFeeGross);
   const totalNet = round(subtotalNet + shippingNet + paymentFeeNet);
