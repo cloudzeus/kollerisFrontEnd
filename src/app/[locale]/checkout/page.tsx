@@ -364,8 +364,9 @@ export default async function CheckoutPage({
                 },
                 {
                   k: t("metaforika"),
-                  v:
-                    totals.shippingGross === 0
+                  v: totals.quoteUnavailable
+                    ? "—"
+                    : totals.shippingGross === 0
                       ? upGreek(t("dorean"))
                       : formatMoney(totals.shippingGross, locale),
                 },
