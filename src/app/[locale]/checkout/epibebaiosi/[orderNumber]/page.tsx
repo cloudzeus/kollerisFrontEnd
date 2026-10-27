@@ -365,6 +365,13 @@ export default async function ConfirmationPage({ params, searchParams }: PagePro
                     <br />
                     {t("afm")} {order.vatNumber}
                     {order.taxOffice && <> {t("doy")} {order.taxOffice}</>}
+                    {/* The VIES consultation number: the proof of the zero-VAT invoice. */}
+                    {order.viesConsultationNumber && (
+                      <>
+                        <br />
+                        {t("vies_number")} {order.viesConsultationNumber}
+                      </>
+                    )}
                   </>
                 ) : (
                   <>{t("apodeixi_lianikis")}</>
@@ -480,6 +487,14 @@ export default async function ConfirmationPage({ params, searchParams }: PagePro
                   </div>
                 ))}
               </dl>
+              {/*
+                Intra-community supply: say why there is no VAT. The row above
+                stays (0,00 €) so the sum still reads; the note is the legal
+                reason, in the page's language.
+              */}
+              {order.vatMode === "intra_eu_exempt" && (
+                <p className="mt-3 text-[12px] leading-[1.55] text-white/70">{t("eu_exempt_note")}</p>
+              )}
               <div className="mt-4 flex items-end justify-between gap-4 border-t border-white/16 pt-4">
                 <p className="t-footer-col text-white/50">{upGreek(t("synolo"))}</p>
                 <p className="font-mono text-[30px] leading-none font-semibold tracking-[-0.03em] text-white">
