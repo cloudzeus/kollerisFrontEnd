@@ -4,6 +4,7 @@ import { useTranslations } from "next-intl";
 import { useRef, useState, useTransition } from "react";
 import { checkVatAction, setCustomerTypeAction, type VatCheckAnswer } from "@/lib/eu-sales/check-vat-action";
 import { vatPrefix } from "@/lib/eu-sales/countries";
+import { mayStartVatCheck } from "@/lib/eu-sales/check-gate";
 import { normaliseEuVat } from "@/lib/eu-sales/vat-format";
 import type { CustomerType } from "@/lib/eu-sales/vat-mode";
 import { upGreek } from "@/lib/greek";
@@ -42,7 +43,28 @@ export function EuBuyerFields({
   const [answer, setAnswer] = useState<VatCheckAnswer | null>(null);
   /* The number the answer is for: typing something else clears it. */
   const [checkedFor, setCheckedFor] = useState<string | null>(null);
-  const [pending, startTransition] = useTransition();
+  /*
+   * Two transitions, not one: the VIES check, and the write that follows a
+   * change of type or an edit. One shared flag disabled «Έλεγχος» (and dropped
+   * the blur check) while that write ran, so edit-then-click did nothing the
+   * first time.
+   */
+  const [checking, startCheck] = useTransition();
+  const [, startTransition] = useTransition();
+  const pending = checking;
+  /*
+   * The server refused the order because VIES no longer says what the screen
+   * did (`placeOrder`, vatModeHint): drop the local «✓ Confirmed» and its
+   * exemption note, so the form agrees with the summary, which now has VAT.
+   */
+  const [seenErrors, setSeenErrors] = useState(fieldErrors);
+  if (fieldErrors !== seenErrors) {
+    setSeenErrors(fieldErrors);
+    if (fieldErrors?.vatNumber) {
+      setAnswer(null);
+      setCheckedFor(null);
+    }
+  }
   /*
    * The number being asked about right now. Pressing «Έλεγχος» blurs the
    * field first, so one press fires the blur check AND the click check —
@@ -84,12 +106,22 @@ export function EuBuyerFields({
   };
 
   const check = () => {
-    if (!format.ok || pending) return;
+    if (!format.ok) return;
     const asked = format.vat;
-    if (inFlight.current === asked) return;
-    if (checkedFor === asked && answer && answer.status !== "unavailable") return;
+    if (
+      !mayStartVatCheck({
+        formatOk: true,
+        checking,
+        inFlight: inFlight.current,
+        asked,
+        checkedFor,
+        answerStatus: answer?.status ?? null,
+      })
+    ) {
+      return;
+    }
     inFlight.current = asked;
-    startTransition(async () => {
+    startCheck(async () => {
       try {
         const result = await checkVatAction({ country, vat: asked, locale });
         setAnswer(result);
