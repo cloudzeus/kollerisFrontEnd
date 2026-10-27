@@ -111,4 +111,26 @@ describe("CheckoutForm and EU sales", () => {
     const standard = render({ ...base, displayedVatMode: "standard" });
     expect(standard).toContain("39,48");
   });
+
+  it("reload after a valid check: the VAT field shows the confirmed number and its ✓, only for that country", () => {
+    const base = {
+      international: true,
+      euSales: true,
+      countries: allowedCountries({ EU_SALES_ENABLED: "true" }),
+      destination: { country: "DE", postcode: "10117", city: "Berlin" },
+      euCustomerType: "company",
+      displayedVatMode: "intra_eu_exempt",
+    };
+    const verified = { country: "DE", vat: "DE143454214", message: "Επιβεβαιώθηκε στο VIES" };
+    const html = render({ ...base, euVerified: verified });
+    expect(html).toContain('value="DE143454214"');
+    expect(html).toContain("Επιβεβαιώθηκε στο VIES");
+    // A confirmed number for another country never shows beside this one.
+    const other = render({ ...base, euVerified: { ...verified, country: "AT" } });
+    expect(other).not.toContain("DE143454214");
+    expect(other).not.toContain("Επιβεβαιώθηκε στο VIES");
+    // No confirmed number: the prefix alone, as before.
+    const none = render(base);
+    expect(none).toMatch(/name="vatNumber"[^>]*value="DE"|value="DE"[^>]*name="vatNumber"/);
+  });
 });

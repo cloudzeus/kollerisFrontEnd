@@ -27,6 +27,7 @@ import { splitCart } from "@/lib/requests/model";
 import { readDestination } from "@/lib/shipping/destination-cookie";
 import { allowedCountries, isDhlDestination, isEuSalesEnabled } from "@/lib/eu-sales/countries";
 import { readEuBuyer } from "@/lib/eu-sales/buyer-cookie";
+import { euSalesCopy } from "@/lib/eu-sales/copy";
 import { resolveVatMode, summaryLineAmount } from "@/lib/eu-sales/vat-mode";
 import type { DeliveryQuoteAnswer } from "@/lib/shipping/actions";
 
@@ -159,6 +160,15 @@ export default async function CheckoutPage({
       )
     : cart.totals;
   const exempt = vatMode === "intra_eu_exempt";
+  /*
+   * A reload after a valid check: the summary stays net (the cookie's answer
+   * still counts), so the VAT field shows that number and its ✓ again rather
+   * than a bare prefix beside a VAT-free total.
+   */
+  const euVerified =
+    exempt && euDestination && euBuyer?.vies
+      ? { country: euDestination.country, vat: euBuyer.vies.vat, message: euSalesCopy(locale).valid(null) }
+      : null;
   /* The form opens priced for the remembered destination. */
   const initialQuote: DeliveryQuoteAnswer | null = !destination
     ? null
@@ -288,7 +298,7 @@ export default async function CheckoutPage({
             destination={destination}
             initialQuote={initialQuote}
             {...(euSales
-              ? { euSales, countries, euCustomerType: euBuyer?.customerType ?? null, displayedVatMode: vatMode }
+              ? { euSales, countries, euCustomerType: euBuyer?.customerType ?? null, euVerified, displayedVatMode: vatMode }
               : {})}
           />
         </div>

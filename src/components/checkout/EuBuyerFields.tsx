@@ -23,12 +23,16 @@ import { upGreek } from "@/lib/greek";
  * again from nothing, so a valid answer for Germany never shows next to
  * Austria (Review Focus 2). The consumer/company choice is the form's.
  */
+/** A VIES «valid» this visit already has, for the field to open with after a reload. */
+export type EuVerifiedVat = { country: string; vat: string; message: string };
+
 export function EuBuyerFields({
   country,
   locale,
   type,
   onTypeChange,
   fieldErrors,
+  verified = null,
 }: {
   country: string;
   locale: string;
@@ -36,13 +40,17 @@ export function EuBuyerFields({
   type: CustomerType | null;
   onTypeChange: (type: CustomerType) => void;
   fieldErrors?: Record<string, string | undefined>;
+  /** Only for this country (the form checks); the server answer it shows still counts today. */
+  verified?: EuVerifiedVat | null;
 }) {
   const t = useTranslations("checkout.CheckoutForm");
   const prefix = vatPrefix(country);
-  const [vat, setVat] = useState(prefix);
-  const [answer, setAnswer] = useState<VatCheckAnswer | null>(null);
+  const [vat, setVat] = useState(verified?.vat ?? prefix);
+  const [answer, setAnswer] = useState<VatCheckAnswer | null>(
+    verified ? { status: "valid", vat: verified.vat, name: null, message: verified.message } : null,
+  );
   /* The number the answer is for: typing something else clears it. */
-  const [checkedFor, setCheckedFor] = useState<string | null>(null);
+  const [checkedFor, setCheckedFor] = useState<string | null>(verified?.vat ?? null);
   /*
    * Two transitions, not one: the VIES check, and the write that follows a
    * change of type or an edit. One shared flag disabled «Έλεγχος» (and dropped

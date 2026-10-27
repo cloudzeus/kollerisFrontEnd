@@ -16,7 +16,7 @@ import { formatMoney } from "@/lib/format";
 import type { Locale } from "@/i18n/routing";
 import type { CartSplitKind, RequestMode } from "@/lib/requests/model";
 import { useSplitCheckout } from "@/components/checkout/SplitCheckout";
-import { EuBuyerFields } from "@/components/checkout/EuBuyerFields";
+import { EuBuyerFields, type EuVerifiedVat } from "@/components/checkout/EuBuyerFields";
 import { countryOptionsFor, isDhlDestination } from "@/lib/eu-sales/countries";
 import { setCustomerTypeAction } from "@/lib/eu-sales/check-vat-action";
 import type { CustomerType } from "@/lib/eu-sales/vat-mode";
@@ -45,6 +45,7 @@ export function CheckoutForm({
   euSales = false,
   countries,
   euCustomerType = null,
+  euVerified = null,
   displayedVatMode = "standard",
 }: {
   locale: string;
@@ -102,6 +103,8 @@ export function CheckoutForm({
   countries?: readonly string[];
   /** The consumer/company choice remembered from this visit. */
   euCustomerType?: CustomerType | null;
+  /** The number this visit already confirmed in VIES (the summary is net for it). */
+  euVerified?: EuVerifiedVat | null;
   /** The VAT mode the summary beside the form shows — posted back as a hint (R11-I2). */
   displayedVatMode?: "standard" | "intra_eu_exempt";
 }) {
@@ -559,6 +562,7 @@ export function CheckoutForm({
             type={customerType}
             onTypeChange={setCustomerType}
             fieldErrors={state.fieldErrors}
+            verified={euVerified?.country === country ? euVerified : null}
           />
         ) : (
         <>
