@@ -31,6 +31,7 @@ export type OrderBase = Pick<
   | "shipCity"
   | "shipPostcode"
   | "shipCountry"
+  | "billCountry"
   | "shipRegion"
   | "shipAdminRegion"
   | "wantsInvoice"
@@ -39,6 +40,7 @@ export type OrderBase = Pick<
   | "taxOffice"
   | "companyTrade"
   | "erpTrdr"
+  | "customerType"
   | "shippingMethod"
   | "notes"
 >;

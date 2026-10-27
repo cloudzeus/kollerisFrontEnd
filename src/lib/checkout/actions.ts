@@ -12,8 +12,7 @@ import { computeTotals, getCart, getCartToken } from "@/lib/cart/cart";
 import { PAYMENT_METHODS, SHIPPING_METHODS, shippingMethodsFor } from "@/lib/cart/options";
 import { isUnserviceable, quoteLivePostage } from "@/lib/shipping/acs-live";
 import { checkDestination, destinationMessage, shippingCopy } from "@/lib/shipping/destination";
-import { isInternationalShippingEnabled } from "@/lib/shipping/flag";
-import { normalizeCountry, validateCountryPostcode } from "@/lib/shipping/countries";
+import { validateCountryPostcode } from "@/lib/shipping/countries";
 import { isQuoteUnavailable, isRefused, quoteDestination } from "@/lib/shipping/courier-quote";
 import { internationalCopy } from "@/lib/shipping/international-copy";
 import { createPaymentOrder, isVivaConfigured } from "@/lib/payment/viva";
@@ -23,6 +22,14 @@ import { parseRequestMode, planCheckout, requestPath } from "@/lib/requests/mode
 import { createRequestOrder, type OrderBase } from "@/lib/requests/create";
 import { announceNewRequest } from "@/lib/requests/service";
 import type { CartLineView } from "@/lib/cart/options";
+import { DHL_SHIPPING_METHOD } from "@/lib/cart/options";
+import { allowedCountries, isDhlDestination, isEuSalesEnabled } from "@/lib/eu-sales/countries";
+import { checkEuVat, quoteDhl as quoteEuDhl, type DhlQuote as EuDhlQuote, type EuVatCheck } from "@/lib/eu-sales/hdctool-eu";
+import { normaliseEuVat } from "@/lib/eu-sales/vat-format";
+import { resolveVatMode, type CustomerType, type VatMode } from "@/lib/eu-sales/vat-mode";
+import { euSalesCopy } from "@/lib/eu-sales/copy";
+import { chargeableWeight } from "@/lib/shipping/acs-tariff";
+import { vatRateForDestination } from "@/lib/shipping/vat";
 
 /**
  * Order placement.
@@ -32,7 +39,7 @@ import type { CartLineView } from "@/lib/cart/options";
  * disabled submit button is a UX affordance; this is the actual control.
  */
 
-const checkoutSchema = z.object({
+const checkoutFields = z.object({
   email: z.email().max(320),
   phone: z.string().trim().min(8).max(64),
   firstName: z.string().trim().min(1).max(120),
@@ -43,8 +50,9 @@ const checkoutSchema = z.object({
   shipCity: z.string().trim().min(2).max(120),
   shipPostcode: z.string().trim().min(4).max(16),
   /**
-   * ISO-2. Only read with INTERNATIONAL_SHIPPING_ENABLED; otherwise ignored and
-   * the order is Greek, as it always was. docs/dhl-express.md §4.
+   * ISO-2. Must be one of `allowedCountries()` (checked in `checkoutSchemaFor`):
+   * Greece alone with both INTERNATIONAL_SHIPPING_ENABLED and EU_SALES_ENABLED
+   * off, so a posted foreign country is refused. docs/dhl-express.md §4.
    */
   shipCountry: z.string().trim().max(2).optional().or(z.literal("")),
   /** Νομός. */
@@ -52,7 +60,13 @@ const checkoutSchema = z.object({
   /** Περιφέρεια. */
   shipAdminRegion: z.string().trim().max(120).optional().or(z.literal("")),
 
+  /**
+   * The Greek invoice toggle («Θέλω τιμολόγιο»). Abroad with EU sales it is
+   * not read: `customerType` replaces it (intra-EU sales design §3.2).
+   */
   wantsInvoice: z.union([z.literal("on"), z.literal("")]).optional(),
+  /** EU sales, DHL destinations only: consumer or company. Ignored in Greece. */
+  customerType: z.enum(["individual", "company"]).optional().or(z.literal("")),
   companyName: z.string().trim().max(255).optional().or(z.literal("")),
   vatNumber: z.string().trim().max(32).optional().or(z.literal("")),
   taxOffice: z.string().trim().max(120).optional().or(z.literal("")),
@@ -92,6 +106,24 @@ const checkoutSchema = z.object({
 });
 
 /**
+ * The form's schema for the countries on offer right now. The country is part
+ * of the schema, not a later check, so that with both flags off a posted
+ * foreign country is simply invalid input — there is no selector to post it.
+ */
+function checkoutSchemaFor(countries: readonly string[]) {
+  return checkoutFields.superRefine((value, ctx) => {
+    const country = (value.shipCountry ?? "").trim().toUpperCase() || "GR";
+    if (!countries.includes(country)) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["shipCountry"],
+        message: "Δεν αποστέλλουμε σε αυτή τη χώρα.",
+      });
+    }
+  });
+}
+
+/**
  * How long the Viva payment code stays valid: exactly as long as the hold.
  *
  * Derived from `STOCK_HOLD_HOURS` rather than chosen separately. It used to be
@@ -129,7 +161,8 @@ export async function placeOrder(
   _prev: CheckoutState,
   formData: FormData,
 ): Promise<CheckoutState> {
-  const parsed = checkoutSchema.safeParse(Object.fromEntries(formData));
+  const countries = allowedCountries();
+  const parsed = checkoutSchemaFor(countries).safeParse(Object.fromEntries(formData));
   if (!parsed.success) {
     const fieldErrors: Record<string, string> = {};
     for (const issue of parsed.error.issues) {
@@ -148,20 +181,63 @@ export async function placeOrder(
     };
   }
 
-  const wantsInvoice = input.wantsInvoice === "on";
-  if (wantsInvoice && (!input.companyName || !input.vatNumber)) {
-    return {
-      error: "Για τιμολόγιο χρειάζονται επωνυμία και ΑΦΜ.",
-      fieldErrors: {
-        ...(input.companyName ? {} : { companyName: "Απαιτείται" }),
-        ...(input.vatNumber ? {} : { vatNumber: "Απαιτείται" }),
-      },
-    };
-  }
-
   const locale = (routing.locales.includes(input.locale as Locale)
     ? input.locale
     : routing.defaultLocale) as Locale;
+
+  /*
+   * EU sales (intra-EU sales design §3). With the flag on and a DHL
+   * destination (EU minus Greece and Cyprus) the customer is a consumer or a
+   * company, and «Θέλω τιμολόγιο» is not read. Greece — and Cyprus, which
+   * keeps today's path — never come here: a Greek ΑΦΜ is AADE's, never VIES's,
+   * and never exempt (Review Focus 5).
+   */
+  const euSales = isEuSalesEnabled();
+  const selector = countries.length > 1;
+  /* The schema has already checked it is on offer. */
+  const country = selector ? (input.shipCountry ?? "").trim().toUpperCase() || "GR" : "GR";
+  const euBuyer = euSales && isDhlDestination(country);
+  const eu = euSalesCopy(locale);
+
+  let customerType: CustomerType | null = null;
+  /** The VAT number VIES is asked about: `DE123456789`. */
+  let euVat: string | null = null;
+  let wantsInvoice: boolean;
+  if (euBuyer) {
+    if (input.customerType !== "individual" && input.customerType !== "company") {
+      return { error: eu.customerTypeRequired, fieldErrors: { customerType: eu.required } };
+    }
+    customerType = input.customerType;
+    if (customerType === "company") {
+      if (!input.companyName || !input.vatNumber) {
+        return {
+          error: eu.companyRequired,
+          fieldErrors: {
+            ...(input.companyName ? {} : { companyName: eu.required }),
+            ...(input.vatNumber ? {} : { vatNumber: eu.required }),
+          },
+        };
+      }
+      // A prefix for another country, or no number at all: no VIES call (Review Focus 1).
+      const normalised = normaliseEuVat(input.vatNumber, country);
+      if (!normalised.ok) {
+        return { error: eu.invalidFormat, fieldErrors: { vatNumber: eu.invalidFormat } };
+      }
+      euVat = normalised.vat;
+    }
+    wantsInvoice = customerType === "company";
+  } else {
+    wantsInvoice = input.wantsInvoice === "on";
+    if (wantsInvoice && (!input.companyName || !input.vatNumber)) {
+      return {
+        error: "Για τιμολόγιο χρειάζονται επωνυμία και ΑΦΜ.",
+        fieldErrors: {
+          ...(input.companyName ? {} : { companyName: "Απαιτείται" }),
+          ...(input.vatNumber ? {} : { vatNumber: "Απαιτείται" }),
+        },
+      };
+    }
+  }
 
   /*
    * Greece only (see `lib/shipping/destination`). There is no country field,
@@ -171,17 +247,15 @@ export async function placeOrder(
    * shop ships nothing, so its address is not a destination.
    */
   /*
-   * The delivery country (docs/dhl-express.md §4). With the flag off there is
-   * no selector and the posted field is ignored: Greece, and the checks below
-   * are exactly the ones above. With it on: Greece and Cyprus go with ACS, the
-   * rest of the EU with DHL Express, and anything else is refused.
+   * The delivery country (docs/dhl-express.md §4), worked out above. With both
+   * flags off there is no selector, the schema refused anything but Greece,
+   * and the checks below are exactly the ones above. With
+   * INTERNATIONAL_SHIPPING_ENABLED: Greece and Cyprus go with ACS, the rest of
+   * the EU with DHL Express. With EU sales only: Greece, or a DHL destination.
+   * Whenever there is a selector the Greek checks speak as they do with one
+   * («επιλέξτε τη χώρα»).
    */
-  const international = isInternationalShippingEnabled();
   const intl = internationalCopy(locale);
-  const country = international ? normalizeCountry(input.shipCountry, true) : "GR";
-  if (!country) {
-    return { error: intl.country, fieldErrors: { shipCountry: intl.country } };
-  }
   const abroad = country !== "GR";
   /* The postcode as the destination country writes it («1012 AB», «00-950»). */
   let shipPostcode = input.shipPostcode;
@@ -190,13 +264,21 @@ export async function placeOrder(
     if (!abroad) {
       const destination = checkDestination(input);
       if (!destination.ok) {
-        const message = !international
+        const message = !selector
           ? destinationMessage(destination, locale)
           : destination.reason === "foreign_address"
             ? intl.foreign
             : intl.unserviceable;
         return { error: message, fieldErrors: { [destination.field]: message } };
       }
+    } else if (euBuyer) {
+      /*
+       * EU sales: no Greek rule abroad, and the postcode is validated by the
+       * DHL quote below (HDCtool's `normalizePostcode`). Written the way the
+       * country writes it when the shop already knows the format.
+       */
+      const checked = validateCountryPostcode(country, input.shipPostcode);
+      if (checked.ok) shipPostcode = checked.postcode;
     } else {
       const checked = validateCountryPostcode(country, input.shipPostcode);
       if (!checked.ok) {
@@ -248,9 +330,12 @@ export async function placeOrder(
    * had, with the old fallback to the first. Flag on: a method that does not
    * fit the country (ACS to Italy, DHL to Athens) is refused, not guessed.
    */
-  const shipping = international
-    ? shippingMethodsFor(country).find((m) => m.id === input.shippingMethod)
-    : (SHIPPING_METHODS.find((m) => m.id === input.shippingMethod) ?? SHIPPING_METHODS[0]);
+  const shipping = euBuyer
+    ? // EU sales abroad: DHL Express only, no collection from the shop (§3.1).
+      [DHL_SHIPPING_METHOD].find((m) => m.id === input.shippingMethod)
+    : selector
+      ? shippingMethodsFor(country).find((m) => m.id === input.shippingMethod)
+      : (SHIPPING_METHODS.find((m) => m.id === input.shippingMethod) ?? SHIPPING_METHODS[0]);
   if (!shipping) {
     return { error: intl.method, fieldErrors: { shippingMethod: intl.method } };
   }
@@ -278,11 +363,51 @@ export async function placeOrder(
     height: l.height,
   }));
   /*
+   * EU sales: VIES and DHL are asked again HERE, whatever the form showed or
+   * claimed — a «valid» in the browser may be yesterday's, or for a country
+   * since switched away from (Review Focus 2, 3). The VAT mode is decided from
+   * this answer alone, and an outage means VAT is charged, never an error.
+   */
+  let vies: EuVatCheck | null = null;
+  if (euBuyer && euVat) {
+    vies = await checkEuVat(euVat, country);
+    if (vies.status === "invalid_format") {
+      return { error: eu.invalidFormat, fieldErrors: { vatNumber: eu.invalidFormat } };
+    }
+  }
+  const vatMode: VatMode = euBuyer && customerType
+    ? resolveVatMode({
+        country,
+        customerType,
+        vies: vies ? { status: vies.status, checkedAt: vies.checkedAt, country } : null,
+      })
+    : "standard";
+
+  let euQuote: Extract<EuDhlQuote, { ok: true }> | null = null;
+  if (euBuyer) {
+    const answer = await quoteEuDhl({
+      country,
+      postcode: shipPostcode,
+      city: input.shipCity,
+      weightKg: chargeableWeight(parcel).chargeableKg,
+    });
+    if (!answer.ok) {
+      // Nobody could price it: no order, and the customer is told to call.
+      if (answer.reason === "unavailable") return { error: eu.noDhl };
+      const message = intl.refused[answer.reason];
+      return { error: message, fieldErrors: { shipPostcode: message } };
+    }
+    euQuote = answer;
+  }
+  /* The postage VAT rate: Greek 24% for every destination for now (no OSS). */
+  const shippingVatRate = vatRateForDestination(country);
+
+  /*
    * Abroad the price is asked for again HERE, from HDCtool — whatever the form
    * showed is not an input. Greece is the original call, unchanged.
    */
   const quote =
-    shipping.expressMultiplier > 0
+    !euBuyer && shipping.expressMultiplier > 0
       ? abroad
         ? await quoteDestination({
             country,
@@ -301,7 +426,7 @@ export async function placeOrder(
    * the table and the order goes through.
    */
   if (isUnserviceable(quote)) {
-    const message = international ? intl.unserviceable : shippingCopy(locale).unserviceable;
+    const message = selector ? intl.unserviceable : shippingCopy(locale).unserviceable;
     return { error: message, fieldErrors: { shipPostcode: message } };
   }
   /* DHL said no to the place (422): on the Τ.Κ. field, and no table abroad. */
@@ -325,6 +450,52 @@ export async function placeOrder(
   });
   const mtrlByProductId = new Map(mtrlRows.map((row) => [row.id, row.mtrl]));
 
+  /*
+   * The EU-sales columns. Written whenever EU sales is on (Greece included, so
+   * every such order says where it went and how VAT was charged); never with
+   * the flag off, so a Greek order is the row it always was.
+   */
+  const euColumns = euSales
+    ? {
+        customerType,
+        vatMode,
+        viesValid: vies?.status === "valid" ? true : vies?.status === "invalid" ? false : null,
+        viesName: vies?.name ?? null,
+        viesAddress: vies?.address ?? null,
+        viesConsultationNumber: vies?.consultationNumber ?? null,
+        viesCheckedAt: vies?.checkedAt ? new Date(vies.checkedAt) : null,
+      }
+    : {};
+  /* The DHL price this order is charged, for the intake to book against. */
+  const dhlColumns = euQuote
+    ? {
+        dhlProductCode: euQuote.productCode,
+        dhlNetAmount: euQuote.netAmount,
+        dhlVatRate: shippingVatRate,
+        dhlQuotedAt: new Date(euQuote.quotedAt),
+      }
+    : {};
+  /* Where it goes and who is billed: the same country in this phase (§3.1). */
+  const countryColumns = abroad || euSales ? { shipCountry: country, billCountry: country } : {};
+  /* Abroad with EU sales the VAT number keeps its prefix; no ΔΟΥ, no AADE TRDR. */
+  const invoiceColumns = euBuyer
+    ? {
+        wantsInvoice,
+        companyName: wantsInvoice ? input.companyName || null : null,
+        vatNumber: wantsInvoice ? euVat : null,
+        taxOffice: null,
+        companyTrade: null,
+        erpTrdr: null,
+      }
+    : {
+        wantsInvoice,
+        companyName: wantsInvoice ? input.companyName || null : null,
+        vatNumber: wantsInvoice ? input.vatNumber || null : null,
+        taxOffice: wantsInvoice ? input.taxOffice || null : null,
+        companyTrade: wantsInvoice ? input.companyTrade || null : null,
+        erpTrdr: wantsInvoice && typeof input.erpTrdr === "number" ? input.erpTrdr : null,
+      };
+
   /* What a request shares with the order being placed: who, where, invoice. */
   const base: OrderBase = {
     email: input.email,
@@ -335,15 +506,11 @@ export async function placeOrder(
     shipLine2: input.shipLine2 || null,
     shipCity: input.shipCity,
     shipPostcode,
-    ...(abroad ? { shipCountry: country } : {}),
+    ...countryColumns,
     shipRegion: input.shipRegion || null,
     shipAdminRegion: input.shipAdminRegion || null,
-    wantsInvoice,
-    companyName: wantsInvoice ? input.companyName || null : null,
-    vatNumber: wantsInvoice ? input.vatNumber || null : null,
-    taxOffice: wantsInvoice ? input.taxOffice || null : null,
-    companyTrade: wantsInvoice ? input.companyTrade || null : null,
-    erpTrdr: wantsInvoice && typeof input.erpTrdr === "number" ? input.erpTrdr : null,
+    ...invoiceColumns,
+    ...(euSales ? { customerType } : {}),
     shippingMethod: shipping.id,
     notes: input.notes || null,
   };
@@ -388,6 +555,12 @@ export async function placeOrder(
     payment.id,
     shipPostcode,
     abroad ? { country, city: input.shipCity } : undefined,
+    /*
+     * EU sales abroad: the DHL price asked for above, and the VAT mode the
+     * server decided. Exempt removes VAT from the lines, the postage and the
+     * fee, so `totalGross` is the net — and that is what Viva charges.
+     */
+    euQuote ? { vatMode, shipping: { net: euQuote.netAmount, vatRate: shippingVatRate }, country } : {},
   );
   /* The totals re-quote too; if that answer differs in kind, no order. */
   if (abroad && shipping.expressMultiplier > 0 && (totals.quoteUnavailable || totals.unserviceable)) {
@@ -416,16 +589,13 @@ export async function placeOrder(
       shipLine2: input.shipLine2 || null,
       shipCity: input.shipCity,
       shipPostcode,
-      ...(abroad ? { shipCountry: country } : {}),
+      ...countryColumns,
       shipRegion: input.shipRegion || null,
       shipAdminRegion: input.shipAdminRegion || null,
 
-      wantsInvoice,
-      companyName: wantsInvoice ? input.companyName || null : null,
-      vatNumber: wantsInvoice ? input.vatNumber || null : null,
-      taxOffice: wantsInvoice ? input.taxOffice || null : null,
-      companyTrade: wantsInvoice ? input.companyTrade || null : null,
-      erpTrdr: wantsInvoice && typeof input.erpTrdr === "number" ? input.erpTrdr : null,
+      ...invoiceColumns,
+      ...euColumns,
+      ...dhlColumns,
 
       shippingMethod: shipping.id,
       paymentMethod: payment.id,
@@ -440,7 +610,11 @@ export async function placeOrder(
       vatAmount: totals.vatAmount,
       totalGross: totals.totalGross,
       savingsGross: totals.savingsGross,
-      shippingQuote: quote ? JSON.parse(JSON.stringify(quote)) : undefined,
+      shippingQuote: euQuote
+        ? JSON.parse(JSON.stringify({ carrier: "DHL", ...euQuote }))
+        : quote
+          ? JSON.parse(JSON.stringify(quote))
+          : undefined,
 
       lines: {
         create: payLines.map((line) => ({
