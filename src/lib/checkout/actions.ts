@@ -397,7 +397,9 @@ export async function placeOrder(
       });
     }
     revalidatePath("/", "layout");
-    return { error: eu.unavailable };
+    /* What VIES now says, on the banner and on the VAT field (which drops its «✓»). */
+    const message = vies?.status === "invalid" ? eu.invalid : eu.unavailable;
+    return { error: message, fieldErrors: { vatNumber: message } };
   }
 
   let euQuote: Extract<EuDhlQuote, { ok: true }> | null = null;

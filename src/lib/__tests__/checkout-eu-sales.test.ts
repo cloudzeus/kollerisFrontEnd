@@ -523,6 +523,8 @@ describe("EU_SALES_ENABLED on", () => {
       );
       const result = await placeOrder({}, form({ ...company, vatModeHint: "intra_eu_exempt" }));
       expect(result.error).toBe(UNAVAILABLE);
+      // The VAT field is told too, so the form drops its «✓ Confirmed» (I2).
+      expect(result.fieldErrors).toEqual({ vatNumber: UNAVAILABLE });
       expect(mocks.orderCreate).not.toHaveBeenCalled();
       expect(mocks.createPaymentOrder).not.toHaveBeenCalled();
       // The fresh answer replaces the stale one, so the summary charges VAT.
@@ -536,7 +538,10 @@ describe("EU_SALES_ENABLED on", () => {
     it("shown net, VIES now invalid → no order", async () => {
       mocks.checkEuVat.mockResolvedValue(validVies({ status: "invalid" }));
       const result = await placeOrder({}, form({ ...company, vatModeHint: "intra_eu_exempt" }));
-      expect(result.error).toBe(UNAVAILABLE);
+      // VIES said invalid: the banner says so, not «could not be checked».
+      const INVALID = "Ο ΑΦΜ δεν είναι ενεργός στο VIES — η παραγγελία θα χρεωθεί με ΦΠΑ";
+      expect(result.error).toBe(INVALID);
+      expect(result.fieldErrors).toEqual({ vatNumber: INVALID });
       expect(mocks.orderCreate).not.toHaveBeenCalled();
     });
 
