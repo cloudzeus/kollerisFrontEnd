@@ -28,6 +28,12 @@ export function shippingIntakeBlock(order: {
   /** A Prisma Decimal on the order row, a number in the tests. */
   shippingNet: number | { toFixed(digits: number): string };
   shippingQuote: unknown;
+  /**
+   * An exempt (intra-community) order is not charged VAT on the postage either,
+   * so the block says 0 — the order itself still stores the 24 the quote was
+   * priced at. Absent or `standard` is today's block.
+   */
+  vatMode?: string | null;
 }): ShippingIntakeBlock | null {
   if (order.shippingMethod === "pickup" || !isDhlCountry(order.shipCountry)) return null;
   const stored = (order.shippingQuote ?? null) as {
@@ -43,7 +49,7 @@ export function shippingIntakeBlock(order: {
       typeof order.shippingNet === "number"
         ? Math.round(order.shippingNet * 100) / 100
         : Number(order.shippingNet.toFixed(2)),
-    vatRate: vatRateForDestination(order.shipCountry),
+    vatRate: order.vatMode === "intra_eu_exempt" ? 0 : vatRateForDestination(order.shipCountry),
     quotedAt: typeof quote?.quotedAt === "string" ? quote.quotedAt : null,
   };
 }

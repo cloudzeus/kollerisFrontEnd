@@ -78,6 +78,13 @@ type OrderWithLines = Prisma.OrderGetPayload<{ include: { lines: true } }>;
  * the payment sync exists.
  */
 function buildIntakeBody(order: OrderWithLines) {
+  /*
+   * An intra-community exempt order (docs: intra-EU sales design §3). HDCtool
+   * re-checks it and holds the order unless EVERY line says 0.00 — the lines
+   * are stored with the 24% they were priced at, so they are restated here,
+   * and their gross is the net (the totals above already are).
+   */
+  const exempt = order.vatMode === "intra_eu_exempt";
   return {
     orderNumber: order.orderNumber,
     orderId: order.id,
@@ -163,10 +170,10 @@ function buildIntakeBody(order: OrderWithLines) {
       unitNet: money(line.unitNet),
       discountPercent: money(line.discountPercent),
       offerTitle: line.offerTitle,
-      unitGross: money(line.unitGross),
-      vatRate: money(line.vatRate),
+      unitGross: exempt ? exemptUnitGross(line) : money(line.unitGross),
+      vatRate: exempt ? "0.00" : money(line.vatRate),
       lineNet: money(line.lineNet),
-      lineGross: money(line.lineGross),
+      lineGross: exempt ? money(line.lineNet) : money(line.lineGross),
       weightKg: line.weightKg == null ? null : line.weightKg.toFixed(3),
     })),
 
@@ -183,8 +190,37 @@ function buildIntakeBody(order: OrderWithLines) {
      * Greek and Cypriot order posts exactly the body it always did.
      */
     ...withShippingBlock(order),
+
+    /*
+     * EU sales: where the buyer is billed, who they are, how VAT was charged
+     * and the VIES proof. Only for an order that is not an ordinary Greek one
+     * (billed in Greece, standard, no customer type), so a Greek order posts
+     * exactly the body it always did — also one placed with EU sales on.
+     */
+    ...euIntakeFields(order),
   };
 
+}
+
+function isEuOrder(order: OrderWithLines): boolean {
+  return (order.billCountry ?? "GR") !== "GR" || (order.vatMode ?? "standard") !== "standard" || order.customerType != null;
+}
+
+function euIntakeFields(order: OrderWithLines) {
+  if (!isEuOrder(order)) return {};
+  return {
+    billCountry: order.billCountry ?? "GR",
+    ...(order.customerType ? { customerType: order.customerType } : {}),
+    vatMode: order.vatMode ?? "standard",
+    ...(order.viesConsultationNumber ? { viesConsultationNumber: order.viesConsultationNumber } : {}),
+    ...(order.viesCheckedAt ? { viesCheckedAt: order.viesCheckedAt.toISOString() } : {}),
+  };
+}
+
+/** The unit price of an exempt line: what was charged for it, VAT-free. */
+function exemptUnitGross(line: OrderWithLines["lines"][number]): string | undefined {
+  if (line.lineNet == null || !line.quantity) return money(line.unitGross);
+  return (Number(line.lineNet.toFixed(2)) / line.quantity).toFixed(2);
 }
 
 function withShippingBlock(order: OrderWithLines) {
