@@ -613,6 +613,7 @@
       "threshold_lost": "On their own, the in-stock items do not reach the free-shipping threshold.",
       "payable_now": "Payable now",
       "me_fpa": "incl. VAT",
+      "choris_fpa": "excl. VAT",
       "nothing_now": "Nothing to pay now",
       "on_request": "On request (indicative)",
       "request_shipping_offer": "nothing to pay now; the final price and the shipping of the second delivery come with the offer within 24 hours.",

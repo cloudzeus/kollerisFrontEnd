@@ -108,6 +108,8 @@ export function EuBuyerFields({
   const check = () => {
     if (!format.ok) return;
     const asked = format.vat;
+    // The field shows what is asked and stored: «DEDE143…» or «de 143 …» → «DE143…».
+    if (vat !== asked) setVat(asked);
     if (
       !mayStartVatCheck({
         formatOk: true,

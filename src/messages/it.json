@@ -613,6 +613,7 @@
       "threshold_lost": "Da soli, i prodotti disponibili non raggiungono la soglia della spedizione gratuita.",
       "payable_now": "Da pagare ora",
       "me_fpa": "IVA inclusa",
+      "choris_fpa": "IVA esclusa",
       "nothing_now": "Nessun pagamento ora",
       "on_request": "Su richiesta (indicativo)",
       "request_shipping_offer": "nessun pagamento ora; prezzo finale e spedizione della seconda consegna arrivano con l'offerta entro 24 ore.",

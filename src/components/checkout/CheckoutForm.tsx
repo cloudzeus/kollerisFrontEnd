@@ -293,6 +293,9 @@ export function CheckoutForm({
   const splitNow = breakdown?.split?.now ?? null;
   const splitRequest = breakdown?.split?.request ?? null;
   const together = breakdown?.together ?? null;
+  /* An exempt buyer sees net figures everywhere, the request value included. */
+  const requestValue = (part: { subtotalNet: number; subtotalGross: number }) =>
+    displayedVatMode === "intra_eu_exempt" ? part.subtotalNet : part.subtotalGross;
   const splitPayNow = requestKind === "mixed" && requestMode === "split" && splitNow ? splitNow.totalGross : null;
   const fieldError = (name: string) => addressErrors[name] ?? state.fieldErrors?.[name];
 
@@ -378,13 +381,13 @@ export function CheckoutForm({
                       <span className="mt-1.5 block text-[11.5px] leading-[1.5] text-k-text-3">
                         {t("split_request", {
                           items: items(splitRequest.itemCount),
-                          value: money(splitRequest.subtotalGross),
+                          value: money(requestValue(splitRequest)),
                         })}
                       </span>
                     </>
                   ) : mode === "together" && together ? (
                     <span className="mt-1.5 block text-[12px] leading-[1.5] text-k-ink">
-                      {t("together_line", { items: items(together.itemCount), value: money(together.subtotalGross) })}
+                      {t("together_line", { items: items(together.itemCount), value: money(requestValue(together)) })}
                     </span>
                   ) : (
                     <span className="mt-0.5 block text-[11.5px] leading-[1.5] text-k-text-4">
@@ -627,7 +630,14 @@ export function CheckoutForm({
               </span>
               {abroad && method.id !== "pickup" && quote?.status === "ok" && (
                 <span className="font-mono text-[13px] font-semibold whitespace-nowrap text-k-ink">
-                  {formatMoney(displayedVatMode === "intra_eu_exempt" ? quote.netAmount : quote.grossAmount, locale as Locale)}
+                  {formatMoney(
+                    splitPayNow != null && splitNow && !splitNow.unserviceable
+                      ? splitNow.shippingGross
+                      : displayedVatMode === "intra_eu_exempt"
+                        ? quote.netAmount
+                        : quote.grossAmount,
+                    locale as Locale,
+                  )}
                 </span>
               )}
             </label>

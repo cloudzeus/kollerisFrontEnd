@@ -308,6 +308,7 @@ export default async function CheckoutPage({
                 lineGross: summaryLineAmount(line, vatMode),
               }))}
               postage={totals.postage?.carrier ?? null}
+              exempt={exempt}
             />
           ) : (
           <>

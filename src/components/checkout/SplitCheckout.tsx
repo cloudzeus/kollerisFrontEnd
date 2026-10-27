@@ -106,11 +106,14 @@ export function SplitSummary({
   locale,
   lines,
   postage,
+  exempt = false,
 }: {
   locale: string;
   lines: SummaryLine[];
   /** The page's postage line («ACS · Αττική · 2 kg»), for the «now» part. */
   postage: string | null;
+  /** Intra-EU exempt buyer: no VAT now, and the request shown net like the lines. */
+  exempt?: boolean;
 }) {
   const t = useTranslations("checkout.SplitCheckout");
   const split = useSplitCheckout();
@@ -242,7 +245,7 @@ export function SplitSummary({
               <div>
                 <p className="t-footer-col text-white/50">{upGreek(t("payable_now"))}</p>
                 <p className="t-account-label mt-1.5 text-white/40">
-                  {now ? upGreek(t("me_fpa")) : upGreek(t("nothing_now"))}
+                  {now ? upGreek(exempt ? t("choris_fpa") : t("me_fpa")) : upGreek(t("nothing_now"))}
                 </p>
               </div>
               <p className="font-mono text-[30px] leading-none font-semibold tracking-[-0.03em] text-white lg:text-[36px]">
@@ -255,7 +258,7 @@ export function SplitSummary({
                 <div className="flex items-baseline justify-between gap-4">
                   <p className="t-footer-col text-white/70">{upGreek(t("on_request"))}</p>
                   <p className="font-mono text-[17px] font-semibold text-white/85">
-                    {money(request.subtotalGross)}
+                    {money(exempt ? request.subtotalNet : request.subtotalGross)}
                   </p>
                 </div>
                 <p className="mt-1.5 text-[11px] leading-[1.5] text-white/60">
