@@ -173,14 +173,7 @@ afterEach(() => {
 });
 
 describe("flag OFF — exactly as before", () => {
-  it("refuses a posted foreign country outright: there is no selector to post it (EU sales B3/C3)", async () => {
-    const result = await placeOrder({}, form({ ...verona, shipCountry: "IT" }));
-    expect(result.fieldErrors).toHaveProperty("shipCountry");
-    expect(mocks.request).not.toHaveBeenCalled();
-    expect(mocks.orderCreate).not.toHaveBeenCalled();
-  });
-
-  it("Verona is still refused as a Greek postcode ACS does not serve", async () => {
+  it("ignores a posted country: Verona is still refused as a Greek postcode ACS does not serve", async () => {
     mocks.request.mockRejectedValue(
       new HdctoolError(
         `${ENDPOINT} failed (422) {"success":false,"error":"No ACS station for postcode 37015"}`,
@@ -188,7 +181,7 @@ describe("flag OFF — exactly as before", () => {
         ENDPOINT,
       ),
     );
-    const result = await placeOrder({}, form(verona));
+    const result = await placeOrder({}, form({ ...verona, shipCountry: "IT" }));
     expect(result.fieldErrors).toHaveProperty("shipPostcode");
     expect(result.error).toMatch(/Αποστέλλουμε μόνο εντός Ελλάδας/);
     // ACS was asked with the body it always had — no country.
@@ -197,7 +190,7 @@ describe("flag OFF — exactly as before", () => {
   });
 
   it("still refuses «Italy» in the address before pricing", async () => {
-    const result = await placeOrder({}, form({ ...verona, shipAdminRegion: "Italy" }));
+    const result = await placeOrder({}, form({ ...verona, shipAdminRegion: "Italy", shipCountry: "IT" }));
     expect(result.fieldErrors).toHaveProperty("shipAdminRegion");
     expect(result.error).toMatch(/Αποστέλλουμε μόνο εντός Ελλάδας/);
     expect(mocks.request).not.toHaveBeenCalled();

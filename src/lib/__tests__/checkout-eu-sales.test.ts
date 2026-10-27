@@ -210,19 +210,51 @@ afterEach(() => {
 });
 
 describe("EU_SALES_ENABLED off — today's checkout", () => {
-  it("the schema refuses a country other than Greece, before anything is asked", async () => {
-    const result = await placeOrder({}, form(company));
-    expect(result.fieldErrors).toHaveProperty("shipCountry");
+  it("a posted DE is ignored: the order is Greek, the Greek checks run, VIES and DHL are never asked (R11-FLAG)", async () => {
+    await expect(placeOrder({}, form(company))).rejects.toThrow("REDIRECT https://viva.example/pay");
     expect(mocks.checkEuVat).not.toHaveBeenCalled();
     expect(mocks.quoteDhl).not.toHaveBeenCalled();
-    expect(mocks.request).not.toHaveBeenCalled();
-    expect(mocks.orderCreate).not.toHaveBeenCalled();
+    // ACS, with the body it always had — no country.
+    expect(mocks.request).toHaveBeenCalledWith("/api/public/courier/quote", { postcode: "10117", weightKg: 1.2 });
+    const data = createdData();
+    expect(data).not.toHaveProperty("shipCountry");
+    expect(data).not.toHaveProperty("billCountry");
+    expect(data).not.toHaveProperty("vatMode");
+    expect(data).toMatchObject({ shippingMethod: "courier", wantsInvoice: false, vatNumber: null });
   });
 
   it("«on», «1» are not «true»: still off", async () => {
     process.env.EU_SALES_ENABLED = "on";
-    const result = await placeOrder({}, form(company));
-    expect(result.fieldErrors).toHaveProperty("shipCountry");
+    await expect(placeOrder({}, form(company))).rejects.toThrow("REDIRECT");
+    expect(mocks.checkEuVat).not.toHaveBeenCalled();
+    expect(mocks.quoteDhl).not.toHaveBeenCalled();
+    expect(createdData()).not.toHaveProperty("shipCountry");
+  });
+
+  it("international shipping on, EU sales off: an IT order has shipCountry but no billCountry (rows as today)", async () => {
+    process.env.INTERNATIONAL_SHIPPING_ENABLED = "on";
+    mocks.request.mockResolvedValue({
+      success: true,
+      carrier: "DHL",
+      productCode: "U",
+      productName: "EXPRESS WORLDWIDE EU",
+      netAmount: 31.4,
+      vatRate: 24,
+      grossAmount: 38.94,
+      currency: "EUR",
+      transitDays: 2,
+      source: "dhl-mock",
+    });
+    await expect(
+      placeOrder(
+        {},
+        form({ shipLine1: "Via Roma 1", shipCity: "Verona", shipPostcode: "37015", shipCountry: "IT", shippingMethod: "dhl" }),
+      ),
+    ).rejects.toThrow("REDIRECT");
+    expect(mocks.checkEuVat).not.toHaveBeenCalled();
+    const data = createdData();
+    expect(data.shipCountry).toBe("IT");
+    expect(data).not.toHaveProperty("billCountry");
   });
 
   it("a Greek order is written exactly as before: no EU columns at all", async () => {

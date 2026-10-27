@@ -39,7 +39,7 @@ import { vatRateForDestination } from "@/lib/shipping/vat";
  * disabled submit button is a UX affordance; this is the actual control.
  */
 
-const checkoutFields = z.object({
+const checkoutSchema = z.object({
   email: z.email().max(320),
   phone: z.string().trim().min(8).max(64),
   firstName: z.string().trim().min(1).max(120),
@@ -50,9 +50,9 @@ const checkoutFields = z.object({
   shipCity: z.string().trim().min(2).max(120),
   shipPostcode: z.string().trim().min(4).max(16),
   /**
-   * ISO-2. Must be one of `allowedCountries()` (checked in `checkoutSchemaFor`):
-   * Greece alone with both INTERNATIONAL_SHIPPING_ENABLED and EU_SALES_ENABLED
-   * off, so a posted foreign country is refused. docs/dhl-express.md §4.
+   * ISO-2. Only read when there is a country selector
+   * (INTERNATIONAL_SHIPPING_ENABLED or EU_SALES_ENABLED); otherwise ignored and
+   * the order is Greek, as it always was. docs/dhl-express.md §4.
    */
   shipCountry: z.string().trim().max(2).optional().or(z.literal("")),
   /** Νομός. */
@@ -106,24 +106,6 @@ const checkoutFields = z.object({
 });
 
 /**
- * The form's schema for the countries on offer right now. The country is part
- * of the schema, not a later check, so that with both flags off a posted
- * foreign country is simply invalid input — there is no selector to post it.
- */
-function checkoutSchemaFor(countries: readonly string[]) {
-  return checkoutFields.superRefine((value, ctx) => {
-    const country = (value.shipCountry ?? "").trim().toUpperCase() || "GR";
-    if (!countries.includes(country)) {
-      ctx.addIssue({
-        code: "custom",
-        path: ["shipCountry"],
-        message: "Δεν αποστέλλουμε σε αυτή τη χώρα.",
-      });
-    }
-  });
-}
-
-/**
  * How long the Viva payment code stays valid: exactly as long as the hold.
  *
  * Derived from `STOCK_HOLD_HOURS` rather than chosen separately. It used to be
@@ -161,8 +143,7 @@ export async function placeOrder(
   _prev: CheckoutState,
   formData: FormData,
 ): Promise<CheckoutState> {
-  const countries = allowedCountries();
-  const parsed = checkoutSchemaFor(countries).safeParse(Object.fromEntries(formData));
+  const parsed = checkoutSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) {
     const fieldErrors: Record<string, string> = {};
     for (const issue of parsed.error.issues) {
@@ -193,10 +174,17 @@ export async function placeOrder(
    * and never exempt (Review Focus 5).
    */
   const euSales = isEuSalesEnabled();
+  const countries = allowedCountries();
   const selector = countries.length > 1;
-  /* The schema has already checked it is on offer. */
+  /*
+   * No selector (both flags off): the posted value is ignored and the order is
+   * Greek, as it always was. With one, a country not on offer is refused just
+   * below — after the invoice check, in the order the action always had. A
+   * country not on offer is never a DHL destination under EU sales, so it
+   * never reaches the EU path.
+   */
   const country = selector ? (input.shipCountry ?? "").trim().toUpperCase() || "GR" : "GR";
-  const euBuyer = euSales && isDhlDestination(country);
+  const euBuyer = euSales && countries.includes(country) && isDhlDestination(country);
   const eu = euSalesCopy(locale);
 
   let customerType: CustomerType | null = null;
@@ -248,14 +236,17 @@ export async function placeOrder(
    */
   /*
    * The delivery country (docs/dhl-express.md §4), worked out above. With both
-   * flags off there is no selector, the schema refused anything but Greece,
-   * and the checks below are exactly the ones above. With
+   * flags off there is no selector, the posted field is ignored (Greece), and
+   * the checks below are exactly the ones above. With
    * INTERNATIONAL_SHIPPING_ENABLED: Greece and Cyprus go with ACS, the rest of
    * the EU with DHL Express. With EU sales only: Greece, or a DHL destination.
    * Whenever there is a selector the Greek checks speak as they do with one
    * («επιλέξτε τη χώρα»).
    */
   const intl = internationalCopy(locale);
+  if (!countries.includes(country)) {
+    return { error: intl.country, fieldErrors: { shipCountry: intl.country } };
+  }
   const abroad = country !== "GR";
   /* The postcode as the destination country writes it («1012 AB», «00-950»). */
   let shipPostcode = input.shipPostcode;
@@ -475,8 +466,15 @@ export async function placeOrder(
         dhlQuotedAt: new Date(euQuote.quotedAt),
       }
     : {};
-  /* Where it goes and who is billed: the same country in this phase (§3.1). */
-  const countryColumns = abroad || euSales ? { shipCountry: country, billCountry: country } : {};
+  /*
+   * Where it goes and who is billed: the same country in this phase (§3.1).
+   * `shipCountry` abroad, as before; with EU sales on, both on every order.
+   * With EU sales off a row is exactly today's — no `billCountry` key.
+   */
+  const countryColumns = {
+    ...(abroad || euSales ? { shipCountry: country } : {}),
+    ...(euSales ? { billCountry: country } : {}),
+  };
   /* Abroad with EU sales the VAT number keeps its prefix; no ΔΟΥ, no AADE TRDR. */
   const invoiceColumns = euBuyer
     ? {
