@@ -723,6 +723,38 @@ model Order {
   billLine1    String? @db.VarChar(255)
   billCity     String? @db.VarChar(120)
   billPostcode String? @db.VarChar(16)
+  /// The billing country — the delivery country in this phase (no separate
+  /// billing address yet). Written with EU_SALES_ENABLED; GR otherwise.
+  billCountry  String  @default("GR") @db.VarChar(2)
+
+  // ── EU sales: consumer/company, VIES, VAT mode (intra-EU sales design §3) ──
+  //
+  // All null / standard on a Greek order and on every order placed before EU
+  // sales. `vatNumber` above keeps the country prefix for a foreign ΑΦΜ
+  // (`DE123456789`).
+
+  /// `individual` | `company` — asked only outside Greece, where it replaces
+  /// «Θέλω τιμολόγιο».
+  customerType           String?   @db.VarChar(16)
+  /// `standard` | `intra_eu_exempt`. Exempt only with a VIES-valid result the
+  /// server fetched itself on the day the order was placed (Europe/Athens).
+  vatMode                String    @default("standard") @db.VarChar(24)
+  /// What VIES answered when the order was placed — the evidence for a
+  /// zero-VAT invoice. Null when nothing was asked (Greece, a consumer).
+  viesValid              Boolean?
+  viesName               String?   @db.VarChar(255)
+  viesAddress            String?   @db.Text
+  viesConsultationNumber String?   @db.VarChar(64)
+  viesCheckedAt          DateTime?
+
+  /// The DHL Express price the order was charged, as HDCtool quoted it at
+  /// placement — what the intake books the shipment against.
+  dhlProductCode         String?   @db.VarChar(16)
+  dhlNetAmount           Decimal?  @db.Decimal(12, 2)
+  /// The VAT rate the postage is priced at (`vatRateForDestination`); an
+  /// exempt order still records it — `vatMode` says it was not charged.
+  dhlVatRate             Decimal?  @db.Decimal(5, 2)
+  dhlQuotedAt            DateTime?
 
   // ── Fulfilment choices ──
   shippingMethod String  @db.VarChar(32)
