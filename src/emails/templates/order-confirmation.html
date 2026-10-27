@@ -224,6 +224,7 @@
       <tr><td style="padding:6px 0;font-family:'Inter',Arial,Helvetica,sans-serif;font-size:13px;line-height:20px;color:#5F6061;text-align:right;">ΦΠΑ{{#if order.vat_label}} {{order.vat_label}}{{/if}}</td><td class="mono" style="padding:6px 0 6px 24px;font-family:'JetBrains Mono',Consolas,'Courier New',monospace;font-size:13px;line-height:20px;color:#1F1F1F;text-align:right;white-space:nowrap;">{{order.vat}}</td></tr>
       <tr><td style="padding:12px 0 0 0;font-family:'Inter',Arial,Helvetica,sans-serif;font-size:12px;line-height:20px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#1F1F1F;text-align:right;border-top:1px solid #1F1F1F;">Συνολο</td><td class="mono" style="padding:12px 0 0 24px;font-family:'JetBrains Mono',Consolas,'Courier New',monospace;font-size:18px;line-height:24px;font-weight:700;color:#1F1F1F;text-align:right;border-top:1px solid #1F1F1F;white-space:nowrap;">{{order.total}}</td></tr>
     </table>
+    {{#if order.exempt}}<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="360" align="right" style="margin-top:10px;"><tr><td style="padding:8px 0 0 0;font-family:'Inter',Arial,Helvetica,sans-serif;font-size:12px;line-height:18px;color:#5F6061;text-align:right;border-top:1px solid #D8D8D8;">{{order.exempt_note}}</td></tr></table>{{/if}}
   </td></tr>
 </table>
   </td></tr>
@@ -240,7 +241,7 @@
     <td class="k-col" width="50%" valign="top" style="vertical-align:top;padding-left:12px;">
       <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="border:1px solid #D8D8D8;"><tr><td style="padding:16px 18px;">
         <p class="mono" style="margin:0 0 12px 0;font-family:'JetBrains Mono',Consolas,'Courier New',monospace;font-size:10px;line-height:16px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:#5F6061;margin-bottom:8px;">Τιμολογηση <span style="color:#EA3E39;">/</span> {{order.document_type}}</p>
-        <p style="margin:0;font-family:'Inter',Arial,Helvetica,sans-serif;font-size:13px;line-height:20px;color:#1F1F1F;"><strong>{{order.billing.name}}</strong><br>{{order.billing.line1}}<br>{{order.billing.line2}}<br>{{#if order.billing.vat}}ΑΦΜ {{order.billing.vat}} · {{order.billing.doy}}{{/if}}</p>
+        <p style="margin:0;font-family:'Inter',Arial,Helvetica,sans-serif;font-size:13px;line-height:20px;color:#1F1F1F;"><strong>{{order.billing.name}}</strong><br>{{order.billing.line1}}<br>{{order.billing.line2}}<br>{{#if order.billing.vat}}ΑΦΜ {{order.billing.vat}}{{#if order.billing.doy}} · {{order.billing.doy}}{{/if}}{{/if}}{{#if order.billing.vies}}<br>VIES {{order.billing.vies}}{{/if}}</p>
         <p class="mono" style="font-family:'JetBrains Mono',Consolas,'Courier New',monospace;font-size:11px;line-height:16px;color:#5F6061;margin-top:10px;">{{order.payment_method}}</p>
       </td></tr></table>
     </td>

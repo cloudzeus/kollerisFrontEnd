@@ -1,7 +1,7 @@
 import "server-only";
 import { sendMail, mailConfigured } from "@/lib/mail/client";
 import { renderTemplate } from "@/lib/mail/templates";
-import { buildOrderContext, splitSection, splitText } from "@/lib/mail/order-email";
+import { buildOrderContext, lineAmount, splitSection, splitText } from "@/lib/mail/order-email";
 import { siteOrigin } from "@/lib/seo/urls";
 
 /**
@@ -83,17 +83,23 @@ export async function sendInternalOrderEmail(
     `Πληρωμή: ${orderData.payment_method}`,
     `Αποστολή: ${orderData.shipping_method}`,
     `Παραστατικό: ${orderData.document_type}`,
+    ...(orderData.eu_buyer ? [orderData.eu_buyer] : []),
     ...(order.wantsInvoice
       ? [
           `Επωνυμία: ${order.companyName ?? "—"}`,
-          `ΑΦΜ: ${order.vatNumber ?? "—"} · ΔΟΥ: ${order.taxOffice ?? "—"}`,
+          /* A foreign ΑΦΜ has its country prefix and no ΔΟΥ. */
+          order.taxOffice || order.billCountry === "GR" || !order.billCountry
+            ? `ΑΦΜ: ${order.vatNumber ?? "—"} · ΔΟΥ: ${order.taxOffice ?? "—"}`
+            : `ΑΦΜ: ${order.vatNumber ?? "—"}`,
+          ...(order.viesConsultationNumber ? [`VIES: ${order.viesConsultationNumber}`] : []),
         ]
       : []),
+    ...(orderData.exempt ? [orderData.exempt_note] : []),
     ...(order.notes?.trim() ? ["", `Σημειώσεις: ${order.notes.trim()}`] : []),
     "",
     "ΕΙΔΗ",
     ...order.lines.map(
-      (l) => `${l.quantity} × ${l.sku} — ${l.name}${l.brand ? ` (${l.brand})` : ""} — ${money(l.lineGross)}`,
+      (l) => `${l.quantity} × ${l.sku} — ${l.name}${l.brand ? ` (${l.brand})` : ""} — ${lineAmount(order, l)}`,
     ),
     "",
     `Μεταφορικά: ${orderData.shipping_cost}`,

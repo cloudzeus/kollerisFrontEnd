@@ -8,6 +8,7 @@ import { siteOrigin } from "@/lib/seo/urls";
 import { holdHours } from "@/lib/orders/hold";
 import { ALL_SHIPPING_METHODS, PAYMENT_METHODS } from "@/lib/cart/options";
 import { localityLine } from "@/lib/shipping/countries";
+import { euSalesCopy } from "@/lib/eu-sales/copy";
 import { REQUEST_ANSWER_HOURS, priceLines, readSnapshot, requestPath } from "@/lib/requests/model";
 
 /**
@@ -199,6 +200,34 @@ export function splitText(split: SplitSection | null): string[] {
 }
 
 /**
+ * Who the buyer is, for an order placed from another EU country — the shop's
+ * copy of the notification only («ΕΕ — εταιρεία, VIES ✓ <n>», «ΕΕ — ιδιώτης»).
+ * Empty on a Greek order and on any order from before EU sales.
+ */
+export function euBuyerLabel(order: {
+  billCountry?: string | null;
+  customerType?: string | null;
+  vatMode?: string | null;
+  viesConsultationNumber?: string | null;
+}): string {
+  if ((order.billCountry ?? "GR") === "GR" || !order.customerType) return "";
+  if (order.customerType === "individual") return "ΕΕ — ιδιώτης";
+  if (order.vatMode === "intra_eu_exempt") {
+    return `ΕΕ — εταιρεία, VIES ✓ ${order.viesConsultationNumber ?? "—"}`;
+  }
+  // A company VIES would not vouch for: charged VAT like a consumer.
+  return "ΕΕ — εταιρεία, χωρίς VIES ✓ (χρεώθηκε ΦΠΑ)";
+}
+
+/** What a line cost the customer: without VAT on an exempt order. */
+export function lineAmount(
+  order: { vatMode?: string | null },
+  line: { lineNet: unknown; lineGross: unknown },
+): string {
+  return money(order.vatMode === "intra_eu_exempt" ? line.lineNet : line.lineGross);
+}
+
+/**
  * Φτιάχνει το μήνυμα χωρίς να το στείλει.
  *
  * Χωρισμένο από το `sendOrderEmail` ώστε αυτό που φτάνει σε πελάτη να μπορεί
@@ -296,7 +325,13 @@ export async function buildOrderContext(orderNumber: string) {
    * μεικτό καλάθι είναι λάθος δήλωση σε κάτι που ο πελάτης κρατά ως απόδειξη.
    */
   const rates = [...new Set(order.lines.map((l) => Number(l.vatRate)))];
-  const vatLabel = rates.length === 1 ? `${rates[0]}%` : "";
+  /*
+   * An exempt (intra-community) order has no rate to print: the lines are
+   * stored at the 24% they were priced at, and the receipt says why there is
+   * no VAT in the note instead (intra-EU sales design §3).
+   */
+  const exempt = order.vatMode === "intra_eu_exempt";
+  const vatLabel = !exempt && rates.length === 1 ? `${rates[0]}%` : "";
 
   const quote = order.shippingQuote as { etaDays?: unknown; carrier?: unknown } | null;
   const etaDays = Number(quote?.etaDays);
@@ -321,6 +356,9 @@ export async function buildOrderContext(orderNumber: string) {
     shipping_cost: money(Number(order.shippingNet) + feeNet),
     vat: money(order.vatAmount),
     vat_label: vatLabel,
+    exempt,
+    exempt_note: exempt ? euSalesCopy("el").exemptNote : "",
+    eu_buyer: euBuyerLabel(order),
     total: money(order.totalGross),
     eta,
     payment_method: label(PAYMENT_METHODS, order.paymentMethod),
@@ -338,6 +376,8 @@ export async function buildOrderContext(orderNumber: string) {
           line2: `${order.billPostcode ?? order.shipPostcode} ${order.billCity ?? order.shipCity}`,
           vat: order.vatNumber ?? "",
           doy: order.taxOffice ?? "",
+          /* The VIES consultation number: the proof of the zero-VAT invoice. */
+          vies: order.viesConsultationNumber ?? "",
         }
       : {
           name: `${order.firstName} ${order.lastName}`.trim(),
@@ -345,6 +385,7 @@ export async function buildOrderContext(orderNumber: string) {
           line2: localityLine(order.shipPostcode, order.shipCity, order.shipCountry),
           vat: "",
           doy: "",
+          vies: "",
         },
     notes: order.notes ?? "",
     split: await splitSection(order, "customer"),
@@ -451,9 +492,16 @@ export async function buildOrderEmail(
         ].filter(Boolean)
       : []),
     "",
-    ...order.lines.map((l) => `${l.quantity} × ${l.name} — ${money(l.lineGross)}`),
+    ...order.lines.map((l) => `${l.quantity} × ${l.name} — ${lineAmount(order, l)}`),
     "",
     `Σύνολο: ${money(order.totalGross)}`,
+    ...(orderData.exempt
+      ? [
+          orderData.exempt_note,
+          ...(order.vatNumber ? [`ΑΦΜ: ${order.vatNumber}`] : []),
+          ...(order.viesConsultationNumber ? [`VIES: ${order.viesConsultationNumber}`] : []),
+        ]
+      : []),
     ...splitText(orderData.split),
     "",
     `Παρακολούθηση: ${link}`,
