@@ -49,10 +49,18 @@ describe("checkEuVat", () => {
     expect(await checkEuVat("DE123456789", "DE")).toEqual({
       status: "valid",
       name: "ACME GMBH",
+      address: "X",
       consultationNumber: "WAPIAAAA",
       checkedAt: "2026-10-27T08:00:00Z",
       message: "ok",
     });
+  });
+
+  it("«---» from VIES is no value", async () => {
+    fetchMock.mockResolvedValue(
+      json(200, { status: "valid", name: "---", address: "---", consultationNumber: "WAPIAAAA", checkedAt: "2026-10-27T08:00:00Z", message: "ok" }),
+    );
+    expect(await checkEuVat("DE123456789", "DE")).toMatchObject({ name: null, address: null });
   });
 
   it.each(["invalid", "invalid_format"] as const)("maps %s through", async (status) => {
@@ -78,6 +86,7 @@ describe("checkEuVat", () => {
     expect(await checkEuVat("DE123456789", "DE")).toEqual({
       status: "unavailable",
       name: null,
+      address: null,
       consultationNumber: null,
       checkedAt: null,
       message: UNAVAILABLE_COPY,

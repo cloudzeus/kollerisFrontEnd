@@ -24,6 +24,8 @@ export type EuVatStatus = "valid" | "invalid" | "unavailable" | "invalid_format"
 export type EuVatCheck = {
   status: EuVatStatus;
   name: string | null;
+  /** The registered address VIES gave, kept on the order as evidence. */
+  address: string | null;
   consultationNumber: string | null;
   /** ISO time VIES answered, as HDCtool reports it. */
   checkedAt: string | null;
@@ -33,6 +35,7 @@ export type EuVatCheck = {
 type VatCheckBody = {
   status?: unknown;
   name?: unknown;
+  address?: unknown;
   consultationNumber?: unknown;
   checkedAt?: unknown;
   message?: unknown;
@@ -40,12 +43,13 @@ type VatCheckBody = {
 
 const STATUSES: readonly EuVatStatus[] = ["valid", "invalid", "unavailable", "invalid_format"];
 
+/** A usable string, or null. VIES's «---» (no data) is not a value (VIES rule 6). */
 function text(value: unknown): string | null {
-  return typeof value === "string" && value.trim() ? value : null;
+  return typeof value === "string" && value.trim() && !/^-+$/.test(value.trim()) ? value : null;
 }
 
 function unavailable(message: string = VAT_UNAVAILABLE_MESSAGE): EuVatCheck {
-  return { status: "unavailable", name: null, consultationNumber: null, checkedAt: null, message };
+  return { status: "unavailable", name: null, address: null, consultationNumber: null, checkedAt: null, message };
 }
 
 /** The JSON body HDCtool put in an HdctoolError message (cut at 200 chars). */
@@ -89,6 +93,7 @@ export async function checkEuVat(vat: string, country: string): Promise<EuVatChe
   return {
     status,
     name: text(body.name),
+    address: text(body.address),
     consultationNumber: text(body.consultationNumber),
     checkedAt: text(body.checkedAt),
     message: text(body.message) ?? (status === "unavailable" ? VAT_UNAVAILABLE_MESSAGE : ""),
