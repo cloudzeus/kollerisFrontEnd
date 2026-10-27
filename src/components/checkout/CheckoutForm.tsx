@@ -350,7 +350,8 @@ export function CheckoutForm({
                         {/* The method the figures were priced for, not the radio a beat ahead of them. */}
                         {breakdown?.shippingMethod === "pickup"
                           ? t("split_now_pickup", { total: money(splitNow.totalGross), items: items(splitNow.itemCount) })
-                          : splitNow.shippingGross === 0 && !splitNow.unserviceable
+                          : // Free delivery is a Greek promise: never «δωρεάν» abroad.
+                            splitNow.shippingGross === 0 && !splitNow.unserviceable && !abroad
                             ? t("split_now_free", { total: money(splitNow.totalGross), items: items(splitNow.itemCount) })
                             : t("split_now", {
                                 total: money(splitNow.totalGross),

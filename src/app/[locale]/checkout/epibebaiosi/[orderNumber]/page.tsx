@@ -230,7 +230,8 @@ export default async function ConfirmationPage({ params, searchParams }: PagePro
                 <div className="border-l-[3px] border-k-ink bg-white px-5 py-4">
                   <p className="t-account-label text-k-ink">{upGreek(t("split_now_label"))}</p>
                   <p className="mt-1.5 text-[12.5px] leading-[1.6] text-k-text-2">
-                    {t("split_now_line", {
+                    {/* An exempt EU order was charged the net: «χωρίς ΦΠΑ», not «με ΦΠΑ». */}
+                    {t(order.vatMode === "intra_eu_exempt" ? "split_now_line_exempt" : "split_now_line", {
                       number: order.orderNumber,
                       items: items(order.lines.length),
                       total: formatMoney(Number(order.totalGross), locale),

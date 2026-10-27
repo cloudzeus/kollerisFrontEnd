@@ -189,10 +189,12 @@ export default async function CheckoutPage({
   const breakdown = await checkoutBreakdown({
     lines: cart.lines,
     cartTotals: totals,
-    shippingMethod: cart.shippingMethod,
+    // EU sales abroad: DHL only, and the VAT mode the summary uses.
+    shippingMethod: euDestination ? "dhl" : cart.shippingMethod,
     paymentMethod: cart.paymentMethod,
     postcode: destination?.postcode ?? null,
     destination: destination ? { country: destination.country, city: destination.city } : undefined,
+    ...(euDestination ? { vatMode } : {}),
   });
 
   return (

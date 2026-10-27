@@ -1463,6 +1463,7 @@
       "split_title": "Il tuo carrello procede in due parti",
       "split_now_label": "Spedito ora",
       "split_now_line": "Ordine {number} · {items} · {total} IVA inclusa (spedizione {shipping}).",
+      "split_now_line_exempt": "Ordine {number} · {items} · {total} IVA esclusa (spedizione {shipping}).",
       "split_now_paid": "Pagato",
       "split_now_pending": "In attesa di pagamento",
       "split_request_label": "Su ordinazione",

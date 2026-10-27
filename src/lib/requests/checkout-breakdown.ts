@@ -1,5 +1,5 @@
 import "server-only";
-import { computeTotals, type CartDestination } from "@/lib/cart/cart";
+import { computeTotals, type CartDestination, type VatMode } from "@/lib/cart/cart";
 import type { AnyShippingMethodId, CartLineView, CartTotals, PaymentMethodId } from "@/lib/cart/options";
 import { buildBreakdown, type CheckoutBreakdown } from "@/lib/requests/breakdown";
 import { splitCart } from "@/lib/requests/model";
@@ -19,6 +19,11 @@ export async function checkoutBreakdown(input: {
   paymentMethod: PaymentMethodId;
   postcode?: string | null;
   destination?: CartDestination;
+  /**
+   * EU sales: the VAT mode the page resolved, so the «pay now» figure is the
+   * one `placeOrder` would charge (net when exempt). Absent: standard, as before.
+   */
+  vatMode?: VatMode;
 }): Promise<CheckoutBreakdown | null> {
   const split = splitCart(input.lines);
   if (split.kind === "none") return null;
@@ -30,6 +35,7 @@ export async function checkoutBreakdown(input: {
           input.paymentMethod,
           input.postcode,
           input.destination,
+          input.vatMode ? { vatMode: input.vatMode } : {},
         )
       : null;
   return buildBreakdown({

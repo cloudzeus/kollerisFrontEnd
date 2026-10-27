@@ -1463,6 +1463,7 @@
       "split_title": "Your basket goes ahead in two parts",
       "split_now_label": "Shipping now",
       "split_now_line": "Order {number} · {items} · {total} incl. VAT (shipping {shipping}).",
+      "split_now_line_exempt": "Order {number} · {items} · {total} excl. VAT (shipping {shipping}).",
       "split_now_paid": "Paid",
       "split_now_pending": "Awaiting payment",
       "split_request_label": "Made to order",

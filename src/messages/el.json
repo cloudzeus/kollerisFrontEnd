@@ -1463,6 +1463,7 @@
       "split_title": "Το καλάθι σας προχωρά σε δύο μέρη",
       "split_now_label": "Αποστέλλεται τώρα",
       "split_now_line": "Παραγγελία {number} · {items} · {total} με ΦΠΑ (μεταφορικά {shipping}).",
+      "split_now_line_exempt": "Παραγγελία {number} · {items} · {total} χωρίς ΦΠΑ (μεταφορικά {shipping}).",
       "split_now_paid": "Εξοφλήθηκε",
       "split_now_pending": "Αναμένει πληρωμή",
       "split_request_label": "Κατόπιν παραγγελίας",
