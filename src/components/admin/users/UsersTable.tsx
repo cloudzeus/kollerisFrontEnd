@@ -171,10 +171,12 @@ export function UsersTable({ users }: { users: AdminUserRow[] }) {
                         <Pencil className="size-4" />
                         Επεξεργασία
                       </DropdownMenuItem>
-                      <DropdownMenuItem onSelect={() => setDialog({ kind: "password", user: u })}>
-                        <KeyRound className="size-4" />
-                        Νέος κωδικός
-                      </DropdownMenuItem>
+                      {!u.managedByHdctool && (
+                        <DropdownMenuItem onSelect={() => setDialog({ kind: "password", user: u })}>
+                          <KeyRound className="size-4" />
+                          Νέος κωδικός
+                        </DropdownMenuItem>
+                      )}
                       {u.recentFailures > 0 && (
                         <DropdownMenuItem disabled={pending} onSelect={() => run(() => actionUnlock(u.id))}>
                           <Unlock className="size-4" />
@@ -298,8 +300,14 @@ function EditDialog({
             id="edit-role"
             value={role}
             onChange={setRole}
-            disabled={user.isSelf}
-            hint={user.isSelf ? "Τον δικό σας ρόλο τον αλλάζει άλλος διαχειριστής." : undefined}
+            disabled={user.isSelf || user.managedByHdctool}
+            hint={
+              user.managedByHdctool
+                ? "ορίζεται στο HDCtool"
+                : user.isSelf
+                  ? "Τον δικό σας ρόλο τον αλλάζει άλλος διαχειριστής."
+                  : undefined
+            }
           />
           <DialogFooter>
             <Button type="button" variant="outline" onClick={onClose} disabled={pending}>

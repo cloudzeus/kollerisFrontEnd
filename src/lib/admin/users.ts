@@ -71,6 +71,7 @@ export async function listAdminUsers(selfId: string): Promise<AdminUserRow[]> {
         isActive: true,
         lastLoginAt: true,
         createdAt: true,
+        hdctoolUserId: true,
       },
     }),
     prisma.loginAttempt.groupBy({
@@ -81,9 +82,15 @@ export async function listAdminUsers(selfId: string): Promise<AdminUserRow[]> {
   ]);
   const failuresBy = new Map(failures.map((f) => [f.identifier, f._count]));
 
-  return users.map((u) => {
+  return users.map(({ hdctoolUserId, ...u }) => {
     const recentFailures = failuresBy.get(u.email) ?? 0;
-    return { ...u, recentFailures, locked: recentFailures >= MAX_ATTEMPTS, isSelf: u.id === selfId };
+    return {
+      ...u,
+      recentFailures,
+      locked: recentFailures >= MAX_ATTEMPTS,
+      isSelf: u.id === selfId,
+      managedByHdctool: hdctoolUserId != null,
+    };
   });
 }
 
@@ -190,6 +197,7 @@ export async function updateAdminUser(
   const diff: Record<string, unknown> = { email: user.email };
   if (name !== user.name) diff.name = { from: user.name, to: name };
   if (role !== user.role) {
+    if (user.hdctoolUserId != null) return { ok: false, error: "Ο ρόλος ορίζεται στο HDCtool" };
     if (id === actor.id) return { ok: false, error: "Δεν μπορείτε να αλλάξετε τον δικό σας ρόλο." };
     if (user.role === "ADMIN" && user.isActive && (await otherActiveAdmins(id)) === 0) {
       return { ok: false, error: "Είναι ο μόνος ενεργός διαχειριστής — ορίστε πρώτα άλλον." };
@@ -234,8 +242,9 @@ export async function resetAdminPassword(id: string, password: string, actor: Ac
   const parsed = passwordSchema.safeParse(password);
   if (!parsed.success) return { ok: false, error: parsed.error.issues[0]?.message ?? "Μη έγκυρος κωδικός." };
 
-  const user = await prisma.adminUser.findUnique({ where: { id }, select: { email: true } });
+  const user = await prisma.adminUser.findUnique({ where: { id }, select: { email: true, hdctoolUserId: true } });
   if (!user) return { ok: false, error: "Ο χρήστης δεν βρέθηκε." };
+  if (user.hdctoolUserId != null) return { ok: false, error: "Ο κωδικός δεν ισχύει για χρήστες του HDCtool" };
 
   await prisma.adminUser.update({
     where: { id },
