@@ -59,6 +59,24 @@ export function EuBuyerFields({
     });
   };
 
+  /*
+   * Typing away from the number that was checked drops its answer — here, and
+   * on the server, at the first keystroke that departs from it. The summary
+   * and the pay button never show the net for a number nobody checked; the
+   * new one has to be checked again (blur or «Έλεγχος»).
+   */
+  const edit = (next: string) => {
+    setVat(next);
+    if (checkedFor === null) return;
+    const typed = normaliseEuVat(next, country);
+    if (typed.ok && typed.vat === checkedFor) return;
+    setCheckedFor(null);
+    setAnswer(null);
+    startTransition(async () => {
+      await setCustomerTypeAction({ customerType: "company" });
+    });
+  };
+
   const check = () => {
     if (!format.ok || pending) return;
     const asked = format.vat;
@@ -151,7 +169,7 @@ export function EuBuyerFields({
                   required
                   autoComplete="off"
                   spellCheck={false}
-                  onChange={(e) => setVat(e.target.value.toUpperCase())}
+                  onChange={(e) => edit(e.target.value.toUpperCase())}
                   onBlur={check}
                   onKeyDown={(e) => {
                     // Enter inside the checkout form would submit the order.

@@ -134,4 +134,15 @@ describe("setCustomerTypeAction", () => {
     expect(storedBuyer()).toEqual({ customerType: "individual", vies: null });
     expect(mocks.revalidatePath).toHaveBeenCalled();
   });
+
+  it("«Εταιρεία» again (the VAT number was edited) also forgets the answer: no net for an unchecked number", async () => {
+    mocks.cookieGet.mockReturnValue({
+      value: JSON.stringify({
+        customerType: "company",
+        vies: { country: "DE", vat: "DE123456789", status: "valid", checkedAt: valid.checkedAt },
+      }),
+    });
+    await setCustomerTypeAction({ customerType: "company" });
+    expect(storedBuyer()).toEqual({ customerType: "company", vies: null });
+  });
 });
