@@ -16,6 +16,7 @@ const db = vi.hoisted(() => ({
   updates: 0,
   failCreateOnce: false,
   raceWinnerUnbound: false,
+  bindBeforeWrite: false,
   seq: 0,
 }));
 
@@ -23,9 +24,13 @@ vi.mock("@/lib/prisma", () => {
   const users = () => db.users as U[];
   const tx = {
     adminUser: {
-      findUnique: async ({ where }: { where: { hdctoolUserId?: string; email?: string } }) =>
+      findUnique: async ({ where }: { where: { id?: string; hdctoolUserId?: string; email?: string } }) =>
         users().find((u) =>
-          where.hdctoolUserId !== undefined ? u.hdctoolUserId === where.hdctoolUserId : u.email === where.email,
+          where.id !== undefined
+            ? u.id === where.id
+            : where.hdctoolUserId !== undefined
+              ? u.hdctoolUserId === where.hdctoolUserId
+              : u.email === where.email,
         ) ?? null,
       create: async ({ data }: { data: Partial<U> }) => {
         if (db.failCreateOnce) {
@@ -40,6 +45,14 @@ vi.mock("@/lib/prisma", () => {
         const u = { id: `new-${++db.seq}`, lastLoginAt: null, ...data } as U;
         users().push(u);
         return u;
+      },
+      updateMany: async ({ where, data }: { where: { id: string; hdctoolUserId: null }; data: Partial<U> }) => {
+        const u = users().find((x) => x.id === where.id)!;
+        if (db.bindBeforeWrite) u.hdctoolUserId = "h-other";
+        if (u.hdctoolUserId !== null) return { count: 0 };
+        db.updates++;
+        Object.assign(u, data);
+        return { count: 1 };
       },
       update: async ({ where, data }: { where: { id: string }; data: Partial<U> }) => {
         db.updates++;
@@ -75,6 +88,7 @@ beforeEach(() => {
   db.updates = 0;
   db.failCreateOnce = false;
   db.raceWinnerUnbound = false;
+  db.bindBeforeWrite = false;
   db.seq = 0;
 });
 
@@ -150,5 +164,13 @@ describe("linkAdminUser", () => {
     db.raceWinnerUnbound = true;
     const r = await linkAdminUser(claims());
     expect(r).toMatchObject({ ok: true, user: { id: "raced" } });
+  });
+
+  it("refuses when the unbound row is bound to another sub between read and write", async () => {
+    db.users = [user()];
+    db.bindBeforeWrite = true;
+    expect(await linkAdminUser(claims())).toEqual({ ok: false, reason: "email_bound_to_other" });
+    expect((db.users[0] as U).hdctoolUserId).toBe("h-other");
+    expect(db.audits).toHaveLength(0);
   });
 });

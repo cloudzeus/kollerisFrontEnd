@@ -63,16 +63,23 @@ async function attempt(claims: SsoClaims): Promise<LinkResult> {
 
     if (!user.isActive) return { ok: false, reason: "disabled_locally" } as const;
 
-    const updated = await tx.adminUser.update({
-      where: { id: user.id },
-      data: {
-        role: claims.role,
-        name: claims.name || user.name,
-        lastLoginAt: now,
-        ...(linked === "email" ? { hdctoolUserId: claims.sub } : {}),
-        ...(newEmail ? { email: newEmail } : {}),
-      },
-    });
+    const data = {
+      role: claims.role,
+      name: claims.name || user.name,
+      lastLoginAt: now,
+      ...(linked === "email" ? { hdctoolUserId: claims.sub } : {}),
+      ...(newEmail ? { email: newEmail } : {}),
+    };
+    let updated;
+    if (linked === "email") {
+      // Conditional write: a concurrent login may have bound this row to another identity.
+      const { count } = await tx.adminUser.updateMany({ where: { id: user.id, hdctoolUserId: null }, data });
+      if (count === 0) return { ok: false, reason: "email_bound_to_other" } as const;
+      updated = await tx.adminUser.findUnique({ where: { id: user.id } });
+      if (!updated) return { ok: false, reason: "email_bound_to_other" } as const;
+    } else {
+      updated = await tx.adminUser.update({ where: { id: user.id }, data });
+    }
     await audit(tx, updated.id, claims.role, linked);
     return { ok: true, user: toLinked(updated) } as const;
   });
