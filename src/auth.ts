@@ -57,7 +57,9 @@ const nextAuth = NextAuth({
           valid = false;
         }
 
-        const authorised = valid && !!user && user.isActive;
+        // A null hash (SSO-only account) can never authenticate with a password,
+        // even if the dummy hash happened to verify.
+        const authorised = valid && !!user && !!user.passwordHash && user.isActive;
 
         await prisma.loginAttempt.create({
           data: { identifier, successful: authorised },
