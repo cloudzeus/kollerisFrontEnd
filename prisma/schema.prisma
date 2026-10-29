@@ -1380,6 +1380,33 @@ model ContentBlock {
   @@map("content_blocks")
 }
 
+/// Editable overrides for next-intl message-catalogue strings.
+///
+/// The storefront pages render their copy through next-intl (`t("…")`), whose
+/// text lives in `src/messages/<locale>.json`. A row here shadows one of those
+/// strings for one locale, keyed by its dotted path (`etaireia.page.megali_gkama`).
+/// The merge happens once in `src/i18n/request.ts`, so every `t()` in the app
+/// picks the override up with no change to any page.
+///
+/// Like `ContentBlock`, absence is the default: no row means the catalogue value
+/// stands, and clearing an edit (or setting it equal to the catalogue) deletes
+/// the row, so the admin's "original text" marker stays truthful. `path` is wide
+/// because next-intl keys are long sentences-as-identifiers, well past 64 chars.
+model MessageOverride {
+  locale String @db.VarChar(5)
+  path   String @db.VarChar(191)
+
+  value String @db.Text
+
+  updatedBy String?  @db.VarChar(120)
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+
+  @@id([locale, path])
+  @@index([locale])
+  @@map("message_overrides")
+}
+
 /// A widget placed in a zone on a page.
 ///
 /// Zones are declared in code (`src/lib/zones/registry.ts`) because a zone is a
