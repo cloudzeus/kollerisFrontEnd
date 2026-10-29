@@ -122,7 +122,9 @@ export async function listEditableMessages(namespace: string, locale: Locale): P
     base,
   );
   const flat = flattenMessageStrings(subtree, namespace);
-  const overrides = new Map((await loadMessageOverrides(locale)).map((o) => [o.path, o.value]));
+  // A failed override read should show the catalogue, not 500 the admin screen.
+  const rows = await loadMessageOverrides(locale).catch(() => []);
+  const overrides = new Map(rows.map((o) => [o.path, o.value]));
   return Object.entries(flat).map(([path, baseVal]) => {
     const ov = overrides.get(path);
     return { path, base: baseVal, value: ov ?? baseVal, overridden: ov !== undefined };
