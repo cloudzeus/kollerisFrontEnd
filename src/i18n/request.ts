@@ -1,6 +1,7 @@
 import { hasLocale } from "next-intl";
 import { getRequestConfig } from "next-intl/server";
 import { routing } from "./routing";
+import { getMergedMessages } from "@/lib/content/messages";
 
 export default getRequestConfig(async ({ requestLocale }) => {
   const requested = await requestLocale;
@@ -10,7 +11,9 @@ export default getRequestConfig(async ({ requestLocale }) => {
 
   return {
     locale,
-    messages: (await import(`../messages/${locale}.json`)).default,
+    // The compiled catalogue with any admin overrides merged on top. One cached
+    // query per request; falls back to the catalogue if the read fails.
+    messages: await getMergedMessages(locale),
     timeZone: "Europe/Athens",
     formats: {
       dateTime: {
