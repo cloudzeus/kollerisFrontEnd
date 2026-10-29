@@ -14,6 +14,8 @@ import {
   getTopBrands,
 } from "@/lib/catalog/queries";
 import { getPolicyContent } from "@/lib/policies/content";
+import { getPolicyBody } from "@/lib/policies/overrides";
+import { htmlToText } from "@/lib/content/sanitize-html";
 import type { PolicySlug } from "@/lib/policies/types";
 import { alternatesFor } from "@/lib/seo/urls";
 
@@ -34,13 +36,17 @@ export function createPolicyRoute(slug: PolicySlug, path: string) {
   }): Promise<Metadata> {
     const { locale } = await params;
     const content = getPolicyContent(slug, locale);
+    const bodyHtml = await getPolicyBody(slug, locale);
+    // When an operator has rewritten the page, the description follows what they
+    // wrote; otherwise the intro doubles as the description where one exists, and
+    // pages without one fall back to the title — still an honest description.
+    const description = bodyHtml
+      ? htmlToText(bodyHtml).slice(0, 200) || content.title
+      : content.intro ?? content.title;
     return {
       alternates: alternatesFor(path, locale),
       title: content.title,
-      // The intro doubles as the meta description where one exists; policy
-      // pages without one (payment, shipping, returns, warranty) fall back to
-      // the title, which is still an honest description of the page.
-      description: content.intro ?? content.title,
+      description,
       // Legal boilerplate has no place competing for a search snippet.
       robots: { index: false, follow: true },
     };
@@ -54,7 +60,7 @@ export function createPolicyRoute(slug: PolicySlug, path: string) {
     const { locale } = await params;
     setRequestLocale(locale);
 
-    const [t, menuTree, brands, stats, rootCategories, miniCart] =
+    const [t, menuTree, brands, stats, rootCategories, miniCart, bodyHtml] =
       await Promise.all([
         getTranslations({ locale, namespace: "policies" }),
         getMenuTree(locale),
@@ -62,6 +68,7 @@ export function createPolicyRoute(slug: PolicySlug, path: string) {
         getCatalogueStats(),
         getRootCategories(locale),
         getMiniCart(locale),
+        getPolicyBody(slug, locale),
       ]);
 
     const content = getPolicyContent(slug, locale);
@@ -82,6 +89,7 @@ export function createPolicyRoute(slug: PolicySlug, path: string) {
           homeLabel={t("archiki")}
           contactLabel={t("miliste_mas")}
           updatedLabel={t("teleftaia_enimerosi")}
+          bodyHtml={bodyHtml}
         />
         {/* Μία ζώνη για ΟΛΕΣ τις θεσμικές σελίδες — όροι, απόρρητο, αποστολή,
             επιστροφές, εγγυήσεις, τρόποι πληρωμής. Ξεχωριστή ζώνη ανά σελίδα θα

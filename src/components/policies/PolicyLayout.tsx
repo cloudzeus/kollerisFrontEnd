@@ -19,6 +19,7 @@ export function PolicyLayout({
   homeLabel,
   contactLabel,
   updatedLabel,
+  bodyHtml,
 }: {
   content: PolicyContent;
   locale: Locale;
@@ -26,6 +27,12 @@ export function PolicyLayout({
   contactLabel: string;
   /** e.g. "Τελευταία ενημέρωση" / "Last updated" / "Ultimo aggiornamento". */
   updatedLabel: string;
+  /**
+   * An operator's rich body for this page, already sanitised. When present it
+   * replaces the structured prose below; the title and "last updated" band stay
+   * as they are. Absent (the default) renders the structured content.
+   */
+  bodyHtml?: string | null;
 }) {
   return (
     <main id="main">
@@ -53,24 +60,32 @@ export function PolicyLayout({
 
       <section className="band-base">
         <div className="shell-x max-w-[860px] py-9 lg:py-14">
-          <div className="prose-kolleris">
-            {content.intro && <p>{content.intro}</p>}
-            {content.sections.map((section, index) => (
-              <div key={section.heading ?? index}>
-                {section.heading && <h2>{section.heading}</h2>}
-                {section.paragraphs?.map((paragraph, i) => (
-                  <p key={i}>{paragraph}</p>
-                ))}
-                {section.list && (
-                  <ul>
-                    {section.list.map((item, i) => (
-                      <li key={i}>{item}</li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-            ))}
-          </div>
+          {bodyHtml ? (
+            <div
+              className="prose-kolleris"
+              // Sanitised server-side (allowlist) in `getPolicyBody`.
+              dangerouslySetInnerHTML={{ __html: bodyHtml }}
+            />
+          ) : (
+            <div className="prose-kolleris">
+              {content.intro && <p>{content.intro}</p>}
+              {content.sections.map((section, index) => (
+                <div key={section.heading ?? index}>
+                  {section.heading && <h2>{section.heading}</h2>}
+                  {section.paragraphs?.map((paragraph, i) => (
+                    <p key={i}>{paragraph}</p>
+                  ))}
+                  {section.list && (
+                    <ul>
+                      {section.list.map((item, i) => (
+                        <li key={i}>{item}</li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 

@@ -3,9 +3,11 @@ import { assertCan } from "@/lib/rbac";
 import { listForAdmin } from "@/lib/content/content";
 import { listEditableMessages } from "@/lib/content/messages";
 import { INTL_PAGES } from "@/lib/content/registry/pages-intl";
+import { listPolicyBodies } from "@/lib/policies/overrides";
 import { routing, type Locale } from "@/i18n/routing";
 import { ContentEditor } from "./ContentEditor";
 import { MessagePagesEditor } from "./MessagePagesEditor";
+import { PolicyPagesEditor } from "./PolicyPagesEditor";
 import { PageShell } from "@/components/admin/PageShell";
 
 export const dynamic = "force-dynamic";
@@ -42,6 +44,8 @@ export default async function ContentPage({
     })),
   );
 
+  const policyPages = await listPolicyBodies(locale);
+
   return (
     <PageShell
       title="Περιεχόμενο"
@@ -68,6 +72,15 @@ export default async function ContentPage({
           το αρχικό. Οι μεταφράσεις en/it υπάρχουν ήδη — η «Μετάφραση από Ελληνικά» είναι ανά πεδίο.
         </p>
         <MessagePagesEditor locale={locale} defaultLocale={routing.defaultLocale} pages={messagePages} />
+      </div>
+
+      <div className="mt-12 border-t border-k-line pt-8">
+        <h2 className="text-[length:var(--fs-13)] font-semibold text-k-ink">Νομικές σελίδες</h2>
+        <p className="mt-1 mb-6 text-[length:var(--fs-11-5)] text-k-text-3">
+          Όροι, απόρρητο, πληρωμές, αποστολή, επιστροφές, εγγυήσεις — μία ενότητα κειμένου ανά σελίδα. Αν
+          αφαιρεθεί η επεξεργασία, η σελίδα επανέρχεται στο αρχικό δομημένο περιεχόμενο.
+        </p>
+        <PolicyPagesEditor locale={locale} defaultLocale={routing.defaultLocale} pages={policyPages} />
       </div>
     </PageShell>
   );

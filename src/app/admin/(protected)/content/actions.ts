@@ -7,7 +7,18 @@ import { prisma } from "@/lib/prisma";
 import { CONTENT, CONTENT_BY_KEY } from "@/lib/content/registry";
 import { INTL_PAGES } from "@/lib/content/registry/pages-intl";
 import { getContent, listForAdmin, setContent } from "@/lib/content/content";
-import { getMergedMessages, getMessagePath, setMessageOverride } from "@/lib/content/messages";
+import {
+  getMergedMessages,
+  getMessagePath,
+  PlaceholderError,
+  setMessageOverride,
+} from "@/lib/content/messages";
+import { sanitizeHtml } from "@/lib/content/sanitize-html";
+import { getPolicyContent } from "@/lib/policies/content";
+import { policyBodyPath, policyContentToHtml } from "@/lib/policies/content-html";
+import { getPolicyBody } from "@/lib/policies/overrides";
+import { POLICY_PAGE_IDS } from "@/lib/policies/pages-policy";
+import type { PolicySlug } from "@/lib/policies/types";
 import { OpenRouterError, translateValue } from "@/lib/ai/openrouter";
 import { routing, type Locale } from "@/i18n/routing";
 
@@ -174,8 +185,12 @@ export async function saveMessages(locale: string, formData: FormData): Promise<
     try {
       await setMessageOverride({ path, locale: locale as Locale, value: raw, updatedBy: actor });
       changed.push(path);
-    } catch {
-      errors.push(`Αποτυχία αποθήκευσης: ${path}`);
+    } catch (error) {
+      errors.push(
+        error instanceof PlaceholderError
+          ? `Το κείμενο «${path.split(".").pop()}» πρέπει να κρατά τις μεταβλητές {…} όπως είναι.`
+          : `Αποτυχία αποθήκευσης: ${path}`,
+      );
     }
   }
 
@@ -216,6 +231,98 @@ export async function translateMessageField(path: string, toLocale: string): Pro
 
   try {
     const value = await translateValue({ kind: "text", text: source, from: routing.defaultLocale, to: toLocale });
+    return { ok: true, value };
+  } catch (error) {
+    return { ok: false, error: error instanceof OpenRouterError ? error.message : "Σφάλμα μετάφρασης." };
+  }
+}
+
+// ── legal pages (rich body override) ──────────────────────────────────────────
+//
+// The six legal pages render structured prose unless an operator has set a rich
+// body. Editing writes one MessageOverride per page at `policies.<slug>.body`,
+// which `getPolicyBody` reads back. The slug is the allowlist — the form field
+// name is the slug, never an arbitrary path.
+
+const isPolicySlug = (value: string): value is PolicySlug => POLICY_PAGE_IDS.has(value);
+
+/** Save edited legal-page bodies for one locale (rich HTML, sanitised on write). */
+export async function savePolicyBodies(locale: string, formData: FormData): Promise<SaveResult> {
+  const session = await auth();
+  assertCan(session?.user.role, "content");
+
+  if (!routing.locales.includes(locale as Locale)) {
+    return { ok: false, saved: 0, errors: ["Άγνωστη γλώσσα"] };
+  }
+
+  const actor = session?.user.email ?? "unknown";
+  const errors: string[] = [];
+  const changed: string[] = [];
+
+  for (const [slug, raw] of formData.entries()) {
+    if (typeof raw !== "string") continue;
+    if (!isPolicySlug(slug)) {
+      errors.push(`Μη έγκυρη σελίδα: ${slug}`);
+      continue;
+    }
+    // A legal page has no catalogue "original" — its default is the structured
+    // content. So a body equal to today's structured HTML means "no override":
+    // store empty, which deletes the row and lets the structured content render.
+    const current = policyContentToHtml(getPolicyContent(slug, locale as Locale));
+    const value = sanitizeHtml(raw).trim() === current.trim() ? "" : raw;
+
+    try {
+      await setMessageOverride({
+        path: policyBodyPath(slug),
+        locale: locale as Locale,
+        value,
+        rich: true,
+        updatedBy: actor,
+      });
+      changed.push(slug);
+    } catch {
+      errors.push(`Αποτυχία αποθήκευσης: ${slug}`);
+    }
+  }
+
+  if (changed.length > 0) {
+    await prisma.adminAuditLog.create({
+      data: {
+        userId: session!.user.id,
+        action: "content.update",
+        entity: "MessageOverride",
+        entityId: `${locale}:policies:${changed.join(",")}`.slice(0, 255),
+        diff: { locale, pages: changed },
+      },
+    });
+    for (const slug of changed) revalidatePath(`/${slug}`, "page");
+  }
+
+  revalidatePath("/admin/content");
+  return { ok: errors.length === 0, saved: changed.length, errors };
+}
+
+/**
+ * Translate one legal page's Greek body into another locale, via OpenRouter.
+ *
+ * Returned as an unsaved draft. The Greek source is the operator's own override
+ * if they have set one, otherwise today's structured content serialised to HTML
+ * — so there is always something to translate from.
+ */
+export async function translatePolicyBody(slug: string, toLocale: string): Promise<TranslateFieldResult> {
+  const session = await auth();
+  assertCan(session?.user.role, "content");
+
+  if (!routing.locales.includes(toLocale as Locale)) return { ok: false, error: "Άγνωστη γλώσσα" };
+  if (!isPolicySlug(slug)) return { ok: false, error: `Άγνωστη σελίδα: ${slug}` };
+
+  const source =
+    (await getPolicyBody(slug, routing.defaultLocale)) ??
+    policyContentToHtml(getPolicyContent(slug, routing.defaultLocale));
+  if (!source.trim()) return { ok: true, value: "" };
+
+  try {
+    const value = await translateValue({ kind: "rich", text: source, from: routing.defaultLocale, to: toLocale });
     return { ok: true, value };
   } catch (error) {
     return { ok: false, error: error instanceof OpenRouterError ? error.message : "Σφάλμα μετάφρασης." };

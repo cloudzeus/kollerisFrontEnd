@@ -82,6 +82,48 @@ export function resolveOverride(
   return { action: "upsert", value: norm };
 }
 
+/**
+ * The ICU argument names a message string refers to — the simple `{inStock}`
+ * and the leading name of a complex `{count, plural, …}` form alike.
+ */
+export function icuArgNames(value: string): Set<string> {
+  const names = new Set<string>();
+  const re = /\{\s*(\w+)\s*(?:,|\})/g;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(value)) !== null) names.add(m[1]!);
+  return names;
+}
+
+/**
+ * Whether an override is safe to serve for a message that next-intl renders
+ * with runtime arguments (the FAQ's `{inStock}` / `{products}` counts).
+ *
+ * Two ways an edit can break a page, both forbidden here:
+ *   - an unbalanced brace — a parse error next-intl throws on;
+ *   - a NEW argument the catalogue never passes — next-intl throws
+ *     "variable not provided" at render.
+ *
+ * Dropping a placeholder is allowed: the number just stops showing, which is a
+ * content choice, not a crash. Plain-text edits of plain-text copy are always
+ * safe.
+ */
+export function isPlaceholderSafe(base: string, value: string): boolean {
+  const opens = (value.match(/\{/g) ?? []).length;
+  const closes = (value.match(/\}/g) ?? []).length;
+  if (opens !== closes) return false;
+  const allowed = icuArgNames(base);
+  for (const name of icuArgNames(value)) if (!allowed.has(name)) return false;
+  return true;
+}
+
+/** Thrown by `setMessageOverride` when an edit would introduce a bad placeholder. */
+export class PlaceholderError extends Error {
+  constructor() {
+    super("placeholder");
+    this.name = "PlaceholderError";
+  }
+}
+
 // ── IO glue ──────────────────────────────────────────────────────────────────
 
 /** Overrides for one locale, deduped per request. */
@@ -145,6 +187,12 @@ export async function setMessageOverride(args: {
   if (decision.action === "delete") {
     await prisma.messageOverride.deleteMany({ where: { locale, path } });
     return;
+  }
+  // Plain messages are rendered with runtime args; a bad placeholder would 500
+  // the page. Rich bodies (policy prose) are printed as-is, so the brace rule
+  // does not apply to them.
+  if (!rich && !isPlaceholderSafe(base ?? "", decision.value)) {
+    throw new PlaceholderError();
   }
   await prisma.messageOverride.upsert({
     where: { locale_path: { locale, path } },

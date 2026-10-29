@@ -43,7 +43,7 @@ describe("getMessagePath", () => {
 describe("mergeOverrides", () => {
   test("overlays an override at its nested path without mutating the base", () => {
     const base = { etaireia: { page: { a: "Α", b: "Β" } } };
-    const merged = mergeOverrides(base, [{ path: "etaireia.page.a", value: "ΑΛΛΑΓΜΕΝΟ" }]);
+    const merged = mergeOverrides(base, [{ path: "etaireia.page.a", value: "ΑΛΛΑΓΜΕΝΟ" }]) as typeof base;
     expect(merged.etaireia.page).toEqual({ a: "ΑΛΛΑΓΜΕΝΟ", b: "Β" });
     // base untouched
     expect(base.etaireia.page.a).toBe("Α");

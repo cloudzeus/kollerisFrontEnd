@@ -11,7 +11,10 @@
  * them resolves to at least one string, so a typo can't ship a blank accordion.
  *
  * The legal/policy pages are deliberately absent: their prose is structured
- * data in `src/lib/policies/content.ts`, edited through a separate path.
+ * data in `src/lib/policies/content.ts`, edited through a separate rich-HTML
+ * path. The FAQ, by contrast, DOES live in next-intl (the `faq` namespace, with
+ * live-interpolated numbers), so it belongs here — its `{inStock}`/`{products}`
+ * placeholders are protected by the save-time guard in `content/messages.ts`.
  *
  * Client-safe: declarations only, no values, no I/O.
  */
@@ -29,6 +32,7 @@ export const INTL_PAGES: ReadonlyArray<IntlPageDef> = [
   { id: "epikoinonia", title: "Επικοινωνία", path: "/epikoinonia", namespace: "epikoinonia.page", order: 2 },
   { id: "prosfores", title: "Προσφορές", path: "/prosfores", namespace: "prosfores.page", order: 3 },
   { id: "syxnes-erotiseis", title: "Συχνές ερωτήσεις", path: "/syxnes-erotiseis", namespace: "syxnes-erotiseis.page", order: 4 },
+  { id: "faq", title: "Συχνές ερωτήσεις — ερωτήσεις & απαντήσεις", path: "/syxnes-erotiseis", namespace: "faq", order: 5 },
 ] as const;
 
 export const INTL_PAGE_BY_ID = new Map(INTL_PAGES.map((p) => [p.id, p]));
