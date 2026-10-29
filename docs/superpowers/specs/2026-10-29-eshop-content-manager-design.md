@@ -181,8 +181,7 @@ export class OpenRouterError extends Error {}
 
 // config(): OPENROUTER_API_KEY (required),
 //           OPENROUTER_API_URL  (default https://openrouter.ai/api/v1/chat/completions),
-//           OPENROUTER_MODEL    (default a capable multilingual model, e.g. a
-//                                mid-tier instruct model — final id picked at impl)
+//           OPENROUTER_MODEL    (default "openai/gpt-4o-mini" — overridable)
 
 async function chat(system: string, user: string, maxTokens?: number): Promise<string>
 
