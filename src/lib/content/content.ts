@@ -2,6 +2,7 @@ import "server-only";
 import { cache } from "react";
 import { prisma } from "@/lib/prisma";
 import { CONTENT, CONTENT_BY_KEY, type ContentView } from "@/lib/content/registry";
+import { sanitizeHtml } from "@/lib/content/sanitize-html";
 import { routing, type Locale } from "@/i18n/routing";
 
 /**
@@ -101,14 +102,17 @@ export async function setContent(
   const def = CONTENT_BY_KEY.get(key);
   if (!def) return { ok: false, error: `Unknown content key: ${key}` };
 
-  const value = rawValue.trim();
+  // Rich values are HTML printed with dangerouslySetInnerHTML; sanitise before
+  // they are stored or compared, so the row can never hold anything that runs.
+  const value = def.kind === "rich" ? sanitizeHtml(rawValue).trim() : rawValue.trim();
+  const fallback = def.kind === "rich" ? sanitizeHtml(def.fallback).trim() : def.fallback.trim();
 
-  if (value === "" || value === def.fallback.trim()) {
+  if (value === "" || value === fallback) {
     await prisma.contentBlock.deleteMany({ where: { key, locale } });
     return { ok: true };
   }
 
-  if (def.maxChars && value.length > def.maxChars * 2) {
+  if (def.kind !== "rich" && def.maxChars && value.length > def.maxChars * 2) {
     // Twice the guidance, not the guidance itself: the counter is advice, but a
     // value this far over will break the layout it sits in.
     return { ok: false, error: `${def.label}: πολύ μεγάλο (${value.length} χαρακτήρες)` };
