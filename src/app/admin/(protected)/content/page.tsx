@@ -36,13 +36,18 @@ export default async function ContentPage({
       description="Κείμενα και εικόνες του καταστήματος. Ένα άδειο πεδίο επαναφέρει το αρχικό — τίποτα δεν χάνεται."
     >
       {untouched > 0 && (
-        <p className="mb-6 text-[12.5px] text-k-text-3">
+        <p className="mb-6 text-[length:var(--fs-11-5)] text-k-text-3">
           {untouched === values.length
             ? "Κανένα κείμενο δεν έχει αλλάξει ακόμη — βλέπετε το αρχικό."
             : `${untouched} από ${values.length} δείχνουν ακόμη το αρχικό κείμενο.`}
         </p>
       )}
-      <ContentEditor locale={locale} locales={routing.locales} values={values} />
+      <ContentEditor
+        locale={locale}
+        locales={routing.locales}
+        defaultLocale={routing.defaultLocale}
+        values={values}
+      />
     </PageShell>
   );
 }

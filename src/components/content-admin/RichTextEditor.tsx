@@ -54,7 +54,7 @@ export function RichTextEditor({
     content: value || "",
     editorProps: {
       attributes: {
-        class: "prose-kolleris min-h-[8rem] px-3 py-2 text-[length:var(--fs-14)] leading-[1.6] outline-none",
+        class: "prose-kolleris min-h-[8rem] px-3 py-2 leading-[1.6] outline-none",
         ...(id ? { id } : {}),
       },
     },
