@@ -41,4 +41,19 @@ describe("isPlaceholderSafe", () => {
   it("allows plain-text edits of a plain-text base", () => {
     expect(isPlaceholderSafe("απλό κείμενο", "άλλο απλό κείμενο")).toBe(true);
   });
+
+  // Brace-balanced + no-new-arg is not enough: a malformed plural/select still
+  // breaks at render (next-intl logs onError and shows the raw key). The guard
+  // must reject anything the ICU parser can't parse.
+  it("rejects a plural form missing its required other clause", () => {
+    expect(isPlaceholderSafe(base, "{inStock, plural, one {ένα}}")).toBe(false);
+  });
+
+  it("rejects a malformed argument type", () => {
+    expect(isPlaceholderSafe(base, "Διαθέσιμα {products, 2000}")).toBe(false);
+  });
+
+  it("allows a well-formed plural over an existing argument", () => {
+    expect(isPlaceholderSafe(base, "{inStock, plural, one {ένα} other {# προϊόντα}}")).toBe(true);
+  });
 });

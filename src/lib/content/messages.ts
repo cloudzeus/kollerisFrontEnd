@@ -1,5 +1,6 @@
 import "server-only";
 import { cache } from "react";
+import { parse } from "@formatjs/icu-messageformat-parser";
 import { prisma } from "@/lib/prisma";
 import { sanitizeHtml } from "@/lib/content/sanitize-html";
 import type { Locale } from "@/i18n/routing";
@@ -106,6 +107,12 @@ export function icuArgNames(value: string): Set<string> {
  * Dropping a placeholder is allowed: the number just stops showing, which is a
  * content choice, not a crash. Plain-text edits of plain-text copy are always
  * safe.
+ *
+ * The final check parses the value with the same ICU grammar next-intl renders
+ * with, so a structurally broken form (a plural missing its `other` clause, a
+ * bad argument type) is rejected here rather than degrading to a raw key on the
+ * page. A value the parser rejects can only be more exotic ICU than shop copy
+ * uses, so erring strict costs at most a save error, never a broken page.
  */
 export function isPlaceholderSafe(base: string, value: string): boolean {
   const opens = (value.match(/\{/g) ?? []).length;
@@ -113,6 +120,11 @@ export function isPlaceholderSafe(base: string, value: string): boolean {
   if (opens !== closes) return false;
   const allowed = icuArgNames(base);
   for (const name of icuArgNames(value)) if (!allowed.has(name)) return false;
+  try {
+    parse(value, { requiresOtherClause: true });
+  } catch {
+    return false;
+  }
   return true;
 }
 

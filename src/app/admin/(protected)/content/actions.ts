@@ -295,9 +295,14 @@ export async function savePolicyBodies(locale: string, formData: FormData): Prom
         diff: { locale, pages: changed },
       },
     });
-    for (const slug of changed) revalidatePath(`/${slug}`, "page");
   }
 
+  // Legal pages are statically generated for all three locales and live under
+  // the `[locale]` segment (el at `/slug`, en at `/en/slug`, it at `/it/slug`).
+  // A per-slug `revalidatePath("/slug")` would miss the dynamic segment and the
+  // non-default locales, so revalidate the whole tree, exactly as the sibling
+  // save actions do — otherwise an edited en/it body never appears.
+  revalidatePath("/", "layout");
   revalidatePath("/admin/content");
   return { ok: errors.length === 0, saved: changed.length, errors };
 }
