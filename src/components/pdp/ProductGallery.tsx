@@ -5,6 +5,9 @@ import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { upGreek } from "@/lib/greek";
 
+/** Dots on the main image up to this many photos; past it only the counter. */
+const MAX_DOTS = 12;
+
 /**
  * Product gallery with zoom.
  *
@@ -157,7 +160,12 @@ export function ProductGallery({
                * raised a vertical bar AND a horizontal one for those 4px.
                * The rail has arrows; it does not need either.
                */
-              className="scroll-none flex flex-wrap gap-2.5 lg:max-h-[540px] lg:flex-col lg:flex-nowrap lg:overflow-x-hidden lg:overflow-y-auto"
+              /*
+               * Phones: one row that scrolls sideways. It used to wrap, which
+               * was fine at the old cap of 12 photos; with every photo synced
+               * a product can have thirty, and wrapping buried the page.
+               */
+              className="scroll-none flex gap-2.5 overflow-x-auto lg:max-h-[540px] lg:flex-col lg:overflow-x-hidden lg:overflow-y-auto"
             >
               {images.map((image, index) => (
                 <button
@@ -248,7 +256,8 @@ export function ProductGallery({
               </span>
             )}
 
-            {images.length > 1 && (
+            {/* Past a dozen the dots no longer fit a phone; the counter below says it. */}
+            {images.length > 1 && images.length <= MAX_DOTS && (
               <div className="pointer-events-none absolute bottom-3.5 left-0 flex w-full justify-center gap-1.5">
                 {images.map((image, index) => (
                   <span
