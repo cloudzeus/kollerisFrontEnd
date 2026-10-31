@@ -65,13 +65,26 @@ export function RequestActions({
         <input type="hidden" name="offerVersion" value={offerVersion ?? ""} />
         <button
           type="submit"
+          name="method"
+          value="card"
           disabled={busy}
           className="t-btn flex h-14 w-full items-center justify-center bg-k-red text-white transition-colors hover:bg-k-red-hover disabled:opacity-50"
         >
           {accepting ? upGreek(t("pending")) : `${upGreek(mode === "pay" ? t("pay_again") : t("accept"))} →`}
         </button>
+        <p className="mt-2 text-[length:var(--fs-11-5)] leading-[1.5] text-k-text-4">{t("pay_hint")}</p>
+        {/* Το ίδιο, με κατάθεση: ο πελάτης παίρνει IBAN και κωδικό αιτιολογίας. */}
+        <button
+          type="submit"
+          name="method"
+          value="bank"
+          disabled={busy}
+          className="t-btn-sm mt-3 flex h-11 w-full items-center justify-center border-[1.5px] border-k-ink text-k-ink transition-colors hover:bg-k-ink hover:text-white disabled:opacity-50"
+        >
+          {upGreek(mode === "pay" ? t("pay_bank_again") : t("accept_bank"))}
+        </button>
+        <p className="mt-2 text-[length:var(--fs-11-5)] leading-[1.5] text-k-text-4">{t("pay_bank_hint")}</p>
       </form>
-      <p className="mt-2 text-[11.5px] leading-[1.5] text-k-text-4">{t("pay_hint")}</p>
 
       {mode === "offer" && (
         <form

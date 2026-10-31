@@ -5,11 +5,17 @@ vi.mock("@/lib/mail/request-emails", async () => (await import("./request-fakes"
 vi.mock("@/lib/orders/send-to-erp", async () => (await import("./request-fakes")).mockModules.erp());
 vi.mock("@/lib/payment/viva", async () => (await import("./request-fakes")).mockModules.viva());
 vi.mock("@/lib/requests/shipping", async () => (await import("./request-fakes")).mockModules.shipping());
+vi.mock("@/lib/mail/order-email", async () => ({
+  sendOrderEmail: vi.fn(async (orderNumber: string) => {
+    (await import("./request-fakes")).calls.push(`mail:order:${orderNumber}`);
+    return { ok: true as const };
+  }),
+}));
 
 import { TOKEN, calls, db, outside, resetFakes, seedRequest } from "./request-fakes";
 import { acceptRequest, applyOfferWebhook, declineRequest, newRequestToken } from "@/lib/requests/service";
 import { sweepRequests } from "@/lib/requests/request-sweep";
-import { offerWebhookSchema, type OfferWebhookBody } from "@/lib/requests/model";
+import { offerWebhookSchema, readOfferHistory, readStoredOffer, type OfferWebhookBody } from "@/lib/requests/model";
 
 const NOW = new Date("2026-10-13T10:00:00Z");
 
@@ -338,5 +344,73 @@ describe("request sweep — one reminder after 24h, expiry at offerExpiresAt", (
   it("skips when another replica holds the lock", async () => {
     db.locked = true;
     expect(await sweepRequests({ now: () => NOW.getTime() })).toEqual({ ok: false, skipped: "already_running" });
+  });
+});
+
+describe("offer history — every version is kept (HDC-20261027-0001)", () => {
+  it("a newer version keeps the previous ones, oldest first, without nesting", async () => {
+    seedRequest();
+    await applyOfferWebhook(offer(), NOW);
+    await applyOfferWebhook(offer({ offerVersion: 2, note: "v2" }), NOW);
+    await applyOfferWebhook(offer({ offerVersion: 3, note: "v3" }), NOW);
+    const json = db.orders[0].offerJson;
+    expect(readStoredOffer(json)).toMatchObject({ version: 3, note: "v3" });
+    const history = readOfferHistory(json);
+    expect(history.map((h) => h.version)).toEqual([1, 2]);
+    expect(history.every((h) => !("history" in h))).toBe(true);
+  });
+
+  it("a rejection after an offer keeps the offer in the history", async () => {
+    seedRequest();
+    await applyOfferWebhook(offer(), NOW);
+    await applyOfferWebhook({ orderNumber: "KOL-20261013-0002", offerVersion: 2, decision: "reject", reason: "Καταργήθηκε" }, NOW);
+    expect(readStoredOffer(db.orders[0].offerJson)).toMatchObject({ decision: "reject", version: 2 });
+    expect(readOfferHistory(db.orders[0].offerJson).map((h) => h.decision)).toEqual(["offer"]);
+  });
+});
+
+describe("accepting an offer with payment by bank transfer", () => {
+  async function offered() {
+    const order = seedRequest({ guestToken: "g".repeat(32) } as never);
+    await applyOfferWebhook(offer(), NOW);
+    calls.length = 0;
+    return order;
+  }
+
+  it("issues a long-lived Viva reference, confirms the order, emails the bank details and opens the confirmation page", async () => {
+    const order = await offered();
+    const result = await acceptRequest(TOKEN, "1", NOW, "bank");
+    expect(result).toEqual({
+      ok: true,
+      redirectUrl: `/checkout/epibebaiosi/KOL-20261013-0002?t=${"g".repeat(32)}`,
+    });
+    expect(order).toMatchObject({
+      requestStatus: "ACCEPTED",
+      paymentMethod: "bank",
+      status: "CONFIRMED",
+      paymentStatus: "PENDING",
+      vivaOrderCode: "9000000000000001",
+      totalGross: 96.72,
+    });
+    const viva = outside.createPaymentOrder.mock.calls[0][0] as { expiryMinutes?: number; notifyCustomer?: boolean };
+    expect(viva.expiryMinutes).toBeGreaterThanOrEqual(3 * 24 * 60);
+    expect(viva.notifyCustomer).toBe(false);
+    expect(calls).toContain("mail:order:KOL-20261013-0002");
+  });
+
+  it("still accepts without Viva — the order number is the reference", async () => {
+    const order = await offered();
+    outside.isVivaConfigured.mockReturnValue(false);
+    const result = await acceptRequest(TOKEN, "1", NOW, "bank");
+    expect(result.ok).toBe(true);
+    expect(order).toMatchObject({ paymentMethod: "bank", status: "CONFIRMED", vivaOrderCode: null });
+  });
+
+  it("switching back to card after choosing bank sets the method to card", async () => {
+    const order = await offered();
+    await acceptRequest(TOKEN, "1", NOW, "bank");
+    const again = await acceptRequest(TOKEN, "1", NOW, "card");
+    expect(again).toMatchObject({ ok: true, redirectUrl: expect.stringContaining("vivapayments") });
+    expect(order.paymentMethod).toBe("card");
   });
 });

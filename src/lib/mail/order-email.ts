@@ -521,6 +521,10 @@ export async function buildOrderEmail(
           // Η ίδια αιτιολογία με το HTML. Δύο κανάλια που διαφωνούν για το τι
           // γράφεται στην κατάθεση είναι ο τρόπος να φτάσουν χρήματα αταύτιστα.
           `${t("Αιτιολογία", "Reference")}: ${reference}`,
+          t(
+            "Στην αιτιολογία γράψτε μόνο τον παραπάνω κωδικό — όχι το IBAN ή το όνομά σας — για να ταυτιστεί αυτόματα η κατάθεση.",
+            "In the payment reference write only the code above — not the IBAN or your name — so the transfer is matched automatically.",
+          ),
           heldHours
             ? t(
                 `Κρατάμε την παραγγελία και το απόθεμα για ${heldHours} ώρες.`,
