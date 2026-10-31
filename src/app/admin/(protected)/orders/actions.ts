@@ -38,6 +38,7 @@ export async function pushOrderToErp(orderNumber: string): Promise<SendToErpResu
   // Refreshed on failure too: `erpError` is now on the order and the row shows
   // it, which is the difference between a lost click and a legible problem.
   revalidatePath("/admin/orders");
+  revalidatePath(`/admin/orders/${orderNumber}`);
   revalidatePath("/admin");
 
   return result;

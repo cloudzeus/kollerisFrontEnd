@@ -22,7 +22,8 @@ export async function acceptOfferAction(
   formData: FormData,
 ): Promise<RequestActionState> {
   const token = formData.get("token");
-  const result = await acceptRequest(token, formData.get("offerVersion"));
+  // «method» έρχεται από το κουμπί που πατήθηκε: κάρτα (Viva) ή κατάθεση.
+  const result = await acceptRequest(token, formData.get("offerVersion"), new Date(), formData.get("method"));
   if (!result.ok) {
     if (typeof token === "string") revalidatePath(`/aitima/${token}`);
     return { error: result.error };

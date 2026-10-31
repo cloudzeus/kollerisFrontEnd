@@ -1,6 +1,8 @@
 import "server-only";
 import { prisma } from "@/lib/prisma";
 import { createPaymentOrder, isVivaConfigured } from "@/lib/payment/viva";
+import { sendOrderEmail } from "@/lib/mail/order-email";
+import { BANK_PAYMENT_CODE_DAYS } from "@/lib/orders/hold";
 import { syncRequestToHdctool } from "@/lib/orders/send-to-erp";
 import { sendInternalRequestEmail, sendRequestEmail } from "@/lib/mail/request-emails";
 import { quoteOfferShipping } from "@/lib/requests/shipping";
@@ -11,6 +13,7 @@ import {
   priceLines,
   readSnapshot,
   readStoredOffer,
+  withOfferHistory,
   unknownLineRefs,
   type OfferWebhookBody,
   type StoredOffer,
@@ -77,6 +80,7 @@ export async function applyOfferWebhook(
       requestStatus: true,
       requestLines: true,
       offerVersion: true,
+      offerJson: true,
     },
   });
   if (!order) return { status: 404, body: { ok: false, error: "order_not_found" } };
@@ -142,7 +146,7 @@ export async function applyOfferWebhook(
     data = {
       requestStatus: "OFFERED",
       offerVersion: body.offerVersion,
-      offerJson: stored,
+      offerJson: withOfferHistory(stored, order.offerJson),
       ...(quotedDhl ? { shippingQuote: quotedDhl } : {}),
       offerExpiresAt: expiresAt,
       offerRemindedAt: null,
@@ -153,7 +157,7 @@ export async function applyOfferWebhook(
     data = {
       requestStatus: "REJECTED",
       offerVersion: body.offerVersion,
-      offerJson: stored,
+      offerJson: withOfferHistory(stored, order.offerJson),
       offerExpiresAt: null,
       requestDecisionAt: now,
     };
@@ -225,6 +229,7 @@ export type AcceptOutcome =
 const requestSelect = {
   id: true,
   orderNumber: true,
+  guestToken: true,
   status: true,
   paymentStatus: true,
   email: true,
@@ -255,14 +260,17 @@ export async function acceptRequest(
   token: unknown,
   shownVersion: unknown,
   now: Date = new Date(),
+  /** «card» (Viva: κάρτα ή IRIS) ή «bank» (κατάθεση με κωδικό αιτιολογίας). */
+  method: unknown = "card",
 ): Promise<AcceptOutcome> {
+  const pay: PayMethod = method === "bank" ? "bank" : "card";
   if (!isWellFormedToken(token)) return { ok: false, error: "not_found" };
   const order = await prisma.order.findUnique({ where: { requestToken: token }, select: requestSelect });
   if (!order || !order.requestStatus) return { ok: false, error: "not_found" };
   if (order.paymentStatus === "PAID") return { ok: false, error: "already_paid" };
 
   // Accepted already (a second click, or back after closing Viva): pay again.
-  if (order.requestStatus === "ACCEPTED") return startPayment(order, readSnapshot(order.requestLines)?.locale);
+  if (order.requestStatus === "ACCEPTED") return startPayment(order, readSnapshot(order.requestLines)?.locale, pay);
 
   if (order.requestStatus !== "OFFERED") return { ok: false, error: "not_offered" };
   const offer = readStoredOffer(order.offerJson);
@@ -333,7 +341,7 @@ export async function acceptRequest(
         requestStatus: "ACCEPTED",
         requestDecisionAt: now,
         status: "PENDING_PAYMENT",
-        paymentMethod: "card",
+        paymentMethod: pay,
         subtotalNet: totals.subtotalNet,
         subtotalGross: totals.subtotalGross,
         shippingNet: totals.shippingNet,
@@ -368,6 +376,7 @@ export async function acceptRequest(
   return startPayment(
     { ...order, totalGross: totals.totalGross },
     readSnapshot(order.requestLines)?.locale,
+    pay,
   );
 }
 
@@ -376,9 +385,12 @@ export async function acceptRequest(
  * the checkout uses, and from here on the order is paid through the existing
  * webhook / recheck / sweep like any other card or IRIS order.
  */
+type PayMethod = "card" | "bank";
+
 type PayableRequest = {
   id: string;
   orderNumber: string;
+  guestToken: string;
   totalGross: unknown;
   email: string;
   firstName: string;
@@ -386,7 +398,12 @@ type PayableRequest = {
   phone: string;
 };
 
-async function startPayment(order: PayableRequest, locale: string | undefined): Promise<AcceptOutcome> {
+async function startPayment(
+  order: PayableRequest,
+  locale: string | undefined,
+  method: PayMethod = "card",
+): Promise<AcceptOutcome> {
+  if (method === "bank") return startBankTransfer(order, locale);
   if (!isVivaConfigured()) return { ok: false, error: "payment_unavailable" };
   try {
     const payment = await createPaymentOrder({
@@ -402,13 +419,84 @@ async function startPayment(order: PayableRequest, locale: string | undefined): 
     });
     await prisma.order.update({
       where: { id: order.id },
-      data: { vivaOrderCode: payment.orderCode, status: "PENDING_PAYMENT" },
+      // «card»: όποιος είχε διαλέξει κατάθεση και γύρισε να πληρώσει με κάρτα.
+      data: { vivaOrderCode: payment.orderCode, status: "PENDING_PAYMENT", paymentMethod: "card" },
     });
     return { ok: true, redirectUrl: payment.checkoutUrl };
   } catch (error) {
     console.error(`[request] ${order.orderNumber}: Viva order not created`, error);
     return { ok: false, error: "payment_failed" };
   }
+}
+
+/**
+ * Αποδεκτή πρόταση, πληρωμή με κατάθεση.
+ * ─────────────────────────────────────────────────────────────────────────────
+ * Ως τώρα η αποδοχή οδηγούσε μόνο στη σελίδα της Viva. Ο επαγγελματίας που
+ * πληρώνει με μεταφορά από τον εταιρικό λογαριασμό δεν είχε δρόμο, και ό,τι
+ * πλήρωνε εκτός συστήματος δεν άφηνε ίχνος στην παραγγελία.
+ *
+ * Ίδια με την κατάθεση του checkout: κωδικός πληρωμής Viva που ταυτίζεται
+ * αυτόματα (ισχύει `BANK_PAYMENT_CODE_DAYS`), email με τα στοιχεία κατάθεσης,
+ * και η σελίδα επιβεβαίωσης που τα δείχνει. Αν η κατάθεση δεν ταυτιστεί, τη
+ * καταχωρεί το κατάστημα από τη διαχείριση (`recordBankPayment`).
+ *
+ * Χωρίς Viva η αποδοχή δεν χάνεται: η σελίδα δείχνει τον αριθμό παραγγελίας
+ * ως αιτιολογία, όπως και στο checkout.
+ */
+async function startBankTransfer(order: PayableRequest, locale: string | undefined): Promise<AcceptOutcome> {
+  let vivaOrderCode: string | null = null;
+  if (isVivaConfigured()) {
+    try {
+      const payment = await createPaymentOrder({
+        amountGross: Number(order.totalGross),
+        orderNumber: order.orderNumber,
+        description: `Kolleris ${order.orderNumber}`,
+        locale: locale === "en" || locale === "it" ? locale : "el",
+        customer: {
+          email: order.email,
+          fullName: `${order.firstName} ${order.lastName}`,
+          phone: order.phone,
+        },
+        expiryMinutes: BANK_PAYMENT_CODE_DAYS * 24 * 60,
+        // Τα στοιχεία κατάθεσης τα στέλνουμε εμείς· δεύτερο email της Viva με
+        // σύνδεσμο κάρτας είναι ο τρόπος να πληρωθεί το λάθος.
+        notifyCustomer: false,
+      });
+      vivaOrderCode = payment.orderCode;
+    } catch (error) {
+      console.error(`[request] ${order.orderNumber}: no Viva code for the bank transfer`, error);
+    }
+  }
+
+  await prisma.order.update({
+    where: { id: order.id },
+    data: {
+      paymentMethod: "bank",
+      vivaOrderCode,
+      // Όπως η κατάθεση του checkout: επιβεβαιωμένη, πληρωμή σε εκκρεμότητα.
+      status: "CONFIRMED",
+      history: {
+        create: {
+          status: "CONFIRMED",
+          actor: "customer",
+          note: `Αίτημα: πληρωμή με κατάθεση${vivaOrderCode ? ` · κωδικός ${vivaOrderCode}` : ""}`,
+        },
+      },
+    },
+  });
+
+  // Τα στοιχεία κατάθεσης — ΑΥΤΟ το email είναι που λέει στον πελάτη τι να γράψει.
+  const mail = await sendOrderEmail(order.orderNumber);
+  if (!mail.ok) console.error(`[request] ${order.orderNumber} bank details email not sent: ${mail.error}`);
+  // Και το HDCtool: η μέθοδος άλλαξε, η πληρωμή εκκρεμεί.
+  await notifyHdctool(order.orderNumber, "ACCEPTED");
+
+  const lang = locale === "en" || locale === "it" ? `/${locale}` : "";
+  return {
+    ok: true,
+    redirectUrl: `${lang}/checkout/epibebaiosi/${encodeURIComponent(order.orderNumber)}?t=${order.guestToken}`,
+  };
 }
 
 export type DeclineOutcome =

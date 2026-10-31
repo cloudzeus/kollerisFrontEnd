@@ -25,14 +25,17 @@ import { findShippingMethod } from "@/lib/cart/options";
 import { chargeableWeight } from "@/lib/shipping/acs-tariff";
 import { PostageCorrection } from "@/components/admin/PostageCorrection";
 import { PaymentActions } from "@/components/admin/PaymentActions";
+import { ErpPushButton } from "@/components/admin/ErpPushButton";
 import { athensDay } from "@/lib/payment/manual-payment";
 import { carrierLabel, countryName, localityLine } from "@/lib/shipping/countries";
 import {
   REQUEST_STATUS_LABEL_EL,
   REQUEST_STATUS_TONE,
   readSnapshot,
+  readOfferHistory,
   readStoredOffer,
   requestPath,
+  type StoredOffer,
   type RequestStatusName,
 } from "@/lib/requests/model";
 
@@ -207,6 +210,10 @@ export default async function OrderDetailPage({
   });
   const requestStatus = order.requestStatus as RequestStatusName | null;
   const storedOffer = readStoredOffer(order.offerJson);
+  // Νεότερη πρώτη: η τρέχουσα και όλες οι προηγούμενες εκδόσεις της πρότασης.
+  const offerVersions: StoredOffer[] = storedOffer
+    ? [storedOffer, ...readOfferHistory(order.offerJson).reverse()]
+    : [];
   const requestLocale = readSnapshot(order.requestLines)?.locale ?? "el";
 
   const money = (v: unknown) => formatMoney(Number(v), ADMIN_LOCALE);
@@ -293,6 +300,7 @@ export default async function OrderDetailPage({
           </span>
         </div>
       )}
+      {offerVersions.length > 0 && <OfferHistory versions={offerVersions} current={order.offerVersion} />}
       {childRequest?.requestStatus && (
         <div className="mb-4 flex flex-wrap items-center gap-3 border border-k-line bg-white px-4 py-3 text-[12.5px]">
           <Chip tone="amber">Αίτημα</Chip>
@@ -749,6 +757,9 @@ export default async function OrderDetailPage({
             {order.erpError && (
               <div className="pt-1 text-[11px] text-k-red">{order.erpError}</div>
             )}
+            {order.paymentStatus === "PAID" && !order.erpFindoc && (
+              <ErpPushButton orderNumber={order.orderNumber} />
+            )}
 
             {/*
               Everything the ERP answered, verbatim and folded away.
@@ -857,6 +868,59 @@ function SectionTitle({
       </span>
       {children}
     </h2>
+  );
+}
+
+/**
+ * Κάθε έκδοση της πρότασης που έφτασε από το HDCtool — τι είδε ο πελάτης και
+ * πότε. Οι εκδόσεις πριν από αυτή την αλλαγή δεν κρατήθηκαν· φαίνεται μόνο
+ * η τελευταία τους.
+ */
+function OfferHistory({ versions, current }: { versions: StoredOffer[]; current: number | null }) {
+  return (
+    <details className="mb-4 border border-k-line bg-white px-4 py-3" open={versions.length > 1}>
+      <summary className="cursor-pointer text-[length:var(--fs-12-5)] text-k-ink">
+        Ιστορικό προτάσεων · {versions.length} {versions.length === 1 ? "έκδοση" : "εκδόσεις"}
+      </summary>
+      <ol className="mt-3 grid gap-3">
+        {versions.map((v) => (
+          <li key={`${v.version}-${v.receivedAt}`} className="border-l-2 border-k-line pl-3">
+            <div className="flex flex-wrap items-center gap-2 text-[length:var(--fs-12)]">
+              <Chip tone={v.version === current ? "amber" : "grey"}>v{v.version}</Chip>
+              <span className="numeral text-k-text-3">{when(new Date(v.receivedAt))}</span>
+              {v.decision === "reject" ? (
+                <span className="text-k-red">Απόρριψη{v.reason ? ` — «${v.reason}»` : ""}</span>
+              ) : (
+                <span className="text-k-text-3">λήξη {when(new Date(v.expiresAt))}</span>
+              )}
+            </div>
+            {v.decision === "offer" && (
+              <>
+                <ul className="mt-1.5 grid gap-0.5 text-[length:var(--fs-12)] text-k-text-2">
+                  {v.lines.map((l, i) => (
+                    <li key={i} className="numeral">
+                      <span className="text-k-text-4">
+                        {l.kind === "alternative" ? "εναλλακτικό" : l.kind === "modified" ? "αλλαγή" : "αρχικό"} ·
+                      </span>{" "}
+                      {l.qty} × {l.sku} {l.name} · {l.unitNet.toFixed(2)} € καθαρή
+                      {l.leadTimeText ? ` · ${l.leadTimeText}` : ""}
+                    </li>
+                  ))}
+                </ul>
+                {v.removedLineIds.length > 0 && (
+                  <div className="text-[length:var(--fs-11)] text-k-text-4">
+                    Αφαιρέθηκαν {v.removedLineIds.length} γραμμές του αιτήματος
+                  </div>
+                )}
+                {v.note && (
+                  <div className="mt-1 whitespace-pre-wrap text-[length:var(--fs-11)] text-k-text-3">{v.note}</div>
+                )}
+              </>
+            )}
+          </li>
+        ))}
+      </ol>
+    </details>
   );
 }
 

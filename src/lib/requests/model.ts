@@ -220,6 +220,36 @@ export type StoredOffer =
       reason: string | null;
     };
 
+/**
+ * Οι ΠΡΟΗΓΟΥΜΕΝΕΣ εκδόσεις, παλαιότερη πρώτη, μέσα στο ίδιο `offerJson`.
+ *
+ * Κάθε νέα πρόταση από το HDCtool αντικαθιστούσε την προηγούμενη, και μαζί
+ * της χανόταν το τι είχε δει ο πελάτης: στην HDC-20261027-0001 στάλθηκαν
+ * επτά εκδόσεις και καμία οθόνη δεν μπορούσε να πει τι έλεγε η v6. Μέσα στη
+ * στήλη που υπάρχει ήδη, χωρίς αλλαγή σχήματος: όποιος διαβάζει μόνο την
+ * τρέχουσα πρόταση (`readStoredOffer`) δεν βλέπει καμία διαφορά.
+ */
+export type OfferHistoryEntry = StoredOffer;
+
+export function readOfferHistory(value: unknown): OfferHistoryEntry[] {
+  if (!value || typeof value !== "object") return [];
+  const history = (value as { history?: unknown }).history;
+  if (!Array.isArray(history)) return [];
+  return history.filter((h): h is OfferHistoryEntry => readStoredOffer(h) != null);
+}
+
+/** Η νέα αποθηκευμένη πρόταση, με την προηγούμενη (χωρίς το δικό της ιστορικό) στο τέλος του ιστορικού. */
+export function withOfferHistory(next: StoredOffer, previousJson: unknown): StoredOffer & { history: OfferHistoryEntry[] } {
+  const history = readOfferHistory(previousJson);
+  const previous = readStoredOffer(previousJson);
+  if (previous) {
+    const { history: _drop, ...bare } = previous as StoredOffer & { history?: unknown };
+    void _drop;
+    history.push(bare as StoredOffer);
+  }
+  return { ...next, history };
+}
+
 export function readStoredOffer(value: unknown): StoredOffer | null {
   if (!value || typeof value !== "object") return null;
   const v = value as { decision?: unknown };

@@ -7,7 +7,8 @@ import { sendInternalOrderEmail } from "@/lib/mail/order-internal-email";
 import { randomBytes } from "node:crypto";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
-import { STOCK_HOLD_HOURS, holdExpiry } from "@/lib/orders/hold";
+import { BANK_PAYMENT_CODE_DAYS, holdExpiry } from "@/lib/orders/hold";
+import { syncPaymentToErp } from "@/lib/orders/send-to-erp";
 import { computeTotals, getCart, getCartToken } from "@/lib/cart/cart";
 import { PAYMENT_METHODS, SHIPPING_METHODS, shippingMethodsFor } from "@/lib/cart/options";
 import { isUnserviceable, quoteLivePostage } from "@/lib/shipping/acs-live";
@@ -114,15 +115,16 @@ const checkoutSchema = z.object({
 });
 
 /**
- * How long the Viva payment code stays valid: exactly as long as the hold.
+ * How long the Viva payment code stays valid — days, not the three-hour hold.
  *
- * Derived from `STOCK_HOLD_HOURS` rather than chosen separately. It used to be
- * seven days while the hold was three hours, and a payment link that outlives
- * the hold is worse than a short one — it invites a transfer for goods released
- * to somebody else days earlier, so the money arrives for an order that cannot
- * be filled.
+ * It used to be derived from `STOCK_HOLD_HOURS`, on the argument that a code
+ * outliving the hold invites money for goods already released. In practice the
+ * opposite happened: no transfer can land inside three hours, so EVERY deposit
+ * arrived at an expired code and nothing matched it (HDC-20261028-0001 on the
+ * Milwaukee shop). A late payment for an order is a call to the customer; an
+ * unmatched one is lost. See `BANK_PAYMENT_CODE_DAYS`.
  */
-const BANK_TRANSFER_WINDOW_MINUTES = STOCK_HOLD_HOURS * 60;
+const BANK_TRANSFER_WINDOW_MINUTES = BANK_PAYMENT_CODE_DAYS * 24 * 60;
 
 export type CheckoutState = {
   error?: string;
@@ -780,6 +782,18 @@ export async function placeOrder(
       where: { id: order.id },
       data: { status: "CONFIRMED" },
     });
+
+    /*
+     * Και στο HDCtool, από τώρα — απλήρωτη.
+     *
+     * Μια κατάθεση περιμένει μέρες, και ως τώρα η παραγγελία έφτανε στο HDCtool
+     * μόνο όταν πληρωνόταν: όποιος έψαχνε τα χρήματα από το HDCtool δεν είχε τι
+     * να βρει. Μόνο παραλαβή (intake), ποτέ παραστατικό — το `sendOrderToErp`
+     * αρνείται απλήρωτη παραγγελία. Όταν πληρωθεί, το ίδιο intake ξαναστέλνεται
+     * με PAID (`afterPaymentConfirmed`). Ποτέ μοιραίο: η παραγγελία υπάρχει.
+     */
+    const intake = await syncPaymentToErp(order.orderNumber);
+    if (!intake.ok) console.error(`[checkout] ${order.orderNumber} not filed in HDCtool: ${intake.error}`);
 
     /*
      * The email the payment step promises: "Θα λάβετε τα στοιχεία κατάθεσης".

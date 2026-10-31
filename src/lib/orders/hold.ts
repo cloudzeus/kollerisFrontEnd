@@ -9,6 +9,22 @@
  */
 export const STOCK_HOLD_HOURS = 3;
 
+/**
+ * How long the Viva payment code of a bank transfer stays valid.
+ *
+ * NOT the stock hold. The two were one number, and that number was three
+ * hours: HDC-20261028-0001 was placed at 21:03, its code died at 00:03, and
+ * the customer's transfer was executed the next evening — a SEPA credit
+ * between Greek banks routinely takes a working day. The money arrived at a
+ * code that no longer existed, Viva could not match it, and the order sat
+ * «Αναμένεται πληρωμή» with nobody told.
+ *
+ * The hold says how long we promise the STOCK; this says how long we can still
+ * RECOGNISE the money. A late payment for goods we no longer hold is a
+ * conversation with the customer, not a deposit lost in a ledger.
+ */
+export const BANK_PAYMENT_CODE_DAYS = 7;
+
 /** When a hold starting now lapses. */
 export function holdExpiry(from: Date = new Date()): Date {
   return new Date(from.getTime() + STOCK_HOLD_HOURS * 60 * 60 * 1000);

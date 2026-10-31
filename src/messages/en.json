@@ -1454,7 +1454,7 @@
       "vima_apestali": "Shipped",
       "vima_paradothike": "Delivered",
       "kodikos_pliromis_titlos": "Payment code",
-      "kodikos_pliromis_odigia": "We have emailed you the payment link as well. If you prefer a transfer, quote this code as the reference.",
+      "kodikos_pliromis_odigia": "We have emailed you the payment link as well. If you prefer a transfer, write only this code as the reference — not the IBAN or your name — so it is matched automatically.",
       "pliroste_online": "Pay online",
       "kratame_ta_proionta_eos": "We hold the order and the stock for {hours} hours.",
       "child_request": "The made-to-order items were sent as request {number}. You will receive an offer by email within 24 hours.",
@@ -1669,7 +1669,10 @@
       "parent_note_amount": "The in-stock items of your basket are order {number}: {total} incl. VAT, shipping {shipping}.",
       "parent_note_paid": "The in-stock items of your basket were paid with order {number}: {total} incl. VAT, shipping {shipping}.",
       "parent_link": "The order",
-      "second_shipment": "Second delivery: these items ship separately from order {number}, with their own shipping — as shown in the offer."
+      "second_shipment": "Second delivery: these items ship separately from order {number}, with their own shipping — as shown in the offer.",
+      "accept_bank": "Accept & pay by bank transfer",
+      "pay_bank_again": "Pay by bank transfer",
+      "pay_bank_hint": "You will receive the IBAN and a payment reference by email. The order proceeds once the transfer is credited."
     }
   }
 }
