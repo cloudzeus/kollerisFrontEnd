@@ -441,10 +441,19 @@ function buildSpecRows(p: HdctoolProduct): SpecRow[] {
  */
 function desiredChildRows(p: HdctoolProduct): ChildRows {
   return {
-    images: p.images.slice(0, 12).map((img, i) => ({
+    /*
+     * Every photo, in the order HDCtool lists them.
+     *
+     * This kept only the first 12, and HDCtool returned photos sharing an
+     * `order` in no fixed sequence — so a product with more than 12 showed a
+     * different 12 after each sync. HDCtool now sorts them stably (feature,
+     * order, then upload time), and `order` is the position in that list, so
+     * ties here cannot reshuffle the gallery either.
+     */
+    images: p.images.map((img, i) => ({
       url: img.url,
       isFeature: img.isFeature || i === 0,
-      order: img.order ?? i,
+      order: i,
     })),
     /*
      * A translation is worth keeping for its DESCRIPTION, not only its name.
