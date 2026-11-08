@@ -45,15 +45,15 @@ export default async function ReviewsPage({
       >
         {items.length === 0 ? (
           <div className="border border-k-line bg-white px-6 py-12 text-center">
-            <p className="text-[14px] text-k-ink">
+            <p className="text-[length:var(--fs-14)] text-k-ink">
               Δεν υπάρχει ακόμη κάτι να αξιολογήσετε.
             </p>
-            <p className="mt-1.5 text-[12.5px] leading-[1.6] text-k-text-3">
+            <p className="mt-1.5 text-[length:var(--fs-12-5)] leading-[1.6] text-k-text-3">
               Μόλις παραλάβετε μια παραγγελία, τα προϊόντα της εμφανίζονται εδώ.
             </p>
             <Link
               href="/logariasmos/paraggelies"
-              className="font-sans mt-5 inline-block bg-k-ink-deep px-7 py-3 text-[13px] font-bold tracking-[0.08em] text-white transition-colors hover:bg-k-ink"
+              className="font-sans mt-5 inline-block bg-k-ink-deep px-7 py-3 text-[length:var(--fs-13)] font-bold tracking-[0.08em] text-white transition-colors hover:bg-k-ink"
             >
               {upGreek("Οι παραγγελίες μου")}
             </Link>
@@ -61,7 +61,7 @@ export default async function ReviewsPage({
         ) : (
           <>
             {pending > 0 && (
-              <p className="mb-3 text-[12.5px] text-k-text-3">
+              <p className="mb-3 text-[length:var(--fs-12-5)] text-k-text-3">
                 <span className="numeral font-semibold text-k-ink">
                   {pending}
                 </span>{" "}

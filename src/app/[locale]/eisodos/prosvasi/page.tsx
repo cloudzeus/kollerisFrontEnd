@@ -63,7 +63,7 @@ export default async function AccessPage({
           <h1 className="font-display text-[26px] leading-[1.16] t-display text-k-ink">
             Πρόσβαση στον λογαριασμό
           </h1>
-          <p className="mt-3 text-[13.5px] leading-[1.65] text-k-text-2">
+          <p className="mt-3 text-[length:var(--fs-13-5)] leading-[1.65] text-k-text-2">
             Επιλέξτε αυτό που σας ταιριάζει. Σε κάθε περίπτωση θα λάβετε έναν
             σύνδεσμο στο email σας.
           </p>
@@ -73,7 +73,7 @@ export default async function AccessPage({
               <h2 className="t-eyebrow mb-1 text-k-red">
                 ΕΧΩ ΞΕΧΑΣΕΙ ΤΟΝ ΚΩΔΙΚΟ
               </h2>
-              <p className="mb-6 text-[13px] leading-[1.6] text-k-text-3">
+              <p className="mb-6 text-[length:var(--fs-13)] leading-[1.6] text-k-text-3">
                 Έχετε λογαριασμό αλλά δεν θυμάστε τον κωδικό.
               </p>
               <ForgotPasswordForm />
@@ -83,7 +83,7 @@ export default async function AccessPage({
               <h2 className="t-eyebrow mb-1 text-k-red">
                 ΕΧΩ ΠΑΡΑΓΓΕΙΛΕΙ, ΔΕΝ ΕΧΩ ΛΟΓΑΡΙΑΣΜΟ
               </h2>
-              <p className="mb-6 text-[13px] leading-[1.6] text-k-text-3">
+              <p className="mb-6 text-[length:var(--fs-13)] leading-[1.6] text-k-text-3">
                 Αγοράσατε ως επισκέπτης και θέλετε να βλέπετε τις παραγγελίες
                 σας.
               </p>
@@ -91,7 +91,7 @@ export default async function AccessPage({
             </section>
           </div>
 
-          <p className="mt-12 border-t border-k-line pt-6 text-[13px] text-k-text-3">
+          <p className="mt-12 border-t border-k-line pt-6 text-[length:var(--fs-13)] text-k-text-3">
             Θυμηθήκατε τον κωδικό σας;{" "}
             <Link
               href="/eisodos"

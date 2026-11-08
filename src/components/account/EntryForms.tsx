@@ -31,7 +31,7 @@ const BUTTON =
 function Notice({ tone, children }: { tone: "ok" | "bad"; children: React.ReactNode }) {
   return (
     <p
-      className={`mb-4 border-l-[3px] px-4 py-3 text-[13px] leading-[1.55] ${
+      className={`mb-4 border-l-[3px] px-4 py-3 text-[length:var(--fs-13)] leading-[1.55] ${
         tone === "ok"
           ? "border-k-green bg-k-surface-2 text-k-text-2"
           : "border-k-red bg-k-surface-2 text-k-text-2"
@@ -73,7 +73,7 @@ export function ClaimAccountForm() {
           placeholder="KOL-20260806-0002"
           className={`${INPUT} numeral`}
         />
-        <span className="mt-1.5 block text-[12px] leading-[1.5] text-k-text-3">
+        <span className="mt-1.5 block text-[length:var(--fs-12)] leading-[1.5] text-k-text-3">
           Θα τον βρείτε στο email της παραγγελίας σας.
         </span>
       </label>
@@ -157,7 +157,7 @@ export function NewPasswordForm({ token }: { token: string }) {
           className={INPUT}
         />
         {state.fieldErrors?.confirm && (
-          <span className="mt-1.5 block text-[12px] text-k-red">{state.fieldErrors.confirm}</span>
+          <span className="mt-1.5 block text-[length:var(--fs-12)] text-k-red">{state.fieldErrors.confirm}</span>
         )}
       </label>
 
@@ -185,7 +185,7 @@ export function AcceptInviteForm({
       <input type="hidden" name="token" value={token} />
       {state.error && <Notice tone="bad">{state.error}</Notice>}
 
-      <div className="border border-k-line bg-k-surface-2 px-4 py-3 text-[13px] text-k-text-2">
+      <div className="border border-k-line bg-k-surface-2 px-4 py-3 text-[length:var(--fs-13)] text-k-text-2">
         {name && <div className="text-k-ink">{name}</div>}
         <div className="numeral">{email}</div>
       </div>
@@ -201,7 +201,7 @@ export function AcceptInviteForm({
           className={INPUT}
         />
         {state.fieldErrors?.password && (
-          <span className="mt-1.5 block text-[12px] text-k-red">{state.fieldErrors.password}</span>
+          <span className="mt-1.5 block text-[length:var(--fs-12)] text-k-red">{state.fieldErrors.password}</span>
         )}
       </label>
 
@@ -216,7 +216,7 @@ export function AcceptInviteForm({
           className={INPUT}
         />
         {state.fieldErrors?.confirm && (
-          <span className="mt-1.5 block text-[12px] text-k-red">{state.fieldErrors.confirm}</span>
+          <span className="mt-1.5 block text-[length:var(--fs-12)] text-k-red">{state.fieldErrors.confirm}</span>
         )}
       </label>
 

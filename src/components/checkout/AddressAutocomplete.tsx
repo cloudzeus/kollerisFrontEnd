@@ -217,7 +217,7 @@ export function AddressAutocomplete({
         // for the click to land.
         onBlur={() => setTimeout(() => setOpen(false), 120)}
         onFocus={() => setOpen(items.length > 0)}
-        className="h-11 w-full border border-k-line-2 bg-white px-3 text-[13.5px] text-k-ink outline-none focus:border-k-ink"
+        className="h-11 w-full border border-k-line-2 bg-white px-3 text-[length:var(--fs-13-5)] text-k-ink outline-none focus:border-k-ink"
       />
 
       {open && items.length > 0 && (
@@ -235,13 +235,13 @@ export function AddressAutocomplete({
               onMouseDown={(e) => e.preventDefault()}
               onClick={() => choose(item)}
               onMouseEnter={() => setActive(index)}
-              className={`cursor-pointer px-3 py-2.5 text-[12.5px] leading-[1.45] ${
+              className={`cursor-pointer px-3 py-2.5 text-[length:var(--fs-12-5)] leading-[1.45] ${
                 index === active ? "bg-k-ink text-white" : "text-k-ink hover:bg-k-surface-2"
               }`}
             >
               <span className="block">{item.line1}</span>
               <span
-                className={`block text-[11px] ${index === active ? "text-white/60" : "text-k-text-3"}`}
+                className={`block text-[length:var(--fs-11)] ${index === active ? "text-white/60" : "text-k-text-3"}`}
               >
                 {[item.postcode, item.city].filter(Boolean).join(" ")}
               </span>
@@ -251,9 +251,9 @@ export function AddressAutocomplete({
       )}
 
       {error ? (
-        <span className="mt-1.5 block text-[11.5px] text-k-red">{error}</span>
+        <span className="mt-1.5 block text-[length:var(--fs-11-5)] text-k-red">{error}</span>
       ) : (
-        <span className="mt-1.5 block text-[11px] text-k-text-3">{help ?? t("voitheia")}</span>
+        <span className="mt-1.5 block text-[length:var(--fs-11)] text-k-text-3">{help ?? t("voitheia")}</span>
       )}
     </label>
   );

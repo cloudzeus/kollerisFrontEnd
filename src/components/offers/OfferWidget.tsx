@@ -157,13 +157,13 @@ function Strip({ offer, className, interactive }: WidgetProps) {
           {upGreek(offer.title)}
         </span>
         {offer.description && (
-          <span className="mt-1 block max-w-[62ch] text-[13px] leading-[1.55] text-white/70">
+          <span className="mt-1 block max-w-[62ch] text-[length:var(--fs-13)] leading-[1.55] text-white/70">
             {offer.description}
           </span>
         )}
       </span>
 
-      <span className="motion-safe:animate-[offer-rise_.6s_cubic-bezier(.22,1,.36,1)_both] motion-safe:[animation-delay:160ms] inline-flex shrink-0 items-center gap-1.5 border-b-[1.5px] border-k-red pb-0.5 text-[12.5px] font-medium tracking-wide text-white transition-colors group-hover:border-white">
+      <span className="motion-safe:animate-[offer-rise_.6s_cubic-bezier(.22,1,.36,1)_both] motion-safe:[animation-delay:160ms] inline-flex shrink-0 items-center gap-1.5 border-b-[1.5px] border-k-red pb-0.5 text-[length:var(--fs-12-5)] font-medium tracking-wide text-white transition-colors group-hover:border-white">
         {upGreek(offer.badge || t("deite_tin_prosfora"))}
         <span aria-hidden>→</span>
       </span>
@@ -211,7 +211,7 @@ function Card({ offer, className, interactive }: WidgetProps) {
           {upGreek(offer.title)}
         </span>
         {offer.description && (
-          <span className="mt-1.5 block text-[12.5px] leading-[1.5] text-white/70">
+          <span className="mt-1.5 block text-[length:var(--fs-12-5)] leading-[1.5] text-white/70">
             {offer.description}
           </span>
         )}
@@ -246,7 +246,7 @@ function Marquee({ offer, className, interactive }: WidgetProps) {
             {Array.from({ length: 4 }, (_, i) => (
               <span
                 key={i}
-                className="whitespace-nowrap px-6 text-[15px] font-semibold tracking-[0.06em] text-white lg:text-[17px]"
+                className="whitespace-nowrap px-6 text-[length:var(--fs-15)] font-semibold tracking-[0.06em] text-white lg:text-[17px]"
               >
                 {upGreek(line)}
               </span>
@@ -282,7 +282,7 @@ function Countdown({ offer, className, interactive }: WidgetProps) {
 
       <span className="motion-safe:animate-[offer-rise_.6s_cubic-bezier(.22,1,.36,1)_both] block">
         {saving && (
-          <span className="mb-2 inline-block bg-k-red px-2.5 py-1 font-mono text-[15px] font-semibold text-white">
+          <span className="mb-2 inline-block bg-k-red px-2.5 py-1 font-mono text-[length:var(--fs-15)] font-semibold text-white">
             {saving}
           </span>
         )}
@@ -290,7 +290,7 @@ function Countdown({ offer, className, interactive }: WidgetProps) {
           {upGreek(offer.title)}
         </span>
         {offer.description && (
-          <span className="mx-auto mt-1.5 block max-w-[52ch] text-[13px] leading-[1.55] text-white/70">
+          <span className="mx-auto mt-1.5 block max-w-[52ch] text-[length:var(--fs-13)] leading-[1.55] text-white/70">
             {offer.description}
           </span>
         )}

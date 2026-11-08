@@ -210,7 +210,7 @@ export default async function NewArrivalsPage({
             <h1 className="font-display text-[22px] leading-[1.16] t-display text-balance text-white lg:text-[30px]">
               {upGreek(t("ti_mpike_stin_apothiki"))}
             </h1>
-            <p className="mt-3.5 max-w-[620px] text-[13px] leading-[1.68] text-white/60 lg:text-sm">
+            <p className="mt-3.5 max-w-[620px] text-[length:var(--fs-13)] leading-[1.68] text-white/60 lg:text-sm">
               {t("ochi_mia_lista_me_neo")}
             </p>
           </div>
@@ -284,7 +284,7 @@ export default async function NewArrivalsPage({
                     </div>
 
                     {period.brands.length > 0 && (
-                      <p className="mt-2 flex flex-wrap items-center gap-x-2.5 gap-y-1 text-[12px] text-k-text-3">
+                      <p className="mt-2 flex flex-wrap items-center gap-x-2.5 gap-y-1 text-[length:var(--fs-12)] text-k-text-3">
                         {period.brands.map((brand) => (
                           <span
                             key={brand}

@@ -74,7 +74,7 @@ export function AddressBook({ addresses }: { addresses: Address[] }) {
               <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-6">
                 <div className="min-w-0">
                   <p className="flex flex-wrap items-center gap-x-2.5 gap-y-1">
-                    <span className="text-[13px] font-semibold text-k-ink">
+                    <span className="text-[length:var(--fs-13)] font-semibold text-k-ink">
                       {address.label}
                     </span>
                     {address.isDefault && (
@@ -83,7 +83,7 @@ export function AddressBook({ addresses }: { addresses: Address[] }) {
                       </span>
                     )}
                   </p>
-                  <p className="mt-1.5 text-[12.5px] leading-[1.6] text-k-text-2">
+                  <p className="mt-1.5 text-[length:var(--fs-12-5)] leading-[1.6] text-k-text-2">
                     {address.firstName} {address.lastName}
                     <br />
                     {address.line1}
@@ -165,7 +165,7 @@ export function AddressBook({ addresses }: { addresses: Address[] }) {
           </p>
 
           {state.error && (
-            <p role="alert" className="border-l-[3px] border-k-red bg-k-red/8 px-4 py-3 text-[12.5px] text-k-ink">
+            <p role="alert" className="border-l-[3px] border-k-red bg-k-red/8 px-4 py-3 text-[length:var(--fs-12-5)] text-k-ink">
               {state.error}
             </p>
           )}
@@ -227,7 +227,7 @@ export function AddressBook({ addresses }: { addresses: Address[] }) {
             <Field name="phone" label={t("tilefono")} defaultValue={editing?.phone ?? ""} type="tel" autoComplete="tel" />
           </div>
 
-          <label className="flex items-center gap-2.5 text-[12.5px] text-k-text-2">
+          <label className="flex items-center gap-2.5 text-[length:var(--fs-12-5)] text-k-text-2">
             <input
               type="checkbox"
               name="isDefault"
@@ -287,10 +287,10 @@ function Field({
         name={name}
         required={required}
         aria-invalid={error ? true : undefined}
-        className="h-11 w-full border border-k-line-2 bg-white px-3 text-[13.5px] text-k-ink outline-none focus:border-k-ink"
+        className="h-11 w-full border border-k-line-2 bg-white px-3 text-[length:var(--fs-13-5)] text-k-ink outline-none focus:border-k-ink"
         {...rest}
       />
-      {error && <span className="mt-1.5 block text-[11.5px] text-k-red">{error}</span>}
+      {error && <span className="mt-1.5 block text-[length:var(--fs-11-5)] text-k-red">{error}</span>}
     </label>
   );
 }

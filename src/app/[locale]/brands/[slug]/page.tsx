@@ -283,7 +283,7 @@ export default async function BrandPage({ params, searchParams }: PageProps) {
           {/* Category coverage for this brand — the subcategory facet, but full
               width and up top, since a brand page is browsed by category. */}
           {data.facets.subcategories.length > 0 && (
-            <div className="flex flex-wrap gap-1.5 border-t border-white/10 py-5">
+            <div className="scroll-none flex gap-1.5 overflow-x-auto border-t border-white/10 py-5 lg:flex-wrap">
               {data.facets.subcategories.map((sub) => (
                 <Link
                   key={sub.slug}
@@ -291,7 +291,7 @@ export default async function BrandPage({ params, searchParams }: PageProps) {
                   rel="nofollow"
                   prefetch={false}
                   scroll={false}
-                  className={`group/chip flex items-center gap-1.5 border px-2.5 py-1.5 text-[10px] font-semibold tracking-[0.02em] transition-colors duration-200 ${
+                  className={`group/chip flex shrink-0 items-center gap-1.5 border px-2.5 py-1.5 whitespace-nowrap max-lg:min-h-11 text-[length:var(--fs-10)] font-semibold tracking-[0.02em] transition-colors duration-200 ${
                     sub.active
                       ? "border-k-red bg-k-red text-white"
                       : "border-white/15 text-white/60 hover:border-k-red hover:bg-k-red hover:text-white"
@@ -335,7 +335,7 @@ export default async function BrandPage({ params, searchParams }: PageProps) {
             facets={data.facets}
             basePath={`/brands/${slug}`}
             params={raw}
-            className="hidden max-h-[calc(100vh-var(--header-h))] flex-col overflow-hidden lg:sticky lg:top-[var(--header-h)] lg:flex"
+            className="hidden flex-col lg:flex"
           />
 
           <div className="min-w-0 border-k-line px-4 py-6 lg:border-l lg:px-10 lg:pt-6 lg:pb-10">

@@ -82,7 +82,7 @@ export function ReorderButton({
       </button>
 
       {error && (
-        <p className="mt-2 flex items-start gap-1.5 text-[12px] text-k-red">
+        <p className="mt-2 flex items-start gap-1.5 text-[length:var(--fs-12)] text-k-red">
           <AlertTriangle className="mt-px size-3.5 shrink-0" aria-hidden />
           {error}
         </p>
@@ -99,7 +99,7 @@ export function ReorderButton({
             <X className="size-3.5" aria-hidden />
           </button>
 
-          <p className="flex items-center gap-2 pr-6 text-[13px] font-semibold text-k-ink">
+          <p className="flex items-center gap-2 pr-6 text-[length:var(--fs-13)] font-semibold text-k-ink">
             <Check className="size-4 shrink-0 text-k-green" aria-hidden />
             {plan.units === 1
               ? "1 προϊόν στο καλάθι"
@@ -110,13 +110,13 @@ export function ReorderButton({
               through an old order to work out which two. */}
           {plan.skipped.length > 0 && (
             <div className="mt-2.5 border-t border-k-line pt-2.5">
-              <p className="flex items-center gap-1.5 text-[11.5px] font-semibold text-k-amber">
+              <p className="flex items-center gap-1.5 text-[length:var(--fs-11-5)] font-semibold text-k-amber">
                 <AlertTriangle className="size-3.5 shrink-0" aria-hidden />
                 Δεν προστέθηκαν
               </p>
               <ul className="mt-1 space-y-0.5">
                 {plan.skipped.map((s, i) => (
-                  <li key={`${s.name}-${i}`} className="text-[12px] leading-[1.5] text-k-text-2">
+                  <li key={`${s.name}-${i}`} className="text-[length:var(--fs-12)] leading-[1.5] text-k-text-2">
                     {s.name}
                     <span className="text-k-text-4">
                       {s.reason === "delisted"
@@ -132,12 +132,12 @@ export function ReorderButton({
           {/* Before checkout, not at it. */}
           {plan.priceChanges.length > 0 && (
             <div className="mt-2.5 border-t border-k-line pt-2.5">
-              <p className="text-[11.5px] font-semibold text-k-text-3">
+              <p className="text-[length:var(--fs-11-5)] font-semibold text-k-text-3">
                 Άλλαξε η τιμή από την προηγούμενη παραγγελία
               </p>
               <ul className="mt-1 space-y-0.5">
                 {plan.priceChanges.map((c, i) => (
-                  <li key={`${c.name}-${i}`} className="text-[12px] leading-[1.5] text-k-text-2">
+                  <li key={`${c.name}-${i}`} className="text-[length:var(--fs-12)] leading-[1.5] text-k-text-2">
                     {c.name}{" "}
                     <span className="numeral whitespace-nowrap">
                       <span className="text-k-text-4 line-through">{money(c.then)}</span>{" "}
@@ -148,7 +148,7 @@ export function ReorderButton({
                   </li>
                 ))}
               </ul>
-              <p className="mt-1 text-[11px] text-k-text-4">Τιμές χωρίς ΦΠΑ.</p>
+              <p className="mt-1 text-[length:var(--fs-11)] text-k-text-4">Τιμές χωρίς ΦΠΑ.</p>
             </div>
           )}
 

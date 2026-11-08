@@ -139,7 +139,7 @@ export default async function CataloguePage({
             <h1 className="font-display text-[22px] leading-[1.16] t-display text-balance text-white lg:text-[30px]">
               {upGreek(t("olos_o_katalogos"))}
             </h1>
-            <p className="mt-3.5 max-w-[660px] text-[13px] leading-[1.68] text-white/60 lg:text-sm">
+            <p className="mt-3.5 max-w-[660px] text-[length:var(--fs-13)] leading-[1.68] text-white/60 lg:text-sm">
               {index.totals.products.toLocaleString(locale)} {t("kodikoi_se")}{" "}
               {index.totals.categories} {t("katigories")} {index.totals.groups}{" "}
               {t("omades_kai")} {index.totals.subgroups}{" "}
@@ -286,7 +286,7 @@ async function FeatureTile({
           <p className="font-display t-display mt-3 text-[19px] leading-[1.2] text-balance text-k-ink transition-colors group-hover/feat:text-k-red lg:text-[24px]">
             {upGreek(root.name)}
           </p>
-          <p className="mt-3 text-[12.5px] leading-[1.6] text-k-text-3">
+          <p className="mt-3 text-[length:var(--fs-12-5)] leading-[1.6] text-k-text-3">
             {root.groupCount} {t("omades")} {root.subgroupCount}{" "}
             {t("ypokatigories")}
           </p>
@@ -325,7 +325,7 @@ async function FeatureTile({
                 className="flex h-full flex-col justify-between gap-2 bg-white px-3.5 py-3 transition-colors hover:bg-k-surface-2"
                 prefetch={false}
               >
-                <span className="text-[12.5px] leading-[1.35] font-medium text-k-ink">
+                <span className="text-[length:var(--fs-12-5)] leading-[1.35] font-medium text-k-ink">
                   {child.name}
                 </span>
                 <span className="t-brand-count font-mono text-k-text-4">

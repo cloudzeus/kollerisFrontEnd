@@ -266,7 +266,7 @@ export default async function CategoryPage({
               ο crawler διαβάζει ολόκληρη τη σελίδα, και ο άνθρωπος που θέλει
               απάντηση έχει ήδη κάνει scroll για να τη ζητήσει.
             */}
-            <p className="mt-3.5 max-w-[640px] text-[13px] leading-[1.68] text-white/60 lg:text-sm">
+            <p className="mt-3.5 max-w-[640px] text-[length:var(--fs-13)] leading-[1.68] text-white/60 lg:text-sm">
               {category.productCount.toLocaleString(locale)} {t("kodikoi_se")}{" "}
               {category.childCount}{" "}
               {t("ypokatigories_filtrarete_aristera_oles_oi")}
@@ -286,8 +286,8 @@ export default async function CategoryPage({
           follows the header as it condenses instead of guessing at a number.
         */}
         {data.facets.subcategories.length > 0 && (
-          <div className="shell-x sticky top-[var(--header-h)] z-30 border-t border-white/10 bg-k-ink-deep/97 backdrop-blur-sm">
-            <div className="flex flex-wrap gap-1.5 py-3.5">
+          <div className="shell-x z-30 border-t border-white/10 bg-k-ink-deep/97 backdrop-blur-sm lg:sticky lg:top-[var(--header-h)]">
+            <div className="scroll-none flex gap-1.5 overflow-x-auto py-3.5 lg:flex-wrap">
               {/*
                   Χωρίς προ-φόρτωση.
                   ──────────────────────────────────────────────────────────
@@ -305,7 +305,7 @@ export default async function CategoryPage({
                   rel="nofollow"
                   prefetch={false}
                   scroll={false}
-                  className={`group/chip flex items-center gap-1.5 border px-2.5 py-1.5 text-[10px] font-semibold tracking-[0.02em] transition-colors duration-200 ${
+                  className={`group/chip flex shrink-0 items-center gap-1.5 border px-2.5 py-1.5 whitespace-nowrap max-lg:min-h-11 text-[length:var(--fs-10)] font-semibold tracking-[0.02em] transition-colors duration-200 ${
                     sub.active
                       ? "border-k-red bg-k-red text-white"
                       : "border-white/15 text-white/60 hover:border-k-red hover:bg-k-red hover:text-white"
@@ -341,7 +341,7 @@ export default async function CategoryPage({
             facets={data.facets}
             basePath={`/katalogos/${kathgoria}`}
             params={raw}
-            className="hidden max-h-[calc(100vh-var(--header-h))] flex-col overflow-hidden lg:sticky lg:top-[var(--header-h)] lg:flex"
+            className="hidden flex-col lg:flex"
           />
 
           <div className="min-w-0 border-k-line px-4 py-6 lg:border-l lg:px-10 lg:pt-6 lg:pb-10">
@@ -350,7 +350,7 @@ export default async function CategoryPage({
                 <p className="font-display t-display text-lg text-k-ink">
                   {upGreek(t("kanena_proion_me_ayta_ta"))}
                 </p>
-                <p className="mt-2 max-w-md text-[13px] text-k-text-3">
+                <p className="mt-2 max-w-md text-[length:var(--fs-13)] text-k-text-3">
                   {t("dokimaste_na_afairesete_ena_filtro")}
                 </p>
                 <Link
@@ -392,7 +392,7 @@ export default async function CategoryPage({
         {(intro || faq.length > 0) && (
           <div className="shell-x border-t border-k-line py-9 lg:py-12">
             {intro && (
-              <p className="mb-8 max-w-[860px] text-[13.5px] leading-[1.75] text-k-text-2">
+              <p className="mb-8 max-w-[860px] text-[length:var(--fs-13-5)] leading-[1.75] text-k-text-2">
                 {intro}
               </p>
             )}
@@ -407,7 +407,7 @@ export default async function CategoryPage({
                       key={item.q}
                       className="group border-b border-k-line"
                     >
-                      <summary className="flex cursor-pointer items-center justify-between gap-4 py-3.5 text-[14px] font-medium text-k-ink marker:content-none [&::-webkit-details-marker]:hidden">
+                      <summary className="flex cursor-pointer items-center justify-between gap-4 py-3.5 text-[length:var(--fs-14)] font-medium text-k-ink marker:content-none [&::-webkit-details-marker]:hidden">
                         {item.q}
                         <span
                           aria-hidden
@@ -416,7 +416,7 @@ export default async function CategoryPage({
                           +
                         </span>
                       </summary>
-                      <p className="max-w-[70ch] pb-4 text-[13.5px] leading-[1.7] text-k-text-2">
+                      <p className="max-w-[70ch] pb-4 text-[length:var(--fs-13-5)] leading-[1.7] text-k-text-2">
                         {item.a}
                       </p>
                     </details>

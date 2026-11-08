@@ -90,7 +90,7 @@ export function CartSummaryPanel({
             style={{ width: `${progress}%` }}
           />
         </div>
-        <p className="mt-3 text-[12px] leading-[1.5] text-k-text-2">
+        <p className="mt-3 text-[length:var(--fs-12)] leading-[1.5] text-k-text-2">
           {totals.freeShippingReached ? (
             <>{t("ta_metaforika_sas_einai_dorean")}</>
           ) : (
@@ -134,15 +134,15 @@ export function CartSummaryPanel({
                   }`}
                 />
                 <span className="min-w-0 flex-1">
-                  <span className="block text-[12.5px] font-semibold text-k-ink">
+                  <span className="block text-[length:var(--fs-12-5)] font-semibold text-k-ink">
                     {method.label}
                   </span>
-                  <span className="mt-0.5 block text-[11.5px] text-k-text-4">
+                  <span className="mt-0.5 block text-[length:var(--fs-11-5)] text-k-text-4">
                     {method.meta}
                   </span>
                 </span>
                 <span
-                  className={`font-mono text-[13px] font-semibold whitespace-nowrap ${
+                  className={`font-mono text-[length:var(--fs-13)] font-semibold whitespace-nowrap ${
                     free || method.expressMultiplier === 0 ? "text-k-green" : "text-k-ink"
                   }`}
                 >
@@ -156,11 +156,11 @@ export function CartSummaryPanel({
             );
           })}
         </div>
-        <p className="mt-2.5 text-[11.5px] font-semibold text-k-text-3">
+        <p className="mt-2.5 text-[length:var(--fs-11-5)] font-semibold text-k-text-3">
           {international ? t("ship_zone_eu") : t("ship_zone")}
         </p>
         {international && (
-          <p className="mt-1 text-[11.5px] text-k-text-4">{t("ship_zone_eu_dhl")}</p>
+          <p className="mt-1 text-[length:var(--fs-11-5)] text-k-text-4">{t("ship_zone_eu_dhl")}</p>
         )}
       </div>
 
@@ -176,7 +176,7 @@ export function CartSummaryPanel({
                 type="button"
                 onClick={() => choose({ paymentMethod: method.id })}
                 aria-pressed={active}
-                className={`flex items-center gap-1.5 border px-3 py-2 text-[11.5px] font-semibold transition-colors ${
+                className={`flex items-center gap-1.5 border px-3 py-2 text-[length:var(--fs-11-5)] font-semibold transition-colors ${
                   active
                     ? "border-k-ink bg-k-ink text-white"
                     : "border-k-line-2 text-k-text-2 hover:border-k-ink"
@@ -216,7 +216,7 @@ export function CartSummaryPanel({
             value={coupon}
             onChange={(e) => setCoupon(e.target.value)}
             placeholder={t("kodikos_ekptosis")}
-            className="h-[46px] min-w-0 flex-1 border border-r-0 border-k-line-2 px-3.5 font-mono text-[12.5px] text-k-ink outline-none focus:border-k-ink"
+            className="h-[46px] min-w-0 flex-1 border border-r-0 border-k-line-2 px-3.5 font-mono text-[length:var(--fs-12-5)] text-k-ink outline-none focus:border-k-ink"
           />
           <button
             type="submit"
@@ -226,7 +226,7 @@ export function CartSummaryPanel({
           </button>
         </form>
         {couponError && (
-          <p role="alert" className="mt-2 text-[11.5px] text-k-amber">
+          <p role="alert" className="mt-2 text-[length:var(--fs-11-5)] text-k-amber">
             {couponError}
           </p>
         )}
@@ -262,8 +262,8 @@ export function CartSummaryPanel({
             { k: t("fpa"), v: formatMoney(totals.vatAmount, locale) },
           ].map((row) => (
             <div key={row.k} className="flex items-baseline justify-between gap-4">
-              <dt className="text-[12.5px] text-white/55">{row.k}</dt>
-              <dd className="font-mono text-[13px] font-medium whitespace-nowrap text-white">
+              <dt className="text-[length:var(--fs-12-5)] text-white/55">{row.k}</dt>
+              <dd className="font-mono text-[length:var(--fs-13)] font-medium whitespace-nowrap text-white">
                 {row.v}
               </dd>
             </div>
@@ -271,7 +271,7 @@ export function CartSummaryPanel({
         </dl>
 
         {totals.postage && totals.shippingGross > 0 && (
-          <p className="mt-2.5 text-[11px] leading-[1.5] text-white/45">
+          <p className="mt-2.5 text-[length:var(--fs-11)] leading-[1.5] text-white/45">
             {totals.postage.carrier} · {totals.postage.zoneLabel} ·{" "}
             {totals.postage.chargeableKg} {t("kg_chreosimo_varos")}
             {totals.postage.estimated && t("ektimisi")}
@@ -291,17 +291,17 @@ export function CartSummaryPanel({
         </div>
 
         {totals.savingsGross > 0 && (
-          <p className="mt-3.5 border-l-[3px] border-k-red bg-k-red/14 px-3.5 py-2.5 text-[11.5px] font-semibold text-white">
+          <p className="mt-3.5 border-l-[3px] border-k-red bg-k-red/14 px-3.5 py-2.5 text-[length:var(--fs-11-5)] font-semibold text-white">
             {t("kerdizete")} {formatMoney(totals.savingsGross, locale)} {t("se_ayti_tin_paraggelia")}
           </p>
         )}
 
         {requestKind !== "none" && (
           <div className="mt-4 border-l-[3px] border-k-amber bg-white/8 px-3.5 py-3">
-            <p className="text-[12px] font-semibold text-white">
+            <p className="text-[length:var(--fs-12)] font-semibold text-white">
               {requestKind === "all" ? t("request_all_title") : t("request_mixed_title")}
             </p>
-            <p className="mt-1 text-[11.5px] leading-[1.55] text-white/70">
+            <p className="mt-1 text-[length:var(--fs-11-5)] leading-[1.55] text-white/70">
               {requestKind === "all" ? t("request_all_text") : t("request_mixed_text")}
             </p>
           </div>

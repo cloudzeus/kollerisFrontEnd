@@ -173,18 +173,18 @@ export function SplitSummary({
                           className="max-h-full max-w-full object-contain"
                         />
                       )}
-                      <span className="rounded-pill absolute -top-2 -right-2 flex h-5 min-w-5 items-center justify-center bg-k-ink px-1 font-mono text-[9.5px] font-semibold text-white">
+                      <span className="rounded-pill absolute -top-2 -right-2 flex h-5 min-w-5 items-center justify-center bg-k-ink px-1 font-mono text-[length:var(--fs-9-5)] font-semibold text-white">
                         {line.quantity}
                       </span>
                     </span>
                     <span className="min-w-0 flex-1">
                       <span className="t-card-brand block text-k-red">{line.brandName ?? "—"}</span>
-                      <span className="mt-0.5 block truncate text-[11.5px] font-semibold text-k-ink">
+                      <span className="mt-0.5 block truncate text-[length:var(--fs-11-5)] font-semibold text-k-ink">
                         {line.name}
                       </span>
                     </span>
                     <span
-                      className={`shrink-0 font-mono text-[13px] font-semibold ${
+                      className={`shrink-0 font-mono text-[length:var(--fs-13)] font-semibold ${
                         group.key === "now" ? "text-k-ink" : "text-k-text-3"
                       }`}
                     >
@@ -201,7 +201,7 @@ export function SplitSummary({
       <div className="h-[7px] bg-[repeating-linear-gradient(135deg,#FF3333_0_9px,#1A1A1C_9px_18px)]" />
       <div className="bg-k-ink px-4 py-6 lg:px-8">
         {mode == null ? (
-          <p className="text-[12.5px] leading-[1.55] text-white/70">{t("choose_mode")}</p>
+          <p className="text-[length:var(--fs-12-5)] leading-[1.55] text-white/70">{t("choose_mode")}</p>
         ) : (
           <>
             {now && (
@@ -222,13 +222,13 @@ export function SplitSummary({
                     { k: t("fpa"), v: money(now.vatAmount) },
                   ].map((row) => (
                     <div key={row.k} className="flex items-baseline justify-between gap-4">
-                      <dt className="text-[12.5px] text-white/55">{row.k}</dt>
-                      <dd className="font-mono text-[13px] font-medium text-white">{row.v}</dd>
+                      <dt className="text-[length:var(--fs-12-5)] text-white/55">{row.k}</dt>
+                      <dd className="font-mono text-[length:var(--fs-13)] font-medium text-white">{row.v}</dd>
                     </div>
                   ))}
                 </dl>
                 {!pickup && (
-                  <p className="mt-2.5 text-[11px] leading-[1.5] text-white/45">
+                  <p className="mt-2.5 text-[length:var(--fs-11)] leading-[1.5] text-white/45">
                     {postage ? `${postage} — ` : ""}
                     {breakdown.postcode
                       ? t("postage_for", { postcode: breakdown.postcode })
@@ -236,7 +236,7 @@ export function SplitSummary({
                   </p>
                 )}
                 {now.thresholdLost && (
-                  <p className="mt-1.5 text-[11px] leading-[1.5] text-white/70">{t("threshold_lost")}</p>
+                  <p className="mt-1.5 text-[length:var(--fs-11)] leading-[1.5] text-white/70">{t("threshold_lost")}</p>
                 )}
               </>
             )}
@@ -261,7 +261,7 @@ export function SplitSummary({
                     {money(exempt ? request.subtotalNet : request.subtotalGross)}
                   </p>
                 </div>
-                <p className="mt-1.5 text-[11px] leading-[1.5] text-white/60">
+                <p className="mt-1.5 text-[length:var(--fs-11)] leading-[1.5] text-white/60">
                   {items(request.itemCount)} ·{" "}
                   {mode === "together" ? t("together_shipping_offer") : t("request_shipping_offer")}
                 </p>

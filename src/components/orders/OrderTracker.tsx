@@ -61,7 +61,7 @@ export function OrderTracker({ initialOrderNumber }: { initialOrderNumber?: stri
       {state.state === "error" && (
         <p
           role="alert"
-          className="mt-4 border-l-[3px] border-k-red bg-k-red/8 px-4 py-3 text-[13px] leading-[1.55] text-k-ink"
+          className="mt-4 border-l-[3px] border-k-red bg-k-red/8 px-4 py-3 text-[length:var(--fs-13)] leading-[1.55] text-k-ink"
         >
           {state.message}
         </p>
@@ -75,7 +75,7 @@ export function OrderTracker({ initialOrderNumber }: { initialOrderNumber?: stri
         >
           {pending ? "…" : upGreek(t("entopismos"))}
         </button>
-        <p className="text-[12px] leading-[1.55] text-k-text-4">
+        <p className="text-[length:var(--fs-12)] leading-[1.55] text-k-text-4">
           {t("o_arithmos_einai_sto_email")}
         </p>
       </div>
@@ -126,7 +126,7 @@ function Result({ order }: { order: Extract<TrackState, { state: "found" }>["ord
       </div>
 
       {halted ? (
-        <p className="mt-px border border-t-0 border-k-line bg-k-surface-2 px-5 py-5 text-[13px] leading-[1.65] text-k-text-2 lg:px-6">
+        <p className="mt-px border border-t-0 border-k-line bg-k-surface-2 px-5 py-5 text-[length:var(--fs-13)] leading-[1.65] text-k-text-2 lg:px-6">
           {order.status === "CANCELLED"
             ? t("i_paraggelia_akyrothike_an_den")
             : t("i_pliromi_den_oloklirothike_mporeite")}
@@ -142,7 +142,7 @@ function Result({ order }: { order: Extract<TrackState, { state: "found" }>["ord
                 }`}
               />
               <span
-                className={`text-[13px] leading-[1.3] font-semibold ${
+                className={`text-[length:var(--fs-13)] leading-[1.3] font-semibold ${
                   step.done || step.current ? "text-k-ink" : "text-k-text-5"
                 }`}
               >
@@ -164,7 +164,7 @@ function Result({ order }: { order: Extract<TrackState, { state: "found" }>["ord
                 order.tracking?.carrier === "DHL" ? t("arithmos_apostolis_dhl") : t("arithmos_apostolis_acs"),
               )}
             </p>
-            <p className="mt-1 font-mono text-[14px] font-semibold text-k-ink">{order.voucher}</p>
+            <p className="mt-1 font-mono text-[length:var(--fs-14)] font-semibold text-k-ink">{order.voucher}</p>
           </div>
           <a
             href={
@@ -204,7 +204,7 @@ function Result({ order }: { order: Extract<TrackState, { state: "found" }>["ord
                 )}
               </span>
               <span className="min-w-0 flex-1">
-                <span className="block truncate text-[12.5px] font-medium text-k-ink">
+                <span className="block truncate text-[length:var(--fs-12-5)] font-medium text-k-ink">
                   {line.name}
                 </span>
                 <span className="t-card-sku mt-0.5 block text-k-text-4">{line.sku}</span>
@@ -215,7 +215,7 @@ function Result({ order }: { order: Extract<TrackState, { state: "found" }>["ord
         </ul>
       )}
 
-      <p className="mt-5 text-[12.5px] text-k-text-3">
+      <p className="mt-5 text-[length:var(--fs-12-5)] text-k-text-3">
         {t("kati_den_paei_kala")}{" "}
         <a href="tel:+302104111355" className="font-semibold text-k-ink underline underline-offset-4">
           210 411 1355

@@ -48,7 +48,7 @@ export function SectionHead({
 
         {lead && (
           <p
-            className={`mt-2.5 max-w-[62ch] text-[13px] leading-[1.65] lg:text-[13.5px] ${
+            className={`mt-2.5 max-w-[62ch] text-[length:var(--fs-13)] leading-[1.65] lg:text-[length:var(--fs-13-5)] ${
               dark ? "text-white/60" : "text-k-text-3"
             }`}
           >

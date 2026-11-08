@@ -67,10 +67,10 @@ export function ProductReviews({
             {average != null && (
               <span className="flex items-center gap-2">
                 <Stars value={Math.round(average)} />
-                <span className="numeral text-[13.5px] font-semibold text-k-ink">
+                <span className="numeral text-[length:var(--fs-13-5)] font-semibold text-k-ink">
                   {average.toFixed(1).replace(".", ",")}
                 </span>
-                <span className="text-[12.5px] text-k-text-3">
+                <span className="text-[length:var(--fs-12-5)] text-k-text-3">
                   από <span className="numeral">{count}</span>{" "}
                   {count === 1 ? "πελάτη" : "πελάτες"}
                 </span>
@@ -78,7 +78,7 @@ export function ProductReviews({
             )}
           </div>
 
-          <p className="mt-1.5 text-[12.5px] text-k-text-3">
+          <p className="mt-1.5 text-[length:var(--fs-12-5)] text-k-text-3">
             Γράφουν μόνο πελάτες που παρέλαβαν το προϊόν.
           </p>
 
@@ -92,12 +92,12 @@ export function ProductReviews({
                   </span>
                 </div>
                 {review.title && (
-                  <p className="mt-2 text-[13.5px] font-semibold text-k-ink">{review.title}</p>
+                  <p className="mt-2 text-[length:var(--fs-13-5)] font-semibold text-k-ink">{review.title}</p>
                 )}
-                <p className="mt-1.5 text-[13px] leading-[1.65] whitespace-pre-line text-k-text-2">
+                <p className="mt-1.5 text-[length:var(--fs-13)] leading-[1.65] whitespace-pre-line text-k-text-2">
                   {review.body}
                 </p>
-                <p className="mt-2.5 text-[11.5px] text-k-text-4">
+                <p className="mt-2.5 text-[length:var(--fs-11-5)] text-k-text-4">
                   {displayName(review.customer)}
                 </p>
               </li>

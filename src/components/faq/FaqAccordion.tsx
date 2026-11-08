@@ -84,10 +84,10 @@ export function FaqAccordion({ sections }: { sections: FaqSection[] }) {
 
       {filtering && shown === 0 && (
         <div className="mt-7 border border-k-line bg-k-surface-2 px-5 py-12 text-center">
-          <p className="text-[13.5px] font-semibold text-k-ink">
+          <p className="text-[length:var(--fs-13-5)] font-semibold text-k-ink">
             {t("kamia_erotisi_gia")}{query.trim()}»
           </p>
-          <p className="mx-auto mt-2 max-w-md text-[12.5px] leading-[1.6] text-k-text-3">
+          <p className="mx-auto mt-2 max-w-md text-[length:var(--fs-12-5)] leading-[1.6] text-k-text-3">
             {t("rotiste_mas_apeytheias_apantame_tin")}
           </p>
           <a
@@ -118,7 +118,7 @@ export function FaqAccordion({ sections }: { sections: FaqSection[] }) {
                   className="group/faq border-b border-k-line last:border-b-0"
                 >
                   <summary className="flex cursor-pointer list-none items-start gap-4 px-4 py-3.5 transition-colors hover:bg-k-surface-2 lg:px-5 lg:py-4">
-                    <span className="min-w-0 flex-1 text-[13.5px] leading-[1.4] font-semibold text-k-ink">
+                    <span className="min-w-0 flex-1 text-[length:var(--fs-13-5)] leading-[1.4] font-semibold text-k-ink">
                       {entry.q}
                     </span>
                     <span
@@ -128,7 +128,7 @@ export function FaqAccordion({ sections }: { sections: FaqSection[] }) {
                       +
                     </span>
                   </summary>
-                  <p className="max-w-[72ch] px-4 pb-4 text-[13px] leading-[1.75] text-k-text-2 lg:px-5 lg:pb-5">
+                  <p className="max-w-[72ch] px-4 pb-4 text-[length:var(--fs-13)] leading-[1.75] text-k-text-2 lg:px-5 lg:pb-5">
                     {entry.a}
                   </p>
                 </details>

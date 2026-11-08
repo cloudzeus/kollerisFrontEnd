@@ -37,7 +37,7 @@ export function CartCrossSell({ items }: { items: CrossSellItem[] }) {
               {upGreek(t("xechasate_kati_gia_ti_doyleia"))}
             </h2>
           </div>
-          <p className="max-w-[330px] text-[12.5px] leading-[1.6] text-white/55 lg:text-right">
+          <p className="max-w-[330px] text-[length:var(--fs-12-5)] leading-[1.6] text-white/55 lg:text-right">
             {t("epilegmena_apo_tis_idies_katigories")}
           </p>
         </div>
@@ -75,13 +75,13 @@ export function CartCrossSell({ items }: { items: CrossSellItem[] }) {
               <span className="t-card-brand text-k-red">{item.brandName ?? "—"}</span>
               <Link
                 href={`/proion/${item.slug}`}
-                className="flex-1 text-[11.5px] leading-[1.4] font-semibold text-white hover:text-k-red"
+                className="flex-1 text-[length:var(--fs-11-5)] leading-[1.4] font-semibold text-white hover:text-k-red"
               >
                 {item.name}
               </Link>
 
               <div className="flex items-center justify-between gap-2">
-                <span className="font-mono text-[15px] font-semibold whitespace-nowrap text-white">
+                <span className="font-mono text-[length:var(--fs-15)] font-semibold whitespace-nowrap text-white">
                   {formatPrice(item.priceNet, locale, { vatRate: item.vatRate })}
                 </span>
                 <button

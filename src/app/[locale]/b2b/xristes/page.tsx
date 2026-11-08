@@ -67,7 +67,7 @@ export default async function CompanyUsersPage({
       >
         <>
           {!canManage && (
-            <p className="mb-6 flex items-start gap-2.5 border-l-[3px] border-k-line-2 bg-k-surface-2 px-4 py-3 text-[12.5px] leading-[1.55] text-k-text-2">
+            <p className="mb-6 flex items-start gap-2.5 border-l-[3px] border-k-line-2 bg-k-surface-2 px-4 py-3 text-[length:var(--fs-12-5)] leading-[1.55] text-k-text-2">
               <span
                 aria-hidden
                 className="mt-1 block h-1.5 w-1.5 shrink-0 bg-k-text-5"
@@ -83,7 +83,7 @@ export default async function CompanyUsersPage({
           />
 
           {members.length === 0 && (
-            <p className="border border-k-line bg-k-surface-2 px-5 py-10 text-center text-[13px] text-k-text-3">
+            <p className="border border-k-line bg-k-surface-2 px-5 py-10 text-center text-[length:var(--fs-13)] text-k-text-3">
               {upGreek(t("den_yparchoyn_alloi_christes_akomi"))}
             </p>
           )}

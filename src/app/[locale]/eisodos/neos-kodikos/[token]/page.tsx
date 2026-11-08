@@ -45,12 +45,12 @@ export default async function NewPasswordPage({
 
           {resolved ? (
             <>
-              <p className="numeral mt-3 mb-7 text-[13px] text-k-text-3">{resolved.email}</p>
+              <p className="numeral mt-3 mb-7 text-[length:var(--fs-13)] text-k-text-3">{resolved.email}</p>
               <NewPasswordForm token={token} />
             </>
           ) : (
             <>
-              <p className="mt-3 mb-7 text-[13.5px] leading-[1.65] text-k-text-2">
+              <p className="mt-3 mb-7 text-[length:var(--fs-13-5)] leading-[1.65] text-k-text-2">
                 Ο σύνδεσμος έληξε ή έχει ήδη χρησιμοποιηθεί. Ζητήστε καινούριο.
               </p>
               <Link

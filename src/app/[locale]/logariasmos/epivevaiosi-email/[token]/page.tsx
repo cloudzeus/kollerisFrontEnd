@@ -50,14 +50,14 @@ export default async function ConfirmEmailPage({
               <h1 className="font-display text-[26px] leading-[1.16] t-display text-k-ink">
                 Το email σας επιβεβαιώθηκε
               </h1>
-              <p className="mt-3 text-[13.5px] leading-[1.65] text-k-text-2">
+              <p className="mt-3 text-[length:var(--fs-13-5)] leading-[1.65] text-k-text-2">
                 {result.adopted === 1
                   ? "Μία παραγγελία που κάνατε ως επισκέπτης προστέθηκε στον λογαριασμό σας."
                   : result.adopted > 1
                     ? `${result.adopted} παραγγελίες που κάνατε ως επισκέπτης προστέθηκαν στον λογαριασμό σας.`
                     : "Δεν βρέθηκαν παραγγελίες επισκέπτη με αυτό το email. Όσες κάνετε από εδώ και πέρα θα εμφανίζονται στον λογαριασμό σας."}
               </p>
-              <p className="mt-2 mb-7 text-[13px] leading-[1.65] text-k-text-3">
+              <p className="mt-2 mb-7 text-[length:var(--fs-13)] leading-[1.65] text-k-text-3">
                 Αν σας ζητηθεί, συνδεθείτε με το email και τον κωδικό σας για να τις δείτε.
               </p>
             </>
@@ -66,11 +66,11 @@ export default async function ConfirmEmailPage({
               <h1 className="font-display text-[26px] leading-[1.16] t-display text-k-ink">
                 Ο σύνδεσμος δεν ισχύει πια
               </h1>
-              <p className="mt-3 text-[13.5px] leading-[1.65] text-k-text-2">
+              <p className="mt-3 text-[length:var(--fs-13-5)] leading-[1.65] text-k-text-2">
                 Έχει λήξει ή έχει ήδη χρησιμοποιηθεί. Αν τον πατήσατε ήδη μία φορά, το email σας
                 είναι επιβεβαιωμένο και δεν χρειάζεται να κάνετε κάτι άλλο.
               </p>
-              <p className="mt-2 mb-7 text-[13px] leading-[1.65] text-k-text-3">
+              <p className="mt-2 mb-7 text-[length:var(--fs-13)] leading-[1.65] text-k-text-3">
                 Αλλιώς, συνδεθείτε και ζητήστε νέο σύνδεσμο από τη σελίδα «Οι παραγγελίες μου».
               </p>
             </>

@@ -89,7 +89,7 @@ export function CompareMatrix({
                     scope="row"
                     className="sticky left-0 z-10 border-r border-b border-k-line bg-inherit px-3 py-2.5 align-top lg:px-5 lg:py-3"
                   >
-                    <span className="block text-[12px] leading-[1.4] font-medium text-k-text-2 lg:text-[12.5px]">
+                    <span className="block text-[length:var(--fs-12)] leading-[1.4] font-medium text-k-text-2 lg:text-[length:var(--fs-12-5)]">
                       {row.label}
                     </span>
                     {row.differs && (
@@ -110,7 +110,7 @@ export function CompareMatrix({
                         }`}
                       >
                         <span
-                          className={`flex items-baseline gap-1.5 font-mono text-[12.5px] leading-[1.45] ${
+                          className={`flex items-baseline gap-1.5 font-mono text-[length:var(--fs-12-5)] leading-[1.45] ${
                             cell.text == null
                               ? "text-k-text-5"
                               : isBest
@@ -175,7 +175,7 @@ async function ColumnHead({ column, ids }: { column: CompareColumn; ids: string[
         scroll={false}
         aria-label={t("afairesi_apo_ti_sygkrisi", { name: column.name })}
         title={t("afairesi")}
-        className="absolute top-1.5 right-1.5 flex h-6 w-6 items-center justify-center text-[15px] leading-none text-k-text-5 transition-colors hover:bg-k-red hover:text-white"
+        className="absolute top-1.5 right-1.5 flex h-6 w-6 items-center justify-center text-[length:var(--fs-15)] leading-none text-k-text-5 transition-colors hover:bg-k-red hover:text-white"
       >
         ×
       </Link>
@@ -209,14 +209,14 @@ async function ColumnHead({ column, ids }: { column: CompareColumn; ids: string[
 
       <Link
         href={`/proion/${column.slug}`}
-        className="mt-1 block text-[12px] leading-[1.35] font-medium text-k-ink transition-colors hover:text-k-red lg:text-[13px]"
+        className="mt-1 block text-[length:var(--fs-12)] leading-[1.35] font-medium text-k-ink transition-colors hover:text-k-red lg:text-[length:var(--fs-13)]"
       >
         {column.name}
       </Link>
 
       <span className="t-card-sku mt-1 block text-k-text-5">{column.sku}</span>
 
-      <span className="mt-2.5 block font-mono text-[15px] leading-none font-semibold text-k-ink lg:text-[17px]">
+      <span className="mt-2.5 block font-mono text-[length:var(--fs-15)] leading-none font-semibold text-k-ink lg:text-[17px]">
         {column.priceNet != null ? formatPrice(column.priceNet, locale, ctx) : "—"}
       </span>
       <span className="t-card-vat mt-1 block text-k-text-5">

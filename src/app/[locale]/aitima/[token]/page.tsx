@@ -158,13 +158,13 @@ export default async function RequestPage({ params }: PageProps) {
           </h1>
           <p className="mt-4 flex flex-wrap items-center gap-3">
             <span className="t-account-label text-white/50">{upGreek(t("arithmos"))}</span>
-            <span className="border border-white/20 px-3 py-2 font-mono text-[15px] font-semibold text-white">
+            <span className="border border-white/20 px-3 py-2 font-mono text-[length:var(--fs-15)] font-semibold text-white">
               {order.orderNumber}
             </span>
           </p>
-          <p className="mt-4 max-w-[600px] text-[13.5px] leading-[1.65] text-white/60">{t(`intro_${view}`)}</p>
+          <p className="mt-4 max-w-[600px] text-[length:var(--fs-13-5)] leading-[1.65] text-white/60">{t(`intro_${view}`)}</p>
           {order.parentOrderNumber && (
-            <p className="mt-2 max-w-[600px] text-[12.5px] leading-[1.6] text-white/50">
+            <p className="mt-2 max-w-[600px] text-[length:var(--fs-12-5)] leading-[1.6] text-white/50">
               {parent
                 ? parent.paymentStatus === "PAID"
                   ? t("parent_note_paid", {
@@ -237,14 +237,14 @@ export default async function RequestPage({ params }: PageProps) {
                             {upGreek(tag(row))}
                           </span>
                           <span
-                            className={`mt-1 block text-[12.5px] font-semibold ${
+                            className={`mt-1 block text-[length:var(--fs-12-5)] font-semibold ${
                               removed ? "text-k-text-4 line-through" : "text-k-ink"
                             }`}
                           >
                             {line.name}
                           </span>
                           {row.kind === "alternative" && row.requested && (
-                            <span className="mt-0.5 block text-[11.5px] text-k-text-3">
+                            <span className="mt-0.5 block text-[length:var(--fs-11-5)] text-k-text-3">
                               {t("instead_of", { name: row.requested.name })}
                             </span>
                           )}
@@ -260,7 +260,7 @@ export default async function RequestPage({ params }: PageProps) {
                             {!removed && row.offered.leadTimeText ? ` · ${row.offered.leadTimeText}` : ""}
                           </span>
                           {row.kind === "modified" && (row.qtyChanged || row.priceChanged) && (
-                            <span className="mt-0.5 block text-[11px] text-k-text-4">
+                            <span className="mt-0.5 block text-[length:var(--fs-11)] text-k-text-4">
                               {[
                                 row.qtyChanged ? t("requested_qty", { qty: row.requested.qty }) : null,
                                 row.priceChanged
@@ -275,7 +275,7 @@ export default async function RequestPage({ params }: PageProps) {
                           )}
                         </span>
                         <span
-                          className={`shrink-0 font-mono text-[14px] font-semibold ${
+                          className={`shrink-0 font-mono text-[length:var(--fs-14)] font-semibold ${
                             removed ? "text-k-text-4 line-through" : "text-k-ink"
                           }`}
                         >
@@ -300,12 +300,12 @@ export default async function RequestPage({ params }: PageProps) {
                         )}
                       </span>
                       <span className="min-w-0 flex-1">
-                        <span className="block text-[12.5px] font-semibold text-k-ink">{line.name}</span>
+                        <span className="block text-[length:var(--fs-12-5)] font-semibold text-k-ink">{line.name}</span>
                         <span className="t-card-sku mt-0.5 block text-k-text-4">
                           {line.sku} · {line.quantity} {t("tem")}
                         </span>
                       </span>
-                      <span className="shrink-0 font-mono text-[14px] font-semibold text-k-ink">
+                      <span className="shrink-0 font-mono text-[length:var(--fs-14)] font-semibold text-k-ink">
                         {money(Number(line.lineGross))}
                       </span>
                     </div>
@@ -327,12 +327,12 @@ export default async function RequestPage({ params }: PageProps) {
                       </span>
                       <span className="min-w-0 flex-1">
                         <span className="t-card-brand block text-k-red">{line.brand ?? "—"}</span>
-                        <span className="mt-0.5 block text-[12.5px] font-semibold text-k-ink">{line.name}</span>
+                        <span className="mt-0.5 block text-[length:var(--fs-12-5)] font-semibold text-k-ink">{line.name}</span>
                         <span className="t-card-sku mt-0.5 block text-k-text-4">
                           {line.sku} · {line.qty} {t("tem")}
                         </span>
                       </span>
-                      <span className="shrink-0 font-mono text-[14px] font-semibold text-k-text-3">
+                      <span className="shrink-0 font-mono text-[length:var(--fs-14)] font-semibold text-k-text-3">
                         {money(grossOf(line.unitNet, line.vatRate, line.qty).lineGross)}
                       </span>
                     </div>
@@ -341,12 +341,12 @@ export default async function RequestPage({ params }: PageProps) {
               </>
             )}
 
-            <p className="mt-6 text-[11.5px] text-k-text-4">{t("private_link")}</p>
+            <p className="mt-6 text-[length:var(--fs-11-5)] text-k-text-4">{t("private_link")}</p>
           </div>
 
           <aside className="px-4 py-8 lg:px-8">
             {order.parentOrderNumber && view !== "PAID" && (
-              <p className="mb-3 border-l-[3px] border-k-amber bg-k-surface-2 px-4 py-3 text-[12px] leading-[1.55] text-k-text-2">
+              <p className="mb-3 border-l-[3px] border-k-amber bg-k-surface-2 px-4 py-3 text-[length:var(--fs-12)] leading-[1.55] text-k-text-2">
                 {t("second_shipment", { number: order.parentOrderNumber })}
               </p>
             )}
@@ -367,8 +367,8 @@ export default async function RequestPage({ params }: PageProps) {
                       { k: t("fpa"), v: money(offerTotals.vatAmount) },
                     ].map((row) => (
                       <div key={row.k} className="flex items-baseline justify-between gap-4">
-                        <dt className="text-[12.5px] text-white/55">{row.k}</dt>
-                        <dd className="font-mono text-[13px] font-medium text-white">{row.v}</dd>
+                        <dt className="text-[length:var(--fs-12-5)] text-white/55">{row.k}</dt>
+                        <dd className="font-mono text-[length:var(--fs-13)] font-medium text-white">{row.v}</dd>
                       </div>
                     ))}
                   </dl>
@@ -389,8 +389,8 @@ export default async function RequestPage({ params }: PageProps) {
               ) : (
                 <>
                   <p className="flex items-baseline justify-between gap-4">
-                    <span className="text-[12.5px] text-white/55">{t("metaforika")}</span>
-                    <span className="text-[12.5px] text-white/80">{t("shipping_with_offer")}</span>
+                    <span className="text-[length:var(--fs-12-5)] text-white/55">{t("metaforika")}</span>
+                    <span className="text-[length:var(--fs-12-5)] text-white/80">{t("shipping_with_offer")}</span>
                   </p>
                   <div className="mt-4 flex items-end justify-between gap-4 border-t border-white/16 pt-4">
                     <p className="t-footer-col text-white/50">{upGreek(t("endeiktiki_axia"))}</p>
@@ -442,14 +442,14 @@ function Block({ title, children }: { title: string; children: React.ReactNode }
   return (
     <div className="bg-white px-4 py-4">
       <p className="t-account-label mb-2 text-k-text-4">{upGreek(title)}</p>
-      <p className="text-[12.5px] leading-[1.6] text-k-ink">{children}</p>
+      <p className="text-[length:var(--fs-12-5)] leading-[1.6] text-k-ink">{children}</p>
     </div>
   );
 }
 
 function Note({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <p className="mb-5 border-l-[3px] border-k-ink bg-k-surface-2 px-4 py-3 text-[12.5px] leading-[1.6] whitespace-pre-line text-k-ink">
+    <p className="mb-5 border-l-[3px] border-k-ink bg-k-surface-2 px-4 py-3 text-[length:var(--fs-12-5)] leading-[1.6] whitespace-pre-line text-k-ink">
       <span className="t-account-label mb-1 block text-k-text-4">{upGreek(title)}</span>
       {children}
     </p>

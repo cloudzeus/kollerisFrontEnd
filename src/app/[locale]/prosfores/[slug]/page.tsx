@@ -214,17 +214,17 @@ export default async function OfferProductsPage({
                 {upGreek(title)}
               </h1>
               {offer.badge && (
-                <span className="border border-k-red bg-k-red px-2.5 py-1 text-[11px] font-semibold text-white">
+                <span className="border border-k-red bg-k-red px-2.5 py-1 text-[length:var(--fs-11)] font-semibold text-white">
                   {offer.badge}
                 </span>
               )}
             </div>
             {description && (
-              <p className="mt-3.5 max-w-[640px] text-[13px] leading-[1.68] text-white/60 lg:text-sm">
+              <p className="mt-3.5 max-w-[640px] text-[length:var(--fs-13)] leading-[1.68] text-white/60 lg:text-sm">
                 {description}
               </p>
             )}
-            <p className="mt-2 text-[13px] text-white/45">
+            <p className="mt-2 text-[length:var(--fs-13)] text-white/45">
               {data.total.toLocaleString(locale)}{" "}
               {t("kodikoi_filtrarete_aristera")}
             </p>
@@ -247,7 +247,7 @@ export default async function OfferProductsPage({
             facets={data.facets}
             basePath={`/prosfores/${slug}`}
             params={raw}
-            className="hidden max-h-[calc(100vh-var(--header-h))] flex-col overflow-hidden lg:sticky lg:top-[var(--header-h)] lg:flex"
+            className="hidden flex-col lg:flex"
           />
 
           <div className="min-w-0 border-k-line px-4 py-6 lg:border-l lg:px-10 lg:pt-6 lg:pb-10">
@@ -256,7 +256,7 @@ export default async function OfferProductsPage({
                 <p className="font-display t-display text-lg text-k-ink">
                   {upGreek(t("kanena_proion_me_ayta_ta"))}
                 </p>
-                <p className="mt-2 max-w-md text-[13px] text-k-text-3">
+                <p className="mt-2 max-w-md text-[length:var(--fs-13)] text-k-text-3">
                   {t("dokimaste_na_afairesete_ena_filtro")}
                 </p>
                 <Link

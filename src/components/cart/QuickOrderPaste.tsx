@@ -43,10 +43,10 @@ export function QuickOrderPaste() {
     <div className="border-b border-k-line bg-k-surface-2 px-4 py-6 lg:px-10">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between lg:gap-6">
         <div className="min-w-0">
-          <p className="text-[13px] font-semibold text-k-ink">
+          <p className="text-[length:var(--fs-13)] font-semibold text-k-ink">
             {t("grigori_paraggelia_me_kodikoys")}
           </p>
-          <p className="mt-1 text-[12px] leading-[1.5] text-k-text-3">
+          <p className="mt-1 text-[length:var(--fs-12)] leading-[1.5] text-k-text-3">
             {t("epikolliste_lista_kodikon_apo_to")}
           </p>
         </div>
@@ -60,7 +60,7 @@ export function QuickOrderPaste() {
             value={text}
             onChange={(e) => setText(e.target.value)}
             placeholder="001955S5, 8111250, 05028148001…"
-            className="h-[46px] w-full min-w-0 border-[1.5px] border-r-0 border-k-ink px-3.5 font-mono text-[12.5px] text-k-ink outline-none lg:w-[290px]"
+            className="h-[46px] w-full min-w-0 border-[1.5px] border-r-0 border-k-ink px-3.5 font-mono text-[length:var(--fs-12-5)] text-k-ink outline-none lg:w-[290px]"
           />
           <button
             type="submit"
@@ -75,17 +75,17 @@ export function QuickOrderPaste() {
       {result && (
         <div role="status" className="mt-3 flex flex-col gap-1.5">
           {"error" in result ? (
-            <p className="text-[12px] text-k-red">{result.error}</p>
+            <p className="text-[length:var(--fs-12)] text-k-red">{result.error}</p>
           ) : (
             <>
               {result.added > 0 && (
-                <p className="text-[12px] text-k-green">
+                <p className="text-[length:var(--fs-12)] text-k-green">
                   {t("prostethikan")} {result.added}{" "}
                   {result.added === 1 ? t("kodikos") : t("kodikoi")}.
                 </p>
               )}
               {result.notFound.length > 0 && (
-                <p className="text-[12px] text-k-amber">
+                <p className="text-[length:var(--fs-12)] text-k-amber">
                   {t("den_vrethikan")} {result.notFound.join(", ")}
                 </p>
               )}

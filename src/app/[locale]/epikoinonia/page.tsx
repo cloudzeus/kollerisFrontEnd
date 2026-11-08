@@ -188,7 +188,7 @@ export default async function ContactPage({
               <h1 className="font-display text-[22px] leading-[1.16] t-display text-balance text-white lg:text-[30px]">
                 {upGreek(t("peite_mas_ti_doyleia_ochi"))}
               </h1>
-              <p className="mt-3.5 max-w-[620px] text-[13px] leading-[1.68] text-white/60 lg:text-sm">
+              <p className="mt-3.5 max-w-[620px] text-[length:var(--fs-13)] leading-[1.68] text-white/60 lg:text-sm">
                 {t("den_chreiazetai_na_xerete_ti", {
                   years: yearsInBusiness(),
                 })}
@@ -215,7 +215,7 @@ export default async function ContactPage({
                 {upGreek(t("ora_elladas", { now: now.now }))}
               </p>
               {closingSoon && (
-                <p className="mt-2 text-[12px] leading-[1.5] text-white/70">
+                <p className="mt-2 text-[length:var(--fs-12)] leading-[1.5] text-white/70">
                   {t("kleinoyme_se")} {now.minutesUntilChange}
                   {t("prolavainete_ena_tilefono")}
                 </p>
@@ -236,12 +236,12 @@ export default async function ContactPage({
                   className={`mt-1.5 leading-[1.25] font-semibold text-k-ink ${
                     channel.primary
                       ? "font-mono text-[19px] lg:text-[23px]"
-                      : "text-[14px]"
+                      : "text-[length:var(--fs-14)]"
                   }`}
                 >
                   {channel.value}
                 </dd>
-                <dd className="mt-1.5 text-[12px] leading-[1.5] text-k-text-3">
+                <dd className="mt-1.5 text-[length:var(--fs-12)] leading-[1.5] text-k-text-3">
                   {channel.note}
                 </dd>
               </>
@@ -300,17 +300,17 @@ export default async function ContactPage({
                       key={item.area}
                       className="border-b border-k-line px-5 py-3.5 last:border-b-0"
                     >
-                      <p className="text-[13px] font-semibold text-k-ink">
+                      <p className="text-[length:var(--fs-13)] font-semibold text-k-ink">
                         {item.area}
                       </p>
-                      <p className="mt-1 text-[12px] leading-[1.55] text-k-text-3">
+                      <p className="mt-1 text-[length:var(--fs-12)] leading-[1.55] text-k-text-3">
                         {item.body}
                       </p>
                     </li>
                   ))}
                 </ul>
                 <div className="border-t border-k-line bg-k-surface-2 px-5 py-4">
-                  <p className="text-[12.5px] leading-[1.6] text-k-text-2">
+                  <p className="text-[length:var(--fs-12-5)] leading-[1.6] text-k-text-2">
                     {t("ola_pernoyn_apo_to_idio")}
                   </p>
                   <a
@@ -360,10 +360,10 @@ export default async function ContactPage({
                   key={item.title}
                   className="flex flex-col gap-2.5 bg-white p-5 lg:p-6"
                 >
-                  <p className="text-[13.5px] leading-[1.3] font-semibold text-k-ink">
+                  <p className="text-[length:var(--fs-13-5)] leading-[1.3] font-semibold text-k-ink">
                     {item.title}
                   </p>
-                  <p className="text-[12.5px] leading-[1.65] text-k-text-3">
+                  <p className="text-[length:var(--fs-12-5)] leading-[1.65] text-k-text-3">
                     {item.body}
                   </p>
                   <Link

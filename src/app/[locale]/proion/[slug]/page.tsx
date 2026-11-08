@@ -147,7 +147,7 @@ export default async function ProductPage({ params }: PageProps) {
    */
   const el = (n: number) => n.toLocaleString(locale);
   const dimensions =
-    product.width != null && product.length != null && product.height != null
+    product.width && product.length && product.height
       ? `${el(product.width)}×${el(product.length)}×${el(product.height)} cm`
       : null;
 
@@ -199,7 +199,7 @@ export default async function ProductPage({ params }: PageProps) {
       product.colors.length > 0
         ? { k: t("chroma"), v: product.colors.join(", ") }
         : null,
-      product.weight != null
+      product.weight
         ? { k: t("varos"), v: `${el(product.weight)} kg` }
         : null,
       product.guaranteeMonths
@@ -209,7 +209,7 @@ export default async function ProductPage({ params }: PageProps) {
           }
         : null,
       dimensions ? { k: t("diastaseis_cm"), v: dimensions } : null,
-      product.length != null
+      product.length
         ? { k: t("mikos"), v: `${product.length} cm` }
         : null,
       product.brand ? { k: t("kataskeyastis"), v: product.brand.name } : null,
@@ -444,7 +444,7 @@ export default async function ProductPage({ params }: PageProps) {
               cards makes the two columns finish level and takes two bands —
               and their vertical padding — off the page.
             */}
-            <div className="flex min-w-0 flex-col">
+            <div className="flex min-w-0 flex-col max-lg:contents">
               {/*
                 Η καρδιά πάνω από τη φωτογραφία, όχι δίπλα στο «Στο καλάθι».
                 ──────────────────────────────────────────────────────────────
@@ -452,7 +452,7 @@ export default async function ProductPage({ params }: PageProps) {
                 αποφάσεις· δίπλα-δίπλα η μία αραιώνει την άλλη. Στη γωνία της
                 φωτογραφίας βρίσκεται εύκολα και δεν διεκδικεί τίποτα.
               */}
-              <div className="relative">
+              <div className="relative min-w-0 max-lg:order-1">
                 <div className="absolute top-3 right-3 z-10">
                   <FavouriteButton productId={product.id} initial={favourite} />
                 </div>
@@ -472,7 +472,7 @@ export default async function ProductPage({ params }: PageProps) {
                   καθένα, και το `lg:px-8` έτρωγε 64 από αυτά. Ό,τι περίσσευε
                   δεν χωρούσε ούτε ένα «32×15×10 cm».
                 */
-                <dl className="@container mt-5 grid grid-cols-2 gap-px border border-k-line bg-k-line lg:mt-6 @[30rem]:grid-cols-4">
+                <dl className="@container grid min-w-0 grid-cols-2 gap-px border border-k-line bg-k-line max-lg:order-3 lg:mt-6 @[30rem]:grid-cols-4">
                   {glance.map((item) => (
                     <div
                       key={item.k}
@@ -488,7 +488,7 @@ export default async function ProductPage({ params }: PageProps) {
                       <dd
                         className={cn(
                           "mt-1.5 font-mono leading-[1.2] font-semibold text-k-ink",
-                          item.v.length > 9 ? "text-[13.5px]" : "text-[17px]",
+                          item.v.length > 9 ? "text-[length:var(--fs-13-5)]" : "text-[17px]",
                         )}
                       >
                         {item.v}
@@ -499,7 +499,7 @@ export default async function ProductPage({ params }: PageProps) {
               )}
 
               {/* Dealer band + expert help, side by side. */}
-              <div className="mt-px grid border border-k-line bg-white md:grid-cols-2">
+              <div className="grid min-w-0 border border-k-line bg-white max-lg:order-4 md:grid-cols-2 lg:mt-px">
                 {product.brand && (
                   <div className="flex flex-wrap items-center justify-between gap-4 border-b border-k-line px-4 py-5 md:border-r md:border-b-0 md:px-5">
                     <div className="flex min-w-0 items-center gap-4">
@@ -513,11 +513,11 @@ export default async function ProductPage({ params }: PageProps) {
                         />
                       )}
                       <div className="min-w-0">
-                        <p className="text-[13px] font-semibold text-k-ink">
+                        <p className="text-[length:var(--fs-13)] font-semibold text-k-ink">
                           {t("episimi_antiprosopeysi")} {product.brand.name}{" "}
                           {t("stin_ellada")}
                         </p>
-                        <p className="mt-1 text-[12.5px] leading-[1.55] text-k-text-3">
+                        <p className="mt-1 text-[length:var(--fs-12-5)] leading-[1.55] text-k-text-3">
                           {t("gnisio_proion_eggyisi_kataskeyasti_servis")}
                         </p>
                       </div>
@@ -542,10 +542,10 @@ export default async function ProductPage({ params }: PageProps) {
                           : t("ypeythynos_katigorias"),
                       )}
                     </p>
-                    <p className="mt-1.5 text-[14px] font-semibold text-k-ink">
+                    <p className="mt-1.5 text-[length:var(--fs-14)] font-semibold text-k-ink">
                       {t("den_xerete_an_kanei_gia")}
                     </p>
-                    <p className="mt-1 text-[12px] leading-[1.55] text-k-text-3">
+                    <p className="mt-1 text-[length:var(--fs-12)] leading-[1.55] text-k-text-3">
                       {t("kaleste_mas_46_chronia_sta", {
                         years: yearsInBusiness(),
                       })}
@@ -561,8 +561,9 @@ export default async function ProductPage({ params }: PageProps) {
               </div>
             </div>
 
-            {/* Buy column */}
-            <div className="flex min-w-0 flex-col">
+            {/* Buy column. On a phone it follows the photo (order-2): the title
+                and price were 1300px down, under the specs and the dealer card. */}
+            <div className="flex min-w-0 flex-col max-lg:order-2">
               {product.brand && (
                 <div className="flex items-center gap-3">
                   {product.brand.logo && (
@@ -576,7 +577,7 @@ export default async function ProductPage({ params }: PageProps) {
                   )}
                   <Link
                     href={`/brands/${product.brand.slug}`}
-                    className="text-[11px] font-bold tracking-[0.14em] text-k-red transition-colors hover:text-k-red-hover"
+                    className="text-[length:var(--fs-11)] font-bold tracking-[0.14em] text-k-red transition-colors hover:text-k-red-hover"
                   >
                     {upGreek(product.brand.name)}
                   </Link>
@@ -613,12 +614,12 @@ export default async function ProductPage({ params }: PageProps) {
                   <span className="t-badge bg-k-red-600 px-[7px] py-1 text-white uppercase">
                     {offer.label}
                   </span>
-                  <span className="text-[12.5px] text-k-ink">
+                  <span className="text-[length:var(--fs-12-5)] text-k-ink">
                     {offer.title}
                   </span>
                   <span
                     aria-hidden
-                    className="text-[12.5px] text-k-red transition-transform group-hover/offer:translate-x-1"
+                    className="text-[length:var(--fs-12-5)] text-k-red transition-transform group-hover/offer:translate-x-1"
                   >
                     →
                   </span>
@@ -652,7 +653,7 @@ export default async function ProductPage({ params }: PageProps) {
                       <dt className="t-account-label text-k-text-4">
                         {upGreek(item.label)}
                       </dt>
-                      <dd className="font-mono text-[12.5px] font-semibold text-k-ink">
+                      <dd className="font-mono text-[length:var(--fs-12-5)] font-semibold text-k-ink">
                         {item.value}
                       </dd>
                     </div>
@@ -668,7 +669,7 @@ export default async function ProductPage({ params }: PageProps) {
                 <Expandable
                   lines={3}
                   collapsible={product.shortDescription.length > 190}
-                  className="mt-4 text-[13.5px] leading-[1.65] text-k-text-2"
+                  className="mt-4 text-[length:var(--fs-13-5)] leading-[1.65] text-k-text-2"
                 >
                   {product.shortDescription}
                 </Expandable>
@@ -799,10 +800,10 @@ export default async function ProductPage({ params }: PageProps) {
                       </svg>
                     </span>
                     <span className="min-w-0">
-                      <span className="block text-[11.5px] leading-[1.3] font-semibold text-k-ink">
+                      <span className="block text-[length:var(--fs-11-5)] leading-[1.3] font-semibold text-k-ink">
                         {item.t}
                       </span>
-                      <span className="mt-1 block text-[11.5px] leading-[1.5] text-k-text-3">
+                      <span className="mt-1 block text-[length:var(--fs-11-5)] leading-[1.5] text-k-text-3">
                         {item.d}
                       </span>
                     </span>
@@ -851,7 +852,7 @@ export default async function ProductPage({ params }: PageProps) {
                       key={item.q}
                       className="group border-b border-k-line"
                     >
-                      <summary className="flex cursor-pointer items-center justify-between gap-4 py-3.5 text-[14px] font-medium text-k-ink marker:content-none [&::-webkit-details-marker]:hidden">
+                      <summary className="flex cursor-pointer items-center justify-between gap-4 py-3.5 text-[length:var(--fs-14)] font-medium text-k-ink marker:content-none [&::-webkit-details-marker]:hidden">
                         {item.q}
                         <span
                           aria-hidden
@@ -860,7 +861,7 @@ export default async function ProductPage({ params }: PageProps) {
                           +
                         </span>
                       </summary>
-                      <p className="max-w-[70ch] pb-4 text-[13.5px] leading-[1.7] text-k-text-2">
+                      <p className="max-w-[70ch] pb-4 text-[length:var(--fs-13-5)] leading-[1.7] text-k-text-2">
                         {item.a}
                       </p>
                     </details>

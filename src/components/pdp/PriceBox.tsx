@@ -98,7 +98,7 @@ export function PriceBox({
         {offer ? (
           <div className="flex flex-wrap items-baseline gap-x-2.5 gap-y-1">
             <span className="t-account-label text-white/40">{upGreek(t("timi_eshop"))}</span>
-            <span className="font-mono text-[13px] font-medium text-white/45 line-through">
+            <span className="font-mono text-[length:var(--fs-13)] font-medium text-white/45 line-through">
               {priceNet != null ? formatPrice(priceNet, locale, ctx) : "—"}
             </span>
             <span className="t-badge bg-k-red-600 px-[7px] py-[3px] text-white uppercase">
@@ -108,7 +108,7 @@ export function PriceBox({
         ) : saving && priceListNet != null ? (
           <div className="flex flex-wrap items-baseline gap-x-2.5 gap-y-1">
             <span className="t-account-label text-white/40">{upGreek(t("timi_katalogoy"))}</span>
-            <span className="font-mono text-[13px] font-medium text-white/45 line-through">
+            <span className="font-mono text-[length:var(--fs-13)] font-medium text-white/45 line-through">
               {formatPrice(priceListNet, locale, ctx)}
             </span>
             <span className="t-badge bg-k-red px-[7px] py-[3px] text-white">
@@ -128,7 +128,7 @@ export function PriceBox({
         </p>
 
         {offer && (
-          <p className="mt-1.5 text-[12px] leading-[1.5] text-white/60">
+          <p className="mt-1.5 text-[length:var(--fs-12)] leading-[1.5] text-white/60">
             Μετά την έκπτωση · {offer.title}
           </p>
         )}
@@ -156,7 +156,7 @@ export function PriceBox({
             </button>
             <span
               aria-live="polite"
-              className="flex h-[52px] w-[52px] items-center justify-center border-x border-white/22 font-mono text-[15px] font-semibold text-white"
+              className="flex h-[52px] w-[52px] items-center justify-center border-x border-white/22 font-mono text-[length:var(--fs-15)] font-semibold text-white"
             >
               {quantity}
             </span>
@@ -210,11 +210,11 @@ export function PriceBox({
 
         {inStock && (
           <div className="mt-3.5 flex items-center gap-3 border-l-[3px] border-k-red bg-k-red/13 px-3.5 py-2.5">
-            <p className="flex-1 text-[12px] leading-[1.45] text-white/82">
+            <p className="flex-1 text-[length:var(--fs-12)] leading-[1.45] text-white/82">
               {cutoff ? (
                 <>
                   {t("paraggeilete_mesa_se")}{" "}
-                  <span className="font-mono text-[13px] font-semibold text-white">
+                  <span className="font-mono text-[length:var(--fs-13)] font-semibold text-white">
                     {cutoff.remaining}
                   </span>{" "}
                   {t("kai_feygei")} <strong className="font-semibold text-white">{cutoff.label}</strong>
@@ -244,7 +244,7 @@ export function PriceBox({
           <span className="t-account-label block text-k-text-4">
             {upGreek(t("eiste_epaggelmatias"))}
           </span>
-          <span className="mt-1 block text-[12.5px] leading-[1.4] font-semibold text-k-ink">
+          <span className="mt-1 block text-[length:var(--fs-12-5)] leading-[1.4] font-semibold text-k-ink">
             {t("syndetheite_kai_deite_tin_timi")}
           </span>
         </span>

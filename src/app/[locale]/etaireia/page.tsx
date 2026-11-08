@@ -229,7 +229,7 @@ export default async function CompanyPage({
                   {upGreek(t("deite_ta_noymera"))}
                 </span>
               </h1>
-              <p className="mt-5 max-w-[600px] text-[13.5px] leading-[1.7] text-white/60 lg:text-[15px]">
+              <p className="mt-5 max-w-[600px] text-[length:var(--fs-13-5)] leading-[1.7] text-white/60 lg:text-[length:var(--fs-15)]">
                 {t("kathe_promitheytis_ergaleion_grafei_megali")}
               </p>
             </div>
@@ -241,7 +241,7 @@ export default async function CompanyPage({
               <p className="t-account-label mt-2 text-white/50">
                 {upGreek(t("chronia_sta_ergaleia"))}
               </p>
-              <p className="mt-3 text-[12.5px] leading-[1.6] text-white/45">
+              <p className="mt-3 text-[length:var(--fs-12-5)] leading-[1.6] text-white/45">
                 {t("naypigeia_ergostasia_synergeia_oi_idioi")}
               </p>
             </div>
@@ -264,10 +264,10 @@ export default async function CompanyPage({
                   className="flex items-start justify-between gap-6 bg-white p-5 transition-colors hover:bg-k-surface-2 lg:p-7"
                 >
                   <div className="min-w-0">
-                    <dt className="text-[14px] leading-[1.3] font-semibold text-k-ink lg:text-[15px]">
+                    <dt className="text-[length:var(--fs-14)] leading-[1.3] font-semibold text-k-ink lg:text-[length:var(--fs-15)]">
                       {row.claim}
                     </dt>
-                    <dd className="mt-1.5 text-[12.5px] leading-[1.6] text-k-text-3">
+                    <dd className="mt-1.5 text-[length:var(--fs-12-5)] leading-[1.6] text-k-text-3">
                       {row.note}
                     </dd>
                   </div>
@@ -284,7 +284,7 @@ export default async function CompanyPage({
             </dl>
 
             {proof.heaviestCategory && (
-              <p className="mt-5 flex flex-wrap items-center gap-2 text-[12.5px] text-k-text-3">
+              <p className="mt-5 flex flex-wrap items-center gap-2 text-[length:var(--fs-12-5)] text-k-text-3">
                 <span aria-hidden className="block h-1.5 w-1.5 bg-k-red" />
                 {t("i_megalyteri_katigoria_mas_einai")}{" "}
                 <Link
@@ -321,10 +321,10 @@ export default async function CompanyPage({
                   >
                     {step.year}
                   </span>
-                  <span className="text-[14px] leading-[1.3] font-semibold text-k-ink">
+                  <span className="text-[length:var(--fs-14)] leading-[1.3] font-semibold text-k-ink">
                     {step.title}
                   </span>
-                  <span className="text-[12.5px] leading-[1.65] text-k-text-3">
+                  <span className="text-[length:var(--fs-12-5)] leading-[1.65] text-k-text-3">
                     {step.body}
                   </span>
                 </li>
@@ -346,10 +346,10 @@ export default async function CompanyPage({
                   key={item.title}
                   className="border-l-[3px] border-k-red bg-white p-5 lg:p-6"
                 >
-                  <p className="text-[13.5px] leading-[1.3] font-semibold text-k-ink">
+                  <p className="text-[length:var(--fs-13-5)] leading-[1.3] font-semibold text-k-ink">
                     {item.title}
                   </p>
-                  <p className="mt-2 text-[12.5px] leading-[1.65] text-k-text-3">
+                  <p className="mt-2 text-[length:var(--fs-12-5)] leading-[1.65] text-k-text-3">
                     {item.body}
                   </p>
                 </div>

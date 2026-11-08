@@ -54,7 +54,7 @@ export function QuickOrder() {
           <h2 className="font-display t-display text-[20px] leading-tight">
             {upGreek(t("grigori_paraggelia_me_kodiko"))}
           </h2>
-          <p className="mt-1 text-[13px] text-k-text-3">{t("xerete_ti_thelete")}</p>
+          <p className="mt-1 text-[length:var(--fs-13)] text-k-text-3">{t("xerete_ti_thelete")}</p>
         </div>
 
         <div className="flex flex-1 flex-col gap-2">
@@ -68,18 +68,18 @@ export function QuickOrder() {
               onChange={(event) => setCode(event.target.value)}
               placeholder={t("p_ch_4932499207_81_11")}
               autoComplete="off"
-              className="h-12 min-w-0 flex-1 border border-k-line-2 bg-k-surface-3 px-4 text-[14px] text-k-ink outline-none placeholder:text-k-text-4 focus:border-k-ink"
+              className="h-12 min-w-0 flex-1 border border-k-line-2 bg-k-surface-3 px-4 text-[length:var(--fs-14)] text-k-ink outline-none placeholder:text-k-text-4 focus:border-k-ink"
             />
             <button
               type="submit"
               disabled={pending || code.trim().length === 0}
-              className="font-sans h-12 shrink-0 cursor-pointer bg-k-ink-deep px-7 text-[14px] font-bold tracking-[0.08em] text-white transition-colors hover:bg-k-ink disabled:cursor-not-allowed disabled:opacity-50"
+              className="font-sans h-12 shrink-0 cursor-pointer bg-k-ink-deep px-7 text-[length:var(--fs-14)] font-bold tracking-[0.08em] text-white transition-colors hover:bg-k-ink disabled:cursor-not-allowed disabled:opacity-50"
             >
               {pending ? "…" : upGreek(t("prosthiki_sto_kalathi"))}
             </button>
           </div>
 
-          <p aria-live="polite" className="min-h-[18px] text-[12.5px]">
+          <p aria-live="polite" className="min-h-[18px] text-[length:var(--fs-12-5)]">
             {state === "done" && (
               <span className="text-k-green">✓ {t("prostethike_sto_kalathi")}</span>
             )}

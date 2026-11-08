@@ -151,7 +151,7 @@ export function WidgetRenderer({
       {badge && (
         <span
           className={cn(
-            "absolute left-0 top-0 px-2.5 py-1 text-[10px] font-medium tracking-[0.08em]",
+            "absolute left-0 top-0 px-2.5 py-1 text-[length:var(--fs-10)] font-medium tracking-[0.08em]",
             badgeClass,
           )}
         >
@@ -194,7 +194,7 @@ export function WidgetRenderer({
         {body && (
           <span
             className={cn(
-              "max-w-[46ch] text-[13px] leading-[1.55]",
+              "max-w-[46ch] text-[length:var(--fs-13)] leading-[1.55]",
               onDark ? "text-white/72" : "text-k-text-2",
             )}
           >
@@ -205,7 +205,7 @@ export function WidgetRenderer({
         {cta && (
           <span
             className={cn(
-              "mt-1.5 inline-flex w-fit items-center gap-1.5 border-b-[1.5px] pb-0.5 text-[12.5px] font-medium tracking-wide transition-colors",
+              "mt-1.5 inline-flex w-fit items-center gap-1.5 border-b-[1.5px] pb-0.5 text-[length:var(--fs-12-5)] font-medium tracking-wide transition-colors",
               onDark
                 ? "border-k-red text-white group-hover:border-white"
                 : "border-k-red text-k-ink group-hover:border-k-ink",

@@ -72,7 +72,7 @@ export function AccountShell({
               {upGreek(title)}
             </h1>
             {lead && (
-              <p className="mt-3.5 max-w-[640px] text-[13px] leading-[1.68] text-white/60 lg:text-sm">
+              <p className="mt-3.5 max-w-[640px] text-[length:var(--fs-13)] leading-[1.68] text-white/60 lg:text-sm">
                 {lead}
               </p>
             )}
@@ -82,7 +82,7 @@ export function AccountShell({
             <span className="t-eyebrow block text-k-red">
               {upGreek(isCompany ? t("etaireia") : t("idiotis"))}
             </span>
-            <span className="mt-1.5 block text-[13px] leading-[1.35] text-white lg:text-[15px]">
+            <span className="mt-1.5 block text-[length:var(--fs-13)] leading-[1.35] text-white lg:text-[length:var(--fs-15)]">
               {isCompany && company ? upGreek(company.name) : `${user.firstName} ${user.lastName}`}
             </span>
             <span className="t-brand-count mt-1 block text-white/45">

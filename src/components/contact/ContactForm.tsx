@@ -47,7 +47,7 @@ export function ContactForm({ locale, pagePath }: { locale: string; pagePath?: s
         <p className="font-display t-display mt-3 text-[19px] leading-[1.25] text-k-ink lg:text-[22px]">
           {upGreek(t("to_lavame"))}
         </p>
-        <p className="mt-3 max-w-lg text-[13.5px] leading-[1.7] text-k-text-2">
+        <p className="mt-3 max-w-lg text-[length:var(--fs-13-5)] leading-[1.7] text-k-text-2">
           {t("apantame_synithos_tin_idia_ergasimi")}{" "}
           <a href="tel:+302104111355" className="font-semibold text-k-ink underline underline-offset-4">
             210 411 1355
@@ -71,7 +71,7 @@ export function ContactForm({ locale, pagePath }: { locale: string; pagePath?: s
       </div>
 
       {state.error && (
-        <p role="alert" className="border-l-[3px] border-k-red bg-k-red/8 px-4 py-3 text-[13px] text-k-ink">
+        <p role="alert" className="border-l-[3px] border-k-red bg-k-red/8 px-4 py-3 text-[length:var(--fs-13)] text-k-ink">
           {state.error}
         </p>
       )}
@@ -101,7 +101,7 @@ export function ContactForm({ locale, pagePath }: { locale: string; pagePath?: s
           ))}
         </div>
         {topic !== "other" && (
-          <p className="mt-2.5 text-[12px] text-k-text-4">{t(`topic_${topic}_hint`)}</p>
+          <p className="mt-2.5 text-[length:var(--fs-12)] text-k-text-4">{t(`topic_${topic}_hint`)}</p>
         )}
       </fieldset>
 
@@ -137,7 +137,7 @@ export function ContactForm({ locale, pagePath }: { locale: string; pagePath?: s
           }`}
         />
         {state.fieldErrors?.message && (
-          <span className="mt-1 block text-[11px] text-k-red">{state.fieldErrors.message}</span>
+          <span className="mt-1 block text-[length:var(--fs-11)] text-k-red">{state.fieldErrors.message}</span>
         )}
       </label>
 
@@ -188,8 +188,8 @@ function Field({
           error ? "border-k-red" : "border-k-line-2"
         }`}
       />
-      {error && <span className="mt-1 block text-[11px] text-k-red">{error}</span>}
-      {help && !error && <span className="mt-1 block text-[11px] text-k-text-4">{help}</span>}
+      {error && <span className="mt-1 block text-[length:var(--fs-11)] text-k-red">{error}</span>}
+      {help && !error && <span className="mt-1 block text-[length:var(--fs-11)] text-k-text-4">{help}</span>}
     </label>
   );
 }

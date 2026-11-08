@@ -83,7 +83,7 @@ export async function PlpToolbar({
       <div className="shell-x flex flex-col gap-3 py-3 lg:min-h-[74px] lg:flex-row lg:items-center lg:justify-between lg:gap-6">
         <div className="flex min-w-0 flex-wrap items-center gap-3">
           <MobileFilterSheet facets={facets} total={total} basePath={basePath} params={params} />
-          <span className="shrink-0 text-[13px] font-semibold whitespace-nowrap text-k-ink">
+          <span className="shrink-0 text-[length:var(--fs-13)] font-semibold whitespace-nowrap text-k-ink">
             {total.toLocaleString(locale)} {t("proionta")}
           </span>
 
@@ -94,7 +94,7 @@ export async function PlpToolbar({
                 href={chip.href}
                 scroll={false}
                 rel="nofollow"
-                className="flex items-center gap-2 bg-k-ink px-2.5 py-[7px] text-[10px] font-semibold tracking-[0.05em] whitespace-nowrap text-white transition-colors hover:bg-k-red"
+                className="flex items-center gap-2 bg-k-ink px-2.5 py-[7px] text-[length:var(--fs-10)] font-semibold tracking-[0.05em] whitespace-nowrap text-white transition-colors hover:bg-k-red"
                prefetch={false}>
                 {chip.label}
                 <span className="text-k-red">✕</span>
@@ -103,7 +103,7 @@ export async function PlpToolbar({
             {chips.length > 0 && (
               <Link
                 href={basePath}
-                className="px-1 text-[10px] font-semibold tracking-[0.05em] whitespace-nowrap text-k-red"
+                className="px-1 text-[length:var(--fs-10)] font-semibold tracking-[0.05em] whitespace-nowrap text-k-red"
                prefetch={false}>
                 {upGreek(t("katharismos_olon"))}
               </Link>
@@ -121,7 +121,7 @@ export async function PlpToolbar({
                   href={setParamKeepingPage(basePath, params, "perRow", String(n))}
                   scroll={false}
                   rel="nofollow"
-                  className={`flex h-[30px] w-[30px] items-center justify-center text-[11px] font-semibold transition-colors ${
+                  className={`flex h-[30px] w-[30px] items-center justify-center text-[length:var(--fs-11)] font-semibold transition-colors ${
                     perRow === n ? "bg-k-ink text-white" : "text-k-text-2 hover:text-k-ink"
                   }`}
                  prefetch={false}>
@@ -140,7 +140,7 @@ export async function PlpToolbar({
                   href={setParamHref(basePath, params, "perPage", String(n))}
                   scroll={false}
                   rel="nofollow"
-                  className={`flex h-[30px] items-center px-2.5 text-[11px] font-semibold transition-colors ${
+                  className={`flex h-[30px] items-center px-2.5 text-[length:var(--fs-11)] font-semibold transition-colors ${
                     perPage === n ? "bg-k-ink text-white" : "text-k-text-2 hover:text-k-ink"
                   }`}
                  prefetch={false}>
@@ -175,7 +175,7 @@ export async function PlpToolbar({
               id="sort"
               name="sort"
               defaultValue={sort}
-              className="h-[38px] border border-k-line-2 bg-white px-3 text-[11px] font-semibold tracking-[0.05em] text-k-ink outline-none"
+              className="h-11 border border-k-line-2 bg-white px-3 lg:h-[38px] text-[length:var(--fs-11)] font-semibold tracking-[0.05em] text-k-ink outline-none"
             >
               {SORT_OPTIONS.map((option) => (
                 <option key={option.value} value={option.value}>
@@ -183,12 +183,15 @@ export async function PlpToolbar({
                 </option>
               ))}
             </select>
-            <button
-              type="submit"
-              className="t-card-cta h-[38px] border border-k-line-2 px-3 text-k-text-2 transition-colors hover:border-k-ink hover:text-k-ink"
-            >
-              OK
-            </button>
+            {/* The select submits itself; this is for browsers without JS. */}
+            <noscript>
+              <button
+                type="submit"
+                className="t-card-cta h-[38px] border border-k-line-2 px-3 text-k-text-2 transition-colors hover:border-k-ink hover:text-k-ink"
+              >
+                OK
+              </button>
+            </noscript>
           </form>
         </div>
       </div>

@@ -43,7 +43,7 @@ export function CompareAdviceBand({
               </span>
               <Link
                 href={`/proion/${column.slug}`}
-                className="mt-0.5 text-[13px] leading-[1.35] font-medium text-k-ink transition-colors hover:text-k-red"
+                className="mt-0.5 text-[length:var(--fs-13)] leading-[1.35] font-medium text-k-ink transition-colors hover:text-k-red"
               >
                 {item.title}
               </Link>

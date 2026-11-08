@@ -236,12 +236,12 @@ export async function ProductCard({
           <span className="flex min-w-0 flex-col gap-1.5 @[340px]:shrink-0">
             <AddToCartButton
               productId={product.id}
-              className="t-card-cta h-10 w-full border-0 bg-k-ink px-2 text-white transition-colors hover:bg-k-red @[340px]:h-auto @[340px]:px-3.5 @[340px]:py-[11px]"
+              className="t-card-cta h-11 w-full border-0 bg-k-ink px-2 text-white transition-colors hover:bg-k-red @[340px]:h-auto @[340px]:px-3.5 @[340px]:py-[11px]"
             />
             <BuyNowButton
               productId={product.id}
               disabled={product.priceNet == null}
-              className="t-card-cta h-9 w-full border border-k-line-2 bg-white px-2 text-k-text-2 transition-colors hover:border-k-red hover:text-k-red @[340px]:h-auto @[340px]:px-3.5 @[340px]:py-[7px]"
+              className="t-card-cta h-11 w-full border border-k-line-2 bg-white px-2 text-k-text-2 transition-colors hover:border-k-red hover:text-k-red @[340px]:h-auto @[340px]:px-3.5 @[340px]:py-[7px]"
             />
           </span>
         </div>

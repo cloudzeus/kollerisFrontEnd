@@ -47,7 +47,7 @@ export function ReviewForm({ item }: { item: ReviewableItem }) {
         </span>
 
         <div className="flex min-w-0 flex-1 flex-col gap-1">
-          <p className="line-clamp-2 text-[13.5px] leading-[1.4] font-semibold text-k-ink">
+          <p className="line-clamp-2 text-[length:var(--fs-13-5)] leading-[1.4] font-semibold text-k-ink">
             {item.name}
           </p>
           <p className="t-card-sku text-k-text-4">
@@ -74,7 +74,7 @@ export function ReviewForm({ item }: { item: ReviewableItem }) {
           {/* Ο λόγος απόρριψης, ορατός. Μια κριτική που εξαφανίζεται χωρίς
               εξήγηση διαβάζεται ως λογοκρισία. */}
           {item.existing?.status === "rejected" && item.existing.moderationNote && (
-            <p className="mt-1 border border-k-red/30 bg-k-red/5 px-2.5 py-1.5 text-[11.5px] leading-[1.5] text-k-ink">
+            <p className="mt-1 border border-k-red/30 bg-k-red/5 px-2.5 py-1.5 text-[length:var(--fs-11-5)] leading-[1.5] text-k-ink">
               {item.existing.moderationNote}
             </p>
           )}
@@ -139,7 +139,7 @@ export function ReviewForm({ item }: { item: ReviewableItem }) {
               name="title"
               maxLength={120}
               defaultValue={item.existing?.title ?? ""}
-              className="h-10 w-full border border-k-line-2 bg-white px-3 text-[13.5px] text-k-ink outline-none focus:border-k-ink"
+              className="h-10 w-full border border-k-line-2 bg-white px-3 text-[length:var(--fs-13-5)] text-k-ink outline-none focus:border-k-ink"
             />
           </label>
 
@@ -153,18 +153,18 @@ export function ReviewForm({ item }: { item: ReviewableItem }) {
               required
               defaultValue={item.existing?.body ?? ""}
               placeholder="Πώς δούλεψε στη δουλειά σας; Τι θα θέλατε να ξέρετε πριν το αγοράσετε;"
-              className="w-full border border-k-line-2 bg-white px-3 py-2 text-[13.5px] leading-[1.6] text-k-ink outline-none focus:border-k-ink"
+              className="w-full border border-k-line-2 bg-white px-3 py-2 text-[length:var(--fs-13-5)] leading-[1.6] text-k-ink outline-none focus:border-k-ink"
             />
           </label>
 
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <p className="text-[11px] leading-[1.5] text-k-text-4">
+            <p className="text-[length:var(--fs-11)] leading-[1.5] text-k-text-4">
               Δημοσιεύεται μετά από έλεγχο. Κάθε αλλαγή περνά ξανά από έλεγχο.
             </p>
             <button
               type="submit"
               disabled={pending || rating === 0}
-              className="font-sans h-10 shrink-0 bg-k-ink-deep px-6 text-[13px] font-bold tracking-[0.08em] text-white transition-colors hover:bg-k-ink disabled:opacity-50"
+              className="font-sans h-10 shrink-0 bg-k-ink-deep px-6 text-[length:var(--fs-13)] font-bold tracking-[0.08em] text-white transition-colors hover:bg-k-ink disabled:opacity-50"
             >
               {pending ? "…" : "ΑΠΟΣΤΟΛΗ"}
             </button>

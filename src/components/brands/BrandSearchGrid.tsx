@@ -64,7 +64,7 @@ export function BrandSearchGrid({ brands }: { brands: BrandListItem[] }) {
           </span>
         </div>
 
-        <p className="flex items-center gap-2.5 text-[12.5px] text-k-text-3">
+        <p className="flex items-center gap-2.5 text-[length:var(--fs-12-5)] text-k-text-3">
           <span className="block h-[7px] w-[7px] bg-k-red" />
           {t("episimi_antiprosopeysi")}
           <span className="mx-1.5 block h-[18px] w-px bg-k-line" />
@@ -77,7 +77,7 @@ export function BrandSearchGrid({ brands }: { brands: BrandListItem[] }) {
           <p className="font-display t-display text-xl leading-[1.3] text-k-ink">
             {upGreek(t("den_vrethike_brand"))}
           </p>
-          <p className="mx-auto mt-2.5 max-w-md text-[13.5px] text-k-text-3">
+          <p className="mx-auto mt-2.5 max-w-md text-[length:var(--fs-13-5)] text-k-text-3">
             {t("antiprosopeyoyme_polla_akomi_brands_kai")}
           </p>
           <a
@@ -125,7 +125,7 @@ export function BrandSearchGrid({ brands }: { brands: BrandListItem[] }) {
               <span className="t-brand-name block text-k-ink">{brand.name}</span>
 
               <span className="flex items-baseline gap-1.5">
-                <span className="font-mono text-[13px] font-semibold text-k-ink">
+                <span className="font-mono text-[length:var(--fs-13)] font-semibold text-k-ink">
                   {brand.productCount.toLocaleString(locale)}
                 </span>
                 <span className="t-brand-count text-k-text-5">{upGreek(t("kod"))}</span>
