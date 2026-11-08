@@ -4,6 +4,7 @@ import Image from "next/image";
 import { redirect } from "next/navigation";
 import { setRequestLocale } from "next-intl/server";
 import { CheckoutForm } from "@/components/checkout/CheckoutForm";
+import { Ga4Event } from "@/components/analytics/Ga4Event";
 import { SplitCheckoutProvider, SplitSummary } from "@/components/checkout/SplitCheckout";
 import { checkoutBreakdown } from "@/lib/requests/checkout-breakdown";
 import { getViewer } from "@/lib/account/session";
@@ -258,6 +259,19 @@ export default async function CheckoutPage({
         id="main"
         className="shell-w bg-white lg:grid lg:grid-cols-[1fr_460px] lg:items-start"
       >
+        <Ga4Event
+          name="begin_checkout"
+          params={{
+            value: Math.round(cart.lines.reduce((v, l) => v + l.lineNet, 0) * 100) / 100,
+            items: cart.lines.map((l) => ({
+              item_id: l.sku,
+              item_name: l.name,
+              item_brand: l.brandName ?? undefined,
+              price: Math.round(l.unitNetFinal * 100) / 100,
+              quantity: l.quantity,
+            })),
+          }}
+        />
         <div className="min-w-0 border-k-line px-4 py-8 lg:border-r lg:px-10 lg:py-10">
           {!isVivaConfigured() && (
             <p className="mb-6 border-l-[3px] border-k-amber bg-k-surface-2 px-4 py-3 text-[12.5px] leading-[1.55] text-k-text-2">

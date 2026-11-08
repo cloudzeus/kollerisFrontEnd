@@ -19,6 +19,7 @@ import { formatMoney } from "@/lib/format";
 import { paymentPageUrl } from "@/lib/payment/viva";
 import { isValidGtin } from "@/lib/feeds/google-merchant";
 import { GoogleReviewsOptIn } from "@/components/seo/GoogleReviewsOptIn";
+import { Ga4Event } from "@/components/analytics/Ga4Event";
 import { estimatedDeliveryDate } from "@/lib/seo/google-reviews";
 import { upGreek } from "@/lib/greek";
 import { holdHours } from "@/lib/orders/hold";
@@ -198,6 +199,30 @@ export default async function ConfirmationPage({ params, searchParams }: PagePro
         />
       )}
 
+      {/*
+        GA4 purchase: a placed order, once it is paid, payable on delivery, or a
+        bank transfer the customer has committed to. A card payment still
+        PENDING (abandoned at Viva) is not a sale. Net values, like Ads costs.
+      */}
+      {(!awaitingPayment || order.paymentMethod === "bank") && (
+        <Ga4Event
+          name="purchase"
+          onceKey={`purchase:${order.orderNumber}`}
+          params={{
+            transaction_id: order.orderNumber,
+            value: Number(order.subtotalNet),
+            tax: Number(order.vatAmount),
+            shipping: Number(order.shippingGross),
+            items: order.lines.map((l) => ({
+              item_id: l.sku,
+              item_name: l.name,
+              item_brand: l.brand ?? undefined,
+              price: Math.round(Number(l.unitNet) * (100 - Number(l.discountPercent))) / 100,
+              quantity: l.quantity,
+            })),
+          }}
+        />
+      )}
       <main id="main">
         <div className="shell-x bg-k-ink-deep py-10 lg:py-14">
           <p className="t-eyebrow mb-3.5 text-k-red">

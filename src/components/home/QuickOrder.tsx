@@ -2,6 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { useState, useTransition } from "react";
+import { trackAddToCart } from "@/lib/analytics/ga4-events";
 import { addToCartByCode } from "@/lib/cart/actions";
 import { upGreek } from "@/lib/greek";
 
@@ -30,6 +31,7 @@ export function QuickOrder() {
     if (!value) return;
     startTransition(async () => {
       const result = await addToCartByCode({ code: value, quantity: 1 });
+      trackAddToCart(result);
       if (result.ok) {
         setState("done");
         // Καθαρίζει ΜΟΝΟ στην επιτυχία: μετά από αποτυχία ο κωδικός μένει για

@@ -17,6 +17,7 @@ import { setRequestLocale } from "next-intl/server";
 import { SiteChrome } from "@/components/chrome/SiteChrome";
 import { SiteFooter } from "@/components/chrome/SiteFooter";
 import { PriceBox } from "@/components/pdp/PriceBox";
+import { Ga4Event } from "@/components/analytics/Ga4Event";
 import { ProductGallery } from "@/components/pdp/ProductGallery";
 import { ProductTabs } from "@/components/pdp/ProductTabs";
 import { Expandable } from "@/components/ui/Expandable";
@@ -378,6 +379,22 @@ export default async function ProductPage({ params }: PageProps) {
       )}
 
       <main id="main">
+        {product.priceNet != null && (
+          <Ga4Event
+            name="view_item"
+            params={{
+              value: Math.round(Number(product.priceNet) * 100) / 100,
+              items: [
+                {
+                  item_id: product.sku,
+                  item_name: product.name,
+                  item_brand: product.brand?.name,
+                  price: Math.round(Number(product.priceNet) * 100) / 100,
+                },
+              ],
+            }}
+          />
+        )}
         <div className="shell-x bg-k-ink-deep">
           <nav
             aria-label="Breadcrumb"

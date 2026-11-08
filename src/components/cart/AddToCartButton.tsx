@@ -2,6 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { useState, useTransition } from "react";
+import { trackAddToCart } from "@/lib/analytics/ga4-events";
 import { addToCart } from "@/lib/cart/actions";
 import { upGreek } from "@/lib/greek";
 
@@ -32,6 +33,7 @@ export function AddToCartButton({
   const add = () => {
     startTransition(async () => {
       const result = await addToCart({ productId, quantity });
+      trackAddToCart(result);
       setState(result.ok ? "done" : "error");
       setTimeout(() => setState("idle"), 2200);
     });
