@@ -37,10 +37,11 @@ export function CookieConsent() {
     } catch {
       /* Χωρίς μνήμη, η απάντηση ισχύει για αυτή τη σελίδα και ξαναρωτιέται. */
     }
-    const w = window as unknown as { gtag?: (...args: unknown[]) => void };
-    w.gtag?.("consent", "update", {
-      analytics_storage: granted ? "granted" : "denied",
-    });
+    const w = window as unknown as { gtag?: (...args: unknown[]) => void; __kollerisMetaLoad?: () => void };
+    const v = granted ? "granted" : "denied";
+    w.gtag?.("consent", "update", { analytics_storage: v, ad_storage: v, ad_user_data: v, ad_personalization: v });
+    // Το Meta Pixel φορτώνει μόνο τώρα· με άρνηση η ουρά του δεν στέλνεται ποτέ.
+    if (granted) w.__kollerisMetaLoad?.();
     setVisible(false);
   }
 
@@ -55,9 +56,10 @@ export function CookieConsent() {
     >
       <div className="mx-auto flex max-w-5xl flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
         <p className="text-[13px] leading-relaxed text-neutral-700 sm:text-sm">
-          Χρησιμοποιούμε cookies ανάλυσης για να καταλάβουμε πώς χρησιμοποιείται το
-          κατάστημα και να το βελτιώσουμε. Χωρίς τη συγκατάθεσή σας δεν
-          αποθηκεύεται τίποτα στη συσκευή σας.
+          Με τη συγκατάθεσή σας χρησιμοποιούμε cookies ανάλυσης (Google Analytics)
+          για να βελτιώνουμε το κατάστημα και cookies διαφήμισης (Google Ads, Meta)
+          για να μετράμε τις διαφημίσεις μας και να σας δείχνουμε σχετικές
+          προσφορές. Χωρίς τη συγκατάθεσή σας δεν αποθηκεύεται τίποτα στη συσκευή σας.
         </p>
         <div className="flex shrink-0 gap-2">
           <button

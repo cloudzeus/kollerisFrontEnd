@@ -20,6 +20,7 @@ import "./globals.css";
 import { alternatesFor } from "@/lib/seo/urls";
 import { siteJsonLd } from "@/lib/seo/structured-data";
 import { GoogleAnalytics } from "@/components/analytics/GoogleAnalytics";
+import { MetaPixel } from "@/components/analytics/MetaPixel";
 import { GoogleTagManager, GoogleTagManagerNoScript } from "@/components/analytics/GoogleTagManager";
 import type { Locale } from "@/i18n/routing";
 
@@ -215,6 +216,7 @@ export default async function RootLayout({
         />
         {children}
         <GoogleAnalytics />
+        <MetaPixel />
         <GoogleTagManager />
       </body>
     </html>
