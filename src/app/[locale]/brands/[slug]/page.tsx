@@ -1,5 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import { pageMeta } from "@/lib/seo/urls";
+import { resolveSeoText } from "@/lib/seo/apply-override";
+import { seoOverrideFor } from "@/lib/seo/seo-page-override";
 import { brandPageJsonLd } from "@/lib/seo/structured-data";
 import { brandFaq } from "@/lib/seo/category-copy";
 import { faqJsonLd } from "@/lib/seo/product-faq";
@@ -56,17 +58,22 @@ export async function generateMetadata({
   const t = await getTranslations({ locale, namespace: "brands.page" });
   const brand = await getBrandBySlug(slug, locale);
   if (!brand) return {};
-  const title = brand.name;
-  const description = t("kodikoi_se_apothema_episimi_antiprosopeysi", {
-    n: brand.productCount.toLocaleString(locale),
-    name: brand.name,
-  });
+  const { title, description, metaTitle } = resolveSeoText(
+    {
+      title: brand.name,
+      description: t("kodikoi_se_apothema_episimi_antiprosopeysi", {
+        n: brand.productCount.toLocaleString(locale),
+        name: brand.name,
+      }),
+    },
+    await seoOverrideFor(`/brands/${slug}`, locale),
+  );
   return {
     /* Canonical, γλώσσες και Open Graph μαζί: το `openGraph` κληρονομείται
        ολόκληρο από όποια σελίδα δεν ορίζει δικό της, οπότε 12 από 16 σελίδες
        μοιράζονταν με τον τίτλο της αρχικής. */
     ...pageMeta({ path: `/brands/${slug}`, locale, title, description }),
-    title,
+    title: metaTitle,
     description,
     // Filtered views: noindex, follow — the canonical above is the bare listing.
     // Filtered views and a render the gate turned away (the busy view): noindex.

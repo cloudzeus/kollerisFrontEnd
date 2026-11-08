@@ -1,5 +1,9 @@
+import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { yearsInBusiness } from "@/lib/seo/structured-data";
+import { faqJsonLd } from "@/lib/seo/product-faq";
+import { seoOverrideFor } from "@/lib/seo/seo-page-override";
+import { SeoFaqList } from "@/components/seo/SeoFaqList";
 import { setRequestLocale } from "next-intl/server";
 import { SiteChrome } from "@/components/chrome/SiteChrome";
 import { SiteFooter } from "@/components/chrome/SiteFooter";
@@ -46,6 +50,20 @@ import {
  */
 export const dynamic = "force-dynamic";
 
+/** Only the overridden fields: everything else stays the layout's. */
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: Locale }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const o = await seoOverrideFor("/", locale);
+  return {
+    ...(o?.seoTitle ? { title: { absolute: o.seoTitle } } : {}),
+    ...(o?.metaDescription ? { description: o.metaDescription } : {}),
+  };
+}
+
 export default async function HomePage({
   params,
 }: {
@@ -66,6 +84,7 @@ export default async function HomePage({
     aboutCopy,
     reviewsCopy,
     newest,
+    override,
   ] = await Promise.all([
     getRootCategories(locale),
     getMenuTree(locale),
@@ -79,6 +98,7 @@ export default async function HomePage({
     getSection("about", locale),
     getSection("reviews", locale),
     getNewestListedProduct(locale),
+    seoOverrideFor("/", locale),
   ]);
 
   /*
@@ -279,6 +299,17 @@ export default async function HomePage({
           copy={reviewsCopy}
         />
         <AboutSplit usps={usps} copy={aboutCopy} />
+        {override?.faq?.length ? (
+          <>
+            <script
+              type="application/ld+json"
+              dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd(override.faq)) }}
+            />
+            <section className="shell-x border-t border-k-line py-9 lg:py-12">
+              <SeoFaqList faq={override.faq} />
+            </section>
+          </>
+        ) : null}
         <NewsletterBand />
         <Zone id="home.beforeFooter" locale={locale} context={zoneContext} />
       </main>

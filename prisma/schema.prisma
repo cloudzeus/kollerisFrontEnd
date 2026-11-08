@@ -1898,3 +1898,16 @@ model Favourite {
   @@index([customerId, createdAt])
   @@map("favourites")
 }
+
+model SeoPageOverride {
+  path            String   @id @db.VarChar(191)
+  seoTitle        String?  @db.VarChar(200)
+  metaDescription String?  @db.VarChar(400)
+  /// [{ q, a }]
+  faq             Json?
+  updatedBy       String   @db.VarChar(120)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@map("seo_page_overrides")
+}
