@@ -1,6 +1,8 @@
 import { getTranslations } from "next-intl/server";
 import { yearsInBusiness } from "@/lib/seo/structured-data";
 import { absoluteUrl, pageMeta } from "@/lib/seo/urls";
+import { resolveSeoText } from "@/lib/seo/apply-override";
+import { seoOverrideFor } from "@/lib/seo/seo-page-override";
 import { faqJsonLd, productFaq } from "@/lib/seo/product-faq";
 import { showsExactQty } from "@/lib/stock-display";
 import {
@@ -61,14 +63,19 @@ export async function generateMetadata({
   const product = await getProductBySlug(slug, locale);
   if (!product) return {};
 
-  const title = product.name;
-  const description =
-    product.shortDescription ??
-    t("kodikos_amesi_diathesimotita_paradosi_24", {
-      name: product.name,
-      n: product.brand ? ` — ${product.brand.name}` : "",
-      sku: product.sku,
-    });
+  const { title, description, metaTitle } = resolveSeoText(
+    {
+      title: product.name,
+      description:
+        product.shortDescription ??
+        t("kodikos_amesi_diathesimotita_paradosi_24", {
+          name: product.name,
+          n: product.brand ? ` — ${product.brand.name}` : "",
+          sku: product.sku,
+        }),
+    },
+    await seoOverrideFor(`/proion/${slug}`, locale),
+  );
   return {
     /* Η φωτογραφία του προϊόντος ως εικόνα προεπισκόπησης: ένα link προϊόντος
        που δείχνει το γενικό banner του καταστήματος δεν λέει τι μοιράστηκε. */
@@ -79,7 +86,7 @@ export async function generateMetadata({
       description,
       image: product.images[0]?.url,
     }),
-    title,
+    title: metaTitle,
     description,
   };
 }

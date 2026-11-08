@@ -3,6 +3,8 @@ import { pageMeta } from "@/lib/seo/urls";
 import { categoryBreadcrumb, categoryItemList } from "@/lib/seo/product-schema";
 import { categoryFaq, categoryIntro } from "@/lib/seo/category-copy";
 import { faqJsonLd } from "@/lib/seo/product-faq";
+import { resolveSeoText } from "@/lib/seo/apply-override";
+import { seoOverrideFor } from "@/lib/seo/seo-page-override";
 import type { Metadata } from "next";
 import { cache } from "react";
 import { notFound } from "next/navigation";
@@ -37,6 +39,7 @@ import {
 import { prisma } from "@/lib/prisma";
 import { upGreek } from "@/lib/greek";
 import { Zone } from "@/components/zones/Zone";
+import { SeoFaqList } from "@/components/seo/SeoFaqList";
 
 type PageProps = {
   params: Promise<{ locale: Locale; kathgoria: string }>;
@@ -75,11 +78,16 @@ export async function generateMetadata({
       : locale === "it"
         ? category.nameIt
         : category.nameEl;
-  const title = name;
-  const description = t("kodikoi_se_ypokatigories_amesi_diathesimotita", {
-    productCount: category.productCount,
-    childCount: category.childCount,
-  });
+  const { title, description, metaTitle } = resolveSeoText(
+    {
+      title: name,
+      description: t("kodikoi_se_ypokatigories_amesi_diathesimotita", {
+        productCount: category.productCount,
+        childCount: category.childCount,
+      }),
+    },
+    await seoOverrideFor(`/katalogos/${kathgoria}`, locale),
+  );
   return {
     /* Canonical, γλώσσες και Open Graph μαζί: το `openGraph` κληρονομείται
        ολόκληρο από όποια σελίδα δεν ορίζει δικό της, οπότε 12 από 16 σελίδες
@@ -90,7 +98,7 @@ export async function generateMetadata({
       title,
       description,
     }),
-    title,
+    title: metaTitle,
     description,
     // Filtered views: noindex, follow — the canonical above is the bare listing.
     // Filtered views and a render the gate turned away (the busy view): noindex.
@@ -122,6 +130,7 @@ export default async function CategoryPage({
     miniCart,
     compareSelection,
     compareTray,
+    override,
   ] = await Promise.all([
     getCategory(kathgoria),
     getPlpData(plpParams, locale),
@@ -132,6 +141,7 @@ export default async function CategoryPage({
     getMiniCart(locale),
     getCompareSelection(),
     getCompareTray(locale),
+    seoOverrideFor(`/katalogos/${kathgoria}`, locale),
   ]);
 
   // An unknown slug is a 404, not an empty grid — otherwise every typo renders
@@ -200,7 +210,12 @@ export default async function CategoryPage({
   const copyInput = { name, total: data.total, facets: data.facets };
   const intro =
     locale === "el" && data.page === 1 ? categoryIntro(copyInput) : null;
-  const faq = locale === "el" && data.page === 1 ? categoryFaq(copyInput) : [];
+  const faq =
+    locale === "el" && data.page === 1
+      ? override?.faq?.length
+        ? override.faq
+        : categoryFaq(copyInput)
+      : [];
   const faqLd = faqJsonLd(faq);
 
   return (
@@ -396,34 +411,7 @@ export default async function CategoryPage({
                 {intro}
               </p>
             )}
-            {faq.length > 0 && (
-              <>
-                <h2 className="t-eyebrow mb-5 text-k-text-4">
-                  {upGreek("Συχνές ερωτήσεις")}
-                </h2>
-                <div className="max-w-[860px] border-t border-k-line">
-                  {faq.map((item) => (
-                    <details
-                      key={item.q}
-                      className="group border-b border-k-line"
-                    >
-                      <summary className="flex cursor-pointer items-center justify-between gap-4 py-3.5 text-[length:var(--fs-14)] font-medium text-k-ink marker:content-none [&::-webkit-details-marker]:hidden">
-                        {item.q}
-                        <span
-                          aria-hidden
-                          className="shrink-0 text-k-text-4 transition-transform group-open:rotate-45"
-                        >
-                          +
-                        </span>
-                      </summary>
-                      <p className="max-w-[70ch] pb-4 text-[length:var(--fs-13-5)] leading-[1.7] text-k-text-2">
-                        {item.a}
-                      </p>
-                    </details>
-                  ))}
-                </div>
-              </>
-            )}
+            {faq.length > 0 && <SeoFaqList faq={faq} />}
           </div>
         )}
         <Zone id="category.bottom" locale={locale} />
