@@ -45,11 +45,11 @@ export function OfferCountdown({ endsAt }: { endsAt: string | null }) {
 
   if (!target) {
     return (
-      <p className="text-[12.5px] text-white/50">{t("choris_imerominia_lixis_den_yparchei")}</p>
+      <p className="text-[length:var(--fs-12-5)] text-white/50">{t("choris_imerominia_lixis_den_yparchei")}</p>
     );
   }
 
-  if (!parts) return <p className="text-[13px] font-medium text-white/70">{t("i_prosfora_elixe")}</p>;
+  if (!parts) return <p className="text-[length:var(--fs-13)] font-medium text-white/70">{t("i_prosfora_elixe")}</p>;
 
   return (
     <ul className="flex items-start gap-2 motion-safe:animate-[offer-rise_.6s_cubic-bezier(.22,1,.36,1)_both] motion-safe:[animation-delay:120ms]">
@@ -58,7 +58,7 @@ export function OfferCountdown({ endsAt }: { endsAt: string | null }) {
           <span className="numeral block text-[24px] font-semibold leading-none text-white lg:text-[30px]">
             {String(value).padStart(2, "0")}
           </span>
-          <span className="mt-1 block text-[9.5px] uppercase tracking-[0.1em] text-white/45">
+          <span className="mt-1 block text-[length:var(--fs-9-5)] uppercase tracking-[0.1em] text-white/45">
             {t(UNITS[i])}
           </span>
         </li>

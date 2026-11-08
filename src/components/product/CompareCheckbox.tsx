@@ -62,7 +62,7 @@ export function CompareCheckbox({
       disabled={disabled || pending}
       aria-pressed={selected}
       title={title}
-      className={`t-brand-count flex items-center gap-1.5 border px-1.5 py-1 transition-colors lg:px-2 ${
+      className={`t-brand-count tap-44 relative flex items-center gap-1.5 border px-1.5 py-1 transition-colors lg:px-2 ${
         selected
           ? "border-k-red bg-k-red text-white"
           : refused
@@ -72,7 +72,7 @@ export function CompareCheckbox({
     >
       <span
         aria-hidden
-        className={`flex h-3 w-3 shrink-0 items-center justify-center border text-[9px] leading-none ${
+        className={`flex h-3 w-3 shrink-0 items-center justify-center border text-[length:var(--fs-9)] leading-none ${
           selected ? "border-white bg-white text-k-red" : "border-current"
         }`}
       >

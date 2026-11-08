@@ -139,7 +139,7 @@ export function MegaMenu({
           }`}
         >
           {upGreek(t("katigories"))}
-          <span className="text-[9px]">▾</span>
+          <span className="text-[length:var(--fs-9)]">▾</span>
         </button>
 
         {open === "categories" && (
@@ -164,7 +164,7 @@ export function MegaMenu({
                         </span>
                         <Link
                           href={`/katalogos/${category.slug}`}
-                          className="text-[11.5px] leading-[1.3] font-bold tracking-[0.05em] text-k-ink transition-colors hover:text-k-red"
+                          className="text-[length:var(--fs-11-5)] leading-[1.3] font-bold tracking-[0.05em] text-k-ink transition-colors hover:text-k-red"
                           prefetch={false}
                         >
                           {upGreek(category.name)}
@@ -177,7 +177,7 @@ export function MegaMenu({
                             <Link
                               key={child.id}
                               href={`/katalogos/${category.slug}?sub=${child.slug}`}
-                              className="text-[12px] leading-[1.4] text-k-text-3 transition-colors hover:text-k-red"
+                              className="text-[length:var(--fs-12)] leading-[1.4] text-k-text-3 transition-colors hover:text-k-red"
                               prefetch={false}
                             >
                               {child.name}
@@ -209,7 +209,7 @@ export function MegaMenu({
                       <p className="t-cat-num text-k-red">
                         {featured.brandName}
                       </p>
-                      <p className="mt-[5px] line-clamp-2 text-[13px] leading-[1.35] font-semibold text-k-ink">
+                      <p className="mt-[5px] line-clamp-2 text-[length:var(--fs-13)] leading-[1.35] font-semibold text-k-ink">
                         {featured.name}
                       </p>
                       <p className="t-card-was mt-1 text-k-text-4">
@@ -231,7 +231,7 @@ export function MegaMenu({
             </div>
 
             <div className="mt-1 flex items-center justify-between border-t border-[#F0F0F2] py-4">
-              <p className="text-[12px] text-k-text-3">
+              <p className="text-[length:var(--fs-12)] text-k-text-3">
                 {totalCategories} {t("vasikes_katigories")} {totalSubcategories}{" "}
                 {t("ypokatigories")} {totalProducts.toLocaleString(locale)}{" "}
                 {t("kodikoi")}
@@ -275,7 +275,7 @@ export function MegaMenu({
           }`}
         >
           BRANDS
-          <span className="text-[9px]">▾</span>
+          <span className="text-[length:var(--fs-9)]">▾</span>
         </button>
 
         {open === "brands" && (
@@ -284,7 +284,7 @@ export function MegaMenu({
             onMouseEnter={cancelClose}
           >
             <div className="mb-[18px] flex items-baseline justify-between">
-              <p className="text-[12px] font-bold tracking-[0.06em] text-k-ink">
+              <p className="text-[length:var(--fs-12)] font-bold tracking-[0.06em] text-k-ink">
                 {upGreek(t("antiprosopeyomena_brands"))}
               </p>
               <Link
@@ -337,7 +337,7 @@ export function MegaMenu({
                       className="block h-16 w-16 object-contain"
                     />
                   ) : (
-                    <span className="text-[12px] font-semibold tracking-[0.04em] text-k-text-2 transition-colors group-hover:text-k-red">
+                    <span className="text-[length:var(--fs-12)] font-semibold tracking-[0.04em] text-k-text-2 transition-colors group-hover:text-k-red">
                       {brand.name}
                     </span>
                   )}

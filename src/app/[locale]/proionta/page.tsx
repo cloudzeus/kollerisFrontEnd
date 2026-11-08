@@ -219,7 +219,7 @@ export default async function AllProductsPage({
             <h1 className="font-display text-[22px] leading-[1.16] t-display text-white lg:text-[30px]">
               {upGreek(t("ola_ta_proionta"))}
             </h1>
-            <p className="mt-3.5 max-w-[640px] text-[13px] leading-[1.68] text-white/60 lg:text-sm">
+            <p className="mt-3.5 max-w-[640px] text-[length:var(--fs-13)] leading-[1.68] text-white/60 lg:text-sm">
               {data.total.toLocaleString(locale)}{" "}
               {t("kodikoi_filtrarete_aristera")}
             </p>
@@ -233,8 +233,8 @@ export default async function AllProductsPage({
           somebody scrolls a list of thousands rather than making them go back.
         */}
         {data.facets.subcategories.length > 0 && (
-          <div className="shell-x sticky top-[var(--header-h)] z-30 border-t border-white/10 bg-k-ink-deep/97 backdrop-blur-sm">
-            <div className="flex flex-wrap gap-1.5 py-3.5">
+          <div className="shell-x z-30 border-t border-white/10 bg-k-ink-deep/97 backdrop-blur-sm lg:sticky lg:top-[var(--header-h)]">
+            <div className="scroll-none flex gap-1.5 overflow-x-auto py-3.5 lg:flex-wrap">
               {data.facets.subcategories.map((sub) => (
                 <Link
                   key={sub.slug}
@@ -242,7 +242,7 @@ export default async function AllProductsPage({
                   rel="nofollow"
                   prefetch={false}
                   scroll={false}
-                  className={`group/chip flex items-center gap-1.5 border px-2.5 py-1.5 text-[10px] font-semibold tracking-[0.02em] transition-colors duration-200 ${
+                  className={`group/chip flex shrink-0 items-center gap-1.5 border px-2.5 py-1.5 whitespace-nowrap max-lg:min-h-11 text-[length:var(--fs-10)] font-semibold tracking-[0.02em] transition-colors duration-200 ${
                     sub.active
                       ? "border-k-red bg-k-red text-white"
                       : "border-white/15 text-white/60 hover:border-k-red hover:bg-k-red hover:text-white"
@@ -280,7 +280,7 @@ export default async function AllProductsPage({
             facets={data.facets}
             basePath="/proionta"
             params={raw}
-            className="hidden max-h-[calc(100vh-var(--header-h))] flex-col overflow-hidden lg:sticky lg:top-[var(--header-h)] lg:flex"
+            className="hidden flex-col lg:flex"
           />
 
           <div className="min-w-0 border-k-line px-4 py-6 lg:border-l lg:px-10 lg:pt-6 lg:pb-10">
@@ -289,7 +289,7 @@ export default async function AllProductsPage({
                 <p className="font-display t-display text-lg text-k-ink">
                   {upGreek(t("kanena_proion_me_ayta_ta"))}
                 </p>
-                <p className="mt-2 max-w-md text-[13px] text-k-text-3">
+                <p className="mt-2 max-w-md text-[length:var(--fs-13)] text-k-text-3">
                   {t("dokimaste_na_afairesete_ena_filtro")}
                 </p>
                 <Link

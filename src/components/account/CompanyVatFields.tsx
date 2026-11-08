@@ -128,7 +128,7 @@ export function CompanyVatFields({
           </span>
         </label>
 
-        <p id="vat-status" aria-live="polite" className="mt-1.5 text-[11px] leading-[1.5]">
+        <p id="vat-status" aria-live="polite" className="mt-1.5 text-[length:var(--fs-11)] leading-[1.5]">
           {status === "kolleris" && (
             <span className="flex items-center gap-1.5 text-k-green">
               <span aria-hidden className="block h-1.5 w-1.5 bg-current" />
@@ -258,7 +258,7 @@ function Filled({
           error ? "border-k-red" : "border-k-line-2"
         }`}
       />
-      {error && <span className="mt-1 block text-[11px] text-k-red">{error}</span>}
+      {error && <span className="mt-1 block text-[length:var(--fs-11)] text-k-red">{error}</span>}
     </label>
   );
 }

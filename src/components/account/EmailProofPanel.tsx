@@ -37,23 +37,23 @@ export function EmailProofPanel({
       <div className="flex items-start gap-3">
         <MailCheck className="mt-0.5 size-5 shrink-0 text-k-red" aria-hidden />
         <div className="min-w-0 flex-1">
-          <p className="text-[14px] font-semibold text-k-ink">{text.title}</p>
+          <p className="text-[length:var(--fs-14)] font-semibold text-k-ink">{text.title}</p>
 
           {state.sent ? (
             <>
-              <p className="mt-1.5 text-[13px] leading-[1.6] text-k-text-2">{text.sent}</p>
-              <p className="mt-1 text-[12.5px] leading-[1.6] text-k-text-3">{text.sentHint}</p>
+              <p className="mt-1.5 text-[length:var(--fs-13)] leading-[1.6] text-k-text-2">{text.sent}</p>
+              <p className="mt-1 text-[length:var(--fs-12-5)] leading-[1.6] text-k-text-3">{text.sentHint}</p>
             </>
           ) : (
             <>
-              <p className="mt-1.5 max-w-[62ch] text-[13px] leading-[1.6] text-k-text-2">{text.body}</p>
-              <ol className="mt-3 list-decimal space-y-1 pl-5 text-[12.5px] leading-[1.6] text-k-text-3">
+              <p className="mt-1.5 max-w-[62ch] text-[length:var(--fs-13)] leading-[1.6] text-k-text-2">{text.body}</p>
+              <ol className="mt-3 list-decimal space-y-1 pl-5 text-[length:var(--fs-12-5)] leading-[1.6] text-k-text-3">
                 {text.steps.map((step) => (
                   <li key={step}>{step}</li>
                 ))}
               </ol>
               {state.error && (
-                <p role="alert" className="mt-3 text-[12.5px] text-k-red">
+                <p role="alert" className="mt-3 text-[length:var(--fs-12-5)] text-k-red">
                   {state.error}
                 </p>
               )}

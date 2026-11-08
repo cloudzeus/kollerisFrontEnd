@@ -147,7 +147,7 @@ export default async function BlogPage({
             <h1 className="font-display text-[22px] leading-[1.16] t-display text-balance text-white lg:text-[30px]">
               {upGreek(t("odigoi_kai_dokimes"))}
             </h1>
-            <p className="mt-3.5 max-w-[600px] text-[13px] leading-[1.68] text-white/60 lg:text-sm">
+            <p className="mt-3.5 max-w-[600px] text-[length:var(--fs-13)] leading-[1.68] text-white/60 lg:text-sm">
               {t("ti_doyleyei_ti_ochi_kai", { years: yearsInBusiness() })}
             </p>
           </div>
@@ -158,7 +158,7 @@ export default async function BlogPage({
             {missing ? (
               <BlogMissingNotice endpoint={missing} />
             ) : !lead ? (
-              <p className="border border-k-line bg-k-surface-2 px-5 py-16 text-center text-[13px] text-k-text-3">
+              <p className="border border-k-line bg-k-surface-2 px-5 py-16 text-center text-[length:var(--fs-13)] text-k-text-3">
                 {upGreek(t("den_yparchoyn_akomi_dimosieymena_arthra"))}
               </p>
             ) : (
@@ -231,7 +231,7 @@ function LeadCard({
             {post.title}
           </h2>
           {post.shortDescription && (
-            <p className="mt-3.5 max-w-[56ch] text-[13.5px] leading-[1.7] text-k-text-2">
+            <p className="mt-3.5 max-w-[56ch] text-[length:var(--fs-13-5)] leading-[1.7] text-k-text-2">
               {post.shortDescription}
             </p>
           )}
@@ -282,11 +282,11 @@ function PostCard({
       </span>
 
       <span className="flex flex-1 flex-col gap-2.5 p-5">
-        <span className="font-display t-display block text-[15px] leading-[1.3] text-k-ink transition-colors group-hover/post:text-k-red">
+        <span className="font-display t-display block text-[length:var(--fs-15)] leading-[1.3] text-k-ink transition-colors group-hover/post:text-k-red">
           {post.title}
         </span>
         {post.shortDescription && (
-          <span className="line-clamp-3 block text-[12.5px] leading-[1.6] text-k-text-3">
+          <span className="line-clamp-3 block text-[length:var(--fs-12-5)] leading-[1.6] text-k-text-3">
             {post.shortDescription}
           </span>
         )}

@@ -73,7 +73,7 @@ export default async function RegisterPage({
             <h1 className="font-display text-[22px] leading-[1.16] t-display text-white lg:text-[30px]">
               {upGreek(t("dimioyrgia_logariasmoy"))}
             </h1>
-            <p className="mt-3.5 max-w-[640px] text-[13px] leading-[1.68] text-white/60 lg:text-sm">
+            <p className="mt-3.5 max-w-[640px] text-[length:var(--fs-13)] leading-[1.68] text-white/60 lg:text-sm">
               {t("gia_etaireies_arkei_to_afm")}
             </p>
           </div>
@@ -98,7 +98,7 @@ export default async function RegisterPage({
                   key={row.feature}
                   className="flex items-center gap-3 border-b border-k-line py-2.5"
                 >
-                  <dt className="min-w-0 flex-1 text-[12px] leading-[1.4] text-k-text-2">
+                  <dt className="min-w-0 flex-1 text-[length:var(--fs-12)] leading-[1.4] text-k-text-2">
                     {t(row.feature)}
                   </dt>
                   <dd className="flex shrink-0 gap-4">
@@ -108,7 +108,7 @@ export default async function RegisterPage({
                 </div>
               ))}
             </dl>
-            <p className="mt-2.5 flex justify-end gap-4 text-[10px] tracking-[0.06em] text-k-text-4">
+            <p className="mt-2.5 flex justify-end gap-4 text-[length:var(--fs-10)] tracking-[0.06em] text-k-text-4">
               <span className="w-4 text-center">{upGreek(t("idiot"))}</span>
               <span className="w-4 text-center">{upGreek(t("etair"))}</span>
             </p>
@@ -123,7 +123,7 @@ function Mark({ on, title }: { on: boolean; title: string }) {
   return (
     <span
       title={title}
-      className={`flex h-4 w-4 items-center justify-center border text-[10px] leading-none ${
+      className={`flex h-4 w-4 items-center justify-center border text-[length:var(--fs-10)] leading-none ${
         on
           ? "border-k-green bg-k-green text-white"
           : "border-k-line-2 text-k-text-6"

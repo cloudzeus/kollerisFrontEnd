@@ -98,7 +98,7 @@ export function CartLineRow({ line }: { line: CartLineView }) {
           <Link
             href={`/proion/${line.slug}`}
             title={line.name}
-            className="line-clamp-2 text-[13.5px] leading-[1.4] font-semibold text-k-ink hover:text-k-red"
+            className="line-clamp-2 text-[length:var(--fs-13-5)] leading-[1.4] font-semibold text-k-ink hover:text-k-red"
           >
             {line.name}
           </Link>
@@ -162,7 +162,7 @@ export function CartLineRow({ line }: { line: CartLineView }) {
             </span>
           )
         )}
-        <span className="block font-mono text-[15px] font-semibold whitespace-nowrap text-k-ink">
+        <span className="block font-mono text-[length:var(--fs-15)] font-semibold whitespace-nowrap text-k-ink">
           {formatPrice(line.unitNetFinal, locale, ctx)}
         </span>
         {/*
@@ -189,7 +189,7 @@ export function CartLineRow({ line }: { line: CartLineView }) {
             onClick={() => setQuantity(optimisticQty - 1)}
             disabled={optimisticQty <= 1}
             aria-label={t("meiosi_posotitas")}
-            className="h-11 w-[38px] border-0 bg-white text-[17px] text-k-ink disabled:text-k-text-5"
+            className="h-11 w-11 border-0 bg-white text-[17px] text-k-ink disabled:text-k-text-5"
           >
             −
           </button>
@@ -203,7 +203,7 @@ export function CartLineRow({ line }: { line: CartLineView }) {
             type="button"
             onClick={() => setQuantity(optimisticQty + 1)}
             aria-label={t("ayxisi_posotitas")}
-            className="h-11 w-[38px] border-0 bg-white text-[17px] text-k-ink"
+            className="h-11 w-11 border-0 bg-white text-[17px] text-k-ink"
           >
             +
           </button>

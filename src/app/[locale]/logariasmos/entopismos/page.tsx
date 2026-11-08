@@ -97,7 +97,7 @@ export default async function TrackOrderPage({
             <h1 className="font-display text-[22px] leading-[1.16] t-display text-balance text-white lg:text-[30px]">
               {upGreek(t("poy_einai_i_paraggelia_moy"))}
             </h1>
-            <p className="mt-3.5 max-w-[600px] text-[13px] leading-[1.68] text-white/60 lg:text-sm">
+            <p className="mt-3.5 max-w-[600px] text-[length:var(--fs-13)] leading-[1.68] text-white/60 lg:text-sm">
               {t("arithmos_paraggelias_kai_to_email")}
             </p>
           </div>

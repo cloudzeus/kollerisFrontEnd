@@ -66,7 +66,7 @@ export default async function PendingApprovalPage({
           <h1 className="font-display mt-3 text-[24px] leading-[1.16] t-display text-white lg:text-[32px]">
             {upGreek(t("i_aitisi_sas_katachorithike"))}
           </h1>
-          <p className="mt-3.5 max-w-[600px] text-[13px] leading-[1.68] text-white/60 lg:text-sm">
+          <p className="mt-3.5 max-w-[600px] text-[length:var(--fs-13)] leading-[1.68] text-white/60 lg:text-sm">
             {t("o_etairikos_logariasmos_energopoieitai_meta")}
           </p>
         </div>
@@ -91,10 +91,10 @@ export default async function PendingApprovalPage({
                     />
                   )}
                 </span>
-                <span className="text-[13.5px] font-semibold text-k-ink">
+                <span className="text-[length:var(--fs-13-5)] font-semibold text-k-ink">
                   {t(step.title)}
                 </span>
-                <span className="text-[12.5px] leading-[1.6] text-k-text-3">
+                <span className="text-[length:var(--fs-12-5)] leading-[1.6] text-k-text-3">
                   {t(step.body)}
                 </span>
               </li>

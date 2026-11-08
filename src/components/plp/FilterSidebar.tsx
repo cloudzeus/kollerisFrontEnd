@@ -54,7 +54,7 @@ export function FilterSidebar({
   return (
     <aside className={className}>
       <div className="flex shrink-0 items-center justify-between bg-k-ink px-[22px] py-4">
-        <span className="text-[11.5px] font-bold tracking-[0.09em] text-white">
+        <span className="text-[length:var(--fs-11-5)] font-bold tracking-[0.09em] text-white">
           {upGreek(t("filtra"))}
         </span>
         <Link href={basePath} className="t-card-cta text-white/60 hover:text-k-red" prefetch={false}>
@@ -96,7 +96,7 @@ export function FilterSidebar({
                   href={priceHref(basePath, params, band, active)}
                   scroll={false}
                   rel="nofollow"
-                  className={`border px-2.5 py-1.5 text-[10.5px] font-medium transition-colors ${
+                  className={`border px-2.5 py-1.5 text-[length:var(--fs-10-5)] font-medium transition-colors ${
                     active
                       ? "border-k-ink bg-k-ink text-white"
                       : "border-k-line-2 text-k-text-2 hover:border-k-ink"
@@ -107,7 +107,7 @@ export function FilterSidebar({
               );
             })}
           </div>
-          <p className="mt-3 text-[11px] text-k-text-4">
+          <p className="mt-3 text-[length:var(--fs-11)] text-k-text-4">
             {t("eyros_katalogoy")} {formatPrice(facets.priceBounds.min, locale, { vatRate: 24 })} —{" "}
             {formatPrice(facets.priceBounds.max, locale, { vatRate: 24 })}
           </p>
@@ -133,7 +133,7 @@ export function FilterSidebar({
                     item.active ? "border-[5px] border-k-red" : "border-k-line-2"
                   }`}
                 />
-                <span className="min-w-0 flex-1 truncate text-[12.5px] text-k-ink">
+                <span className="min-w-0 flex-1 truncate text-[length:var(--fs-12-5)] text-k-ink">
                   {item.label}
                 </span>
                 <span className="t-brand-count text-k-text-4">{item.count}</span>
@@ -172,7 +172,7 @@ export function FilterSidebar({
                       }`}
                     />
                   </span>
-                  <span className="min-w-0 flex-1 text-[12.5px] text-k-ink">{flag.label}</span>
+                  <span className="min-w-0 flex-1 text-[length:var(--fs-12-5)] text-k-ink">{flag.label}</span>
                   <span className="t-brand-count text-k-text-4">{flag.count}</span>
                 </Link>
               );
@@ -182,8 +182,8 @@ export function FilterSidebar({
 
         <div className="px-[22px] pt-5 pb-6">
           <div className="border-l-[3px] border-k-red bg-k-surface-3 px-[18px] py-4">
-            <p className="text-[12.5px] font-semibold text-k-ink">{t("den_vriskete_to_sosto")}</p>
-            <p className="mt-1.5 text-[12px] leading-[1.55] text-k-text-3">
+            <p className="text-[length:var(--fs-12-5)] font-semibold text-k-ink">{t("den_vriskete_to_sosto")}</p>
+            <p className="mt-1.5 text-[length:var(--fs-12)] leading-[1.55] text-k-text-3">
               {t("peite_mas_ti_doyleia_kai", { years: yearsInBusiness() })}
             </p>
             <a
@@ -214,14 +214,14 @@ function Group({
   return (
     <details open={defaultOpen} className="group border-b border-k-line">
       <summary className="flex min-h-[54px] cursor-pointer list-none items-center gap-2.5 px-[22px] py-3.5 marker:content-none">
-        <span className="min-w-0 flex-1 text-[11px] font-bold tracking-[0.07em] text-k-ink">
+        <span className="min-w-0 flex-1 text-[length:var(--fs-11)] font-bold tracking-[0.07em] text-k-ink">
           {upGreek(title)}
         </span>
         {badge > 0 && (
           <span className="t-brand-count bg-k-red px-1.5 py-0.5 text-white">{badge}</span>
         )}
-        <span className="text-[15px] leading-none text-k-text-4 group-open:hidden">+</span>
-        <span className="hidden text-[15px] leading-none text-k-text-4 group-open:inline">
+        <span className="text-[length:var(--fs-15)] leading-none text-k-text-4 group-open:hidden">+</span>
+        <span className="hidden text-[length:var(--fs-15)] leading-none text-k-text-4 group-open:inline">
           −
         </span>
       </summary>
@@ -252,13 +252,13 @@ function CheckList({
           className="flex min-h-[34px] items-center gap-2.5 py-1"
          prefetch={false}>
           <span
-            className={`flex h-3.5 w-3.5 shrink-0 items-center justify-center border text-[9px] leading-none ${
+            className={`flex h-3.5 w-3.5 shrink-0 items-center justify-center border text-[length:var(--fs-9)] leading-none ${
               item.active ? "border-k-ink bg-k-ink text-white" : "border-k-line-2"
             }`}
           >
             {item.active ? "✓" : ""}
           </span>
-          <span className="min-w-0 flex-1 truncate text-[12.5px] text-k-ink">
+          <span className="min-w-0 flex-1 truncate text-[length:var(--fs-12-5)] text-k-ink">
             {item.label}
           </span>
           <span className={`t-brand-count ${countClassName}`}>{item.count}</span>

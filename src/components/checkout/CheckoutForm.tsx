@@ -325,7 +325,7 @@ export function CheckoutForm({
       {state.error && (
         <p
           role="alert"
-          className="border-l-[3px] border-k-red bg-k-red/8 px-4 py-3 text-[13px] text-k-ink"
+          className="border-l-[3px] border-k-red bg-k-red/8 px-4 py-3 text-[length:var(--fs-13)] text-k-ink"
         >
           {state.error}
         </p>
@@ -333,7 +333,7 @@ export function CheckoutForm({
 
       {requestKind === "mixed" && (
         <Step n="00" title={t("request_mode_title")}>
-          <p className="mb-3 text-[12.5px] leading-[1.55] text-k-text-2">{t("request_mode_intro")}</p>
+          <p className="mb-3 text-[length:var(--fs-12-5)] leading-[1.55] text-k-text-2">{t("request_mode_intro")}</p>
           <div className="flex flex-col gap-px border border-k-line bg-k-line">
             {(["split", "together"] as const).map((mode) => (
               <label
@@ -352,13 +352,13 @@ export function CheckoutForm({
                   className="mt-0.5 h-4 w-4 accent-k-red"
                 />
                 <span className="min-w-0 flex-1">
-                  <span className="block text-[12.5px] font-semibold text-k-ink">
+                  <span className="block text-[length:var(--fs-12-5)] font-semibold text-k-ink">
                     {mode === "split" ? t("request_mode_split") : t("request_mode_together")}
                   </span>
                   {mode === "split" && splitNow && splitRequest ? (
                     <>
                       {/* Server-priced: the in-stock lines alone, with their own postage. */}
-                      <span className="mt-1.5 block text-[12px] leading-[1.5] text-k-ink">
+                      <span className="mt-1.5 block text-[length:var(--fs-12)] leading-[1.5] text-k-ink">
                         {/* The method the figures were priced for, not the radio a beat ahead of them. */}
                         {breakdown?.shippingMethod === "pickup"
                           ? t("split_now_pickup", { total: money(splitNow.totalGross), items: items(splitNow.itemCount) })
@@ -372,16 +372,16 @@ export function CheckoutForm({
                               })}
                       </span>
                       {splitNow.thresholdLost && (
-                        <span className="mt-0.5 block text-[11.5px] leading-[1.5] text-k-text-3">
+                        <span className="mt-0.5 block text-[length:var(--fs-11-5)] leading-[1.5] text-k-text-3">
                           {t("split_threshold_lost")}
                         </span>
                       )}
                       {breakdown?.shippingMethod !== "pickup" && !breakdown?.postcode && (
-                        <span className="mt-0.5 block text-[11px] leading-[1.5] text-k-text-4">
+                        <span className="mt-0.5 block text-[length:var(--fs-11)] leading-[1.5] text-k-text-4">
                           {t("split_postage_note")}
                         </span>
                       )}
-                      <span className="mt-1.5 block text-[11.5px] leading-[1.5] text-k-text-3">
+                      <span className="mt-1.5 block text-[length:var(--fs-11-5)] leading-[1.5] text-k-text-3">
                         {t("split_request", {
                           items: items(splitRequest.itemCount),
                           value: money(requestValue(splitRequest)),
@@ -389,11 +389,11 @@ export function CheckoutForm({
                       </span>
                     </>
                   ) : mode === "together" && together ? (
-                    <span className="mt-1.5 block text-[12px] leading-[1.5] text-k-ink">
+                    <span className="mt-1.5 block text-[length:var(--fs-12)] leading-[1.5] text-k-ink">
                       {t("together_line", { items: items(together.itemCount), value: money(requestValue(together)) })}
                     </span>
                   ) : (
-                    <span className="mt-0.5 block text-[11.5px] leading-[1.5] text-k-text-4">
+                    <span className="mt-0.5 block text-[length:var(--fs-11-5)] leading-[1.5] text-k-text-4">
                       {mode === "split" ? t("request_mode_split_help") : t("request_mode_together_help")}
                     </span>
                   )}
@@ -402,7 +402,7 @@ export function CheckoutForm({
             ))}
           </div>
           {state.fieldErrors?.requestMode && (
-            <p className="mt-1.5 text-[11.5px] text-k-red">{t("request_mode_required")}</p>
+            <p className="mt-1.5 text-[length:var(--fs-11-5)] text-k-red">{t("request_mode_required")}</p>
           )}
         </Step>
       )}
@@ -476,7 +476,7 @@ export function CheckoutForm({
               ))}
             </select>
             {state.fieldErrors?.shipCountry && (
-              <span className="mt-1 block text-[11px] text-k-red">{state.fieldErrors.shipCountry}</span>
+              <span className="mt-1 block text-[length:var(--fs-11)] text-k-red">{state.fieldErrors.shipCountry}</span>
             )}
           </label>
         )}
@@ -546,7 +546,7 @@ export function CheckoutForm({
             </>
           )}
         </div>
-        <p className="mt-2.5 text-[11.5px] font-semibold text-k-text-3">
+        <p className="mt-2.5 text-[length:var(--fs-11-5)] font-semibold text-k-text-3">
           {international
             ? euSales && countries && !countries.includes("CY")
               ? t("ship_zone_eu_sales")
@@ -574,7 +574,7 @@ export function CheckoutForm({
             onChange={(e) => setWantsInvoice(e.target.checked)}
             className="h-4 w-4 accent-k-red"
           />
-          <span className="text-[13px] font-semibold text-k-ink">
+          <span className="text-[length:var(--fs-13)] font-semibold text-k-ink">
             {t("thelo_timologio_chreiazontai_afm_kai")}
           </span>
         </label>
@@ -611,10 +611,10 @@ export function CheckoutForm({
                 className="h-4 w-4 accent-k-red"
               />
               <span className="min-w-0 flex-1">
-                <span className="block text-[12.5px] font-semibold text-k-ink">
+                <span className="block text-[length:var(--fs-12-5)] font-semibold text-k-ink">
                   {method.label}
                 </span>
-                <span className="mt-0.5 block text-[11.5px] text-k-text-4">
+                <span className="mt-0.5 block text-[length:var(--fs-11-5)] text-k-text-4">
                   {abroad && method.id !== "pickup"
                     ? quote?.status === "ok"
                       ? method.id === "dhl"
@@ -633,7 +633,7 @@ export function CheckoutForm({
                 </span>
               </span>
               {abroad && method.id !== "pickup" && quote?.status === "ok" && (
-                <span className="font-mono text-[13px] font-semibold whitespace-nowrap text-k-ink">
+                <span className="font-mono text-[length:var(--fs-13)] font-semibold whitespace-nowrap text-k-ink">
                   {formatMoney(
                     splitPayNow != null && splitNow && !splitNow.unserviceable
                       ? splitNow.shippingGross
@@ -647,13 +647,13 @@ export function CheckoutForm({
             </label>
           ))}
         </div>
-        <p className="mt-2.5 text-[11.5px] text-k-text-4">
+        <p className="mt-2.5 text-[length:var(--fs-11-5)] text-k-text-4">
           {abroad ? t("cost_abroad") : t("to_kostos_ypologizetai_apo_to")}
         </p>
       </Step>
 
       {requestOnly ? (
-        <p className="border-l-[3px] border-k-amber bg-k-surface-2 px-4 py-3 text-[12.5px] leading-[1.55] text-k-text-2">
+        <p className="border-l-[3px] border-k-amber bg-k-surface-2 px-4 py-3 text-[length:var(--fs-12-5)] leading-[1.55] text-k-text-2">
           {t("request_all_note")}
         </p>
       ) : (
@@ -662,7 +662,7 @@ export function CheckoutForm({
           {payments.map((method) => (
             <label
               key={method.id}
-              className={`flex cursor-pointer items-center gap-2 border px-3.5 py-2.5 text-[12px] font-semibold transition-colors ${
+              className={`flex cursor-pointer items-center gap-2 border px-3.5 py-2.5 text-[length:var(--fs-12)] font-semibold transition-colors ${
                 payment === method.id
                   ? "border-k-ink bg-k-ink text-white"
                   : "border-k-line-2 text-k-text-2 hover:border-k-ink"
@@ -685,12 +685,12 @@ export function CheckoutForm({
         </div>
 
         {(payment === "card" || payment === "iris") && (
-          <p className="mt-3 border-l-[3px] border-k-ink bg-k-surface-2 px-4 py-3 text-[12px] leading-[1.55] text-k-text-2">
+          <p className="mt-3 border-l-[3px] border-k-ink bg-k-surface-2 px-4 py-3 text-[length:var(--fs-12)] leading-[1.55] text-k-text-2">
             {t("tha_metafertheite_stin_asfali_selida")}
           </p>
         )}
         {payment === "bank" && (
-          <p className="mt-3 border-l-[3px] border-k-ink bg-k-surface-2 px-4 py-3 text-[12px] leading-[1.55] text-k-text-2">
+          <p className="mt-3 border-l-[3px] border-k-ink bg-k-surface-2 px-4 py-3 text-[length:var(--fs-12)] leading-[1.55] text-k-text-2">
             {/* The number comes from the constant the checkout enforces, not
                 from the sentence. A hardcoded «3 ώρες» here is a promise that
                 keeps being made after somebody changes the policy. */}
@@ -724,7 +724,7 @@ export function CheckoutForm({
               placeholder={t("toylachiston_8_charaktires")}
               className="t-input w-full border border-k-line-2 px-3.5 py-3 text-k-ink outline-none focus:border-k-ink"
             />
-            <span className="mt-1.5 block text-[12px] leading-[1.5] text-k-text-3">
+            <span className="mt-1.5 block text-[length:var(--fs-12)] leading-[1.5] text-k-text-3">
               {t("symplirose_kodiko_gia_logariasmo")}
             </span>
           </label>
@@ -752,12 +752,12 @@ export function CheckoutForm({
             onChange={(e) => setTerms(e.target.checked)}
             className="mt-0.5 h-4 w-4 accent-k-red"
           />
-          <span className="text-[12.5px] leading-[1.55] text-k-text-2">
+          <span className="text-[length:var(--fs-12-5)] leading-[1.55] text-k-text-2">
             {t("apodechomai_toys_oroys_chrisis_kai")}
           </span>
         </label>
         {state.fieldErrors?.terms && (
-          <p className="mt-1.5 text-[11.5px] text-k-red">{t("apaiteitai_apodochi_ton_oron")}</p>
+          <p className="mt-1.5 text-[length:var(--fs-11-5)] text-k-red">{t("apaiteitai_apodochi_ton_oron")}</p>
         )}
 
         <button
@@ -778,7 +778,7 @@ export function CheckoutForm({
               : `${upGreek(t("oloklirosi_paraggelias"))} →`}
         </button>
         {blocked && (
-          <p role="alert" className="mt-2 text-[11.5px] text-k-red">
+          <p role="alert" className="mt-2 text-[length:var(--fs-11-5)] text-k-red">
             {blocked}
           </p>
         )}
@@ -812,7 +812,7 @@ function Step({
     <section>
       <h2 className="mb-4 flex items-center gap-3">
         <span className="t-cat-num text-k-red">{n}</span>
-        <span className="text-[13px] font-bold tracking-[0.06em] text-k-ink">
+        <span className="text-[length:var(--fs-13)] font-bold tracking-[0.06em] text-k-ink">
           {upGreek(title)}
         </span>
       </h2>
@@ -861,9 +861,9 @@ function Field({
           error ? "border-k-red" : "border-k-line-2"
         }`}
       />
-      {error && <span className="mt-1 block text-[11px] text-k-red">{error}</span>}
+      {error && <span className="mt-1 block text-[length:var(--fs-11)] text-k-red">{error}</span>}
       {help && !error && (
-        <span className="mt-1 block text-[11px] text-k-text-4">{help}</span>
+        <span className="mt-1 block text-[length:var(--fs-11)] text-k-text-4">{help}</span>
       )}
     </label>
   );

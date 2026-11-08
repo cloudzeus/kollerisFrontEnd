@@ -136,7 +136,7 @@ export function ProductTabs({ product }: { product: ProductDetail }) {
                   <Expandable
                     lines={9}
                     collapsible={longText.length > 700}
-                    className="max-w-[78ch] text-[13.5px] leading-[1.8] text-k-text-2"
+                    className="max-w-[78ch] text-[length:var(--fs-13-5)] leading-[1.8] text-k-text-2"
                   >
                     {body.map((paragraph, index) => (
                       <p key={index} className="mb-4 last:mb-0">
@@ -162,10 +162,10 @@ export function ProductTabs({ product }: { product: ProductDetail }) {
                             key={row.fieldKey}
                             className="flex items-baseline gap-4 border-b border-k-line px-5 py-2.5 last:border-b-0"
                           >
-                            <dt className="w-1/2 shrink-0 text-[12.5px] leading-[1.4] text-k-text-3">
+                            <dt className="w-1/2 shrink-0 text-[length:var(--fs-12-5)] leading-[1.4] text-k-text-3">
                               {row.label}
                             </dt>
-                            <dd className="min-w-0 flex-1 font-mono text-[12.5px] font-medium text-k-ink">
+                            <dd className="min-w-0 flex-1 font-mono text-[length:var(--fs-12-5)] font-medium text-k-ink">
                               {formatSpecValue(row.value, row.unit)}
                             </dd>
                           </div>
@@ -212,10 +212,10 @@ export function ProductTabs({ product }: { product: ProductDetail }) {
                             key={row.fieldKey}
                             className="flex items-baseline gap-4 border-b border-k-line py-2.5 transition-colors hover:bg-k-surface-2"
                           >
-                            <dt className="w-1/2 shrink-0 text-[12.5px] leading-[1.4] text-k-text-3">
+                            <dt className="w-1/2 shrink-0 text-[length:var(--fs-12-5)] leading-[1.4] text-k-text-3">
                               {row.label}
                             </dt>
-                            <dd className="min-w-0 flex-1 font-mono text-[12.5px] font-medium text-k-ink">
+                            <dd className="min-w-0 flex-1 font-mono text-[length:var(--fs-12-5)] font-medium text-k-ink">
                               {formatSpecValue(row.value, row.unit)}
                             </dd>
                           </div>
@@ -258,10 +258,10 @@ export function ProductTabs({ product }: { product: ProductDetail }) {
                     key={item.title}
                     className="border-l-[3px] border-k-red bg-white px-5 py-4"
                   >
-                    <p className="text-[13px] leading-[1.35] font-semibold text-k-ink">
+                    <p className="text-[length:var(--fs-13)] leading-[1.35] font-semibold text-k-ink">
                       {item.title}
                     </p>
-                    <p className="mt-1.5 text-[12.5px] leading-[1.6] text-k-text-3">
+                    <p className="mt-1.5 text-[length:var(--fs-12-5)] leading-[1.6] text-k-text-3">
                       {item.body}
                     </p>
                   </div>

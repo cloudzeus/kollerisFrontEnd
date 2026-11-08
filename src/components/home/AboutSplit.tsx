@@ -73,7 +73,7 @@ export function AboutSplit({
             <span className="text-k-red">{upGreek(t("motto_line2"))}</span>
           </p>
 
-          <p className="max-w-[42ch] text-[13px] leading-[1.6] text-white/70 lg:text-sm">
+          <p className="max-w-[42ch] text-[length:var(--fs-13)] leading-[1.6] text-white/70 lg:text-sm">
             {t("motto_lead")}
           </p>
         </div>

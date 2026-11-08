@@ -48,7 +48,7 @@ export default async function ConfirmPage({
           <h1 className="font-display mt-3 text-[34px] leading-[1.08] t-display uppercase lg:text-[46px]">
             {ok ? "Η εγγραφή σας ολοκληρώθηκε." : "Ο σύνδεσμος δεν ισχύει."}
           </h1>
-          <p className="mt-5 text-[15px] leading-[1.7] text-k-text-2">
+          <p className="mt-5 text-[length:var(--fs-15)] leading-[1.7] text-k-text-2">
             {ok
               ? "Θα λαμβάνετε προσφορές, νέα προϊόντα και ανακοινώσεις — το πολύ δύο email τον μήνα. Σε κάθε ένα από αυτά υπάρχει σύνδεσμος διαγραφής που δουλεύει με ένα κλικ."
               : "Ο σύνδεσμος επιβεβαίωσης ισχύει για 48 ώρες και χρησιμοποιείται μία φορά. Αν πέρασε ο χρόνος ή τον έχετε ήδη πατήσει, ξεκινήστε την εγγραφή από την αρχή."}
@@ -57,13 +57,13 @@ export default async function ConfirmPage({
           <div className="mt-8 flex flex-wrap gap-3">
             <Link
               href="/prosfores"
-              className="font-sans bg-k-red px-7 py-3.5 text-[15px] font-bold tracking-[0.08em] text-white transition-colors hover:bg-k-red-hover"
+              className="font-sans bg-k-red px-7 py-3.5 text-[length:var(--fs-15)] font-bold tracking-[0.08em] text-white transition-colors hover:bg-k-red-hover"
             >
               {upGreek("Δείτε τις προσφορές")}
             </Link>
             <Link
               href="/"
-              className="font-sans border border-k-line-strong px-7 py-3.5 text-[15px] font-bold tracking-[0.08em] text-k-ink transition-colors hover:border-k-ink"
+              className="font-sans border border-k-line-strong px-7 py-3.5 text-[length:var(--fs-15)] font-bold tracking-[0.08em] text-k-ink transition-colors hover:border-k-ink"
             >
               {upGreek("Στην αρχική")}
             </Link>

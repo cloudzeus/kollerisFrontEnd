@@ -156,7 +156,7 @@ export function CategoryPicker({
 
             <div className="scroll-slim min-h-0 flex-1 overflow-y-auto p-4 lg:p-5">
               {groups.length === 0 ? (
-                <p className="py-12 text-center text-[13px] text-k-text-3">
+                <p className="py-12 text-center text-[length:var(--fs-13)] text-k-text-3">
                   {t("kamia_ypokatigoria_gia")}{query.trim()}».
                 </p>
               ) : (
@@ -192,7 +192,7 @@ export function CategoryPicker({
                               onClick={() => setOpen(false)}
                               className="flex items-baseline justify-between gap-3 py-1.5 transition-colors hover:text-k-red"
                             >
-                              <span className="min-w-0 flex-1 truncate text-[12.5px] text-k-text-2">
+                              <span className="min-w-0 flex-1 truncate text-[length:var(--fs-12-5)] text-k-text-2">
                                 {item.name}
                               </span>
                               <span className="t-brand-count shrink-0 font-mono text-k-text-5">

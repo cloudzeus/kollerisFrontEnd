@@ -45,7 +45,7 @@ export function SignInForm({ redirectTo }: { redirectTo?: string }) {
         {pending ? "…" : upGreek(t("syndesi"))}
       </button>
 
-      <p className="text-[12.5px] text-k-text-3">
+      <p className="text-[length:var(--fs-12-5)] text-k-text-3">
         {t("den_echete_logariasmo")}{" "}
         <Link href="/eggrafi" className="font-semibold text-k-ink underline underline-offset-4 hover:text-k-red">
           {t("eggrafeite")}
@@ -96,8 +96,8 @@ export function RegisterForm() {
                 className="mt-0.5 h-4 w-4 shrink-0 accent-k-red"
               />
               <span className="min-w-0">
-                <span className="block text-[13px] font-semibold text-k-ink">{option.title}</span>
-                <span className="mt-1 block text-[11.5px] leading-[1.5] text-k-text-3">{option.body}</span>
+                <span className="block text-[length:var(--fs-13)] font-semibold text-k-ink">{option.title}</span>
+                <span className="mt-1 block text-[length:var(--fs-11-5)] leading-[1.5] text-k-text-3">{option.body}</span>
               </span>
             </label>
           ))}
@@ -105,7 +105,7 @@ export function RegisterForm() {
       </fieldset>
 
       {accountType === "company" && !B2B_REGISTRATION_OPEN && (
-        <p role="status" className="border-l-[3px] border-k-red bg-k-surface-2 p-4 text-[13px] font-semibold text-k-ink">
+        <p role="status" className="border-l-[3px] border-k-red bg-k-surface-2 p-4 text-[length:var(--fs-13)] font-semibold text-k-ink">
           {t("b2b_den_energopoiithike")}
         </p>
       )}
@@ -115,7 +115,7 @@ export function RegisterForm() {
           <p className="t-eyebrow mb-3.5 text-k-red">{upGreek(t("stoicheia_etaireias"))}</p>
           {/* Same component as checkout — the ΑΦΜ fills the rest from the ΑΑΔΕ. */}
           <CompanyVatFields required showAddress fieldErrors={state.fieldErrors} />
-          <p className="mt-4 flex items-start gap-2.5 border-t border-k-line pt-3.5 text-[11.5px] leading-[1.55] text-k-text-3">
+          <p className="mt-4 flex items-start gap-2.5 border-t border-k-line pt-3.5 text-[length:var(--fs-11-5)] leading-[1.55] text-k-text-3">
             <span aria-hidden className="mt-1 block h-1.5 w-1.5 shrink-0 bg-k-amber" />
             {t("oi_etairikoi_logariasmoi_elegchontai_prin")}
           </p>
@@ -142,10 +142,10 @@ export function RegisterForm() {
 
       <label className="flex cursor-pointer items-start gap-3">
         <input type="checkbox" name="terms" className="mt-0.5 h-4 w-4 shrink-0 accent-k-red" />
-        <span className="text-[12.5px] leading-[1.5] text-k-text-2">
+        <span className="text-[length:var(--fs-12-5)] leading-[1.5] text-k-text-2">
           {t("apodechomai_toys_oroys_chrisis_kai")}
           {state.fieldErrors?.terms && (
-            <span className="mt-1 block text-[11px] text-k-red">{state.fieldErrors.terms}</span>
+            <span className="mt-1 block text-[length:var(--fs-11)] text-k-red">{state.fieldErrors.terms}</span>
           )}
         </span>
       </label>
@@ -158,7 +158,7 @@ export function RegisterForm() {
         {pending ? "…" : upGreek(accountType === "company" ? t("aitisi_etairikoy_logariasmoy") : t("eggrafi"))}
       </button>
 
-      <p className="text-[12.5px] text-k-text-3">
+      <p className="text-[length:var(--fs-12-5)] text-k-text-3">
         {t("echete_idi_logariasmo")}{" "}
         <Link href="/eisodos" className="font-semibold text-k-ink underline underline-offset-4 hover:text-k-red">
           {t("syndetheite")}
@@ -184,7 +184,7 @@ export function ProfileForm({ user }: { user: AccountUser }) {
     >
       <FormError message={state.error} />
       {saved && !state.error && (
-        <p className="border-l-[3px] border-k-green bg-k-green/8 px-4 py-3 text-[12.5px] text-k-ink">
+        <p className="border-l-[3px] border-k-green bg-k-green/8 px-4 py-3 text-[length:var(--fs-12-5)] text-k-ink">
           {t("ta_stoicheia_sas_apothikeytikan")}
         </p>
       )}
@@ -204,7 +204,7 @@ export function ProfileForm({ user }: { user: AccountUser }) {
           readOnly
           className="t-input h-12 w-full border border-k-line-2 bg-k-surface-3 px-3.5 text-k-text-3 outline-none"
         />
-        <span className="mt-1 block text-[11px] text-k-text-4">
+        <span className="mt-1 block text-[length:var(--fs-11)] text-k-text-4">
           {t("gia_allagi_email_kaleste_mas")}
         </span>
       </label>
@@ -225,7 +225,7 @@ export function ProfileForm({ user }: { user: AccountUser }) {
 function FormError({ message }: { message?: string }) {
   if (!message) return null;
   return (
-    <p role="alert" className="border-l-[3px] border-k-red bg-k-red/8 px-4 py-3 text-[13px] leading-[1.5] text-k-ink">
+    <p role="alert" className="border-l-[3px] border-k-red bg-k-red/8 px-4 py-3 text-[length:var(--fs-13)] leading-[1.5] text-k-ink">
       {message}
     </p>
   );
@@ -267,8 +267,8 @@ function Field({
           error ? "border-k-red" : "border-k-line-2"
         }`}
       />
-      {error && <span className="mt-1 block text-[11px] text-k-red">{error}</span>}
-      {help && !error && <span className="mt-1 block text-[11px] text-k-text-4">{help}</span>}
+      {error && <span className="mt-1 block text-[length:var(--fs-11)] text-k-red">{error}</span>}
+      {help && !error && <span className="mt-1 block text-[length:var(--fs-11)] text-k-text-4">{help}</span>}
     </label>
   );
 }

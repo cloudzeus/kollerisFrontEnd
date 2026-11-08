@@ -140,7 +140,7 @@ export function SiteFooter({ categories }: { categories: CategoryTile[] }) {
             <details key={column.title} className="border-b border-white/10">
               <summary className="t-footer-col flex cursor-pointer items-center justify-between py-4 text-white marker:content-none">
                 {column.title}
-                <span className="text-[15px] text-k-red">+</span>
+                <span className="text-[length:var(--fs-15)] text-k-red">+</span>
               </summary>
               <ul className="flex flex-col gap-2.5 pb-4">
                 {column.links.map((link) => (

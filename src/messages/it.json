@@ -1184,7 +1184,7 @@
       "pigainete_apeytheias_se": "Vai direttamente a",
       "kod": "cod.",
       "i_deite_ola_ta_proionta": "Oppure vedi tutti i prodotti della categoria",
-      "ypokatigories_filtrarete_aristera_oles_oi": "sottocategorie. Filtra a sinistra — tutti i\n              prezzi IVA inclusa, disponibilità in tempo reale.",
+      "ypokatigories_filtrarete_aristera_oles_oi": "sottocategorie. Filtra la lista — tutti i\n              prezzi IVA inclusa, disponibilità in tempo reale.",
       "kanena_proion_me_ayta_ta": "Nessun prodotto con questi filtri",
       "dokimaste_na_afairesete_ena_filtro": "Prova a rimuovere un filtro, oppure chiamaci al 210 411\n                  1355 — troviamo il codice insieme.",
       "katharismos_filtron": "Azzera filtri",
@@ -1196,7 +1196,7 @@
       "perigrafi_oles_oi_katigories_ergaleion": "Tutte le categorie di utensili — 23 categorie, 467 sottocategorie, con numerosi codici a ogni livello.",
       "ola_ta_proionta": "Tutti i prodotti",
       "olos_o_katalogos_se_mia_lista": "L'intero catalogo in un unico elenco, con filtri per marca, categoria, prezzo e disponibilità.",
-      "kodikoi_filtrarete_aristera": "articoli. Filtra a sinistra o restringi per categoria.",
+      "kodikoi_filtrarete_aristera": "articoli. Filtra la lista o restringi per categoria.",
       "prosfores": "Offerte"
     }
   },
@@ -1514,7 +1514,7 @@
       "proionta": "prodotti",
       "apo": "da",
       "amesa_diathesima": "disponibili\n                          immediatamente",
-      "filtrarete_aristera_oles_oi_times": ". Filtra a sinistra — tutti i prezzi IVA inclusa.",
+      "filtrarete_aristera_oles_oi_times": ". Filtra la lista — tutti i prezzi IVA inclusa.",
       "grapste_toylachiston": "Scrivi almeno",
       "charaktires_kodiko_onoma_proiontos_i": "caratteri — codice,\n                  nome prodotto o brand.",
       "akrivis_kodikos": "Codice esatto",

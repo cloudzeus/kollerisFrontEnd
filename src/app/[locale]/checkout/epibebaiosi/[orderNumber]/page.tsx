@@ -237,11 +237,11 @@ export default async function ConfirmationPage({ params, searchParams }: PagePro
           </h1>
           <p className="mt-4 flex flex-wrap items-center gap-3">
             <span className="t-account-label text-white/50">{upGreek(t("arithmos"))}</span>
-            <span className="border border-white/20 px-3 py-2 font-mono text-[15px] font-semibold text-white">
+            <span className="border border-white/20 px-3 py-2 font-mono text-[length:var(--fs-15)] font-semibold text-white">
               {order.orderNumber}
             </span>
           </p>
-          <p className="mt-4 max-w-[560px] text-[13.5px] leading-[1.65] text-white/60">
+          <p className="mt-4 max-w-[560px] text-[length:var(--fs-13-5)] leading-[1.65] text-white/60">
             {t("steilame_epivevaiosi_sto")} {order.email}.
             {awaitingPayment &&
               t("molis_oloklirothei_i_pliromi_i")}
@@ -260,7 +260,7 @@ export default async function ConfirmationPage({ params, searchParams }: PagePro
               <div className="grid gap-px border border-k-line bg-k-line sm:grid-cols-2">
                 <div className="border-l-[3px] border-k-ink bg-white px-5 py-4">
                   <p className="t-account-label text-k-ink">{upGreek(t("split_now_label"))}</p>
-                  <p className="mt-1.5 text-[12.5px] leading-[1.6] text-k-text-2">
+                  <p className="mt-1.5 text-[length:var(--fs-12-5)] leading-[1.6] text-k-text-2">
                     {/* An exempt EU order was charged the net: «χωρίς ΦΠΑ», not «με ΦΠΑ». */}
                     {t(order.vatMode === "intra_eu_exempt" ? "split_now_line_exempt" : "split_now_line", {
                       number: order.orderNumber,
@@ -272,20 +272,20 @@ export default async function ConfirmationPage({ params, searchParams }: PagePro
                           : formatMoney(Number(order.shippingGross), locale),
                     })}
                   </p>
-                  <p className="mt-1 text-[11.5px] font-semibold text-k-ink">
+                  <p className="mt-1 text-[length:var(--fs-11-5)] font-semibold text-k-ink">
                     {order.paymentStatus === "PAID" ? t("split_now_paid") : t("split_now_pending")}
                   </p>
                 </div>
                 <div className="border-l-[3px] border-k-amber bg-white px-5 py-4">
                   <p className="t-account-label text-k-amber">{upGreek(t("split_request_label"))}</p>
-                  <p className="mt-1.5 text-[12.5px] leading-[1.6] text-k-text-2">
+                  <p className="mt-1.5 text-[length:var(--fs-12-5)] leading-[1.6] text-k-text-2">
                     {t("split_request_line", {
                       number: childRequest.orderNumber,
                       items: items(childLines.length),
                       value: formatMoney(childValue, locale),
                     })}
                   </p>
-                  <p className="mt-1 text-[11.5px] leading-[1.55] text-k-text-3">
+                  <p className="mt-1 text-[length:var(--fs-11-5)] leading-[1.55] text-k-text-3">
                     {t("split_request_note", { hours: REQUEST_ANSWER_HOURS })}
                   </p>
                   <a
@@ -305,10 +305,10 @@ export default async function ConfirmationPage({ params, searchParams }: PagePro
             <div className="shell-x py-6 lg:py-7">
               <div className="flex flex-col gap-4 border-l-[3px] border-k-red bg-white px-5 py-5 sm:flex-row sm:items-center sm:justify-between lg:px-6">
                 <div className="min-w-0">
-                  <p className="text-[13px] font-semibold text-k-ink">
+                  <p className="text-[length:var(--fs-13)] font-semibold text-k-ink">
                     {t("kodikos_pliromis_titlos")}
                   </p>
-                  <p className="mt-1.5 max-w-[52ch] text-[12.5px] leading-[1.6] text-k-text-2">
+                  <p className="mt-1.5 max-w-[52ch] text-[length:var(--fs-12-5)] leading-[1.6] text-k-text-2">
                     {t("kodikos_pliromis_odigia")}
                   </p>
                   {/*
@@ -320,7 +320,7 @@ export default async function ConfirmationPage({ params, searchParams }: PagePro
                     what its customer was actually promised.
                   */}
                   {order.reservedUntil && (
-                    <p className="mt-2 text-[12.5px] leading-[1.6] text-k-ink">
+                    <p className="mt-2 text-[length:var(--fs-12-5)] leading-[1.6] text-k-ink">
                       {t("kratame_ta_proionta_eos", {
                         hours: holdHours(order.createdAt, order.reservedUntil),
                       })}
@@ -361,7 +361,7 @@ export default async function ConfirmationPage({ params, searchParams }: PagePro
                   {String(index + 1).padStart(2, "0")}
                 </span>
                 <p
-                  className={`mt-2 text-[12.5px] font-semibold ${
+                  className={`mt-2 text-[length:var(--fs-12-5)] font-semibold ${
                     done ? "text-k-ink" : "text-k-text-4"
                   }`}
                 >
@@ -454,7 +454,7 @@ export default async function ConfirmationPage({ params, searchParams }: PagePro
             </div>
 
             {order.notes && (
-              <p className="mt-5 border-l-[3px] border-k-line-2 bg-k-surface-2 px-4 py-3 text-[12.5px] text-k-text-2">
+              <p className="mt-5 border-l-[3px] border-k-line-2 bg-k-surface-2 px-4 py-3 text-[length:var(--fs-12-5)] text-k-text-2">
                 <span className="t-account-label mb-1 block text-k-text-4">
                   {upGreek(t("scholia"))}
                 </span>
@@ -483,14 +483,14 @@ export default async function ConfirmationPage({ params, searchParams }: PagePro
                   </span>
                   <span className="min-w-0 flex-1">
                     <span className="t-card-brand block text-k-red">{line.brand ?? "—"}</span>
-                    <span className="mt-0.5 block text-[12.5px] font-semibold text-k-ink">
+                    <span className="mt-0.5 block text-[length:var(--fs-12-5)] font-semibold text-k-ink">
                       {line.name}
                     </span>
                     <span className="t-card-sku mt-0.5 block text-k-text-4">
                       {line.sku} · {line.quantity} {t("tem")}
                     </span>
                   </span>
-                  <span className="shrink-0 font-mono text-[14px] font-semibold text-k-ink">
+                  <span className="shrink-0 font-mono text-[length:var(--fs-14)] font-semibold text-k-ink">
                     {formatMoney(Number(exempt ? line.lineNet : line.lineGross), locale)}
                   </span>
                 </div>
@@ -515,8 +515,8 @@ export default async function ConfirmationPage({ params, searchParams }: PagePro
                   ...(exempt ? [] : [{ k: t("fpa"), v: formatMoney(Number(order.vatAmount), locale) }]),
                 ].map((row) => (
                   <div key={row.k} className="flex items-baseline justify-between gap-4">
-                    <dt className="text-[12.5px] text-white/55">{row.k}</dt>
-                    <dd className="font-mono text-[13px] font-medium text-white">{row.v}</dd>
+                    <dt className="text-[length:var(--fs-12-5)] text-white/55">{row.k}</dt>
+                    <dd className="font-mono text-[length:var(--fs-13)] font-medium text-white">{row.v}</dd>
                   </div>
                 ))}
               </dl>
@@ -525,7 +525,7 @@ export default async function ConfirmationPage({ params, searchParams }: PagePro
                 place, in the page's language.
               */}
               {exempt && (
-                <p className="mt-3 text-[12px] leading-[1.55] text-white/70">{t("eu_exempt_note")}</p>
+                <p className="mt-3 text-[length:var(--fs-12)] leading-[1.55] text-white/70">{t("eu_exempt_note")}</p>
               )}
               <div className="mt-4 flex items-end justify-between gap-4 border-t border-white/16 pt-4">
                 <p className="t-footer-col text-white/50">{upGreek(t("synolo"))}</p>
@@ -572,7 +572,7 @@ function Block({ title, children }: { title: string; children: React.ReactNode }
   return (
     <div className="bg-white px-4 py-4">
       <p className="t-account-label mb-2 text-k-text-4">{upGreek(title)}</p>
-      <p className="text-[12.5px] leading-[1.6] text-k-ink">{children}</p>
+      <p className="text-[length:var(--fs-12-5)] leading-[1.6] text-k-ink">{children}</p>
     </div>
   );
 }

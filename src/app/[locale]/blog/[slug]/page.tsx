@@ -116,7 +116,7 @@ export default async function BlogPostPage({ params }: PageProps) {
                 {post.title}
               </h1>
               {post.shortDescription && (
-                <p className="mt-4 text-[14px] leading-[1.7] text-white/65 lg:text-[16px]">
+                <p className="mt-4 text-[length:var(--fs-14)] leading-[1.7] text-white/65 lg:text-[16px]">
                   {post.shortDescription}
                 </p>
               )}
@@ -188,7 +188,7 @@ export default async function BlogPostPage({ params }: PageProps) {
 
         <section className="band-alt border-t border-k-line">
           <div className="shell-x flex flex-wrap items-center justify-between gap-4 py-7">
-            <p className="text-[13px] text-k-text-3">
+            <p className="text-[length:var(--fs-13)] text-k-text-3">
               {t("erotisi_gia_kati_apo_to")}
             </p>
             <div className="flex flex-wrap gap-3">

@@ -79,6 +79,7 @@ export function FavouriteButton({
         /* Ίδιο ύψος με το κουμπί σύγκρισης δίπλα — px-1.5/py-1 γύρω από ένα
            στοιχείο 12px, δηλαδή 22px. Δύο κουμπιά στην ίδια ευθεία με
            διαφορετικό ύψος διαβάζονται ως λάθος στοίχιση, όχι ως ιεραρχία. */
+        "tap-44 relative",
         size === "sm" ? "size-[22px]" : "size-8",
         on
           ? "border-k-red bg-k-red text-white"
@@ -161,7 +162,7 @@ function SignInPrompt({ redirect, onClose }: { redirect: string; onClose: () => 
         >
           ΚΡΑΤΗΣΤΕ ΤΟ ΓΙΑ ΑΡΓΟΤΕΡΑ
         </h2>
-        <p className="mt-2 text-[13px] leading-[1.65] text-k-text-2">
+        <p className="mt-2 text-[length:var(--fs-13)] leading-[1.65] text-k-text-2">
           Τα αγαπημένα αποθηκεύονται στον λογαριασμό σας, ώστε να τα βρίσκετε
           εύκολα από οποιαδήποτε συσκευή.
         </p>
@@ -170,13 +171,13 @@ function SignInPrompt({ redirect, onClose }: { redirect: string; onClose: () => 
           <Link
             ref={primary}
             href={`/eisodos?redirect=${to}`}
-            className="font-sans flex h-11 items-center justify-center bg-k-ink-deep px-6 text-[13px] font-bold tracking-[0.08em] text-white transition-colors hover:bg-k-ink"
+            className="font-sans flex h-11 items-center justify-center bg-k-ink-deep px-6 text-[length:var(--fs-13)] font-bold tracking-[0.08em] text-white transition-colors hover:bg-k-ink"
           >
             ΕΙΣΟΔΟΣ ΣΤΟΝ ΛΟΓΑΡΙΑΣΜΟ
           </Link>
           <Link
             href="/eggrafi"
-            className="font-sans flex h-11 items-center justify-center border border-k-line-2 px-6 text-[13px] font-bold tracking-[0.08em] text-k-ink transition-colors hover:border-k-ink"
+            className="font-sans flex h-11 items-center justify-center border border-k-line-2 px-6 text-[length:var(--fs-13)] font-bold tracking-[0.08em] text-k-ink transition-colors hover:border-k-ink"
           >
             ΔΗΜΙΟΥΡΓΙΑ ΛΟΓΑΡΙΑΣΜΟΥ
           </Link>
@@ -187,7 +188,7 @@ function SignInPrompt({ redirect, onClose }: { redirect: string; onClose: () => 
         <button
           type="button"
           onClick={onClose}
-          className="mt-3 w-full text-[12px] text-k-text-3 transition-colors hover:text-k-ink"
+          className="mt-3 w-full text-[length:var(--fs-12)] text-k-text-3 transition-colors hover:text-k-ink"
         >
           Συνέχεια χωρίς λογαριασμό
         </button>

@@ -149,7 +149,7 @@ export function QuickViewProvider({
               )}
 
               {state === "error" && (
-                <p className="p-10 text-center text-[13px] text-k-text-3">
+                <p className="p-10 text-center text-[length:var(--fs-13)] text-k-text-3">
                   {t("den_itan_dynati_i_fortosi")}
                 </p>
               )}
@@ -246,8 +246,8 @@ function QuickViewBody({
           <dl className="mt-4 border-t border-k-line">
             {product.specs.slice(0, 5).map((spec) => (
               <div key={spec.label} className="flex gap-3 border-b border-k-line py-2">
-                <dt className="w-1/2 shrink-0 text-[12px] text-k-text-3">{spec.label}</dt>
-                <dd className="min-w-0 flex-1 font-mono text-[12px] font-medium text-k-ink">
+                <dt className="w-1/2 shrink-0 text-[length:var(--fs-12)] text-k-text-3">{spec.label}</dt>
+                <dd className="min-w-0 flex-1 font-mono text-[length:var(--fs-12)] font-medium text-k-ink">
                   {spec.value}
                 </dd>
               </div>

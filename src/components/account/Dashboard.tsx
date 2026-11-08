@@ -78,7 +78,7 @@ export function Dashboard({
               <Truck className="size-4 text-k-red" aria-hidden />
               <div>
                 <div className="t-eyebrow text-white/50">{upGreek("Η αποστολή σας")}</div>
-                <div className="numeral text-[13px]">
+                <div className="numeral text-[length:var(--fs-13)]">
                   {data.tracking.orderNumber} · ACS {data.tracking.voucherNo}
                 </div>
               </div>
@@ -101,10 +101,10 @@ export function Dashboard({
                     className={`mt-1.5 block size-1.5 shrink-0 rounded-full ${i === 0 ? "bg-k-red" : "bg-white/25"}`}
                   />
                   <div className="min-w-0">
-                    <div className={`text-[13px] ${i === 0 ? "text-white" : "text-white/60"}`}>
+                    <div className={`text-[length:var(--fs-13)] ${i === 0 ? "text-white" : "text-white/60"}`}>
                       {step.status}
                     </div>
-                    <div className="numeral text-[11px] text-white/40">
+                    <div className="numeral text-[length:var(--fs-11)] text-white/40">
                       {step.at}
                       {step.place ? ` · ${step.place}` : ""}
                     </div>
@@ -113,7 +113,7 @@ export function Dashboard({
               ))}
             </ol>
           ) : (
-            <p className="px-5 py-4 text-[13px] text-white/60">
+            <p className="px-5 py-4 text-[length:var(--fs-13)] text-white/60">
               Η ACS παρέλαβε το δέμα. Τα στάδια παράδοσης εμφανίζονται μόλις ξεκινήσει η
               διαδρομή του.
             </p>
@@ -141,7 +141,7 @@ export function Dashboard({
           {data.counts.total > data.orders.length && (
             <Link
               href="/logariasmos/paraggelies"
-              className="inline-flex items-center gap-1 text-[12px] text-k-ink underline-offset-2 hover:underline"
+              className="inline-flex items-center gap-1 text-[length:var(--fs-12)] text-k-ink underline-offset-2 hover:underline"
             >
               Όλες <ArrowRight className="size-3" aria-hidden />
             </Link>
@@ -151,7 +151,7 @@ export function Dashboard({
         {data.orders.length === 0 ? (
           <div className="px-5 py-12 text-center">
             <Box className="mx-auto mb-3 size-6 text-k-text-4" aria-hidden />
-            <p className="text-[13.5px] text-k-text-2">Δεν έχετε κάνει παραγγελία ακόμα.</p>
+            <p className="text-[length:var(--fs-13-5)] text-k-text-2">Δεν έχετε κάνει παραγγελία ακόμα.</p>
             <Link
               href="/proionta"
               className="t-btn-sm mt-5 inline-block border-[1.5px] border-k-ink px-7 py-3 text-k-ink transition-colors hover:bg-k-ink hover:text-white"
@@ -185,21 +185,21 @@ export function Dashboard({
                     )}
 
                     <div className="min-w-0 flex-1">
-                      <div className="truncate text-[13.5px] text-k-ink">
+                      <div className="truncate text-[length:var(--fs-13-5)] text-k-ink">
                         {order.firstItem ?? order.orderNumber}
                         {order.items > 1 && (
                           <span className="text-k-text-3"> +{order.items - 1} ακόμα</span>
                         )}
                       </div>
-                      <div className="numeral text-[11.5px] text-k-text-3">
+                      <div className="numeral text-[length:var(--fs-11-5)] text-k-text-3">
                         {order.orderNumber} · {when(order.createdAt, locale)}
                       </div>
                     </div>
 
-                    <span className={`shrink-0 px-2 py-1 text-[10.5px] font-semibold ${s.tone}`}>
+                    <span className={`shrink-0 px-2 py-1 text-[length:var(--fs-10-5)] font-semibold ${s.tone}`}>
                       {upGreek(s.label)}
                     </span>
-                    <span className="numeral hidden w-24 shrink-0 text-right text-[13px] text-k-ink sm:block">
+                    <span className="numeral hidden w-24 shrink-0 text-right text-[length:var(--fs-13)] text-k-ink sm:block">
                       {money(order.totalGross)}
                     </span>
                   </Link>
@@ -217,7 +217,7 @@ export function Dashboard({
             <h2 className="t-eyebrow text-k-text-4">{upGreek("Διεύθυνση παράδοσης")}</h2>
             <Link
               href="/logariasmos/dieuthynseis"
-              className="text-[12px] text-k-ink underline-offset-2 hover:underline"
+              className="text-[length:var(--fs-12)] text-k-ink underline-offset-2 hover:underline"
             >
               {data.addressCount > 0 ? "Διαχείριση" : "Προσθήκη"}
             </Link>
@@ -229,20 +229,20 @@ export function Dashboard({
                   <MapPin className="size-3.5 text-k-text-4" aria-hidden />
                   <span className="t-eyebrow text-k-text-4">{upGreek(data.address.label)}</span>
                 </div>
-                <p className="mt-2 text-[13.5px] leading-[1.55] text-k-ink">
+                <p className="mt-2 text-[length:var(--fs-13-5)] leading-[1.55] text-k-ink">
                   {data.address.line1}
                   {data.address.line2 ? `, ${data.address.line2}` : ""}
                   <br />
                   {data.address.postcode} {data.address.city}
                 </p>
                 {data.addressCount > 1 && (
-                  <p className="mt-2 text-[12px] text-k-text-3">
+                  <p className="mt-2 text-[length:var(--fs-12)] text-k-text-3">
                     + {data.addressCount - 1} ακόμα
                   </p>
                 )}
               </>
             ) : (
-              <p className="text-[13px] leading-[1.6] text-k-text-2">
+              <p className="text-[length:var(--fs-13)] leading-[1.6] text-k-text-2">
                 Αποθηκεύστε μια διεύθυνση και το checkout θα συμπληρώνεται μόνο του.
               </p>
             )}
@@ -289,7 +289,7 @@ function Stat({
       >
         {value}
       </div>
-      {meta && <div className="mt-1 text-[11.5px] text-k-text-3">{meta}</div>}
+      {meta && <div className="mt-1 text-[length:var(--fs-11-5)] text-k-text-3">{meta}</div>}
     </div>
   );
 }
@@ -299,11 +299,11 @@ function QuickAction({ href, label, meta }: { href: string; label: string; meta?
     <li>
       <Link
         href={href}
-        className="flex items-center justify-between px-5 py-3 text-[13.5px] text-k-ink transition-colors hover:bg-k-surface-2"
+        className="flex items-center justify-between px-5 py-3 text-[length:var(--fs-13-5)] text-k-ink transition-colors hover:bg-k-surface-2"
       >
         <span>{label}</span>
         <span className="flex items-center gap-2 text-k-text-3">
-          {meta && <span className="numeral text-[12px]">{meta}</span>}
+          {meta && <span className="numeral text-[length:var(--fs-12)]">{meta}</span>}
           <ArrowRight className="size-3.5" aria-hidden />
         </span>
       </Link>

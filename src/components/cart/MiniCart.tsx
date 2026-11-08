@@ -1,5 +1,6 @@
 "use client";
 
+import { ShoppingCart } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useLocale } from "next-intl";
 import Image from "next/image";
@@ -84,18 +85,21 @@ export function MiniCart({
         aria-haspopup="dialog"
         aria-label={t("kalathi_temachia", { count: count })}
         onClick={() => setOpen((v) => !v)}
-        className="flex items-center gap-2.5"
+        className={
+          variant === "mobile"
+            ? "flex h-11 w-11 items-center justify-center"
+            : "flex items-center gap-2.5"
+        }
       >
         <span className="relative block">
-          <Image
-            src="/icons/cart.png"
-            alt=""
-            width={variant === "mobile" ? 21 : 23}
-            height={variant === "mobile" ? 21 : 23}
+          <ShoppingCart
+            aria-hidden
+            size={variant === "mobile" ? 21 : 23}
+            strokeWidth={1.7}
             className="block"
           />
           {count > 0 && (
-            <span className="rounded-pill absolute -top-1.5 -right-2 flex h-4 min-w-4 items-center justify-center bg-k-red px-[3px] font-mono text-[9.5px] leading-4 font-semibold text-white">
+            <span className="rounded-pill absolute -top-1.5 -right-2 flex h-4 min-w-4 items-center justify-center bg-k-red px-[3px] font-mono text-[length:var(--fs-9-5)] leading-4 font-semibold text-white">
               {count}
             </span>
           )}
@@ -103,8 +107,8 @@ export function MiniCart({
 
         {variant === "desktop" && (
           <span className="block text-left">
-            <span className="t-account-label block text-k-text-4">{upGreek(t("kalathi"))}</span>
-            <span className="t-account-value mt-0.5 block text-k-ink">
+            <span className="t-account-label block text-k-on-dark-3">{upGreek(t("kalathi"))}</span>
+            <span className="t-account-value mt-0.5 block text-k-on-dark">
               {cart ? formatMoney(cart.subtotalGross, locale) : upGreek(t("adeio"))}
             </span>
           </span>
@@ -119,7 +123,7 @@ export function MiniCart({
           className="absolute top-full right-0 z-40 mt-2 w-[min(92vw,360px)] border border-k-line bg-white shadow-[0_18px_40px_rgba(0,0,0,.12)]"
         >
           <div className="flex items-baseline justify-between border-b border-k-line px-[18px] py-3.5">
-            <span className="text-[11px] font-bold tracking-[0.07em] text-k-ink">
+            <span className="text-[length:var(--fs-11)] font-bold tracking-[0.07em] text-k-ink">
               {upGreek(t("to_kalathi_sas"))}
             </span>
             <span className="t-brand-count text-k-text-4">
@@ -129,7 +133,7 @@ export function MiniCart({
 
           {!cart ? (
             <div className="px-[18px] py-10 text-center">
-              <p className="text-[13px] text-k-text-3">{t("to_kalathi_einai_adeio")}</p>
+              <p className="text-[length:var(--fs-13)] text-k-text-3">{t("to_kalathi_einai_adeio")}</p>
               <Link
                 href="/katalogos"
                 onClick={() => setOpen(false)}
@@ -160,7 +164,7 @@ export function MiniCart({
                       ) : (
                         <span className="t-brand-count text-k-text-5">—</span>
                       )}
-                      <span className="rounded-pill absolute -top-2 -right-2 flex h-5 min-w-5 items-center justify-center bg-k-ink px-1 font-mono text-[9.5px] font-semibold text-white">
+                      <span className="rounded-pill absolute -top-2 -right-2 flex h-5 min-w-5 items-center justify-center bg-k-ink px-1 font-mono text-[length:var(--fs-9-5)] font-semibold text-white">
                         {line.quantity}
                       </span>
                     </span>
@@ -169,19 +173,19 @@ export function MiniCart({
                       <span className="t-card-brand block text-k-red">
                         {line.brandName ?? "—"}
                       </span>
-                      <span className="mt-0.5 block truncate text-[11.5px] leading-[1.4] font-semibold text-k-ink">
+                      <span className="mt-0.5 block truncate text-[length:var(--fs-11-5)] leading-[1.4] font-semibold text-k-ink">
                         {line.name}
                       </span>
                     </span>
 
-                    <span className="shrink-0 font-mono text-[13px] font-semibold whitespace-nowrap text-k-ink">
+                    <span className="shrink-0 font-mono text-[length:var(--fs-13)] font-semibold whitespace-nowrap text-k-ink">
                       {formatMoney(line.lineGross, locale)}
                     </span>
                   </Link>
                 ))}
 
                 {cart.overflow > 0 && (
-                  <p className="px-[18px] py-2.5 text-[11.5px] text-k-text-4">
+                  <p className="px-[18px] py-2.5 text-[length:var(--fs-11-5)] text-k-text-4">
                     + {cart.overflow} {t("akomi_sto_kalathi")}
                   </p>
                 )}
@@ -189,7 +193,7 @@ export function MiniCart({
 
               <div className="border-b border-k-line bg-k-surface-2 px-[18px] py-3.5">
                 <div className="flex items-baseline justify-between">
-                  <span className="text-[12px] text-k-text-3">{t("yposynolo")}</span>
+                  <span className="text-[length:var(--fs-12)] text-k-text-3">{t("yposynolo")}</span>
                   <span className="font-mono text-[19px] font-semibold whitespace-nowrap text-k-ink">
                     {formatMoney(cart.subtotalGross, locale)}
                   </span>
@@ -203,10 +207,10 @@ export function MiniCart({
                     style={{ width: `${progress}%` }}
                   />
                 </div>
-                <p className="mt-1.5 text-[10.5px] text-k-text-5">
+                <p className="mt-1.5 text-[length:var(--fs-10-5)] text-k-text-5">
                   {t("choris_metaforika_ypologizontai_sto_kalathi")}
                 </p>
-                <p className="mt-2 text-[11px] leading-[1.5] text-k-text-3">
+                <p className="mt-2 text-[length:var(--fs-11)] leading-[1.5] text-k-text-3">
                   {cart.freeShippingReached
                     ? t("dorean_metaforika_energa")
                     : t("akomi_gia_dorean_metaforika", { n: formatMoney(cart.freeShippingRemaining, locale) })}

@@ -109,10 +109,10 @@ export default async function OrdersPage({
            * A new account with no orders is the normal first visit, not an error.
            */
           <div className="border border-k-line bg-k-surface-2 px-5 py-10 text-center lg:py-14">
-            <p className="text-[14px] font-semibold text-k-ink">
+            <p className="text-[length:var(--fs-14)] font-semibold text-k-ink">
               {t("kamia_paraggelia")}
             </p>
-            <p className="mx-auto mt-2 max-w-[44ch] text-[12.5px] leading-[1.6] text-k-text-3">
+            <p className="mx-auto mt-2 max-w-[44ch] text-[length:var(--fs-12-5)] leading-[1.6] text-k-text-3">
               {t("kamia_paraggelia_body")}
             </p>
             <Link
@@ -147,7 +147,7 @@ export default async function OrdersPage({
 
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-                      <span className="font-mono text-[13px] font-semibold tabular-nums text-k-ink">
+                      <span className="font-mono text-[length:var(--fs-13)] font-semibold tabular-nums text-k-ink">
                         {order.orderNumber}
                       </span>
                       <span className="t-brand-count text-k-text-4">
@@ -159,14 +159,14 @@ export default async function OrdersPage({
                       </span>
                     </div>
                     {/* What was in it, in the customer's words rather than a count. */}
-                    <p className="mt-1 truncate text-[12.5px] text-k-text-3">
+                    <p className="mt-1 truncate text-[length:var(--fs-12-5)] text-k-text-3">
                       {order.preview.join(", ")}
                       {order.itemCount > order.preview.length &&
                         ` ${t("kai_alla", { n: order.itemCount - order.preview.length })}`}
                     </p>
                     {/* A split cart: the other half, by number. */}
                     {order.splitWith && (
-                      <p className="mt-1 text-[11.5px] text-k-text-3">
+                      <p className="mt-1 text-[length:var(--fs-11-5)] text-k-text-3">
                         {order.splitWith.kind === "request"
                           ? t("split_with_request", { number: order.splitWith.orderNumber })
                           : t("split_with_paid", { number: order.splitWith.orderNumber })}
@@ -174,7 +174,7 @@ export default async function OrdersPage({
                     )}
                     {/* The courier reference, where the question is asked. */}
                     {order.voucherNo && (
-                      <p className="mt-1 flex items-center gap-1.5 text-[11.5px] text-k-text-3">
+                      <p className="mt-1 flex items-center gap-1.5 text-[length:var(--fs-11-5)] text-k-text-3">
                         <Truck className="size-3" aria-hidden />
                         <span className="font-mono tabular-nums">
                           {order.voucherCarrier} {order.voucherNo}
@@ -199,7 +199,7 @@ export default async function OrdersPage({
                           : (statusLabel[order.status] ?? statusLabel.CONFIRMED),
                       )}
                     </span>
-                    <span className="ml-auto shrink-0 font-mono text-[13.5px] font-semibold tabular-nums text-k-ink sm:ml-0">
+                    <span className="ml-auto shrink-0 font-mono text-[length:var(--fs-13-5)] font-semibold tabular-nums text-k-ink sm:ml-0">
                       {formatMoney(order.totalGross, locale)}
                     </span>
                   </div>

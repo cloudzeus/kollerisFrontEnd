@@ -50,12 +50,12 @@ export function RequestActions({
       {mode === "offer" && expiresAt && <Countdown expiresAt={expiresAt} label={t("remaining")} />}
 
       {error && (
-        <p role="alert" className="mb-3 border-l-[3px] border-k-red bg-k-red/8 px-4 py-3 text-[12.5px] text-k-ink">
+        <p role="alert" className="mb-3 border-l-[3px] border-k-red bg-k-red/8 px-4 py-3 text-[length:var(--fs-12-5)] text-k-ink">
           {t(`error_${error}`)}
         </p>
       )}
       {declineState.done && (
-        <p role="status" className="mb-3 border-l-[3px] border-k-line-2 bg-k-surface-2 px-4 py-3 text-[12.5px] text-k-ink">
+        <p role="status" className="mb-3 border-l-[3px] border-k-line-2 bg-k-surface-2 px-4 py-3 text-[length:var(--fs-12-5)] text-k-ink">
           {t("declined_done")}
         </p>
       )}
@@ -99,7 +99,7 @@ export function RequestActions({
         >
           <input type="hidden" name="token" value={token} />
           <input type="hidden" name="offerVersion" value={offerVersion ?? ""} />
-          {confirming && <p className="mb-2 text-[12px] text-k-ink">{t("decline_confirm")}</p>}
+          {confirming && <p className="mb-2 text-[length:var(--fs-12)] text-k-ink">{t("decline_confirm")}</p>}
           <button
             type="submit"
             disabled={busy}

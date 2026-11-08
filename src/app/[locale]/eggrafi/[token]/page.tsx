@@ -66,7 +66,7 @@ export default async function AcceptInvitePage({
 
           {invite ? (
             <>
-              <p className="mt-3 mb-7 text-[13.5px] leading-[1.65] text-k-text-2">
+              <p className="mt-3 mb-7 text-[length:var(--fs-13-5)] leading-[1.65] text-k-text-2">
                 Επιλέξτε κωδικό. Θα βρείτε αμέσως όλες τις παραγγελίες που έχετε
                 κάνει με αυτό το email.
               </p>
@@ -78,7 +78,7 @@ export default async function AcceptInvitePage({
             </>
           ) : (
             <>
-              <p className="mt-3 mb-7 text-[13.5px] leading-[1.65] text-k-text-2">
+              <p className="mt-3 mb-7 text-[length:var(--fs-13-5)] leading-[1.65] text-k-text-2">
                 Ο σύνδεσμος έληξε ή έχει ήδη χρησιμοποιηθεί. Ζητήστε καινούριο
                 με το email και τον κωδικό μιας παραγγελίας σας.
               </p>

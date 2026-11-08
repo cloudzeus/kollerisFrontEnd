@@ -52,7 +52,7 @@ export default async function ProfilePage({
             <p className="t-eyebrow text-k-red">
               {upGreek(t("stoicheia_etaireias"))}
             </p>
-            <p className="mt-2 max-w-xl text-[12.5px] leading-[1.6] text-k-text-3">
+            <p className="mt-2 max-w-xl text-[length:var(--fs-12-5)] leading-[1.6] text-k-text-3">
               {t("proerchontai_apo_to_mitroo_tis")}
             </p>
 
@@ -78,10 +78,10 @@ export default async function ProfilePage({
                   key={label}
                   className="flex gap-4 border-b border-k-line py-2.5"
                 >
-                  <dt className="w-2/5 shrink-0 text-[12px] text-k-text-3">
+                  <dt className="w-2/5 shrink-0 text-[length:var(--fs-12)] text-k-text-3">
                     {label}
                   </dt>
-                  <dd className="min-w-0 flex-1 font-mono text-[12.5px] font-medium text-k-ink">
+                  <dd className="min-w-0 flex-1 font-mono text-[length:var(--fs-12-5)] font-medium text-k-ink">
                     {value || "—"}
                   </dd>
                 </div>

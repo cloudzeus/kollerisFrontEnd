@@ -55,7 +55,7 @@ export function CookieConsent() {
       className="fixed inset-x-0 bottom-0 z-50 border-t border-neutral-200 bg-white p-4 shadow-[0_-4px_24px_rgba(0,0,0,0.08)] sm:p-5"
     >
       <div className="mx-auto flex max-w-5xl flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
-        <p className="text-[13px] leading-relaxed text-neutral-700 sm:text-sm">
+        <p className="text-[length:var(--fs-13)] leading-relaxed text-neutral-700 sm:text-sm">
           Με τη συγκατάθεσή σας χρησιμοποιούμε cookies ανάλυσης (Google Analytics)
           για να βελτιώνουμε το κατάστημα και cookies διαφήμισης (Google Ads, Meta)
           για να μετράμε τις διαφημίσεις μας και να σας δείχνουμε σχετικές

@@ -85,7 +85,7 @@ export function CompareTray({ tray }: { tray: CompareTrayView }) {
                         <button
                           type="submit"
                           aria-label={t("afairesi_apo_ti_sygkrisi", { name: item.name })}
-                          className="flex h-5 w-5 items-center justify-center border border-white/25 bg-k-ink text-[11px] leading-none text-white transition-colors hover:border-k-red hover:bg-k-red"
+                          className="flex h-5 w-5 items-center justify-center border border-white/25 bg-k-ink text-[length:var(--fs-11)] leading-none text-white transition-colors hover:border-k-red hover:bg-k-red"
                         >
                           ×
                         </button>

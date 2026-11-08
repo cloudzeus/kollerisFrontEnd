@@ -77,7 +77,7 @@ export default async function B2BPage({
         <Zone id="b2b.top" locale={locale} />
 
         {pending && (
-          <p className="mb-6 flex items-start gap-2.5 border-l-[3px] border-k-amber bg-k-surface-2 px-4 py-3 text-[12.5px] leading-[1.55] text-k-text-2">
+          <p className="mb-6 flex items-start gap-2.5 border-l-[3px] border-k-amber bg-k-surface-2 px-4 py-3 text-[length:var(--fs-12-5)] leading-[1.55] text-k-text-2">
             <span
               aria-hidden
               className="mt-1 block h-1.5 w-1.5 shrink-0 bg-k-amber"
@@ -122,7 +122,7 @@ export default async function B2BPage({
             {upGreek(user.role ? COMPANY_ROLE_LABELS[user.role] : "—")}
           </h2>
           {user.role && (
-            <p className="mt-2 max-w-xl text-[12.5px] leading-[1.6] text-k-text-3">
+            <p className="mt-2 max-w-xl text-[length:var(--fs-12-5)] leading-[1.6] text-k-text-3">
               {COMPANY_ROLE_HELP[user.role]}
               {user.spendLimit != null &&
                 t("to_orio_sas_einai_ana", {

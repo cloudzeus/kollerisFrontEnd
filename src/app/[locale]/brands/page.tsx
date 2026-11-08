@@ -338,11 +338,11 @@ export default async function BrandsPage({
                   <Link
                     prefetch={false}
                     href={`/katalogos/${group.categorySlug}`}
-                    className="mt-4 block text-[12.5px] font-bold tracking-[0.04em] text-k-ink hover:text-k-red"
+                    className="mt-4 block text-[length:var(--fs-12-5)] font-bold tracking-[0.04em] text-k-ink hover:text-k-red"
                   >
                     {upGreek(group.categoryName)}
                   </Link>
-                  <p className="mt-1.5 text-[12px] leading-[1.6] text-k-text-3">
+                  <p className="mt-1.5 text-[length:var(--fs-12)] leading-[1.6] text-k-text-3">
                     {group.productCount.toLocaleString(locale)}{" "}
                     {t("kodikoi_apo")} {group.brands.length} brands.
                   </p>
@@ -353,7 +353,7 @@ export default async function BrandsPage({
                         prefetch={false}
                         key={brand.slug}
                         href={`/brands/${brand.slug}`}
-                        className="bg-k-surface-3 px-2 py-1.5 text-[10px] font-semibold tracking-[0.05em] text-k-text-2 transition-colors hover:bg-k-ink hover:text-white"
+                        className="bg-k-surface-3 px-2 py-1.5 text-[length:var(--fs-10)] font-semibold tracking-[0.05em] text-k-text-2 transition-colors hover:bg-k-ink hover:text-white"
                       >
                         {brand.name}
                       </Link>

@@ -72,7 +72,7 @@ export function ReviewsBand({
             <figure key={review.name} className="flex flex-col gap-3.5 bg-k-ink p-[26px]">
               <p className="flex gap-[3px]" aria-hidden>
                 {stars.map((i) => (
-                  <span key={i} className="text-[13px] text-k-red">
+                  <span key={i} className="text-[length:var(--fs-13)] text-k-red">
                     ★
                   </span>
                 ))}

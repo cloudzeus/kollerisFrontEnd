@@ -84,7 +84,7 @@ export function MobileFilterSheet({
             role="dialog"
             aria-modal="true"
             aria-label={t("filtra")}
-            className="absolute inset-x-0 bottom-0 flex max-h-[88vh] flex-col bg-white"
+            className="absolute inset-x-0 bottom-0 flex max-h-[88dvh] flex-col bg-white"
           >
             <FilterSidebar
               locale={locale}

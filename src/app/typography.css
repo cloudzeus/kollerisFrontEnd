@@ -18,13 +18,13 @@
   .t-util {
     font-family: var(--font-mono-face), ui-monospace, monospace;
     font-weight: 500;
-    font-size: 9.5px;
+    font-size: var(--fs-9-5);
     line-height: 1;
     letter-spacing: 0.08em;
   }
   @media (min-width: 1024px) {
     .t-util {
-      font-size: 10.5px;
+      font-size: var(--fs-10-5);
       letter-spacing: 0.09em;
     }
   }
@@ -32,7 +32,7 @@
   .t-lang {
     font-family: var(--font-mono-face), ui-monospace, monospace;
     font-weight: 600;
-    font-size: 10px;
+    font-size: var(--fs-10);
     line-height: 1;
     letter-spacing: 0.07em;
   }
@@ -41,25 +41,25 @@
   .t-search-cat {
     font-family: var(--font-mono-face), ui-monospace, monospace;
     font-weight: 500;
-    font-size: 11px;
+    font-size: var(--fs-11);
     letter-spacing: 0.06em;
   }
 
   .t-input {
     font-family: var(--font-sans-face), system-ui, sans-serif;
     font-weight: 400;
-    font-size: 13px;
+    font-size: var(--fs-13);
   }
   @media (min-width: 1024px) {
     .t-input {
-      font-size: 14px;
+      font-size: var(--fs-14);
     }
   }
 
   .t-account-label {
     font-family: var(--font-mono-face), ui-monospace, monospace;
     font-weight: 500;
-    font-size: 9.5px;
+    font-size: var(--fs-9-5);
     line-height: 1;
     letter-spacing: 0.1em;
   }
@@ -67,7 +67,7 @@
   .t-account-value {
     font-family: var(--font-sans-face), system-ui, sans-serif;
     font-weight: 600;
-    font-size: 12.5px;
+    font-size: var(--fs-12-5);
     line-height: 1;
   }
 
@@ -82,7 +82,7 @@
   .t-nav-cond {
     font-family: var(--font-display-face), var(--font-sans-face), sans-serif;
     font-weight: 700;
-    font-size: 12.5px;
+    font-size: var(--fs-12-5);
     letter-spacing: 0.08em;
     line-height: 1;
   }
@@ -90,21 +90,21 @@
   .t-nav {
     font-family: var(--font-sans-face), system-ui, sans-serif;
     font-weight: 600;
-    font-size: 11.5px;
+    font-size: var(--fs-11-5);
     letter-spacing: 0.07em;
   }
 
   .t-nav-strong {
     font-family: var(--font-sans-face), system-ui, sans-serif;
     font-weight: 700;
-    font-size: 11.5px;
+    font-size: var(--fs-11-5);
     letter-spacing: 0.07em;
   }
 
   .t-nav-sub {
     font-family: var(--font-mono-face), ui-monospace, monospace;
     font-weight: 500;
-    font-size: 10.5px;
+    font-size: var(--fs-10-5);
     letter-spacing: 0.07em;
   }
 
@@ -112,13 +112,13 @@
   .t-eyebrow {
     font-family: var(--font-mono-face), ui-monospace, monospace;
     font-weight: 500;
-    font-size: 9.5px;
+    font-size: var(--fs-9-5);
     line-height: 1;
     letter-spacing: 0.14em;
   }
   @media (min-width: 1024px) {
     .t-eyebrow {
-      font-size: 10.5px;
+      font-size: var(--fs-10-5);
     }
   }
 
@@ -194,7 +194,7 @@
   .t-tile-title {
     font-family: var(--font-display-face), var(--font-sans-face), sans-serif;
     font-weight: 900;
-    font-size: 15px;
+    font-size: var(--fs-15);
     line-height: 1.2;
     letter-spacing: -0.03em;
     font-stretch: 125%;
@@ -209,7 +209,7 @@
   .t-lead {
     font-family: var(--font-sans-face), system-ui, sans-serif;
     font-weight: 400;
-    font-size: 13.5px;
+    font-size: var(--fs-13-5);
     line-height: 1.55;
   }
   @media (min-width: 1024px) {
@@ -222,12 +222,12 @@
   .t-body {
     font-family: var(--font-sans-face), system-ui, sans-serif;
     font-weight: 400;
-    font-size: 13px;
+    font-size: var(--fs-13);
     line-height: 1.6;
   }
   @media (min-width: 1024px) {
     .t-body {
-      font-size: 15px;
+      font-size: var(--fs-15);
       line-height: 1.68;
     }
   }
@@ -235,7 +235,7 @@
   .t-body-sm {
     font-family: var(--font-sans-face), system-ui, sans-serif;
     font-weight: 400;
-    font-size: 12.5px;
+    font-size: var(--fs-12-5);
     line-height: 1.5;
   }
 
@@ -243,38 +243,38 @@
   .t-link-mono {
     font-family: var(--font-mono-face), ui-monospace, monospace;
     font-weight: 600;
-    font-size: 10.5px;
+    font-size: var(--fs-10-5);
     letter-spacing: 0.08em;
   }
   @media (min-width: 1024px) {
     .t-link-mono {
-      font-size: 11px;
+      font-size: var(--fs-11);
     }
   }
 
   .t-btn {
     font-family: var(--font-sans-face), system-ui, sans-serif;
     font-weight: 700;
-    font-size: 12px;
+    font-size: var(--fs-12);
     letter-spacing: 0.09em;
   }
 
   .t-btn-outline {
     font-family: var(--font-sans-face), system-ui, sans-serif;
     font-weight: 600;
-    font-size: 12px;
+    font-size: var(--fs-12);
     letter-spacing: 0.09em;
   }
 
   .t-btn-sm {
     font-family: var(--font-sans-face), system-ui, sans-serif;
     font-weight: 700;
-    font-size: 11px;
+    font-size: var(--fs-11);
     letter-spacing: 0.09em;
   }
   @media (min-width: 1024px) {
     .t-btn-sm {
-      font-size: 11.5px;
+      font-size: var(--fs-11-5);
     }
   }
 
@@ -282,13 +282,13 @@
   .t-badge {
     font-family: var(--font-mono-face), ui-monospace, monospace;
     font-weight: 700;
-    font-size: 8.5px;
+    font-size: var(--fs-8-5);
     line-height: 1;
     letter-spacing: 0.07em;
   }
   @media (min-width: 1024px) {
     .t-badge {
-      font-size: 9.5px;
+      font-size: var(--fs-9-5);
       letter-spacing: 0.1em;
     }
   }
@@ -310,13 +310,13 @@
   .t-stat-label {
     font-family: var(--font-mono-face), ui-monospace, monospace;
     font-weight: 500;
-    font-size: 9px;
+    font-size: var(--fs-9);
     line-height: 1.4;
     letter-spacing: 0.07em;
   }
   @media (min-width: 1024px) {
     .t-stat-label {
-      font-size: 10.5px;
+      font-size: var(--fs-10-5);
       line-height: 1.45;
       letter-spacing: 0.08em;
     }
@@ -326,73 +326,73 @@
   .t-cat-num {
     font-family: var(--font-mono-face), ui-monospace, monospace;
     font-weight: 600;
-    font-size: 9.5px;
+    font-size: var(--fs-9-5);
     letter-spacing: 0.08em;
   }
   @media (min-width: 1024px) {
     .t-cat-num {
-      font-size: 10.5px;
+      font-size: var(--fs-10-5);
     }
   }
 
   .t-cat-count {
     font-family: var(--font-mono-face), ui-monospace, monospace;
     font-weight: 500;
-    font-size: 9.5px;
+    font-size: var(--fs-9-5);
   }
   @media (min-width: 1024px) {
     .t-cat-count {
-      font-size: 10.5px;
+      font-size: var(--fs-10-5);
     }
   }
 
   .t-cat-name {
     font-family: var(--font-sans-face), system-ui, sans-serif;
     font-weight: 700;
-    font-size: 11px;
+    font-size: var(--fs-11);
     line-height: 1.3;
     letter-spacing: 0.03em;
   }
   @media (min-width: 1024px) {
     .t-cat-name {
-      font-size: 13px;
+      font-size: var(--fs-13);
     }
   }
 
   .t-cat-subs {
     font-family: var(--font-sans-face), system-ui, sans-serif;
     font-weight: 400;
-    font-size: 11.5px;
+    font-size: var(--fs-11-5);
   }
 
   /* ── Product card ──────────────────────────────────────────────── */
   .t-card-brand {
     font-family: var(--font-mono-face), ui-monospace, monospace;
     font-weight: 700;
-    font-size: 9px;
+    font-size: var(--fs-9);
     letter-spacing: 0.1em;
   }
   @media (min-width: 1024px) {
     .t-card-brand {
-      font-size: 10px;
+      font-size: var(--fs-10);
     }
   }
 
   .t-card-sku {
     font-family: var(--font-mono-face), ui-monospace, monospace;
     font-weight: 400;
-    font-size: 10px;
+    font-size: var(--fs-10);
   }
 
   .t-card-name {
     font-family: var(--font-sans-face), system-ui, sans-serif;
     font-weight: 600;
-    font-size: 11.5px;
+    font-size: var(--fs-11-5);
     line-height: 1.35;
   }
   @media (min-width: 1024px) {
     .t-card-name {
-      font-size: 13px;
+      font-size: var(--fs-13);
       line-height: 1.4;
     }
   }
@@ -400,23 +400,23 @@
   .t-card-stock {
     font-family: var(--font-mono-face), ui-monospace, monospace;
     font-weight: 500;
-    font-size: 9.5px;
+    font-size: var(--fs-9-5);
     letter-spacing: 0.06em;
   }
   @media (min-width: 1024px) {
     .t-card-stock {
-      font-size: 10.5px;
+      font-size: var(--fs-10-5);
     }
   }
 
   .t-card-was {
     font-family: var(--font-mono-face), ui-monospace, monospace;
     font-weight: 400;
-    font-size: 10.5px;
+    font-size: var(--fs-10-5);
   }
   @media (min-width: 1024px) {
     .t-card-was {
-      font-size: 11.5px;
+      font-size: var(--fs-11-5);
     }
   }
 
@@ -436,24 +436,24 @@
   .t-card-vat {
     font-family: var(--font-mono-face), ui-monospace, monospace;
     font-weight: 400;
-    font-size: 8.5px;
+    font-size: var(--fs-8-5);
     letter-spacing: 0.06em;
   }
   @media (min-width: 1024px) {
     .t-card-vat {
-      font-size: 9.5px;
+      font-size: var(--fs-9-5);
     }
   }
 
   .t-card-cta {
     font-family: var(--font-mono-face), ui-monospace, monospace;
     font-weight: 700;
-    font-size: 10px;
+    font-size: var(--fs-10);
     letter-spacing: 0.07em;
   }
   @media (min-width: 1024px) {
     .t-card-cta {
-      font-size: 10.5px;
+      font-size: var(--fs-10-5);
     }
   }
 
@@ -474,14 +474,14 @@
   .t-brand-name {
     font-family: var(--font-sans-face), system-ui, sans-serif;
     font-weight: 700;
-    font-size: 11px;
+    font-size: var(--fs-11);
     letter-spacing: 0.03em;
   }
 
   .t-brand-count {
     font-family: var(--font-mono-face), ui-monospace, monospace;
     font-weight: 400;
-    font-size: 9px;
+    font-size: var(--fs-9);
     letter-spacing: 0.06em;
   }
 
@@ -501,12 +501,12 @@
   .t-review-text {
     font-family: var(--font-sans-face), system-ui, sans-serif;
     font-weight: 400;
-    font-size: 13px;
+    font-size: var(--fs-13);
     line-height: 1.6;
   }
   @media (min-width: 1024px) {
     .t-review-text {
-      font-size: 13.5px;
+      font-size: var(--fs-13-5);
       line-height: 1.65;
     }
   }
@@ -514,13 +514,13 @@
   .t-review-name {
     font-family: var(--font-sans-face), system-ui, sans-serif;
     font-weight: 600;
-    font-size: 12px;
+    font-size: var(--fs-12);
   }
 
   .t-review-role {
     font-family: var(--font-mono-face), ui-monospace, monospace;
     font-weight: 400;
-    font-size: 10.5px;
+    font-size: var(--fs-10-5);
     letter-spacing: 0.06em;
   }
 
@@ -528,13 +528,13 @@
   .t-usp-title {
     font-family: var(--font-sans-face), system-ui, sans-serif;
     font-weight: 600;
-    font-size: 13.5px;
+    font-size: var(--fs-13-5);
   }
 
   .t-usp-body {
     font-family: var(--font-sans-face), system-ui, sans-serif;
     font-weight: 400;
-    font-size: 13px;
+    font-size: var(--fs-13);
     line-height: 1.55;
   }
 
@@ -543,7 +543,7 @@
   .t-news-title {
     font-family: var(--font-display-face), var(--font-sans-face), sans-serif;
     font-weight: 900;
-    font-size: 15px;
+    font-size: var(--fs-15);
     line-height: 1.2;
     letter-spacing: -0.03em;
     font-stretch: 125%;
@@ -557,26 +557,26 @@
   .t-news-body {
     font-family: var(--font-sans-face), system-ui, sans-serif;
     font-weight: 400;
-    font-size: 13.5px;
+    font-size: var(--fs-13-5);
   }
 
   /* ── Footer ────────────────────────────────────────────────────── */
   .t-footer-tag {
     font-family: var(--font-mono-face), ui-monospace, monospace;
     font-weight: 400;
-    font-size: 10px;
+    font-size: var(--fs-10);
     letter-spacing: 0.1em;
   }
   @media (min-width: 1024px) {
     .t-footer-tag {
-      font-size: 11px;
+      font-size: var(--fs-11);
     }
   }
 
   .t-footer-col {
     font-family: var(--font-mono-face), ui-monospace, monospace;
     font-weight: 700;
-    font-size: 11px;
+    font-size: var(--fs-11);
     letter-spacing: 0.1em;
   }
   @media (min-width: 1024px) {
@@ -588,31 +588,31 @@
   .t-footer-link {
     font-family: var(--font-sans-face), system-ui, sans-serif;
     font-weight: 400;
-    font-size: 13px;
+    font-size: var(--fs-13);
   }
 
   .t-footer-legal {
     font-family: var(--font-sans-face), system-ui, sans-serif;
     font-weight: 400;
-    font-size: 11px;
+    font-size: var(--fs-11);
     line-height: 1.6;
   }
   @media (min-width: 1024px) {
     .t-footer-legal {
-      font-size: 11.5px;
+      font-size: var(--fs-11-5);
     }
   }
 
   .t-social {
     font-family: var(--font-mono-face), ui-monospace, monospace;
     font-weight: 600;
-    font-size: 10.5px;
+    font-size: var(--fs-10-5);
   }
 
   .t-pay {
     font-family: var(--font-mono-face), ui-monospace, monospace;
     font-weight: 600;
-    font-size: 8.5px;
+    font-size: var(--fs-8-5);
     letter-spacing: 0.07em;
   }
 }

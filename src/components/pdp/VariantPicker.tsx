@@ -51,7 +51,7 @@ export function VariantPicker({
             <span
               key={option.slug}
               aria-current="true"
-              className="numeral flex h-10 min-w-10 items-center justify-center border-2 border-k-ink bg-k-ink px-2.5 text-[13px] font-semibold text-white"
+              className="numeral flex h-10 min-w-10 items-center justify-center border-2 border-k-ink bg-k-ink px-2.5 text-[length:var(--fs-13)] font-semibold text-white"
             >
               {option.label}
             </span>
@@ -59,7 +59,7 @@ export function VariantPicker({
             <Link
               key={option.slug}
               href={`/proion/${option.slug}`}
-              className="numeral flex h-10 min-w-10 items-center justify-center border border-k-line-2 px-2.5 text-[13px] font-medium text-k-ink transition-colors hover:border-k-ink"
+              className="numeral flex h-10 min-w-10 items-center justify-center border border-k-line-2 px-2.5 text-[length:var(--fs-13)] font-medium text-k-ink transition-colors hover:border-k-ink"
             >
               {option.label}
             </Link>
@@ -72,7 +72,7 @@ export function VariantPicker({
               href={`/proion/${option.slug}`}
               title="Κατόπιν παραγγελίας"
               className={cn(
-                "numeral flex h-10 min-w-10 items-center justify-center border border-dashed border-k-line-2 px-2.5 text-[13px] text-k-text-5",
+                "numeral flex h-10 min-w-10 items-center justify-center border border-dashed border-k-line-2 px-2.5 text-[length:var(--fs-13)] text-k-text-5",
                 "hover:border-k-text-4 hover:text-k-text-3",
               )}
             >

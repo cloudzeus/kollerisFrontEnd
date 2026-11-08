@@ -85,21 +85,21 @@ function MemberRow({
     <>
       <tr className="border-b border-k-line align-top">
         <td className="px-3 py-3.5 lg:px-4">
-          <span className="block text-[13px] font-medium text-k-ink">
+          <span className="block text-[length:var(--fs-13)] font-medium text-k-ink">
             {member.firstName} {member.lastName}
             {isSelf && <span className="t-brand-count ml-2 text-k-text-4">{upGreek(t("eseis"))}</span>}
           </span>
-          <span className="mt-0.5 block font-mono text-[11.5px] text-k-text-4">{member.email}</span>
+          <span className="mt-0.5 block font-mono text-[length:var(--fs-11-5)] text-k-text-4">{member.email}</span>
         </td>
 
         <td className="px-3 py-3.5 lg:px-4">
-          <span className="text-[12.5px] text-k-ink">{COMPANY_ROLE_LABELS[member.role]}</span>
-          <span className="mt-0.5 block text-[11px] leading-[1.45] text-k-text-4">
+          <span className="text-[length:var(--fs-12-5)] text-k-ink">{COMPANY_ROLE_LABELS[member.role]}</span>
+          <span className="mt-0.5 block text-[length:var(--fs-11)] leading-[1.45] text-k-text-4">
             {COMPANY_ROLE_HELP[member.role]}
           </span>
         </td>
 
-        <td className="px-3 py-3.5 font-mono text-[12.5px] text-k-ink lg:px-4">
+        <td className="px-3 py-3.5 font-mono text-[length:var(--fs-12-5)] text-k-ink lg:px-4">
           {member.spendLimit == null ? (
             <span className="text-k-text-4">{upGreek(t("choris_orio"))}</span>
           ) : (
@@ -108,7 +108,7 @@ function MemberRow({
         </td>
 
         <td className="px-3 py-3.5 lg:px-4">
-          <span className="block font-mono text-[12.5px] text-k-ink">
+          <span className="block font-mono text-[length:var(--fs-12-5)] text-k-ink">
             {formatMoney(member.spentThisYear, locale)}
           </span>
           <span className="t-brand-count mt-0.5 block text-k-text-4">
@@ -201,14 +201,14 @@ function MemberRow({
                 {updating ? "…" : upGreek(t("apothikeysi"))}
               </button>
             </form>
-            {error && <p className="mt-2.5 text-[12px] text-k-red">{error}</p>}
+            {error && <p className="mt-2.5 text-[length:var(--fs-12)] text-k-red">{error}</p>}
           </td>
         </tr>
       )}
 
       {error && !editing && (
         <tr className="border-b border-k-line">
-          <td colSpan={6} className="px-3 py-2 text-[12px] text-k-red lg:px-4">
+          <td colSpan={6} className="px-3 py-2 text-[length:var(--fs-12)] text-k-red lg:px-4">
             {error}
           </td>
         </tr>
@@ -244,12 +244,12 @@ export function InviteMemberForm() {
   return (
     <form action={action} className="border border-k-line bg-k-surface-2 p-4 lg:p-5">
       <p className="t-eyebrow text-k-red">{upGreek(t("prosklisi_christi"))}</p>
-      <p className="mt-2 max-w-xl text-[12.5px] leading-[1.55] text-k-text-3">
+      <p className="mt-2 max-w-xl text-[length:var(--fs-12-5)] leading-[1.55] text-k-text-3">
         {t("o_christis_lamvanei_email_me")}
       </p>
 
       {state.error && (
-        <p role="alert" className="mt-3 border-l-[3px] border-k-red bg-white px-3 py-2 text-[12.5px] text-k-ink">
+        <p role="alert" className="mt-3 border-l-[3px] border-k-red bg-white px-3 py-2 text-[length:var(--fs-12-5)] text-k-ink">
           {state.error}
         </p>
       )}
@@ -276,7 +276,7 @@ export function InviteMemberForm() {
         </label>
       </div>
 
-      <p className="mt-2 text-[11.5px] leading-[1.5] text-k-text-4">{COMPANY_ROLE_HELP[role]}</p>
+      <p className="mt-2 text-[length:var(--fs-11-5)] leading-[1.5] text-k-text-4">{COMPANY_ROLE_HELP[role]}</p>
 
       <div className="mt-4 flex flex-wrap items-end gap-4">
         {/* An owner has no ceiling by definition, so offering one would be a

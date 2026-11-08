@@ -134,7 +134,7 @@ export default async function ComparePage({ params, searchParams }: PageProps) {
               <h1 className="font-display text-[22px] leading-[1.16] t-display text-white lg:text-[30px]">
                 {upGreek(t("sygkrisi_proionton"))}
               </h1>
-              <p className="mt-3.5 max-w-[640px] text-[13px] leading-[1.68] text-white/60 lg:text-sm">
+              <p className="mt-3.5 max-w-[640px] text-[length:var(--fs-13)] leading-[1.68] text-white/60 lg:text-sm">
                 {view.columns.length > 0 ? (
                   <>
                     {view.columns.length}{" "}
@@ -157,7 +157,7 @@ export default async function ComparePage({ params, searchParams }: PageProps) {
               </p>
 
               {view.dropped.length > 0 && (
-                <p className="mt-3.5 flex items-start gap-2.5 border-l-[3px] border-k-amber bg-white/5 px-3 py-2 text-[12.5px] leading-[1.5] text-white/70">
+                <p className="mt-3.5 flex items-start gap-2.5 border-l-[3px] border-k-amber bg-white/5 px-3 py-2 text-[length:var(--fs-12-5)] leading-[1.5] text-white/70">
                   <span
                     aria-hidden
                     className="mt-1 block h-1.5 w-1.5 shrink-0 bg-k-amber"
@@ -176,7 +176,7 @@ export default async function ComparePage({ params, searchParams }: PageProps) {
                 <span className="t-eyebrow block text-k-red">
                   {upGreek(t("katigoria"))}
                 </span>
-                <span className="mt-1.5 block text-[13px] leading-[1.35] text-white lg:text-[15px]">
+                <span className="mt-1.5 block text-[length:var(--fs-13)] leading-[1.35] text-white lg:text-[length:var(--fs-15)]">
                   {upGreek(view.scopeLabel)}
                 </span>
               </div>
@@ -209,7 +209,7 @@ export default async function ComparePage({ params, searchParams }: PageProps) {
               />
 
               {diffOnly && view.differingRows === 0 && (
-                <p className="border border-k-line bg-k-surface-2 px-5 py-10 text-center text-[13px] text-k-text-3">
+                <p className="border border-k-line bg-k-surface-2 px-5 py-10 text-center text-[length:var(--fs-13)] text-k-text-3">
                   {t("ta_proionta_ayta_echoyn_akrivos")}
                 </p>
               )}
@@ -298,7 +298,7 @@ function EmptyCompare() {
       <p className="font-display t-display mt-5 text-xl leading-[1.25] text-k-ink">
         {upGreek(t("den_echete_epilexei_proionta"))}
       </p>
-      <p className="mx-auto mt-2.5 max-w-md text-[13.5px] leading-[1.6] text-k-text-3">
+      <p className="mx-auto mt-2.5 max-w-md text-[length:var(--fs-13-5)] leading-[1.6] text-k-text-3">
         {t("ston_katalogo_patiste_sygkrisi_se")} {COMPARE_MAX}{" "}
         {t("proionta_tis_idias_katigorias_tha")}
       </p>

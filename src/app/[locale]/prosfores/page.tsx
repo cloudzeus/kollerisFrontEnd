@@ -182,7 +182,7 @@ export default async function OffersPage({
               <h1 className="font-display text-[22px] leading-[1.16] t-display text-balance text-white lg:text-[30px]">
                 {upGreek(t("prosfores"))}
               </h1>
-              <p className="mt-3.5 max-w-[640px] text-[13px] leading-[1.68] text-white/60 lg:text-sm">
+              <p className="mt-3.5 max-w-[640px] text-[length:var(--fs-13)] leading-[1.68] text-white/60 lg:text-sm">
                 {hasOffers ? (
                   <>
                     <strong className="font-semibold text-white">
@@ -291,10 +291,10 @@ export default async function OffersPage({
                     <h2 className="font-display t-display mt-3 text-[21px] leading-[1.2] text-balance text-k-ink lg:text-[28px]">
                       {upGreek(t("mia_ekptosi_poy_trechei_panta"))}
                     </h2>
-                    <p className="mt-4 text-[13.5px] leading-[1.75] text-k-text-2">
+                    <p className="mt-4 text-[length:var(--fs-13-5)] leading-[1.75] text-k-text-2">
                       {t("tha_mporoysame_na_deichnoyme_diagrammeni")}
                     </p>
-                    <p className="mt-3 text-[13.5px] leading-[1.75] text-k-text-2">
+                    <p className="mt-3 text-[length:var(--fs-13-5)] leading-[1.75] text-k-text-2">
                       {t("otan_kanoyme_pragmatiki_prosfora_tha")}
                     </p>
                   </div>
@@ -307,7 +307,7 @@ export default async function OffersPage({
                       <p className="font-display t-display text-[17px] leading-[1.3] text-k-ink lg:text-xl">
                         {upGreek(t("timi_synergati_gia_epaggelmaties"))}
                       </p>
-                      <p className="text-[12.5px] leading-[1.65] text-k-text-3">
+                      <p className="text-[length:var(--fs-12-5)] leading-[1.65] text-k-text-3">
                         {t("an_agorazete_gia_etaireia_i")}
                       </p>
                       <Link
@@ -333,7 +333,7 @@ export default async function OffersPage({
                             : t("nees_afixeis"),
                         )}
                       </p>
-                      <p className="text-[12.5px] leading-[1.65] text-k-text-3">
+                      <p className="text-[length:var(--fs-12-5)] leading-[1.65] text-k-text-3">
                         {latest
                           ? t("mpikan_stin_apothiki_ton_deite", {
                               n: latest.label.toLowerCase(),

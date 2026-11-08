@@ -66,7 +66,7 @@ export default async function SignInPage({
             <h1 className="font-display text-[22px] leading-[1.16] t-display text-white lg:text-[30px]">
               {upGreek(t("syndesi"))}
             </h1>
-            <p className="mt-3.5 max-w-[560px] text-[13px] leading-[1.68] text-white/60 lg:text-sm">
+            <p className="mt-3.5 max-w-[560px] text-[length:var(--fs-13)] leading-[1.68] text-white/60 lg:text-sm">
               {t("paraggelies_eggyiseis_kai_dieythynseis_se")}
             </p>
           </div>
@@ -83,7 +83,7 @@ export default async function SignInPage({
                 want an account" feel like one problem to whoever is stuck, so
                 they lead to one page that asks which it is.
               */}
-              <p className="mt-5 text-[13px] leading-[1.6] text-k-text-3">
+              <p className="mt-5 text-[length:var(--fs-13)] leading-[1.6] text-k-text-3">
                 <Link
                   href="/eisodos/prosvasi"
                   className="text-k-ink underline-offset-2 hover:underline"
@@ -117,7 +117,7 @@ export default async function SignInPage({
               ].map((item) => (
                 <li
                   key={item}
-                  className="flex items-start gap-2.5 text-[12.5px] leading-[1.55] text-k-text-2"
+                  className="flex items-start gap-2.5 text-[length:var(--fs-12-5)] leading-[1.55] text-k-text-2"
                 >
                   <span
                     aria-hidden

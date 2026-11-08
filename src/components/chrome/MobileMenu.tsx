@@ -2,8 +2,9 @@
 
 import { useLocale } from "next-intl";
 import { useTranslations } from "next-intl";
-import { useEffect, useId, useState } from "react";
-import { Link } from "@/i18n/navigation";
+import { useEffect, useId, useRef, useState, type MouseEvent } from "react";
+import { createPortal } from "react-dom";
+import { Link, useRouter } from "@/i18n/navigation";
 import type { BrandTile, MenuCategory } from "@/lib/catalog/queries";
 import { upGreek } from "@/lib/greek";
 
@@ -31,6 +32,13 @@ import { upGreek } from "@/lib/greek";
  * subcategories with a "ΟΛΕΣ ΟΙ N ΥΠΟΚΑΤΗΓΟΡΙΕΣ" link.
  *
  * Every touch target is at least 44px, per the handoff's own row heights.
+ *
+ * Portalled to <body>: inside the sticky header it was trapped in the header's
+ * z-40 layer, so the cookie banner (z-50) sat on top of the open drawer.
+ *
+ * Opening pushes one history entry so the phone's back button closes the menu
+ * instead of leaving the page. Links therefore pop that entry first and only
+ * then navigate, or the next back press would land on a duplicate page.
  */
 export function MobileMenu({
   categories,
@@ -51,6 +59,33 @@ export function MobileMenu({
   const [expanded, setExpanded] = useState<string | null>(null);
   const [tab, setTab] = useState<"categories" | "brands">("categories");
   const panelId = useId();
+  const router = useRouter();
+  const trigger = useRef<HTMLButtonElement>(null);
+  const panel = useRef<HTMLDivElement>(null);
+  const closeButton = useRef<HTMLButtonElement>(null);
+  const pendingHref = useRef<string | null>(null);
+
+  function openMenu() {
+    window.history.pushState({ ...window.history.state, kMenu: true }, "");
+    setOpen(true);
+  }
+
+  function closeMenu() {
+    if (window.history.state?.kMenu) window.history.back();
+    else setOpen(false);
+  }
+
+  function follow(event: MouseEvent, href: string) {
+    if (event.metaKey || event.ctrlKey || event.shiftKey || event.button) return;
+    event.preventDefault();
+    if (window.history.state?.kMenu) {
+      pendingHref.current = href;
+      window.history.back();
+    } else {
+      setOpen(false);
+      router.push(href);
+    }
+  }
 
   // Lock body scroll while the drawer is open, and restore on close so the
   // page does not stay frozen if the drawer unmounts mid-transition.
@@ -58,19 +93,56 @@ export function MobileMenu({
     if (!open) return;
     const previous = document.body.style.overflow;
     document.body.style.overflow = "hidden";
+    document.body.dataset.menuOpen = "true";
     return () => {
       document.body.style.overflow = previous;
+      delete document.body.dataset.menuOpen;
     };
   }, [open]);
 
   useEffect(() => {
     if (!open) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setOpen(false);
+    closeButton.current?.focus();
+    const button = trigger.current;
+
+    const onPop = () => {
+      setOpen(false);
+      const href = pendingHref.current;
+      pendingHref.current = null;
+      if (href) router.push(href);
     };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") closeMenu();
+      if (e.key !== "Tab" || !panel.current) return;
+      const items = [
+        ...panel.current.querySelectorAll<HTMLElement>("a[href], button"),
+      ];
+      const first = items[0];
+      const last = items[items.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    };
+    // Rotating a tablet past `lg` hides the drawer; it must not leave the page locked.
+    const desktop = window.matchMedia("(min-width: 1024px)");
+    const onDesktop = () => {
+      if (desktop.matches) closeMenu();
+    };
+
+    window.addEventListener("popstate", onPop);
     window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [open]);
+    desktop.addEventListener("change", onDesktop);
+    return () => {
+      window.removeEventListener("popstate", onPop);
+      window.removeEventListener("keydown", onKey);
+      desktop.removeEventListener("change", onDesktop);
+      button?.focus({ preventScroll: true });
+    };
+  }, [open, router]);
 
   const secondary = [
     { href: "/prosfores", label: upGreek(t("prosfores")), accent: true },
@@ -83,42 +155,45 @@ export function MobileMenu({
   return (
     <>
       <button
+        ref={trigger}
         type="button"
         aria-label={t("menoy")}
         aria-expanded={open}
         aria-controls={panelId}
-        onClick={() => setOpen(true)}
-        className="flex h-11 w-6 flex-col justify-center gap-1"
+        onClick={openMenu}
+        className="-ml-3 flex h-11 w-11 flex-col items-start justify-center gap-1 pl-3"
       >
-        <span className="block h-0.5 w-5 bg-k-ink" />
-        <span className="block h-0.5 w-5 bg-k-ink" />
+        <span className="block h-0.5 w-5 bg-k-on-dark" />
+        <span className="block h-0.5 w-5 bg-k-on-dark" />
         <span className="block h-0.5 w-3.5 bg-k-red" />
       </button>
 
-      {open && (
-        <div className="fixed inset-0 z-50 lg:hidden">
+      {open && createPortal(
+        <div className="fixed inset-0 z-[60] lg:hidden">
           <button
             type="button"
             aria-label={t("kleisimo_menoy")}
             tabIndex={-1}
-            onClick={() => setOpen(false)}
-            className="absolute inset-0 bg-black/50"
+            onClick={closeMenu}
+            className="absolute inset-0 touch-none bg-black/50"
           />
 
           <div
+            ref={panel}
             id={panelId}
             role="dialog"
             aria-modal="true"
             aria-label={t("ploigisi")}
-            className="absolute inset-y-0 left-0 flex w-[min(88vw,340px)] flex-col bg-white"
+            className="absolute top-0 left-0 flex h-dvh w-[min(88vw,340px)] animate-[zone-slide-in_180ms_ease-out] flex-col bg-white motion-reduce:animate-none"
           >
             <div className="flex h-14 shrink-0 items-center justify-between border-b border-k-line px-4">
               <span className="t-footer-col text-k-ink">
                 {upGreek(t("menoy"))}
               </span>
               <button
+                ref={closeButton}
                 type="button"
-                onClick={() => setOpen(false)}
+                onClick={closeMenu}
                 aria-label={t("kleisimo")}
                 className="flex h-11 w-11 items-center justify-center text-2xl leading-none text-k-ink"
               >
@@ -126,7 +201,7 @@ export function MobileMenu({
               </button>
             </div>
 
-            <div className="flex shrink-0 border-b border-k-line">
+            <div role="tablist" className="flex shrink-0 border-b border-k-line">
               {(
                 [
                   ["categories", upGreek(t("katigories"))],
@@ -136,8 +211,9 @@ export function MobileMenu({
                 <button
                   key={key}
                   type="button"
+                  role="tab"
+                  aria-selected={tab === key}
                   onClick={() => setTab(key)}
-                  aria-current={tab === key ? "true" : undefined}
                   className={`t-nav h-11 flex-1 border-b-2 transition-colors ${
                     tab === key
                       ? "border-k-red text-k-ink"
@@ -149,7 +225,10 @@ export function MobileMenu({
               ))}
             </div>
 
-            <div className="flex-1 overflow-y-auto overscroll-contain">
+            {/* One scroller for everything below the tabs. The links used to be
+                pinned here and took 269px, which left a phone in landscape with
+                no room at all for the categories. */}
+            <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
               {tab === "categories" ? (
                 <>
                   {categories.map((category, index) => {
@@ -159,7 +238,7 @@ export function MobileMenu({
                         <div className="flex items-stretch">
                           <Link
                             href={`/katalogos/${category.slug}`}
-                            onClick={() => setOpen(false)}
+                            onClick={(e) => follow(e, `/katalogos/${category.slug}`)}
                             className={`flex min-h-[52px] flex-1 items-center gap-2.5 py-2 pl-4 ${
                               category.children.length > 0 ? "" : "pr-4"
                             }`}
@@ -168,7 +247,7 @@ export function MobileMenu({
                             <span className="t-cat-num shrink-0 text-k-red">
                               {String(index + 1).padStart(2, "0")}
                             </span>
-                            <span className="min-w-0 flex-1 text-[13px] leading-[1.4] font-semibold text-k-ink">
+                            <span className="min-w-0 flex-1 text-[length:var(--fs-13)] leading-[1.4] font-semibold text-k-ink">
                               {upGreek(category.name)}
                             </span>
                             <span className="t-card-was shrink-0 text-k-text-5">
@@ -208,8 +287,10 @@ export function MobileMenu({
                               <Link
                                 key={child.id}
                                 href={`/katalogos/${category.slug}?sub=${child.slug}`}
-                                onClick={() => setOpen(false)}
-                                className="flex min-h-11 items-center gap-2.5 py-2 pr-4 pl-[34px] text-[12.5px] text-k-text-2"
+                                onClick={(e) =>
+                                  follow(e, `/katalogos/${category.slug}?sub=${child.slug}`)
+                                }
+                                className="flex min-h-11 items-center gap-2.5 py-2 pr-4 pl-[34px] text-[length:var(--fs-12-5)] text-k-text-2"
                                 prefetch={false}
                               >
                                 <span className="block h-px w-3 shrink-0 bg-k-line-2" />
@@ -223,8 +304,8 @@ export function MobileMenu({
                             ))}
                             <Link
                               href={`/katalogos/${category.slug}`}
-                              onClick={() => setOpen(false)}
-                              className="block pt-2 pr-4 pl-[34px] text-[10px] font-semibold tracking-[0.07em] text-k-red"
+                              onClick={(e) => follow(e, `/katalogos/${category.slug}`)}
+                              className="flex min-h-11 items-center pr-4 pl-[34px] text-[length:var(--fs-10)] font-semibold tracking-[0.07em] text-k-red"
                               prefetch={false}
                             >
                               {upGreek(
@@ -240,7 +321,7 @@ export function MobileMenu({
                     );
                   })}
 
-                  <p className="px-4 py-4 text-[12px] text-k-text-3">
+                  <p className="px-4 py-4 text-[length:var(--fs-12)] text-k-text-3">
                     {totalCategories} {t("katigories_2")} {totalSubcategories}{" "}
                     {t("ypokatigories")} {totalProducts.toLocaleString(locale)}{" "}
                     {t("kodikoi")}
@@ -252,7 +333,7 @@ export function MobileMenu({
                     <Link
                       key={brand.id}
                       href={`/brands/${brand.slug}`}
-                      onClick={() => setOpen(false)}
+                      onClick={(e) => follow(e, `/brands/${brand.slug}`)}
                       className="flex min-h-[68px] flex-col items-center justify-center gap-1 bg-white px-3 py-3"
                       prefetch={false}
                     >
@@ -267,14 +348,13 @@ export function MobileMenu({
                   ))}
                 </div>
               )}
-            </div>
 
-            <div className="shrink-0 border-t border-k-line">
+              <div className="border-t border-k-line">
               {secondary.map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}
-                  onClick={() => setOpen(false)}
+                  onClick={(e) => follow(e, link.href)}
                   className={`t-nav flex min-h-11 items-center gap-2 px-4 ${
                     link.accent ? "text-k-red" : "text-k-ink"
                   }`}
@@ -286,9 +366,13 @@ export function MobileMenu({
                   {link.label}
                 </Link>
               ))}
+              </div>
+            </div>
+
+            <div className="shrink-0 pb-[env(safe-area-inset-bottom)]">
               <Link
                 href="/eisodos"
-                onClick={() => setOpen(false)}
+                onClick={(e) => follow(e, "/eisodos")}
                 className="t-btn-sm flex min-h-12 items-center justify-center bg-k-ink text-white"
                 prefetch={false}
               >
@@ -296,7 +380,8 @@ export function MobileMenu({
               </Link>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body,
       )}
     </>
   );

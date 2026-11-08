@@ -89,17 +89,17 @@ export function TaxonomyFinder({ nodes }: { nodes: CatalogueNode[] }) {
       </div>
 
       {tooShort && (
-        <p className="px-4 py-8 text-center text-[13px] text-k-text-3 lg:px-5">
+        <p className="px-4 py-8 text-center text-[length:var(--fs-13)] text-k-text-3 lg:px-5">
           {t("grapste_toylachiston_2_charaktires")}
         </p>
       )}
 
       {!tooShort && query.trim() && results.length === 0 && (
         <div className="px-4 py-10 text-center lg:px-5">
-          <p className="text-[13.5px] font-semibold text-k-ink">
+          <p className="text-[length:var(--fs-13-5)] font-semibold text-k-ink">
             {t("kamia_katigoria_gia")}{query.trim()}»
           </p>
-          <p className="mx-auto mt-2 max-w-md text-[12.5px] leading-[1.6] text-k-text-3">
+          <p className="mx-auto mt-2 max-w-md text-[length:var(--fs-12-5)] leading-[1.6] text-k-text-3">
             {t("dokimaste_tin_anazitisi_proionton_stin")}
           </p>
         </div>
@@ -120,13 +120,13 @@ export function TaxonomyFinder({ nodes }: { nodes: CatalogueNode[] }) {
                       {node.path.join(" › ")}
                     </span>
                   )}
-                  <span className="mt-0.5 block truncate text-[13px] font-medium text-k-ink">
+                  <span className="mt-0.5 block truncate text-[length:var(--fs-13)] font-medium text-k-ink">
                     <Highlight text={node.name} query={query} />
                   </span>
                 </span>
 
                 <span className="shrink-0 text-right">
-                  <span className="block font-mono text-[12.5px] font-semibold text-k-ink">
+                  <span className="block font-mono text-[length:var(--fs-12-5)] font-semibold text-k-ink">
                     {node.count.toLocaleString(locale)}
                   </span>
                   <span className="t-brand-count block text-k-text-5">{upGreek(t("kod"))}</span>

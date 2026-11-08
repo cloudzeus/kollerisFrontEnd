@@ -353,10 +353,10 @@ export function SearchSuggest({
 
           {isEmpty && (
             <div className="px-5 py-8 text-center">
-              <p className="text-[13.5px] font-semibold text-k-ink">
+              <p className="text-[length:var(--fs-13-5)] font-semibold text-k-ink">
                 {t("den_vrethike_kati_gia")}{query.trim()}»
               </p>
-              <p className="mx-auto mt-2 max-w-sm text-[12.5px] leading-[1.6] text-k-text-3">
+              <p className="mx-auto mt-2 max-w-sm text-[length:var(--fs-12-5)] leading-[1.6] text-k-text-3">
                 {t("dokimaste_ton_kodiko_toy_kataskeyasti")}
               </p>
             </div>
@@ -537,13 +537,13 @@ function ProductRow({
             <Highlight text={product.sku} query={query} />
           </span>
         </span>
-        <span className="mt-0.5 block truncate text-[12.5px] leading-[1.35] font-medium text-k-ink">
+        <span className="mt-0.5 block truncate text-[length:var(--fs-12-5)] leading-[1.35] font-medium text-k-ink">
           <Highlight text={product.name} query={query} />
         </span>
       </span>
 
       <span className="shrink-0 text-right">
-        <span className="block font-mono text-[13px] font-semibold text-k-ink">
+        <span className="block font-mono text-[length:var(--fs-13)] font-semibold text-k-ink">
           {product.priceNet != null
             ? formatPrice(product.priceNet, locale, { vatRate: product.vatRate })
             : "—"}
@@ -610,7 +610,7 @@ function TaxonomyRow({
           ) : null}
         </span>
       )}
-      <span className="min-w-0 flex-1 truncate text-[12.5px] font-medium text-k-ink">
+      <span className="min-w-0 flex-1 truncate text-[length:var(--fs-12-5)] font-medium text-k-ink">
         <Highlight text={name} query={query} />
       </span>
       <span className="t-brand-count shrink-0 font-mono text-k-text-4">

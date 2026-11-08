@@ -475,6 +475,20 @@
     opacity: 0;
   }
 
+  /* Phone header: 215px at rest was 29% of a 740px screen. */
+  .site-header .header-lang {
+    overflow: hidden;
+    max-height: 48px;
+    transition:
+      max-height 240ms ease,
+      opacity 180ms ease;
+  }
+  .site-header[data-condensed="true"] .header-lang {
+    max-height: 0;
+    opacity: 0;
+    border-bottom-width: 0;
+  }
+
   .site-header .header-main {
     transition: height 240ms ease;
   }
@@ -503,6 +517,7 @@
   @media (prefers-reduced-motion: reduce) {
     .site-header,
     .site-header .header-utility,
+    .site-header .header-lang,
     .site-header .header-main,
     .site-header .header-logo {
       transition: none;
@@ -608,7 +623,7 @@
 @layer components {
   .prose-kolleris {
     color: var(--color-k-text-2);
-    font-size: 14.5px;
+    font-size: var(--fs-14-5);
     line-height: 1.8;
   }
   .prose-kolleris > * + * {
@@ -668,7 +683,7 @@
   .prose-kolleris table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 13px;
+    font-size: var(--fs-13);
   }
   .prose-kolleris th,
   .prose-kolleris td {
@@ -1237,17 +1252,49 @@
    off the checkout renders exactly as before.
    ───────────────────────────────────────────────────────────────────────── */
 :root {
+  --fs-8-5: clamp(0.5313rem, 0.6182rem - 0.1087vw, 0.5938rem);
+  --fs-9: clamp(0.5625rem, 0.6495rem - 0.1087vw, 0.625rem);
+  --fs-9-5: clamp(0.5938rem, 0.6807rem - 0.1087vw, 0.6563rem);
+  --fs-10: clamp(0.625rem, 0.712rem - 0.1087vw, 0.6875rem);
+  --fs-10-5: clamp(0.6563rem, 0.7432rem - 0.1087vw, 0.7188rem);
   --fs-11: clamp(0.6875rem, 0.7745rem - 0.1087vw, 0.75rem);
   --fs-11-5: clamp(0.7188rem, 0.8057rem - 0.1087vw, 0.7813rem);
+  --fs-12: clamp(0.75rem, 0.837rem - 0.1087vw, 0.8125rem);
+  --fs-12-5: clamp(0.7813rem, 0.8682rem - 0.1087vw, 0.8438rem);
   --fs-13: clamp(0.8125rem, 0.8995rem - 0.1087vw, 0.875rem);
-  --fs-13-5: clamp(0.84375rem, 0.9307rem - 0.1087vw, 0.90625rem);
-  --fs-14: clamp(0.875rem, 0.9620rem - 0.1087vw, 0.9375rem);
+  --fs-13-5: clamp(0.8438rem, 0.9307rem - 0.1087vw, 0.9063rem);
+  --fs-14: clamp(0.875rem, 0.962rem - 0.1087vw, 0.9375rem);
+  --fs-14-5: clamp(0.9063rem, 0.9932rem - 0.1087vw, 0.9688rem);
+  --fs-15: clamp(0.9375rem, 1.0245rem - 0.1087vw, 1rem);
 }
 
 @media (max-width: 767px) {
-  [data-eu-sales] input:not([type="checkbox"]):not([type="radio"]),
-  [data-eu-sales] select,
-  [data-eu-sales] textarea {
+  input:not([type="checkbox"]):not([type="radio"]),
+  select,
+  textarea {
     font-size: max(1rem, 1em);
   }
+}
+
+/* A 44px hit area around small controls, without moving the layout. The
+   element itself must be positioned. */
+@media (max-width: 1023px) {
+  .tap-44::after,
+  nav[aria-label="Breadcrumb"] a::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: max(100%, 44px);
+    height: max(100%, 44px);
+    transform: translate(-50%, -50%);
+  }
+  nav[aria-label="Breadcrumb"] a {
+    position: relative;
+  }
+}
+
+/* Google's merchant badge sits at z-index 2147483647 and covered menu links. */
+body[data-menu-open] #google-merchantwidget-iframe-wrapper {
+  display: none;
 }

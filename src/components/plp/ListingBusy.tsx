@@ -16,7 +16,7 @@ export async function ListingBusy({ basePath }: { basePath: string }) {
     <main id="main" className="shell-x py-20 text-center">
       <BusyRefresh afterMs={5_000} />
       <h1 className="font-display t-display text-xl text-k-ink">{t("titlos")}</h1>
-      <p className="mx-auto mt-3 max-w-md text-[13px] text-k-text-3">{t("minima")}</p>
+      <p className="mx-auto mt-3 max-w-md text-[length:var(--fs-13)] text-k-text-3">{t("minima")}</p>
       <Link
         href={basePath}
         prefetch={false}

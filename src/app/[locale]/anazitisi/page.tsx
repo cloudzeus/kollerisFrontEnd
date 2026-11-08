@@ -181,7 +181,7 @@ export default async function SearchPage({ params, searchParams }: PageProps) {
               </h1>
 
               {query.length >= SUGGEST_MIN_LENGTH ? (
-                <p className="mt-3.5 max-w-[640px] text-[13px] leading-[1.68] text-white/60 lg:text-sm">
+                <p className="mt-3.5 max-w-[640px] text-[length:var(--fs-13)] leading-[1.68] text-white/60 lg:text-sm">
                   {hasResults ? (
                     <>
                       <strong className="font-semibold text-white">
@@ -208,7 +208,7 @@ export default async function SearchPage({ params, searchParams }: PageProps) {
                   )}
                 </p>
               ) : (
-                <p className="mt-3.5 max-w-[640px] text-[13px] leading-[1.68] text-white/60 lg:text-sm">
+                <p className="mt-3.5 max-w-[640px] text-[length:var(--fs-13)] leading-[1.68] text-white/60 lg:text-sm">
                   {t("grapste_toylachiston")} {SUGGEST_MIN_LENGTH}{" "}
                   {t("charaktires_kodiko_onoma_proiontos_i")}
                 </p>
@@ -250,7 +250,7 @@ export default async function SearchPage({ params, searchParams }: PageProps) {
                 )}
                 <Link
                   href={`/proion/${exact.slug}`}
-                  className="mt-1 block text-[14px] leading-[1.35] font-semibold text-k-ink transition-colors hover:text-k-red lg:text-[15px]"
+                  className="mt-1 block text-[length:var(--fs-14)] leading-[1.35] font-semibold text-k-ink transition-colors hover:text-k-red lg:text-[length:var(--fs-15)]"
                 >
                   {exact.name}
                 </Link>
@@ -310,7 +310,7 @@ export default async function SearchPage({ params, searchParams }: PageProps) {
                 facets={data.facets}
                 basePath="/anazitisi"
                 params={raw}
-                className="hidden max-h-[calc(100vh-var(--header-h))] flex-col overflow-hidden lg:sticky lg:top-[var(--header-h)] lg:flex"
+                className="hidden flex-col lg:flex"
               />
 
               <div className="min-w-0 border-k-line px-4 py-6 lg:border-l lg:px-10 lg:pt-6 lg:pb-10">
@@ -383,7 +383,7 @@ function NoResults({ query }: { query: string }) {
         <h2 className="font-display t-display mt-2.5 text-[20px] leading-[1.25] text-k-ink lg:text-[26px]">
           {upGreek(t("den_vrethike_kati_gia", { query: query }))}
         </h2>
-        <p className="mt-3 text-[13.5px] leading-[1.65] text-k-text-3">
+        <p className="mt-3 text-[length:var(--fs-13-5)] leading-[1.65] text-k-text-3">
           {t("pithanon_na_to_echoyme_kai")}
         </p>
       </div>
@@ -391,10 +391,10 @@ function NoResults({ query }: { query: string }) {
       <div className="mt-7 grid gap-px border border-k-line bg-k-line sm:grid-cols-2 lg:mt-9 lg:grid-cols-4">
         {tips.map((tip) => (
           <div key={tip.title} className="bg-white p-5">
-            <p className="text-[13px] leading-[1.35] font-semibold text-k-ink">
+            <p className="text-[length:var(--fs-13)] leading-[1.35] font-semibold text-k-ink">
               {tip.title}
             </p>
-            <p className="mt-1.5 text-[12.5px] leading-[1.6] text-k-text-3">
+            <p className="mt-1.5 text-[length:var(--fs-12-5)] leading-[1.6] text-k-text-3">
               {tip.body}
             </p>
           </div>

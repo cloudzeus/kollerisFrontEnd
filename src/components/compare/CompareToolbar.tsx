@@ -91,7 +91,7 @@ function Toggle({
     <>
       <span
         aria-hidden
-        className={`flex h-3.5 w-3.5 shrink-0 items-center justify-center border text-[10px] leading-none ${
+        className={`flex h-3.5 w-3.5 shrink-0 items-center justify-center border text-[length:var(--fs-10)] leading-none ${
           active
             ? "border-k-red bg-k-red text-white"
             : "border-k-line-2 bg-white"

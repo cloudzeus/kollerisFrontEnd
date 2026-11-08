@@ -1,6 +1,6 @@
+import { ShoppingCart } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import type { Metadata } from "next";
-import Image from "next/image";
 import { setRequestLocale } from "next-intl/server";
 import { CartActionsRow } from "@/components/cart/CartActionsRow";
 import { CartCrossSell } from "@/components/cart/CartCrossSell";
@@ -116,7 +116,7 @@ export default async function CartPage({
               {steps.map((step) => (
                 <li
                   key={step.n}
-                  className={`flex items-center gap-2 border px-4 py-3 text-[11px] font-semibold tracking-[0.07em] ${
+                  className={`flex items-center gap-2 border px-2.5 py-3 text-[length:var(--fs-11)] font-semibold tracking-[0.07em] lg:px-4 ${
                     step.active
                       ? "border-k-red bg-k-red text-white"
                       : "border-white/15 text-white/40"
@@ -139,17 +139,16 @@ export default async function CartPage({
         */}
         {isEmpty ? (
           <div className="shell-x bg-white py-20 text-center">
-            <Image
-              src="/icons/cart.png"
-              alt=""
-              width={46}
-              height={46}
-              className="mx-auto block opacity-35"
+            <ShoppingCart
+              aria-hidden
+              size={46}
+              strokeWidth={1.5}
+              className="mx-auto block text-k-text-5"
             />
             <p className="font-display t-display mt-5 text-xl leading-[1.3] text-k-ink">
               {upGreek(t("to_kalathi_einai_adeio"))}
             </p>
-            <p className="mt-2.5 text-[13.5px] text-k-text-3">
+            <p className="mt-2.5 text-[length:var(--fs-13-5)] text-k-text-3">
               {stats.products.toLocaleString(locale)}{" "}
               {t("kodikoi_sas_perimenoyn_ston_katalogo")}
             </p>
