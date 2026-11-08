@@ -58,6 +58,15 @@ const MAX_DESCRIPTION = 5000;
 /** One main image plus up to ten more, which is Google's own ceiling. */
 const MAX_EXTRA_IMAGES = 10;
 
+/**
+ * The Google Ads campaign that advertises only higher-value products selects
+ * them by this label, because Shopping campaigns cannot filter on price.
+ * The price is the selling price with VAT, the one the buyer sees.
+ */
+export function priceLabel(gross: number): "over_150" | null {
+  return gross > 150 ? "over_150" : null;
+}
+
 export async function buildMerchantFeed(locale: Locale = "el"): Promise<string> {
   const products = await prisma.product.findMany({
     where: {
@@ -152,6 +161,8 @@ export async function buildMerchantFeed(locale: Locale = "el"): Promise<string> 
     ];
 
     if (brand) lines.push(`<g:brand>${xml(brand)}</g:brand>`);
+    const label = priceLabel(gross);
+    if (label) lines.push(`<g:custom_label_0>${label}</g:custom_label_0>`);
     /*
      * Colour and size.
      *
