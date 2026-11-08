@@ -53,6 +53,9 @@ export function HeaderShell({ children }: { children: React.ReactNode }) {
     measure();
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", onScroll, { passive: true });
+    // The condensing is animated: measuring only at the flip left --header-h stale.
+    const resize = new ResizeObserver(onScroll);
+    resize.observe(node);
 
     const onKey = (event: KeyboardEvent) => {
       const target = event.target as HTMLElement | null;
@@ -100,6 +103,7 @@ export function HeaderShell({ children }: { children: React.ReactNode }) {
       if (frame != null) cancelAnimationFrame(frame);
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onScroll);
+      resize.disconnect();
       window.removeEventListener("keydown", onKey);
     };
   }, []);
@@ -108,7 +112,7 @@ export function HeaderShell({ children }: { children: React.ReactNode }) {
     <header
       ref={root}
       data-condensed="false"
-      className="site-header sticky top-0 z-40"
+      className="site-header sticky top-0 z-40 [@media(max-width:1023px)_and_(max-height:500px)]:static"
     >
       {/*
         Keyboard users landed on 24 mega-menu categories, a search field, a

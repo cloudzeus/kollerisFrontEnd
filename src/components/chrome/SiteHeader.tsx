@@ -70,7 +70,7 @@ export function SiteHeader({
     <>
       {/* ── Mobile ─────────────────────────────────────────────── */}
       <div className="lg:hidden">
-        <div className="flex items-center gap-3.5 border-b border-k-header-line bg-k-header px-4 py-3 text-k-on-dark">
+        <div className="flex items-center gap-1 border-b border-k-header-line bg-k-header px-4 py-3 text-k-on-dark">
           <MobileMenu
             categories={categories}
             brands={brands}
@@ -79,7 +79,7 @@ export function SiteHeader({
             totalProducts={totalProducts}
           />
 
-          <Link href="/" className="mr-auto">
+          <Link href="/" className="mr-auto ml-1">
             {/* Το πρωτότυπο: κόκκινο σήμα, λευκά γράμματα, χωρίς φόντο. Το
                 γκρι του αρχείου είναι φτιαγμένο για λευκό χαρτί και σε σκούρα
                 μπάρα διαβάζεται μόλις· η ολόλευκη εκδοχή έχανε το χρώμα. */}
@@ -94,7 +94,11 @@ export function SiteHeader({
             />
           </Link>
 
-          <Link href="/eisodos" aria-label={t("logariasmos")}>
+          <Link
+            href="/eisodos"
+            aria-label={t("logariasmos")}
+            className="flex h-11 w-11 items-center justify-center"
+          >
             <AccountIcon size={19} />
           </Link>
 
@@ -111,7 +115,7 @@ export function SiteHeader({
 
         <nav
           aria-label={t("glossa")}
-          className="flex items-center justify-end gap-2 border-b border-k-line bg-white px-4 py-2.5"
+          className="header-lang flex h-12 items-center justify-end gap-2 border-b border-k-line bg-white px-4"
         >
           <span className="t-account-label text-k-text-4">
             {upGreek(t("glossa"))}
@@ -123,7 +127,7 @@ export function SiteHeader({
                 href="/"
                 locale={code}
                 aria-current={code === locale ? "true" : undefined}
-                className={`t-lang px-2.5 py-[5px] transition-colors ${
+                className={`t-lang tap-44 relative px-2.5 py-[5px] transition-colors ${
                   code === locale ? "bg-k-red text-white" : "text-k-text-3"
                 }`}
               >
