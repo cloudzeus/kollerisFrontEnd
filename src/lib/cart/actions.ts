@@ -5,6 +5,7 @@ import { redirect } from "@/i18n/navigation";
 import { routing } from "@/i18n/routing";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
+import type { Ga4Item } from "@/lib/analytics/ga4-events";
 import {
   PAYMENT_METHODS,
   SHIPPING_METHODS,
@@ -23,11 +24,19 @@ import { searchKey } from "@/lib/greek";
  */
 
 export type CartActionResult =
-  | { ok: true; added?: number; notFound?: string[] }
+  | { ok: true; added?: number; notFound?: string[]; item?: Ga4Item }
   | { ok: false; error: string };
 
 /** Quantity ceiling per line. Bulk beyond this goes through a sales rep. */
 const MAX_QUANTITY = 999;
+
+/** For the GA4 `add_to_cart` event: ERP code and NET price, like the order line. */
+function ga4Item(
+  p: { code: string; code2: string; name: string; priceNet: { toNumber(): number } | null },
+  quantity: number,
+): Ga4Item {
+  return { item_id: p.code || p.code2 || "", item_name: p.name, price: p.priceNet ? Math.round(p.priceNet.toNumber() * 100) / 100 : undefined, quantity };
+}
 
 /** Creates the cart only on a write — read paths never mint one. */
 async function getOrCreateCartId(): Promise<string> {
@@ -76,7 +85,7 @@ export async function addToCart(input: unknown): Promise<CartActionResult> {
 
   const product = await prisma.product.findFirst({
     where: { id: parsed.data.productId, isActive: true },
-    select: { id: true, priceNet: true },
+    select: { id: true, priceNet: true, code: true, code2: true, name: true },
   });
   if (!product) return { ok: false, error: "product_unavailable" };
 
@@ -95,7 +104,7 @@ export async function addToCart(input: unknown): Promise<CartActionResult> {
   });
 
   revalidateCart();
-  return { ok: true, added: parsed.data.quantity };
+  return { ok: true, added: parsed.data.quantity, item: ga4Item(product, parsed.data.quantity) };
 }
 
 /**
@@ -146,7 +155,7 @@ export async function addToCartByCode(input: unknown): Promise<CartActionResult>
       isActive: true,
       OR: [{ code: raw }, { code1: raw }, { code2: raw }],
     },
-    select: { id: true, priceNet: true, slug: true },
+    select: { id: true, priceNet: true, slug: true, code: true, code2: true, name: true },
   });
 
   const product =
@@ -157,7 +166,7 @@ export async function addToCartByCode(input: unknown): Promise<CartActionResult>
             isActive: true,
             OR: [{ code: loose }, { code1: loose }, { code2: loose }],
           },
-          select: { id: true, priceNet: true, slug: true },
+          select: { id: true, priceNet: true, slug: true, code: true, code2: true, name: true },
         })
       : null);
 
@@ -176,7 +185,7 @@ export async function addToCartByCode(input: unknown): Promise<CartActionResult>
   });
 
   revalidateCart();
-  return { ok: true, added: parsed.data.quantity };
+  return { ok: true, added: parsed.data.quantity, item: ga4Item(product, parsed.data.quantity) };
 }
 
 /**

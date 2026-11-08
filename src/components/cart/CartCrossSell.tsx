@@ -5,6 +5,7 @@ import { useLocale } from "next-intl";
 import Image from "next/image";
 import { useTransition } from "react";
 import { Link } from "@/i18n/navigation";
+import { trackAddToCart } from "@/lib/analytics/ga4-events";
 import { addToCart } from "@/lib/cart/actions";
 import type { CrossSellItem } from "@/lib/cart/options";
 import { formatPrice } from "@/lib/format";
@@ -87,7 +88,7 @@ export function CartCrossSell({ items }: { items: CrossSellItem[] }) {
                   type="button"
                   onClick={() =>
                     startTransition(async () => {
-                      await addToCart({ productId: item.id, quantity: 1 });
+                      trackAddToCart(await addToCart({ productId: item.id, quantity: 1 }));
                     })
                   }
                   className="t-card-cta h-9 border-0 bg-k-red px-3 text-white transition-colors hover:bg-white hover:text-k-ink"
