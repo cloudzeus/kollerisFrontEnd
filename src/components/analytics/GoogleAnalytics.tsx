@@ -37,8 +37,12 @@ import { CookieConsent } from "@/components/analytics/CookieConsent";
 
 const MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID ?? "G-EGS1JNM4EC";
 
-/** Το κλειδί που κρατά την απάντηση του επισκέπτη. Ίδιο και στο banner. */
-export const CONSENT_STORAGE_KEY = "kolleris-consent-v1";
+/**
+ * Το κλειδί που κρατά την απάντηση του επισκέπτη. Ίδιο και στο banner.
+ * v2: η συγκατάθεση καλύπτει πλέον και διαφήμιση (Google Ads, Meta)· όσοι
+ * απάντησαν στο v1 (μόνο ανάλυση) ερωτώνται ξανά μία φορά.
+ */
+export const CONSENT_STORAGE_KEY = "kolleris-consent-v2";
 
 export function GoogleAnalytics() {
   if (process.env.NODE_ENV !== "production") return null;
@@ -55,9 +59,9 @@ function gtag(){dataLayer.push(arguments);}
 var granted = false;
 try { granted = localStorage.getItem(${JSON.stringify(CONSENT_STORAGE_KEY)}) === "granted"; } catch (e) {}
 gtag('consent', 'default', {
-  ad_storage: 'denied',
-  ad_user_data: 'denied',
-  ad_personalization: 'denied',
+  ad_storage: granted ? 'granted' : 'denied',
+  ad_user_data: granted ? 'granted' : 'denied',
+  ad_personalization: granted ? 'granted' : 'denied',
   analytics_storage: granted ? 'granted' : 'denied',
   functionality_storage: 'granted',
   security_storage: 'granted',
