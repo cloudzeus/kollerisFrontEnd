@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { setRequestLocale } from "next-intl/server";
 import { SiteChrome } from "@/components/chrome/SiteChrome";
 import { SiteFooter } from "@/components/chrome/SiteFooter";
+import { ArticleBody } from "@/components/blog/ArticleBody";
 import { BlogMissingNotice } from "@/components/blog/BlogMissingNotice";
 import { Link } from "@/i18n/navigation";
 import type { Locale } from "@/i18n/routing";
@@ -168,16 +169,7 @@ export default async function BlogPostPage({ params }: PageProps) {
                     </span>
                   )}
 
-                  {/*
-                    HDCtool's editor is the only writer and sanitises on the way
-                    in; this renders what it stored. If the editor ever opens to
-                    untrusted authors, sanitise HERE too — the storefront must
-                    not be the only place that trusts it.
-                  */}
-                  <div
-                    className="prose-kolleris"
-                    dangerouslySetInnerHTML={{ __html: post.content }}
-                  />
+                  <ArticleBody content={post.content} video={post.video} />
                 </article>
               )
             )}

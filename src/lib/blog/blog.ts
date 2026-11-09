@@ -2,7 +2,8 @@ import "server-only";
 import { cache } from "react";
 import { HdctoolError, hdctoolRequest } from "@/lib/hdctool/client";
 import type { Locale } from "@/i18n/routing";
-import type { BlogListResponse, BlogPost } from "@/lib/blog/contract";
+import { watchUrl } from "@/lib/blog/article-video";
+import type { BlogListResponse, BlogPost, BlogVideo } from "@/lib/blog/contract";
 
 /**
  * Blog reads, through HDCtool.
@@ -42,3 +43,20 @@ export const getBlogPost = cache(
   (slug: string, locale: Locale): Promise<BlogPost | null> =>
     call<BlogPost | null>(`${BASE}/${encodeURIComponent(slug)}?locale=${locale}`),
 );
+
+const OEMBED: Record<BlogVideo["provider"], string> = {
+  youtube: "https://www.youtube.com/oembed?format=json&url=",
+  vimeo: "https://vimeo.com/api/oembed.json?url=",
+};
+
+/** Title and channel, fetched by the server so the visitor still loads nothing from the provider. Null never hides the video. */
+export async function getVideoMeta(video: BlogVideo): Promise<{ title: string; channel: string } | null> {
+  try {
+    const res = await fetch(OEMBED[video.provider] + encodeURIComponent(watchUrl(video)), { next: { revalidate: 86_400 }, signal: AbortSignal.timeout(3_000) });
+    if (!res.ok) return null;
+    const data = (await res.json()) as { title?: unknown; author_name?: unknown };
+    return typeof data.title === "string" && typeof data.author_name === "string" ? { title: data.title, channel: data.author_name } : null;
+  } catch {
+    return null;
+  }
+}

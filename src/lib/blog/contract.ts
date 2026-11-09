@@ -30,10 +30,14 @@ export type BlogPostSummary = {
   readingMinutes: number | null;
 };
 
+export type BlogVideo = { provider: "youtube" | "vimeo"; id: string };
+
 export type BlogPost = BlogPostSummary & {
   /** Sanitised HTML. HDCtool's editor is the only writer. */
   content: string;
   images: BlogImage[];
+  /** Absent until HDCtool serves it. */
+  video?: BlogVideo | null;
 };
 
 export type BlogListResponse = {
