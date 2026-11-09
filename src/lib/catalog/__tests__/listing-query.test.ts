@@ -6,11 +6,54 @@ import {
   filteredListingRobots,
   isFilteredListing,
   listingKindOf,
+  pagedListing,
   toggleCappedValue,
 } from "@/lib/catalog/listing-query";
+import { alternatesFor } from "@/lib/seo/urls";
 
 const canon = (search: string, kind: Parameters<typeof canonicalizeListingQuery>[0] = "category") =>
   canonicalizeListingQuery(kind, search);
+
+describe("pagedListing", () => {
+  const base = "/katalogos/krousis";
+
+  it("gives a deep page its own address and title, in each language", () => {
+    expect(pagedListing({ page: "2" }, base, "el")).toEqual({
+      path: `${base}?page=2`,
+      titleSuffix: " — Σελίδα 2",
+    });
+    expect(pagedListing({ page: "3" }, base, "en").titleSuffix).toBe(" — Page 3");
+    expect(pagedListing({ page: "3" }, base, "it").titleSuffix).toBe(" — Pagina 3");
+  });
+
+  it("survives the locale prefix in canonical and hreflang", () => {
+    const { canonical, languages } = alternatesFor(pagedListing({ page: "2" }, base, "en").path, "en");
+    expect(canonical).toMatch(/\/en\/katalogos\/krousis\?page=2$/);
+    expect(languages.el).toMatch(/[^/]\/katalogos\/krousis\?page=2$/);
+    expect(languages.it).toMatch(/\/it\/katalogos\/krousis\?page=2$/);
+  });
+
+  it("drops campaign parameters from the canonical", () => {
+    expect(pagedListing({ page: "2", utm_source: "x" }, base, "el").path).toBe(`${base}?page=2`);
+  });
+
+  it.each([
+    [{}],
+    [{ page: "1" }],
+    [{ page: "abc" }],
+    [{ page: ["2", "3"] }],
+    [{ page: "2", sort: "price" }],
+    [{ page: "2", brand: "knipex" }],
+  ])("keeps the bare listing for %j", (params) => {
+    expect(pagedListing(params, base, "el")).toEqual({ path: base, titleSuffix: "" });
+  });
+
+  it("clamps a huge page the way the proxy does", () => {
+    expect(pagedListing({ page: "99999" }, base, "el").path).toBe(
+      `${base}?page=${LISTING_LIMITS.maxPage}`,
+    );
+  });
+});
 
 describe("listingKindOf", () => {
   it.each([

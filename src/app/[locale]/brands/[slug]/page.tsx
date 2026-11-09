@@ -33,7 +33,7 @@ import { getPlpData, parsePlpParams } from "@/lib/catalog/plp";
 import { getPerRow } from "@/lib/catalog/per-row";
 import { admitListingRender, listingBusyRobots } from "@/lib/server/render-gate";
 import { ListingBusy } from "@/components/plp/ListingBusy";
-import { filteredListingRobots } from "@/lib/catalog/listing-query";
+import { filteredListingRobots, pagedListing } from "@/lib/catalog/listing-query";
 import {
   getCatalogueStats,
   getMenuTree,
@@ -58,6 +58,7 @@ export async function generateMetadata({
   const t = await getTranslations({ locale, namespace: "brands.page" });
   const brand = await getBrandBySlug(slug, locale);
   if (!brand) return {};
+  const paged = pagedListing(await searchParams, `/brands/${slug}`, locale);
   const { title, description, metaTitle } = resolveSeoText(
     {
       title: brand.name,
@@ -67,12 +68,13 @@ export async function generateMetadata({
       }),
     },
     await seoOverrideFor(`/brands/${slug}`, locale),
+    paged.titleSuffix,
   );
   return {
     /* Canonical, γλώσσες και Open Graph μαζί: το `openGraph` κληρονομείται
        ολόκληρο από όποια σελίδα δεν ορίζει δικό της, οπότε 12 από 16 σελίδες
        μοιράζονταν με τον τίτλο της αρχικής. */
-    ...pageMeta({ path: `/brands/${slug}`, locale, title, description }),
+    ...pageMeta({ path: paged.path, locale, title, description }),
     title: metaTitle,
     description,
     // Filtered views: noindex, follow — the canonical above is the bare listing.
