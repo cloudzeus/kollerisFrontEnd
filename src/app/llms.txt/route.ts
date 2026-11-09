@@ -34,7 +34,7 @@ export async function GET() {
 
   const body = `# Kolleris
 
-> Professional tools and equipment, Piraeus, Greece. Official distributor for
+> Professional tools and equipment, Piraeus, Greece. Stocking
 > Milwaukee, FACOM, GEDORE, WERA, KNIPEX, BAHCO, FESTOOL and others. Trading
 > since ${SHOP.founded}. Around 5,300 products listed, most in stock for
 > collection within two hours or next-day courier delivery across Greece.
@@ -101,10 +101,6 @@ items return to general availability.
 
 **Do you sell to businesses?** Yes. Business customers register and are approved
 manually; partner pricing applies after approval, not automatically.
-
-**Are you an authorised dealer?** Yes — an official distributor for the brands
-listed, so products carry the manufacturer's own warranty rather than a
-parallel-import one.
 
 ## Notes
 
