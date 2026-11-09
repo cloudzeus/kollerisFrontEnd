@@ -229,7 +229,15 @@ export default async function CompanyPage({
                   {upGreek(t("deite_ta_noymera"))}
                 </span>
               </h1>
-              <p className="mt-5 max-w-[600px] text-[length:var(--fs-13-5)] leading-[1.7] text-white/60 lg:text-[length:var(--fs-15)]">
+              <p className="mt-5 max-w-[640px] text-[length:var(--fs-14)] leading-[1.7] text-white/85 lg:text-[length:var(--fs-16)]">
+                {t("synopsi", {
+                  founded: String(FOUNDED),
+                  products: proof.products.toLocaleString(locale),
+                  inStock: proof.inStock.toLocaleString(locale),
+                  brands: stats.brands,
+                })}
+              </p>
+              <p className="mt-4 max-w-[600px] text-[length:var(--fs-13-5)] leading-[1.7] text-white/60 lg:text-[length:var(--fs-15)]">
                 {t("kathe_promitheytis_ergaleion_grafei_megali")}
               </p>
             </div>

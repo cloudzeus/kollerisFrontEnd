@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { handleSeoFix, type SeoFields, type SeoFieldName, type SeoFixStore } from "@/lib/seo/seo-fix-protocol";
 
-const EMPTY: SeoFields = { seoTitle: null, metaDescription: null, faq: null };
-const ALL: SeoFieldName[] = ["seoTitle", "metaDescription", "faq"];
+const EMPTY: SeoFields = { seoTitle: null, metaDescription: null, faq: null, h1: null, intro: null, ogDescription: null };
+const ALL: SeoFieldName[] = ["seoTitle", "metaDescription", "faq", "h1", "intro", "ogDescription"];
 const by = "user@example.com";
 
 let state: SeoFields;
@@ -55,6 +55,28 @@ describe("handleSeoFix", () => {
     expect(state.seoTitle).toBeNull();
   });
 
+  it("apply: τα νέα πεδία γράφονται, κόβονται και αναιρούνται όπως τα παλιά", async () => {
+    state.h1 = "old";
+    const res = await handleSeoFix({ op: "apply", path: "/a", fields: { h1: " new ", intro: "  ", ogDescription: "O" }, updatedBy: by }, store);
+    expect(res.status).toBe(200);
+    expect(writes[0].fields).toEqual({ h1: "new", intro: null, ogDescription: "O" });
+  });
+
+  it.each([
+    ["h1", 121],
+    ["intro", 401],
+    ["ogDescription", 201],
+  ])("apply: %s πάνω από το όριο απορρίπτεται", async (field, n) => {
+    const res = await handleSeoFix({ op: "apply", path: "/a", fields: { [field]: "x".repeat(n) }, updatedBy: by }, store);
+    expect(res.status).toBe(422);
+    expect(writes).toEqual([]);
+  });
+
+  it("apply: το h1 δεν δέχεται HTML", async () => {
+    const res = await handleSeoFix({ op: "apply", path: "/a", fields: { h1: "<b>x</b>" }, updatedBy: by }, store);
+    expect(res.status).toBe(422);
+  });
+
   it("apply: κενό κείμενο και [] γίνονται null", async () => {
     await handleSeoFix({ op: "apply", path: "/a", fields: { seoTitle: "  ", metaDescription: "", faq: [] }, updatedBy: by }, store);
     expect(writes[0].fields).toEqual({ seoTitle: null, metaDescription: null, faq: null });
@@ -85,7 +107,7 @@ describe("handleSeoFix", () => {
   });
 
   it("apply: 422 για άγνωστο πεδίο ή χωρίς updatedBy", async () => {
-    expect((await handleSeoFix({ op: "apply", path: "/a", fields: { h1: "x" }, updatedBy: by }, store)).status).toBe(422);
+    expect((await handleSeoFix({ op: "apply", path: "/a", fields: { bogus: "x" }, updatedBy: by }, store)).status).toBe(422);
     expect((await handleSeoFix({ op: "apply", path: "/a", fields: { seoTitle: "t" } }, store)).status).toBe(422);
     expect((await handleSeoFix({ op: "apply", path: "/a", fields: { seoTitle: "t" }, updatedBy: "x".repeat(121) }, store)).status).toBe(422);
     expect(writes).toEqual([]);

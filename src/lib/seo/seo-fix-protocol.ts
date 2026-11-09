@@ -5,10 +5,17 @@ import { z } from "zod";
  * into each storefront repo, like `hdc-signature.ts`: only the store differs.
  */
 
-export const SEO_FIELDS = ["seoTitle", "metaDescription", "faq"] as const;
+export const SEO_FIELDS = ["seoTitle", "metaDescription", "faq", "h1", "intro", "ogDescription"] as const;
 export type SeoFieldName = (typeof SEO_FIELDS)[number];
 export type FaqPair = { q: string; a: string };
-export type SeoFields = { seoTitle: string | null; metaDescription: string | null; faq: FaqPair[] | null };
+export type SeoFields = {
+  seoTitle: string | null;
+  metaDescription: string | null;
+  faq: FaqPair[] | null;
+  h1: string | null;
+  intro: string | null;
+  ogDescription: string | null;
+};
 
 export interface SeoFixStore {
   /** `null`: the page is not supported. */
@@ -30,6 +37,9 @@ const text = (max: number) =>
     .optional();
 
 const fieldsSchema = z.strictObject({
+  h1: text(120),
+  intro: text(400),
+  ogDescription: text(200),
   seoTitle: text(200),
   metaDescription: text(400),
   faq: z

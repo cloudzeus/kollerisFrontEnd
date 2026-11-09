@@ -1,6 +1,12 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
-import { yearsInBusiness } from "@/lib/seo/structured-data";
+import { breadcrumbJsonLd, featuredProductsJsonLd, yearsInBusiness } from "@/lib/seo/structured-data";
+import { withLiveFigures } from "@/lib/seo/live-figures";
+import { pageMeta } from "@/lib/seo/urls";
+import { discountedNet, offerBadgeFor } from "@/lib/offers/badges";
+import { grossAmount } from "@/lib/format";
+import { Audience, AUDIENCE_SLUGS } from "@/components/home/Audience";
+import { IntroBand, ENTITY_SLUGS } from "@/components/home/IntroBand";
 import { faqJsonLd } from "@/lib/seo/product-faq";
 import { seoOverrideFor } from "@/lib/seo/seo-page-override";
 import { SeoFaqList } from "@/components/seo/SeoFaqList";
@@ -25,6 +31,7 @@ import { Zone, zoneHasContent } from "@/components/zones/Zone";
 import { FREE_SHIPPING_THRESHOLD_NET } from "@/lib/cart/options";
 import {
   getCatalogueStats,
+  getCategoryLinks,
   getFeaturedProducts,
   getMenuTree,
   getRootCategories,
@@ -57,8 +64,19 @@ export async function generateMetadata({
   params: Promise<{ locale: Locale }>;
 }): Promise<Metadata> {
   const { locale } = await params;
-  const o = await seoOverrideFor("/", locale);
+  const [stored, stats] = await Promise.all([seoOverrideFor("/", locale), getCatalogueStats()]);
+  const o = stored && withLiveFigures(stored, stats, locale);
+  const layout = await getTranslations({ locale, namespace: "layout" });
   return {
+    // Only when set: `openGraph` replaces the layout's whole block.
+    ...(o?.ogDescription
+      ? pageMeta({
+          path: "/",
+          locale,
+          title: o.seoTitle ?? layout("titlos_kolleris_ergaleia_epaggelmatikos"),
+          description: o.ogDescription,
+        })
+      : {}),
     ...(o?.seoTitle ? { title: { absolute: o.seoTitle } } : {}),
     ...(o?.metaDescription ? { description: o.metaDescription } : {}),
   };
@@ -84,7 +102,8 @@ export default async function HomePage({
     aboutCopy,
     reviewsCopy,
     newest,
-    override,
+    storedOverride,
+    categoryLinks,
   ] = await Promise.all([
     getRootCategories(locale),
     getMenuTree(locale),
@@ -99,7 +118,26 @@ export default async function HomePage({
     getSection("reviews", locale),
     getNewestListedProduct(locale),
     seoOverrideFor("/", locale),
+    getCategoryLinks(locale, [...ENTITY_SLUGS, ...AUDIENCE_SLUGS]),
   ]);
+
+  // One source for every catalogue figure on the page, stored SEO text included.
+  const override = storedOverride && withLiveFigures(storedOverride, stats, locale);
+  const homeLabel = (await getTranslations("etaireia.page"))("archiki");
+  const breadcrumbLd = breadcrumbJsonLd([{ name: homeLabel, path: "/" }], locale);
+  const featuredLd = featuredProductsJsonLd(
+    await Promise.all(
+      products
+        .filter((p) => p.priceNet != null)
+        .map(async (p) => {
+          // The same calculation as the card, so data and page cannot disagree.
+          const offer = await offerBadgeFor({ ...p, unitNet: p.priceNet }, locale);
+          const net = discountedNet(p.priceNet!, offer?.discountPercent ?? 0);
+          return { ...p, grossPrice: grossAmount(net, { vatRate: p.vatRate }) };
+        }),
+    ),
+    locale,
+  );
 
   /*
    * Whether the hero's right-hand column has anything to show.
@@ -255,6 +293,10 @@ export default async function HomePage({
 
   return (
     <QuickViewProvider locale={locale}>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }} />
+      {featuredLd && (
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(featuredLd) }} />
+      )}
       <SiteChrome
         locale={locale}
         cart={miniCart}
@@ -271,6 +313,7 @@ export default async function HomePage({
           brandCount={stats.brands}
           featuredTiles={promoTiles}
           copy={heroCopy}
+          h1={override?.h1}
           /*
              Only when the zone has something in it. `<Zone/>` is truthy even
              when it renders nothing, so passing it unconditionally left the
@@ -282,11 +325,13 @@ export default async function HomePage({
             ) : null
           }
         />
+        <IntroBand intro={override?.intro} categoryLinks={categoryLinks} />
         <StatStrip stats={statCards} locale={locale} />
         <CategoryGrid
           categories={categories.slice(0, 8)}
           totalCategories={stats.categories}
         />
+        <Audience categoryLinks={categoryLinks} />
         <Zone id="home.belowCategories" locale={locale} context={zoneContext} />
         <FeaturedProducts products={products} />
         <QuickOrder />

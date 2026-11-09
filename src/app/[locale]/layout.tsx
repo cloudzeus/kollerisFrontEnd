@@ -1,5 +1,6 @@
 import { hasLocale, NextIntlClientProvider } from "next-intl";
-import { setRequestLocale } from "next-intl/server";
+import { getMessages, setRequestLocale } from "next-intl/server";
+import { pickClientMessages } from "@/i18n/client-namespaces";
 import { notFound } from "next/navigation";
 import { routing } from "@/i18n/routing";
 import { getSettingNumber } from "@/lib/settings/settings";
@@ -32,10 +33,10 @@ export default async function LocaleLayout({
    * full-bleed band and the catalogue beneath it line up instead of the banner
    * running out to the bezel on its own.
    */
-  const maxWidth = await getSettingNumber("shop.maxWidth");
+  const [maxWidth, messages] = await Promise.all([getSettingNumber("shop.maxWidth"), getMessages()]);
 
   return (
-    <NextIntlClientProvider>
+    <NextIntlClientProvider messages={pickClientMessages(messages)}>
       <div
         className="page-shell"
         style={maxWidth ? ({ "--shell-max": `${maxWidth}px` } as React.CSSProperties) : undefined}
