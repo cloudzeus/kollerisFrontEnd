@@ -79,6 +79,7 @@ export async function generateMetadata({
         ? category.nameIt
         : category.nameEl;
   const paged = pagedListing(await searchParams, `/katalogos/${kathgoria}`, locale);
+  const override = await seoOverrideFor(`/katalogos/${kathgoria}`, locale);
   const { title, description, metaTitle } = resolveSeoText(
     {
       title: name,
@@ -87,7 +88,7 @@ export async function generateMetadata({
         childCount: category.childCount,
       }),
     },
-    await seoOverrideFor(`/katalogos/${kathgoria}`, locale),
+    override,
     paged.titleSuffix,
   );
   return {
@@ -99,6 +100,7 @@ export async function generateMetadata({
       locale,
       title,
       description,
+      ogDescription: override?.ogDescription,
     }),
     title: metaTitle,
     description,

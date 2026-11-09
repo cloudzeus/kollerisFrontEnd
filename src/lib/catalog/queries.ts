@@ -77,6 +77,22 @@ export const getRootCategories = sharedCatalogue(
   },
 );
 
+/**
+ * Named categories for editorial links on the homepage. A category that has no
+ * products or was renamed in the ERP is simply absent, so the link cannot 404.
+ */
+export const getCategoryLinks = sharedCatalogue(
+  "category-links",
+  SLOW,
+  async (locale: Locale, slugs: string[]): Promise<Record<string, string>> => {
+    const rows = await prisma.category.findMany({
+      where: { slug: { in: slugs }, productCount: { gt: 0 } },
+      select: { slug: true, nameEl: true, nameEn: true, nameIt: true },
+    });
+    return Object.fromEntries(rows.map((row) => [row.slug, localised(row, locale)]));
+  },
+);
+
 export type MenuCategory = CategoryTile & {
   children: Array<{
     id: string;

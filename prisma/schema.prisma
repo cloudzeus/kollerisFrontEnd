@@ -1905,6 +1905,9 @@ model SeoPageOverride {
   metaDescription String?  @db.VarChar(400)
   /// [{ q, a }]
   faq             Json?
+  h1              String?  @db.VarChar(120)
+  intro           String?  @db.VarChar(400)
+  ogDescription   String?  @db.VarChar(200)
   updatedBy       String   @db.VarChar(120)
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt

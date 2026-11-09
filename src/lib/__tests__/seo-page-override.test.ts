@@ -6,6 +6,8 @@ vi.mock("@/lib/prisma", () => ({ prisma: { seoPageOverride: { findUnique, upsert
 import { Prisma } from "@/generated/prisma/client";
 import { allowedFieldsForPath, seoFixStore, seoOverrideFor } from "@/lib/seo/seo-page-override";
 
+const NONE = { seoTitle: null, metaDescription: null, faq: null, h1: null, intro: null, ogDescription: null };
+
 beforeEach(() => {
   findUnique.mockReset();
   upsert.mockReset();
@@ -13,11 +15,16 @@ beforeEach(() => {
 
 describe("allowedFieldsForPath", () => {
   it.each([
-    ["/", 3],
-    ["/katalogos/trapania", 3],
+    ["/", 6],
+    ["/katalogos/trapania", 4],
     ["/brands/knipex", 2],
     ["/proion/abc", 2],
   ])("%s δέχεται %i πεδία", (path, n) => expect(allowedFieldsForPath(path)).toHaveLength(n));
+
+  it("h1 και intro μόνο στην αρχική, ogDescription και στην κατηγορία", () => {
+    expect(allowedFieldsForPath("/")).toEqual(["seoTitle", "metaDescription", "faq", "h1", "intro", "ogDescription"]);
+    expect(allowedFieldsForPath("/katalogos/x")).toEqual(["seoTitle", "metaDescription", "faq", "ogDescription"]);
+  });
 
   it("μόνο κατηγορία και αρχική έχουν ερωτήσεις", () => {
     expect(allowedFieldsForPath("/brands/knipex")).toEqual(["seoTitle", "metaDescription"]);
@@ -48,14 +55,19 @@ describe("seoOverrideFor", () => {
 
   it("δίνει τα πεδία της εγγραφής", async () => {
     findUnique.mockResolvedValue({ path: "/", seoTitle: "T", metaDescription: null, faq: [{ a: "A", q: "Q" }], updatedBy: "u" });
-    expect(await seoOverrideFor("/", "el")).toEqual({ seoTitle: "T", metaDescription: null, faq: [{ q: "Q", a: "A" }] });
+    expect(await seoOverrideFor("/", "el")).toEqual({ ...NONE, seoTitle: "T", faq: [{ q: "Q", a: "A" }] });
   });
 });
 
 describe("seoFixStore", () => {
   it("read: χωρίς εγγραφή όλα null", async () => {
     findUnique.mockResolvedValue(null);
-    expect(await seoFixStore.read("/")).toEqual({ seoTitle: null, metaDescription: null, faq: null });
+    expect(await seoFixStore.read("/")).toEqual(NONE);
+  });
+
+  it("read: διαβάζει τα νέα πεδία", async () => {
+    findUnique.mockResolvedValue({ ...NONE, h1: "H", intro: "I", ogDescription: "O" });
+    expect(await seoFixStore.read("/")).toEqual({ ...NONE, h1: "H", intro: "I", ogDescription: "O" });
   });
 
   it("read: κάθε ερώτηση ως { q, a }", async () => {

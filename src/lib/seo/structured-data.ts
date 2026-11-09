@@ -308,6 +308,52 @@ export function breadcrumbJsonLd(
 }
 
 /**
+ * The homepage's featured products as data: the price is the one the card shows.
+ * No `aggregateRating`, because no reviews exist per product.
+ */
+export function featuredProductsJsonLd(
+  products: Array<{
+    name: string;
+    sku: string;
+    slug: string;
+    image: string | null;
+    brandName: string | null;
+    grossPrice: number;
+    inStock: boolean;
+  }>,
+  locale: Locale,
+) {
+  if (products.length === 0) return null;
+  return {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    itemListElement: products.map((product, index) => {
+      const url = absoluteUrl(`/proion/${product.slug}`, locale);
+      return {
+        "@type": "ListItem",
+        position: index + 1,
+        item: {
+          "@type": "Product",
+          name: product.name,
+          sku: product.sku,
+          url,
+          ...(product.image ? { image: product.image } : {}),
+          ...(product.brandName ? { brand: { "@type": "Brand", name: product.brandName } } : {}),
+          offers: {
+            "@type": "Offer",
+            url,
+            price: product.grossPrice.toFixed(2),
+            priceCurrency: "EUR",
+            itemCondition: "https://schema.org/NewCondition",
+            availability: product.inStock ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+          },
+        },
+      };
+    }),
+  };
+}
+
+/**
  * Πόσα χρόνια δουλεύει η επιχείρηση, σήμερα.
  *
  * ── Γιατί δεν γράφεται νούμερο ─────────────────────────────────────────────

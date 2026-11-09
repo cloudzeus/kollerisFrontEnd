@@ -233,6 +233,22 @@
       "prostethike_sto_kalathi": "Added to your cart.",
       "den_vrethike_kodikos": "No product with that code. Check it, or use search instead.",
       "kati_pige_strava": "Something went wrong. Please try again."
+    },
+    "IntroBand": {
+      "xekiniste_apo": "Start with",
+      "ergaleia_cheiros": "hand tools",
+      "ilektrika_batarias": "cordless power tools",
+      "sidirika": "hardware",
+      "athina_peiraias": "Athens / Piraeus"
+    },
+    "Audience": {
+      "eyebrow": "For professionals",
+      "titlos": "Who we work with",
+      "naytiliakes": "Shipping companies",
+      "ergostasia": "Factories",
+      "synergeia": "Workshops",
+      "ilektrologoi": "Electricians",
+      "ydraylikoi": "Plumbers"
     }
   },
   "faq": {
@@ -1284,7 +1300,8 @@
       "peiraias_apo_to": "Piraeus · since {FOUNDED}",
       "apo_to_mechri_simera": "From {FOUNDED} to today",
       "titlos_i_etaireia": "The company",
-      "perigrafi_46_chronia_sta_viomichanika": "{years} years in industrial tools. See our warehouse numbers live — codes, stock, tons on the shelf."
+      "perigrafi_46_chronia_sta_viomichanika": "{years} years in industrial tools. See our warehouse numbers live — codes, stock, tons on the shelf.",
+      "synopsi": "Since {founded}, Kolleris has supplied shipping companies, factories and workshops with professional tools from Piraeus. Today it lists {products} product codes online, {inStock} of them in immediate stock, and {brands} brands with active products. It delivers across Greece in 24-48 hours."
     }
   },
   "epikoinonia": {

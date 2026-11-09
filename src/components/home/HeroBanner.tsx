@@ -25,7 +25,10 @@ export async function HeroBanner({
   featuredTiles,
   copy,
   aside,
+  h1,
 }: {
+  /** Written from HDCtool. When set it is the H1 and the slogan becomes its subtitle. */
+  h1?: string | null;
   productCount: number;
   brandCount: number;
   copy: Record<string, string>;
@@ -75,11 +78,20 @@ export async function HeroBanner({
             {upGreek(copy.eyebrow)} · {copy.since}
           </p>
 
-          <h1 className="t-h1 max-w-[640px] text-balance text-white">
-            {upGreek(copy.title)}
-            <br />
-            <span className="text-k-red">{upGreek(copy.titleSecond)}</span>
-          </h1>
+          {h1 ? (
+            <div className="flex flex-col gap-2 lg:gap-3">
+              <h1 className="t-h2 max-w-[640px] text-balance text-white">{h1}</h1>
+              <p className="t-tile-title max-w-[640px] text-white/85">
+                {upGreek(copy.title)} <span className="text-k-red">{upGreek(copy.titleSecond)}</span>
+              </p>
+            </div>
+          ) : (
+            <h1 className="t-h1 max-w-[640px] text-balance text-white">
+              {upGreek(copy.title)}
+              <br />
+              <span className="text-k-red">{upGreek(copy.titleSecond)}</span>
+            </h1>
+          )}
 
           <p className="t-lead max-w-[460px] text-white/74">
             <span className="lg:hidden">{leadMobile}</span>

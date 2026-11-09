@@ -233,6 +233,22 @@
       "prostethike_sto_kalathi": "Aggiunto al carrello.",
       "den_vrethike_kodikos": "Nessun prodotto con questo codice. Verificalo o usa la ricerca.",
       "kati_pige_strava": "Qualcosa è andato storto. Riprova."
+    },
+    "IntroBand": {
+      "xekiniste_apo": "Inizia da",
+      "ergaleia_cheiros": "utensili manuali",
+      "ilektrika_batarias": "elettroutensili a batteria",
+      "sidirika": "ferramenta",
+      "athina_peiraias": "Atene / Pireo"
+    },
+    "Audience": {
+      "eyebrow": "Per i professionisti",
+      "titlos": "A chi ci rivolgiamo",
+      "naytiliakes": "Compagnie di navigazione",
+      "ergostasia": "Fabbriche",
+      "synergeia": "Officine",
+      "ilektrologoi": "Elettricisti",
+      "ydraylikoi": "Idraulici"
     }
   },
   "faq": {
@@ -1284,7 +1300,8 @@
       "peiraias_apo_to": "Pireo · dal {FOUNDED}",
       "apo_to_mechri_simera": "Dal {FOUNDED} a oggi",
       "titlos_i_etaireia": "L'azienda",
-      "perigrafi_46_chronia_sta_viomichanika": "{years} anni negli utensili industriali. Guarda i numeri del nostro magazzino in diretta — codici, stock, tonnellate sugli scaffali."
+      "perigrafi_46_chronia_sta_viomichanika": "{years} anni negli utensili industriali. Guarda i numeri del nostro magazzino in diretta — codici, stock, tonnellate sugli scaffali.",
+      "synopsi": "Dal {founded} Kolleris fornisce utensili professionali a compagnie di navigazione, fabbriche e officine dal Pireo. Oggi ha {products} codici online, {inStock} dei quali disponibili subito, e {brands} marchi con prodotti attivi. Consegna in tutta la Grecia in 24-48 ore."
     }
   },
   "epikoinonia": {

@@ -186,6 +186,8 @@ export function pageMeta(input: {
   locale: Locale;
   title: string;
   description: string;
+  /** Το κείμενο της προεπισκόπησης κοινοποίησης, όταν διαφέρει από το description. */
+  ogDescription?: string | null;
   /** Εικόνα προεπισκόπησης, όταν η σελίδα έχει δική της. Αλλιώς η γενική. */
   image?: string;
   /** `article` για άρθρα, `website` για τα υπόλοιπα. */
@@ -216,14 +218,14 @@ export function pageMeta(input: {
             ? "it_IT"
             : "en_US",
       title: input.title,
-      description: input.description,
+      description: input.ogDescription ?? input.description,
       url,
       images: [{ url: image, alt: input.title }],
     },
     twitter: {
       card: "summary_large_image" as const,
       title: input.title,
-      description: input.description,
+      description: input.ogDescription ?? input.description,
       images: [image],
     },
   };
