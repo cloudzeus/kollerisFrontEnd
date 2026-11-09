@@ -22,7 +22,7 @@ import { getPlpData, parsePlpParams } from "@/lib/catalog/plp";
 import { getPerRow } from "@/lib/catalog/per-row";
 import { admitListingRender, listingBusyRobots } from "@/lib/server/render-gate";
 import { ListingBusy } from "@/components/plp/ListingBusy";
-import { filteredListingRobots } from "@/lib/catalog/listing-query";
+import { filteredListingRobots, pagedListing } from "@/lib/catalog/listing-query";
 import {
   getCatalogueStats,
   getMenuTree,
@@ -90,12 +90,13 @@ export async function generateMetadata({
   const { slug, locale } = await params;
   const offer = await getOffer(slug);
   if (!offer) return {};
-  const title = offerTitle(offer, locale);
+  const paged = pagedListing(await searchParams, `/prosfores/${slug}`, locale);
+  const title = offerTitle(offer, locale) + paged.titleSuffix;
   /* Κενή περιγραφή σημαίνει «δεν γράφτηκε», και μια προεπισκόπηση χωρίς
      περιγραφή είναι καλύτερη από μια με κενή γραμμή. Πέφτει στη γενική. */
   const description = offerDescription(offer, locale) || "";
   return {
-    ...pageMeta({ path: `/prosfores/${slug}`, locale, title, description }),
+    ...pageMeta({ path: paged.path, locale, title, description }),
     title,
     description: description || undefined,
     // Filtered views: noindex, follow — the canonical above is the bare listing.

@@ -24,7 +24,7 @@ import { getPlpData, parsePlpParams } from "@/lib/catalog/plp";
 import { getPerRow } from "@/lib/catalog/per-row";
 import { admitListingRender, listingBusyRobots } from "@/lib/server/render-gate";
 import { ListingBusy } from "@/components/plp/ListingBusy";
-import { filteredListingRobots } from "@/lib/catalog/listing-query";
+import { filteredListingRobots, pagedListing } from "@/lib/catalog/listing-query";
 import {
   getCatalogueStats,
   getMenuTree,
@@ -66,13 +66,14 @@ export async function generateMetadata({
 }: PageProps): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "katalogos.page" });
-  const title = t("ola_ta_proionta");
+  const paged = pagedListing(await searchParams, "/proionta", locale);
+  const title = t("ola_ta_proionta") + paged.titleSuffix;
   const description = t("olos_o_katalogos_se_mia_lista");
   return {
     /* Canonical, γλώσσες και Open Graph μαζί: το `openGraph` κληρονομείται
        ολόκληρο από όποια σελίδα δεν ορίζει δικό της, οπότε 12 από 16 σελίδες
        μοιράζονταν με τον τίτλο της αρχικής. */
-    ...pageMeta({ path: "/proionta", locale, title, description }),
+    ...pageMeta({ path: paged.path, locale, title, description }),
     title,
     description,
     // Filtered views: noindex, follow — the canonical above is the bare listing.

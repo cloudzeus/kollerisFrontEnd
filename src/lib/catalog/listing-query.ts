@@ -4,6 +4,7 @@ import {
   PRICE_BANDS,
   SORT_OPTIONS,
 } from "@/lib/catalog/plp-options";
+import type { Locale } from "@/i18n/routing";
 
 /**
  * The query string of a product listing, reduced to ONE spelling.
@@ -358,6 +359,27 @@ export function filteredListingRobots(
   params: RawParams,
 ): { index: false; follow: true } | undefined {
   return isFilteredListing(params) ? { index: false, follow: true } : undefined;
+}
+
+const PAGE_WORD: Record<Locale, string> = { el: "Σελίδα", en: "Page", it: "Pagina" };
+
+/**
+ * The address and title suffix of a listing page in its metadata.
+ *
+ * `?page=N` is its own page with its own products, so it is its own canonical:
+ * pointing it at page 1 told Google the page was a duplicate, and products
+ * linked only from deep pages lost those links. A filtered view stays on the
+ * bare listing, see `filteredListingRobots`.
+ */
+export function pagedListing(params: RawParams, path: string, locale: Locale) {
+  const raw = params.page;
+  const page =
+    !isFilteredListing(params) && typeof raw === "string" && /^\d{1,12}$/.test(raw)
+      ? Math.min(Number(raw), LISTING_LIMITS.maxPage)
+      : 1;
+  return page > 1
+    ? { path: `${path}?page=${page}`, titleSuffix: ` — ${PAGE_WORD[locale]} ${page}` }
+    : { path, titleSuffix: "" };
 }
 
 /**

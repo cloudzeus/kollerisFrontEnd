@@ -29,7 +29,7 @@ import { getPlpData, parsePlpParams } from "@/lib/catalog/plp";
 import { getPerRow } from "@/lib/catalog/per-row";
 import { admitListingRender, listingBusyRobots } from "@/lib/server/render-gate";
 import { ListingBusy } from "@/components/plp/ListingBusy";
-import { filteredListingRobots } from "@/lib/catalog/listing-query";
+import { filteredListingRobots, pagedListing } from "@/lib/catalog/listing-query";
 import {
   getCatalogueStats,
   getMenuTree,
@@ -78,6 +78,7 @@ export async function generateMetadata({
       : locale === "it"
         ? category.nameIt
         : category.nameEl;
+  const paged = pagedListing(await searchParams, `/katalogos/${kathgoria}`, locale);
   const { title, description, metaTitle } = resolveSeoText(
     {
       title: name,
@@ -87,13 +88,14 @@ export async function generateMetadata({
       }),
     },
     await seoOverrideFor(`/katalogos/${kathgoria}`, locale),
+    paged.titleSuffix,
   );
   return {
     /* Canonical, γλώσσες και Open Graph μαζί: το `openGraph` κληρονομείται
        ολόκληρο από όποια σελίδα δεν ορίζει δικό της, οπότε 12 από 16 σελίδες
        μοιράζονταν με τον τίτλο της αρχικής. */
     ...pageMeta({
-      path: `/katalogos/${kathgoria}`,
+      path: paged.path,
       locale,
       title,
       description,
