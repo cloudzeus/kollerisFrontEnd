@@ -45,4 +45,9 @@ describe("ga4-events", () => {
   it("builds Meta contents with quantity defaulting to 1", () => {
     expect(metaParams({ items: [{ item_id: "a", item_name: "A", price: 5 }] }).contents).toEqual([{ id: "a", quantity: 1, item_price: 5 }]);
   });
+
+  it("sends the catalogue id to Meta when there is one, so catalogue ads match the product", () => {
+    const items = [{ item_id: "21191001258", catalog_id: "2304", item_name: "Δράπανο", price: 100 }, { item_id: "X1", item_name: "Χωρίς mtrl", price: 5 }];
+    expect(metaParams({ items })).toMatchObject({ content_ids: ["2304", "X1"], contents: [{ id: "2304" }, { id: "X1" }] });
+  });
 });

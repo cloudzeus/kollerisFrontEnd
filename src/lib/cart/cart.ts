@@ -203,6 +203,7 @@ export const getCart = cache(async (
     return {
       id: line.id,
       productId: p.id,
+      mtrl: p.mtrl,
       slug: p.slug,
       /* ΟΛΟΚΛΗΡΟ το όνομα, με το νούμερο μέσα. Στη λίστα η κάρτα εκπροσωπεί
          την ομάδα και το νούμερο αφαιρείται· εδώ η γραμμή είναι ένα

@@ -77,6 +77,7 @@ import { placeOrder } from "@/lib/checkout/actions";
 const cartLine = (id: string, over: Partial<CartLineView> = {}): CartLineView => ({
   id,
   productId: `p-${id}`,
+  mtrl: 1,
   slug: id,
   name: `Προϊόν ${id}`,
   sku: `SKU-${id}`,

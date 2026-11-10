@@ -394,6 +394,7 @@ export default async function ProductPage({ params }: PageProps) {
               items: [
                 {
                   item_id: product.sku,
+                  catalog_id: String(product.mtrl),
                   item_name: product.name,
                   item_brand: product.brand?.name,
                   price: Math.round(Number(product.priceNet) * 100) / 100,

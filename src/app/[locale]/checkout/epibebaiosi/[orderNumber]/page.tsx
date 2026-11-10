@@ -218,6 +218,7 @@ export default async function ConfirmationPage({ params, searchParams }: PagePro
             shipping: Number(order.shippingGross),
             items: order.lines.map((l) => ({
               item_id: l.sku,
+              catalog_id: l.mtrl != null ? String(l.mtrl) : undefined,
               item_name: l.name,
               item_brand: l.brand ?? undefined,
               price: Math.round(Number(l.unitNet) * (100 - Number(l.discountPercent))) / 100,
