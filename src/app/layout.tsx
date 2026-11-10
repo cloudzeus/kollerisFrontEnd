@@ -146,6 +146,9 @@ export async function generateMetadata(): Promise<Metadata> {
       google:
         process.env.GOOGLE_SITE_VERIFICATION ||
         "KQ3VCyEKM40wz6J0F86WUhuE8kOmtOLKo0K7_aW6jl4",
+      // Meta Business domain verification for kolleris.com (domain id
+      // 1451726693724773). Public by nature, like the Google one above.
+      other: { "facebook-domain-verification": "48r74qatbmkcbilyc1xi2x9op1xrpe" },
     },
     title: {
       default: t("titlos_kolleris_ergaleia_epaggelmatikos"),
