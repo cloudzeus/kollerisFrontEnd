@@ -88,6 +88,7 @@ import { buildBreakdown, requestPart } from "@/lib/requests/breakdown";
 const line = (id: string, net: number, over: Partial<CartLineView> = {}): CartLineView => ({
   id,
   productId: `p-${id}`,
+  mtrl: 1,
   slug: id,
   name: `Προϊόν ${id}`,
   sku: `SKU-${id}`,

@@ -118,6 +118,8 @@ export function shippingMethodsFor(country: string | null | undefined): readonly
 export type CartLineView = {
   id: string;
   productId: string;
+  /** The catalogue id (feed `g:id`), for the Meta Pixel. */
+  mtrl: number;
   slug: string;
   name: string;
   sku: string;

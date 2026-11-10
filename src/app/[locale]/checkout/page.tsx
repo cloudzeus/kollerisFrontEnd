@@ -266,6 +266,7 @@ export default async function CheckoutPage({
             value: Math.round(cart.lines.reduce((v, l) => v + l.lineNet, 0) * 100) / 100,
             items: cart.lines.map((l) => ({
               item_id: l.sku,
+              catalog_id: String(l.mtrl),
               item_name: l.name,
               item_brand: l.brandName ?? undefined,
               price: Math.round(l.unitNetFinal * 100) / 100,

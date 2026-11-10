@@ -14,6 +14,12 @@
 export type Ga4Item = {
   item_id: string;
   item_name: string;
+  /**
+   * The product's id in the Meta catalogue: the feed's `g:id`, which is `mtrl`.
+   * The Pixel must send THIS, not the ERP code, or catalogue ads cannot match a
+   * viewed or bought product («Products aren't matching ad events»).
+   */
+  catalog_id?: string;
   item_brand?: string;
   price?: number;
   quantity?: number;
@@ -37,8 +43,8 @@ export function metaParams(params: { value?: number; items: Ga4Item[] }): Record
     currency: "EUR",
     value: params.value ?? itemsValue(params.items),
     content_type: "product",
-    content_ids: params.items.map((i) => i.item_id),
-    contents: params.items.map((i) => ({ id: i.item_id, quantity: i.quantity ?? 1, item_price: i.price })),
+    content_ids: params.items.map((i) => i.catalog_id ?? i.item_id),
+    contents: params.items.map((i) => ({ id: i.catalog_id ?? i.item_id, quantity: i.quantity ?? 1, item_price: i.price })),
     num_items: params.items.reduce((s, i) => s + (i.quantity ?? 1), 0),
   };
 }
