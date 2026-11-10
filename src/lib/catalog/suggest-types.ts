@@ -19,6 +19,8 @@ export type SuggestProduct = {
   priceNet: number | null;
   vatRate: number;
   inStock: boolean;
+  /** None of ours, the supplier XML has it: buyable, 3–5 working days. */
+  supplierAvailable?: boolean;
   qty: number;
 };
 

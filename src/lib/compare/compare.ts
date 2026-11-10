@@ -1,5 +1,6 @@
 import "server-only";
 import { cookies } from "next/headers";
+import { isFromSupplier } from "@/lib/catalog/availability";
 import { cache } from "react";
 import { getTranslations } from "next-intl/server";
 import { prisma } from "@/lib/prisma";
@@ -153,6 +154,7 @@ function loadProducts(slugs: string[], locale: Locale) {
       vatRate: true,
       qty: true,
       inStock: true,
+      supplierAvailable: true,
       weight: true,
       width: true,
       length: true,
@@ -310,6 +312,7 @@ export async function getCompareView(
       vatRate: num(p.vatRate) ?? 24,
       qty: num(p.qty) ?? 0,
       inStock: p.inStock,
+      supplierAvailable: p.supplierAvailable,
     };
   });
 
@@ -353,7 +356,11 @@ function buildGroups(
       "availability",
       t("diathesimotita"),
       columns.map((c) => ({
-        text: c.inStock ? t("amesa_diathesimo") : t("katopin_paraggelias"),
+        text: c.inStock
+          ? t("amesa_diathesimo")
+          : isFromSupplier(c)
+            ? t("diathesimo_3_5")
+            : t("katopin_paraggelias"),
       })),
       null,
     ),

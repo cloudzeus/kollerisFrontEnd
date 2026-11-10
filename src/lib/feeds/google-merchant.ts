@@ -1,5 +1,6 @@
 import "server-only";
 import { prisma } from "@/lib/prisma";
+import { isFromSupplier, SUPPLIER_HANDLING_DAYS } from "@/lib/catalog/availability";
 import { absoluteUrl } from "@/lib/seo/urls";
 import { isPlausibleWeightKg } from "@/lib/shipping/acs-tariff";
 import type { Locale } from "@/i18n/routing";
@@ -76,7 +77,7 @@ export async function buildMerchantFeed(locale: Locale = "el"): Promise<string> 
     },
     select: {
       mtrl: true, code: true, code1: true, code2: true, slug: true, name: true,
-      priceNet: true, vatRate: true, inStock: true, mtrmark: true, weight: true,
+      priceNet: true, vatRate: true, inStock: true, supplierAvailable: true, mtrmark: true, weight: true,
       mtrcategory: true, mtrgroup: true, cccSubgroup2: true,
       images: {
         orderBy: [{ isFeature: "desc" }, { order: "asc" }],
@@ -154,7 +155,14 @@ export async function buildMerchantFeed(locale: Locale = "el"): Promise<string> 
       `<g:link>${xml(absoluteUrl(`/proion/${product.slug}`, locale))}</g:link>`,
       `<g:image_link>${xml(main!.url)}</g:image_link>`,
       ...extra.map((image) => `<g:additional_image_link>${xml(image.url)}</g:additional_image_link>`),
-      `<g:availability>${product.inStock ? "in_stock" : "out_of_stock"}</g:availability>`,
+      // The supplier's stock is buyable like ours, with its own 3–5 day handling time.
+      `<g:availability>${product.inStock || isFromSupplier(product) ? "in_stock" : "out_of_stock"}</g:availability>`,
+      ...(isFromSupplier(product)
+        ? [
+            `<g:min_handling_time>${SUPPLIER_HANDLING_DAYS.min}</g:min_handling_time>`,
+            `<g:max_handling_time>${SUPPLIER_HANDLING_DAYS.max}</g:max_handling_time>`,
+          ]
+        : []),
       `<g:price>${gross.toFixed(2)} EUR</g:price>`,
       `<g:condition>new</g:condition>`,
       `<g:mpn>${xml(product.code2 || product.code)}</g:mpn>`,

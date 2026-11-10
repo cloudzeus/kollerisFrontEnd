@@ -354,6 +354,7 @@ const CARD_SELECT = {
   vatRate: true,
   qty: true,
   inStock: true,
+  supplierAvailable: true,
   images: { where: { isFeature: true }, take: 1, select: { url: true } },
   translations: { select: { locale: true, name: true } },
   impaCode: true,
@@ -482,6 +483,7 @@ async function loadListing(
       vatRate: num(row.vatRate) ?? 24,
       qty: num(row.qty) ?? 0,
       inStock: row.inStock,
+      supplierAvailable: row.supplierAvailable,
       scopeKey: scopeKeyOf(row),
     };
   });

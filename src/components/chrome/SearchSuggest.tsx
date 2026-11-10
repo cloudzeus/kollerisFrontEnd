@@ -3,6 +3,7 @@
 import { LISTING_LIMITS } from "@/lib/catalog/listing-query";
 import { useLocale } from "next-intl";
 import { useTranslations } from "next-intl";
+import { isFromSupplier } from "@/lib/catalog/availability";
 import Image from "next/image";
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import { useRouter } from "@/i18n/navigation";
@@ -550,7 +551,7 @@ function ProductRow({
         </span>
         <span
           className={`t-brand-count mt-0.5 flex items-center justify-end gap-1.5 ${
-            product.inStock ? "text-k-green" : "text-k-text-4"
+            product.inStock ? "text-k-green" : isFromSupplier(product) ? "text-k-amber" : "text-k-text-4"
           }`}
         >
           <span aria-hidden className="rounded-pill block h-1.5 w-1.5 bg-current" />
@@ -558,7 +559,9 @@ function ProductRow({
             ? showsExactQty(product.qty)
               ? `${product.qty} ${upGreek(t("tem"))}`
               : upGreek(t("diathesimo"))
-            : upGreek(t("katopin"))}
+            : isFromSupplier(product)
+              ? upGreek(t("diathesimo_3_5"))
+              : upGreek(t("katopin"))}
         </span>
       </span>
     </button>

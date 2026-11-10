@@ -40,6 +40,8 @@ export type ProductDetail = {
   vatRate: number;
   qty: number;
   inStock: boolean;
+  /** None of ours, the supplier XML has it: buyable, 3–5 working days. */
+  supplierAvailable?: boolean;
   weight: number | null;
   width: number | null;
   height: number | null;
@@ -160,6 +162,7 @@ export const getProductBySlug = cache(
       vatRate: num(product.vatRate) ?? 24,
       qty: num(product.qty) ?? 0,
       inStock: product.inStock,
+      supplierAvailable: product.supplierAvailable,
       weight: num(product.weight),
       width: num(product.width),
       height: num(product.height),
@@ -231,6 +234,7 @@ export const getRelatedProducts = cache(
         vatRate: num(row.vatRate) ?? 24,
         qty: num(row.qty) ?? 0,
         inStock: row.inStock,
+        supplierAvailable: row.supplierAvailable,
       };
     });
   },
@@ -254,6 +258,7 @@ function fetchScope(scope: Prisma.ProductWhereInput, excludeMtrl: number[], take
       vatRate: true,
       qty: true,
       inStock: true,
+      supplierAvailable: true,
       images: { where: { isFeature: true }, take: 1, select: { url: true } },
       translations: { select: { locale: true, name: true } },
     },

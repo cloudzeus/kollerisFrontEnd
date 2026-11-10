@@ -236,6 +236,7 @@ export const getCart = cache(async (
       lineNet: netAmount(unitNetFinal * line.quantity),
       lineGross: grossAmount(unitNetFinal * line.quantity, { vatRate }),
       inStock: p.inStock,
+      supplierAvailable: p.supplierAvailable,
       availableQty,
       overStock: p.inStock && availableQty > 0 && line.quantity > availableQty,
       weight: num(p.weight) || null,

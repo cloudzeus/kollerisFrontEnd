@@ -1,4 +1,5 @@
 import { getTranslations, getLocale } from "next-intl/server";
+import { isFromSupplier } from "@/lib/catalog/availability";
 import Image from "next/image";
 import { AddToCartButton } from "@/components/cart/AddToCartButton";
 import { BuyNowButton } from "@/components/cart/BuyNowButton";
@@ -74,7 +75,9 @@ export async function ProductCard({
           className: "text-k-amber",
         }
       : { label: upGreek(t("amesa_diathesimo")), className: "text-k-green" }
-    : { label: upGreek(t("katopin_paraggelias")), className: "text-k-text-4" };
+    : isFromSupplier(product)
+      ? { label: upGreek(t("diathesimo_3_5")), className: "text-k-amber" }
+      : { label: upGreek(t("katopin_paraggelias")), className: "text-k-text-4" };
 
   return (
     /*

@@ -1,5 +1,6 @@
 import { useTranslations } from "next-intl";
 import { getTranslations } from "next-intl/server";
+import { isFromSupplier } from "@/lib/catalog/availability";
 import type { Metadata } from "next";
 import { alternatesFor } from "@/lib/seo/urls";
 import Image from "next/image";
@@ -270,7 +271,7 @@ export default async function SearchPage({ params, searchParams }: PageProps) {
                 </p>
                 <p
                   className={`t-card-stock mt-1.5 flex items-center justify-end gap-1.5 ${
-                    exact.inStock ? "text-k-green" : "text-k-text-4"
+                    exact.inStock ? "text-k-green" : isFromSupplier(exact) ? "text-k-amber" : "text-k-text-4"
                   }`}
                 >
                   <span
@@ -281,7 +282,9 @@ export default async function SearchPage({ params, searchParams }: PageProps) {
                     ? showsExactQty(exact.qty)
                       ? `${exact.qty} ${upGreek(t("tem"))}`
                       : upGreek(t("diathesimo"))
-                    : upGreek(t("katopin"))}
+                    : isFromSupplier(exact)
+                      ? upGreek(t("diathesimo_3_5"))
+                      : upGreek(t("katopin"))}
                 </p>
               </div>
 

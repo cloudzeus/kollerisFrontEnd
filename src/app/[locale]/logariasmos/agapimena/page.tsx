@@ -53,6 +53,7 @@ export default async function FavouritesPage({
           vatRate: true,
           qty: true,
           inStock: true,
+          supplierAvailable: true,
           variantGroup: true,
           images: {
             where: { isFeature: true },
@@ -114,6 +115,7 @@ export default async function FavouritesPage({
       vatRate: p.vatRate == null ? 24 : Number(p.vatRate),
       qty: p.qty == null ? 0 : Number(p.qty),
       inStock: p.inStock,
+      supplierAvailable: p.supplierAvailable,
     };
   });
 

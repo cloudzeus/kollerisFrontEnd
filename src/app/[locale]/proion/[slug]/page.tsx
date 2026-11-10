@@ -1,5 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import { yearsInBusiness } from "@/lib/seo/structured-data";
+import { isFromSupplier } from "@/lib/catalog/availability";
 import { absoluteUrl, pageMeta } from "@/lib/seo/urls";
 import { resolveSeoText } from "@/lib/seo/apply-override";
 import { seoOverrideFor } from "@/lib/seo/seo-page-override";
@@ -167,7 +168,9 @@ export default async function ProductPage({ params }: PageProps) {
           ? showsExactQty(product.qty)
             ? t("tem", { qty: product.qty })
             : t("diathesimo")
-          : t("katopin"),
+          : isFromSupplier(product)
+            ? t("diathesimo_3_5")
+            : t("katopin"),
       },
       /*
        * Ο κωδικός IMPA, δεύτερος μετά τη διαθεσιμότητα.
@@ -268,7 +271,8 @@ export default async function ProductPage({ params }: PageProps) {
             price: grossAmount(product.priceNet, ctx).toFixed(2),
             priceCurrency: "EUR",
             itemCondition: "https://schema.org/NewCondition",
-            availability: product.inStock
+            // The supplier's stock is buyable, so it is InStock like ours.
+            availability: product.inStock || isFromSupplier(product)
               ? "https://schema.org/InStock"
               : "https://schema.org/OutOfStock",
             /*
@@ -344,6 +348,7 @@ export default async function ProductPage({ params }: PageProps) {
           sku: product.sku,
           brandName: product.brand?.name ?? null,
           inStock: product.inStock,
+          supplierAvailable: product.supplierAvailable,
           qty: product.qty,
           guaranteeMonths: product.guaranteeMonths,
           priceGross:
@@ -712,6 +717,7 @@ export default async function ProductPage({ params }: PageProps) {
                 vatRate={product.vatRate}
                 qty={product.qty}
                 inStock={product.inStock}
+                supplierAvailable={product.supplierAvailable}
               />
 
               {/*

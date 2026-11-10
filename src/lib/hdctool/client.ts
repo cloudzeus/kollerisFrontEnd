@@ -175,6 +175,8 @@ export type HdctoolProduct = {
   height: number | null;
   weight: number | null;
   guaranteeTime: number | null;
+  /** The supplier XML lists it «Διαθέσιμο». Absent on HDCtool builds before 29/9/2026. */
+  supplierAvailable?: boolean;
   images: Array<{
     id: string;
     filename: string;

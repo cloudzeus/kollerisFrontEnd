@@ -148,6 +148,8 @@ export type CartLineView = {
   lineNet: number;
   lineGross: number;
   inStock: boolean;
+  /** None of ours, the supplier XML has it: buyable, 3–5 working days. */
+  supplierAvailable?: boolean;
   availableQty: number;
   /** True when the line asks for more than the warehouse currently holds. */
   overStock: boolean;

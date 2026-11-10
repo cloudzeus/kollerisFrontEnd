@@ -34,7 +34,8 @@
       "tem": "pcs.",
       "katopin_paraggelias": "On order",
       "choris_eikona": "No image",
-      "me_fpa": "with VAT {vatRate}%"
+      "me_fpa": "with VAT {vatRate}%",
+      "diathesimo_3_5": "Available · 3–5 working days"
     },
     "ProductRail": {
       "proigoymena_proionta": "Previous products",
@@ -49,7 +50,8 @@
       "tem": "pcs.",
       "katopin_paraggelias": "On order",
       "pliri_stoicheia": "Full details",
-      "me_fpa": "with VAT {vatRate}%"
+      "me_fpa": "with VAT {vatRate}%",
+      "diathesimo_3_5": "Available · 3–5 working days"
     },
     "QuickViewTrigger": {
       "grigori_provoli": "Quick view"
@@ -153,7 +155,8 @@
       "syndetheite_kai_deite_tin_timi": "Log in to view your partner price",
       "tem": "pcs.",
       "timi_eshop": "Eshop price",
-      "timi_katalogoy": "List price"
+      "timi_katalogoy": "List price",
+      "diathesimo_3_5": "Available · 3–5 working days"
     },
     "specGroups": {
       "identification": "Identity",
@@ -391,7 +394,8 @@
       "ischyrotero": "Strongest",
       "logos_ischyrotero": "{label}: {value} — the highest in the comparison.",
       "elafrytero": "Lightest",
-      "logos_elafrytero": "{value} — less fatigue during use."
+      "logos_elafrytero": "{value} — less fatigue during use.",
+      "diathesimo_3_5": "Available · 3–5 working days"
     }
   },
   "chrome": {
@@ -458,7 +462,8 @@
       "ola_ta_apotelesmata": "All {totalProducts} results",
       "apotelesmata_gia": "{totalProducts} results for {query}",
       "ola_ta_apotelesmata_2": "All {totalProducts} results",
-      "diathesimo": "In stock"
+      "diathesimo": "In stock",
+      "diathesimo_3_5": "Available · 3–5 working days"
     },
     "SiteFooter": {
       "katigories": "Categories",
@@ -691,7 +696,8 @@
       "me_fpa": "with VAT {vatRate}%",
       "afairesi": "Remove {name}",
       "katopin_24h": "Made to order · confirmed within 24 hours",
-      "overstock_request": "{availableQty} in stock — this line becomes a request · confirmed within 24 hours"
+      "overstock_request": "{availableQty} in stock — this line becomes a request · confirmed within 24 hours",
+      "diathesimo_3_5": "Available · 3–5 working days"
     },
     "CartSummaryPanel": {
       "dorean_metaforika": "Free shipping",
@@ -1087,7 +1093,8 @@
       "eggyisi_minon": "{guaranteeMonths}-month warranty",
       "megethos": "Size",
       "chroma": "Colour",
-      "diathesimo": "In stock"
+      "diathesimo": "In stock",
+      "diathesimo_3_5": "Available · 3–5 working days"
     }
   },
   "nees-afixeis": {
@@ -1555,7 +1562,8 @@
       "den_vrethike_kati_gia": "Nothing found for \"{query}\"",
       "anazitisi_titlos": "Search",
       "den_vrethike_proion_me_aytoys": "No product found with these terms.",
-      "diathesimo": "In stock"
+      "diathesimo": "In stock",
+      "diathesimo_3_5": "Available · 3–5 working days"
     }
   },
   "layout": {
