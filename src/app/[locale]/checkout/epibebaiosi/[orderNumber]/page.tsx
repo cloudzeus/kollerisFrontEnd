@@ -20,6 +20,7 @@ import { paymentPageUrl } from "@/lib/payment/viva";
 import { isValidGtin } from "@/lib/feeds/google-merchant";
 import { GoogleReviewsOptIn } from "@/components/seo/GoogleReviewsOptIn";
 import { Ga4Event } from "@/components/analytics/Ga4Event";
+import { AwaitPaymentRefresh } from "@/components/checkout/AwaitPaymentRefresh";
 import { estimatedDeliveryDate } from "@/lib/seo/google-reviews";
 import { upGreek } from "@/lib/greek";
 import { holdHours } from "@/lib/orders/hold";
@@ -46,7 +47,7 @@ export async function generateMetadata({
 
 type PageProps = {
   params: Promise<{ locale: Locale; orderNumber: string }>;
-  searchParams: Promise<{ t?: string; s?: string }>;
+  searchParams: Promise<{ t?: string; s?: string; payment?: string }>;
 };
 
 /** `label` is a message key, resolved at the render site. */
@@ -62,7 +63,7 @@ export default async function ConfirmationPage({ params, searchParams }: PagePro
   const { locale, orderNumber } = await params;
   // Named on destructuring: the URL contract stays `?t=…`, but `t` alone is
   // both meaningless for a security token and the name every translator uses.
-  const { t: guestToken } = await searchParams;
+  const { t: guestToken, payment } = await searchParams;
   setRequestLocale(locale);
 
   const [order, miniCart, menuTree, brands, stats, rootCategories] = await Promise.all([
@@ -204,6 +205,8 @@ export default async function ConfirmationPage({ params, searchParams }: PagePro
         bank transfer the customer has committed to. A card payment still
         PENDING (abandoned at Viva) is not a sale. Net values, like Ads costs.
       */}
+      {/* A card just charged, webhook not in yet: wait for it, then the purchase below is sent. */}
+      {awaitingPayment && order.paymentMethod !== "bank" && payment !== "failed" && <AwaitPaymentRefresh />}
       {(!awaitingPayment || order.paymentMethod === "bank") && (
         <Ga4Event
           name="purchase"
