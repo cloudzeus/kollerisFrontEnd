@@ -41,6 +41,7 @@ export async function GET(
     vatRate: product.vatRate,
     qty: product.qty,
     inStock: product.inStock,
+    supplierAvailable: product.supplierAvailable,
     specs: product.specs.slice(0, 8).map((s) => ({
       label: s.label,
       value: formatSpecValue(s.value, s.unit),

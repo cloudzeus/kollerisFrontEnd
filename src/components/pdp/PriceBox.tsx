@@ -28,6 +28,7 @@ export function PriceBox({
   vatRate,
   qty,
   inStock,
+  supplierAvailable = false,
 }: {
   productId: string;
   priceNet: number | null;
@@ -37,6 +38,8 @@ export function PriceBox({
   vatRate: number;
   qty: number;
   inStock: boolean;
+  /** None of ours, the supplier XML has it: buyable, 3–5 working days. */
+  supplierAvailable?: boolean;
 }) {
   const locale = useLocale();
   const t = useTranslations("pdp.PriceBox");
@@ -190,7 +193,7 @@ export function PriceBox({
         <div className="mt-4 flex items-center gap-3.5">
           <span
             className={`t-card-stock flex shrink-0 items-center gap-2 ${
-              inStock ? "text-k-green-2" : "text-white/50"
+              inStock ? "text-k-green-2" : supplierAvailable ? "text-k-amber" : "text-white/50"
             }`}
           >
             <span className="rounded-pill block h-[7px] w-[7px] bg-current" />
@@ -198,7 +201,9 @@ export function PriceBox({
               ? showsQty
                 ? `${upGreek(t("diathesimo"))} · ${qty} ${upGreek(t("tem"))}`
                 : upGreek(t("diathesimo"))
-              : upGreek(t("katopin_paraggelias"))}
+              : supplierAvailable
+                ? upGreek(t("diathesimo_3_5"))
+                : upGreek(t("katopin_paraggelias"))}
           </span>
           <span className="relative h-[5px] flex-1 overflow-hidden bg-white/12">
             <span

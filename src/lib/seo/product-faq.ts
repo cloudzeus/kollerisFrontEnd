@@ -38,6 +38,8 @@ export type FaqProduct = {
   sku: string;
   brandName: string | null;
   inStock: boolean;
+  /** None of ours, the supplier XML has it: buyable, 3–5 working days. */
+  supplierAvailable?: boolean;
   qty: number;
   guaranteeMonths: number | null;
   priceGross: number | null;
@@ -93,6 +95,9 @@ export function productFaq(product: FaqProduct): FaqPair[] {
     a: product.inStock
       ? `Ναι. Το ${label} (κωδικός ${product.sku}) είναι άμεσα διαθέσιμο από το κατάστημά μας στον Πειραιά. ` +
         `Παραγγελία πριν τις 15:00 εργάσιμη αποστέλλεται αυθημερόν, και μπορείτε να το παραλάβετε και από το κατάστημα.`
+      : product.supplierAvailable
+        ? `Ναι. Το ${label} (κωδικός ${product.sku}) είναι διαθέσιμο από τον προμηθευτή μας και αποστέλλεται σε 3–5 εργάσιμες. ` +
+          `Το παραγγέλνετε και το πληρώνετε κανονικά από το eshop.`
       : `Αυτή τη στιγμή το ${label} (κωδικός ${product.sku}) δεν είναι σε απόθεμα. ` +
         `Το προμηθευόμαστε κατόπιν παραγγελίας — επικοινωνήστε μαζί μας για χρόνο παράδοσης.`,
   });

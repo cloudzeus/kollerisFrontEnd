@@ -34,7 +34,8 @@
       "tem": "τεμ.",
       "katopin_paraggelias": "Κατόπιν παραγγελίας",
       "choris_eikona": "Χωρίς εικόνα",
-      "me_fpa": "με ΦΠΑ {vatRate}%"
+      "me_fpa": "με ΦΠΑ {vatRate}%",
+      "diathesimo_3_5": "Διαθέσιμο · 3–5 εργάσιμες"
     },
     "ProductRail": {
       "proigoymena_proionta": "Προηγούμενα προϊόντα",
@@ -49,7 +50,8 @@
       "tem": "τεμ.",
       "katopin_paraggelias": "Κατόπιν παραγγελίας",
       "pliri_stoicheia": "Πλήρη στοιχεία",
-      "me_fpa": "με ΦΠΑ {vatRate}%"
+      "me_fpa": "με ΦΠΑ {vatRate}%",
+      "diathesimo_3_5": "Διαθέσιμο · 3–5 εργάσιμες"
     },
     "QuickViewTrigger": {
       "grigori_provoli": "Γρήγορη προβολή"
@@ -153,7 +155,8 @@
       "timi_eshop": "Τιμή eshop",
       "timi_katalogoy": "Τιμή καταλόγου",
       "today": "σήμερα",
-      "tomorrow": "αύριο"
+      "tomorrow": "αύριο",
+      "diathesimo_3_5": "Διαθέσιμο · 3–5 εργάσιμες"
     },
     "specGroups": {
       "identification": "Ταυτότητα",
@@ -391,7 +394,8 @@
       "ischyrotero": "Ισχυρότερο",
       "logos_ischyrotero": "{label}: {value} — το υψηλότερο της σύγκρισης.",
       "elafrytero": "Ελαφρύτερο",
-      "logos_elafrytero": "{value} — λιγότερη κούραση στη χρήση."
+      "logos_elafrytero": "{value} — λιγότερη κούραση στη χρήση.",
+      "diathesimo_3_5": "Διαθέσιμο · 3–5 εργάσιμες"
     }
   },
   "chrome": {
@@ -458,7 +462,8 @@
       "ola_ta_apotelesmata": "Όλα τα {totalProducts} αποτελέσματα",
       "apotelesmata_gia": "{totalProducts} αποτελέσματα για {query}",
       "ola_ta_apotelesmata_2": "Όλα τα {totalProducts} αποτελέσματα",
-      "diathesimo": "Διαθέσιμο"
+      "diathesimo": "Διαθέσιμο",
+      "diathesimo_3_5": "Διαθέσιμο · 3–5 εργάσιμες"
     },
     "SiteFooter": {
       "katigories": "Κατηγορίες",
@@ -691,7 +696,8 @@
       "me_fpa": "με ΦΠΑ {vatRate}%",
       "afairesi": "Αφαίρεση {name}",
       "katopin_24h": "Κατόπιν παραγγελίας · επιβεβαίωση εντός 24 ωρών",
-      "overstock_request": "Διαθέσιμα {availableQty} — η γραμμή γίνεται αίτημα · επιβεβαίωση εντός 24 ωρών"
+      "overstock_request": "Διαθέσιμα {availableQty} — η γραμμή γίνεται αίτημα · επιβεβαίωση εντός 24 ωρών",
+      "diathesimo_3_5": "Διαθέσιμο · 3–5 εργάσιμες"
     },
     "CartSummaryPanel": {
       "dorean_metaforika": "Δωρεάν μεταφορικά",
@@ -1087,7 +1093,8 @@
       "eggyisi_minon": "Εγγύηση {guaranteeMonths} μηνών",
       "megethos": "Μέγεθος",
       "chroma": "Χρώμα",
-      "diathesimo": "Διαθέσιμο"
+      "diathesimo": "Διαθέσιμο",
+      "diathesimo_3_5": "Διαθέσιμο · 3–5 εργάσιμες"
     }
   },
   "nees-afixeis": {
@@ -1555,7 +1562,8 @@
       "den_vrethike_kati_gia": "Δεν βρέθηκε κάτι για «{query}»",
       "anazitisi_titlos": "Αναζήτηση",
       "den_vrethike_proion_me_aytoys": "Δεν βρέθηκε προϊόν με αυτούς τους όρους.",
-      "diathesimo": "Διαθέσιμο"
+      "diathesimo": "Διαθέσιμο",
+      "diathesimo_3_5": "Διαθέσιμο · 3–5 εργάσιμες"
     }
   },
   "layout": {

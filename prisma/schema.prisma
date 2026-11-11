@@ -209,6 +209,8 @@ model Product {
   // ── Merchandising flags, denormalised for facet counts ──
   isActive Boolean @default(true) // mirrors MTRL.eshopListed
   inStock  Boolean @default(false)
+  /// None of ours, but the Milwaukee supplier XML lists it «Διαθέσιμο»: buyable, 3–5 working days.
+  supplierAvailable Boolean @default(false)
   isNew    Boolean @default(false)
   onSale   Boolean @default(false)
 
@@ -287,6 +289,7 @@ model Product {
   @@index([isActive, variantGroup])
   @@index([isActive, priceNet])
   @@index([isActive, inStock])
+  @@index([isActive, supplierAvailable])
   @@index([isActive, onSale])
   @@index([isActive, isNew, erpInsertedAt])
   @@index([isActive, firstListedAt])

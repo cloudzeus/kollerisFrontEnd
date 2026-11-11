@@ -233,6 +233,8 @@ export type ProductCardData = {
   vatRate: number;
   qty: number;
   inStock: boolean;
+  /** None of ours, the supplier XML has it: buyable, 3–5 working days. */
+  supplierAvailable?: boolean;
   /** Κωδικός IMPA, όπου υπάρχει — για το σήμα της κάρτας. */
   impaCode?: string | null;
   /**
@@ -257,6 +259,7 @@ const PRODUCT_CARD_SELECT = {
   vatRate: true,
   qty: true,
   inStock: true,
+  supplierAvailable: true,
   images: {
     where: { isFeature: true },
     take: 1,
@@ -286,6 +289,8 @@ type ProductRow = {
   vatRate: unknown;
   qty: unknown;
   inStock: boolean;
+  /** None of ours, the supplier XML has it: buyable, 3–5 working days. */
+  supplierAvailable?: boolean;
   images: Array<{ url: string }>;
   translations: Array<{ locale: string; name: string }>;
   variantGroup: string | null;
@@ -328,6 +333,7 @@ function toCard(
     vatRate: num(row.vatRate) ?? 24,
     qty: num(row.qty) ?? 0,
     inStock: row.inStock,
+    supplierAvailable: row.supplierAvailable,
   };
 }
 

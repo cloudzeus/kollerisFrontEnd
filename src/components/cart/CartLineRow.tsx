@@ -22,6 +22,14 @@ import { isOnRequest } from "@/lib/requests/model";
 export function CartLineRow({ line }: { line: CartLineView }) {
   const locale = useLocale();
   const t = useTranslations("cart.CartLineRow");
+  /* Not ours today, or more than we hold, and the supplier XML has it: the
+     line is bought as usual and leaves in 3–5 working days. */
+  const fromSupplier = line.supplierAvailable === true && !(line.inStock && line.availableQty >= line.quantity);
+  const stockLabel = fromSupplier
+    ? upGreek(t("diathesimo_3_5"))
+    : line.inStock
+      ? `${upGreek(t("amesa_diathesimo"))} · ${line.availableQty} ${upGreek(t("tem"))}`
+      : upGreek(t("katopin_24h"));
   const [pending, startTransition] = useTransition();
   const [optimisticQty, setOptimisticQty] = useOptimistic(line.quantity);
 
@@ -118,27 +126,23 @@ export function CartLineRow({ line }: { line: CartLineView }) {
               τυλιγόταν και η κουκκίδα έμενε μόνη της στην προηγούμενη. */}
           <span
             className={`t-card-stock flex min-w-0 items-center gap-[7px] ${
-              line.inStock ? "text-k-green" : "text-k-amber"
+              line.inStock && !fromSupplier ? "text-k-green" : "text-k-amber"
             }`}
           >
             <span className="rounded-pill block h-1.5 w-1.5 shrink-0 bg-current" />
             <span
               className="truncate"
               title={
-                line.inStock
-                  ? `${upGreek(t("amesa_diathesimo"))} · ${line.availableQty} ${upGreek(t("tem"))}`
-                  : upGreek(t("katopin_24h"))
+                stockLabel
               }
             >
-              {line.inStock
-                ? `${upGreek(t("amesa_diathesimo"))} · ${line.availableQty} ${upGreek(t("tem"))}`
-                : upGreek(t("katopin_24h"))}
+              {stockLabel}
             </span>
           </span>
 
           {/* Only shown when the basket actually exceeds stock: the whole line
               becomes a back-order request at checkout (docs/backorder-requests.md). */}
-          {line.inStock && isOnRequest(line) && (
+          {line.inStock && !fromSupplier && isOnRequest(line) && (
             <span className="t-badge self-start bg-k-amber px-2 py-1 text-white">
               {upGreek(t("overstock_request", { availableQty: line.availableQty }))}
             </span>

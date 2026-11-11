@@ -33,6 +33,8 @@ export const OFFER_REMINDER_HOURS = 24;
 /** The stock facts a cart line already carries (`CartLineView`). */
 export type StockFacts = {
   inStock: boolean;
+  /** The Milwaukee supplier XML has it: the line is bought, never requested. */
+  supplierAvailable?: boolean;
   availableQty: number;
   quantity: number;
 };
@@ -43,6 +45,8 @@ export type StockFacts = {
  * deliveries and two documents for one product, which nobody asked for.
  */
 export function isOnRequest(line: StockFacts): boolean {
+  // The supplier fills what we cannot, so the whole line ships in 3–5 working days.
+  if (line.supplierAvailable === true) return false;
   if (!line.inStock) return true;
   if (!(line.availableQty > 0)) return true;
   return line.quantity > line.availableQty;

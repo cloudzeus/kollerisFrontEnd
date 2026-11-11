@@ -34,7 +34,8 @@
       "tem": "pz.",
       "katopin_paraggelias": "Su ordinazione",
       "choris_eikona": "Nessuna immagine",
-      "me_fpa": "IVA inclusa {vatRate}%"
+      "me_fpa": "IVA inclusa {vatRate}%",
+      "diathesimo_3_5": "Disponibile · 3–5 giorni lavorativi"
     },
     "ProductRail": {
       "proigoymena_proionta": "Prodotti precedenti",
@@ -49,7 +50,8 @@
       "tem": "pz.",
       "katopin_paraggelias": "Su ordinazione",
       "pliri_stoicheia": "Dettagli completi",
-      "me_fpa": "IVA inclusa {vatRate}%"
+      "me_fpa": "IVA inclusa {vatRate}%",
+      "diathesimo_3_5": "Disponibile · 3–5 giorni lavorativi"
     },
     "QuickViewTrigger": {
       "grigori_provoli": "Vista rapida"
@@ -153,7 +155,8 @@
       "syndetheite_kai_deite_tin_timi": "Accedi e vedi il tuo prezzo partner",
       "tem": "pz.",
       "timi_eshop": "Prezzo eshop",
-      "timi_katalogoy": "Prezzo di listino"
+      "timi_katalogoy": "Prezzo di listino",
+      "diathesimo_3_5": "Disponibile · 3–5 giorni lavorativi"
     },
     "specGroups": {
       "identification": "Identità",
@@ -391,7 +394,8 @@
       "ischyrotero": "Più robusto",
       "logos_ischyrotero": "{label}: {value} — il più alto del confronto.",
       "elafrytero": "Più leggero",
-      "logos_elafrytero": "{value} — meno affaticamento nell'uso."
+      "logos_elafrytero": "{value} — meno affaticamento nell'uso.",
+      "diathesimo_3_5": "Disponibile · 3–5 giorni lavorativi"
     }
   },
   "chrome": {
@@ -458,7 +462,8 @@
       "ola_ta_apotelesmata": "Tutti i {totalProducts} risultati",
       "apotelesmata_gia": "{totalProducts} risultati per {query}",
       "ola_ta_apotelesmata_2": "Tutti i {totalProducts} risultati",
-      "diathesimo": "Disponibile"
+      "diathesimo": "Disponibile",
+      "diathesimo_3_5": "Disponibile · 3–5 giorni lavorativi"
     },
     "SiteFooter": {
       "katigories": "Categorie",
@@ -691,7 +696,8 @@
       "me_fpa": "IVA inclusa {vatRate}%",
       "afairesi": "Rimozione {name}",
       "katopin_24h": "Su ordinazione · conferma entro 24 ore",
-      "overstock_request": "{availableQty} disponibili — la riga diventa una richiesta · conferma entro 24 ore"
+      "overstock_request": "{availableQty} disponibili — la riga diventa una richiesta · conferma entro 24 ore",
+      "diathesimo_3_5": "Disponibile · 3–5 giorni lavorativi"
     },
     "CartSummaryPanel": {
       "dorean_metaforika": "Spedizione gratuita",
@@ -1087,7 +1093,8 @@
       "eggyisi_minon": "Garanzia di {guaranteeMonths} mesi",
       "megethos": "Taglia",
       "chroma": "Colore",
-      "diathesimo": "Disponibile"
+      "diathesimo": "Disponibile",
+      "diathesimo_3_5": "Disponibile · 3–5 giorni lavorativi"
     }
   },
   "nees-afixeis": {
@@ -1555,7 +1562,8 @@
       "den_vrethike_kati_gia": "Non è stato trovato nulla per «{query}»",
       "anazitisi_titlos": "Cerca",
       "den_vrethike_proion_me_aytoys": "Nessun prodotto trovato con questi termini.",
-      "diathesimo": "Disponibile"
+      "diathesimo": "Disponibile",
+      "diathesimo_3_5": "Disponibile · 3–5 giorni lavorativi"
     }
   },
   "layout": {

@@ -1,6 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { isFromSupplier } from "@/lib/catalog/availability";
 import { useLocale } from "next-intl";
 import Image from "next/image";
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
@@ -231,7 +232,7 @@ function QuickViewBody({
 
         <p
           className={`t-card-stock mt-3 flex items-center gap-2 ${
-            product.inStock ? "text-k-green" : "text-k-text-4"
+            product.inStock ? "text-k-green" : isFromSupplier(product) ? "text-k-amber" : "text-k-text-4"
           }`}
         >
           <span className="rounded-pill block h-1.5 w-1.5 bg-current" />
@@ -239,7 +240,9 @@ function QuickViewBody({
             ? showsExactQty(product.qty)
               ? `${upGreek(t("amesa_diathesimo"))} · ${product.qty} ${upGreek(t("tem"))}`
               : upGreek(t("amesa_diathesimo"))
-            : upGreek(t("katopin_paraggelias"))}
+            : isFromSupplier(product)
+              ? upGreek(t("diathesimo_3_5"))
+              : upGreek(t("katopin_paraggelias"))}
         </p>
 
         {product.specs.length > 0 && (

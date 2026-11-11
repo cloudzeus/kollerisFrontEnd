@@ -50,6 +50,7 @@ const CARD = {
   vatRate: true,
   qty: true,
   inStock: true,
+  supplierAvailable: true,
   images: { where: { isFeature: true }, take: 1, select: { url: true } },
   translations: { select: { locale: true, name: true } },
 } as const;
@@ -99,6 +100,7 @@ export const findByExactCode = cache(
       priceNet: num(row.priceNet),
       vatRate: num(row.vatRate) ?? 24,
       inStock: row.inStock,
+      supplierAvailable: row.supplierAvailable,
       qty: num(row.qty) ?? 0,
     };
   },
@@ -184,6 +186,7 @@ export async function getSuggestions(
     priceNet: num(row.priceNet),
     vatRate: num(row.vatRate) ?? 24,
     inStock: row.inStock,
+    supplierAvailable: row.supplierAvailable,
     qty: num(row.qty) ?? 0,
   });
 

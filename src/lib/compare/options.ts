@@ -91,6 +91,8 @@ export type CompareColumn = {
   vatRate: number;
   qty: number;
   inStock: boolean;
+  /** None of ours, the supplier XML has it: buyable, 3–5 working days. */
+  supplierAvailable?: boolean;
 };
 
 export type CompareAdvice = {
