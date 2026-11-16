@@ -11,7 +11,7 @@ import {
   type ChildTable,
   type SpecRow,
 } from "./product-children";
-import { DEFAULT_VAT_RATE } from "@/lib/format";
+import { vatPercentOf } from "@/lib/format";
 import {
   hdctool,
   HDCTOOL_MAX_LIMIT,
@@ -704,7 +704,7 @@ async function upsertProduct(
    * η τιμή θα έμενε μεικτή σε στήλη καθαρής.
    */
   const grossFromErp = p.pricer02 ?? p.priceWeb ?? p.priceRetail ?? null;
-  const vatPercent = Number(p.vat?.percentage ?? 0) || DEFAULT_VAT_RATE;
+  const vatPercent = vatPercentOf(p.vat?.percentage);
   const priceNet =
     grossFromErp == null ? null : roundTo4(Number(grossFromErp) / (1 + vatPercent / 100));
 
@@ -764,7 +764,7 @@ async function upsertProduct(
     cccSubgroup2: p.cccSubgroup2 ?? null,
     priceNet,
     priceList,
-    vatRate: p.vat?.percentage ?? null,
+    vatRate: vatPercent,
     qty,
     qtyOnHand,
     qtyReserved,

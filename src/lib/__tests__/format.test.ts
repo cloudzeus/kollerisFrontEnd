@@ -7,6 +7,8 @@ import {
   grossAmount,
   netAmount,
   savingsOf,
+  vatPercentOf,
+  DEFAULT_VAT_RATE,
 } from "../format";
 
 /*
@@ -154,5 +156,27 @@ describe("the space before\u00A0€", () => {
   it("holds through grouping and negatives", () => {
     expect(formatMoney(1234.5, "el")).toBe("1.234,50 €");
     expect(formatMoney(-42, "el")).toBe("-42,00 €");
+  });
+});
+
+describe("vatPercentOf", () => {
+  it("κρατά έναν υπαρκτό συντελεστή", () => {
+    expect(vatPercentOf(13)).toBe(13);
+    expect(vatPercentOf("13")).toBe(13);
+    expect(vatPercentOf(24)).toBe(24);
+  });
+
+  it("θεωρεί το μηδέν «δεν το ξέρουμε», όχι απαλλαγή", () => {
+    // Το bug: το 0 αποθηκευόταν αυτούσιο, η βιτρίνα το κρατούσε (`?? 24`)
+    // και τύπωνε την καθαρή τιμή ως τελική.
+    expect(vatPercentOf(0)).toBe(DEFAULT_VAT_RATE);
+    expect(vatPercentOf("0")).toBe(DEFAULT_VAT_RATE);
+  });
+
+  it("πέφτει πίσω στο 24 όταν λείπει ή δεν είναι αριθμός", () => {
+    expect(vatPercentOf(null)).toBe(DEFAULT_VAT_RATE);
+    expect(vatPercentOf(undefined)).toBe(DEFAULT_VAT_RATE);
+    expect(vatPercentOf("")).toBe(DEFAULT_VAT_RATE);
+    expect(vatPercentOf("abc")).toBe(DEFAULT_VAT_RATE);
   });
 });

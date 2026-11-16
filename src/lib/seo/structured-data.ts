@@ -17,8 +17,18 @@ import type { Locale } from "@/i18n/routing";
 /** The shop. Kept here because three surfaces need the same facts. */
 export const SHOP = {
   name: "Kolleris",
-  legalName: "ΚΟΛΛΕΡΗΣ",
+  /**
+   * Η επωνυμία όπως είναι εγγεγραμμένη — η ίδια που τυπώνει το υποσέλιδο και
+   * κάθε παραστατικό. Έλεγε «ΚΟΛΛΕΡΗΣ», δηλαδή το JSON-LD δήλωνε άλλη
+   * επωνυμία από αυτή που διαβάζει ο επισκέπτης.
+   */
+  legalName: "ΑΦΟΙ ΚΟΛΛΕΡΗ ΙΚΕ",
+  /** ΑΦΜ και ΓΕΜΗ: υποσέλιδο και JSON-LD από μία πηγή. */
+  vat: "099095556",
+  gemi: "44598907000",
   phone: "+302104111355",
+  /** Το ίδιο νούμερο όπως τυπώνεται· το `phone` είναι το E.164 για το tel:. */
+  phoneDisplay: "+30 210 411 13 55",
   email: "info@kolleris.com",
   street: "Κ. Μαυρομιχάλη 4",
   city: "Πειραιάς",
@@ -67,6 +77,8 @@ export function siteJsonLd(locale: Locale) {
         url: absoluteUrl("/", locale),
         telephone: SHOP.phone,
         email: SHOP.email,
+        vatID: SHOP.vat,
+        taxID: SHOP.vat,
         foundingDate: SHOP.founded,
         sameAs: SHOP.sameAs,
         priceRange: "€€",

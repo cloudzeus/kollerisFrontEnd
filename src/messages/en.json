@@ -482,7 +482,8 @@
       "aporrito": "Privacy Policy",
       "tropoi_pliromis": "Payment Methods",
       "apostoli_paradosi": "Shipping & Delivery",
-      "nomika": "Legal"
+      "nomika": "Legal",
+      "nomika_stoicheia": "VAT No. {vat} · Reg. No. (GEMI) {gemi}"
     },
     "SiteHeader": {
       "logariasmos": "Account",
