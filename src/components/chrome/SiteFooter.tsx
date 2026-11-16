@@ -4,6 +4,7 @@ import { Link } from "@/i18n/navigation";
 import type { CategoryTile } from "@/lib/catalog/queries";
 import { GoogleReviewsBadge } from "@/components/seo/GoogleReviewsBadge";
 import { upGreek } from "@/lib/greek";
+import { SHOP } from "@/lib/seo/structured-data";
 
 /*
  * `prefetch={false}` σε κάθε σύνδεσμο αυτού του αρχείου.
@@ -118,6 +119,28 @@ export function SiteFooter({ categories }: { categories: CategoryTile[] }) {
           <p className="t-footer-tag mt-3 text-white/40 lg:mt-4">
             PROFESSIONAL TOOLS · SINCE 1978
           </p>
+          {/*
+            Πώς μας βρίσκει κάποιος, στο υποσέλιδο κάθε σελίδας. Τα ίδια
+            στοιχεία έβγαιναν ήδη στο JSON-LD από το `SHOP` αλλά δεν τα τύπωνε
+            καμία σελίδα: το Merchant Center διαβάζει τη σελίδα, όχι μόνο το
+            schema, και «πώς επικοινωνεί ο πελάτης μαζί σας» είναι το πρώτο
+            που ζητά η πολιτική παραπλανητικής περιγραφής.
+          */}
+          <address className="t-footer-link mt-4 flex flex-col gap-1 not-italic text-white/58">
+            <a
+              href={`tel:${SHOP.phone}`}
+              className="transition-colors hover:text-k-red"
+            >
+              {SHOP.phoneDisplay}
+            </a>
+            <a
+              href={`mailto:${SHOP.email}`}
+              className="transition-colors hover:text-k-red"
+            >
+              {SHOP.email}
+            </a>
+            <span>{t("k_mayromichali_4_18545_peiraias")}</span>
+          </address>
           <div className="mt-5 hidden gap-2.5 lg:flex">
             {SOCIALS.map((social) => (
               <a
@@ -205,6 +228,9 @@ export function SiteFooter({ categories }: { categories: CategoryTile[] }) {
             <br className="lg:hidden" />
             <span className="hidden lg:inline"> · </span>
             {t("k_mayromichali_4_18545_peiraias")}
+            <br className="lg:hidden" />
+            <span className="hidden lg:inline"> · </span>
+            {t("nomika_stoicheia", { vat: SHOP.vat, gemi: SHOP.gemi })}
           </p>
           <div className="hidden items-center gap-2 lg:flex">
             {PAYMENTS.map((payment) => (

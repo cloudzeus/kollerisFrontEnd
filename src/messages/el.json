@@ -482,7 +482,8 @@
       "aporrito": "Πολιτική Απορρήτου",
       "tropoi_pliromis": "Τρόποι Πληρωμής",
       "apostoli_paradosi": "Αποστολή & Παράδοση",
-      "nomika": "Νομικά"
+      "nomika": "Νομικά",
+      "nomika_stoicheia": "ΑΦΜ {vat} · ΓΕΜΗ {gemi}"
     },
     "SiteHeader": {
       "logariasmos": "Λογαριασμός",
