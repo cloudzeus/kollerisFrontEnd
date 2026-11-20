@@ -17,19 +17,19 @@ import { metaParams, type Ga4Item } from "@/lib/analytics/ga4-events";
  */
 
 const GA4_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID ?? "G-EGS1JNM4EC";
-const PIXEL_ID = process.env.NEXT_PUBLIC_META_PIXEL_ID ?? "";
 const GRAPH = "https://graph.facebook.com/v24.0";
 
 /** Τα κλειδιά από τις Ρυθμίσεις του admin (το .env μόνο ως αρχική τιμή). */
-export type PurchaseKeys = { ga4Secret: string; metaToken: string };
+export type PurchaseKeys = { ga4Secret: string; metaToken: string; pixelId: string };
 
 export async function loadPurchaseKeys(): Promise<PurchaseKeys> {
   const { getSetting } = await import("@/lib/settings/settings");
-  const [ga4Secret, metaToken] = await Promise.all([
+  const [ga4Secret, metaToken, pixelId] = await Promise.all([
     getSetting("analytics.ga4ApiSecret").catch(() => null),
     getSetting("analytics.metaCapiToken").catch(() => null),
+    getSetting("analytics.metaPixelId").catch(() => null),
   ]);
-  return { ga4Secret: ga4Secret?.trim() ?? "", metaToken: metaToken?.trim() ?? "" };
+  return { ga4Secret: ga4Secret?.trim() ?? "", metaToken: metaToken?.trim() ?? "", pixelId: pixelId?.trim() ?? "" };
 }
 
 /** Ποια κανάλια στέλνει ο server για αυτή την παραγγελία. */
@@ -37,7 +37,7 @@ export function purchaseChannels(attribution: unknown, keys: PurchaseKeys): { ga
   const a = asOrderAttribution(attribution);
   return {
     ga4: Boolean(a?.gaClientId && keys.ga4Secret),
-    meta: Boolean(a && keys.metaToken && /^\d{6,20}$/.test(PIXEL_ID)),
+    meta: Boolean(a && keys.metaToken && /^\d{6,20}$/.test(keys.pixelId)),
   };
 }
 
@@ -154,7 +154,7 @@ export async function sendServerPurchase(order: PurchaseOrder, origin: string, k
   }
   if (on.meta) {
     jobs.push(
-      fetch(`${GRAPH}/${PIXEL_ID}/events`, {
+      fetch(`${GRAPH}/${keys.pixelId}/events`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...metaPurchaseBody(order, a, origin), access_token: keys.metaToken }),
