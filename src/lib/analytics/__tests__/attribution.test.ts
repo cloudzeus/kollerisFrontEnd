@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
   attributionChannel,
   erpAttribution,
@@ -80,8 +80,6 @@ const order: PurchaseOrder = {
 const attr: OrderAttribution = { consent: "granted", gaClientId: "1.2", gaSessionId: "99", fbp: "fb.1.1.1", ip: "1.2.3.4", ua: "UA" };
 
 describe("αγορά από τον server", () => {
-  afterEach(() => vi.unstubAllEnvs());
-
   it("GA4: client/session του browser, καθαρές τιμές, κωδικός ERP", () => {
     const b = ga4PurchaseBody(order, attr);
     expect(b.client_id).toBe("1.2");
@@ -107,11 +105,13 @@ describe("αγορά από τον server", () => {
     expect(normalisePhone("", "GR")).toBeUndefined();
   });
 
-  it("χωρίς συγκατάθεση ή χωρίς ρυθμίσεις δεν στέλνει τίποτα ο server", () => {
-    expect(purchaseChannels(null)).toEqual({ ga4: false, meta: false });
-    vi.stubEnv("GA4_API_SECRET", "s");
-    expect(purchaseChannels(attr).ga4).toBe(true);
-    expect(purchaseChannels({ ...attr, gaClientId: undefined }).ga4).toBe(false);
-    expect(purchaseChannels({ ...attr, consent: "denied" })).toEqual({ ga4: false, meta: false });
+  it("χωρίς συγκατάθεση ή χωρίς κλειδί δεν στέλνει τίποτα ο server", () => {
+    const none = { ga4Secret: "", metaToken: "" };
+    const ga4 = { ga4Secret: "s", metaToken: "" };
+    expect(purchaseChannels(null, ga4)).toEqual({ ga4: false, meta: false });
+    expect(purchaseChannels(attr, none)).toEqual({ ga4: false, meta: false });
+    expect(purchaseChannels(attr, ga4).ga4).toBe(true);
+    expect(purchaseChannels({ ...attr, gaClientId: undefined }, ga4).ga4).toBe(false);
+    expect(purchaseChannels({ ...attr, consent: "denied" }, ga4)).toEqual({ ga4: false, meta: false });
   });
 });

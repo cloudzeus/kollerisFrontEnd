@@ -20,7 +20,7 @@ import { paymentPageUrl } from "@/lib/payment/viva";
 import { isValidGtin } from "@/lib/feeds/google-merchant";
 import { GoogleReviewsOptIn } from "@/components/seo/GoogleReviewsOptIn";
 import { Ga4Event } from "@/components/analytics/Ga4Event";
-import { purchaseChannels } from "@/lib/analytics/server-purchase";
+import { loadPurchaseKeys, purchaseChannels } from "@/lib/analytics/server-purchase";
 import { AwaitPaymentRefresh } from "@/components/checkout/AwaitPaymentRefresh";
 import { estimatedDeliveryDate } from "@/lib/seo/google-reviews";
 import { upGreek } from "@/lib/greek";
@@ -215,7 +215,7 @@ export default async function ConfirmationPage({ params, searchParams }: PagePro
       {(!awaitingPayment || order.paymentMethod === "bank") && (
         <Ga4Event
           name="purchase"
-          skip={purchaseChannels(order.attribution)}
+          skip={purchaseChannels(order.attribution, await loadPurchaseKeys())}
           onceKey={`purchase:${order.orderNumber}`}
           params={{
             transaction_id: order.orderNumber,
