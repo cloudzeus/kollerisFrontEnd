@@ -24,6 +24,8 @@ type QuickViewProduct = {
   images: string[];
   priceNet: number | null;
   priceListNet: number | null;
+  /** Το εγκεκριμένο ποσοστό του HDCtool, όταν τρέχει προσφορά. */
+  offerDiscountPct?: number | null;
   vatRate: number;
   qty: number;
   inStock: boolean;
@@ -176,7 +178,7 @@ function QuickViewBody({
   const ctx = { vatRate: product.vatRate };
   const saving =
     product.priceListNet != null && product.priceNet != null
-      ? savingsOf(product.priceListNet, product.priceNet, locale, ctx)
+      ? savingsOf(product.priceListNet, product.priceNet, locale, ctx, product.offerDiscountPct)
       : null;
 
   return (

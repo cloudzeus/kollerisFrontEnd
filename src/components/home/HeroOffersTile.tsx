@@ -253,33 +253,55 @@ export function HeroOffersTile({
           </span>
         </span>
 
-        <span className="relative mt-auto flex max-w-[170px] flex-wrap items-baseline gap-x-2.5 gap-y-1">
+        {/*
+          Η τιμή πρώτη και χοντρή, η διαγραμμένη από κάτω σε δική της σειρά.
+          Μία τιμή διαβάζεται, δεν συγκρίνεται: το «πριν» έρχεται δεύτερο.
+        */}
+        <span className="relative mt-auto block max-w-[170px]">
+          <span className="flex flex-wrap items-center gap-x-2.5 gap-y-1">
+            <span data-line className="t-tile-price text-white">
+              {item.now}
+            </span>
+            {item.off && (
+              <span data-pop className="t-badge bg-k-red px-[7px] py-[3px] text-white tabular-nums">
+                {item.off}
+              </span>
+            )}
+          </span>
           {item.was && (
-            <span data-line className="t-card-was text-white/40 line-through tabular-nums">
+            <span data-line className="t-tile-was mt-1 block text-white/35 line-through">
               {item.was}
             </span>
           )}
-          <span data-line className="t-card-price text-white tabular-nums">
-            {item.now}
-          </span>
-          {item.off && (
-            <span data-pop className="t-badge bg-k-red px-[7px] py-[3px] text-white tabular-nums">
-              {item.off}
-            </span>
-          )}
-          <span data-line className="t-card-vat w-full text-white/35">
+          <span data-line className="t-card-vat mt-1 block text-white/35">
             {upGreek(labels.vat)}
           </span>
         </span>
 
-        <Link
+        {/* Οπτική ένδειξη μόνο· ο σύνδεσμος είναι όλο το πλακίδιο, παρακάτω. */}
+        <span
           data-line
-          href={item.href}
-          className="t-link-mono relative mt-3 self-start border-b-[1.5px] border-k-red pb-[3px] text-white transition-colors hover:text-k-red"
+          className="t-link-mono relative mt-3 self-start border-b-[1.5px] border-k-red pb-[3px] text-white transition-colors group-hover/tile:text-k-red"
         >
           {upGreek(labels.cta)} →
-        </Link>
+        </span>
       </div>
+
+      {/*
+        ΟΛΟ ΤΟ ΠΛΑΚΙΔΙΟ ΕΙΝΑΙ Ο ΣΥΝΔΕΣΜΟΣ.
+        ──────────────────────────────────────────────────────────────────────
+        Ο μικρός σύνδεσμος κάτω ήταν ο μόνος στόχος: όποιος πατούσε τη
+        φωτογραφία, το όνομα ή την τιμή δεν πήγαινε πουθενά.
+
+        Ένας σύνδεσμος που σκεπάζει την κάρτα, όχι πολλοί μέσα στο κείμενο —
+        ένας στόχος για το ποντίκι, μία ανακοίνωση στον αναγνώστη οθόνης. Οι
+        δείκτες από κάτω έχουν z-20 και μένουν πατήσιμοι από πάνω του.
+      */}
+      <Link
+        href={item.href}
+        aria-label={`${item.brand} ${item.name} — ${item.now}`}
+        className="absolute inset-0 z-10 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-4 focus-visible:outline-k-red"
+      />
 
       {/*
         Οι δείκτες λένε πόσα είναι και πού βρισκόμαστε — χωρίς αυτούς η εναλλαγή

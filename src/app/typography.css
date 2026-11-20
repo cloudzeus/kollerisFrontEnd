@@ -191,6 +191,37 @@
    * της ενότητας βαρύς και πλατύς, ο τίτλος του πλακιδίου δίπλα του λεπτός
    * και στενός — ίδια οικογένεια, ορατά άλλη γραμματοσειρά.
    */
+  /*
+    Η τιμή της προσφοράς στο hero, στο ύφος των τίτλων.
+    ──────────────────────────────────────────────────────────────────────────
+    Οι κάρτες του καταλόγου δείχνουν τις τιμές σε mono, γιατί στοιχίζονται σε
+    στήλες. Εδώ η τιμή δεν στοιχίζεται με τίποτα — είναι το επιχείρημα της
+    κάρτας — οπότε παίρνει τη γραμματοσειρά των τίτλων: display, βάρος 900,
+    stretch 125%, όπως το `t-h2` από πάνω της.
+
+    Η διαγραμμένη ακολουθεί σε ΔΙΚΗ της σειρά, μεγαλύτερη από τα mono νούμερα
+    των καρτών αλλά σαφώς ελαφρύτερη: διαβάζεται ως «πριν», όχι ως δεύτερη
+    τιμή που πρέπει να συγκρίνεις.
+  */
+  .t-tile-price {
+    font-family: var(--font-display-face), var(--font-sans-face), sans-serif;
+    font-weight: 900;
+    font-size: clamp(1.4625rem, 1.3011rem + 0.7174vw, 1.875rem);
+    line-height: 1;
+    letter-spacing: -0.03em;
+    font-stretch: 125%;
+    font-variant-numeric: tabular-nums;
+  }
+  .t-tile-was {
+    font-family: var(--font-display-face), var(--font-sans-face), sans-serif;
+    font-weight: 500;
+    font-size: 1.25rem;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    font-stretch: 112%;
+    font-variant-numeric: tabular-nums;
+  }
+
   .t-tile-title {
     font-family: var(--font-display-face), var(--font-sans-face), sans-serif;
     font-weight: 900;

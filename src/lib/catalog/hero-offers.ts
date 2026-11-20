@@ -39,8 +39,19 @@ export function heroOfferItems(
     const saving = savingsOf(p.priceListNet, p.priceNet, locale, ctx);
     if (!saving) continue;
 
+    /*
+     * ΤΟ ΠΟΣΟΣΤΟ ΤΟΥ HDCtool ΠΡΟΗΓΕΙΤΑΙ.
+     *
+     * Είναι το ΕΓΚΕΚΡΙΜΕΝΟ: γράφτηκε στη γραμμή της προσφοράς και ταξιδεύει
+     * στο `ITELINES.DISC1PRC` του παραστατικού. Το `savingsOf` βγάζει το δικό
+     * του από τις δύο τιμές και μένει ο έλεγχος «υπάρχει μείωση», αλλά το
+     * νούμερο που βλέπει ο πελάτης πρέπει να είναι αυτό που θα δει και στο
+     * τιμολόγιο — στρογγυλοποίηση ενός λεπτού αρκεί για να διαφωνήσουν.
+     */
+    const percent = p.offerDiscountPct ?? saving.percent;
+
     items.push({
-      percent: saving.percent,
+      percent,
       href: `/proion/${p.slug}`,
       name: p.name,
       brand: p.brandName ?? "",
@@ -49,7 +60,7 @@ export function heroOfferItems(
       image: p.image,
       was: formatPrice(p.priceListNet, locale, ctx),
       now: formatPrice(p.priceNet, locale, ctx),
-      off: `−${Math.round(saving.percent)}%`,
+      off: `−${Math.round(percent)}%`,
       stock: p.inStock ? labels.inStock : labels.order,
       inStock: p.inStock,
     });

@@ -63,7 +63,7 @@ export async function ProductCard({
   const ctx = { vatRate: product.vatRate };
   const saving =
     product.priceListNet != null && product.priceNet != null
-      ? savingsOf(product.priceListNet, product.priceNet, locale, ctx)
+      ? savingsOf(product.priceListNet, product.priceNet, locale, ctx, product.offerDiscountPct)
       : null;
 
   /* Ακριβής αριθμός μόνο στα τρία και κάτω — βλ. `stock-display`. Το όριο ήταν

@@ -40,6 +40,8 @@ export type ProductDetail = {
   /** Προσφορά HDCtool — η τιμή της είναι ήδη το `priceNet`. */
   offerSlug: string | null;
   offerBadge: string | null;
+  /** Το ΕΓΚΕΚΡΙΜΕΝΟ ποσοστό του HDCtool — ό,τι πάει και στο παραστατικό. */
+  offerDiscountPct: number | null;
   offerEndsAt: Date | null;
   /** Το 30ήμερο χαμηλό, καθαρό. Το ζητά η οδηγία Omnibus. */
   price30dLowNet: number | null;
@@ -167,6 +169,7 @@ export const getProductBySlug = cache(
       priceListNet: num(product.priceList),
       offerSlug: product.offerSlug,
       offerBadge: product.offerBadge,
+      offerDiscountPct: num(product.offerDiscountPct),
       offerEndsAt: product.offerEndsAt,
       price30dLowNet: num(product.price30dLowNet),
       vatRate: num(product.vatRate) ?? 24,

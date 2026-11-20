@@ -240,6 +240,8 @@ export type ProductCardData = {
    */
   offerSlug?: string | null;
   offerBadge?: string | null;
+  /** Το ΕΓΚΕΚΡΙΜΕΝΟ ποσοστό του HDCtool — αυτό που πάει και στο παραστατικό. */
+  offerDiscountPct?: number | null;
   vatRate: number;
   qty: number;
   inStock: boolean;
@@ -268,6 +270,7 @@ const PRODUCT_CARD_SELECT = {
   priceList: true,
   offerSlug: true,
   offerBadge: true,
+  offerDiscountPct: true,
   vatRate: true,
   qty: true,
   inStock: true,
@@ -300,6 +303,7 @@ type ProductRow = {
   priceList: unknown;
   offerSlug: string | null;
   offerBadge: string | null;
+  offerDiscountPct: unknown;
   vatRate: unknown;
   qty: unknown;
   inStock: boolean;
@@ -347,6 +351,7 @@ function toCard(
     priceListNet: num(row.priceList),
     offerSlug: row.offerSlug,
     offerBadge: row.offerBadge,
+    offerDiscountPct: num(row.offerDiscountPct),
     vatRate: num(row.vatRate) ?? 24,
     qty: num(row.qty) ?? 0,
     inStock: row.inStock,
