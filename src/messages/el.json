@@ -213,7 +213,13 @@
     },
     "HeroBanner": {
       "kodikon": "κωδικών",
-      "deite_ta": "Δείτε τα"
+      "deite_ta": "Δείτε τα",
+      "prosfora": "Προσφορά",
+      "deite_to": "Δείτε το",
+      "me_fpa_24": "Με ΦΠΑ 24%",
+      "apo": "από",
+      "amesa_diathesimo": "Άμεσα διαθέσιμο",
+      "katopin_paraggelias": "Κατόπιν παραγγελίας"
     },
     "NewsletterBand": {
       "eggrafi_sto_newsletter": "Εγγραφή στο newsletter",

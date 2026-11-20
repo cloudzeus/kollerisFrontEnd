@@ -213,7 +213,13 @@
     },
     "HeroBanner": {
       "kodikon": "codici",
-      "deite_ta": "Vedi tutti"
+      "deite_ta": "Vedi tutti",
+      "prosfora": "Offerta",
+      "deite_to": "Guarda",
+      "me_fpa_24": "IVA 24% inclusa",
+      "apo": "di",
+      "amesa_diathesimo": "Disponibile",
+      "katopin_paraggelias": "Su ordinazione"
     },
     "NewsletterBand": {
       "eggrafi_sto_newsletter": "Iscrizione alla newsletter",

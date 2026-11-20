@@ -27,6 +27,9 @@ import type { Locale } from "@/i18n/routing";
 import { getMiniCart } from "@/lib/cart/cart";
 import { getSection } from "@/lib/content/content";
 import { getNewestListedProduct } from "@/lib/catalog/editorial";
+import { getOffers } from "@/lib/catalog/editorial";
+import { heroOfferItems } from "@/lib/catalog/hero-offers";
+import { HeroOffersTile } from "@/components/home/HeroOffersTile";
 import { Zone, zoneHasContent } from "@/components/zones/Zone";
 import { FREE_SHIPPING_THRESHOLD_NET } from "@/lib/cart/options";
 import {
@@ -88,6 +91,7 @@ export default async function HomePage({
   params: Promise<{ locale: Locale }>;
 }) {
   const t = await getTranslations("page");
+  const tHero = await getTranslations("home.HeroBanner");
   const { locale } = await params;
   setRequestLocale(locale);
 
@@ -199,6 +203,19 @@ export default async function HomePage({
    * Το καρφωμένο μένει ως εφεδρεία: αν για οποιονδήποτε λόγο δεν βρεθεί
    * προϊόν με φωτογραφία, η στήλη δεν πρέπει να αδειάσει.
    */
+  /*
+   * Η κάτω κάρτα του hero δείχνει ό,τι τρέχει σε προσφορά.
+   *
+   * Ήταν καρφωμένο «ΕΩΣ −25% · KNIPEX», γραμμένο μια φορά και ξεχασμένο. Έξι
+   * είναι αρκετά για μια κάρτα που αλλάζει ανά τρία δευτερόλεπτα: δεκαοκτώ
+   * δευτερόλεπτα γύρος, όσο κάνει κανείς να διαβάσει το hero.
+   */
+  const heroOffers = heroOfferItems(
+    (await getOffers(locale, 6)).products,
+    locale,
+    { inStock: tHero("amesa_diathesimo"), order: tHero("katopin_paraggelias") },
+  );
+
   const promoTiles = [
     newest
       ? {
@@ -322,6 +339,21 @@ export default async function HomePage({
           aside={
             asideFilled ? (
               <Zone id="home.aside" locale={locale} context={zoneContext} />
+            ) : null
+          }
+          /* Αντικαθιστά τη δεύτερη καρφωμένη κάρτα — μόνο όταν υπάρχει αληθινή
+             προσφορά· αλλιώς το hero κρατά ό,τι είχε. */
+          offersTile={
+            heroOffers.length > 0 ? (
+              <HeroOffersTile
+                items={heroOffers}
+                labels={{
+                  eyebrow: tHero("prosfora"),
+                  cta: tHero("deite_to"),
+                  vat: tHero("me_fpa_24"),
+                  of: tHero("apo"),
+                }}
+              />
             ) : null
           }
         />

@@ -213,7 +213,13 @@
     },
     "HeroBanner": {
       "kodikon": "codes",
-      "deite_ta": "View them"
+      "deite_ta": "View them",
+      "prosfora": "Offer",
+      "deite_to": "See it",
+      "me_fpa_24": "VAT 24% incl.",
+      "apo": "of",
+      "amesa_diathesimo": "In stock",
+      "katopin_paraggelias": "On order"
     },
     "NewsletterBand": {
       "eggrafi_sto_newsletter": "Subscribe to the newsletter",

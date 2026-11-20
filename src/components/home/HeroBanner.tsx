@@ -25,6 +25,7 @@ export async function HeroBanner({
   featuredTiles,
   copy,
   aside,
+  offersTile,
   h1,
 }: {
   /** Written from HDCtool. When set it is the H1 and the slogan becomes its subtitle. */
@@ -39,6 +40,14 @@ export async function HeroBanner({
    * the zone system exists.
    */
   aside?: React.ReactNode;
+  /**
+   * Η κάτω κάρτα, όταν τρέχει αληθινή προσφορά.
+   *
+   * Έτοιμο στοιχείο και όχι δεδομένα, για τον ίδιο λόγο με το `aside`: η
+   * κάρτα θέλει τιμές μορφοποιημένες στον server, και ένα component που θα τις
+   * ζητούσε μόνο του δεν θα μπορούσε να μπει πουθενά αλλού.
+   */
+  offersTile?: React.ReactNode;
   featuredTiles: Array<{
     eyebrow: string;
     title: string;
@@ -143,7 +152,8 @@ export async function HeroBanner({
         <div className="hidden gap-0.5 lg:grid lg:grid-rows-1">{aside}</div>
       ) : (
         <div className="hidden grid-rows-2 gap-0.5 lg:grid">
-          {featuredTiles.map((tile) => (
+          {/* Με αληθινή προσφορά η κάτω θέση πάει σε αυτήν· αλλιώς μένουν και οι δύο. */}
+          {(offersTile ? featuredTiles.slice(0, 1) : featuredTiles).map((tile) => (
           <article
             key={tile.title}
             className={`group/tile grid grid-cols-[1fr_128px] items-stretch gap-4 overflow-hidden p-[26px] transition-colors ${
@@ -209,6 +219,7 @@ export async function HeroBanner({
             )}
           </article>
           ))}
+          {offersTile}
         </div>
       )}
     </section>

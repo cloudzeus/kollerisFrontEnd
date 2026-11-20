@@ -224,14 +224,14 @@ export type OffersView = {
 /**
  * Products genuinely on offer.
  *
- * Currently ALWAYS EMPTY, and correctly so. There is no promotional price in
- * the HDCtool feed; the struck-through price this page used to show was the
- * standing gap between two SoftOne price lists, which put 68% of the catalogue
- * permanently "on sale". That was removed on the client's instruction.
+ * ΗΤΑΝ ΠΑΝΤΑ ΑΔΕΙΟ, και σωστά: δεν υπήρχε τιμή προσφοράς στο feed, και η
+ * διαγραμμένη τιμή που έδειχνε κάποτε η σελίδα ήταν η σταθερή απόσταση δύο
+ * τιμοκαταλόγων του SoftOne — 68% του καταλόγου μόνιμα «σε προσφορά».
  *
- * The query is the real one. The day HDCtool grows a promotional price and the
- * sync populates `priceList` from it, this page fills itself with no further
- * work — which is why it ships now rather than waiting.
+ * Από τις 20/11/2026 δεν είναι άδειο. Το HDCtool γράφει τιμή προσφοράς
+ * (PRICER04) και ο συγχρονισμός γεμίζει `priceList` και `onSale` από ΕΚΕΙΝΗ —
+ * βλ. `lib/sync/offer-projection.ts`. Το ερώτημα δεν άλλαξε ούτε γραμμή: ήταν
+ * γραμμένο γι' αυτή τη μέρα.
  */
 export const getOffers = cache(
   async (locale: Locale, limit = 24): Promise<OffersView> => {
