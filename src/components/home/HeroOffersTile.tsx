@@ -248,8 +248,10 @@ export function HeroOffersTile({
             {item.brand} · {item.code}
           </span>
 
+          {/* Κεφαλαία, όπως κάθε τίτλος πλακιδίου στο hero — το όνομα του
+              καταλόγου ερχόταν πεζό και η κάρτα ξεχώριζε από τις διπλανές. */}
           <span data-line className="t-tile-title mt-1 line-clamp-2 max-w-[170px] text-white">
-            {item.name}
+            {upGreek(item.name)}
           </span>
         </span>
 
