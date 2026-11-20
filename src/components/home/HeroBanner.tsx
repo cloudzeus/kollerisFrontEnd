@@ -89,7 +89,9 @@ export async function HeroBanner({
 
           {h1 ? (
             <div className="flex flex-col gap-2 lg:gap-3">
-              <h1 className="t-h2 max-w-[640px] text-balance text-white">{h1}</h1>
+              {/* ΚΕΦΑΛΑΙΑ, ΟΠΩΣ ΚΑΘΕ ΤΙΤΛΟΣ ΤΟΥ HERO. Ο h1 του SEO ήρθε πεζός
+                  και έσβησε τα κεφαλαία από την κορυφή της αρχικής. */}
+              <h1 className="t-h2 max-w-[640px] text-balance text-white">{upGreek(h1)}</h1>
               <p className="t-tile-title max-w-[640px] text-white/85">
                 {upGreek(copy.title)} <span className="text-k-red">{upGreek(copy.titleSecond)}</span>
               </p>
@@ -194,7 +196,7 @@ export async function HeroBanner({
                   tile.dark ? "text-white" : "text-k-ink"
                 }`}
               >
-                {tile.title}
+                {upGreek(tile.title)}
               </p>
 
               <p
