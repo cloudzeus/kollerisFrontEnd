@@ -60,5 +60,7 @@ export async function saveSettings(formData: FormData): Promise<SaveResult> {
   }
 
   revalidatePath("/admin/settings");
+  // Pixel ID και πλάτος σελίδας διαβάζονται στα layouts: χωρίς αυτό οι cached σελίδες κρατούν την παλιά τιμή.
+  if (changed.some((k) => k === "analytics.metaPixelId" || k === "shop.maxWidth")) revalidatePath("/", "layout");
   return { ok: errors.length === 0, saved: changed.length, errors };
 }

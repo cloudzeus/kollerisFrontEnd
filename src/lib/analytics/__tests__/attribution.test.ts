@@ -106,12 +106,15 @@ describe("αγορά από τον server", () => {
   });
 
   it("χωρίς συγκατάθεση ή χωρίς κλειδί δεν στέλνει τίποτα ο server", () => {
-    const none = { ga4Secret: "", metaToken: "" };
-    const ga4 = { ga4Secret: "s", metaToken: "" };
+    const none = { ga4Secret: "", metaToken: "", pixelId: "" };
+    const ga4 = { ga4Secret: "s", metaToken: "", pixelId: "" };
+    const meta = { ga4Secret: "", metaToken: "t", pixelId: "1757422668679771" };
     expect(purchaseChannels(null, ga4)).toEqual({ ga4: false, meta: false });
     expect(purchaseChannels(attr, none)).toEqual({ ga4: false, meta: false });
     expect(purchaseChannels(attr, ga4).ga4).toBe(true);
     expect(purchaseChannels({ ...attr, gaClientId: undefined }, ga4).ga4).toBe(false);
     expect(purchaseChannels({ ...attr, consent: "denied" }, ga4)).toEqual({ ga4: false, meta: false });
+    expect(purchaseChannels(attr, meta).meta).toBe(true);
+    expect(purchaseChannels(attr, { ...meta, pixelId: "" }).meta).toBe(false);
   });
 });

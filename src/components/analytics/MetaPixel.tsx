@@ -2,6 +2,7 @@ import Script from "next/script";
 import { Suspense } from "react";
 import { CONSENT_STORAGE_KEY } from "@/components/analytics/GoogleAnalytics";
 import { MetaPageView } from "@/components/analytics/MetaPageView";
+import { getSetting } from "@/lib/settings/settings";
 
 /**
  * Meta Pixel (Facebook/Instagram ads), μόνο με συγκατάθεση.
@@ -10,12 +11,11 @@ import { MetaPageView } from "@/components/analytics/MetaPageView";
  * «Αποδοχή», άρα πριν από αυτό δεν φεύγει ούτε IP προς τη Meta. Ό,τι μπήκε στην
  * ουρά στη σελίδα στέλνεται μόλις δοθεί συγκατάθεση· με άρνηση δεν στέλνεται ποτέ.
  *
- * Μόνο σε production και μόνο με `NEXT_PUBLIC_META_PIXEL_ID`.
+ * Μόνο σε production και μόνο με Pixel ID στις Ρυθμίσεις (`analytics.metaPixelId`).
  */
-const PIXEL_ID = process.env.NEXT_PUBLIC_META_PIXEL_ID ?? "";
-
-export function MetaPixel() {
+export async function MetaPixel() {
   if (process.env.NODE_ENV !== "production") return null;
+  const PIXEL_ID = ((await getSetting("analytics.metaPixelId").catch(() => null)) ?? "").trim();
   if (!/^\d{6,20}$/.test(PIXEL_ID)) return null;
 
   const init = `

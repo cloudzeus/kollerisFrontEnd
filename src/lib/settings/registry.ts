@@ -197,6 +197,15 @@ export const SETTINGS: ReadonlyArray<SettingDef> = [
     envVar: "GA4_API_SECRET",
   },
   {
+    key: "analytics.metaPixelId",
+    group: "analytics",
+    label: "Meta Pixel ID",
+    help: "Events Manager → Πηγές δεδομένων → το Pixel του kolleris.com (μόνο ψηφία). Χωρίς αυτό η Meta δεν μετρά τίποτα από το site.",
+    kind: "text",
+    envVar: "NEXT_PUBLIC_META_PIXEL_ID",
+    placeholder: "1757422668679771",
+  },
+  {
     key: "analytics.metaCapiToken",
     group: "analytics",
     label: "Meta: Conversions API token",
