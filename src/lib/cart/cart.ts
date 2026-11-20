@@ -194,6 +194,13 @@ export const getCart = cache(async (
         slug: p.slug,
         brandSlug: p.mtrmark != null ? (brandSlugs.get(p.mtrmark) ?? null) : null,
         unitNet,
+        /*
+         * Η προσφορά του HDCtool περνά ΟΛΟΚΛΗΡΗ, αλλιώς το καλάθι θα έβρισκε
+         * μια τοπική καμπάνια πάνω στην ίδια μάρκα και θα έκοβε δεύτερη φορά:
+         * το `priceNet` εδώ ΕΙΝΑΙ ήδη η τιμή της προσφοράς.
+         */
+        offerSlug: p.offerSlug,
+        offerBadge: p.offerBadge,
       },
       locale,
     );

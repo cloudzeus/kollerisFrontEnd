@@ -1095,7 +1095,8 @@
       "megethos": "Taglia",
       "chroma": "Colore",
       "diathesimo": "Disponibile",
-      "diathesimo_3_5": "Disponibile · 3–5 giorni lavorativi"
+      "diathesimo_3_5": "Disponibile · 3–5 giorni lavorativi",
+      "omnibus_30imeres": "Prezzo più basso in 30 giorni: {price} · L'offerta scade il {date}"
     }
   },
   "nees-afixeis": {

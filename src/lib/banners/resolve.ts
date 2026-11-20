@@ -88,6 +88,8 @@ export async function resolveCells(
             mtrmark: true,
             priceNet: true,
             priceList: true,
+          offerSlug: true,
+          offerBadge: true,
             vatRate: true,
             translations: {
               where: { locale },
@@ -234,7 +236,8 @@ export async function resolveCells(
         net == null
           ? null
           : await offerBadgeFor(
-              { slug: p.slug, brandSlug, unitNet: net },
+              // Η προσφορά HDCtool περνά ολόκληρη: το `net` είναι ήδη η τιμή της.
+              { slug: p.slug, brandSlug, unitNet: net, offerSlug: p.offerSlug, offerBadge: p.offerBadge },
               locale,
             );
       const offerPct = badge?.discountPercent ?? 0;

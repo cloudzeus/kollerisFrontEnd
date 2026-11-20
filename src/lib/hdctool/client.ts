@@ -142,6 +142,29 @@ export type HdctoolProduct = {
   /** The eshop web price. This is the one that matters. */
   pricer02: number | null;
   priceWeb: number | null;
+
+  /*
+   * ── Προσφορά (PRICER04) ──────────────────────────────────────────────────
+   *
+   * ΜΕ ΦΠΑ, όπως το `pricer02`. Απόντα σε builds του HDCtool πριν τις
+   * 20/11/2026, οπότε όλα προαιρετικά: ένα παλιό HDCtool δεν πρέπει να σβήνει
+   * προσφορές, πρέπει να μη δηλώνει καμία.
+   *
+   * Το `offerBasePrice` είναι η ΠΑΓΩΜΕΝΗ κανονική τιμή της στιγμής που
+   * εγκρίθηκε η προσφορά: ένας κανόνας τιμολόγησης που τρέχει στη μέση της
+   * προσφοράς δεν επιτρέπεται να αλλάξει τη διαγραμμένη τιμή.
+   */
+  /** Η τιμή προσφοράς ΜΕ ΦΠΑ. Null όταν δεν τρέχει προσφορά. */
+  priceOffer?: number | null;
+  /** Η παγωμένη κανονική τιμή ΜΕ ΦΠΑ, για τη διαγραμμένη. */
+  offerBasePrice?: number | null;
+  /** Το εγκεκριμένο ποσοστό, 2 δεκαδικά (→ `ITELINES.DISC1PRC`). */
+  offerDiscountPct?: number | null;
+  offerBadge?: string | null;
+  offerSlug?: string | null;
+  offerEndsAt?: string | null;
+  /** Το 30ήμερο χαμηλό ΜΕ ΦΠΑ — οδηγία Omnibus. Null όταν δεν το ξέρουμε. */
+  price30dLow?: number | null;
   /** Returned as a STRING by the live API (e.g. "25") — coerce before using. */
   brandDiscount: string | number | null;
   /**
@@ -293,7 +316,34 @@ export type HdctoolDeltaResponse = {
 
 export const HDCTOOL_MAX_LIMIT = 200;
 
+export type HdctoolOffersResponse = {
+  success?: boolean;
+  count?: number;
+  offers: Array<{
+    slug: string;
+    badge: string | null;
+    titleEl: string;
+    titleEn: string;
+    titleIt: string;
+    descriptionEl: string;
+    descriptionEn: string;
+    descriptionIt: string;
+    startsAt: string | null;
+    endsAt: string | null;
+  }>;
+};
+
 export const hdctool = {
+  /**
+   * Οι ενεργές προσφορές — τίτλοι, κείμενα, σήμα, παράθυρο.
+   *
+   * ΟΧΙ τιμές: αυτές ταξιδεύουν ανά προϊόν στο `products()`, ώστε ένα προϊόν
+   * να έχει μία σειριοποίηση. GET, όπως το ορίζει το HDCtool.
+   */
+  offers(): Promise<HdctoolOffersResponse> {
+    return request<HdctoolOffersResponse>("/api/public/offers", undefined, { method: "GET" });
+  },
+
   /**
    * Paginated product list. Pass `cursor` for keyset pagination — the sync must
    * use it, since offset paging degrades badly past ~50 pages (the API logs a

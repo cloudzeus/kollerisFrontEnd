@@ -29,6 +29,8 @@ const CARD = {
   cccSubgroup2: true,
   priceNet: true,
   priceList: true,
+  offerSlug: true,
+  offerBadge: true,
   vatRate: true,
   qty: true,
   inStock: true,

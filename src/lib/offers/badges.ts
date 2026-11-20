@@ -170,15 +170,54 @@ const liveCampaigns = cache(async (locale: string): Promise<Live[]> => {
 });
 
 /**
+ * Ό,τι χρειάζεται μια κάρτα για να απαντήσει «είμαι σε προσφορά;».
+ *
+ * Τα `offer*` έρχονται από το HDCtool με το feed και κάθονται πάνω στο προϊόν
+ * — βλ. `lib/sync/offer-projection.ts`.
+ */
+export type CardLike = {
+  slug: string;
+  brandSlug: string | null;
+  unitNet?: number | null;
+  offerSlug?: string | null;
+  offerBadge?: string | null;
+};
+
+/**
+ * Το σήμα μιας προσφοράς HDCtool, από τα δικά του δεδομένα του προϊόντος.
+ *
+ * ── ΠΟΣΟΣΤΟ ΜΗΔΕΝ, ΕΠΙΤΗΔΕΣ ────────────────────────────────────────────────
+ *
+ * Η τιμή της προσφοράς είναι ΗΔΗ μέσα στο `priceNet`: ο συγχρονισμός βάζει
+ * εκεί το PRICER04 και την παγωμένη κανονική στο `priceList`. Το
+ * `discountPercent` περνά στο `discountedNet`, που καλούν και η κάρτα και το
+ * καλάθι — ένα ποσοστό εδώ θα έκοβε δεύτερη φορά πάνω σε τιμή που είναι ήδη
+ * κομμένη, και τα 149 € θα γινόταν 117 € στη βιτρίνα ΚΑΙ στη χρέωση.
+ *
+ * Το ποσοστό το βλέπει κανονικά ο πελάτης: βγαίνει από τη διαγραμμένη τιμή.
+ */
+function hdctoolBadge(product: CardLike): OfferBadge | null {
+  const slug = product.offerSlug?.trim();
+  if (!slug) return null;
+  const label = product.offerBadge?.trim() || GENERIC;
+  return { label, title: label, href: `/prosfores/${slug}`, discountPercent: 0 };
+}
+
+/**
  * Η καμπάνια που καλύπτει αυτό το προϊόν, ή τίποτα.
  *
  * Το `unitNet` είναι προαιρετικό και χρειάζεται μόνο για έκπτωση σε ΠΟΣΟ, που
  * δεν μπορεί να γίνει ποσοστό χωρίς να ξέρουμε την τιμή.
  */
 export async function offerBadgeFor(
-  product: { slug: string; brandSlug: string | null; unitNet?: number | null },
+  product: CardLike,
   locale: string,
 ): Promise<OfferBadge | null> {
+  // Πρώτα το προϊόν: το HDCtool ορίζει τις προσφορές, και η απάντηση είναι
+  // πάνω στη γραμμή — ούτε ένα ερώτημα για καμπάνιες που δεν θα ισχύσουν.
+  const own = hdctoolBadge(product);
+  if (own) return own;
+
   const campaigns = await liveCampaigns(locale);
   for (const c of campaigns) {
     const hit =

@@ -25,6 +25,10 @@ export type CampaignScope = {
   productSlugs: string[];
   brandSlug: string | null;
   categorySlug: string | null;
+  /** Το κλειδί της προσφοράς· χρειάζεται μόνο για τις προσφορές HDCtool. */
+  slug?: string;
+  /** Η προσφορά ορίστηκε στο HDCtool: η εμβέλειά της είναι `Product.offerSlug`. */
+  fromHdctool?: boolean;
 };
 
 /** The `where` that selects a campaign's products, or null when it selects none. */
@@ -32,6 +36,20 @@ export async function campaignWhere(
   campaign: CampaignScope,
 ): Promise<Prisma.ProductWhereInput | null> {
   const active = { isActive: true } as const;
+
+  /*
+   * Προσφορά HDCtool: το ίδιο το προϊόν λέει σε ποια ανήκει.
+   *
+   * Το HDCtool έχει ήδη λύσει την εμβέλεια — μάρκες, κατηγορίες, χειροκίνητες
+   * γραμμές, εξαντλημένα — και ο συγχρονισμός έγραψε την απάντηση στο
+   * `Product.offerSlug`. Ένας δεύτερος υπολογισμός εδώ θα έδειχνε αργά ή
+   * γρήγορα άλλα προϊόντα στη σελίδα της προσφοράς από ό,τι στις κάρτες.
+   */
+  if (campaign.fromHdctool) {
+    const slug = campaign.slug?.trim();
+    if (!slug) return null;
+    return { ...active, offerSlug: slug };
+  }
 
   if (campaign.scope === "products") {
     if (campaign.productSlugs.length === 0) return null;
@@ -103,7 +121,14 @@ export const activeCampaignsWhere = cache(async (): Promise<Prisma.ProductWhereI
         { OR: [{ endsAt: null }, { endsAt: { gte: now } }] },
       ],
     },
-    select: { scope: true, productSlugs: true, brandSlug: true, categorySlug: true },
+    select: {
+      slug: true,
+      fromHdctool: true,
+      scope: true,
+      productSlugs: true,
+      brandSlug: true,
+      categorySlug: true,
+    },
   });
 
   const clauses: Prisma.ProductWhereInput[] = [];

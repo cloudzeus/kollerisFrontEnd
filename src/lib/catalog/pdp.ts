@@ -37,6 +37,12 @@ export type ProductDetail = {
   images: Array<{ id: string; url: string }>;
   priceNet: number | null;
   priceListNet: number | null;
+  /** Προσφορά HDCtool — η τιμή της είναι ήδη το `priceNet`. */
+  offerSlug: string | null;
+  offerBadge: string | null;
+  offerEndsAt: Date | null;
+  /** Το 30ήμερο χαμηλό, καθαρό. Το ζητά η οδηγία Omnibus. */
+  price30dLowNet: number | null;
   vatRate: number;
   qty: number;
   inStock: boolean;
@@ -159,6 +165,10 @@ export const getProductBySlug = cache(
       images: product.images.map((i) => ({ id: i.id, url: i.url })),
       priceNet: num(product.priceNet),
       priceListNet: num(product.priceList),
+      offerSlug: product.offerSlug,
+      offerBadge: product.offerBadge,
+      offerEndsAt: product.offerEndsAt,
+      price30dLowNet: num(product.price30dLowNet),
       vatRate: num(product.vatRate) ?? 24,
       qty: num(product.qty) ?? 0,
       inStock: product.inStock,
