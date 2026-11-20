@@ -11,7 +11,7 @@ export default function Loading() {
       <main id="main">
         {/* Hero + promo tiles */}
         <div className="shell-w grid gap-0.5 bg-k-line lg:grid-cols-[1fr_400px]">
-          <Shimmer className="h-[420px] rounded-none bg-k-ink lg:h-[520px]" />
+          <Shimmer className="h-[420px] rounded-none bg-k-ink lg:h-[580px]" />
           <div className="hidden grid-rows-2 gap-0.5 lg:grid">
             <Shimmer className="h-full bg-k-surface-3" />
             <Shimmer className="h-full bg-k-ink" />

@@ -158,37 +158,43 @@ export function HeroOffersTile({
           <span
             data-shot
             aria-hidden
-            className="pointer-events-none absolute -right-6 -bottom-8 block w-[188px]"
+            className="pointer-events-none absolute -right-6 -bottom-9 block w-[206px]"
             /*
              * ΟΙ ΦΩΤΟΓΡΑΦΙΕΣ ΤΟΥ ΚΑΤΑΛΟΓΟΥ ΕΧΟΥΝ ΛΕΥΚΟ ΦΟΝΤΟ.
              *
              * Στις λευκές κάρτες δεν φαίνεται· πάνω σε μαύρο πλακίδιο γίνεται
-             * κολλημένο ορθογώνιο με σκληρή ακμή. Η μάσκα σβήνει τις δύο
-             * πλευρές που ακουμπούν το κείμενο, ώστε το προϊόν να βγαίνει από
-             * το σκοτάδι αντί να κάθεται πάνω του.
+             * κολλημένο ορθογώνιο. Δύο γραμμικές μάσκες έσβηναν μόνο δύο
+             * πλευρές και άφηναν αχνή λευκή θολούρα στις άλλες — ΑΚΤΙΝΙΚΗ
+             * μάσκα σβήνει ΟΛΟ τον περίγυρο και αφήνει μόνο το προϊόν.
              */
             style={{
               WebkitMaskImage:
-                "linear-gradient(to right, transparent 0%, #000 34%), linear-gradient(to top, transparent 0%, #000 26%)",
-              WebkitMaskComposite: "source-in",
+                "radial-gradient(72% 68% at 56% 44%, #000 46%, rgba(0,0,0,0.65) 68%, transparent 100%)",
               maskImage:
-                "linear-gradient(to right, transparent 0%, #000 34%), linear-gradient(to top, transparent 0%, #000 26%)",
-              maskComposite: "intersect",
+                "radial-gradient(72% 68% at 56% 44%, #000 46%, rgba(0,0,0,0.65) 68%, transparent 100%)",
             }}
           >
             <Image
               src={item.image}
               alt=""
-              width={376}
-              height={376}
-              className="h-auto w-full object-contain"
+              width={412}
+              height={412}
+              /* Λίγη αντίθεση παραπάνω: ένα εργαλείο φωτογραφημένο σε λευκό
+                 χάνει τις άκρες του πάνω στο μαύρο. */
+              className="h-auto w-full object-contain [filter:contrast(1.06)_brightness(1.04)_drop-shadow(0_16px_26px_rgba(0,0,0,0.6))]"
               unoptimized
             />
           </span>
         )}
+        {/* Άλως πίσω από το προϊόν: του δίνει φως αντί να κάθεται σε κενό
+            μαύρο. Ουδέτερο και χαμηλό — το χρώμα ανήκει στην τιμή. */}
         <span
           aria-hidden
-          className="pointer-events-none absolute inset-0 bg-gradient-to-r from-k-ink via-k-ink/85 to-transparent"
+          className="pointer-events-none absolute -right-2 bottom-0 h-[190px] w-[190px] rounded-full bg-[radial-gradient(circle,rgba(255,255,255,0.14),transparent_68%)]"
+        />
+        <span
+          aria-hidden
+          className="pointer-events-none absolute inset-0 bg-gradient-to-r from-k-ink via-k-ink/88 to-transparent"
         />
 
         <span className="relative flex min-w-0 flex-col">
@@ -199,11 +205,11 @@ export function HeroOffersTile({
             {upGreek(labels.eyebrow)}
           </span>
 
-          <span data-line className="t-card-sku mt-2 text-white/45">
+          <span data-line className="t-card-sku mt-2.5 text-white/45">
             {item.brand} · {item.code}
           </span>
 
-          <span data-line className="t-tile-title mt-0.5 line-clamp-2 max-w-[215px] text-white">
+          <span data-line className="t-tile-title mt-1 line-clamp-2 max-w-[215px] text-white">
             {item.name}
           </span>
         </span>
@@ -230,7 +236,7 @@ export function HeroOffersTile({
         <Link
           data-line
           href={item.href}
-          className="t-link-mono relative mt-2 self-start border-b-[1.5px] border-k-red pb-[3px] text-white transition-colors hover:text-k-red"
+          className="t-link-mono relative mt-3 self-start border-b-[1.5px] border-k-red pb-[3px] text-white transition-colors hover:text-k-red"
         >
           {upGreek(labels.cta)} →
         </Link>

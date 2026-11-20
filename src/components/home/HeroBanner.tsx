@@ -69,7 +69,7 @@ export async function HeroBanner({
 
   return (
     <section className="shell-w grid gap-0.5 bg-k-line lg:grid-cols-[1fr_400px]">
-      <div className="relative h-[420px] overflow-hidden bg-k-ink lg:h-[520px]">
+      <div className="relative h-[420px] overflow-hidden bg-k-ink lg:h-[580px]">
         <video
           src="https://cdn.kolleris.com/engineer-walking-past-shipyard-during-sunset-2026-01-22-16-56-28-utc.mp4"
           autoPlay
