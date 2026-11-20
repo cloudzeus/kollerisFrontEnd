@@ -8,7 +8,7 @@ import type { Locale } from "@/i18n/routing";
 import { nameWithoutSize } from "@/lib/catalog/variant-name";
 import { scopeKeyOf } from "@/lib/compare/options";
 import { searchKey } from "@/lib/greek";
-import type { ProductCardData } from "@/lib/catalog/queries";
+import { stickerOf, type ProductCardData } from "@/lib/catalog/queries";
 import { capFacetValues } from "@/lib/catalog/listing-query";
 import { listingCache, type Listing } from "@/lib/catalog/listing-cache";
 import {
@@ -322,7 +322,12 @@ function buildWhere(
   return { AND: and };
 }
 
-function orderBy(sort: SortValue): Prisma.ProductOrderByWithRelationInput[] {
+function orderBy(sort: SortValue, offerOrder = false): Prisma.ProductOrderByWithRelationInput[] {
+  // Σελίδα προσφοράς HDCtool: «Σχετικότητα» είναι η σειρά που έσυρε ο χρήστης.
+  if (offerOrder && sort === "relevance") {
+    // Χωρίς θέσεις ακόμη (πριν φτάσει το feed): η συνηθισμένη σειρά.
+    return [{ offerPosition: { sort: "asc", nulls: "last" } }, ...orderBy(sort)];
+  }
   switch (sort) {
     case "price-asc":
       return [{ priceNet: "asc" }, { mtrl: "asc" }];
@@ -354,6 +359,9 @@ const CARD_SELECT = {
   offerSlug: true,
   offerBadge: true,
   offerDiscountPct: true,
+  offerSticker: true,
+  offerStickerUrl: true,
+  offerStickerAlt: true,
   vatRate: true,
   qty: true,
   inStock: true,
@@ -452,7 +460,7 @@ async function loadListing(
   const [rows, total, linkedBrands] = await Promise.all([
     prisma.product.findMany({
       where,
-      orderBy: orderBy(params.sort ?? "relevance"),
+      orderBy: orderBy(params.sort ?? "relevance", typeof extraWhere?.offerSlug === "string"),
       skip: (page - 1) * perPage,
       take: perPage,
       select: CARD_SELECT,
@@ -483,6 +491,7 @@ async function loadListing(
       image: row.images[0]?.url ?? null,
       priceNet: num(row.priceNet),
       priceListNet: num(row.priceList),
+      sticker: stickerOf(row),
       vatRate: num(row.vatRate) ?? 24,
       qty: num(row.qty) ?? 0,
       inStock: row.inStock,

@@ -26,6 +26,10 @@ export type OfferInput = {
   offerSlug?: string | null;
   offerEndsAt?: string | null;
   price30dLow?: number | null;
+  offerPosition?: number | null;
+  offerSticker?: string | null;
+  offerStickerUrl?: string | null;
+  offerStickerAlt?: string | null;
 };
 
 export type OfferProjection = {
@@ -39,6 +43,13 @@ export type OfferProjection = {
   offerDiscountPct: number | null;
   offerEndsAt: Date | null;
   price30dLowNet: number | null;
+  /** Η σειρά στη σελίδα της προσφοράς (0 = πρώτο). */
+  offerPosition: number | null;
+  /** «pct» ή κλειδί βιβλιοθήκης ή «custom»· null = χωρίς sticker. */
+  offerSticker: string | null;
+  /** Απόλυτο https URL του SVG. Χωρίς αυτό δεν υπάρχει sticker. */
+  offerStickerUrl: string | null;
+  offerStickerAlt: string | null;
 };
 
 /** ΤΕΣΣΕΡΑ δεκαδικά: η καθαρή τιμή είναι πηλίκο, και με δύο η μεικτή δεν ξαναβγαίνει. */
@@ -61,7 +72,27 @@ const none = (priceNet: number | null): OfferProjection => ({
   offerDiscountPct: null,
   offerEndsAt: null,
   price30dLowNet: null,
+  offerPosition: null,
+  offerSticker: null,
+  offerStickerUrl: null,
+  offerStickerAlt: null,
 });
+
+/*
+ * Το URL μπαίνει σε `<img src>` στη βιτρίνα: μόνο https, αλλιώς κανένα
+ * sticker. Ένα sticker χωρίς εικόνα είναι κανένα sticker, όχι σπασμένο.
+ */
+function stickerOf(p: OfferInput) {
+  const url = p.offerStickerUrl?.trim() ?? "";
+  if (!/^https:\/\/[^\s"'<>]+$/i.test(url) || url.length > 2000) {
+    return { offerSticker: null, offerStickerUrl: null, offerStickerAlt: null };
+  }
+  return {
+    offerSticker: p.offerSticker?.trim().slice(0, 40) || "custom",
+    offerStickerUrl: url,
+    offerStickerAlt: p.offerStickerAlt?.trim().slice(0, 80) || null,
+  };
+}
 
 export function offerProjection(p: OfferInput, vatPercent: number): OfferProjection {
   /*
@@ -103,5 +134,7 @@ export function offerProjection(p: OfferInput, vatPercent: number): OfferProject
     offerDiscountPct: Number.isFinite(pct) && pct > 0 ? pct : null,
     offerEndsAt: p.offerEndsAt ? new Date(p.offerEndsAt) : null,
     price30dLowNet: low == null ? null : netOf(low, vatPercent),
+    offerPosition: Number.isInteger(p.offerPosition) ? (p.offerPosition as number) : null,
+    ...stickerOf(p),
   };
 }

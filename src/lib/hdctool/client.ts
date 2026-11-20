@@ -165,6 +165,12 @@ export type HdctoolProduct = {
   offerEndsAt?: string | null;
   /** Το 30ήμερο χαμηλό ΜΕ ΦΠΑ — οδηγία Omnibus. Null όταν δεν το ξέρουμε. */
   price30dLow?: number | null;
+  /** Η σειρά του είδους στη σελίδα της προσφοράς (0 = πρώτο). */
+  offerPosition?: number | null;
+  /** Το sticker της προσφοράς: κλειδί, απόλυτο URL του SVG, κείμενο για ανάγνωση. */
+  offerSticker?: string | null;
+  offerStickerUrl?: string | null;
+  offerStickerAlt?: string | null;
   /** Returned as a STRING by the live API (e.g. "25") — coerce before using. */
   brandDiscount: string | number | null;
   /**
