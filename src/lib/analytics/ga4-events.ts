@@ -53,12 +53,16 @@ export function metaParams(params: { value?: number; items: Ga4Item[] }): Record
  * Ένα γεγονός και στο GA4 και στο Meta Pixel. Και τα δύο σέβονται τη
  * συγκατάθεση μόνα τους (Consent Mode / το Pixel φορτώνει μόνο με «Αποδοχή»).
  */
-export function ga4Event(name: string, params: { value?: number; items: Ga4Item[]; [k: string]: unknown }): void {
+export function ga4Event(
+  name: string,
+  params: { value?: number; items: Ga4Item[]; [k: string]: unknown },
+  send: { ga4: boolean; meta: boolean } = { ga4: true, meta: true },
+): void {
   if (typeof window === "undefined") return;
   const w = window as unknown as { gtag?: Gtag; fbq?: Fbq };
-  if (typeof w.gtag === "function") w.gtag("event", name, { currency: "EUR", ...params });
+  if (send.ga4 && typeof w.gtag === "function") w.gtag("event", name, { currency: "EUR", ...params });
   const meta = META_EVENT[name];
-  if (meta && typeof w.fbq === "function") {
+  if (send.meta && meta && typeof w.fbq === "function") {
     // eventID = αριθμός παραγγελίας, ώστε ένα μελλοντικό Conversions API να μη διπλομετρά.
     const id = typeof params.transaction_id === "string" ? { eventID: `purchase-${params.transaction_id}` } : undefined;
     w.fbq("track", meta, metaParams(params), id);
@@ -74,4 +78,17 @@ export function itemsValue(items: Ga4Item[]): number {
 export function trackAddToCart(result: { ok: boolean; item?: Ga4Item }): void {
   if (!result.ok || !result.item) return;
   ga4Event("add_to_cart", { value: itemsValue([result.item]), items: [result.item] });
+}
+
+export type LeadMethod = "phone" | "email" | "contact_form" | "newsletter";
+
+/**
+ * Επαφή χωρίς αγορά: κλικ σε τηλέφωνο/email, φόρμα επικοινωνίας, newsletter.
+ * GA4 `generate_lead` με τον τρόπο· Meta `Contact` για κλικ, `Lead` για φόρμα.
+ */
+export function trackLead(method: LeadMethod): void {
+  if (typeof window === "undefined") return;
+  const w = window as unknown as { gtag?: Gtag; fbq?: Fbq };
+  if (typeof w.gtag === "function") w.gtag("event", "generate_lead", { method });
+  if (typeof w.fbq === "function") w.fbq("track", method === "phone" || method === "email" ? "Contact" : "Lead", { content_name: method });
 }

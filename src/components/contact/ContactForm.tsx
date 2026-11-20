@@ -4,6 +4,7 @@ import { useTranslations } from "next-intl";
 import { useActionState, useState } from "react";
 import { submitContact, type ContactState } from "@/lib/contact/actions";
 import { upGreek } from "@/lib/greek";
+import { LeadEvent } from "@/components/analytics/LeadEvent";
 
 /**
  * Topic-driven contact form.
@@ -43,6 +44,7 @@ export function ContactForm({ locale, pagePath }: { locale: string; pagePath?: s
   if (state.ok) {
     return (
       <div className="border-l-[3px] border-k-green bg-k-surface-2 p-6 lg:p-8">
+        <LeadEvent method="contact_form" />
         <p className="t-eyebrow text-k-green">{upGreek(t("stalthike"))}</p>
         <p className="font-display t-display mt-3 text-[19px] leading-[1.25] text-k-ink lg:text-[22px]">
           {upGreek(t("to_lavame"))}

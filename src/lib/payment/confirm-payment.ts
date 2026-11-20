@@ -14,6 +14,8 @@ import {
 import { sendOrderEmail } from "@/lib/mail/order-email";
 import { sendInternalOrderEmail } from "@/lib/mail/order-internal-email";
 import { sendOrderToErp, syncPaymentToErp, type SendToErpResult } from "@/lib/orders/send-to-erp";
+import { sendServerPurchase } from "@/lib/analytics/server-purchase";
+import { siteOrigin } from "@/lib/seo/urls";
 
 /**
  * The one way an order becomes PAID.
@@ -73,6 +75,12 @@ export async function afterPaymentConfirmed(
   }
 
   /*
+   * Η αγορά στο GA4 και στη Meta από τον server (μόνο με συγκατάθεση). Εδώ και
+   * όχι στη σελίδα επιβεβαίωσης: εδώ φτάνει ΚΑΘΕ πληρωμή, και μία φορά.
+   */
+  await recordServerPurchase(orderNumber, logPrefix);
+
+  /*
    * Tell HDCtool, if the order ever got there: its copy was written while the
    * order was unpaid and nothing else would update it.
    */
@@ -101,6 +109,26 @@ export async function afterPaymentConfirmed(
   }
 
   return { receipt, internal, erpSync, erpDocument };
+}
+
+async function recordServerPurchase(orderNumber: string, logPrefix: string): Promise<void> {
+  try {
+    const order = await prisma.order.findUnique({
+      where: { orderNumber },
+      select: {
+        orderNumber: true, subtotalNet: true, vatAmount: true, shippingGross: true,
+        email: true, phone: true, firstName: true, lastName: true,
+        shipCity: true, shipPostcode: true, shipCountry: true, paidAt: true, attribution: true,
+        lines: { select: { sku: true, mtrl: true, name: true, brand: true, unitNet: true, discountPercent: true, quantity: true } },
+      },
+    });
+    if (!order?.attribution) return;
+    const r = await sendServerPurchase(order, siteOrigin());
+    if (r.ga4 !== "sent" && r.ga4 !== "skipped") console.error(`${logPrefix} ${orderNumber} GA4 purchase: ${r.ga4}`);
+    if (r.meta !== "sent" && r.meta !== "skipped") console.error(`${logPrefix} ${orderNumber} Meta purchase: ${r.meta}`);
+  } catch (error) {
+    console.error(`${logPrefix} ${orderNumber} purchase measurement failed`, error);
+  }
 }
 
 /** Statuses an incoming payment may not move backwards from. */
