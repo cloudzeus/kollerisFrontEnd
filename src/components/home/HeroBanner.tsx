@@ -151,7 +151,18 @@ export async function HeroBanner({
          */
         <div className="hidden gap-0.5 lg:grid lg:grid-rows-1">{aside}</div>
       ) : (
-        <div className="hidden grid-rows-2 gap-0.5 lg:grid">
+        /*
+         * ΑΝΙΣΟ ΜΟΙΡΑΣΜΑ ΟΤΑΝ ΤΡΕΧΕΙ ΠΡΟΣΦΟΡΑ.
+         *
+         * Στα ίσα, η προσφορά έπαιρνε όσο και η «νέα άφιξη» — και είναι η
+         * μόνη από τις δύο που κουβαλά τιμή, διαγραμμένη τιμή και ποσοστό. Η
+         * πάνω κάρτα θέλει τίτλο και σύνδεσμο, τίποτα άλλο, οπότε δίνει χώρο.
+         */
+        <div
+          className={`hidden gap-0.5 lg:grid ${
+            offersTile ? "lg:grid-rows-[4fr_6fr]" : "lg:grid-rows-2"
+          }`}
+        >
           {/* Με αληθινή προσφορά η κάτω θέση πάει σε αυτήν· αλλιώς μένουν και οι δύο. */}
           {(offersTile ? featuredTiles.slice(0, 1) : featuredTiles).map((tile) => (
           <article

@@ -54,16 +54,16 @@ const pick = (row: Row, locale: Locale) =>
 async function brandMap(locale: Locale) {
   const rows = await prisma.brand.findMany({
     where: { mtrmark: { not: null } },
-    select: { mtrmark: true, slug: true, nameEl: true, nameEn: true, nameIt: true },
+    select: { mtrmark: true, slug: true, logo: true, nameEl: true, nameEn: true, nameIt: true },
   });
-  return new Map(rows.map((b) => [b.mtrmark!, { slug: b.slug, name: pick(b, locale) }]));
+  return new Map(rows.map((b) => [b.mtrmark!, { slug: b.slug, name: pick(b, locale), logo: b.logo }]));
 }
 
 type Loaded = Awaited<ReturnType<typeof prisma.product.findMany<{ select: typeof CARD }>>>[number];
 
 function toCard(
   row: Loaded,
-  brands: Map<number, { slug: string; name: string }>,
+  brands: Map<number, { slug: string; name: string; logo?: string | null }>,
   locale: Locale,
 ): ProductCardData {
   const brand = row.mtrmark != null ? brands.get(row.mtrmark) : undefined;
@@ -75,6 +75,7 @@ function toCard(
     sku: row.code2 || row.code,
     brandName: brand?.name ?? null,
     brandSlug: brand?.slug ?? null,
+    brandLogo: brand?.logo ?? null,
     image: row.images[0]?.url ?? null,
     priceNet: num(row.priceNet),
     priceListNet: num(row.priceList),

@@ -33,6 +33,7 @@ export type HeroOfferItem = {
   href: string;
   name: string;
   brand: string;
+  brandLogo: string | null;
   code: string;
   image: string | null;
   /** Η κανονική τιμή, μορφοποιημένη. Null όταν δεν υπάρχει «πριν». */
@@ -94,25 +95,47 @@ export function HeroOffersTile({
       const scope = stageRef.current;
       if (cancelled || !scope) return;
 
+      /*
+       * Δύο στρώσεις, δύο άξονες.
+       *
+       * Η λευκή πλάκα ανοίγει ΑΠΟ ΤΑ ΔΕΞΙΑ (clip-path) — το προϊόν μπαίνει
+       * στη θέση του, δεν εμφανίζεται από το πουθενά. Το κείμενο έρχεται από
+       * ΑΡΙΣΤΕΡΑ με κλιμάκωση. Διαφορετικές κατευθύνσεις σημαίνει ότι το μάτι
+       * τις διαβάζει ως δύο πράγματα, όχι ως ένα που τρεμοπαίζει.
+       *
+       * Τελευταία η τιμή και το λογότυπο: αυτά θες να μείνουν.
+       */
       gsap
-        .timeline()
+        .timeline({ defaults: { ease: "expo.out" } })
         .fromTo(
           scope.querySelectorAll("[data-shot]"),
-          { scale: 1.08, opacity: 0 },
-          { scale: 1, opacity: 1, duration: 0.9, ease: "expo.out" },
+          { clipPath: "inset(0 0 0 100%)" },
+          { clipPath: "inset(0 0 0 0%)", duration: 0.62 },
           0,
         )
         .fromTo(
+          scope.querySelectorAll("[data-photo]"),
+          { scale: 1.1, opacity: 0 },
+          { scale: 1, opacity: 1, duration: 0.85 },
+          0.1,
+        )
+        .fromTo(
           scope.querySelectorAll("[data-line]"),
-          { y: 14, opacity: 0 },
-          { y: 0, opacity: 1, duration: 0.5, stagger: 0.045, ease: "expo.out" },
-          0.05,
+          { x: -16, opacity: 0 },
+          { x: 0, opacity: 1, duration: 0.55, stagger: 0.045 },
+          0.06,
         )
         .fromTo(
           scope.querySelectorAll("[data-pop]"),
-          { scale: 0.8, opacity: 0 },
-          { scale: 1, opacity: 1, duration: 0.42, ease: "back.out(2.2)" },
-          0.26,
+          { scale: 0.78, opacity: 0 },
+          { scale: 1, opacity: 1, duration: 0.45, ease: "back.out(2.4)" },
+          0.34,
+        )
+        .fromTo(
+          scope.querySelectorAll("[data-logo]"),
+          { y: 10, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.5 },
+          0.42,
         );
 
       if (barRef.current) {
@@ -155,35 +178,63 @@ export function HeroOffersTile({
       */}
       <div ref={stageRef} key={index} className="flex h-full min-w-0 flex-col">
         {/*
-          Η ΕΙΚΟΝΑ ΚΑΛΥΠΤΕΙ ΟΛΟ ΤΟ ΠΛΑΚΙΔΙΟ, ΤΟ GRADIENT ΒΓΑΖΕΙ ΤΟ ΚΕΙΜΕΝΟ.
+          ΔΥΟ ΖΩΝΕΣ: ΣΚΟΤΕΙΝΗ ΓΙΑ ΤΟ ΚΕΙΜΕΝΟ, ΦΩΤΕΙΝΗ ΓΙΑ ΤΟ ΠΡΟΪΟΝ.
           ────────────────────────────────────────────────────────────────────
-          Ήταν κομμένη φωτογραφία στη δεξιά άκρη· σαν πλακίδιο προϊόντος, όχι
-          σαν αφίσα. Τώρα γεμίζει την περιοχή και το κείμενο κάθεται πάνω της.
+          Δύο προσπάθειες πήγαν στραβά για τον ίδιο λόγο: οι φωτογραφίες του
+          καταλόγου είναι τραβηγμένες ΣΕ ΛΕΥΚΟ. Με `cover` το εργαλείο έμενε
+          μικρό μέσα στα λευκά περιθώρια· με σκοτείνιασμα και μάσκα χανόταν
+          τελείως. Όσο περισσότερο gradient έμπαινε πάνω του, τόσο λιγότερο
+          καταλάβαινε κανείς τι πουλάμε.
 
-          ΔΥΟ ΣΤΡΩΣΕΙΣ, ΚΑΙ ΟΙ ΔΥΟ ΑΝΑΓΚΑΙΕΣ. Οι φωτογραφίες του καταλόγου
-          είναι προϊόντα σε ΛΕΥΚΟ φόντο: σκέτες, γεμίζουν το πλακίδιο λευκό και
-          το λευκό κείμενο εξαφανίζεται. Το ομοιόμορφο σκοτείνιασμα τις κάνει
-          υπόβαθρο, και το gradient από αριστερά δίνει στο κείμενο τη δική του
-          σκοτεινή ζώνη ώστε η τιμή να διαβάζεται πάντα, όποιο προϊόν κι αν
-          τύχει.
+          Το σωστό είναι να μην μπει τίποτα πάνω του. Το προϊόν παίρνει τη
+          δική του λευκή πλάκα — όπως ακριβώς κάνουν ήδη οι κάρτες του site —
+          και το κείμενο κρατά τη δική του σκοτεινή. Καμία επικάλυψη, άρα
+          καμία απώλεια: η τιμή διαβάζεται σε συμπαγές μαύρο και το εργαλείο
+          φαίνεται όπως φωτογραφήθηκε.
         */}
-        {item.image && (
-          <span data-shot aria-hidden className="pointer-events-none absolute inset-0 block">
+        {/*
+          Η ΠΛΑΚΑ ΥΠΑΡΧΕΙ ΠΑΝΤΑ, ΚΑΙ ΠΟΤΕ ΔΕΝ ΕΙΝΑΙ ΑΔΕΙΑ.
+          ────────────────────────────────────────────────────────────────────
+          Όταν κρεμόταν από τη φωτογραφία, ένα προϊόν χωρίς εικόνα έριχνε όλη
+          τη δεξιά ζώνη και η κάρτα έμενε μισή. Στον κατάλογο υπάρχουν τέτοια.
+
+          Τώρα η πλάκα μένει και δείχνει ό,τι έχει: τη φωτογραφία αν υπάρχει,
+          και σε κάθε περίπτωση το λογότυπο της μάρκας — που λέει ΠΟΙΟΥ είναι
+          το εργαλείο, η πρώτη πληροφορία που ψάχνει ο επαγγελματίας. Χωρίς
+          φωτογραφία το λογότυπο παίρνει τη μέση· με φωτογραφία πάει γωνία.
+        */}
+        <span data-shot aria-hidden className="pointer-events-none absolute inset-y-0 right-0 block w-[47%] bg-white">
+          {item.image && (
             <Image
+              data-photo
               src={item.image}
               alt=""
               fill
-              sizes="400px"
-              className="object-cover object-right"
+              sizes="190px"
+              className="object-contain p-3.5 pb-16"
               unoptimized
             />
-          </span>
-        )}
-        <span aria-hidden className="pointer-events-none absolute inset-0 bg-k-ink/55" />
-        <span
-          aria-hidden
-          className="pointer-events-none absolute inset-0 bg-gradient-to-r from-k-ink via-k-ink/88 to-k-ink/25"
-        />
+          )}
+          {item.brandLogo && (
+            <span
+              data-logo
+              className={
+                item.image
+                  ? "absolute right-3 bottom-3 block h-12 w-[152px]"
+                  : "absolute inset-0 m-auto block h-16 w-[160px]"
+              }
+            >
+              <Image
+                src={item.brandLogo}
+                alt=""
+                fill
+                sizes="160px"
+                className={`object-contain ${item.image ? "object-right opacity-90" : "object-center"}`}
+                unoptimized
+              />
+            </span>
+          )}
+        </span>
 
         <span className="relative flex min-w-0 flex-col">
           <span
@@ -197,12 +248,12 @@ export function HeroOffersTile({
             {item.brand} · {item.code}
           </span>
 
-          <span data-line className="t-tile-title mt-1 line-clamp-2 max-w-[250px] text-white">
+          <span data-line className="t-tile-title mt-1 line-clamp-2 max-w-[170px] text-white">
             {item.name}
           </span>
         </span>
 
-        <span className="relative mt-auto flex max-w-[250px] flex-wrap items-baseline gap-x-2.5 gap-y-1">
+        <span className="relative mt-auto flex max-w-[170px] flex-wrap items-baseline gap-x-2.5 gap-y-1">
           {item.was && (
             <span data-line className="t-card-was text-white/40 line-through tabular-nums">
               {item.was}
@@ -236,7 +287,7 @@ export function HeroOffersTile({
         η γεμάτη μπάρα δείχνει πόσος χρόνος μένει.
       */}
       {items.length > 1 && (
-        <div className="absolute inset-x-[26px] bottom-3 z-20 flex gap-1">
+        <div className="absolute bottom-3 left-[26px] z-20 flex w-[170px] gap-1">
           {items.map((_, i) => (
             <button
               key={i}

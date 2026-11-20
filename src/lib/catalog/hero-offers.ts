@@ -44,6 +44,7 @@ export function heroOfferItems(
       href: `/proion/${p.slug}`,
       name: p.name,
       brand: p.brandName ?? "",
+      brandLogo: p.brandLogo ?? null,
       code: p.sku,
       image: p.image,
       was: formatPrice(p.priceListNet, locale, ctx),

@@ -9,6 +9,7 @@ const product = (over: Record<string, unknown> = {}) => ({
   name: "ΚΑΤΣΑΒΙΔΙΑ 1000V ΣΕΤ 7ΤΕΜ",
   sku: "1616048",
   brandName: "GEDORE",
+  brandLogo: "https://cdn/gedore.svg",
   image: "https://cdn/x.webp",
   priceNet: 39.5161,
   priceListNet: 57.6129,
@@ -60,5 +61,16 @@ describe("heroOfferItems", () => {
       "/proion/b",
       "/proion/a",
     ]);
+  });
+});
+
+describe("το λογότυπο της μάρκας", () => {
+  it("ταξιδεύει μέχρι την κάρτα", () => {
+    expect(heroOfferItems([product()], "el", L)[0].brandLogo).toBe("https://cdn/gedore.svg");
+  });
+
+  // Μάρκα χωρίς λογότυπο δεν αφήνει σπασμένη εικόνα στη γωνία.
+  it("μάρκα χωρίς λογότυπο δίνει null", () => {
+    expect(heroOfferItems([product({ brandLogo: null })], "el", L)[0].brandLogo).toBeNull();
   });
 });

@@ -227,6 +227,8 @@ export type ProductCardData = {
   sku: string;
   brandName: string | null;
   brandSlug: string | null;
+  /** Το λογότυπο της μάρκας, όπου υπάρχει. */
+  brandLogo?: string | null;
   image: string | null;
   priceNet: number | null;
   priceListNet: number | null;
@@ -320,7 +322,7 @@ function num(value: unknown): number | null {
 function toCard(
   row: ProductRow,
   locale: Locale,
-  brands: Map<number, { name: string; slug: string }>,
+  brands: Map<number, { name: string; slug: string; logo?: string | null }>,
 ): ProductCardData {
   const translated = row.translations.find((t) => t.locale === locale)?.name;
   const brand = row.mtrmark != null ? brands.get(row.mtrmark) : undefined;
@@ -339,6 +341,7 @@ function toCard(
     impaCode: row.impaCode,
     brandName: brand?.name ?? null,
     brandSlug: brand?.slug ?? null,
+    brandLogo: brand?.logo ?? null,
     image: row.images[0]?.url ?? null,
     priceNet: num(row.priceNet),
     priceListNet: num(row.priceList),
@@ -355,12 +358,13 @@ function toCard(
 const getBrandsByMtrmark = cache(
   async (
     locale: Locale,
-  ): Promise<Map<number, { name: string; slug: string }>> => {
+  ): Promise<Map<number, { name: string; slug: string; logo: string | null }>> => {
     const rows = await prisma.brand.findMany({
       where: { mtrmark: { not: null } },
       select: {
         mtrmark: true,
         slug: true,
+        logo: true,
         nameEl: true,
         nameEn: true,
         nameIt: true,
@@ -369,7 +373,7 @@ const getBrandsByMtrmark = cache(
     return new Map(
       rows.map((row) => [
         row.mtrmark!,
-        { name: localised(row, locale), slug: row.slug },
+        { name: localised(row, locale), slug: row.slug, logo: row.logo },
       ]),
     );
   },
