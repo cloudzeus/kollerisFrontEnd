@@ -14,7 +14,7 @@ import {
 import { sendOrderEmail } from "@/lib/mail/order-email";
 import { sendInternalOrderEmail } from "@/lib/mail/order-internal-email";
 import { sendOrderToErp, syncPaymentToErp, type SendToErpResult } from "@/lib/orders/send-to-erp";
-import { sendServerPurchase } from "@/lib/analytics/server-purchase";
+import { loadPurchaseKeys, sendServerPurchase } from "@/lib/analytics/server-purchase";
 import { siteOrigin } from "@/lib/seo/urls";
 
 /**
@@ -123,7 +123,7 @@ async function recordServerPurchase(orderNumber: string, logPrefix: string): Pro
       },
     });
     if (!order?.attribution) return;
-    const r = await sendServerPurchase(order, siteOrigin());
+    const r = await sendServerPurchase(order, siteOrigin(), await loadPurchaseKeys());
     if (r.ga4 !== "sent" && r.ga4 !== "skipped") console.error(`${logPrefix} ${orderNumber} GA4 purchase: ${r.ga4}`);
     if (r.meta !== "sent" && r.meta !== "skipped") console.error(`${logPrefix} ${orderNumber} Meta purchase: ${r.meta}`);
   } catch (error) {

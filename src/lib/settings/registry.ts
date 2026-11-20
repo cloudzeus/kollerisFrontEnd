@@ -13,7 +13,7 @@
  * Client-safe: definitions only, no values, no I/O.
  */
 
-export type SettingGroup = "erp" | "payment" | "courier" | "shop";
+export type SettingGroup = "erp" | "payment" | "courier" | "shop" | "analytics";
 
 export type SettingDef = {
   key: string;
@@ -47,6 +47,12 @@ export const SETTING_GROUPS: ReadonlyArray<{ id: SettingGroup; title: string; bl
     blurb: "ACS. Οι τιμές έρχονται ζωντανά από τον τιμοκατάλογό σας μέσω του HDCtool.",
   },
   { id: "shop", title: "Κατάστημα", blurb: "Όρια και κατώφλια του ταμείου." },
+  {
+    id: "analytics",
+    title: "Μέτρηση πωλήσεων",
+    blurb:
+      "Η αγορά φτάνει στο Google Analytics και στη Meta από τον server τη στιγμή που πληρώνεται, και για όσους δέχτηκαν τα cookies. Χωρίς κλειδί μετριέται μόνο από τη σελίδα επιβεβαίωσης.",
+  },
 ] as const;
 
 export const SETTINGS: ReadonlyArray<SettingDef> = [
@@ -178,6 +184,26 @@ export const SETTINGS: ReadonlyArray<SettingDef> = [
     help: "Σε ευρώ, χωρίς ΦΠΑ.",
     kind: "number",
     envVar: "FREE_SHIPPING_THRESHOLD_NET",
+  },
+
+  // ── Μέτρηση πωλήσεων ──
+  {
+    key: "analytics.ga4ApiSecret",
+    group: "analytics",
+    label: "Google Analytics: Measurement Protocol secret",
+    help: "GA4 → Διαχείριση → Ροές δεδομένων → kolleris.com → Measurement Protocol API secrets.",
+    secret: true,
+    kind: "text",
+    envVar: "GA4_API_SECRET",
+  },
+  {
+    key: "analytics.metaCapiToken",
+    group: "analytics",
+    label: "Meta: Conversions API token",
+    help: "Events Manager → Pixel → Ρυθμίσεις → Conversions API → Δημιουργία διακριτικού πρόσβασης.",
+    secret: true,
+    kind: "text",
+    envVar: "META_CAPI_TOKEN",
   },
 ] as const;
 

@@ -20,15 +20,24 @@ const GA4_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID ?? "G-EGS1JNM4EC";
 const PIXEL_ID = process.env.NEXT_PUBLIC_META_PIXEL_ID ?? "";
 const GRAPH = "https://graph.facebook.com/v24.0";
 
-const ga4Secret = () => process.env.GA4_API_SECRET?.trim() || "";
-const metaToken = () => process.env.META_CAPI_TOKEN?.trim() || "";
+/** Τα κλειδιά από τις Ρυθμίσεις του admin (το .env μόνο ως αρχική τιμή). */
+export type PurchaseKeys = { ga4Secret: string; metaToken: string };
+
+export async function loadPurchaseKeys(): Promise<PurchaseKeys> {
+  const { getSetting } = await import("@/lib/settings/settings");
+  const [ga4Secret, metaToken] = await Promise.all([
+    getSetting("analytics.ga4ApiSecret").catch(() => null),
+    getSetting("analytics.metaCapiToken").catch(() => null),
+  ]);
+  return { ga4Secret: ga4Secret?.trim() ?? "", metaToken: metaToken?.trim() ?? "" };
+}
 
 /** Ποια κανάλια στέλνει ο server για αυτή την παραγγελία. */
-export function purchaseChannels(attribution: unknown): { ga4: boolean; meta: boolean } {
+export function purchaseChannels(attribution: unknown, keys: PurchaseKeys): { ga4: boolean; meta: boolean } {
   const a = asOrderAttribution(attribution);
   return {
-    ga4: Boolean(a?.gaClientId && ga4Secret()),
-    meta: Boolean(a && metaToken() && /^\d{6,20}$/.test(PIXEL_ID)),
+    ga4: Boolean(a?.gaClientId && keys.ga4Secret),
+    meta: Boolean(a && keys.metaToken && /^\d{6,20}$/.test(PIXEL_ID)),
   };
 }
 
@@ -128,15 +137,15 @@ export function metaPurchaseBody(order: PurchaseOrder, a: OrderAttribution, orig
 export type ServerPurchaseResult = { ga4: "sent" | "skipped" | string; meta: "sent" | "skipped" | string };
 
 /** Ποτέ δεν πετά: η πληρωμή έγινε, η μέτρηση δεν την αναιρεί. */
-export async function sendServerPurchase(order: PurchaseOrder, origin: string): Promise<ServerPurchaseResult> {
+export async function sendServerPurchase(order: PurchaseOrder, origin: string, keys: PurchaseKeys): Promise<ServerPurchaseResult> {
   const a = asOrderAttribution(order.attribution);
-  const on = purchaseChannels(order.attribution);
+  const on = purchaseChannels(order.attribution, keys);
   const result: ServerPurchaseResult = { ga4: "skipped", meta: "skipped" };
   if (!a) return result;
 
   const jobs: Promise<void>[] = [];
   if (on.ga4) {
-    const url = `https://www.google-analytics.com/mp/collect?measurement_id=${encodeURIComponent(GA4_ID)}&api_secret=${encodeURIComponent(ga4Secret())}`;
+    const url = `https://www.google-analytics.com/mp/collect?measurement_id=${encodeURIComponent(GA4_ID)}&api_secret=${encodeURIComponent(keys.ga4Secret)}`;
     jobs.push(
       fetch(url, { method: "POST", body: JSON.stringify(ga4PurchaseBody(order, a)), signal: AbortSignal.timeout(10_000) })
         .then((r) => void (result.ga4 = r.ok ? "sent" : `HTTP ${r.status}`))
@@ -148,7 +157,7 @@ export async function sendServerPurchase(order: PurchaseOrder, origin: string): 
       fetch(`${GRAPH}/${PIXEL_ID}/events`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...metaPurchaseBody(order, a, origin), access_token: metaToken() }),
+        body: JSON.stringify({ ...metaPurchaseBody(order, a, origin), access_token: keys.metaToken }),
         signal: AbortSignal.timeout(10_000),
       })
         .then(async (r) => void (result.meta = r.ok ? "sent" : `HTTP ${r.status} ${(await r.text()).slice(0, 200)}`))
