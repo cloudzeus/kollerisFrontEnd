@@ -96,3 +96,36 @@ describe("Omnibus", () => {
     expect(offerProjection({ ...offer, price30dLow: 0 }, VAT).price30dLowNet).toBeNull();
   });
 });
+
+describe("σειρά και sticker", () => {
+  const withSticker = {
+    ...offer,
+    offerPosition: 3,
+    offerSticker: "pct",
+    offerStickerUrl: "https://hdctool.wwa.gr/api/public/offer-stickers/pct-21.svg",
+    offerStickerAlt: "Έκπτωση 21%",
+  };
+
+  it("περνούν όπως ήρθαν όταν τρέχει προσφορά", () => {
+    const r = offerProjection(withSticker, VAT);
+    expect(r.offerPosition).toBe(3);
+    expect(r.offerSticker).toBe("pct");
+    expect(r.offerStickerUrl).toBe("https://hdctool.wwa.gr/api/public/offer-stickers/pct-21.svg");
+    expect(r.offerStickerAlt).toBe("Έκπτωση 21%");
+  });
+
+  it("σβήνουν μαζί με την προσφορά", () => {
+    const r = offerProjection({ ...withSticker, offerSlug: null }, VAT);
+    expect(r.offerPosition).toBeNull();
+    expect(r.offerSticker).toBeNull();
+    expect(r.offerStickerUrl).toBeNull();
+  });
+
+  it("URL που δεν είναι https: κανένα sticker", () => {
+    for (const url of ["javascript:alert(1)", "http://x.gr/a.svg", "https://x.gr/a b.svg", ""]) {
+      const r = offerProjection({ ...withSticker, offerStickerUrl: url }, VAT);
+      expect(r.offerSticker).toBeNull();
+      expect(r.offerStickerUrl).toBeNull();
+    }
+  });
+});

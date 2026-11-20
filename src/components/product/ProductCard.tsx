@@ -5,6 +5,7 @@ import { AddToCartButton } from "@/components/cart/AddToCartButton";
 import { BuyNowButton } from "@/components/cart/BuyNowButton";
 import { CardHoverShell } from "@/components/product/CardHoverShell";
 import { CompareCheckbox } from "@/components/product/CompareCheckbox";
+import { OfferSticker } from "@/components/product/OfferSticker";
 import { QuickViewTrigger } from "@/components/product/QuickViewTrigger";
 import { Link } from "@/i18n/navigation";
 import type { ProductCardData } from "@/lib/catalog/queries";
@@ -65,6 +66,11 @@ export async function ProductCard({
     product.priceListNet != null && product.priceNet != null
       ? savingsOf(product.priceListNet, product.priceNet, locale, ctx, product.offerDiscountPct)
       : null;
+  /* Το sticker «Έκπτωση του είδους» λέει ήδη το ποσοστό: το σήμα πάνω
+     αριστερά που λέει το ίδιο νούμερο φεύγει, αλλιώς η κάρτα το λέει δύο φορές. */
+  const pctSticker = product.sticker?.key === "pct";
+  const badgeOffer = pctSticker && offer?.label.includes("%") ? null : offer;
+  const badgeSaving = pctSticker ? null : saving;
 
   /* Ακριβής αριθμός μόνο στα τρία και κάτω — βλ. `stock-display`. Το όριο ήταν
      πέντε εδώ και πουθενά αλλού, οπότε η κάρτα έκρυβε ό,τι αποκάλυπτε η σελίδα. */
@@ -104,19 +110,19 @@ export async function ProductCard({
           Το φόντο είναι το βαθύτερο κόκκινο: λευκό κείμενο 9.5px πάνω στο
           #EA3E39 δεν περνά AA.
         */}
-        {(offer || saving) && (
+        {(badgeOffer || badgeSaving) && (
           <div className="absolute top-2.5 left-2.5 z-20 flex flex-col items-start gap-1 lg:top-3.5 lg:left-3.5">
-            {offer && (
+            {badgeOffer && (
               <span
-                title={offer.title}
+                title={badgeOffer.title}
                 className="t-badge bg-k-red-600 px-1.5 py-[3px] text-white uppercase lg:px-[7px] lg:py-1"
               >
-                {offer.label}
+                {badgeOffer.label}
               </span>
             )}
-            {saving && (
+            {badgeSaving && (
               <span className="t-badge bg-k-ink px-1.5 py-[3px] text-white lg:px-[7px] lg:py-1">
-                {formatPercent(saving.percent)}
+                {formatPercent(badgeSaving.percent)}
               </span>
             )}
           </div>
@@ -136,7 +142,7 @@ export async function ProductCard({
         <div
           className={cn(
             "absolute right-2.5 left-2.5 z-10 flex items-start justify-between gap-2 lg:right-3.5 lg:left-3.5",
-            offer || saving ? "top-11 lg:top-[52px]" : "top-2.5 lg:top-3.5",
+            badgeOffer || badgeSaving ? "top-11 lg:top-[52px]" : "top-2.5 lg:top-3.5",
           )}
         >
           <FavouriteButton productId={product.id} initial={favourite} size="sm" />
@@ -168,6 +174,11 @@ export async function ProductCard({
             </span>
           )}
         </Link>
+
+        <OfferSticker
+          sticker={product.sticker}
+          className="pointer-events-none absolute right-2 bottom-2 z-[5] size-11 object-contain drop-shadow-[0_1px_2px_rgb(0_0_0/0.18)] lg:size-16"
+        />
 
         <QuickViewTrigger slug={product.slug} />
       </div>

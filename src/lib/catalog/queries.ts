@@ -242,6 +242,8 @@ export type ProductCardData = {
   offerBadge?: string | null;
   /** Το ΕΓΚΕΚΡΙΜΕΝΟ ποσοστό του HDCtool — αυτό που πάει και στο παραστατικό. */
   offerDiscountPct?: number | null;
+  /** Το sticker της προσφοράς, κάτω δεξιά στη φωτογραφία. */
+  sticker?: { url: string; alt: string | null; key: string | null } | null;
   vatRate: number;
   qty: number;
   inStock: boolean;
@@ -271,6 +273,9 @@ const PRODUCT_CARD_SELECT = {
   offerSlug: true,
   offerBadge: true,
   offerDiscountPct: true,
+  offerSticker: true,
+  offerStickerUrl: true,
+  offerStickerAlt: true,
   vatRate: true,
   qty: true,
   inStock: true,
@@ -304,6 +309,9 @@ type ProductRow = {
   offerSlug: string | null;
   offerBadge: string | null;
   offerDiscountPct: unknown;
+  offerSticker: string | null;
+  offerStickerUrl: string | null;
+  offerStickerAlt: string | null;
   vatRate: unknown;
   qty: unknown;
   inStock: boolean;
@@ -317,6 +325,17 @@ type ProductRow = {
 };
 
 /** Prisma returns Decimal; the UI wants plain numbers. */
+/** Το sticker υπάρχει μόνο μαζί με προσφορά ΚΑΙ εικόνα. */
+export function stickerOf(row: {
+  offerSlug: string | null;
+  offerSticker: string | null;
+  offerStickerUrl: string | null;
+  offerStickerAlt: string | null;
+}): ProductCardData["sticker"] {
+  if (!row.offerSlug || !row.offerStickerUrl) return null;
+  return { url: row.offerStickerUrl, alt: row.offerStickerAlt, key: row.offerSticker };
+}
+
 function num(value: unknown): number | null {
   if (value == null) return null;
   const n = Number(value);
@@ -352,6 +371,7 @@ function toCard(
     offerSlug: row.offerSlug,
     offerBadge: row.offerBadge,
     offerDiscountPct: num(row.offerDiscountPct),
+    sticker: stickerOf(row),
     vatRate: num(row.vatRate) ?? 24,
     qty: num(row.qty) ?? 0,
     inStock: row.inStock,

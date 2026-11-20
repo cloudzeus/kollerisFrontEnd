@@ -763,6 +763,10 @@ async function upsertProduct(
     offerDiscountPct: offer.offerDiscountPct,
     offerEndsAt: offer.offerEndsAt,
     price30dLowNet: offer.price30dLowNet,
+    offerPosition: offer.offerPosition,
+    offerSticker: offer.offerSticker,
+    offerStickerUrl: offer.offerStickerUrl,
+    offerStickerAlt: offer.offerStickerAlt,
     /* Ο ΛΥΜΕΝΟΣ συντελεστής, όχι το ωμό κενό του HDCtool — βλ. PR #19. */
     vatRate: vatPercent,
     qty,
