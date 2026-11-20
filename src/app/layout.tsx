@@ -21,6 +21,8 @@ import { alternatesFor } from "@/lib/seo/urls";
 import { siteJsonLd } from "@/lib/seo/structured-data";
 import { GoogleAnalytics } from "@/components/analytics/GoogleAnalytics";
 import { MetaPixel } from "@/components/analytics/MetaPixel";
+import { Attribution } from "@/components/analytics/Attribution";
+import { Suspense } from "react";
 import { GoogleTagManager, GoogleTagManagerNoScript } from "@/components/analytics/GoogleTagManager";
 import type { Locale } from "@/i18n/routing";
 
@@ -220,6 +222,10 @@ export default async function RootLayout({
         {children}
         <GoogleAnalytics />
         <MetaPixel />
+        {/* useSearchParams: χωρίς Suspense θα έκανε δυναμικές τις στατικές σελίδες. */}
+        <Suspense fallback={null}>
+          <Attribution />
+        </Suspense>
         <GoogleTagManager />
       </body>
     </html>

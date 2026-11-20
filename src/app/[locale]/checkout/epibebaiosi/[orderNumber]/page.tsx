@@ -20,6 +20,7 @@ import { paymentPageUrl } from "@/lib/payment/viva";
 import { isValidGtin } from "@/lib/feeds/google-merchant";
 import { GoogleReviewsOptIn } from "@/components/seo/GoogleReviewsOptIn";
 import { Ga4Event } from "@/components/analytics/Ga4Event";
+import { purchaseChannels } from "@/lib/analytics/server-purchase";
 import { AwaitPaymentRefresh } from "@/components/checkout/AwaitPaymentRefresh";
 import { estimatedDeliveryDate } from "@/lib/seo/google-reviews";
 import { upGreek } from "@/lib/greek";
@@ -207,9 +208,14 @@ export default async function ConfirmationPage({ params, searchParams }: PagePro
       */}
       {/* A card just charged, webhook not in yet: wait for it, then the purchase below is sent. */}
       {awaitingPayment && order.paymentMethod !== "bank" && payment !== "failed" && <AwaitPaymentRefresh />}
+      {/*
+        Ό,τι στέλνει ο server όταν η παραγγελία πληρωθεί (server-purchase.ts) δεν
+        το στέλνει και η σελίδα: αλλιώς η ίδια πώληση μετριέται δύο φορές.
+      */}
       {(!awaitingPayment || order.paymentMethod === "bank") && (
         <Ga4Event
           name="purchase"
+          skip={purchaseChannels(order.attribution)}
           onceKey={`purchase:${order.orderNumber}`}
           params={{
             transaction_id: order.orderNumber,

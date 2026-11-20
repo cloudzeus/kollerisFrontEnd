@@ -1,4 +1,5 @@
 import "server-only";
+import { asOrderAttribution, erpAttribution } from "@/lib/analytics/attribution";
 import { prisma } from "@/lib/prisma";
 import type { Prisma } from "@/generated/prisma/client";
 import { hdctoolRequest } from "@/lib/hdctool/client";
@@ -201,8 +202,21 @@ function buildIntakeBody(order: OrderWithLines) {
      * exactly the body it always did — also one placed with EU sales on.
      */
     ...euIntakeFields(order),
+
+    /*
+     * Από πού ήρθε (utm, gclid/fbclid), για τα αποτελέσματα των καμπανιών στο
+     * HDCtool. Μόνο με συγκατάθεση, χωρίς IP ή αναγνωριστικά browser· απόν σε
+     * κάθε άλλη παραγγελία, που στέλνει το σώμα που έστελνε πάντα.
+     */
+    ...attributionField(order),
   };
 
+}
+
+function attributionField(order: OrderWithLines) {
+  const a = asOrderAttribution(order.attribution);
+  const out = a ? erpAttribution(a) : {};
+  return Object.keys(out).length ? { attribution: out } : {};
 }
 
 function isEuOrder(order: OrderWithLines): boolean {

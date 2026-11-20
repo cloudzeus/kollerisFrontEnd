@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { CONSENT_STORAGE_KEY } from "@/components/analytics/GoogleAnalytics";
+import { persistAttribution } from "@/lib/analytics/attribution-client";
 
 /**
  * Το banner συγκατάθεσης.
@@ -42,6 +43,7 @@ export function CookieConsent() {
     w.gtag?.("consent", "update", { analytics_storage: v, ad_storage: v, ad_user_data: v, ad_personalization: v });
     // Το Meta Pixel φορτώνει μόνο τώρα· με άρνηση η ουρά του δεν στέλνεται ποτέ.
     if (granted) w.__kollerisMetaLoad?.();
+    persistAttribution(granted);
     setVisible(false);
   }
 

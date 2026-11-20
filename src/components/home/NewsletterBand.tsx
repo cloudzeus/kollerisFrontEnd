@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
+import { LeadEvent } from "@/components/analytics/LeadEvent";
 import { useTranslations } from "next-intl";
 import { subscribeAction, type NewsletterFormState } from "@/lib/newsletter/actions";
 import { upGreek } from "@/lib/greek";
@@ -68,6 +69,7 @@ export function NewsletterBand() {
 
         <p aria-live="polite" className="t-news-body mt-2 min-h-[18px] text-white">
           {state.message}
+          {state.status === "ok" && <LeadEvent method="newsletter" />}
         </p>
       </form>
     </section>

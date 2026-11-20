@@ -812,6 +812,10 @@ model Order {
   paymentMethod  String  @db.VarChar(32)
   notes          String? @db.Text
 
+  /// Από πού ήρθε η παραγγελία (utm, gclid/fbclid, αναγνωριστικά GA4/Meta).
+  /// Μόνο με συγκατάθεση cookies· null χωρίς αυτή. Βλ. `lib/analytics/attribution.ts`.
+  attribution Json?
+
   // ── Money, all frozen at placement (EUR) ──
   subtotalNet     Decimal @db.Decimal(12, 2)
   subtotalGross   Decimal @db.Decimal(12, 2)

@@ -33,6 +33,7 @@ import { writeEuBuyer } from "@/lib/eu-sales/buyer-cookie";
 import { revalidatePath } from "next/cache";
 import { chargeableWeight } from "@/lib/shipping/acs-tariff";
 import { vatRateForDestination } from "@/lib/shipping/vat";
+import { readOrderAttribution } from "@/lib/analytics/order-attribution";
 
 /**
  * Order placement.
@@ -603,10 +604,14 @@ export async function placeOrder(
   const orderNumber = await nextOrderNumber();
   const guestToken = randomBytes(24).toString("base64url");
 
+  // Πριν από την εγγραφή: ένα σφάλμα εδώ δεν πρέπει να χάσει την παραγγελία.
+  const attribution = await readOrderAttribution().catch(() => null);
+
   const order = await prisma.order.create({
     data: {
       orderNumber,
       guestToken,
+      ...(attribution ? { attribution } : {}),
       customerId: customer?.id ?? null,
       status: "PENDING_PAYMENT",
       // Every method now settles before or after dispatch, never on it: cash on
