@@ -31,6 +31,7 @@ const CARD = {
   priceList: true,
   offerSlug: true,
   offerBadge: true,
+  offerDiscountPct: true,
   vatRate: true,
   qty: true,
   inStock: true,
@@ -54,16 +55,16 @@ const pick = (row: Row, locale: Locale) =>
 async function brandMap(locale: Locale) {
   const rows = await prisma.brand.findMany({
     where: { mtrmark: { not: null } },
-    select: { mtrmark: true, slug: true, nameEl: true, nameEn: true, nameIt: true },
+    select: { mtrmark: true, slug: true, logo: true, nameEl: true, nameEn: true, nameIt: true },
   });
-  return new Map(rows.map((b) => [b.mtrmark!, { slug: b.slug, name: pick(b, locale) }]));
+  return new Map(rows.map((b) => [b.mtrmark!, { slug: b.slug, name: pick(b, locale), logo: b.logo }]));
 }
 
 type Loaded = Awaited<ReturnType<typeof prisma.product.findMany<{ select: typeof CARD }>>>[number];
 
 function toCard(
   row: Loaded,
-  brands: Map<number, { slug: string; name: string }>,
+  brands: Map<number, { slug: string; name: string; logo?: string | null }>,
   locale: Locale,
 ): ProductCardData {
   const brand = row.mtrmark != null ? brands.get(row.mtrmark) : undefined;
@@ -75,6 +76,8 @@ function toCard(
     sku: row.code2 || row.code,
     brandName: brand?.name ?? null,
     brandSlug: brand?.slug ?? null,
+    brandLogo: brand?.logo ?? null,
+    offerDiscountPct: num(row.offerDiscountPct),
     image: row.images[0]?.url ?? null,
     priceNet: num(row.priceNet),
     priceListNet: num(row.priceList),
@@ -224,14 +227,14 @@ export type OffersView = {
 /**
  * Products genuinely on offer.
  *
- * Currently ALWAYS EMPTY, and correctly so. There is no promotional price in
- * the HDCtool feed; the struck-through price this page used to show was the
- * standing gap between two SoftOne price lists, which put 68% of the catalogue
- * permanently "on sale". That was removed on the client's instruction.
+ * ΗΤΑΝ ΠΑΝΤΑ ΑΔΕΙΟ, και σωστά: δεν υπήρχε τιμή προσφοράς στο feed, και η
+ * διαγραμμένη τιμή που έδειχνε κάποτε η σελίδα ήταν η σταθερή απόσταση δύο
+ * τιμοκαταλόγων του SoftOne — 68% του καταλόγου μόνιμα «σε προσφορά».
  *
- * The query is the real one. The day HDCtool grows a promotional price and the
- * sync populates `priceList` from it, this page fills itself with no further
- * work — which is why it ships now rather than waiting.
+ * Από τις 20/11/2026 δεν είναι άδειο. Το HDCtool γράφει τιμή προσφοράς
+ * (PRICER04) και ο συγχρονισμός γεμίζει `priceList` και `onSale` από ΕΚΕΙΝΗ —
+ * βλ. `lib/sync/offer-projection.ts`. Το ερώτημα δεν άλλαξε ούτε γραμμή: ήταν
+ * γραμμένο γι' αυτή τη μέρα.
  */
 export const getOffers = cache(
   async (locale: Locale, limit = 24): Promise<OffersView> => {

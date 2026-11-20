@@ -142,7 +142,7 @@ export default async function ProductPage({ params }: PageProps) {
 
   const saving =
     product.priceListNet != null && product.priceNet != null
-      ? savingsOf(product.priceListNet, product.priceNet, locale, ctx)
+      ? savingsOf(product.priceListNet, product.priceNet, locale, ctx, product.offerDiscountPct)
       : null;
 
   /*

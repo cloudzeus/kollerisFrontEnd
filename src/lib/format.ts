@@ -140,6 +140,18 @@ export function savingsOf(
   netNow: number,
   locale: Locale,
   ctx: PriceContext = {},
+  /**
+   * Το ΕΓΚΕΚΡΙΜΕΝΟ ποσοστό της προσφοράς, όταν υπάρχει.
+   *
+   * Το HDCtool εγκρίνει ένα ποσοστό, το γράφει στη γραμμή της προσφοράς και
+   * το στέλνει στο `ITELINES.DISC1PRC` του παραστατικού. Αν κάθε κάρτα το
+   * ξαναβγάζει μόνη της από τις δύο τιμές, αργά ή γρήγορα θα δείξει άλλο
+   * νούμερο από το τιμολόγιο — στρογγυλοποίηση ενός λεπτού αρκεί.
+   *
+   * Το ΠΟΣΟ μένει υπολογισμένο από τις τιμές: αυτό είναι ό,τι πραγματικά
+   * γλιτώνει ο πελάτης σε ευρώ, και δεν το ορίζει το ποσοστό.
+   */
+  approvedPercent?: number | null,
 ): { amount: number; percent: number; formatted: string } | null {
   if (!(netWas > netNow)) return null;
 
@@ -150,7 +162,7 @@ export function savingsOf(
 
   return {
     amount,
-    percent: Math.round((amount / was) * 100),
+    percent: Math.round(approvedPercent ?? (amount / was) * 100),
     formatted: formatMoney(amount, locale),
   };
 }

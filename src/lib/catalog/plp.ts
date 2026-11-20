@@ -353,6 +353,7 @@ const CARD_SELECT = {
   priceList: true,
   offerSlug: true,
   offerBadge: true,
+  offerDiscountPct: true,
   vatRate: true,
   qty: true,
   inStock: true,

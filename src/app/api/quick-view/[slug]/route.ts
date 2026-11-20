@@ -38,6 +38,7 @@ export async function GET(
     images: product.images.map((i) => i.url),
     priceNet: product.priceNet,
     priceListNet: product.priceListNet,
+    offerDiscountPct: product.offerDiscountPct,
     vatRate: product.vatRate,
     qty: product.qty,
     inStock: product.inStock,

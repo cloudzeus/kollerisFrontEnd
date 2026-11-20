@@ -227,6 +227,8 @@ export type ProductCardData = {
   sku: string;
   brandName: string | null;
   brandSlug: string | null;
+  /** Το λογότυπο της μάρκας, όπου υπάρχει. */
+  brandLogo?: string | null;
   image: string | null;
   priceNet: number | null;
   priceListNet: number | null;
@@ -238,6 +240,8 @@ export type ProductCardData = {
    */
   offerSlug?: string | null;
   offerBadge?: string | null;
+  /** Το ΕΓΚΕΚΡΙΜΕΝΟ ποσοστό του HDCtool — αυτό που πάει και στο παραστατικό. */
+  offerDiscountPct?: number | null;
   vatRate: number;
   qty: number;
   inStock: boolean;
@@ -266,6 +270,7 @@ const PRODUCT_CARD_SELECT = {
   priceList: true,
   offerSlug: true,
   offerBadge: true,
+  offerDiscountPct: true,
   vatRate: true,
   qty: true,
   inStock: true,
@@ -298,6 +303,7 @@ type ProductRow = {
   priceList: unknown;
   offerSlug: string | null;
   offerBadge: string | null;
+  offerDiscountPct: unknown;
   vatRate: unknown;
   qty: unknown;
   inStock: boolean;
@@ -320,7 +326,7 @@ function num(value: unknown): number | null {
 function toCard(
   row: ProductRow,
   locale: Locale,
-  brands: Map<number, { name: string; slug: string }>,
+  brands: Map<number, { name: string; slug: string; logo?: string | null }>,
 ): ProductCardData {
   const translated = row.translations.find((t) => t.locale === locale)?.name;
   const brand = row.mtrmark != null ? brands.get(row.mtrmark) : undefined;
@@ -339,11 +345,13 @@ function toCard(
     impaCode: row.impaCode,
     brandName: brand?.name ?? null,
     brandSlug: brand?.slug ?? null,
+    brandLogo: brand?.logo ?? null,
     image: row.images[0]?.url ?? null,
     priceNet: num(row.priceNet),
     priceListNet: num(row.priceList),
     offerSlug: row.offerSlug,
     offerBadge: row.offerBadge,
+    offerDiscountPct: num(row.offerDiscountPct),
     vatRate: num(row.vatRate) ?? 24,
     qty: num(row.qty) ?? 0,
     inStock: row.inStock,
@@ -355,12 +363,13 @@ function toCard(
 const getBrandsByMtrmark = cache(
   async (
     locale: Locale,
-  ): Promise<Map<number, { name: string; slug: string }>> => {
+  ): Promise<Map<number, { name: string; slug: string; logo: string | null }>> => {
     const rows = await prisma.brand.findMany({
       where: { mtrmark: { not: null } },
       select: {
         mtrmark: true,
         slug: true,
+        logo: true,
         nameEl: true,
         nameEn: true,
         nameIt: true,
@@ -369,7 +378,7 @@ const getBrandsByMtrmark = cache(
     return new Map(
       rows.map((row) => [
         row.mtrmark!,
-        { name: localised(row, locale), slug: row.slug },
+        { name: localised(row, locale), slug: row.slug, logo: row.logo },
       ]),
     );
   },
