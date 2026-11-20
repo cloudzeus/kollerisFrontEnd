@@ -296,7 +296,7 @@ export default async function ProductPage({ params }: PageProps) {
              * συγκρίνει καταστήματα διαβάζει την απουσία ως άγνωστη πολιτική,
              * όχι ως την προβλεπόμενη.
              */
-            shippingDetails: shippingDetails(locale),
+            shippingDetails: shippingDetails(locale, { fromSupplier: !product.inStock && product.supplierAvailable }),
             hasMerchantReturnPolicy: returnPolicy(),
           }
         : undefined,
@@ -761,8 +761,9 @@ export default async function ProductPage({ params }: PageProps) {
               <div className="grid flex-1 auto-rows-fr grid-cols-2 gap-px border border-t-0 border-k-line bg-k-line">
                 {[
                   {
-                    t: t("paradosi_24_48o"),
-                    d: t("panelladika_me_courier"),
+                    // Ίδιος χρόνος με τη διαθεσιμότητα πάνω από το καλάθι, όχι γενική υπόσχεση.
+                    t: product.inStock ? t("paradosi_24_48o") : product.supplierAvailable ? t("paradosi_3_5") : t("apostoli_panelladika"),
+                    d: product.inStock || product.supplierAvailable ? t("panelladika_me_courier") : t("molis_ftasei"),
                     tone: "ink" as const,
                     icon: (
                       <>
