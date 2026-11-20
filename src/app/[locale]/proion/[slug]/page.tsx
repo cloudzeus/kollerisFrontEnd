@@ -118,6 +118,13 @@ export default async function ProductPage({ params }: PageProps) {
       slug: product.slug,
       brandSlug: product.brand?.slug ?? null,
       unitNet: product.priceNet,
+      /*
+       * Η προσφορά του HDCtool περνά ΟΛΟΚΛΗΡΗ: το `priceNet` είναι ήδη η τιμή
+       * της, και χωρίς αυτήν μια τοπική καμπάνια πάνω στην ίδια μάρκα θα
+       * έκοβε δεύτερη φορά.
+       */
+      offerSlug: product.offerSlug,
+      offerBadge: product.offerBadge,
     },
     locale,
   );
@@ -719,6 +726,24 @@ export default async function ProductPage({ params }: PageProps) {
                 inStock={product.inStock}
                 supplierAvailable={product.supplierAvailable}
               />
+
+              {/*
+                Οδηγία Omnibus: όταν ανακοινώνεται μείωση, φαίνεται και το
+                χαμηλότερο των 30 ημερών. Ήσυχα, κάτω από την τιμή —
+                υποχρεωτική πληροφορία, όχι δεύτερο επιχείρημα πώλησης.
+              */}
+              {product.offerSlug && product.price30dLowNet != null && product.offerEndsAt && (
+                <p className="mt-2 text-[length:var(--fs-13)] text-k-text-5 tabular-nums">
+                  {t("omnibus_30imeres", {
+                    price: `${grossAmount(product.price30dLowNet, ctx).toFixed(2)} €`,
+                    date: product.offerEndsAt.toLocaleDateString(locale, {
+                      day: "2-digit",
+                      month: "2-digit",
+                      year: "numeric",
+                    }),
+                  })}
+                </p>
+              )}
 
               {/*
                 Trust grid. `flex-1` with stretched rows: the buy column is the

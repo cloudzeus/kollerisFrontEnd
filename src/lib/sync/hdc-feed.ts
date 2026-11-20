@@ -2,6 +2,7 @@ import "server-only";
 import { prisma } from "@/lib/prisma";
 import { hdctool } from "@/lib/hdctool/client";
 import { syncProductsByMtrl } from "./catalog-sync";
+import { syncOffersFromHdctool } from "./offers-sync";
 import { clearListingCache } from "@/lib/catalog/listing-cache";
 import {
   createSerialQueue,
@@ -165,6 +166,25 @@ async function runDelivery(delivery: HdcDelivery): Promise<void> {
       const result = await catchUpFromGap(cursor.sentAt);
       caughtUp = result.ok;
       catchUpFailed = result.failedMtrl;
+    }
+
+    /*
+     * Οι προσφορές, μαζί με κάθε παράδοση.
+     *
+     * Οι ΤΙΜΕΣ τους ήρθαν ήδη με τα προϊόντα· αυτό που λείπει είναι η προσφορά
+     * σαν πράγμα — τίτλος, κείμενο, παράθυρο — χωρίς την οποία το σήμα της
+     * κάρτας θα οδηγούσε σε σελίδα που δεν υπάρχει.
+     *
+     * Το σφάλμα δεν ρίχνει την παράδοση: τα προϊόντα γράφτηκαν ήδη, και μια
+     * αποτυχία εδώ αφορά μόνο τα κείμενα.
+     */
+    try {
+      const offers = await syncOffersFromHdctool();
+      if (offers.upserted > 0 || offers.retired > 0) {
+        console.log(`[hdc-webhook] προσφορές: ${offers.upserted} ενεργές, ${offers.retired} έληξαν`);
+      }
+    } catch (error) {
+      console.error("[hdc-webhook] αποτυχία συγχρονισμού προσφορών", error);
     }
 
     // Listings cache the grid for five minutes; the products just changed.

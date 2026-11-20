@@ -1095,7 +1095,8 @@
       "megethos": "Size",
       "chroma": "Colour",
       "diathesimo": "In stock",
-      "diathesimo_3_5": "Available · 3–5 working days"
+      "diathesimo_3_5": "Available · 3–5 working days",
+      "omnibus_30imeres": "Lowest price in 30 days: {price} · Offer ends {date}"
     }
   },
   "nees-afixeis": {

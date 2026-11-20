@@ -199,6 +199,27 @@ model Product {
 
   priceSyncedAt DateTime?
 
+  // ── Προσφορά HDCtool (PRICER04) ──────────────────────────────────────────
+  //
+  // Μία προσφορά ορίζεται ΜΟΝΟ στο HDCtool και φτάνει εδώ με το feed. Η τιμή
+  // της ζει στο `priceNet` και η παγωμένη κανονική στο `priceList`, ώστε κάθε
+  // εμφάνιση — κάρτα, σελίδα, καλάθι, feed — να τη δείχνει χωρίς να ξέρει ότι
+  // υπάρχει προσφορά. Τα παρακάτω είναι ό,τι ΔΕΝ χωράει σε τιμή:
+  //
+  //   offerSlug        το κλειδί· η ύπαρξή του σημαίνει «τρέχει προσφορά» και
+  //                    εμποδίζει τις τοπικές καμπάνιες να κόψουν δεύτερη φορά
+  //   offerBadge       το κείμενο του σήματος, όπως το όρισε ο χρήστης
+  //   offerDiscountPct το ΕΓΚΕΚΡΙΜΕΝΟ ποσοστό (→ `ITELINES.DISC1PRC`)
+  //   price30dLowNet   το 30ήμερο χαμηλό που ζητά η οδηγία Omnibus
+  //
+  // Όλα NULL όταν δεν τρέχει προσφορά· ο συγχρονισμός τα σβήνει ρητά, γιατί
+  // μια προσφορά που έληξε και άφησε σήμα πίσω της είναι χειρότερη από καμία.
+  offerSlug        String?   @db.VarChar(120)
+  offerBadge       String?   @db.VarChar(40)
+  offerDiscountPct Decimal?  @db.Decimal(5, 2)
+  offerEndsAt      DateTime?
+  price30dLowNet   Decimal?  @db.Decimal(12, 4)
+
   // ── Physical (drives shipping + spec-at-a-glance strip) ──
   width           Decimal? @db.Decimal(10, 2) // DIM1, cm
   length          Decimal? @db.Decimal(10, 2) // DIM2, cm
@@ -291,6 +312,7 @@ model Product {
   @@index([isActive, inStock])
   @@index([isActive, supplierAvailable])
   @@index([isActive, onSale])
+  @@index([offerSlug])
   @@index([isActive, isNew, erpInsertedAt])
   @@index([isActive, firstListedAt])
   @@index([erpUpdatedAt])
@@ -1653,6 +1675,14 @@ model Offer {
   endsAt   DateTime?
 
   isActive Boolean @default(true)
+
+  /// Η προσφορά ορίστηκε στο HDCtool και κατέβηκε με το feed.
+  ///
+  /// Η εμβέλειά της δεν είναι λίστα slug εδώ αλλά όσα προϊόντα κουβαλούν
+  /// `Product.offerSlug` — το HDCtool έχει ήδη λύσει ποιο είδος μπαίνει. Και
+  /// κατεβαίνει πάντα με `discount: none`: η τιμή της είναι ήδη μέσα στο
+  /// `Product.priceNet`, και ένα ποσοστό εδώ θα έκοβε δεύτερη φορά.
+  fromHdctool Boolean @default(false)
 
   updatedBy String?  @db.VarChar(120)
   updatedAt DateTime @updatedAt

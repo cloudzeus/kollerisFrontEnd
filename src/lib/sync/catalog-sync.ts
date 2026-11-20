@@ -12,6 +12,7 @@ import {
   type SpecRow,
 } from "./product-children";
 import { vatPercentOf } from "@/lib/format";
+import { offerProjection } from "@/lib/sync/offer-projection";
 import {
   hdctool,
   HDCTOOL_MAX_LIMIT,
@@ -703,28 +704,21 @@ async function upsertProduct(
    * κενό δεν σημαίνει «απαλλαγή» — σημαίνει «δεν το ξέρουμε ακόμα». Με μηδέν,
    * η τιμή θα έμενε μεικτή σε στήλη καθαρής.
    */
-  const grossFromErp = p.pricer02 ?? p.priceWeb ?? p.priceRetail ?? null;
   const vatPercent = vatPercentOf(p.vat?.percentage);
-  const priceNet =
-    grossFromErp == null ? null : roundTo4(Number(grossFromErp) / (1 + vatPercent / 100));
 
   /*
-   * NO derived discount.
+   * Η τιμή και η προσφορά βγαίνουν μαζί — βλ. `lib/sync/offer-projection.ts`.
    *
-   * There is no promotional price in the API. This used to set
-   * `priceList = priceRetail` whenever retail exceeded the web price, which
-   * produced a struck-through "was" price on 3.600 of 5.305 products — 68% of
-   * the catalogue permanently "on sale", 2.192 of them at exactly −6%. That is
-   * not a reduction, it is the standing gap between two SoftOne price lists,
-   * and presenting it as a saving is both misleading and the exact thing the
-   * Omnibus directive (announced reductions must show the 30-day low) exists
-   * to stop.
+   * ΟΧΙ ΠΑΡΑΓΟΜΕΝΗ ΕΚΠΤΩΣΗ. Εδώ γραφόταν κάποτε `priceList = priceRetail` όποτε
+   * η λιανική ξεπερνούσε την τιμή web — η σταθερή απόσταση δύο τιμοκαταλόγων
+   * του SoftOne, παρουσιασμένη ως κέρδος, που είναι ακριβώς ό,τι απαγορεύει η
+   * οδηγία Omnibus.
    *
-   * Client's call: show PRICER02 and nothing else for now. When HDCtool grows a
-   * real promotional price plus price history, populate `priceList` from THAT
-   * and `onSale` follows — every display path downstream already handles it.
+   * Τώρα η διαγραμμένη τιμή μπαίνει ΜΟΝΟ όταν το HDCtool δηλώνει αληθινή
+   * προσφορά: τιμή PRICER04 μέσα σε παράθυρο, με παγωμένη κανονική τιμή και
+   * 30ήμερο χαμηλό από πίσω.
    */
-  const priceList = null;
+  const offer = offerProjection(p, vatPercent);
   /*
    * `quantity` από το HDCtool είναι ήδη το ΠΩΛΗΣΙΜΟ (AVAILABLE − RESERVED).
    * Ο υπολογισμός δεν επαναλαμβάνεται εδώ: αν γινόταν και στις δύο πλευρές,
@@ -762,8 +756,14 @@ async function upsertProduct(
     mtrcategory: p.mtrcategory ?? null,
     mtrgroup: p.mtrgroup ?? null,
     cccSubgroup2: p.cccSubgroup2 ?? null,
-    priceNet,
-    priceList,
+    priceNet: offer.priceNet,
+    priceList: offer.priceList,
+    offerSlug: offer.offerSlug,
+    offerBadge: offer.offerBadge,
+    offerDiscountPct: offer.offerDiscountPct,
+    offerEndsAt: offer.offerEndsAt,
+    price30dLowNet: offer.price30dLowNet,
+    /* Ο ΛΥΜΕΝΟΣ συντελεστής, όχι το ωμό κενό του HDCtool — βλ. PR #19. */
     vatRate: vatPercent,
     qty,
     qtyOnHand,
@@ -778,7 +778,7 @@ async function upsertProduct(
     isActive: true,
     inStock: qty > 0,
     supplierAvailable: p.supplierAvailable === true,
-    onSale: priceList != null,
+    onSale: offer.onSale,
     erpInsertedAt: p.insDate ? new Date(p.insDate) : null,
     erpUpdatedAt: p.updDate ? new Date(p.updDate) : null,
     syncedAt: new Date(),
