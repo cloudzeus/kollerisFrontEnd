@@ -94,7 +94,9 @@ export function specsAsProperties(
  * παραδίδονται την ίδια μέρα, και ένα «1 εργάσιμη» θα ήταν σωστό για τον μισό
  * πληθυσμό και ψέμα για τον άλλον.
  */
-export function shippingDetails(locale: Locale) {
+export function shippingDetails(locale: Locale, opts: { fromSupplier?: boolean } = {}) {
+  // Από τον προμηθευτή: 2 εργάσιμες ώσπου να φτάσει + 1-3 courier = τα «3–5 εργάσιμες» της σελίδας.
+  const handling = opts.fromSupplier ? 2 : 0;
   return {
     "@type": "OfferShippingDetails",
     shippingRate: {
@@ -117,8 +119,8 @@ export function shippingDetails(locale: Locale) {
       // Παραγγελία πριν τις 15:00 φεύγει αυθημερόν.
       handlingTime: {
         "@type": "QuantitativeValue",
-        minValue: 0,
-        maxValue: 1,
+        minValue: handling,
+        maxValue: handling || 1,
         unitCode: "DAY",
       },
       // Αττική 1 εργάσιμη · νησιά και δυσπρόσιτες έως 3.
