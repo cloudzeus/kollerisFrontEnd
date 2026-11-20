@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { offersTick } from "@/lib/sync/offers-tick";
 import {
   reconcileCatalog,
   recomputeCounts,
@@ -191,6 +192,15 @@ async function runNow(trigger: string): Promise<void> {
 }
 
 async function tick(): Promise<void> {
+  /*
+   * Οι προσφορές ΠΡΩΤΑ, και σε κάθε χτύπο — όχι μόνο την ώρα του reconcile.
+   *
+   * Ο χτύπος είναι ανά πέντε λεπτά· ο reconcile τρέχει μία φορά τη νύχτα. Αν η
+   * σάρωση προσφορών κρεμόταν από τον reconcile, μια προσφορά που ενεργοποιεί
+   * κάποιος το πρωί θα εμφανιζόταν στο μαγαζί την επόμενη μέρα.
+   */
+  await offersTick();
+
   if (running) return;
   if (localHour(new Date()) !== RUN_AT_HOUR) return;
   if ((await hoursSinceLastRun()) < MIN_GAP_HOURS) return;
