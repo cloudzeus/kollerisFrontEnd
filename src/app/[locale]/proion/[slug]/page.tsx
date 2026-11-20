@@ -38,7 +38,7 @@ import {
   getRootCategories,
   getTopBrands,
 } from "@/lib/catalog/queries";
-import { formatPercent, grossAmount, savingsOf } from "@/lib/format";
+import { formatPercent, formatPrice, grossAmount, savingsOf } from "@/lib/format";
 import { upGreek } from "@/lib/greek";
 import { cn } from "@/lib/utils";
 import { Zone } from "@/components/zones/Zone";
@@ -735,7 +735,7 @@ export default async function ProductPage({ params }: PageProps) {
               {product.offerSlug && product.price30dLowNet != null && product.offerEndsAt && (
                 <p className="mt-2 text-[length:var(--fs-13)] text-k-text-5 tabular-nums">
                   {t("omnibus_30imeres", {
-                    price: `${grossAmount(product.price30dLowNet, ctx).toFixed(2)} €`,
+                    price: formatPrice(product.price30dLowNet, locale, ctx),
                     date: product.offerEndsAt.toLocaleDateString(locale, {
                       day: "2-digit",
                       month: "2-digit",
