@@ -98,8 +98,8 @@ export function HeroOffersTile({
         .timeline()
         .fromTo(
           scope.querySelectorAll("[data-shot]"),
-          { scale: 1.14, xPercent: 10, opacity: 0 },
-          { scale: 1, xPercent: 0, opacity: 1, duration: 0.7, ease: "expo.out" },
+          { scale: 1.08, opacity: 0 },
+          { scale: 1, opacity: 1, duration: 0.9, ease: "expo.out" },
           0,
         )
         .fromTo(
@@ -154,47 +154,35 @@ export function HeroOffersTile({
         ό,τι περισσεύει.
       */}
       <div ref={stageRef} key={index} className="flex h-full min-w-0 flex-col">
+        {/*
+          Η ΕΙΚΟΝΑ ΚΑΛΥΠΤΕΙ ΟΛΟ ΤΟ ΠΛΑΚΙΔΙΟ, ΤΟ GRADIENT ΒΓΑΖΕΙ ΤΟ ΚΕΙΜΕΝΟ.
+          ────────────────────────────────────────────────────────────────────
+          Ήταν κομμένη φωτογραφία στη δεξιά άκρη· σαν πλακίδιο προϊόντος, όχι
+          σαν αφίσα. Τώρα γεμίζει την περιοχή και το κείμενο κάθεται πάνω της.
+
+          ΔΥΟ ΣΤΡΩΣΕΙΣ, ΚΑΙ ΟΙ ΔΥΟ ΑΝΑΓΚΑΙΕΣ. Οι φωτογραφίες του καταλόγου
+          είναι προϊόντα σε ΛΕΥΚΟ φόντο: σκέτες, γεμίζουν το πλακίδιο λευκό και
+          το λευκό κείμενο εξαφανίζεται. Το ομοιόμορφο σκοτείνιασμα τις κάνει
+          υπόβαθρο, και το gradient από αριστερά δίνει στο κείμενο τη δική του
+          σκοτεινή ζώνη ώστε η τιμή να διαβάζεται πάντα, όποιο προϊόν κι αν
+          τύχει.
+        */}
         {item.image && (
-          <span
-            data-shot
-            aria-hidden
-            className="pointer-events-none absolute -right-6 -bottom-9 block w-[206px]"
-            /*
-             * ΟΙ ΦΩΤΟΓΡΑΦΙΕΣ ΤΟΥ ΚΑΤΑΛΟΓΟΥ ΕΧΟΥΝ ΛΕΥΚΟ ΦΟΝΤΟ.
-             *
-             * Στις λευκές κάρτες δεν φαίνεται· πάνω σε μαύρο πλακίδιο γίνεται
-             * κολλημένο ορθογώνιο. Δύο γραμμικές μάσκες έσβηναν μόνο δύο
-             * πλευρές και άφηναν αχνή λευκή θολούρα στις άλλες — ΑΚΤΙΝΙΚΗ
-             * μάσκα σβήνει ΟΛΟ τον περίγυρο και αφήνει μόνο το προϊόν.
-             */
-            style={{
-              WebkitMaskImage:
-                "radial-gradient(72% 68% at 56% 44%, #000 46%, rgba(0,0,0,0.65) 68%, transparent 100%)",
-              maskImage:
-                "radial-gradient(72% 68% at 56% 44%, #000 46%, rgba(0,0,0,0.65) 68%, transparent 100%)",
-            }}
-          >
+          <span data-shot aria-hidden className="pointer-events-none absolute inset-0 block">
             <Image
               src={item.image}
               alt=""
-              width={412}
-              height={412}
-              /* Λίγη αντίθεση παραπάνω: ένα εργαλείο φωτογραφημένο σε λευκό
-                 χάνει τις άκρες του πάνω στο μαύρο. */
-              className="h-auto w-full object-contain [filter:contrast(1.06)_brightness(1.04)_drop-shadow(0_16px_26px_rgba(0,0,0,0.6))]"
+              fill
+              sizes="400px"
+              className="object-cover object-right"
               unoptimized
             />
           </span>
         )}
-        {/* Άλως πίσω από το προϊόν: του δίνει φως αντί να κάθεται σε κενό
-            μαύρο. Ουδέτερο και χαμηλό — το χρώμα ανήκει στην τιμή. */}
+        <span aria-hidden className="pointer-events-none absolute inset-0 bg-k-ink/55" />
         <span
           aria-hidden
-          className="pointer-events-none absolute -right-2 bottom-0 h-[190px] w-[190px] rounded-full bg-[radial-gradient(circle,rgba(255,255,255,0.14),transparent_68%)]"
-        />
-        <span
-          aria-hidden
-          className="pointer-events-none absolute inset-0 bg-gradient-to-r from-k-ink via-k-ink/88 to-transparent"
+          className="pointer-events-none absolute inset-0 bg-gradient-to-r from-k-ink via-k-ink/88 to-k-ink/25"
         />
 
         <span className="relative flex min-w-0 flex-col">
@@ -209,12 +197,12 @@ export function HeroOffersTile({
             {item.brand} · {item.code}
           </span>
 
-          <span data-line className="t-tile-title mt-1 line-clamp-2 max-w-[215px] text-white">
+          <span data-line className="t-tile-title mt-1 line-clamp-2 max-w-[250px] text-white">
             {item.name}
           </span>
         </span>
 
-        <span className="relative mt-auto flex max-w-[215px] flex-wrap items-baseline gap-x-2.5 gap-y-1">
+        <span className="relative mt-auto flex max-w-[250px] flex-wrap items-baseline gap-x-2.5 gap-y-1">
           {item.was && (
             <span data-line className="t-card-was text-white/40 line-through tabular-nums">
               {item.was}
