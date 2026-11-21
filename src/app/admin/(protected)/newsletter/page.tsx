@@ -7,6 +7,9 @@ import { campaignTemplates } from "@/lib/newsletter/campaign";
 
 export const dynamic = "force-dynamic";
 
+/** Google serves a Customer Match list from about 100 matched people. */
+const GOOGLE_MIN_LIST = 100;
+
 const STATUS_LABEL: Record<string, string> = {
   pending: "Σε αναμονή επιβεβαίωσης",
   confirmed: "Επιβεβαιωμένοι",
@@ -32,10 +35,11 @@ export default async function NewsletterPage() {
   const session = await auth();
   assertCan(session?.user.role, "engagement");
 
-  const [byStatus, campaigns, templates] = await Promise.all([
+  const [byStatus, campaigns, templates, adsAudience] = await Promise.all([
     prisma.newsletterSubscriber.groupBy({ by: ["status"], _count: { _all: true } }),
     prisma.campaign.findMany({ orderBy: { createdAt: "desc" }, take: 20 }),
     Promise.resolve(campaignTemplates()),
+    prisma.newsletterSubscriber.count({ where: { status: "confirmed", source: "checkout" } }),
   ]);
 
   const counts = Object.fromEntries(byStatus.map((r) => [r.status, r._count._all]));
@@ -64,6 +68,29 @@ export default async function NewsletterPage() {
           </div>
         ))}
       </div>
+
+      <Panel
+        title="Λίστα πελατών για Google Ads"
+        description="Όσοι τσέκαραν «προσφορές» στο checkout και επιβεβαίωσαν με email"
+      >
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <p className="text-[13px] leading-relaxed text-neutral-600">
+            <span className="font-mono text-[15px] font-semibold text-neutral-900 tabular-nums">
+              {adsAudience.toLocaleString("el-GR")}
+            </span>{" "}
+            {adsAudience >= GOOGLE_MIN_LIST
+              ? "άτομα. Αρκούν για να τη χρησιμοποιήσει η Google."
+              : `άτομα. Η Google τη χρησιμοποιεί από περίπου ${GOOGLE_MIN_LIST} αντιστοιχισμένα άτομα και πάνω, οπότε περιμένουμε να μεγαλώσει.`}
+          </p>
+          {/* eslint-disable-next-line @next/next/no-html-link-for-pages -- a file download, not a page */}
+          <a
+            href="/admin/newsletter/customer-match"
+            className="inline-flex h-9 items-center border border-neutral-300 bg-white px-4 text-[13px] font-semibold text-neutral-900 transition-colors hover:bg-neutral-50"
+          >
+            Λήψη CSV για Google Ads
+          </a>
+        </div>
+      </Panel>
 
       {confirmed === 0 && (
         <Panel title="Δεν υπάρχουν ακόμη παραλήπτες">
