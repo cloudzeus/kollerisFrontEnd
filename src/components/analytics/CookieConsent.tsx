@@ -4,6 +4,23 @@ import { useEffect, useState } from "react";
 import { CONSENT_STORAGE_KEY } from "@/components/analytics/GoogleAnalytics";
 import { persistAttribution } from "@/lib/analytics/attribution-client";
 
+export const OPEN_COOKIE_SETTINGS = "kolleris:cookie-settings";
+
+/** Google (_ga, _gcl) and Meta (_fbp, _fbc) cookies, set on the bare host or the parent domain. */
+const TRACKING_COOKIE = /^(_ga|_gid|_gcl|_fbp|_fbc)/;
+
+function clearTrackingCookies() {
+  const host = window.location.hostname;
+  const domains = ["", host, `.${host.replace(/^www\./, "")}`];
+  for (const pair of document.cookie.split(";")) {
+    const name = pair.split("=")[0]?.trim();
+    if (!name || !TRACKING_COOKIE.test(name)) continue;
+    for (const d of domains) {
+      document.cookie = `${name}=; Max-Age=0; path=/${d ? `; domain=${d}` : ""}`;
+    }
+  }
+}
+
 /**
  * Το banner συγκατάθεσης.
  *
@@ -30,9 +47,19 @@ export function CookieConsent() {
     } catch {
       setVisible(true);
     }
+    // «Ρυθμίσεις cookies» in the footer: withdrawing must be as easy as agreeing (GDPR art. 7(3)).
+    const reopen = () => setVisible(true);
+    window.addEventListener(OPEN_COOKIE_SETTINGS, reopen);
+    return () => window.removeEventListener(OPEN_COOKIE_SETTINGS, reopen);
   }, []);
 
   function answer(granted: boolean) {
+    let before: string | null = null;
+    try {
+      before = localStorage.getItem(CONSENT_STORAGE_KEY);
+    } catch {
+      /* unreadable: treat as first answer */
+    }
     try {
       localStorage.setItem(CONSENT_STORAGE_KEY, granted ? "granted" : "denied");
     } catch {
@@ -45,6 +72,11 @@ export function CookieConsent() {
     if (granted) w.__kollerisMetaLoad?.();
     persistAttribution(granted);
     setVisible(false);
+    if (!granted && before === "granted") {
+      clearTrackingCookies();
+      // A loaded Meta Pixel cannot be unloaded; a reload starts the page without it.
+      window.location.reload();
+    }
   }
 
   if (!visible) return null;

@@ -3,6 +3,7 @@ import Image from "next/image";
 import { Link } from "@/i18n/navigation";
 import type { CategoryTile } from "@/lib/catalog/queries";
 import { GoogleReviewsBadge } from "@/components/seo/GoogleReviewsBadge";
+import { CookieSettingsButton } from "@/components/analytics/CookieSettingsButton";
 import { upGreek } from "@/lib/greek";
 import { SHOP } from "@/lib/seo/structured-data";
 
@@ -218,6 +219,10 @@ export function SiteFooter({ categories }: { categories: CategoryTile[] }) {
               {t(link.key)}
             </Link>
           ))}
+          <CookieSettingsButton
+            label={t("cookie_settings")}
+            className="t-footer-legal cursor-pointer text-white/45 underline-offset-4 transition-colors hover:text-white hover:underline"
+          />
         </nav>
 
         <div className="flex flex-wrap items-center justify-between gap-4">
