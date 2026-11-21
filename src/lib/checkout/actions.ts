@@ -34,6 +34,9 @@ import { revalidatePath } from "next/cache";
 import { chargeableWeight } from "@/lib/shipping/acs-tariff";
 import { vatRateForDestination } from "@/lib/shipping/vat";
 import { readOrderAttribution } from "@/lib/analytics/order-attribution";
+import { headers } from "next/headers";
+import { subscribeNewsletter } from "@/lib/newsletter/subscribe";
+import { clientAddress } from "@/lib/security/client-ip";
 
 /**
  * Order placement.
@@ -96,6 +99,7 @@ const checkoutSchema = z.object({
   requestMode: z.string().max(16).optional(),
   notes: z.string().trim().max(2000).optional().or(z.literal("")),
   terms: z.union([z.literal("on"), z.literal("")]).optional(),
+  offersConsent: z.union([z.literal("on"), z.literal("")]).optional(),
   locale: z.string().max(5).optional(),
 
   /**
@@ -566,6 +570,7 @@ export async function placeOrder(
     });
     await prisma.cartLine.deleteMany({ where: { cart: { token: cartToken } } });
     await maybeCreateAccount(input, request.orderNumber);
+    await maybeSubscribe(input, locale);
     await announceNewRequest(request.orderNumber);
     redirect(requestPath(locale, request.requestToken));
   }
@@ -726,6 +731,7 @@ export async function placeOrder(
   }
 
   await maybeCreateAccount(input, order.orderNumber);
+  await maybeSubscribe(input, locale);
 
   /*
    * Bank transfer: accepted now, reconciled later, and it needs a reference.
@@ -892,6 +898,41 @@ export async function placeOrder(
  * Shared by the ordinary order and the request-only checkout: both have a
  * customer who may have typed a password.
  */
+/**
+ * The «offers» checkbox at checkout: email offers plus Kolleris ads on Google
+ * and Facebook (Customer Match). It goes through the same double opt-in as the
+ * home form, so only confirmed people ever reach a list. `source: "checkout"`
+ * is what the Customer Match export filters on, because only this checkbox
+ * names the ads. Never fatal: the order is what the customer came for.
+ */
+async function maybeSubscribe(
+  input: { offersConsent?: string; email: string; firstName: string; lastName: string },
+  locale: Locale,
+): Promise<void> {
+  if (input.offersConsent !== "on") return;
+  try {
+    const h = await headers();
+    const result = await subscribeNewsletter({
+      email: input.email,
+      name: `${input.firstName} ${input.lastName}`.trim(),
+      locale,
+      source: "checkout",
+      ip: clientAddress(h),
+      userAgent: h.get("user-agent"),
+    });
+    // Already confirmed from the home form: that form never mentioned ads, this one did.
+    if (result.ok && result.state === "already") {
+      await prisma.newsletterSubscriber.update({
+        where: { email: input.email.trim().toLowerCase() },
+        data: { source: "checkout" },
+      });
+    }
+    if (!result.ok) console.error("[checkout] offers consent not saved:", result.error);
+  } catch (error) {
+    console.error("[checkout] offers consent not saved", error);
+  }
+}
+
 async function maybeCreateAccount(
   input: { password?: string; email: string; firstName: string; lastName: string; phone: string },
   orderNumber: string,

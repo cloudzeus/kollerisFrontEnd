@@ -760,6 +760,12 @@ export function CheckoutForm({
           <p className="mt-1.5 text-[length:var(--fs-11-5)] text-k-red">{t("apaiteitai_apodochi_ton_oron")}</p>
         )}
 
+        {/* GDPR: unticked by default and optional — the order never depends on it. */}
+        <label className="mt-3 flex cursor-pointer items-start gap-3">
+          <input type="checkbox" name="offersConsent" className="mt-0.5 h-4 w-4 accent-k-red" />
+          <span className="text-[length:var(--fs-12-5)] leading-[1.55] text-k-text-2">{t("offers_consent")}</span>
+        </label>
+
         <button
           type="submit"
           disabled={!terms || pending || blocked != null || modeMissing || quoteBlocked}
