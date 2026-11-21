@@ -1,4 +1,5 @@
-import { FREE_SHIPPING_THRESHOLD_NET } from "@/lib/cart/options";
+import { FREE_SHIPPING_THRESHOLD_GROSS, FREE_SHIPPING_THRESHOLD_NET } from "@/lib/cart/options";
+import { formatSpecValue } from "@/lib/catalog/spec-format";
 
 /**
  * Οι ερωτήσεις που ρωτάει κάποιος πριν αγοράσει ένα εργαλείο — απαντημένες από
@@ -119,7 +120,7 @@ export function productFaq(product: FaqProduct): FaqPair[] {
       q: `Πόσο κοστίζει το ${label};`,
       a:
         `Η τιμή είναι ${money(product.priceGross)} με ΦΠΑ. ` +
-        `Τα μεταφορικά είναι δωρεάν για παραγγελίες άνω των ${FREE_SHIPPING_THRESHOLD_NET} € (καθαρή αξία), ` +
+        `Στην Ελλάδα τα μεταφορικά είναι δωρεάν για παραγγελίες από ${FREE_SHIPPING_THRESHOLD_NET} € χωρίς ΦΠΑ (${FREE_SHIPPING_THRESHOLD_GROSS} € με ΦΠΑ), ` +
         `και η παραλαβή από το κατάστημα στον Πειραιά είναι πάντα χωρίς χρέωση.`,
     });
   }
@@ -150,7 +151,7 @@ export function productFaq(product: FaqProduct): FaqPair[] {
       a:
         `${label}: ` +
         measurable
-          .map((s) => `${s.label} ${s.value}${s.unit ? ` ${s.unit}` : ""}`)
+          .map((s) => `${s.label} ${formatSpecValue(s.value, s.unit)}`)
           .join(", ") +
         ".",
     });

@@ -647,7 +647,7 @@ const CONTENT: Record<PolicySlug, Record<Locale, PolicyContent>> = {
   "apostoli-paradosi": {
     el: {
       title: "Αποστολή & Παράδοση",
-      updated: "2026-08-04",
+      updated: "2026-11-21",
       sections: [
         {
           heading: "Μεταφορική εταιρεία",
@@ -670,7 +670,7 @@ const CONTENT: Record<PolicySlug, Record<Locale, PolicyContent>> = {
         {
           heading: "Δωρεάν αποστολή",
           paragraphs: [
-            "Η τυπική αποστολή (ACS Courier) προσφέρεται δωρεάν για παραγγελίες άνω συγκεκριμένου ορίου καθαρής αξίας, το οποίο εμφανίζεται στο καλάθι.",
+            "Η τυπική αποστολή (ACS Courier) προσφέρεται δωρεάν εντός Ελλάδας για παραγγελίες από 150 € χωρίς ΦΠΑ (186 € με ΦΠΑ 24%). Το καλάθι δείχνει πόσο λείπει μέχρι το όριο. Για αποστολές εκτός Ελλάδας τα μεταφορικά χρεώνονται πάντα.",
           ],
         },
         {
@@ -689,7 +689,7 @@ const CONTENT: Record<PolicySlug, Record<Locale, PolicyContent>> = {
     },
     en: {
       title: "Shipping & Delivery",
-      updated: "2026-08-04",
+      updated: "2026-11-21",
       sections: [
         {
           heading: "Carrier",
@@ -710,7 +710,7 @@ const CONTENT: Record<PolicySlug, Record<Locale, PolicyContent>> = {
         {
           heading: "Free shipping",
           paragraphs: [
-            "Standard shipping (ACS Courier) is free for orders above a net-value threshold, shown in the cart.",
+            "Standard shipping (ACS Courier) is free within Greece for orders from €150 excluding VAT (€186 including 24% VAT). The cart shows how much is left to reach it. Shipping outside Greece is always charged.",
           ],
         },
         {
@@ -729,7 +729,7 @@ const CONTENT: Record<PolicySlug, Record<Locale, PolicyContent>> = {
     },
     it: {
       title: "Spedizione e Consegna",
-      updated: "2026-08-04",
+      updated: "2026-11-21",
       sections: [
         {
           heading: "Corriere",
@@ -750,7 +750,7 @@ const CONTENT: Record<PolicySlug, Record<Locale, PolicyContent>> = {
         {
           heading: "Spedizione gratuita",
           paragraphs: [
-            "La spedizione standard (ACS Courier) è gratuita per ordini superiori a una soglia di valore netto, indicata nel carrello.",
+            "La spedizione standard (ACS Courier) è gratuita in Grecia per ordini da 150 € IVA esclusa (186 € con IVA al 24%). Il carrello mostra quanto manca per raggiungerla. Le spedizioni fuori dalla Grecia sono sempre a pagamento.",
           ],
         },
         {

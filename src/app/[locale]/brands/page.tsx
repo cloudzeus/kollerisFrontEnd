@@ -168,7 +168,7 @@ export default async function BrandsPage({
               <div>
                 <p className="t-eyebrow mb-4 flex items-center gap-[11px] text-k-red">
                   <span className="hidden h-[1.5px] w-[26px] bg-k-red lg:block" />
-                  EXCLUSIVE PARTNERSHIPS
+                  GENUINE PRODUCTS
                 </p>
                 <h1 className="font-display text-[26px] leading-[1.14] t-display text-white lg:text-[36px]">
                   {upGreek(t("ta_brands_poy"))}

@@ -1,5 +1,5 @@
 import type { Locale } from "@/i18n/routing";
-import { FREE_SHIPPING_THRESHOLD_NET } from "@/lib/cart/options";
+import { FREE_SHIPPING_THRESHOLD_GROSS } from "@/lib/cart/options";
 import { absoluteUrl } from "@/lib/seo/urls";
 
 /**
@@ -87,7 +87,7 @@ export function specsAsProperties(
  * Οι όροι αποστολής, όπως τους εφαρμόζει πραγματικά το ταμείο.
  *
  * Το κατώφλι δωρεάν μεταφορικών διαβάζεται από την ΙΔΙΑ σταθερά που το
- * επιβάλλει (`FREE_SHIPPING_THRESHOLD_NET`), ώστε το schema να μην μπορεί να
+ * επιβάλλει (`FREE_SHIPPING_THRESHOLD_NET`, εδώ με ΦΠΑ), ώστε το schema να μην μπορεί να
  * υποσχεθεί όριο που το καλάθι δεν αναγνωρίζει.
  *
  * Ο χρόνος παράδοσης είναι εύρος και όχι μία τιμή: Αττική και νησιά δεν
@@ -107,7 +107,8 @@ export function shippingDetails(locale: Locale, opts: { fromSupplier?: boolean }
       eligibleTransactionVolume: {
         "@type": "PriceSpecification",
         priceCurrency: "EUR",
-        minPrice: FREE_SHIPPING_THRESHOLD_NET,
+        // Offer prices are gross, so the threshold must be gross too (150 net = 186 gross).
+        minPrice: FREE_SHIPPING_THRESHOLD_GROSS,
       },
     },
     shippingDestination: {

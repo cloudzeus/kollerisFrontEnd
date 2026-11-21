@@ -33,6 +33,5 @@ export const CONTENT_BY_KEY = new Map(CONTENT.map((c) => [c.key, c]));
 export const CONTENT_SECTIONS: ReadonlyArray<{ id: string; title: string; blurb: string }> = [
   { id: "hero", title: "Αρχική — κεντρικό banner", blurb: "Το πρώτο πράγμα που βλέπει ο επισκέπτης." },
   { id: "about", title: "Αρχική — «Η εταιρεία»", blurb: "Η ενότητα εμπιστοσύνης, κάτω από τις κατηγορίες." },
-  { id: "reviews", title: "Αρχική — αξιολογήσεις", blurb: "Η λωρίδα με τις κριτικές Google." },
   { id: "shipping", title: "Μηνύματα αποστολής", blurb: "Εμφανίζονται στο καλάθι και στο ταμείο." },
 ] as const;

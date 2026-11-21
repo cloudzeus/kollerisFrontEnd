@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
-import { breadcrumbJsonLd, featuredProductsJsonLd, yearsInBusiness } from "@/lib/seo/structured-data";
+import { breadcrumbJsonLd, featuredProductsJsonLd } from "@/lib/seo/structured-data";
 import { withLiveFigures } from "@/lib/seo/live-figures";
 import { pageMeta } from "@/lib/seo/urls";
 import { discountedNet, offerBadgeFor } from "@/lib/offers/badges";
@@ -21,7 +21,6 @@ import { FeaturedProducts } from "@/components/home/FeaturedProducts";
 import { HeroBanner } from "@/components/home/HeroBanner";
 import { NewsletterBand } from "@/components/home/NewsletterBand";
 import { QuickOrder } from "@/components/home/QuickOrder";
-import { ReviewsBand } from "@/components/home/ReviewsBand";
 import { StatStrip } from "@/components/home/StatStrip";
 import type { Locale } from "@/i18n/routing";
 import { getMiniCart } from "@/lib/cart/cart";
@@ -31,7 +30,7 @@ import { getOffers } from "@/lib/catalog/editorial";
 import { heroOfferItems } from "@/lib/catalog/hero-offers";
 import { HeroOffersTile } from "@/components/home/HeroOffersTile";
 import { Zone, zoneHasContent } from "@/components/zones/Zone";
-import { FREE_SHIPPING_THRESHOLD_NET } from "@/lib/cart/options";
+import { FREE_SHIPPING_THRESHOLD_GROSS } from "@/lib/cart/options";
 import {
   getCatalogueStats,
   getCategoryLinks,
@@ -104,7 +103,6 @@ export default async function HomePage({
     miniCart,
     heroCopy,
     aboutCopy,
-    reviewsCopy,
     newest,
     storedOverride,
     categoryLinks,
@@ -119,7 +117,6 @@ export default async function HomePage({
     // would put the homepage on an extra round-trip for four short strings.
     getSection("hero", locale),
     getSection("about", locale),
-    getSection("reviews", locale),
     getNewestListedProduct(locale),
     seoOverrideFor("/", locale),
     getCategoryLinks(locale, [...ENTITY_SLUGS, ...AUDIENCE_SLUGS]),
@@ -160,7 +157,7 @@ export default async function HomePage({
     products: stats.products.toLocaleString(locale),
     brands: String(stats.brands),
     categories: String(stats.categories),
-    freeShipping: `${FREE_SHIPPING_THRESHOLD_NET}\u00A0€`,
+    freeShipping: `${FREE_SHIPPING_THRESHOLD_GROSS}\u00A0€`, // gross, like every price shown next to it
   };
 
   /*
@@ -269,25 +266,6 @@ export default async function HomePage({
     { value: t("24_48o"), line1: t("paradosi_se"), line2: t("oli_tin_ellada") },
   ];
 
-  // Reviews: static until the CMS `SiteReview` model exists (admin screen 15).
-  const reviews = [
-    {
-      text: t("paraggelnoyme_gia_tria_ploia_o"),
-      name: t("d_papadopoylos"),
-      role: t("technikos_dieythyntis_naytiliaki"),
-    },
-    {
-      text: t("oi_times_synergati_einai_pragmatikes"),
-      name: t("k_vasileioy"),
-      role: t("ypeythynos_promitheion_ergostasio"),
-    },
-    {
-      text: t("46_chronia_stin_agora_fainontai", { years: yearsInBusiness() }),
-      name: t("g_antonioy"),
-      role: t("idioktitis_synergeio"),
-    },
-  ];
-
   const usps = [
     {
       n: "01",
@@ -369,12 +347,6 @@ export default async function HomePage({
         <QuickOrder />
         <BrandWall brands={brands} totalBrands={stats.brands} />
         <Zone id="home.band" locale={locale} context={zoneContext} />
-        <ReviewsBand
-          rating="4,9"
-          reviewCount={214}
-          reviews={reviews}
-          copy={reviewsCopy}
-        />
         <AboutSplit usps={usps} copy={aboutCopy} />
         {override?.faq?.length ? (
           <>

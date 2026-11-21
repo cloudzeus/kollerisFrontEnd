@@ -50,7 +50,7 @@ export async function BrandWall({
     <section className="border-t border-k-line bg-white shell-x py-7 lg:pt-15 lg:pb-16">
       <SectionHeading
         center
-        eyebrow="Exclusive partnerships"
+        eyebrow="Genuine products"
         title={t("ta_brands_poy_antiprosopeyoyme")}
       >
         <p className="t-news-body mt-3 text-k-text-3">

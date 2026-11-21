@@ -11,4 +11,8 @@ describe("χρόνος παράδοσης στο schema", () => {
     expect(d.handlingTime.minValue + d.transitTime.minValue).toBe(3);
     expect(d.handlingTime.maxValue + d.transitTime.maxValue).toBe(5);
   });
+
+  it("δωρεάν μεταφορικά με ΦΠΑ, όπως οι τιμές του schema (150 καθαρά = 186)", () => {
+    expect(shippingDetails("el").shippingRate.eligibleTransactionVolume.minPrice).toBe(186);
+  });
 });

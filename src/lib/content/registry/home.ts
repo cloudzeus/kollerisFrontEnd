@@ -152,18 +152,6 @@ export const home: ReadonlyArray<ContentDef> = [
     fallback: "",
   },
 
-  // ── Reviews ──
-  {
-    key: "reviews.title",
-    page: "home",
-    section: "reviews",
-    label: "Τίτλος",
-    where: "Πάνω από τις κριτικές.",
-    kind: "text",
-    fallback: "Αξιολογήσεις Google",
-    maxChars: 40,
-  },
-
   // ── Shipping messaging ──
   {
     key: "shipping.freeNotice",
