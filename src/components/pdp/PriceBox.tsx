@@ -225,9 +225,9 @@ export function PriceBox({
                   {t("kai_feygei")} <strong className="font-semibold text-white">{cutoff.label}</strong>
                 </>
               ) : (
-                /* Placeholder until the client clock starts — same height, so
-                   nothing shifts when the real countdown appears. */
-                <span className="opacity-0">{t("paraggeilete_mesa_se_00_00")}</span>
+                /* Empty line until the client clock starts: keeps the height without a
+                   fake 00:00:00 in the HTML that crawlers read. */
+                <span aria-hidden="true">&nbsp;</span>
               )}
             </p>
           </div>

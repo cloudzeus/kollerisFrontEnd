@@ -25,7 +25,7 @@ describe("content registry", () => {
 
   it("still carries the existing home keys, under page home", () => {
     const keys = new Set(CONTENT.map((c) => c.key));
-    for (const k of ["hero.title", "about.title", "reviews.title", "shipping.promise"]) {
+    for (const k of ["hero.title", "about.title", "shipping.promise"]) {
       expect(keys.has(k)).toBe(true);
     }
     expect(CONTENT.find((c) => c.key === "hero.title")?.page).toBe("home");

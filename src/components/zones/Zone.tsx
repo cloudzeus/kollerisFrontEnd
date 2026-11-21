@@ -7,7 +7,7 @@ import { BannerRenderer } from "@/components/banners/BannerRenderer";
 import { WidgetRenderer, type WidgetContext } from "@/components/zones/WidgetRenderer";
 import type { Locale } from "@/i18n/routing";
 import { getCatalogueStats } from "@/lib/catalog/queries";
-import { FREE_SHIPPING_THRESHOLD_NET } from "@/lib/cart/options";
+import { FREE_SHIPPING_THRESHOLD_GROSS } from "@/lib/cart/options";
 
 /**
  * Renders one zone.
@@ -59,7 +59,7 @@ async function defaultContext(locale: Locale): Promise<WidgetContext> {
     products: stats.products.toLocaleString(locale),
     brands: String(stats.brands),
     categories: String(stats.categories),
-    freeShipping: `${FREE_SHIPPING_THRESHOLD_NET}\u00A0€`,
+    freeShipping: `${FREE_SHIPPING_THRESHOLD_GROSS}\u00A0€`, // gross, like every price shown next to it
   };
 }
 

@@ -10,6 +10,9 @@
 /** Free-shipping threshold on the NET subtotal. Moves to `SiteSetting` in Phase 3. */
 export const FREE_SHIPPING_THRESHOLD_NET = 150;
 
+/** The same threshold with Greek VAT (24%): what Google and shoppers compare against gross prices. */
+export const FREE_SHIPPING_THRESHOLD_GROSS = Math.round(FREE_SHIPPING_THRESHOLD_NET * 1.24);
+
 /**
  * Shipping and payment options.
  *

@@ -1,6 +1,6 @@
 import { siteOrigin } from "@/lib/seo/urls";
 import { SHOP } from "@/lib/seo/structured-data";
-import { FREE_SHIPPING_THRESHOLD_NET } from "@/lib/cart/options";
+import { FREE_SHIPPING_THRESHOLD_GROSS, FREE_SHIPPING_THRESHOLD_NET } from "@/lib/cart/options";
 import { STOCK_HOLD_HOURS } from "@/lib/orders/hold";
 
 /**
@@ -78,7 +78,7 @@ Currency: EUR. All displayed prices include Greek VAT and exclude shipping.
 Attica, one to two working days on the mainland, two to three to the islands.
 Orders placed before 15:00 on a working day ship the same day.
 
-**How much is shipping?** Free over ${FREE_SHIPPING_THRESHOLD_NET} EUR net.
+**How much is shipping?** Free within Greece from ${FREE_SHIPPING_THRESHOLD_NET} EUR excluding VAT (${FREE_SHIPPING_THRESHOLD_GROSS} EUR including 24% VAT).
 Below that it is charged by weight and destination and shown before payment.
 ACS Express (delivery by 12:00 next day) is priced higher and is never free.
 Collection from the Piraeus shop is always free and ready in about two hours.
