@@ -301,7 +301,20 @@ const CONTENT: Record<PolicySlug, Record<Locale, PolicyContent>> = {
         {
           heading: "Cookies",
           paragraphs: [
-            "Το site χρησιμοποιεί cookies απαραίτητα για τη λειτουργία του και, όπου επιτρέπεται, cookies στατιστικής ανάλυσης. Ο επισκέπτης μπορεί να διαχειριστεί τα cookies μέσω των ρυθμίσεων του browser του.",
+            "Χωρίς να ζητά συγκατάθεση, το site γράφει μόνο τα cookies που χρειάζεται για να λειτουργεί: το καλάθι (KOLLERIS_CART), τη σύνδεση στον λογαριασμό (KOLLERIS_SESSION), τη σύγκριση προϊόντων, τη χώρα αποστολής και την προβολή του καταλόγου.",
+            "Στην πρώτη επίσκεψη εμφανίζεται μήνυμα με «Αποδοχή» και «Απόρριψη». Μόνο αν πατήσετε «Αποδοχή» φορτώνουν:",
+          ],
+          list: [
+            "Google Analytics 4, για να μετράμε επισκέψεις και αγορές. Πριν από την απάντησή σας, ή αν απορρίψετε, στέλνει μόνο ανώνυμα σήματα χωρίς cookies (Google Consent Mode).",
+            "Google Ads, που μετρά ποιες διαφημίσεις μας φέρνουν αγορές μέσω του Google Analytics.",
+            "Meta Pixel (Facebook, Instagram), για την ίδια μέτρηση στις διαφημίσεις μας εκεί. Αν απορρίψετε, δεν φορτώνει καθόλου.",
+            "Το cookie k_attr, που κρατά για 90 ημέρες από ποια διαφήμιση ή ποιον σύνδεσμο ήρθατε, ώστε να ξέρουμε ποια καμπάνια έφερε την παραγγελία.",
+          ],
+        },
+        {
+          paragraphs: [
+            "Όταν μια παραγγελία πληρωθεί και έχετε πατήσει «Αποδοχή», ο server μας ενημερώνει το Google Analytics και τη Meta για την αγορά (ποσό και προϊόντα). Προς τη Meta, το email και το τηλέφωνο στέλνονται κρυπτογραφημένα (hash).",
+            "Η επιλογή σας αποθηκεύεται στον browser σας. Για να την αλλάξετε, διαγράψτε τα δεδομένα του kolleris.com από τις ρυθμίσεις του browser και το μήνυμα θα εμφανιστεί ξανά.",
           ],
         },
         {
@@ -385,7 +398,20 @@ const CONTENT: Record<PolicySlug, Record<Locale, PolicyContent>> = {
         {
           heading: "Cookies",
           paragraphs: [
-            "The site uses cookies necessary for it to function and, where permitted, analytics cookies. Visitors can manage cookies through their browser settings.",
+            "Without asking for consent, the site writes only the cookies it needs to work: the cart (KOLLERIS_CART), account sign-in (KOLLERIS_SESSION), product comparison, shipping country and catalogue view.",
+            "On your first visit a message offers «Accept» and «Reject». Only if you choose «Accept» do these load:",
+          ],
+          list: [
+            "Google Analytics 4, to measure visits and purchases. Before you answer, or if you reject, it sends only anonymous signals without cookies (Google Consent Mode).",
+            "Google Ads, which measures which of our ads lead to purchases through Google Analytics.",
+            "Meta Pixel (Facebook, Instagram), for the same measurement of our ads there. If you reject, it does not load at all.",
+            "The k_attr cookie, which keeps for 90 days which ad or link brought you here, so we know which campaign led to the order.",
+          ],
+        },
+        {
+          paragraphs: [
+            "When an order is paid and you chose «Accept», our server tells Google Analytics and Meta about the purchase (amount and products). Email and phone are sent to Meta in encrypted form (hash).",
+            "Your choice is stored in your browser. To change it, clear the kolleris.com site data in your browser settings and the message will appear again.",
           ],
         },
         {
@@ -469,7 +495,20 @@ const CONTENT: Record<PolicySlug, Record<Locale, PolicyContent>> = {
         {
           heading: "Cookie",
           paragraphs: [
-            "Il sito utilizza cookie necessari al suo funzionamento e, ove consentito, cookie di analisi statistica. Il visitatore può gestire i cookie tramite le impostazioni del proprio browser.",
+            "Senza chiedere il consenso, il sito scrive solo i cookie necessari al suo funzionamento: il carrello (KOLLERIS_CART), l'accesso all'account (KOLLERIS_SESSION), il confronto prodotti, il paese di spedizione e la vista del catalogo.",
+            "Alla prima visita compare un messaggio con «Accetta» e «Rifiuta». Solo se scegli «Accetta» vengono caricati:",
+          ],
+          list: [
+            "Google Analytics 4, per misurare visite e acquisti. Prima della tua risposta, o se rifiuti, invia solo segnali anonimi senza cookie (Google Consent Mode).",
+            "Google Ads, che misura quali nostri annunci portano ad acquisti tramite Google Analytics.",
+            "Meta Pixel (Facebook, Instagram), per la stessa misurazione dei nostri annunci lì. Se rifiuti, non viene caricato affatto.",
+            "Il cookie k_attr, che conserva per 90 giorni da quale annuncio o link sei arrivato, così sappiamo quale campagna ha portato all'ordine.",
+          ],
+        },
+        {
+          paragraphs: [
+            "Quando un ordine viene pagato e hai scelto «Accetta», il nostro server comunica a Google Analytics e a Meta l'acquisto (importo e prodotti). Email e telefono sono inviati a Meta in forma crittografata (hash).",
+            "La tua scelta è salvata nel browser. Per cambiarla, cancella i dati del sito kolleris.com dalle impostazioni del browser e il messaggio comparirà di nuovo.",
           ],
         },
         {
