@@ -241,7 +241,7 @@ const CONTENT: Record<PolicySlug, Record<Locale, PolicyContent>> = {
   aporrito: {
     el: {
       title: "Πολιτική Απορρήτου",
-      updated: "2026-08-04",
+      updated: "2026-11-21",
       intro:
         "Η παρούσα πολιτική περιγράφει ποια προσωπικά δεδομένα συλλέγει η επιχείρηση, για ποιον σκοπό, και ποια δικαιώματα έχει ο επισκέπτης/πελάτης σύμφωνα με τον Γενικό Κανονισμό Προστασίας Δεδομένων (ΓΚΠΔ).",
       sections: [
@@ -287,6 +287,12 @@ const CONTENT: Record<PolicySlug, Record<Locale, PolicyContent>> = {
           ],
         },
         {
+          heading: "Διαφημίσεις σε Google και Meta",
+          paragraphs: [
+            `Αν το επιλέξετε στο checkout και το επιβεβαιώσετε με email, χρησιμοποιούμε το email, το τηλέφωνο, το όνομα, τη χώρα και τον ταχυδρομικό κώδικά σας για να σας δείχνουμε σχετικές διαφημίσεις μας στις υπηρεσίες της Google (λίστες πελατών Google Ads) και της Meta (Facebook, Instagram). Τα στοιχεία μετατρέπονται σε κρυπτογραφημένη μορφή (hash) πριν σταλούν, και η Google και η Meta τα χρησιμοποιούν μόνο για να σας αναγνωρίσουν στις υπηρεσίες τους. Νομική βάση είναι η συγκατάθεσή σας. Μπορείτε να την ανακαλέσετε όποτε θέλετε, με τον σύνδεσμο διαγραφής σε κάθε email ή γράφοντας στο ${COMPANY.email}, και τότε αφαιρείστε από τις λίστες στην επόμενη ενημέρωσή τους.`,
+          ],
+        },
+        {
           heading: "Χρόνος τήρησης",
           paragraphs: [
             "Τα παραστατικά και τα λογιστικά στοιχεία τηρούνται για το χρονικό διάστημα που ορίζει η φορολογική νομοθεσία. Τα στοιχεία επικοινωνίας τηρούνται όσο διάστημα απαιτείται για τον σκοπό συλλογής τους. Τα δεδομένα ενημερωτικού δελτίου (newsletter) τηρούνται μέχρι την ανάκληση της συγκατάθεσης.",
@@ -319,7 +325,7 @@ const CONTENT: Record<PolicySlug, Record<Locale, PolicyContent>> = {
     },
     en: {
       title: "Privacy Policy",
-      updated: "2026-08-04",
+      updated: "2026-11-21",
       intro:
         "This policy describes what personal data the business collects, for what purpose, and what rights a visitor or customer has under the General Data Protection Regulation (GDPR).",
       sections: [
@@ -365,6 +371,12 @@ const CONTENT: Record<PolicySlug, Record<Locale, PolicyContent>> = {
           ],
         },
         {
+          heading: "Ads on Google and Meta",
+          paragraphs: [
+            `If you choose this at checkout and confirm it by email, we use your email, phone, name, country and postcode to show you relevant Kolleris ads on Google services (Google Ads customer lists) and Meta services (Facebook, Instagram). The data is converted to an encrypted form (hash) before it is sent, and Google and Meta use it only to recognise you on their services. The legal basis is your consent. You can withdraw it at any time with the unsubscribe link in every email or by writing to ${COMPANY.email}, and you are then removed from the lists at their next update.`,
+          ],
+        },
+        {
           heading: "Retention period",
           paragraphs: [
             "Invoices and accounting records are kept for the period required by tax law. Contact records are kept for as long as needed for the purpose they were collected for. Newsletter data is kept until consent is withdrawn.",
@@ -397,7 +409,7 @@ const CONTENT: Record<PolicySlug, Record<Locale, PolicyContent>> = {
     },
     it: {
       title: "Informativa sulla Privacy",
-      updated: "2026-08-04",
+      updated: "2026-11-21",
       intro:
         "Questa informativa descrive quali dati personali raccoglie l'azienda, per quale scopo, e quali diritti ha il visitatore o cliente ai sensi del Regolamento Generale sulla Protezione dei Dati (GDPR).",
       sections: [
@@ -440,6 +452,12 @@ const CONTENT: Record<PolicySlug, Record<Locale, PolicyContent>> = {
           heading: "Destinatari dei dati",
           paragraphs: [
             "I dati sono condivisi, nella misura necessaria, con corrieri, fornitori di servizi di pagamento, il nostro studio contabile, partner tecnici che supportano il sito, e autorità pubbliche ove previsto dalla legge.",
+          ],
+        },
+        {
+          heading: "Annunci su Google e Meta",
+          paragraphs: [
+            `Se lo scegli al checkout e lo confermi via email, usiamo email, telefono, nome, paese e CAP per mostrarti annunci Kolleris pertinenti sui servizi di Google (elenchi clienti Google Ads) e di Meta (Facebook, Instagram). I dati vengono convertiti in forma crittografata (hash) prima dell'invio, e Google e Meta li usano solo per riconoscerti sui loro servizi. La base giuridica è il tuo consenso. Puoi revocarlo in qualsiasi momento con il link di disiscrizione in ogni email o scrivendo a ${COMPANY.email}, e verrai rimosso dagli elenchi al loro prossimo aggiornamento.`,
           ],
         },
         {
