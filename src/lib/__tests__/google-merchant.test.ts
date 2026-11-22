@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { isValidGtin } from "../feeds/google-merchant";
+import { feedPrices, isValidGtin } from "../feeds/google-merchant";
 
 /**
  * A wrong GTIN is a disapproval; an absent one is fine, because every product
@@ -35,5 +35,19 @@ describe("GTIN validation", () => {
 
   it("accepts a valid EAN-8", () => {
     expect(isValidGtin("96385074")).toBe(true);
+  });
+});
+
+describe("feed prices", () => {
+  it("strikes the frozen regular price while an HDCtool offer runs", () => {
+    // GEDORE 6093660 on 2026-11-22: 314,17 € → 255,00 € on the offer page.
+    expect(feedPrices({ net: 205.6452, listNet: 253.3629, vat: 24, onOffer: true })).toEqual({ price: 314.17, sale: 255 });
+  });
+  it("never turns the permanent SoftOne list price into a sale", () => {
+    expect(feedPrices({ net: 205.6452, listNet: 253.3629, vat: 24, onOffer: false })).toEqual({ price: 255, sale: null });
+  });
+  it("drops the sale when the list price is not higher", () => {
+    expect(feedPrices({ net: 100, listNet: 100, vat: 24, onOffer: true })).toEqual({ price: 124, sale: null });
+    expect(feedPrices({ net: 100, listNet: null, vat: 24, onOffer: true })).toEqual({ price: 124, sale: null });
   });
 });
