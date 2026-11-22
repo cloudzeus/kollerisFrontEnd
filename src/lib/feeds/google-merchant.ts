@@ -2,7 +2,7 @@ import "server-only";
 import { prisma } from "@/lib/prisma";
 import { isFromSupplier, SUPPLIER_HANDLING_DAYS } from "@/lib/catalog/availability";
 import { absoluteUrl } from "@/lib/seo/urls";
-import { isPlausibleWeightKg } from "@/lib/shipping/acs-tariff";
+import { chargeableWeight } from "@/lib/shipping/acs-tariff";
 import type { Locale } from "@/i18n/routing";
 
 /**
@@ -78,6 +78,7 @@ export async function buildMerchantFeed(locale: Locale = "el"): Promise<string> 
     select: {
       mtrl: true, code: true, code1: true, code2: true, slug: true, name: true,
       priceNet: true, vatRate: true, inStock: true, supplierAvailable: true, mtrmark: true, weight: true,
+      width: true, length: true, height: true,
       mtrcategory: true, mtrgroup: true, cccSubgroup2: true,
       images: {
         orderBy: [{ isFeature: "desc" }, { order: "asc" }],
@@ -188,23 +189,25 @@ export async function buildMerchantFeed(locale: Locale = "el"): Promise<string> 
     if (size) lines.push(`<g:size>${xml(size)}</g:size>`);
 
     /*
-     * Shipping weight, and only when it can be believed.
+     * Shipping weight: the chargeable weight checkout bills for this one item.
      *
-     * Merchant Center reported this missing on every item, because it was never
-     * emitted. It cannot simply be emitted either: part of the catalogue holds
-     * grams in the kilogram column — a 5 EUR Allen key recorded at 140 kg — and
-     * Google would price postage from that. `isPlausibleWeightKg` is the same
-     * rule the ACS quote applies, imported rather than restated so the feed and
-     * the checkout cannot come to different conclusions about one product.
-     *
-     * Omitted rather than guessed when it fails: Google then falls back to the
-     * shipping rules configured in Merchant Center, which is the correct answer
-     * for an item whose weight we do not actually know.
+     * The Merchant Center shipping policy is weight-based (6 EUR up to 5 kg,
+     * 12 EUR above), so an item with no weight is disapproved outright — 798 of
+     * them on 2026-11-22. Emitting the raw GWEIGHT is no answer either: part of
+     * the catalogue holds grams in the kilogram column. `chargeableWeight` is
+     * the very function the checkout quote calls, with its 0,3 kg estimate for
+     * an unknown or impossible weight, volumetric weight and the 0,5 kg
+     * minimum, so Google and the basket always land on the same tier.
      */
-    const weightKg = product.weight == null ? null : Number(product.weight);
-    if (isPlausibleWeightKg(weightKg)) {
-      lines.push(`<g:shipping_weight>${weightKg!.toFixed(3)} kg</g:shipping_weight>`);
-    }
+    const num = (v: unknown) => (v == null ? null : Number(v));
+    const { chargeableKg } = chargeableWeight([{
+      quantity: 1,
+      weight: num(product.weight),
+      width: num(product.width),
+      length: num(product.length),
+      height: num(product.height),
+    }]);
+    lines.push(`<g:shipping_weight>${chargeableKg.toFixed(3)} kg</g:shipping_weight>`);
     // Only when it survives its own check digit.
     if (isValidGtin(product.code1)) lines.push(`<g:gtin>${xml(product.code1.replace(/\D/g, ""))}</g:gtin>`);
     // A plain ">" here: `xml()` escapes it once. Writing "&gt;" and then escaping
