@@ -808,7 +808,8 @@
       "katharismos_filtron": "Clear filters",
       "brands_me_kodikoys_se_apothema": "{brandCount} brands with {n} codes in stock. Genuine products and spare parts, technical support.",
       "ta_brands_poy_mas_zitate": "The {length} brands you request the most",
-      "kodikoi_se_apothema_episimi_antiprosopeysi": "{n} {name} codes in stock. Genuine products and spare parts, delivery in 24-48 hours."
+      "kodikoi_se_apothema_episimi_antiprosopeysi": "{n} {name} codes in stock. Genuine products and spare parts, delivery in 24-48 hours, store in Piraeus since 1978.",
+      "meta_titlos": "{name} tools in Greece · {n} codes"
     }
   },
   "blog": {
@@ -838,7 +839,8 @@
       "erotisi_gia_kati_apo_to": "Question about something from the article? A real person will answer.",
       "ola_ta_arthra": "All articles",
       "anagnosi": "{readingMinutes}′ read",
-      "perigrafi_odigoi_dokimes_kai_technika": "Guides, tests, and technical articles about professional tools."
+      "perigrafi_odigoi_dokimes_kai_technika": "Guides, tests, and technical articles about professional tools.",
+      "ypografi": "Dimitris Kolleris, owner"
     }
   },
   "account": {
@@ -1229,13 +1231,14 @@
       "ta_toy_katalogoy": "Top {topShare}% of the catalog",
       "kai_oi_ypoloipes": "And the remaining {n}",
       "akomi": "+ {remaining} more",
-      "kodikoi_se_ypokatigories_amesi_diathesimotita": "{productCount} codes in {childCount} subcategories. Immediate availability, delivery in 24-48 hours.",
+      "kodikoi_se_ypokatigories_amesi_diathesimotita": "{childCount, plural, =0 {{productCount} codes.} one {{productCount} codes in 1 subcategory.} other {{productCount} codes in {childCount} subcategories.}} Immediate availability, delivery in 24-48 hours.",
       "titlos_katalogos": "Catalog",
       "perigrafi_oles_oi_katigories_ergaleion": "All tool categories — 23 categories, 467 subcategories, with a wealth of codes at every level.",
       "ola_ta_proionta": "All products",
       "olos_o_katalogos_se_mia_lista": "The whole catalogue in one list, filtered by brand, category, price and availability.",
       "kodikoi_filtrarete_aristera": "items. Filter the list, or narrow by category.",
-      "prosfores": "Offers"
+      "prosfores": "Offers",
+      "meta_titlos": "{name} · {productCount} codes"
     }
   },
   "kalathi": {
@@ -1322,8 +1325,9 @@
       "peiraias_apo_to": "Piraeus · since {FOUNDED}",
       "apo_to_mechri_simera": "From {FOUNDED} to today",
       "titlos_i_etaireia": "The company",
-      "perigrafi_46_chronia_sta_viomichanika": "{years} years in industrial tools. See our warehouse numbers live — codes, stock, tons on the shelf.",
-      "synopsi": "Since {founded}, Kolleris has supplied shipping companies, factories and workshops with professional tools from Piraeus. Today it lists {products} product codes online, {inStock} of them in immediate stock, and {brands} brands with active products. It delivers across Greece in 24-48 hours."
+      "synopsi": "Since {founded}, Kolleris has supplied shipping companies, factories and workshops with professional tools from Piraeus. Today it lists {products} product codes online, {inStock} of them in immediate stock, and {brands} brands with active products. It delivers across Greece in 24-48 hours.",
+      "meta_titlos": "About us · Tools in Piraeus since 1978",
+      "meta_perigrafi": "{years} years in professional tools. We supply ships, factories and workshops from Piraeus. See our codes and stock live."
     }
   },
   "epikoinonia": {

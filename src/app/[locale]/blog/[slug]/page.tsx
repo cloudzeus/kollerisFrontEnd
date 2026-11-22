@@ -20,6 +20,7 @@ import {
 } from "@/lib/catalog/queries";
 import { upGreek } from "@/lib/greek";
 import { Zone } from "@/components/zones/Zone";
+import { articleJsonLd } from "@/lib/seo/structured-data";
 
 type PageProps = { params: Promise<{ locale: Locale; slug: string }> };
 
@@ -37,6 +38,7 @@ export async function generateMetadata({
         title: post.title,
         type: "article",
         publishedTime: post.publishedAt,
+        modifiedTime: post.updatedAt,
         images: post.image ? [post.image.url] : undefined,
       },
     };
@@ -75,9 +77,28 @@ export default async function BlogPostPage({ params }: PageProps) {
   if (!missing && !post) notFound();
 
   const date = post ? new Date(post.publishedAt) : null;
+  const articleLd = post
+    ? articleJsonLd(
+        {
+          title: post.title,
+          description: post.shortDescription,
+          path: `/blog/${post.slug}`,
+          image: post.image?.url,
+          publishedAt: post.publishedAt,
+          updatedAt: post.updatedAt,
+        },
+        locale,
+      )
+    : null;
 
   return (
     <>
+      {articleLd && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(articleLd) }}
+        />
+      )}
       <SiteChrome
         locale={locale}
         cart={miniCart}
@@ -122,6 +143,8 @@ export default async function BlogPostPage({ params }: PageProps) {
                 </p>
               )}
               <p className="t-brand-count mt-5 flex flex-wrap items-center gap-2.5 text-white/45">
+                <span>{upGreek(t("ypografi"))}</span>
+                <span aria-hidden className="block h-[12px] w-px bg-white/20" />
                 {date && !Number.isNaN(date.getTime()) && (
                   <time dateTime={post.publishedAt}>
                     {date.toLocaleDateString(locale, {

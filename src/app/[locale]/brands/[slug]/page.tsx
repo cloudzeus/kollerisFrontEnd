@@ -61,7 +61,8 @@ export async function generateMetadata({
   const paged = pagedListing(await searchParams, `/brands/${slug}`, locale);
   const { title, description, metaTitle } = resolveSeoText(
     {
-      title: brand.name,
+      // «Facom | Kolleris» did not say that here you buy Facom in Greece.
+      title: t("meta_titlos", { name: brand.name, n: brand.productCount.toLocaleString(locale) }),
       description: t("kodikoi_se_apothema_episimi_antiprosopeysi", {
         n: brand.productCount.toLocaleString(locale),
         name: brand.name,

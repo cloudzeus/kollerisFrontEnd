@@ -808,7 +808,8 @@
       "katharismos_filtron": "Καθαρισμός φίλτρων",
       "brands_me_kodikoys_se_apothema": "{brandCount} brands με {n} κωδικούς σε απόθεμα. Γνήσια προϊόντα και ανταλλακτικά, τεχνική υποστήριξη.",
       "ta_brands_poy_mas_zitate": "Τα {length} brands που μας ζητάτε περισσότερο",
-      "kodikoi_se_apothema_episimi_antiprosopeysi": "{n} κωδικοί {name} σε απόθεμα. Γνήσια προϊόντα και ανταλλακτικά, παράδοση 24-48 ώρες."
+      "kodikoi_se_apothema_episimi_antiprosopeysi": "{n} κωδικοί {name} σε απόθεμα. Γνήσια προϊόντα και ανταλλακτικά, παράδοση 24-48 ώρες, κατάστημα στον Πειραιά από το 1978.",
+      "meta_titlos": "Εργαλεία {name} στην Ελλάδα · {n} κωδικοί"
     }
   },
   "blog": {
@@ -838,7 +839,8 @@
       "erotisi_gia_kati_apo_to": "Ερώτηση για κάτι από το άρθρο; Σηκώνει άνθρωπος.",
       "ola_ta_arthra": "Όλα τα άρθρα",
       "anagnosi": "{readingMinutes}′ ανάγνωση",
-      "perigrafi_odigoi_dokimes_kai_technika": "Οδηγοί, δοκιμές και τεχνικά άρθρα για επαγγελματικά εργαλεία."
+      "perigrafi_odigoi_dokimes_kai_technika": "Οδηγοί, δοκιμές και τεχνικά άρθρα για επαγγελματικά εργαλεία.",
+      "ypografi": "Δημήτρης Κολλέρης, ιδιοκτήτης"
     }
   },
   "account": {
@@ -1229,13 +1231,14 @@
       "ta_toy_katalogoy": "Τα {topShare}% του καταλόγου",
       "kai_oi_ypoloipes": "Και οι υπόλοιπες {n}",
       "akomi": "+ {remaining} ακόμη",
-      "kodikoi_se_ypokatigories_amesi_diathesimotita": "{productCount} κωδικοί σε {childCount} υποκατηγορίες. Άμεση διαθεσιμότητα, παράδοση 24-48 ώρες.",
+      "kodikoi_se_ypokatigories_amesi_diathesimotita": "{childCount, plural, =0 {{productCount} κωδικοί.} one {{productCount} κωδικοί σε 1 υποκατηγορία.} other {{productCount} κωδικοί σε {childCount} υποκατηγορίες.}} Άμεση διαθεσιμότητα, παράδοση 24-48 ώρες.",
       "titlos_katalogos": "Κατάλογος",
       "perigrafi_oles_oi_katigories_ergaleion": "Όλες οι κατηγορίες εργαλείων — 23 κατηγορίες, 467 υποκατηγορίες, με πλήθος κωδικών σε κάθε επίπεδο.",
       "ola_ta_proionta": "Όλα τα προϊόντα",
       "olos_o_katalogos_se_mia_lista": "Ολόκληρος ο κατάλογος σε μία λίστα, με φίλτρα για μάρκα, κατηγορία, τιμή και διαθεσιμότητα.",
       "kodikoi_filtrarete_aristera": "κωδικοί. Φιλτράρετε τη λίστα ή περιορίστε με κατηγορία.",
-      "prosfores": "Προσφορές"
+      "prosfores": "Προσφορές",
+      "meta_titlos": "{name} · {productCount} κωδικοί"
     }
   },
   "kalathi": {
@@ -1322,8 +1325,9 @@
       "peiraias_apo_to": "Πειραιάς · από το {FOUNDED}",
       "apo_to_mechri_simera": "Από το {FOUNDED} μέχρι σήμερα",
       "titlos_i_etaireia": "Η εταιρεία",
-      "perigrafi_46_chronia_sta_viomichanika": "{years} χρόνια στα βιομηχανικά εργαλεία. Δείτε τα νούμερα της αποθήκης μας ζωντανά — κωδικοί, απόθεμα, τόνοι στο ράφι.",
-      "synopsi": "Η Kolleris προμηθεύει από το {founded} ναυτιλιακές εταιρείες, εργοστάσια και συνεργεία με επαγγελματικά εργαλεία, από τον Πειραιά. Σήμερα έχει {products} κωδικούς online, {inStock} από αυτούς σε άμεση διαθεσιμότητα, και {brands} brands με ενεργά προϊόντα. Παραδίδει σε 24-48 ώρες σε όλη την Ελλάδα."
+      "synopsi": "Η Kolleris προμηθεύει από το {founded} ναυτιλιακές εταιρείες, εργοστάσια και συνεργεία με επαγγελματικά εργαλεία, από τον Πειραιά. Σήμερα έχει {products} κωδικούς online, {inStock} από αυτούς σε άμεση διαθεσιμότητα, και {brands} brands με ενεργά προϊόντα. Παραδίδει σε 24-48 ώρες σε όλη την Ελλάδα.",
+      "meta_titlos": "Η εταιρεία · Εργαλεία στον Πειραιά από το 1978",
+      "meta_perigrafi": "{years} χρόνια στα επαγγελματικά εργαλεία. Εφοδιάζουμε πλοία, εργοστάσια και συνεργεία από τον Πειραιά. Δείτε ζωντανά κωδικούς και απόθεμα."
     }
   },
   "epikoinonia": {
