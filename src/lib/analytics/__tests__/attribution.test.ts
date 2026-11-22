@@ -112,7 +112,8 @@ describe("αγορά από τον server", () => {
     expect(purchaseChannels(null, ga4)).toEqual({ ga4: false, meta: false });
     expect(purchaseChannels(attr, none)).toEqual({ ga4: false, meta: false });
     expect(purchaseChannels(attr, ga4).ga4).toBe(true);
-    expect(purchaseChannels({ ...attr, gaClientId: undefined }, ga4).ga4).toBe(false);
+    // «Αποδοχή» με ad blocker: χωρίς `_ga` ο server στέλνει την αγορά με client_id από την παραγγελία.
+    expect(purchaseChannels({ ...attr, gaClientId: undefined }, ga4).ga4).toBe(true);
     expect(purchaseChannels({ ...attr, consent: "denied" }, ga4)).toEqual({ ga4: false, meta: false });
     expect(purchaseChannels(attr, meta).meta).toBe(true);
     expect(purchaseChannels(attr, { ...meta, pixelId: "" }).meta).toBe(false);

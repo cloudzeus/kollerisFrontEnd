@@ -36,7 +36,8 @@ export async function loadPurchaseKeys(): Promise<PurchaseKeys> {
 export function purchaseChannels(attribution: unknown, keys: PurchaseKeys): { ga4: boolean; meta: boolean } {
   const a = asOrderAttribution(attribution);
   return {
-    ga4: Boolean(a?.gaClientId && keys.ga4Secret),
+    // Χωρίς `_ga` (ad blocker με «Αποδοχή») στέλνεται κι αυτή, με client_id από την παραγγελία.
+    ga4: Boolean(a && keys.ga4Secret),
     meta: Boolean(a && keys.metaToken && /^\d{6,20}$/.test(keys.pixelId)),
   };
 }
@@ -69,10 +70,20 @@ export function purchaseItems(order: PurchaseOrder): Ga4Item[] {
   }));
 }
 
+/**
+ * client_id όταν ο browser δεν είχε `_ga`: ίδια μορφή (`<αριθμός>.<δευτερόλεπτα>`),
+ * σταθερός ανά παραγγελία ώστε μια επανάληψη να μη φτιάχνει δεύτερο χρήστη.
+ * shortcut: η αγορά μετριέται χωρίς την επίσκεψη (κανάλι «Unassigned»).
+ */
+export function orderClientId(orderNumber: string, paidAt: Date | null): string {
+  const n = parseInt(createHash("sha256").update(orderNumber).digest("hex").slice(0, 8), 16);
+  return `${n}.${Math.floor((paidAt ?? new Date(0)).getTime() / 1000)}`;
+}
+
 /** Measurement Protocol: ίδιες τιμές με το `purchase` της σελίδας (καθαρά, χωρίς ΦΠΑ). */
 export function ga4PurchaseBody(order: PurchaseOrder, a: OrderAttribution) {
   return {
-    client_id: a.gaClientId,
+    client_id: a.gaClientId ?? orderClientId(order.orderNumber, order.paidAt),
     consent: { ad_user_data: "GRANTED", ad_personalization: "GRANTED" },
     events: [
       {
