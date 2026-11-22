@@ -68,6 +68,27 @@ export function priceLabel(gross: number): "over_150" | null {
   return gross > 150 ? "over_150" : null;
 }
 
+/**
+ * Price and sale price, both with VAT.
+ *
+ * `sale_price` only while an HDCtool offer runs (`offerSlug`, not yet past
+ * `offerEndsAt`): its `priceList` is the frozen regular price the offer page
+ * strikes through, so Google shows the same "was" as the site. The SoftOne list
+ * price that 68% of the catalogue carries permanently is NOT a sale (see
+ * PriceBox) and never reaches the feed as one; a permanent strikethrough is the
+ * misrepresentation Merchant Center suspends for.
+ */
+export function feedPrices(p: { net: number; listNet: number | null; vat: number; onOffer: boolean }): {
+  price: number;
+  sale: number | null;
+} {
+  const gross = (n: number) => Math.round(n * (1 + p.vat / 100) * 100) / 100;
+  const now = gross(p.net);
+  if (!p.onOffer || p.listNet == null) return { price: now, sale: null };
+  const was = gross(p.listNet);
+  return was > now ? { price: was, sale: now } : { price: now, sale: null };
+}
+
 export async function buildMerchantFeed(locale: Locale = "el"): Promise<string> {
   const products = await prisma.product.findMany({
     where: {
@@ -78,6 +99,7 @@ export async function buildMerchantFeed(locale: Locale = "el"): Promise<string> 
     select: {
       mtrl: true, code: true, code1: true, code2: true, slug: true, name: true,
       priceNet: true, vatRate: true, inStock: true, supplierAvailable: true, mtrmark: true, weight: true,
+      priceList: true, offerSlug: true, offerEndsAt: true,
       width: true, length: true, height: true,
       mtrcategory: true, mtrgroup: true, cccSubgroup2: true,
       images: {
@@ -125,9 +147,14 @@ export async function buildMerchantFeed(locale: Locale = "el"): Promise<string> 
     code == null ? null : (categoryByKey.get(`${type}:${code}`) ?? null);
 
   const items = products.map((product) => {
-    const net = Number(product.priceNet ?? 0);
     const vat = Number(product.vatRate ?? 24);
-    const gross = Math.round(net * (1 + vat / 100) * 100) / 100;
+    const { price, sale } = feedPrices({
+      net: Number(product.priceNet ?? 0),
+      listNet: product.priceList == null ? null : Number(product.priceList),
+      vat,
+      onOffer: product.offerSlug != null && (product.offerEndsAt == null || product.offerEndsAt > new Date()),
+    });
+    const gross = sale ?? price;
 
     const translation = product.translations[0];
     const title = (translation?.name || product.name).slice(0, MAX_TITLE);
@@ -164,7 +191,8 @@ export async function buildMerchantFeed(locale: Locale = "el"): Promise<string> 
             `<g:max_handling_time>${SUPPLIER_HANDLING_DAYS.max}</g:max_handling_time>`,
           ]
         : []),
-      `<g:price>${gross.toFixed(2)} EUR</g:price>`,
+      `<g:price>${price.toFixed(2)} EUR</g:price>`,
+      ...(sale != null ? [`<g:sale_price>${sale.toFixed(2)} EUR</g:sale_price>`] : []),
       `<g:condition>new</g:condition>`,
       `<g:mpn>${xml(product.code2 || product.code)}</g:mpn>`,
     ];
