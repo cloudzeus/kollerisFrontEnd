@@ -248,6 +248,44 @@ export function blogJsonLd(
   };
 }
 
+/** Ο άνθρωπος που υπογράφει τους οδηγούς. Ένα όνομα με ρόλο είναι ό,τι ξεχωρίζει έναν οδηγό από κείμενο χωρίς ιδιοκτήτη. */
+export const GUIDE_AUTHOR: Record<Locale, { name: string; jobTitle: string }> = {
+  el: { name: "Δημήτρης Κολλέρης", jobTitle: "Ιδιοκτήτης" },
+  en: { name: "Dimitris Kolleris", jobTitle: "Owner" },
+  it: { name: "Dimitris Kolleris", jobTitle: "Titolare" },
+};
+
+/** Ένα άρθρο: ποιος το γράφει, πότε γράφτηκε και πότε άλλαξε. */
+export function articleJsonLd(
+  post: { title: string; description?: string | null; path: string; image?: string | null; publishedAt: string; updatedAt?: string | null },
+  locale: Locale,
+) {
+  const origin = siteOrigin();
+  const day = (d: string) => new Date(d).toISOString().slice(0, 10);
+  const url = absoluteUrl(post.path, locale);
+  return {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    headline: post.title,
+    ...(post.description ? { description: post.description } : {}),
+    ...(post.image ? { image: post.image } : {}),
+    url,
+    mainEntityOfPage: url,
+    inLanguage: locale,
+    datePublished: day(post.publishedAt),
+    dateModified: day(post.updatedAt || post.publishedAt),
+    author: {
+      "@type": "Person",
+      "@id": `${origin}/#dimitris-kolleris`,
+      ...GUIDE_AUTHOR[locale],
+      worksFor: { "@id": `${origin}/#shop` },
+      url: absoluteUrl("/etaireia", locale),
+    },
+    publisher: { "@id": `${origin}/#shop` },
+    isPartOf: { "@id": `${origin}/#website` },
+  };
+}
+
 /**
  * Μια μάρκα ως οντότητα, και η σελίδα της ως λίστα των προϊόντων της.
  *

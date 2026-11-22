@@ -82,7 +82,7 @@ export async function generateMetadata({
   const override = await seoOverrideFor(`/katalogos/${kathgoria}`, locale);
   const { title, description, metaTitle } = resolveSeoText(
     {
-      title: name,
+      title: t("meta_titlos", { name, productCount: category.productCount }),
       description: t("kodikoi_se_ypokatigories_amesi_diathesimotita", {
         productCount: category.productCount,
         childCount: category.childCount,

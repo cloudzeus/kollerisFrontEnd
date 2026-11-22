@@ -30,8 +30,9 @@ export async function generateMetadata({
   // Explicit locale: `setRequestLocale` belongs to the render pass, and
   // metadata is generated outside it.
   const t = await getTranslations({ locale, namespace: "etaireia.page" });
-  const title = t("titlos_i_etaireia");
-  const description = t("perigrafi_46_chronia_sta_viomichanika", {
+  // The heading stays «Η εταιρεία»; the result in Google says where and since when.
+  const title = t("meta_titlos");
+  const description = t("meta_perigrafi", {
     years: yearsInBusiness(),
   });
   return {

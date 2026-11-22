@@ -808,7 +808,8 @@
       "katharismos_filtron": "Azzera filtri",
       "brands_me_kodikoys_se_apothema": "{brandCount} marchi con {n} codici disponibili. Prodotti e ricambi originali, assistenza tecnica.",
       "ta_brands_poy_mas_zitate": "I {length} marchi che ci richiedete di più",
-      "kodikoi_se_apothema_episimi_antiprosopeysi": "{n} codici {name} disponibili. Prodotti e ricambi originali, consegna in 24-48 ore."
+      "kodikoi_se_apothema_episimi_antiprosopeysi": "{n} codici {name} disponibili. Prodotti e ricambi originali, consegna in 24-48 ore, negozio al Pireo dal 1978.",
+      "meta_titlos": "Utensili {name} in Grecia · {n} codici"
     }
   },
   "blog": {
@@ -838,7 +839,8 @@
       "erotisi_gia_kati_apo_to": "Hai una domanda su qualcosa dell'articolo? Risponde una persona.",
       "ola_ta_arthra": "Tutti gli articoli",
       "anagnosi": "{readingMinutes}′ di lettura",
-      "perigrafi_odigoi_dokimes_kai_technika": "Guide, test e articoli tecnici per utensili professionali."
+      "perigrafi_odigoi_dokimes_kai_technika": "Guide, test e articoli tecnici per utensili professionali.",
+      "ypografi": "Dimitris Kolleris, titolare"
     }
   },
   "account": {
@@ -1229,13 +1231,14 @@
       "ta_toy_katalogoy": "Il {topShare}% del catalogo",
       "kai_oi_ypoloipes": "E i restanti {n}",
       "akomi": "+ {remaining} altri",
-      "kodikoi_se_ypokatigories_amesi_diathesimotita": "{productCount} codici in {childCount} sottocategorie. Disponibilità immediata, consegna 24-48 ore.",
+      "kodikoi_se_ypokatigories_amesi_diathesimotita": "{childCount, plural, =0 {{productCount} codici.} one {{productCount} codici in 1 sottocategoria.} other {{productCount} codici in {childCount} sottocategorie.}} Disponibilità immediata, consegna 24-48 ore.",
       "titlos_katalogos": "Catalogo",
       "perigrafi_oles_oi_katigories_ergaleion": "Tutte le categorie di utensili — 23 categorie, 467 sottocategorie, con numerosi codici a ogni livello.",
       "ola_ta_proionta": "Tutti i prodotti",
       "olos_o_katalogos_se_mia_lista": "L'intero catalogo in un unico elenco, con filtri per marca, categoria, prezzo e disponibilità.",
       "kodikoi_filtrarete_aristera": "articoli. Filtra la lista o restringi per categoria.",
-      "prosfores": "Offerte"
+      "prosfores": "Offerte",
+      "meta_titlos": "{name} · {productCount} codici"
     }
   },
   "kalathi": {
@@ -1322,8 +1325,9 @@
       "peiraias_apo_to": "Pireo · dal {FOUNDED}",
       "apo_to_mechri_simera": "Dal {FOUNDED} a oggi",
       "titlos_i_etaireia": "L'azienda",
-      "perigrafi_46_chronia_sta_viomichanika": "{years} anni negli utensili industriali. Guarda i numeri del nostro magazzino in diretta — codici, stock, tonnellate sugli scaffali.",
-      "synopsi": "Dal {founded} Kolleris fornisce utensili professionali a compagnie di navigazione, fabbriche e officine dal Pireo. Oggi ha {products} codici online, {inStock} dei quali disponibili subito, e {brands} marchi con prodotti attivi. Consegna in tutta la Grecia in 24-48 ore."
+      "synopsi": "Dal {founded} Kolleris fornisce utensili professionali a compagnie di navigazione, fabbriche e officine dal Pireo. Oggi ha {products} codici online, {inStock} dei quali disponibili subito, e {brands} marchi con prodotti attivi. Consegna in tutta la Grecia in 24-48 ore.",
+      "meta_titlos": "Chi siamo · Utensili al Pireo dal 1978",
+      "meta_perigrafi": "{years} anni negli utensili professionali. Riforniamo navi, fabbriche e officine dal Pireo. Guarda codici e disponibilità in diretta."
     }
   },
   "epikoinonia": {
