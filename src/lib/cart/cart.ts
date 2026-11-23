@@ -8,8 +8,8 @@ import { grossAmount, netAmount } from "@/lib/format";
 import { discountedNet, offerBadgeFor } from "@/lib/offers/badges";
 import { type ParcelItem } from "@/lib/shipping/acs-tariff";
 import { quoteLivePostage } from "@/lib/shipping/acs-live";
+import { getFreeShippingThresholdNet } from "@/lib/cart/free-shipping";
 import {
-  FREE_SHIPPING_THRESHOLD_NET,
   PAYMENT_METHODS,
   SHIPPING_METHODS,
   type CartLineView,
@@ -224,6 +224,10 @@ export const getCart = cache(async (
  * VAT is summed per line, not applied once to the subtotal — lines can carry
  * different rates (24 / 13 / 6), and a single blended multiplier would be
  * quietly wrong for any mixed basket.
+ *
+ * The free-shipping threshold is read here, from the admin setting, rather than
+ * passed in: the basket render and order placement both come through this
+ * function, so they cannot be handed two different thresholds.
  */
 export async function computeTotals(
   lines: CartLineView[],
@@ -241,7 +245,8 @@ export async function computeTotals(
   }, 0);
 
   const shipping = SHIPPING_METHODS.find((m) => m.id === shippingMethodId)!;
-  const freeShippingReached = subtotalNet >= FREE_SHIPPING_THRESHOLD_NET;
+  const freeShippingThresholdNet = await getFreeShippingThresholdNet();
+  const freeShippingReached = subtotalNet >= freeShippingThresholdNet;
   const payment = PAYMENT_METHODS.find((m) => m.id === paymentMethodId)!;
 
   /*
@@ -300,7 +305,8 @@ export async function computeTotals(
     paymentFeeGross: round(paymentFeeGross),
     vatAmount: round(totalGross - totalNet),
     totalGross,
-    freeShippingRemaining: Math.max(0, round(FREE_SHIPPING_THRESHOLD_NET - subtotalNet)),
+    freeShippingThresholdNet,
+    freeShippingRemaining: Math.max(0, round(freeShippingThresholdNet - subtotalNet)),
     freeShippingReached,
   };
 }
@@ -401,6 +407,7 @@ export const getMiniCart = cache(
       itemCount: cart.totals.itemCount,
       subtotalNet: cart.totals.subtotalNet,
       subtotalGross: cart.totals.subtotalGross,
+      freeShippingThresholdNet: cart.totals.freeShippingThresholdNet,
       freeShippingRemaining: cart.totals.freeShippingRemaining,
       freeShippingReached: cart.totals.freeShippingReached,
     };

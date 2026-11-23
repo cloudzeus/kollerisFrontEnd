@@ -5,7 +5,7 @@ import { useLocale } from "next-intl";
 import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "@/i18n/navigation";
-import { FREE_SHIPPING_THRESHOLD_NET, type MiniCartSummary } from "@/lib/cart/options";
+import { freeShippingProgress, type MiniCartSummary } from "@/lib/cart/options";
 import { formatMoney } from "@/lib/format";
 import { upGreek } from "@/lib/greek";
 
@@ -65,7 +65,7 @@ export function MiniCart({
 
   const count = cart?.unitCount ?? 0;
   const progress = cart
-    ? Math.min(100, Math.round((cart.subtotalNet / FREE_SHIPPING_THRESHOLD_NET) * 100))
+    ? freeShippingProgress(cart.subtotalNet, cart.freeShippingThresholdNet)
     : 0;
 
   return (

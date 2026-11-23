@@ -6,8 +6,8 @@ import { useTransition } from "react";
 import { Link } from "@/i18n/navigation";
 import { applyCoupon, setCartOptions } from "@/lib/cart/actions";
 import {
-  FREE_SHIPPING_THRESHOLD_NET,
   PAYMENT_METHODS,
+  freeShippingProgress,
   SHIPPING_METHODS,
   type CartTotals,
   type PaymentMethodId,
@@ -47,10 +47,7 @@ export function CartSummaryPanel({
     });
   };
 
-  const progress = Math.min(
-    100,
-    Math.round((totals.subtotalNet / FREE_SHIPPING_THRESHOLD_NET) * 100),
-  );
+  const progress = freeShippingProgress(totals.subtotalNet, totals.freeShippingThresholdNet);
 
   // "Επί πιστώσει" is only offered to partner accounts (spec §5).
   const payments = PAYMENT_METHODS.filter((m) => !m.partnerOnly || isPartner);

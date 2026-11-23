@@ -1,5 +1,4 @@
 import { grossAmount } from "@/lib/format";
-import { FREE_SHIPPING_THRESHOLD_NET } from "@/lib/cart/options";
 import type { FaqPair } from "@/lib/seo/product-faq";
 import type { PlpFacets } from "@/lib/catalog/plp-options";
 
@@ -63,6 +62,8 @@ export type CategoryCopyInput = {
   name: string;
   total: number;
   facets: PlpFacets;
+  /** Από τη ρύθμιση `shop.freeShippingNet` — `getFreeShippingThresholdNet`. */
+  freeShippingThresholdNet: number;
 };
 
 /**
@@ -126,7 +127,7 @@ export function categoryIntro(input: CategoryCopyInput): string | null {
   }
 
   parts.push(
-    `Τα μεταφορικά είναι δωρεάν για παραγγελίες άνω των ${FREE_SHIPPING_THRESHOLD_NET} € (καθαρή αξία).`,
+    `Τα μεταφορικά είναι δωρεάν για παραγγελίες άνω των ${input.freeShippingThresholdNet} € (καθαρή αξία).`,
   );
 
   return parts.join(" ");
@@ -175,7 +176,7 @@ export function categoryFaq(input: CategoryCopyInput): FaqPair[] {
       q: `Πόσο κοστίζουν τα προϊόντα στην κατηγορία «${name}»;`,
       a:
         `${price.replace(/\.$/, "")}, ανάλογα με τη μάρκα και τα χαρακτηριστικά. ` +
-        `Τα μεταφορικά είναι δωρεάν άνω των ${FREE_SHIPPING_THRESHOLD_NET} € καθαρής αξίας. ` +
+        `Τα μεταφορικά είναι δωρεάν άνω των ${input.freeShippingThresholdNet} € καθαρής αξίας. ` +
         `Οι εταιρικοί πελάτες έχουν χονδρική τιμολόγηση μετά την έγκριση του λογαριασμού τους.`,
     });
   }

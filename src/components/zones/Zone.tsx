@@ -7,7 +7,7 @@ import { BannerRenderer } from "@/components/banners/BannerRenderer";
 import { WidgetRenderer, type WidgetContext } from "@/components/zones/WidgetRenderer";
 import type { Locale } from "@/i18n/routing";
 import { getCatalogueStats } from "@/lib/catalog/queries";
-import { FREE_SHIPPING_THRESHOLD_NET } from "@/lib/cart/options";
+import { getFreeShippingThresholdNet } from "@/lib/cart/free-shipping";
 
 /**
  * Renders one zone.
@@ -54,12 +54,15 @@ export async function zoneHasContent(id: string): Promise<boolean> {
  * μία — και μόνο αν η ζώνη έχει περιεχόμενο να δείξει.
  */
 async function defaultContext(locale: Locale): Promise<WidgetContext> {
-  const stats = await getCatalogueStats();
+  const [stats, freeShippingNet] = await Promise.all([
+    getCatalogueStats(),
+    getFreeShippingThresholdNet(),
+  ]);
   return {
     products: stats.products.toLocaleString(locale),
     brands: String(stats.brands),
     categories: String(stats.categories),
-    freeShipping: `${FREE_SHIPPING_THRESHOLD_NET}\u00A0€`,
+    freeShipping: `${freeShippingNet}\u00A0€`,
   };
 }
 

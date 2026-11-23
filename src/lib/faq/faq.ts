@@ -3,7 +3,7 @@ import { cache } from "react";
 import { getTranslations } from "next-intl/server";
 import { prisma } from "@/lib/prisma";
 import type { Locale } from "@/i18n/routing";
-import { FREE_SHIPPING_THRESHOLD_NET } from "@/lib/cart/options";
+import { getFreeShippingThresholdNet } from "@/lib/cart/free-shipping";
 import { ZONES } from "@/lib/shipping/acs-tariff";
 import { DEFAULT_VAT_RATE, formatMoney } from "@/lib/format";
 import { searchKey } from "@/lib/greek";
@@ -13,7 +13,7 @@ import type { FaqEntry, FaqSection } from "@/lib/faq/faq-types";
  * The FAQ.
  *
  * Every number in an answer is INTERPOLATED from the constant the rest of the
- * site uses — the free-shipping threshold from `cart/options` and
+ * site uses — the free-shipping threshold from the admin setting and
  * the delivery windows from the ACS tariff engine, the catalogue size from the
  * database. A FAQ is the first thing to go stale in a shop, and it goes stale
  * silently: nobody re-reads it when the threshold moves from 150 to 200, and
@@ -25,7 +25,7 @@ import type { FaqEntry, FaqSection } from "@/lib/faq/faq-types";
  */
 
 export const getFaq = cache(async (locale: Locale): Promise<FaqSection[]> => {
-  const [products, inStock, brands] = await Promise.all([
+  const [products, inStock, brands, freeShippingNet] = await Promise.all([
     prisma.product.count({ where: { isActive: true } }),
     prisma.product.count({ where: { isActive: true, inStock: true } }),
     prisma.product.findMany({
@@ -33,6 +33,7 @@ export const getFaq = cache(async (locale: Locale): Promise<FaqSection[]> => {
       distinct: ["mtrmark"],
       select: { mtrmark: true },
     }),
+    getFreeShippingThresholdNet(),
   ]);
 
   const n = (value: number) => value.toLocaleString(locale);
@@ -69,7 +70,7 @@ export const getFaq = cache(async (locale: Locale): Promise<FaqSection[]> => {
       entries: [
         {
           q: t("erotisi_poso_kostizei_i_apostoli"),
-          a: t("apantisi_ypologizetai_apo_to_chreosimo_varos_kai", { formatMoneyFREE_SHIPPING_THRESHOLD_NET: formatMoney(FREE_SHIPPING_THRESHOLD_NET, locale) }),
+          a: t("apantisi_ypologizetai_apo_to_chreosimo_varos_kai", { formatMoneyFREE_SHIPPING_THRESHOLD_NET: formatMoney(freeShippingNet, locale) }),
         },
         {
           q: t("erotisi_pote_tha_ftasei"),

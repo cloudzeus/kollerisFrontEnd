@@ -17,6 +17,7 @@ import { QuickViewProvider } from "@/components/product/QuickViewProvider";
 import { Link } from "@/i18n/navigation";
 import type { Locale } from "@/i18n/routing";
 import { getMiniCart } from "@/lib/cart/cart";
+import { getFreeShippingThresholdNet } from "@/lib/cart/free-shipping";
 import {
   COMPARE_MAX,
   getCompareSelection,
@@ -107,6 +108,7 @@ export default async function CategoryPage({
     miniCart,
     compareSelection,
     compareTray,
+    freeShippingThresholdNet,
   ] = await Promise.all([
     getCategory(kathgoria),
     getPlpData(plpParams, locale),
@@ -117,6 +119,7 @@ export default async function CategoryPage({
     getMiniCart(locale),
     getCompareSelection(),
     getCompareTray(locale),
+    getFreeShippingThresholdNet(),
   ]);
 
   // An unknown slug is a 404, not an empty grid — otherwise every typo renders
@@ -182,7 +185,7 @@ export default async function CategoryPage({
    * κατηγορίας δεν είναι άλλη κατηγορία — ίδιο κείμενο σε πέντε URL είναι
    * ακριβώς το διπλότυπο περιεχόμενο που το canonical προσπαθεί να αποφύγει.
    */
-  const copyInput = { name, total: data.total, facets: data.facets };
+  const copyInput = { name, total: data.total, facets: data.facets, freeShippingThresholdNet };
   const intro =
     locale === "el" && data.page === 1 ? categoryIntro(copyInput) : null;
   const faq = locale === "el" && data.page === 1 ? categoryFaq(copyInput) : [];

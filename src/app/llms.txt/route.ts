@@ -1,6 +1,6 @@
 import { siteOrigin } from "@/lib/seo/urls";
 import { SHOP } from "@/lib/seo/structured-data";
-import { FREE_SHIPPING_THRESHOLD_NET } from "@/lib/cart/options";
+import { getFreeShippingThresholdNet } from "@/lib/cart/free-shipping";
 import { STOCK_HOLD_HOURS } from "@/lib/orders/hold";
 
 /**
@@ -25,12 +25,18 @@ import { STOCK_HOLD_HOURS } from "@/lib/orders/hold";
  * Every number is imported, not typed. A threshold written twice is a threshold
  * that will disagree with itself the first time it changes — and here the
  * disagreement would be a public promise the checkout refuses to keep.
+ *
+ * Built per request, not at deploy time: the free-shipping threshold is an
+ * admin setting read from a database the build container cannot reach (same
+ * reason as `sitemap.ts`). The Cache-Control header still spares the server
+ * repeat reads, and is an hour so a changed threshold does not linger for a day.
  */
 export const runtime = "nodejs";
-export const revalidate = 86400;
+export const dynamic = "force-dynamic";
 
 export async function GET() {
   const origin = siteOrigin();
+  const freeShippingNet = await getFreeShippingThresholdNet();
 
   const body = `# Kolleris
 
@@ -78,7 +84,7 @@ Currency: EUR. All displayed prices include Greek VAT and exclude shipping.
 Attica, one to two working days on the mainland, two to three to the islands.
 Orders placed before 15:00 on a working day ship the same day.
 
-**How much is shipping?** Free over ${FREE_SHIPPING_THRESHOLD_NET} EUR net.
+**How much is shipping?** Free over ${freeShippingNet} EUR net.
 Below that it is charged by weight and destination and shown before payment.
 ACS Express (delivery by 12:00 next day) is priced higher and is never free.
 Collection from the Piraeus shop is always free and ready in about two hours.
@@ -117,7 +123,7 @@ parallel-import one.
   return new Response(body, {
     headers: {
       "Content-Type": "text/plain; charset=utf-8",
-      "Cache-Control": "public, max-age=86400",
+      "Cache-Control": "public, max-age=3600",
     },
   });
 }

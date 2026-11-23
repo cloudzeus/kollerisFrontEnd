@@ -27,6 +27,7 @@ import { QuickViewProvider } from "@/components/product/QuickViewProvider";
 import { Link } from "@/i18n/navigation";
 import type { Locale } from "@/i18n/routing";
 import { getMiniCart } from "@/lib/cart/cart";
+import { getFreeShippingThresholdNet } from "@/lib/cart/free-shipping";
 import { getProductBySlug, getRelatedProducts } from "@/lib/catalog/pdp";
 import {
   getCatalogueStats,
@@ -91,7 +92,7 @@ export default async function ProductPage({ params }: PageProps) {
   const product = await getProductBySlug(slug, locale);
   if (!product) notFound();
 
-  const [related, menuTree, brands, stats, rootCategories, miniCart] =
+  const [related, menuTree, brands, stats, rootCategories, miniCart, freeShippingThresholdNet] =
     await Promise.all([
       // Twelve, not five: the rail reaches the rest with its arrows.
       getRelatedProducts(product.mtrl, locale, 12),
@@ -100,6 +101,7 @@ export default async function ProductPage({ params }: PageProps) {
       getCatalogueStats(),
       getRootCategories(locale),
       getMiniCart(locale),
+      getFreeShippingThresholdNet(),
     ]);
 
   const ctx = { vatRate: product.vatRate };
@@ -277,7 +279,7 @@ export default async function ProductPage({ params }: PageProps) {
              * συγκρίνει καταστήματα διαβάζει την απουσία ως άγνωστη πολιτική,
              * όχι ως την προβλεπόμενη.
              */
-            shippingDetails: shippingDetails(locale),
+            shippingDetails: shippingDetails(locale, freeShippingThresholdNet),
             hasMerchantReturnPolicy: returnPolicy(),
           }
         : undefined,
@@ -343,7 +345,7 @@ export default async function ProductPage({ params }: PageProps) {
               ? grossAmount(product.priceNet, ctx)
               : null,
           specs: product.specs,
-        })
+        }, freeShippingThresholdNet)
       : [];
   const faqLd = faqJsonLd(faq);
 

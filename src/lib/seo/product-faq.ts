@@ -1,4 +1,3 @@
-import { FREE_SHIPPING_THRESHOLD_NET } from "@/lib/cart/options";
 
 /**
  * Οι ερωτήσεις που ρωτάει κάποιος πριν αγοράσει ένα εργαλείο — απαντημένες από
@@ -83,7 +82,7 @@ function guaranteeText(months: number): string {
   return `${months} μήνες`;
 }
 
-export function productFaq(product: FaqProduct): FaqPair[] {
+export function productFaq(product: FaqProduct, freeShippingThresholdNet: number): FaqPair[] {
   const pairs: FaqPair[] = [];
   const label = askLabel(product);
 
@@ -114,7 +113,7 @@ export function productFaq(product: FaqProduct): FaqPair[] {
       q: `Πόσο κοστίζει το ${label};`,
       a:
         `Η τιμή είναι ${money(product.priceGross)} με ΦΠΑ. ` +
-        `Τα μεταφορικά είναι δωρεάν για παραγγελίες άνω των ${FREE_SHIPPING_THRESHOLD_NET} € (καθαρή αξία), ` +
+        `Τα μεταφορικά είναι δωρεάν για παραγγελίες άνω των ${freeShippingThresholdNet} € (καθαρή αξία), ` +
         `και η παραλαβή από το κατάστημα στον Πειραιά είναι πάντα χωρίς χρέωση.`,
     });
   }

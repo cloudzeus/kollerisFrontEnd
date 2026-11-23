@@ -18,7 +18,7 @@ import { getMiniCart } from "@/lib/cart/cart";
 import { getSection } from "@/lib/content/content";
 import { getNewestListedProduct } from "@/lib/catalog/editorial";
 import { Zone, zoneHasContent } from "@/components/zones/Zone";
-import { FREE_SHIPPING_THRESHOLD_NET } from "@/lib/cart/options";
+import { getFreeShippingThresholdNet } from "@/lib/cart/free-shipping";
 import {
   getCatalogueStats,
   getFeaturedProducts,
@@ -66,6 +66,7 @@ export default async function HomePage({
     aboutCopy,
     reviewsCopy,
     newest,
+    freeShippingNet,
   ] = await Promise.all([
     getRootCategories(locale),
     getMenuTree(locale),
@@ -79,6 +80,7 @@ export default async function HomePage({
     getSection("about", locale),
     getSection("reviews", locale),
     getNewestListedProduct(locale),
+    getFreeShippingThresholdNet(),
   ]);
 
   /*
@@ -98,7 +100,7 @@ export default async function HomePage({
     products: stats.products.toLocaleString(locale),
     brands: String(stats.brands),
     categories: String(stats.categories),
-    freeShipping: `${FREE_SHIPPING_THRESHOLD_NET}\u00A0€`,
+    freeShipping: `${freeShippingNet}\u00A0€`,
   };
 
   /*

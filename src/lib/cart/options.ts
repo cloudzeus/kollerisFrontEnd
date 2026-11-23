@@ -7,8 +7,22 @@
  * `next/headers` into the browser bundle.
  */
 
-/** Free-shipping threshold on the NET subtotal. Moves to `SiteSetting` in Phase 3. */
-export const FREE_SHIPPING_THRESHOLD_NET = 150;
+/**
+ * Free-shipping threshold on the NET subtotal, when the admin setting
+ * `shop.freeShippingNet` is unset or unreadable.
+ *
+ * Only a fallback. The value in force is read on the server by
+ * `getFreeShippingThresholdNet` (`cart/free-shipping`) and travels to the
+ * browser inside `CartTotals` / `MiniCartSummary` — a client component that
+ * imported this constant would show 150 while checkout charged by the setting.
+ */
+export const DEFAULT_FREE_SHIPPING_THRESHOLD_NET = 150;
+
+/** Percentage towards free shipping, 0–100. A zero threshold is always reached. */
+export function freeShippingProgress(subtotalNet: number, thresholdNet: number): number {
+  if (thresholdNet <= 0) return 100;
+  return Math.min(100, Math.round((subtotalNet / thresholdNet) * 100));
+}
 
 /**
  * Shipping and payment options.
@@ -137,6 +151,8 @@ export type CartTotals = {
   paymentFeeGross: number;
   vatAmount: number;
   totalGross: number;
+  /** The threshold these totals were computed against — the setting, not a constant. */
+  freeShippingThresholdNet: number;
   freeShippingRemaining: number;
   freeShippingReached: boolean;
 };
@@ -177,6 +193,8 @@ export type MiniCartSummary = {
   subtotalNet: number;
   /** Goods only — excludes shipping, which is not chosen yet at this point. */
   subtotalGross: number;
+  /** The threshold these totals were computed against — the setting, not a constant. */
+  freeShippingThresholdNet: number;
   freeShippingRemaining: number;
   freeShippingReached: boolean;
 };
