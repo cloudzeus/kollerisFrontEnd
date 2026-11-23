@@ -1,5 +1,6 @@
 import createNextIntlPlugin from "next-intl/plugin";
 import type { NextConfig } from "next";
+import { unprefixedToDefaultLocale } from "./src/i18n/unprefixed-rewrite";
 
 const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 
@@ -44,6 +45,11 @@ const nextConfig: NextConfig = {
     ],
   },
   serverExternalPackages: ["@node-rs/argon2"],
+  // Paths the proxy skips (any with a dot) must not reach `[locale]` with a
+  // made-up locale; see `unprefixed-rewrite.ts`.
+  async rewrites() {
+    return { beforeFiles: [], afterFiles: [unprefixedToDefaultLocale], fallback: [] };
+  },
 };
 
 export default withNextIntl(nextConfig);
