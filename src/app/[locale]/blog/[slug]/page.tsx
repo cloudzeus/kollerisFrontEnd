@@ -1,3 +1,4 @@
+import { pageMeta } from "@/lib/seo/urls";
 import { getTranslations } from "next-intl/server";
 import type { Metadata } from "next";
 import Image from "next/image";
@@ -31,15 +32,25 @@ export async function generateMetadata({
   try {
     const post = await getBlogPost(slug, locale);
     if (!post) return {};
+    /* Το canonical ΤΟΥ ΑΡΘΡΟΥ. Χωρίς δικό του `alternates` η σελίδα κληρονομούσε
+       το canonical της αρχικής, άρα το Google έβλεπε κάθε άρθρο ως αντίγραφο
+       του kolleris.com και δεν το καταχωρούσε: 12 άρθρα, 0 εμφανίσεις. */
+    const meta = pageMeta({
+      path: `/blog/${slug}`,
+      locale,
+      title: post.title,
+      description: post.shortDescription ?? post.title,
+      image: post.image?.url,
+      type: "article",
+    });
     return {
+      ...meta,
       title: post.title,
       description: post.shortDescription ?? undefined,
       openGraph: {
-        title: post.title,
-        type: "article",
+        ...meta.openGraph,
         publishedTime: post.publishedAt,
         modifiedTime: post.updatedAt,
-        images: post.image ? [post.image.url] : undefined,
       },
     };
   } catch {

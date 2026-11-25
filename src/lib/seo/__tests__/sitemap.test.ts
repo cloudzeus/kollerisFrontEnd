@@ -20,6 +20,13 @@ describe("sitemap lastmod", () => {
     for (const entry of statics) expect(entry).not.toHaveProperty("lastModified");
   });
 
+  it("lists blog articles with their own date, and none when HDCtool gave none", () => {
+    const post = { slug: "tsimpidia-knipex", updatedAt: new Date("2026-11-09T00:00:00Z") };
+    const withPosts = buildSitemap({ products: [], categories: [], brands: [], posts: [post] });
+    expect(withPosts.find((e) => e.url.endsWith("/blog/tsimpidia-knipex"))?.lastModified).toEqual(post.updatedAt);
+    expect(entries.some((e) => e.url.includes("/blog/"))).toBe(false);
+  });
+
   it("is stable across calls", () => {
     expect(buildSitemap({ products: [product], categories: [category], brands: [brand] })).toEqual(
       entries,

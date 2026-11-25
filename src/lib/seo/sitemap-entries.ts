@@ -55,9 +55,12 @@ export function buildSitemap(rows: {
   products: Row[];
   categories: Row[];
   brands: Row[];
+  /** Τα άρθρα του blog, από το HDCtool. Κενό όταν το HDCtool δεν απαντά. */
+  posts?: Row[];
 }): MetadataRoute.Sitemap {
   return [
     ...STATIC_PATHS.map((s) => entry(s.path, undefined, s.priority, s.changeFrequency)),
+    ...(rows.posts ?? []).map((p) => entry(`/blog/${p.slug}`, p.updatedAt, 0.6, "monthly")),
     ...rows.categories.map((c) => entry(`/katalogos/${c.slug}`, c.updatedAt, 0.7, "weekly")),
     ...rows.brands.map((b) => entry(`/brands/${b.slug}`, b.updatedAt, 0.6, "weekly")),
     ...rows.products.map((p) => entry(`/proion/${p.slug}`, p.updatedAt, 0.6, "weekly")),
