@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { prisma } from "@/lib/prisma";
+import { getBlogPosts } from "@/lib/blog/blog";
 import { buildSitemap } from "@/lib/seo/sitemap-entries";
 
 /**
@@ -54,10 +55,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ]);
 
   /*
-   * No blog posts. They are not a table here — the pages read them from
-   * HDCtool, whose endpoints do not exist yet (`src/lib/blog/contract.ts`).
-   * Listing `/blog` itself is right; inventing entries under it is not, and a
-   * sitemap full of 404s is worse than a short one.
+   * Blog posts come from HDCtool, not from a table here. If HDCtool does not
+   * answer, the sitemap goes out without them rather than failing: the 11.000
+   * product URLs matter more than a dozen articles.
    */
-  return buildSitemap({ products, categories, brands });
+  // shortcut: μία σελίδα 100 άρθρων· σελιδοποίηση όταν τα άρθρα περάσουν τα 100.
+  const posts = await getBlogPosts("el", 1, 100)
+    .then((r) => r.posts.map((p) => ({ slug: p.slug, updatedAt: new Date(p.updatedAt) })))
+    .catch(() => []);
+  return buildSitemap({ products, categories, brands, posts });
 }
