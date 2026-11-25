@@ -1,4 +1,5 @@
 import { getTranslations } from "next-intl/server";
+import { ZONES } from "@/lib/shipping/acs-tariff";
 import { pageMeta } from "@/lib/seo/urls";
 import type { Metadata } from "next";
 import Image from "next/image";
@@ -175,7 +176,7 @@ export default async function CompanyPage({
     },
     {
       title: t("feygei_simera"),
-      body: t("paraggelia_prin_tis_15_00"),
+      body: t("paraggelia_prin_tis_15_00", { islands: ZONES.island.etaDays }),
     },
   ];
 
@@ -236,6 +237,7 @@ export default async function CompanyPage({
                   products: proof.products.toLocaleString(locale),
                   inStock: proof.inStock.toLocaleString(locale),
                   brands: stats.brands,
+                  islands: ZONES.island.etaDays,
                 })}
               </p>
               <p className="mt-4 max-w-[600px] text-[length:var(--fs-13-5)] leading-[1.7] text-white/60 lg:text-[length:var(--fs-15)]">

@@ -2,6 +2,8 @@ import { siteOrigin } from "@/lib/seo/urls";
 import { SHOP } from "@/lib/seo/structured-data";
 import { FREE_SHIPPING_THRESHOLD_GROSS, FREE_SHIPPING_THRESHOLD_NET } from "@/lib/cart/options";
 import { STOCK_HOLD_HOURS } from "@/lib/orders/hold";
+import { getCatalogueStats } from "@/lib/catalog/queries";
+import { ZONES } from "@/lib/shipping/acs-tariff";
 
 /**
  * llms.txt — what this site is, for something that reads rather than browses.
@@ -27,17 +29,22 @@ import { STOCK_HOLD_HOURS } from "@/lib/orders/hold";
  * disagreement would be a public promise the checkout refuses to keep.
  */
 export const runtime = "nodejs";
-export const revalidate = 86400;
+// Counts come from the database, which the Docker build cannot reach; getCatalogueStats caches them anyway.
+export const dynamic = "force-dynamic";
 
 export async function GET() {
   const origin = siteOrigin();
+  const stats = await getCatalogueStats();
+  const en = (n: number) => n.toLocaleString("en-US");
+  const eta = (id: keyof typeof ZONES) => ZONES[id].etaDays;
 
   const body = `# Kolleris
 
 > Professional tools and equipment, Piraeus, Greece. Stocking
 > Milwaukee, FACOM, GEDORE, WERA, KNIPEX, BAHCO, FESTOOL and others. Trading
-> since ${SHOP.founded}. Around 5,300 products listed, most in stock for
-> collection within two hours or next-day courier delivery across Greece.
+> since ${SHOP.founded}. ${en(stats.products)} products listed from ${stats.brands} brands,
+> ${en(stats.inStock)} of them in stock for collection within two hours or courier
+> delivery in 24-48 hours to mainland Greece.
 
 Address: ${SHOP.street}, ${SHOP.postcode} ${SHOP.city}, Greece
 Phone: ${SHOP.phone}
@@ -56,8 +63,8 @@ Currency: EUR. All displayed prices include Greek VAT and exclude shipping.
 
 ## Catalogue
 
-- [Categories](${origin}/katalogos): 23 top-level categories.
-- [Brands](${origin}/brands): the brands actually stocked.
+- [Categories](${origin}/katalogos): ${stats.categories} top-level categories.
+- [Brands](${origin}/brands): the ${stats.brands} brands actually stocked.
 - [Offers](${origin}/prosfores): running campaigns.
 - [New arrivals](${origin}/nees-afixeis)
 - [Product feed](${origin}/feeds/google-merchant.xml): the full catalogue as a
@@ -74,8 +81,9 @@ Currency: EUR. All displayed prices include Greek VAT and exclude shipping.
 
 ## Answers
 
-**Do you deliver across Greece?** Yes, with ACS courier — next working day in
-Attica, one to two working days on the mainland, two to three to the islands.
+**Do you deliver across Greece?** Yes, with ACS courier: ${eta("attica")} working day in
+Attica, ${eta("mainland")} working days on the mainland, ${eta("island")} to the islands, ${eta("remote")} to
+remote areas.
 Orders placed before 15:00 on a working day ship the same day.
 
 **How much is shipping?** Free within Greece from ${FREE_SHIPPING_THRESHOLD_NET} EUR excluding VAT (${FREE_SHIPPING_THRESHOLD_GROSS} EUR including 24% VAT).
@@ -113,7 +121,7 @@ manually; partner pricing applies after approval, not automatically.
   return new Response(body, {
     headers: {
       "Content-Type": "text/plain; charset=utf-8",
-      "Cache-Control": "public, max-age=86400",
+      "Cache-Control": "public, max-age=3600",
     },
   });
 }

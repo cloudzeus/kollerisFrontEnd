@@ -1,7 +1,7 @@
 import "server-only";
 import { cache } from "react";
 import { getTranslations } from "next-intl/server";
-import { prisma } from "@/lib/prisma";
+import { getCatalogueStats } from "@/lib/catalog/queries";
 import type { Locale } from "@/i18n/routing";
 import { FREE_SHIPPING_THRESHOLD_NET } from "@/lib/cart/options";
 import { ZONES } from "@/lib/shipping/acs-tariff";
@@ -25,15 +25,8 @@ import type { FaqEntry, FaqSection } from "@/lib/faq/faq-types";
  */
 
 export const getFaq = cache(async (locale: Locale): Promise<FaqSection[]> => {
-  const [products, inStock, brands] = await Promise.all([
-    prisma.product.count({ where: { isActive: true } }),
-    prisma.product.count({ where: { isActive: true, inStock: true } }),
-    prisma.product.findMany({
-      where: { isActive: true, mtrmark: { not: null } },
-      distinct: ["mtrmark"],
-      select: { mtrmark: true },
-    }),
-  ]);
+  // Same counts as the home page, /brands and llms.txt: one definition, or the AI sees 20 brands here and 21 there.
+  const { products, inStock, brands } = await getCatalogueStats();
 
   const n = (value: number) => value.toLocaleString(locale);
   const eta = (id: keyof typeof ZONES) => ZONES[id].etaDays;
@@ -59,7 +52,7 @@ export const getFaq = cache(async (locale: Locale): Promise<FaqSection[]> => {
         },
         {
           q: t("erotisi_den_vrisko_ton_kodiko_poy"),
-          a: t("apantisi_i_anazitisi_dechetai_kodiko_kolleris_kodiko", { products: n(products), brandslength: brands.length }),
+          a: t("apantisi_i_anazitisi_dechetai_kodiko_kolleris_kodiko", { products: n(products), brandslength: brands }),
         },
       ],
     },

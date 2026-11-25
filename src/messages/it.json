@@ -501,7 +501,7 @@
     "UtilityBar": {
       "kodikoi": "codici",
       "paradosi_24_48o_dorean_ano": "Consegna 24-48h · Gratuita oltre 150 € + IVA",
-      "paradosi_24_48o_se_oli": "Consegna 24-48h in tutta la Grecia",
+      "paradosi_24_48o_se_oli": "Consegna 24-48h nella Grecia continentale",
       "dorean_apostoli_ano_ton_150": "Spedizione gratuita oltre 150 € + IVA",
       "t_30_210_411_1355": "Tel. [+30] 210 411 1355",
       "k_mavromichali_4_peiraias": "K. Mavromichali 4, Pireo",
@@ -973,7 +973,7 @@
     "amesi_diathesimotita": "pronta consegna",
     "24_48o": "24-48h",
     "paradosi_se": "Consegna in",
-    "oli_tin_ellada": "tutta la Grecia",
+    "oli_tin_ellada": "Grecia continentale",
     "paraggelnoyme_gia_tria_ploia_o": "Ordiniamo per tre navi. Quello che dicono di avere, lo hanno — e parte in giornata.",
     "d_papadopoylos": "D. Papadopoulos",
     "technikos_dieythyntis_naytiliaki": "DIRETTORE TECNICO · MARITTIMO",
@@ -1292,7 +1292,7 @@
       "gnisio_me_eggyisi": "Originale, con garanzia",
       "episimi_antiprosopeysi_simainei_eggyisi_kataskeyasti": "Prodotti originali con la garanzia del produttore.",
       "feygei_simera": "Parte oggi",
-      "paraggelia_prin_tis_15_00": "Ordine entro le 15:00 parte in giornata. Consegna in 24-48 ore in tutta Italia.",
+      "paraggelia_prin_tis_15_00": "Ordine entro le 15:00 parte in giornata. Consegna in 24-48 ore nella Grecia continentale, {islands} giorni lavorativi per le isole.",
       "archiki": "Home",
       "i_etaireia": "L'azienda",
       "den_sas_zitame_na_mas": "Non vi chiediamo di crederci.",
@@ -1325,7 +1325,7 @@
       "peiraias_apo_to": "Pireo · dal {FOUNDED}",
       "apo_to_mechri_simera": "Dal {FOUNDED} a oggi",
       "titlos_i_etaireia": "L'azienda",
-      "synopsi": "Dal {founded} Kolleris fornisce utensili professionali a compagnie di navigazione, fabbriche e officine dal Pireo. Oggi ha {products} codici online, {inStock} dei quali disponibili subito, e {brands} marchi con prodotti attivi. Consegna in tutta la Grecia in 24-48 ore.",
+      "synopsi": "Dal {founded} Kolleris fornisce utensili professionali a compagnie di navigazione, fabbriche e officine dal Pireo. Oggi ha {products} codici online, {inStock} dei quali disponibili subito, e {brands} marchi con prodotti attivi. Consegna in 24-48 ore nella Grecia continentale e in {islands} giorni lavorativi per le isole.",
       "meta_titlos": "Chi siamo · Utensili al Pireo dal 1978",
       "meta_perigrafi": "{years} anni negli utensili professionali. Riforniamo navi, fabbriche e officine dal Pireo. Guarda codici e disponibilità in diretta."
     }

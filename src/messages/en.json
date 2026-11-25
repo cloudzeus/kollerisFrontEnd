@@ -501,7 +501,7 @@
     "UtilityBar": {
       "kodikoi": "codes",
       "paradosi_24_48o_dorean_ano": "Delivery 24-48h · Free over €150 + VAT",
-      "paradosi_24_48o_se_oli": "Delivery 24-48h across Greece",
+      "paradosi_24_48o_se_oli": "Delivery 24-48h to mainland Greece",
       "dorean_apostoli_ano_ton_150": "Free shipping over €150 + VAT",
       "t_30_210_411_1355": "Tel. [+30] 210 411 1355",
       "k_mavromichali_4_peiraias": "4 K. Mavromichali St, Piraeus",
@@ -973,7 +973,7 @@
     "amesi_diathesimotita": "in stock",
     "24_48o": "24-48h",
     "paradosi_se": "Delivery to",
-    "oli_tin_ellada": "all of Greece",
+    "oli_tin_ellada": "mainland Greece",
     "paraggelnoyme_gia_tria_ploia_o": "We order for three ships. Whatever they say they have, they have — and it ships the same day.",
     "d_papadopoylos": "D. Papadopoulos",
     "technikos_dieythyntis_naytiliaki": "TECHNICAL DIRECTOR · MARITIME",
@@ -1292,7 +1292,7 @@
       "gnisio_me_eggyisi": "Genuine, with warranty",
       "episimi_antiprosopeysi_simainei_eggyisi_kataskeyasti": "Genuine products with the manufacturer's warranty.",
       "feygei_simera": "Ships today",
-      "paraggelia_prin_tis_15_00": "Order before 15:00 ships the same day. Delivery in 24-48 hours nationwide.",
+      "paraggelia_prin_tis_15_00": "Order before 15:00 ships the same day. Delivery in 24-48 hours to mainland Greece, {islands} working days to the islands.",
       "archiki": "Home",
       "i_etaireia": "The company",
       "den_sas_zitame_na_mas": "We don't ask you to believe us.",
@@ -1325,7 +1325,7 @@
       "peiraias_apo_to": "Piraeus · since {FOUNDED}",
       "apo_to_mechri_simera": "From {FOUNDED} to today",
       "titlos_i_etaireia": "The company",
-      "synopsi": "Since {founded}, Kolleris has supplied shipping companies, factories and workshops with professional tools from Piraeus. Today it lists {products} product codes online, {inStock} of them in immediate stock, and {brands} brands with active products. It delivers across Greece in 24-48 hours.",
+      "synopsi": "Since {founded}, Kolleris has supplied shipping companies, factories and workshops with professional tools from Piraeus. Today it lists {products} product codes online, {inStock} of them in immediate stock, and {brands} brands with active products. It delivers in 24-48 hours to mainland Greece and in {islands} working days to the islands.",
       "meta_titlos": "About us · Tools in Piraeus since 1978",
       "meta_perigrafi": "{years} years in professional tools. We supply ships, factories and workshops from Piraeus. See our codes and stock live."
     }

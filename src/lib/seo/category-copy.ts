@@ -1,4 +1,5 @@
 import { grossAmount } from "@/lib/format";
+import { ZONES } from "@/lib/shipping/acs-tariff";
 import { FREE_SHIPPING_THRESHOLD_GROSS, FREE_SHIPPING_THRESHOLD_NET } from "@/lib/cart/options";
 import type { FaqPair } from "@/lib/seo/product-faq";
 import type { PlpFacets } from "@/lib/catalog/plp-options";
@@ -222,7 +223,7 @@ export function brandFaq(input: {
       q: `Πότε θα παραλάβω μια παραγγελία ${name};`,
       a:
         `Ό,τι είναι σε απόθεμα και παραγγελθεί πριν τις 15:00 εργάσιμη αποστέλλεται αυθημερόν ` +
-        `με ACS — παράδοση σε 24-48 ώρες σε όλη την Ελλάδα. Εναλλακτικά μπορείτε να το ` +
+        `με ACS — παράδοση σε 24-48 ώρες στην ηπειρωτική Ελλάδα και σε ${ZONES.island.etaDays} εργάσιμες στα νησιά. Εναλλακτικά μπορείτε να το ` +
         `παραλάβετε από το κατάστημα στον Πειραιά σε περίπου δύο ώρες.`,
     },
   ];
